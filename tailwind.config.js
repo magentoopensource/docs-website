@@ -90,6 +90,9 @@ export default {
                 400: "#f27945",  // Flamingo/400 from Figma
                 500: "#e8652e",  // Darker flamingo
                 600: "#d14d1c",  // Much darker flamingo
+                700: "#b8451a",  // Even darker flamingo
+                800: "#973617",  // Very dark flamingo
+                900: "#7f2814",  // Darkest flamingo
             },
             secondary: {
                 50: "#fee2e2",
@@ -209,6 +212,32 @@ export default {
             octane: "#CA3A31",
             breeze: "#F3C14B",
             pint: "#ffd000",
+            // Lightning Yellow palette from Figma
+            lightningYellow: {
+                50: "#fffef7",
+                100: "#fffaeb",
+                200: "#fff2cc",
+                300: "#ffe599", // Lightning Yellow/300 from Figma
+                400: "#ffd633",
+                500: "#ffcc00", // Lightning Yellow base
+                600: "#e6b800",
+                700: "#cc9900",
+                800: "#b37d00",
+                900: "#996100",
+            },
+            // Sweet Corn palette from Figma
+            sweetCorn: {
+                50: "#fffef7",
+                100: "#fffaeb",
+                200: "#fff2cc",
+                300: "#ffe599",
+                400: "#ffdc66", // Sweet Corn/400 from Figma
+                500: "#ffd333",
+                600: "#e6b800",
+                700: "#cc9900",
+                800: "#b37d00",
+                900: "#996100",
+            },
         },
         fontFamily: {
             sans: ["Montserrat", ...defaultTheme.fontFamily.sans],
