@@ -1,139 +1,113 @@
-{{-- Comprehensive documentation layout from Figma design --}}
-<div class="flex min-h-screen bg-white">
-    {{-- Left Sidebar Navigation --}}
-    <aside class="fixed top-16 left-0 bottom-0 w-[308px] bg-white border-r border-gray-200 overflow-y-auto z-10">
-        <div class="px-6 py-8">
-            {{-- Merchant Onboarding Section --}}
-            <div class="mb-8">
-                <h3 class="text-waterloo-900 font-alegreya font-semibold text-lg leading-6 mb-4">
-                    Merchant onboarding
-                </h3>
-                <nav class="space-y-3">
-                    <a href="#" class="block text-waterloo-900 font-alegreya text-base leading-6 hover:text-flamingo-400 transition-colors">
-                        Getting started
-                    </a>
-                    <a href="#" class="block text-flamingo-400 font-alegreya text-base leading-6 font-medium">
-                        First products
-                    </a>
-                    <a href="#" class="block text-waterloo-900 font-alegreya text-base leading-6 hover:text-flamingo-400 transition-colors">
-                        Catalog basics
-                    </a>
-                    <a href="#" class="block text-waterloo-900 font-alegreya text-base leading-6 hover:text-flamingo-400 transition-colors">
-                        Accepting payments
-                    </a>
-                    <a href="#" class="block text-waterloo-900 font-alegreya text-base leading-6 hover:text-flamingo-400 transition-colors">
-                        Configuring checkout
-                    </a>
-                    <a href="#" class="block text-waterloo-900 font-alegreya text-base leading-6 hover:text-flamingo-400 transition-colors">
-                        Setting up shipping
-                    </a>
-                    <a href="#" class="block text-waterloo-900 font-alegreya text-base leading-6 hover:text-flamingo-400 transition-colors">
-                        Taxes and locations
-                    </a>
-                </nav>
+{{-- New documentation layout matching Figma node-id=61-192 --}}
+<div class="bg-flamingo-50 min-h-screen pt-16">
+    <div class="flex gap-[31px] items-start justify-start px-[279px] py-[21px]">
+        {{-- Left Sidebar Navigation --}}
+        <aside class="flex flex-col gap-[30px] items-start justify-start pr-5 w-[269px]">
+            {{-- Closed Side Menu --}}
+            <div class="flex flex-col gap-2.5 items-start justify-start w-full">
+                <div class="flex flex-row gap-2.5 items-center justify-center pl-2.5 pr-0 py-0 w-full">
+                    <div class="basis-0 grow min-h-px min-w-px font-alegreya text-waterloo-900 text-base leading-6">
+                        Closed Side Menu
+                    </div>
+                    <div class="overflow-clip size-6">
+                        <svg class="w-full h-full text-waterloo-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </div>
+                </div>
             </div>
 
-            {{-- Start Selling Section --}}
-            <div class="mb-8">
-                <h3 class="text-waterloo-900 font-alegreya font-semibold text-lg leading-6 mb-4">
-                    Start selling
-                </h3>
-                <nav class="space-y-3">
-                    <a href="#" class="block text-waterloo-900 font-alegreya text-base leading-6 hover:text-flamingo-400 transition-colors">
-                        Add first products
-                    </a>
-                    <a href="#" class="block text-waterloo-900 font-alegreya text-base leading-6 hover:text-flamingo-400 transition-colors">
-                        Configure payment methods
-                    </a>
-                    <a href="#" class="block text-waterloo-900 font-alegreya text-base leading-6 hover:text-flamingo-400 transition-colors">
-                        Set up shipping options
-                    </a>
-                </nav>
+            {{-- Expanded Side Menu --}}
+            <div class="flex flex-col gap-2.5 items-start justify-start w-full">
+                <div class="flex flex-row gap-2.5 items-center justify-center pl-2.5 pr-0 py-0 w-full">
+                    <div class="basis-0 grow min-h-px min-w-px font-alegreya font-bold text-waterloo-900 text-base leading-6">
+                        Expanded Side Menu
+                    </div>
+                    <div class="rotate-180">
+                        <svg class="w-6 h-6 text-waterloo-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="flex flex-col gap-2 items-start justify-start w-full">
+                    <div class="bg-lightningYellow-500 flex flex-row gap-2.5 items-center justify-start p-2.5 rounded-[5px] w-full">
+                        <div class="font-alegreya text-waterloo-950 text-sm leading-[1.42] whitespace-pre">
+                            Active Side Menu item
+                        </div>
+                    </div>
+                    <div class="flex flex-row gap-2.5 items-center justify-center px-2.5 py-0 w-full">
+                        <div class="basis-0 grow min-h-px min-w-px font-alegreya text-waterloo-900 text-sm leading-[1.42]">
+                            Inactive Side Menu item
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            {{-- Manage Catalog Section --}}
-            <div class="mb-8">
-                <h3 class="text-waterloo-900 font-alegreya font-semibold text-lg leading-6 mb-4">
-                    Manage catalog
-                </h3>
-                <nav class="space-y-3">
-                    <a href="#" class="block text-waterloo-900 font-alegreya text-base leading-6 hover:text-flamingo-400 transition-colors">
-                        Product types
-                    </a>
-                    <a href="#" class="block text-waterloo-900 font-alegreya text-base leading-6 hover:text-flamingo-400 transition-colors">
-                        Categories organization
-                    </a>
-                    <a href="#" class="block text-waterloo-900 font-alegreya text-base leading-6 hover:text-flamingo-400 transition-colors">
-                        Bulk operations
-                    </a>
-                </nav>
+            {{-- Side Menu Item with Icon --}}
+            <div class="flex flex-col gap-2.5 items-center justify-center w-full">
+                <div class="flex flex-row items-center justify-between pl-2.5 pr-0 py-0 w-full">
+                    <div class="basis-0 flex flex-row gap-2.5 grow items-center justify-center min-h-px min-w-px">
+                        <div class="h-[19px] w-4">
+                            <svg class="w-full h-full text-waterloo-900" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+                                <polyline points="9,22 9,12 15,12 15,22"/>
+                            </svg>
+                        </div>
+                        <div class="basis-0 grow min-h-px min-w-px font-alegreya text-waterloo-900 text-base leading-6">
+                            Side Menu item with icon
+                        </div>
+                    </div>
+                    <div class="overflow-clip size-6">
+                        <svg class="w-full h-full text-waterloo-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </div>
+                </div>
             </div>
 
-            {{-- Handle Orders Section --}}
-            <div class="mb-8">
-                <h3 class="text-waterloo-900 font-alegreya font-semibold text-lg leading-6 mb-4">
-                    Handle orders
-                </h3>
-                <nav class="space-y-3">
-                    <a href="#" class="block text-waterloo-900 font-alegreya text-base leading-6 hover:text-flamingo-400 transition-colors">
-                        Order processing
-                    </a>
-                    <a href="#" class="block text-waterloo-900 font-alegreya text-base leading-6 hover:text-flamingo-400 transition-colors">
-                        Fulfillment workflow
-                    </a>
-                    <a href="#" class="block text-waterloo-900 font-alegreya text-base leading-6 hover:text-flamingo-400 transition-colors">
-                        Returns and refunds
-                    </a>
-                </nav>
+            {{-- Always Expanded Side Menu --}}
+            <div class="flex flex-col gap-2.5 items-start justify-start w-full">
+                <div class="flex flex-row gap-2.5 items-center justify-center pl-2.5 pr-0 py-0 w-full">
+                    <div class="basis-0 grow min-h-px min-w-px font-alegreya font-bold text-waterloo-900 text-base leading-6">
+                        Always Expanded Side Menu
+                    </div>
+                </div>
+                <div class="flex flex-col gap-2 items-start justify-start w-full">
+                    <div class="flex flex-row gap-2.5 items-center justify-center px-2.5 py-0 w-full">
+                        <div class="basis-0 grow min-h-px min-w-px font-alegreya text-waterloo-900 text-sm leading-[1.42]">
+                            Inactive Side Menu item
+                        </div>
+                    </div>
+                    <div class="flex flex-row gap-2.5 items-center justify-center px-2.5 py-0 w-full">
+                        <div class="basis-0 grow min-h-px min-w-px font-alegreya text-waterloo-900 text-sm leading-[1.42]">
+                            Inactive Side Menu item
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
-    </aside>
+        </aside>
 
-    {{-- Main Content Area --}}
-    <main class="flex-1 ml-[308px] mr-[308px]">
-        <div class="max-w-4xl mx-auto px-8 py-12">
-            {{-- Main Content --}}
-            <div class="prose prose-lg max-w-none">
+        {{-- Main Content and Right Sidebar --}}
+        <div class="flex flex-row gap-[30px] items-start justify-start">
+            {{-- Main Content Area --}}
+            <main class="flex flex-col gap-8 items-start justify-start w-[670px]">
                 {{ $slot }}
-            </div>
-        </div>
-    </main>
+            </main>
 
-    {{-- Right Sidebar - Page Navigation --}}
-    <aside class="fixed top-16 right-0 bottom-0 w-[308px] bg-white border-l border-gray-200 overflow-y-auto z-10">
-        <div class="px-6 py-8">
-            <h3 class="text-waterloo-900 font-alegreya font-semibold text-lg leading-6 mb-6">
-                On this page
-            </h3>
-            <nav class="space-y-4">
-                <a href="#overview" class="block text-waterloo-900 font-alegreya text-base leading-6 hover:text-flamingo-400 transition-colors">
-                    Overview
-                </a>
-                <a href="#before-you-begin" class="block text-waterloo-900 font-alegreya text-base leading-6 hover:text-flamingo-400 transition-colors">
-                    Before you begin
-                </a>
-                <a href="#create-first-product" class="block text-flamingo-400 font-alegreya text-base leading-6 font-medium">
-                    Create your first product
-                </a>
-                <a href="#product-types" class="block text-waterloo-900 font-alegreya text-base leading-6 hover:text-flamingo-400 transition-colors pl-4">
-                    Product types
-                </a>
-                <a href="#required-fields" class="block text-waterloo-900 font-alegreya text-base leading-6 hover:text-flamingo-400 transition-colors pl-4">
-                    Required fields
-                </a>
-                <a href="#images-media" class="block text-waterloo-900 font-alegreya text-base leading-6 hover:text-flamingo-400 transition-colors pl-4">
-                    Images and media
-                </a>
-                <a href="#pricing-inventory" class="block text-waterloo-900 font-alegreya text-base leading-6 hover:text-flamingo-400 transition-colors">
-                    Pricing and inventory
-                </a>
-                <a href="#seo-optimization" class="block text-waterloo-900 font-alegreya text-base leading-6 hover:text-flamingo-400 transition-colors">
-                    SEO optimization
-                </a>
-                <a href="#next-steps" class="block text-waterloo-900 font-alegreya text-base leading-6 hover:text-flamingo-400 transition-colors">
-                    Next steps
-                </a>
-            </nav>
+            {{-- Right Sidebar - Page Navigation --}}
+            <aside class="flex flex-col gap-[9px] items-start justify-start px-0 py-[13px] w-[170px]">
+                <div class="font-alegreya text-[#45556c] text-sm leading-[1.42] w-full">
+                    On this page
+                </div>
+                <div class="flex flex-col font-alegreya gap-2 items-start justify-start text-[#1d293d] text-sm leading-[1.42] w-full">
+                    <div class="w-full">
+                        What you'll learn
+                    </div>
+                    <div class="w-full">
+                        Before you begin
+                    </div>
+                </div>
+            </aside>
         </div>
-    </aside>
+    </div>
 </div>

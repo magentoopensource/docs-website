@@ -1,40 +1,64 @@
-{{-- Standard Boxout Component --}}
-@props(['type' => 'info'])
+{{-- Figma Boxout Components matching node-id=61-192 --}}
+@props(['type' => 'standard'])
 
-@php
-$classes = [
-    'info' => 'bg-blue-50 border-l-4 border-blue-400',
-    'warning' => 'bg-lightningYellow-300 border-l-4 border-lightningYellow-500',
-    'tip' => 'bg-sweetCorn-400 border-l-4 border-sweetCorn-600',
-    'featured' => 'bg-flamingo-50 border-l-4 border-flamingo-400',
-];
-$typeClass = $classes[$type] ?? $classes['info'];
-@endphp
-
-<div class="mb-8 p-6 rounded-r-lg {{ $typeClass }}">
-    @if($type === 'warning')
-        <div class="flex items-start gap-3">
-            <div class="flex-shrink-0 w-6 h-6 mt-0.5">
-                <svg class="w-full h-full text-orange-600" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
-                </svg>
-            </div>
-            <div class="flex-1">
-                {{ $slot }}
-            </div>
+{{-- Standard Boxout (with border) --}}
+@if($type === 'standard')
+<div class="flex flex-col gap-6 items-center justify-center p-6 rounded-[5px] mb-8 w-full border border-flamingo-200">
+    <div class="flex flex-col gap-6 items-start justify-start w-full">
+        <div class="font-alegreya font-bold text-slate-900 text-2xl leading-[1.333] w-full">
+            This is a standard boxout with a standard heading
         </div>
-    @elseif($type === 'tip')
-        <div class="flex items-start gap-3">
-            <div class="flex-shrink-0 w-6 h-6 mt-0.5">
-                <svg class="w-full h-full text-sweetCorn-700" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
-                </svg>
-            </div>
-            <div class="flex-1">
-                {{ $slot }}
-            </div>
+        <div class="flex flex-col gap-2 items-start justify-start w-full">
+            {{ $slot }}
         </div>
-    @else
-        {{ $slot }}
-    @endif
+    </div>
 </div>
+
+{{-- Featured Boxout (white background with lighter border) --}}
+@elseif($type === 'featured')
+<div class="bg-white flex flex-col gap-6 items-center justify-center p-6 rounded-[5px] mb-8 w-full border border-flamingo-100">
+    <div class="flex flex-col gap-6 items-start justify-start w-full">
+        <div class="font-alegreya font-bold text-slate-900 text-2xl leading-[1.333] w-full">
+            This is a featured boxout with a standard heading
+        </div>
+        <div class="flex flex-col gap-2 items-start justify-start w-full">
+            {{ $slot }}
+        </div>
+    </div>
+</div>
+
+{{-- Tips Boxout (with icon) --}}
+@elseif($type === 'tip')
+<div class="bg-white flex flex-col gap-6 items-center justify-center p-6 rounded-[5px] mb-8 w-full border border-flamingo-100">
+    <div class="flex flex-col gap-6 items-start justify-start w-full">
+        <div class="flex flex-row gap-6 items-center justify-start w-full">
+            <div class="h-7 w-[23px]">
+                <svg class="w-full h-full text-flamingo-400" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2C6.486 2 2 6.486 2 12s4.486 10 10 10 10-4.486 10-10S17.514 2 12 2zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8z"/>
+                    <path d="M11 11h2v6h-2zm0-4h2v2h-2z"/>
+                </svg>
+            </div>
+            <div class="font-alegreya text-waterloo-900 text-base leading-[1.333]">
+                <span class="font-bold">Did you know: </span>
+                <span class="font-medium">this is a tips boxout with an icon</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- Warning Boxout (yellow background) --}}
+@elseif($type === 'warning')
+<div class="bg-lightningYellow-300 flex flex-row gap-6 items-center justify-center p-6 rounded-[5px] mb-8 w-full border border-lightningYellow-600">
+    <div class="h-7 w-[30px]">
+        <svg class="w-full h-full text-sweetCorn-950" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 2L1 21h22L12 2zm0 3.5L19.5 19h-15L12 5.5zM11 16h2v2h-2v-2zm0-6h2v4h-2v-4z"/>
+        </svg>
+    </div>
+    <div class="basis-0 flex flex-col gap-6 grow items-start justify-start min-h-px min-w-px">
+        <div class="font-alegreya font-bold text-sweetCorn-950 text-base leading-[1.333] w-full">
+            This is a warning boxout
+        </div>
+    </div>
+</div>
+
+@endif

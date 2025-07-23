@@ -8,31 +8,72 @@
 
     {{-- New Figma Documentation Layout --}}
     <x-figma-doc-layout>
-        @if (isset($title))
-            <h1 id="introduction" class="text-3xl font-bold mb-8 text-waterloo-900 font-alegreya">
-                {{ $title }}
-                <a name="introduction" class="text-secondary-600"></a>
-            </h1>
-        @endif
-
-        {{-- Enhanced content with Figma styling --}}
-        <div class="figma-docs-content">
-            {!! $content !!}
-            
-            {{-- Edit Page Button --}}
-            <div class="mt-12 pt-8 border-t border-gray-200">
-                <a href="{{ $edit_link }}"
-                    target="_blank"
-                    class="inline-flex items-center justify-center px-6 py-3 text-base font-medium text-white bg-flamingo-400 hover:bg-flamingo-500 transition-all duration-200 rounded-md shadow-sm hover:shadow-md">
-                    <svg fill="currentColor" class="w-4 h-4 mr-2" viewBox="0 0 20 20"
-                        xmlns="http://www.w3.org/2000/svg">
-                        <path
-                            d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z">
-                        </path>
-                    </svg>
-                    Edit this page
-                </a>
+        {{-- Page Heading Section --}}
+        <div class="flex flex-col gap-6 items-start justify-start mb-8 w-full">
+            @if (isset($title))
+                <div class="font-alegreya font-bold text-slate-900 text-4xl leading-[1.1] w-full">
+                    {{ $title }}
+                </div>
+            @endif
+            <div class="font-alegreya font-light text-waterloo-950 text-base leading-6 w-full">
+                Standard paragraph text aliquam parturient viverra phasellus mus dolor nulla in scelerisque nulla elementum morbi eleifend scelerisque vestibulum a blandit elementum ligula a nam phasellus a dui a. Dis proin sem id magna consequat metus magnis vestibulum vel dictum nisi consequat parturient at.
             </div>
+        </div>
+
+        {{-- Example Boxouts --}}
+        <x-figma-boxouts type="standard">
+            <x-figma-boxout-item text="Boxout text example" />
+            <x-figma-boxout-item text="Boxout text example" />
+            <x-figma-boxout-item text="Boxout text example" />
+            <x-figma-boxout-item text="Boxout text example" />
+            <x-figma-boxout-item text="Boxout text example" />
+        </x-figma-boxouts>
+
+        <x-figma-boxouts type="featured">
+            <x-figma-boxout-item text="Boxout text example" />
+            <x-figma-boxout-item text="Boxout text example" />
+            <x-figma-boxout-item text="Boxout text example" />
+            <x-figma-boxout-item text="Boxout text example" />
+            <x-figma-boxout-item text="Boxout text example" />
+        </x-figma-boxouts>
+
+        <x-figma-boxouts type="tip" />
+
+        <x-figma-boxouts type="warning" />
+
+        {{-- Main Content Section --}}
+        <div class="flex flex-col gap-5 items-start justify-start w-full">
+            <div class="font-alegreya font-bold text-slate-900 text-2xl leading-[1.333] w-full">
+                This is a standard heading
+            </div>
+            <div class="flex flex-col gap-2.5 items-end justify-start w-full">
+                {{-- Enhanced content with Figma styling --}}
+                <div class="figma-docs-content w-full">
+                    {!! $content !!}
+                </div>
+                
+                {{-- Image Caption Container --}}
+                <div class="flex flex-row gap-2.5 items-center justify-center pb-1.5 pt-0 px-0 border-b border-flamingo-200">
+                    <div class="font-alegreya text-waterloo-900 text-sm leading-[1.333] text-right">
+                        This is the caption for image
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Edit Page Button --}}
+        <div class="mt-12 pt-8 border-t border-gray-200">
+            <a href="{{ $edit_link }}"
+                target="_blank"
+                class="inline-flex items-center justify-center px-6 py-3 text-base font-medium text-white bg-flamingo-400 hover:bg-flamingo-500 transition-all duration-200 rounded-md shadow-sm hover:shadow-md">
+                <svg fill="currentColor" class="w-4 h-4 mr-2" viewBox="0 0 20 20"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path
+                        d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z">
+                    </path>
+                </svg>
+                Edit this page
+            </a>
         </div>
     </x-figma-doc-layout>
 

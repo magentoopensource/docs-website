@@ -77,18 +77,22 @@ export default {
             },
             // Frame 53 specific colors
             waterloo: {
+                500: "#7b7792", // Waterloo/500 from Figma
+                600: "#6f6a7f", // Waterloo/600 from Figma
+                800: "#504e56", // Waterloo/800 from Figma
                 900: "#434246", // Waterloo/900 from Figma
+                950: "#27262a", // Waterloo/950 from Figma
             },
             blackrock: {
                 900: "#05021e", // Black Rock/900 from Figma
             },
             flamingo: {
-                50: "#fef7f0",   // Light flamingo for backgrounds
-                100: "#fdeee1",  // Very light flamingo
+                50: "#fef5ee",   // Flamingo/50 from Figma
+                100: "#fde7d7",  // Flamingo/100 from Figma
                 200: "#faccae",  // Flamingo/200 from Figma
                 300: "#f5a77a",  // Medium light flamingo 
                 400: "#f27945",  // Flamingo/400 from Figma
-                500: "#e8652e",  // Darker flamingo
+                500: "#ef5924",  // Flamingo/500 from Figma
                 600: "#d14d1c",  // Much darker flamingo
                 700: "#b8451a",  // Even darker flamingo
                 800: "#973617",  // Very dark flamingo
@@ -217,18 +221,18 @@ export default {
                 50: "#fffef7",
                 100: "#fffaeb",
                 200: "#fff2cc",
-                300: "#ffe599", // Lightning Yellow/300 from Figma
+                300: "#fff147", // Lightning Yellow/300 from Figma
                 400: "#ffd633",
-                500: "#ffcc00", // Lightning Yellow base
-                600: "#e6b800",
+                500: "#f2bc02", // Lightning Yellow/500 from Figma
+                600: "#e09900", // Lightning Yellow/600 from Figma
                 700: "#cc9900",
                 800: "#b37d00",
-                900: "#996100",
+                900: "#7c450b", // Lightning Yellow/900 from Figma
             },
             // Sweet Corn palette from Figma
             sweetCorn: {
-                50: "#fffef7",
-                100: "#fffaeb",
+                50: "#fef5ee", // Flamingo/50 from Figma for bg
+                100: "#fde7d7", // Flamingo/100 from Figma
                 200: "#fff2cc",
                 300: "#ffe599",
                 400: "#ffdc66", // Sweet Corn/400 from Figma
@@ -237,6 +241,7 @@ export default {
                 700: "#cc9900",
                 800: "#b37d00",
                 900: "#996100",
+                950: "#6c3d08", // Sweet Corn/950 from Figma
             },
         },
         fontFamily: {
