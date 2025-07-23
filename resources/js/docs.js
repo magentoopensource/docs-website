@@ -6,6 +6,7 @@ wrapHeadingsInAnchors();
 setupNavCurrentLinkHandling();
 replaceBlockquotesWithCalloutsInDocs();
 highlightSupportPolicyTable();
+generateTableOfContents();
 
 function highlightCode() {
     [...document.querySelectorAll('pre code')].forEach(el => {
@@ -173,6 +174,76 @@ function highlightSupportPolicyTable() {
 
 function getCellDate(cell) {
     return Date.parse(cell.innerHTML.replace(/(\d+)(st|nd|rd|th)/, '$1'));
+}
+
+// Generate Table of Contents for KB Pages
+function generateTableOfContents() {
+    const tocContainer = document.getElementById('toc');
+    if (!tocContainer) return;
+
+    const headings = document.querySelectorAll('.docs_main h2, .docs_main h3, .docs_main h4');
+    if (headings.length === 0) {
+        tocContainer.parentElement.style.display = 'none';
+        return;
+    }
+
+    const tocList = document.createElement('ul');
+    tocList.className = 'space-y-1';
+
+    headings.forEach((heading, index) => {
+        // Ensure heading has an id
+        if (!heading.id) {
+            heading.id = `heading-${index}`;
+        }
+
+        const listItem = document.createElement('li');
+        const link = document.createElement('a');
+        
+        link.href = `#${heading.id}`;
+        link.textContent = heading.textContent;
+        link.className = `block py-1 px-2 text-sm text-gray-600 hover:text-primary-600 hover:bg-primary-50 rounded transition-colors duration-200 ${
+            heading.tagName === 'H3' ? 'ml-4' : heading.tagName === 'H4' ? 'ml-8' : ''
+        }`;
+
+        // Add scroll behavior
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const target = document.getElementById(heading.id);
+            if (target) {
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                history.pushState(null, null, `#${heading.id}`);
+            }
+        });
+
+        listItem.appendChild(link);
+        tocList.appendChild(listItem);
+    });
+
+    tocContainer.appendChild(tocList);
+
+    // Highlight current section on scroll
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            const id = entry.target.id;
+            const tocLink = tocContainer.querySelector(`a[href="#${id}"]`);
+            if (tocLink) {
+                if (entry.isIntersecting) {
+                    // Remove active class from all links
+                    tocContainer.querySelectorAll('a').forEach(link => {
+                        link.classList.remove('text-primary-700', 'bg-primary-100', 'font-medium');
+                        link.classList.add('text-gray-600');
+                    });
+                    // Add active class to current link
+                    tocLink.classList.remove('text-gray-600');
+                    tocLink.classList.add('text-primary-700', 'bg-primary-100', 'font-medium');
+                }
+            }
+        });
+    }, {
+        rootMargin: '-20% 0px -70% 0px'
+    });
+
+    headings.forEach(heading => observer.observe(heading));
 }
 
 import { toDarkMode, toLightMode, toSystemMode } from './components/theme';
