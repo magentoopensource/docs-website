@@ -8,20 +8,47 @@ export default {
         extend: {
             fontSize: {
                 "6.5xl": ["4rem", { lineHeight: "1" }],
+                "7xl": ["4.5rem", { lineHeight: "1" }],
+                "8xl": ["6rem", { lineHeight: "1" }],
             },
             maxWidth: {
                 xxs: "16rem",
+                "8xl": "88rem",
+                "9xl": "96rem",
             },
             spacing: {
+                18: "4.5rem",
+                22: "5.5rem",
+                88: "22rem",
+                128: "32rem",
+                144: "36rem",
                 224: "56rem",
+            },
+            borderRadius: {
+                "4xl": "2rem",
+                "5xl": "2.5rem",
             },
             keyframes: {
                 cube: {
                     "50%": { transform: "translateY(1rem)" },
                 },
+                "fade-in": {
+                    "0%": { opacity: "0", transform: "translateY(10px)" },
+                    "100%": { opacity: "1", transform: "translateY(0)" },
+                },
+                "slide-in-right": {
+                    "0%": { opacity: "0", transform: "translateX(20px)" },
+                    "100%": { opacity: "1", transform: "translateX(0)" },
+                },
             },
             animation: {
                 cube: "cube 6s ease-in-out infinite",
+                "fade-in": "fade-in 0.5s ease-out",
+                "slide-in-right": "slide-in-right 0.3s ease-out",
+            },
+            transitionDuration: {
+                "400": "400ms",
+                "600": "600ms",
             },
         },
         boxShadow: {
@@ -35,6 +62,31 @@ export default {
             current: "currentColor",
             black: "#000",
             white: "#fff",
+            // Primary brand colors
+            primary: {
+                50: "#fff7ed",
+                100: "#ffedd5",
+                200: "#fed7aa",
+                300: "#fdba74", 
+                400: "#fb923c",
+                500: "#ff6500", // Main brand orange
+                600: "#e85d04",
+                700: "#d9480f",
+                800: "#8a2e13",
+                900: "#73230d",
+            },
+            secondary: {
+                50: "#fee2e2",
+                100: "#fecaca",
+                200: "#fca5a5",
+                300: "#f87171",
+                400: "#EB4432",
+                500: "#F9322C",
+                600: "#ec0e00", // Main secondary red
+                700: "#ca473f",
+                800: "#981d15",
+                900: "#7f1d1d",
+            },
             gray: {
                 900: "#232323",
                 800: "#222222",
@@ -71,7 +123,7 @@ export default {
                 200: "#fed7aa",
                 300: "#fdba74",
                 400: "#fb923c",
-                500: "#ff6500",
+                500: "#ff6500", // Keep for backward compatibility
                 600: "#e85d04",
                 700: "#d9480f",
                 800: "#8a2e13",
@@ -113,7 +165,32 @@ export default {
         },
         fontFamily: {
             sans: ["Montserrat", ...defaultTheme.fontFamily.sans],
-            mono: ["source-code-pro", ...defaultTheme.fontFamily.mono],
+            mono: ["source-code-pro", "SF Mono", "Monaco", "Inconsolata", "Roboto Mono", ...defaultTheme.fontFamily.mono],
+            display: ["Montserrat", ...defaultTheme.fontFamily.sans],
+        },
+        letterSpacing: {
+            tighter: "-0.05em",
+            tight: "-0.025em",
+            normal: "0",
+            wide: "0.025em",
+            wider: "0.05em",
+            widest: "0.1em",
+        },
+        lineHeight: {
+            3: ".75rem",
+            4: "1rem",
+            5: "1.25rem",
+            6: "1.5rem",
+            7: "1.75rem",
+            8: "2rem",
+            9: "2.25rem",
+            10: "2.5rem",
+            none: "1",
+            tight: "1.25",
+            snug: "1.375",
+            normal: "1.5",
+            relaxed: "1.625",
+            loose: "2",
         },
     },
     plugins: [],
