@@ -3,8 +3,8 @@
 @section('content')
     <x-accessibility.skip-to-content-link/>
     
-    {{-- Frame 53 Header --}}
-    <x-frame53-header />
+    {{-- Frame 54 Header - Enhanced version --}}
+    <x-frame54-header />
     
     <div class="relative overflow-auto bg-white" id="docsScreen">
         <div class="relative lg:flex lg:items-start">

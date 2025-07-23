@@ -1,8 +1,8 @@
 @extends('partials.layout')
 
 @section('content')
-    {{-- Frame 53 Header --}}
-    <x-frame53-header />
+    {{-- Frame 54 Header - Enhanced version --}}
+    <x-frame54-header />
     
     <div class="bg-gradient-to-br from-gray-50 to-white pt-16">
         <!-- Main Content -->

@@ -83,8 +83,13 @@ export default {
                 900: "#05021e", // Black Rock/900 from Figma
             },
             flamingo: {
-                200: "#faccae", // Flamingo/200 from Figma
-                400: "#f27945", // Flamingo/400 from Figma
+                50: "#fef7f0",   // Light flamingo for backgrounds
+                100: "#fdeee1",  // Very light flamingo
+                200: "#faccae",  // Flamingo/200 from Figma
+                300: "#f5a77a",  // Medium light flamingo 
+                400: "#f27945",  // Flamingo/400 from Figma
+                500: "#e8652e",  // Darker flamingo
+                600: "#d14d1c",  // Much darker flamingo
             },
             secondary: {
                 50: "#fee2e2",
