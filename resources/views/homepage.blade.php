@@ -1,22 +1,10 @@
 @extends('partials.layout')
 
 @section('content')
-    <div class="bg-gradient-to-br from-gray-50 to-white">
-        <!-- Header -->
-        <header class="bg-white shadow-sm border-b border-gray-200">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex justify-between items-center py-4">
-                    <div class="flex items-center">
-                        <img class="h-8 w-auto" src="/img/Mage-OSLogoMark.svg" alt="Magento">
-                        <div class="ml-4">
-                            <h1 class="text-xl font-bold text-gray-900">Merchant Documentation</h1>
-                            <p class="text-sm text-gray-600">Your complete guide to Magento 2</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </header>
-
+    {{-- Frame 53 Header --}}
+    <x-frame53-header />
+    
+    <div class="bg-gradient-to-br from-gray-50 to-white pt-16">
         <!-- Main Content -->
         <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <!-- Hero Section -->
@@ -37,8 +25,10 @@
                             <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
                         </svg>
                     </div>
-                    <input type="text" placeholder="Search documentation..."
-                           class="block w-full pl-10 pr-3 py-4 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 text-lg">
+                    <button id="homepage-search" 
+                            class="block w-full pl-10 pr-3 py-4 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-flamingo-400 focus:border-flamingo-400 text-lg text-left">
+                        Search documentation...
+                    </button>
                 </div>
             </div>
 

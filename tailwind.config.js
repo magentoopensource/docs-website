@@ -62,18 +62,29 @@ export default {
             current: "currentColor",
             black: "#000",
             white: "#fff",
-            // Primary brand colors
+            // Primary brand colors (Flamingo from Figma)
             primary: {
-                50: "#fff7ed",
-                100: "#ffedd5",
-                200: "#fed7aa",
+                50: "#fef7f0",
+                100: "#fef1e7",
+                200: "#faccae", // Flamingo/200 from Figma
                 300: "#fdba74", 
-                400: "#fb923c",
-                500: "#ff6500", // Main brand orange
+                400: "#f27945", // Flamingo/400 from Figma
+                500: "#ff6500", // Keep existing for compatibility
                 600: "#e85d04",
                 700: "#d9480f",
                 800: "#8a2e13",
                 900: "#73230d",
+            },
+            // Frame 53 specific colors
+            waterloo: {
+                900: "#434246", // Waterloo/900 from Figma
+            },
+            blackrock: {
+                900: "#05021e", // Black Rock/900 from Figma
+            },
+            flamingo: {
+                200: "#faccae", // Flamingo/200 from Figma
+                400: "#f27945", // Flamingo/400 from Figma
             },
             secondary: {
                 50: "#fee2e2",
@@ -198,6 +209,7 @@ export default {
             sans: ["Montserrat", ...defaultTheme.fontFamily.sans],
             mono: ["source-code-pro", "SF Mono", "Monaco", "Inconsolata", "Roboto Mono", ...defaultTheme.fontFamily.mono],
             display: ["Montserrat", ...defaultTheme.fontFamily.sans],
+            alegreya: ["Alegreya Sans", ...defaultTheme.fontFamily.sans], // Frame 53 font
         },
         letterSpacing: {
             tighter: "-0.05em",
