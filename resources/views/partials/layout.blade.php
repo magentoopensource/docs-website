@@ -65,9 +65,20 @@
     class="w-full h-full font-sans antialiased text-gray-900 language-php bg-white"
 >
 
-@yield('content')
+{{-- Fixed Header from Figma --}}
+@include('partials.header')
+
+{{-- Main content with top padding to accommodate fixed header and max-width constraint --}}
+<main class="">
+    <div class="max-w-[1440px] mx-auto">
+        @yield('content')
+    </div>
+</main>
 
 @include('partials.footer')
+
+{{-- Hidden DocSearch container for Algolia integration --}}
+<div id="docsearch" style="display: none;"></div>
 
 <script>
     var algolia_app_id = '{{ config('algolia.connections.main.id', false) }}';

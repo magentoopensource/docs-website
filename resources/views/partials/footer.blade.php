@@ -44,48 +44,42 @@
     ];
 @endphp
 
-<footer class="relative pt-12 bg-white border-t border-gray-200">
-    <div class="max-w-screen-2xl mx-auto w-full px-8">
+<footer class="relative pt-12 bg-white border-t border-mine-shaft-500">
+    <div class="max-w-[1440px] mx-auto w-full px-8">
         <div>
             <a href="/" class="inline-flex items-center">
-                <img class="h-8 w-8" src="/img/Mage-OSLogoMark.svg" alt="Magento" loading="lazy">
-                <span class="ml-3 text-xl font-bold text-gray-900">Merchant Documentation</span>
+                <svg width="30" height="33" viewBox="0 0 30 33" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M0 4.06492H29.6763V31.8882C29.6763 32.502 29.1713 33 28.5487 33H1.12762C0.505079 33 0 32.502 0 31.8882V4.06492Z" fill="#34323A"/>
+                    <path d="M1.26857 0H28.4078C29.1066 0 29.6763 0.561678 29.6763 1.25075V4.06492H0V1.25075C0 0.561678 0.569682 0 1.26857 0Z" fill="#C9C9C9"/>
+                    <path d="M2.37269 3.0458C2.94031 3.0458 3.40046 2.59211 3.40046 2.03246C3.40046 1.47281 2.94031 1.01913 2.37269 1.01913C1.80506 1.01913 1.34491 1.47281 1.34491 2.03246C1.34491 2.59211 1.80506 3.0458 2.37269 3.0458Z" fill="#848484"/>
+                    <path d="M5.28571 3.0458C5.85334 3.0458 6.31349 2.59211 6.31349 2.03246C6.31349 1.47281 5.85334 1.01913 5.28571 1.01913C4.71809 1.01913 4.25793 1.47281 4.25793 2.03246C4.25793 2.59211 4.71809 3.0458 5.28571 3.0458Z" fill="#848484"/>
+                    <path d="M14.7883 7.46973L4.90405 13.0923V24.349L7.54104 25.8487V14.5978L14.7883 10.4692L22.0415 14.5978V25.8487L24.6785 24.349V13.0923L14.7883 7.46973Z" fill="#F1BC1B"/>
+                    <path d="M16.0862 26.2367L14.7883 26.9779L13.4492 26.2135V14.233L10.178 16.0975V27.3485L13.4492 29.213L14.7883 29.9773L16.0862 29.2362L19.4045 27.3485V16.0975L16.0862 14.2098V26.2367Z" fill="#F1BC1B"/>
+                </svg>
+
+                <span class="ml-3 text-xl font-inter-tight font-bold text-mine-shaft-500">Merchant Documentation</span>
             </a>
         </div>
 
         <div class="mt-6 grid grid-cols-12 md:gap-x-8 gap-y-12 sm:mt-12">
             <div class="col-span-12 lg:col-span-4">
-                <p class="max-w-sm text-xs text-gray-700 sm:text-sm">Your comprehensive guide to managing and growing your Magento 2 store. From setting up your first product to advanced marketing strategies, we provide clear, actionable documentation for merchants of all experience levels.</p>
+                <p class="max-w-sm text-xs font-inter-tight text-mine-shaft-500 sm:text-sm">Your comprehensive guide to managing and growing your Magento 2 store. From setting up your first product to advanced marketing strategies, we provide clear, actionable documentation for merchants of all experience levels.</p>
                 <ul class="mt-6 flex items-center space-x-3">
                     <li>
                         <a href="https://github.com/magento/magento2" class="p-2 md:p-0">
                             <img class="w-6 h-6" src="/img/social/github.min.svg" alt="GitHub" width="24" height="24" loading="lazy">
                         </a>
                     </li>
-                    <li>
-                        <a href="https://community.magento.com/" class="p-2 md:p-0 text-gray-700 hover:text-gray-500">
-                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                            </svg>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="https://marketplace.magento.com/" class="p-2 md:p-0 text-gray-700 hover:text-gray-500">
-                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M21 6.5a1 1 0 0 0-1.8-.6L12 12 4.8 5.9a1 1 0 0 0-1.6 1.2l8 10a1 1 0 0 0 1.6 0l8-10A1 1 0 0 0 21 6.5z"/>
-                            </svg>
-                        </a>
-                    </li>
                 </ul>
             </div>
             @foreach ($links as $column)
                 <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
-                    <span class="uppercase text-gray-900 font-semibold">{{ $column['title'] }}</span>
+                    <span class="uppercase font-inter-tight text-mine-shaft-500 font-semibold">{{ $column['title'] }}</span>
                     <div class="mt-5">
-                        <ul class="space-y-3.5 md:space-y-3 text-gray-700">
+                        <ul class="space-y-3.5 md:space-y-3 font-inter-tight text-mine-shaft-400">
                             @foreach ($column['links'] as $title => $href)
                                 <li>
-                                    <a href="{{ $href }}" class="transition-colors hover:text-gray-900 py-1.5 md:py-1">{{ $title }}</a>
+                                    <a href="{{ $href }}" class="transition-colors hover:text-figma-orange-500 py-1.5 md:py-1">{{ $title }}</a>
                                 </li>
                             @endforeach
                         </ul>
@@ -93,13 +87,13 @@
                 </div>
             @endforeach
         </div>
-        <div class="mt-10 border-t pt-6 pb-16 border-gray-200">
-            <p class="text-xs text-gray-700">
+        <div class="mt-10 border-t pt-6 pb-16 border-mine-shaft-500">
+            <p class="text-xs font-inter-tight text-mine-shaft-500">
                 © {{ now()->format('Y') }} Magento 2 Merchant Documentation
                 Magento® is a registered trademark of Adobe Inc.
             </p>
-            <p class="mt-6 text-xs text-gray-700">
-                This documentation provides guidance for Magento 2 merchants and store owners. For developer documentation, visit the <a href="https://developer.adobe.com/commerce/" class="text-indigo-600 hover:text-indigo-800">official developer documentation</a>.
+            <p class="mt-6 text-xs font-inter-tight text-mine-shaft-500">
+                This documentation provides guidance for Magento 2 merchants and store owners. For developer documentation, visit the <a href="https://developer.adobe.com/commerce/" class="text-figma-orange-700 hover:text-figma-orange-500 transition-colors">official developer documentation</a>.
             </p>
         </div>
     </div>
