@@ -10,6 +10,15 @@ export default {
                 "6.5xl": ["4rem", { lineHeight: "1" }],
                 "7xl": ["4.5rem", { lineHeight: "1" }],
                 "8xl": ["6rem", { lineHeight: "1" }],
+                // Figma design system sizes
+                "6xl": ["60px", { lineHeight: "1" }],     // Type/6xl from Figma
+                "5xl": ["48px", { lineHeight: "1" }],     // Type/5xl from Figma  
+                "3xl": ["30px", { lineHeight: "1.2" }],   // Type/3xl from Figma
+                "xl": ["20px", { lineHeight: "1.4" }],    // Type/xl from Figma
+                "lg": ["18px", { lineHeight: "1.42" }],   // Type/lg from Figma
+                "base": ["16px", { lineHeight: "1.5" }],  // text-base from Figma
+                "sm": ["14px", { lineHeight: "1.42" }],   // text-sm from Figma
+                "xs": ["12px", { lineHeight: "1.333" }],  // text-xs from Figma
             },
             maxWidth: {
                 xxs: "16rem",
@@ -216,6 +225,26 @@ export default {
             octane: "#CA3A31",
             breeze: "#F3C14B",
             pint: "#ffd000",
+            // Figma Design System Colors
+            "mine-shaft": {
+                50: "#f1f1f1",   // Mine Shaft/50 from Figma
+                100: "#d9d9d9",  // Mine Shaft/100 from Figma
+                300: "#818181",  // Mine Shaft/300 from Figma (secondary text)
+                400: "#474747",  // Mine Shaft/400 from Figma
+                500: "#2c2c2c",  // Mine Shaft/500 from Figma (primary text)
+            },
+            "alabaster": {
+                500: "#fafafa",  // Alabaster/500 from Figma (background)
+                600: "#cccccc",  // Alabaster/600 from Figma (borders)
+            },
+            "figma-orange": {
+                500: "#f26423",  // Orange/500 from Figma (accent)
+                700: "#bc3312",  // Orange/700 from Figma (links)
+            },
+            "lightning-yellow": {
+                500: "#f1bc1b",  // Lightning Yellow/500 from Figma (highlights)
+                950: "#442204",  // Lightning Yellow/950 from Figma (text on yellow)
+            },
             // Lightning Yellow palette from Figma
             lightningYellow: {
                 50: "#fffef7",
@@ -245,9 +274,11 @@ export default {
             },
         },
         fontFamily: {
-            sans: ["Montserrat", ...defaultTheme.fontFamily.sans],
+            sans: ["Inter Tight", ...defaultTheme.fontFamily.sans], // Primary Figma typeface
             mono: ["source-code-pro", "SF Mono", "Monaco", "Inconsolata", "Roboto Mono", ...defaultTheme.fontFamily.mono],
-            display: ["Montserrat", ...defaultTheme.fontFamily.sans],
+            display: ["Inter Tight", ...defaultTheme.fontFamily.sans], // Figma typeface
+            "inter-tight": ["Inter Tight", ...defaultTheme.fontFamily.sans], // Explicit Figma font
+            "neue-haas": ["Neue Haas Grotesk Text Pro", ...defaultTheme.fontFamily.sans], // Figma body typeface
             alegreya: ["Alegreya Sans", ...defaultTheme.fontFamily.sans], // Frame 53 font
         },
         letterSpacing: {
