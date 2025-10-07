@@ -143,7 +143,13 @@ class DocsController extends Controller
             $canonical = "docs/" . DEFAULT_VERSION . "/" . $sectionPage;
         }
 
-        return view("docs", [
+        // Use new Figma-designed template for specific pages
+        $viewTemplate = "docs";
+        if ($sectionPage === "products/simple-product") {
+            $viewTemplate = "docs-figma";
+        }
+
+        return view($viewTemplate, [
             "title" => count($title)
                 ? $title->text()
                 : self::DEFAULT_META_TITLE,
@@ -267,6 +273,18 @@ class DocsController extends Controller
             ],
         ];
 
+        // Use new Blade template for start-selling category
+        if ($category === 'start-selling') {
+            return view("category.start-selling", [
+                "title" => $categoryData["title"] . " - Merchant Documentation",
+                "metaTitle" => $categoryData["title"] . " - " . self::DEFAULT_META_TITLE,
+                "metaDescription" => $categoryData["description"],
+                "metaKeywords" => self::DEFAULT_META_KEYWORDS,
+                "canonical" => "category/" . $category,
+            ]);
+        }
+
+        // Fallback to original category view for other categories
         return view("category", [
             "title" => $categoryData["title"] . " - Merchant Documentation",
             "category_title" => $categoryData["title"],
