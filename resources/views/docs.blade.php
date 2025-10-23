@@ -5,44 +5,31 @@
     <div class="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
         <div class="flex gap-8 py-8">
             {{-- Left Sidebar: Category Articles --}}
-            <aside class="hidden lg:block w-64 flex-shrink-0">
-                <div class="sticky top-24">
-                    {{-- Category Header --}}
-                    <div class="mb-6">
-                        <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4">
-                            {{ ucwords(str_replace('-', ' ', $category)) }}
-                        </h3>
-                    </div>
+            <aside class="hidden lg:block w-[280px] flex-shrink-0">
+                <div class="sticky top-24 flex flex-col gap-7">
+                    {{-- Category Section --}}
+                    <div class="flex flex-col gap-2.5">
+                        {{-- Category Header --}}
+                        <div class="flex items-center justify-between px-2.5 py-0">
+                            <h3 class="text-base font-bold leading-normal text-mine-shaft-500 font-inter-tight">
+                                {{ ucwords(str_replace('-', ' ', $category)) }}
+                            </h3>
+                        </div>
 
-                    {{-- Category Articles Navigation --}}
-                    <nav class="space-y-1" aria-label="Category navigation">
-                        @foreach($categoryArticles as $article)
-                            <a
-                                href="/docs/{{ $article['path'] }}"
-                                class="group flex items-start gap-3 px-3 py-2 text-sm rounded-lg transition-colors duration-150
-                                    {{ $article['slug'] === $page ? 'bg-orange-50 text-orange-600 font-medium' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900' }}"
-                            >
-                                <span class="flex-1">{{ $article['title'] }}</span>
-                                @if($article['slug'] === $page)
-                                    <svg class="w-5 h-5 text-orange-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
-                                    </svg>
-                                @endif
-                            </a>
-                        @endforeach
-                    </nav>
-
-                    {{-- View All in Category --}}
-                    <div class="mt-6 pt-6 border-t border-gray-200">
-                        <a
-                            href="/docs/{{ $category }}"
-                            class="flex items-center gap-2 px-3 py-2 text-sm font-medium text-orange-600 hover:text-orange-700 transition-colors"
-                        >
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-                            </svg>
-                            View all in category
-                        </a>
+                        {{-- Category Articles Navigation --}}
+                        <nav class="flex flex-col" aria-label="Category navigation">
+                            @foreach($categoryArticles as $article)
+                                <a
+                                    href="/docs/{{ $article['path'] }}"
+                                    class="flex gap-2.5 items-center px-2.5 py-2.5 transition-colors duration-150
+                                        {{ $article['slug'] === $page ? 'bg-lightning-yellow-500' : 'bg-alabaster-500 hover:bg-gray-100' }}"
+                                >
+                                    <span class="flex-1 text-sm leading-[1.42] text-mine-shaft-500 font-inter-tight">
+                                        {{ $article['title'] }}
+                                    </span>
+                                </a>
+                            @endforeach
+                        </nav>
                     </div>
                 </div>
             </aside>
@@ -92,37 +79,31 @@
 
             {{-- Right Sidebar: Table of Contents --}}
             @if(count($tableOfContents) > 0)
-            <aside class="hidden xl:block w-64 flex-shrink-0">
+            <aside class="hidden xl:block w-auto flex-shrink-0">
                 <div class="sticky top-24">
-                    <div class="mb-4">
-                        <h3 class="text-xs font-semibold text-gray-900 uppercase tracking-wider">
+                    <div class="flex flex-col gap-2 pt-[15px]">
+                        {{-- Header --}}
+                        <h3 class="text-base font-bold leading-normal text-mine-shaft-500 font-inter-tight">
                             On this page
                         </h3>
-                    </div>
 
-                    <nav class="space-y-2" aria-label="Table of contents">
-                        @foreach($tableOfContents as $heading)
-                            <a
-                                href="#{{ $heading['slug'] }}"
-                                class="block text-sm transition-colors duration-150
-                                    {{ $heading['level'] === 2 ? 'font-medium text-gray-700 hover:text-orange-600' : 'pl-4 text-gray-600 hover:text-gray-900' }}"
-                            >
-                                {{ $heading['text'] }}
-                            </a>
-                        @endforeach
-                    </nav>
-
-                    {{-- Back to Top --}}
-                    <div class="mt-8 pt-6 border-t border-gray-200">
-                        <a
-                            href="#"
-                            class="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-orange-600 transition-colors"
-                        >
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/>
-                            </svg>
-                            Back to top
-                        </a>
+                        {{-- TOC Items --}}
+                        <nav class="flex flex-col gap-1 pl-0.5" aria-label="Table of contents">
+                            @foreach($tableOfContents as $heading)
+                                <a
+                                    href="#{{ $heading['slug'] }}"
+                                    class="flex gap-2.5 items-center transition-colors duration-150 hover:text-figma-orange-500"
+                                >
+                                    {{-- Hexagon bullet --}}
+                                    <svg class="w-3 h-3.5 flex-shrink-0" viewBox="0 0 12 14" fill="none">
+                                        <path d="M6 0L11.1962 3.5V10.5L6 14L0.803848 10.5V3.5L6 0Z" fill="#F26423" stroke="#F26423" stroke-width="0.5"/>
+                                    </svg>
+                                    <span class="text-sm leading-[1.42] text-mine-shaft-500 font-inter-tight">
+                                        {{ $heading['text'] }}
+                                    </span>
+                                </a>
+                            @endforeach
+                        </nav>
                     </div>
                 </div>
             </aside>
@@ -181,17 +162,19 @@
 
             {{-- Category Articles --}}
             <div class="mb-8">
-                <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4">
+                <h3 class="text-base font-bold leading-normal text-mine-shaft-500 font-inter-tight mb-4">
                     {{ ucwords(str_replace('-', ' ', $category)) }}
                 </h3>
-                <nav class="space-y-1">
+                <nav class="flex flex-col">
                     @foreach($categoryArticles as $article)
                         <a
                             href="/docs/{{ $article['path'] }}"
-                            class="block px-3 py-2 text-sm rounded-lg transition-colors
-                                {{ $article['slug'] === $page ? 'bg-orange-50 text-orange-600 font-medium' : 'text-gray-700 hover:bg-gray-50' }}"
+                            class="flex gap-2.5 items-center px-2.5 py-2.5 transition-colors
+                                {{ $article['slug'] === $page ? 'bg-lightning-yellow-500' : 'bg-alabaster-500 hover:bg-gray-100' }}"
                         >
-                            {{ $article['title'] }}
+                            <span class="flex-1 text-sm leading-[1.42] text-mine-shaft-500 font-inter-tight">
+                                {{ $article['title'] }}
+                            </span>
                         </a>
                     @endforeach
                 </nav>
@@ -200,18 +183,23 @@
             {{-- Table of Contents --}}
             @if(count($tableOfContents) > 0)
             <div class="pt-8 border-t border-gray-200">
-                <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4">
+                <h3 class="text-base font-bold leading-normal text-mine-shaft-500 font-inter-tight mb-4">
                     On this page
                 </h3>
-                <nav class="space-y-2">
+                <nav class="flex flex-col gap-1">
                     @foreach($tableOfContents as $heading)
                         <a
                             href="#{{ $heading['slug'] }}"
                             @click="mobileNavOpen = false"
-                            class="block text-sm transition-colors
-                                {{ $heading['level'] === 2 ? 'font-medium text-gray-700' : 'pl-4 text-gray-600' }}"
+                            class="flex gap-2.5 items-center transition-colors hover:text-figma-orange-500"
                         >
-                            {{ $heading['text'] }}
+                            {{-- Hexagon bullet --}}
+                            <svg class="w-3 h-3.5 flex-shrink-0" viewBox="0 0 12 14" fill="none">
+                                <path d="M6 0L11.1962 3.5V10.5L6 14L0.803848 10.5V3.5L6 0Z" fill="#F26423" stroke="#F26423" stroke-width="0.5"/>
+                            </svg>
+                            <span class="text-sm leading-[1.42] text-mine-shaft-500 font-inter-tight">
+                                {{ $heading['text'] }}
+                            </span>
                         </a>
                     @endforeach
                 </nav>
