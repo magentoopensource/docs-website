@@ -1,159 +1,139 @@
-@import url("https://fonts.googleapis.com/css2?family=Montserrat&family=Source+Code+Pro:wght@400;600&family=Alegreya+Sans:wght@400;500;600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&family=Montserrat&family=Source+Code+Pro:wght@400;600&family=Alegreya+Sans:wght@400;500;600&display=swap");
 
-.docs_main {
-    /*
-    * Headings
-    */
-
-    /* Modern KB Page Typography */
-    h1,
-    h2,
-    h3,
-    h4,
-    h5,
-    h6 {
-        @apply font-semibold mb-6 leading-tight text-gray-900;
-    }
-
+/**
+ * Base Typography Layer
+ * Single source of truth for all typography styles
+ * Uses Tailwind design tokens from tailwind.config.js
+ */
+@layer base {
+    /* Headings - Using Inter Tight and design system tokens */
     h1 {
-        @apply text-3xl md:text-4xl lg:text-5xl leading-tight font-bold mb-8 text-gray-900 tracking-tight;
+        @apply text-4xl font-bold leading-tight text-mine-shaft-500 mb-6 font-inter-tight scroll-mt-24;
     }
 
     h2 {
-        @apply mt-12 md:mt-16 mb-6 text-2xl md:text-3xl lg:text-4xl font-semibold text-gray-900 leading-tight;
+        @apply text-3xl font-semibold leading-snug text-mine-shaft-500 mt-12 mb-6 font-inter-tight scroll-mt-24;
     }
 
     h3 {
-        @apply mt-10 md:mt-12 mb-4 text-xl md:text-2xl lg:text-3xl font-semibold text-gray-800 leading-snug;
+        @apply text-2xl font-semibold leading-snug text-mine-shaft-500 mt-10 mb-4 font-inter-tight scroll-mt-24;
     }
 
     h4 {
-        @apply mt-8 md:mt-10 mb-4 text-lg md:text-xl font-semibold text-gray-800 leading-snug;
+        @apply text-xl font-semibold leading-snug text-mine-shaft-500 mt-8 mb-4 font-inter-tight scroll-mt-24;
     }
 
     h5 {
-        @apply mt-6 mb-3 text-base md:text-lg font-semibold text-gray-700 leading-normal;
+        @apply text-lg font-semibold leading-normal text-mine-shaft-500 mt-6 mb-3 font-inter-tight scroll-mt-24;
     }
 
     h6 {
-        @apply mt-6 mb-3 text-base font-semibold text-gray-600 leading-normal uppercase tracking-wide;
+        @apply text-base font-semibold leading-normal text-mine-shaft-400 mt-6 mb-3 font-inter-tight uppercase tracking-wide scroll-mt-24;
     }
 
-    /*
-    * Headings Decorations "»"
-    */
-
-    h2,
-    h3,
-    h4 {
-        a:before {
-            content: "»";
-            @apply font-normal absolute text-secondary-600 opacity-60 -mt-1;
-        }
-    }
-
-    h2 {
-        a:before {
-            @apply -ml-6 text-3xl -mt-1.5 md:-mt-0.5;
-        }
-    }
-
-    h3 {
-        a:before {
-            @apply -ml-6 text-3xl -mt-2 md:-mt-1;
-        }
-    }
-
-    h4 {
-        a:before {
-            @apply -ml-4 text-xl -mt-1 md:-mt-0.5;
-        }
-    }
-
-    /*
-    * Links
-    */
-
-    a {
-        @apply relative no-underline transition-all;
-
-        &.learn_more {
-            @apply text-secondary-600 font-semibold;
-
-            span {
-                @apply inline-block transition-transform;
-            }
-
-            &:hover span {
-                @apply translate-x-2;
-            }
-        }
-    }
-
-    /*
-    * Paragraphs - Modern KB styling
-    */
-
+    /* Paragraphs */
     p {
-        @apply text-base md:text-lg leading-7 md:leading-8 text-gray-700 mb-6;
-
-        strong {
-            @apply font-semibold text-gray-900;
-        }
-
-        &.small {
-            @apply text-sm md:text-base leading-relaxed;
-        }
-
-        &.lead {
-            @apply text-lg md:text-xl leading-8 md:leading-9 text-gray-600 font-light mb-8;
-        }
+        @apply text-base leading-relaxed text-mine-shaft-500 mb-6 font-inter-tight;
     }
 
-    p + pre {
-        @apply mt-0;
+    /* Links */
+    a {
+        @apply text-figma-orange-700 underline decoration-from-font hover:text-figma-orange-500 transition-colors duration-200;
     }
 
-    p,
-    ul,
-    ol,
-    pre {
-        @apply mb-6;
-
-        a {
-            @apply no-underline break-words text-secondary-600 hover:text-secondary-700;
-        }
+    /* Strong/Bold */
+    strong {
+        @apply font-semibold text-mine-shaft-500;
     }
 
-    q,
-    blockquote p {
-        quotes: "“" "”" "‘" "’";
+    /* Lists */
+    ul {
+        @apply list-none pl-0 mb-6 space-y-1;
     }
 
-    blockquote {
-        @apply sm:mx-0;
+    ul > li {
+        @apply text-base leading-relaxed text-mine-shaft-500 font-inter-tight flex gap-2 items-start;
     }
 
-    /*
-    * Lists
-    */
+    ul > li::before {
+        content: "•";
+        @apply flex-shrink-0 w-3.5;
+    }
+
+    /* Nested lists need block display */
+    ul > li:has(ol),
+    ul > li:has(ul) {
+        @apply block;
+    }
+
+    ul > li:has(ol)::before,
+    ul > li:has(ul)::before {
+        @apply inline mr-2;
+    }
 
     ol {
-        @apply leading-4 ml-4 list-decimal;
+        @apply list-none pl-0 mb-6 space-y-1;
+        counter-reset: item;
     }
 
-    span {
-        &.small_text {
-            @apply block text-gray-700 text-sm leading-none;
-            line-height: 1.4em;
-        }
+    ol > li {
+        @apply text-base leading-relaxed text-mine-shaft-500 font-inter-tight flex gap-2 items-start;
+        counter-increment: item;
     }
 
-    span.label,
-    & label {
-        @apply block opacity-40 uppercase mb-3;
-        font-size: 0.625em;
-        line-height: 1.4em;
-        letter-spacing: 2.5px;
+    ol > li::before {
+        content: counter(item) ".";
+        @apply flex-shrink-0 w-5;
+    }
+
+    /* Nested list indentation */
+    ul ul,
+    ul ol,
+    ol ul,
+    ol ol {
+        @apply mt-2 mb-2 ml-7;
+    }
+
+    /* Reset counter for nested ordered lists */
+    ol ol {
+        counter-reset: item;
+    }
+
+    /* Inline Code */
+    code {
+        @apply inline font-mono text-sm bg-gray-100 text-mine-shaft-500 px-2 py-0.5 rounded border border-alabaster-600;
+        white-space: nowrap;
+    }
+
+    /* Code blocks should not have inline code styling */
+    pre code {
+        @apply bg-transparent p-0 border-0 rounded-none text-sm;
+        white-space: pre;
+    }
+
+    /* Inline code in headings should scale appropriately */
+    h1 code {
+        @apply text-3xl;
+    }
+
+    h2 code {
+        @apply text-2xl;
+    }
+
+    h3 code {
+        @apply text-xl;
+    }
+
+    h4 code {
+        @apply text-lg;
+    }
+
+    /* Blockquotes */
+    blockquote {
+        @apply border-l-4 border-flamingo-400 pl-4 py-2 my-6 italic text-mine-shaft-400;
+    }
+
+    blockquote p {
+        @apply mb-0;
     }
 }

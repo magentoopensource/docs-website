@@ -1,161 +1,223 @@
 @extends('partials.layout')
 
 @section('content')
-    <x-accessibility.skip-to-content-link/>
-    
-    {{-- Frame 54 Header - Enhanced version --}}
-    <x-frame54-header />
+<div class="relative bg-white">
+    <div class="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
+        <div class="flex gap-8 py-8">
+            {{-- Left Sidebar: Category Articles --}}
+            <aside class="hidden lg:block w-64 flex-shrink-0">
+                <div class="sticky top-24">
+                    {{-- Category Header --}}
+                    <div class="mb-6">
+                        <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4">
+                            {{ ucwords(str_replace('-', ' ', $category)) }}
+                        </h3>
+                    </div>
 
-    {{-- New Figma Documentation Layout --}}
-    <x-figma-doc-layout>
-        {{-- Page Heading Section --}}
-        <div class="flex flex-col gap-6 items-start justify-start mb-8 w-full">
-            @if (isset($title))
-                <div class="font-alegreya font-bold text-slate-900 text-4xl leading-[1.1] w-full">
-                    {{ $title }}
-                </div>
-            @endif
-            <div class="font-alegreya font-light text-waterloo-950 text-base leading-6 w-full">
-                Standard paragraph text aliquam parturient viverra phasellus mus dolor nulla in scelerisque nulla elementum morbi eleifend scelerisque vestibulum a blandit elementum ligula a nam phasellus a dui a. Dis proin sem id magna consequat metus magnis vestibulum vel dictum nisi consequat parturient at.
-            </div>
-        </div>
+                    {{-- Category Articles Navigation --}}
+                    <nav class="space-y-1" aria-label="Category navigation">
+                        @foreach($categoryArticles as $article)
+                            <a
+                                href="/docs/{{ $article['path'] }}"
+                                class="group flex items-start gap-3 px-3 py-2 text-sm rounded-lg transition-colors duration-150
+                                    {{ $article['slug'] === $page ? 'bg-orange-50 text-orange-600 font-medium' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900' }}"
+                            >
+                                <span class="flex-1">{{ $article['title'] }}</span>
+                                @if($article['slug'] === $page)
+                                    <svg class="w-5 h-5 text-orange-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                                    </svg>
+                                @endif
+                            </a>
+                        @endforeach
+                    </nav>
 
-        {{-- Example Boxouts --}}
-        <x-figma-boxouts type="standard">
-            <x-figma-boxout-item text="Boxout text example" />
-            <x-figma-boxout-item text="Boxout text example" />
-            <x-figma-boxout-item text="Boxout text example" />
-            <x-figma-boxout-item text="Boxout text example" />
-            <x-figma-boxout-item text="Boxout text example" />
-        </x-figma-boxouts>
-
-        <x-figma-boxouts type="featured">
-            <x-figma-boxout-item text="Boxout text example" />
-            <x-figma-boxout-item text="Boxout text example" />
-            <x-figma-boxout-item text="Boxout text example" />
-            <x-figma-boxout-item text="Boxout text example" />
-            <x-figma-boxout-item text="Boxout text example" />
-        </x-figma-boxouts>
-
-        <x-figma-boxouts type="tip" />
-
-        <x-figma-boxouts type="warning" />
-
-        {{-- Main Content Section --}}
-        <div class="flex flex-col gap-5 items-start justify-start w-full">
-            <div class="font-alegreya font-bold text-slate-900 text-2xl leading-[1.333] w-full">
-                This is a standard heading
-            </div>
-            <div class="flex flex-col gap-2.5 items-end justify-start w-full">
-                {{-- Enhanced content with Figma styling --}}
-                <div class="figma-docs-content w-full">
-                    {!! $content !!}
-                </div>
-                
-                {{-- Image Caption Container --}}
-                <div class="flex flex-row gap-2.5 items-center justify-center pb-1.5 pt-0 px-0 border-b border-flamingo-200">
-                    <div class="font-alegreya text-waterloo-900 text-sm leading-[1.333] text-right">
-                        This is the caption for image
+                    {{-- View All in Category --}}
+                    <div class="mt-6 pt-6 border-t border-gray-200">
+                        <a
+                            href="/docs/{{ $category }}"
+                            class="flex items-center gap-2 px-3 py-2 text-sm font-medium text-orange-600 hover:text-orange-700 transition-colors"
+                        >
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                            </svg>
+                            View all in category
+                        </a>
                     </div>
                 </div>
-            </div>
-        </div>
+            </aside>
 
-        {{-- Edit Page Button --}}
-        <div class="mt-12 pt-8 border-t border-gray-200">
-            <a href="{{ $edit_link }}"
-                target="_blank"
-                class="inline-flex items-center justify-center px-6 py-3 text-base font-medium text-white bg-flamingo-400 hover:bg-flamingo-500 transition-all duration-200 rounded-md shadow-sm hover:shadow-md">
-                <svg fill="currentColor" class="w-4 h-4 mr-2" viewBox="0 0 20 20"
-                    xmlns="http://www.w3.org/2000/svg">
-                    <path
-                        d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z">
-                    </path>
+            {{-- Main Content Area --}}
+            <main class="flex-1 min-w-0">
+                {{-- Community Note Banner --}}
+                @if($communityNote)
+                <div class="mb-8 rounded-lg border border-blue-200 bg-blue-50 p-4">
+                    <div class="flex gap-3">
+                        <svg class="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                        </svg>
+                        <div class="flex-1 text-sm text-blue-900">
+                            <p class="font-medium mb-1">Community-Maintained Documentation</p>
+                            <p class="text-blue-800">
+                                This documentation is maintained by the Magento community. Help improve it by
+                                <a href="{{ $edit_link }}" target="_blank" rel="noopener" class="underline hover:text-blue-900">
+                                    contributing on GitHub
+                                </a>.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                @endif
+
+                {{-- Documentation Content --}}
+                <article class="docs-content max-w-none">
+                    {!! $content !!}
+                </article>
+
+                {{-- Edit Link Footer --}}
+                <div class="mt-12 pt-8 border-t border-gray-200">
+                    <a
+                        href="{{ $edit_link }}"
+                        target="_blank"
+                        rel="noopener"
+                        class="inline-flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+                    >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                        </svg>
+                        Edit this page on GitHub
+                    </a>
+                </div>
+            </main>
+
+            {{-- Right Sidebar: Table of Contents --}}
+            @if(count($tableOfContents) > 0)
+            <aside class="hidden xl:block w-64 flex-shrink-0">
+                <div class="sticky top-24">
+                    <div class="mb-4">
+                        <h3 class="text-xs font-semibold text-gray-900 uppercase tracking-wider">
+                            On this page
+                        </h3>
+                    </div>
+
+                    <nav class="space-y-2" aria-label="Table of contents">
+                        @foreach($tableOfContents as $heading)
+                            <a
+                                href="#{{ $heading['slug'] }}"
+                                class="block text-sm transition-colors duration-150
+                                    {{ $heading['level'] === 2 ? 'font-medium text-gray-700 hover:text-orange-600' : 'pl-4 text-gray-600 hover:text-gray-900' }}"
+                            >
+                                {{ $heading['text'] }}
+                            </a>
+                        @endforeach
+                    </nav>
+
+                    {{-- Back to Top --}}
+                    <div class="mt-8 pt-6 border-t border-gray-200">
+                        <a
+                            href="#"
+                            class="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-orange-600 transition-colors"
+                        >
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/>
+                            </svg>
+                            Back to top
+                        </a>
+                    </div>
+                </div>
+            </aside>
+            @endif
+        </div>
+    </div>
+</div>
+
+{{-- Mobile Navigation Toggle (for smaller screens) --}}
+<div class="lg:hidden fixed bottom-4 right-4 z-50">
+    <button
+        @click="mobileNavOpen = !mobileNavOpen"
+        class="flex items-center gap-2 px-4 py-3 bg-orange-600 text-white rounded-full shadow-lg hover:bg-orange-700 transition-colors"
+    >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+        <span class="text-sm font-medium">Menu</span>
+    </button>
+</div>
+
+{{-- Mobile Navigation Overlay --}}
+<div
+    x-data="{ mobileNavOpen: false }"
+    x-show="mobileNavOpen"
+    @click.away="mobileNavOpen = false"
+    x-transition:enter="transition ease-out duration-200"
+    x-transition:enter-start="opacity-0"
+    x-transition:enter-end="opacity-100"
+    x-transition:leave="transition ease-in duration-150"
+    x-transition:leave-start="opacity-100"
+    x-transition:leave-end="opacity-0"
+    class="lg:hidden fixed inset-0 z-40 bg-gray-800 bg-opacity-50"
+    style="display: none;"
+>
+    <div
+        x-show="mobileNavOpen"
+        x-transition:enter="transition ease-out duration-200 transform"
+        x-transition:enter-start="translate-x-full"
+        x-transition:enter-end="translate-x-0"
+        x-transition:leave="transition ease-in duration-150 transform"
+        x-transition:leave-start="translate-x-0"
+        x-transition:leave-end="translate-x-full"
+        class="absolute right-0 top-0 bottom-0 w-80 max-w-full bg-white shadow-xl overflow-y-auto"
+    >
+        <div class="p-6">
+            {{-- Close Button --}}
+            <button
+                @click="mobileNavOpen = false"
+                class="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+            >
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                 </svg>
-                Edit this page
-            </a>
+            </button>
+
+            {{-- Category Articles --}}
+            <div class="mb-8">
+                <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4">
+                    {{ ucwords(str_replace('-', ' ', $category)) }}
+                </h3>
+                <nav class="space-y-1">
+                    @foreach($categoryArticles as $article)
+                        <a
+                            href="/docs/{{ $article['path'] }}"
+                            class="block px-3 py-2 text-sm rounded-lg transition-colors
+                                {{ $article['slug'] === $page ? 'bg-orange-50 text-orange-600 font-medium' : 'text-gray-700 hover:bg-gray-50' }}"
+                        >
+                            {{ $article['title'] }}
+                        </a>
+                    @endforeach
+                </nav>
+            </div>
+
+            {{-- Table of Contents --}}
+            @if(count($tableOfContents) > 0)
+            <div class="pt-8 border-t border-gray-200">
+                <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4">
+                    On this page
+                </h3>
+                <nav class="space-y-2">
+                    @foreach($tableOfContents as $heading)
+                        <a
+                            href="#{{ $heading['slug'] }}"
+                            @click="mobileNavOpen = false"
+                            class="block text-sm transition-colors
+                                {{ $heading['level'] === 2 ? 'font-medium text-gray-700' : 'pl-4 text-gray-600' }}"
+                        >
+                            {{ $heading['text'] }}
+                        </a>
+                    @endforeach
+                </nav>
+            </div>
+            @endif
         </div>
-    </x-figma-doc-layout>
-
-    <style>
-    /* Enhanced documentation content styling */
-    .figma-docs-content {
-        font-family: 'Alegreya Sans', sans-serif;
-        line-height: 1.75;
-        color: #434246; /* Waterloo 900 */
-    }
-
-    .figma-docs-content h1 {
-        @apply text-3xl font-bold mb-8 text-waterloo-900 font-alegreya;
-    }
-
-    .figma-docs-content h2 {
-        @apply text-2xl font-semibold mb-6 text-waterloo-900 font-alegreya mt-12;
-    }
-
-    .figma-docs-content h3 {
-        @apply text-xl font-semibold mb-4 text-waterloo-900 font-alegreya mt-8;
-    }
-
-    .figma-docs-content h4 {
-        @apply text-lg font-medium mb-3 text-waterloo-900 font-alegreya mt-6;
-    }
-
-    .figma-docs-content p {
-        @apply mb-6 text-waterloo-900 font-alegreya text-base leading-7;
-    }
-
-    .figma-docs-content a {
-        @apply text-flamingo-400 hover:text-flamingo-500 transition-colors underline;
-    }
-
-    .figma-docs-content ul, .figma-docs-content ol {
-        @apply mb-6 pl-6;
-    }
-
-    .figma-docs-content li {
-        @apply mb-2 text-waterloo-900 font-alegreya;
-    }
-
-    .figma-docs-content code {
-        @apply bg-gray-100 text-blackrock-900 px-2 py-1 rounded text-sm font-mono;
-    }
-
-    .figma-docs-content pre {
-        @apply bg-blackrock-900 text-white rounded-lg p-6 mb-8 overflow-x-auto;
-    }
-
-    .figma-docs-content blockquote {
-        @apply border-l-4 border-flamingo-400 bg-flamingo-50 p-6 mb-6 rounded-r-lg;
-    }
-
-    .figma-docs-content table {
-        @apply w-full border-collapse mb-8 bg-white rounded-lg shadow-sm overflow-hidden;
-    }
-
-    .figma-docs-content th {
-        @apply font-semibold text-waterloo-900 bg-gray-50 px-6 py-4 text-left border-b border-gray-200;
-    }
-
-    .figma-docs-content td {
-        @apply px-6 py-4 text-waterloo-900 border-b border-gray-100;
-    }
-
-    .figma-docs-content tr:last-child td {
-        @apply border-b-0;
-    }
-
-    /* Smooth scrolling for anchor links */
-    html {
-        scroll-behavior: smooth;
-    }
-
-    /* Anchor offset for fixed header */
-    .figma-docs-content h1[id],
-    .figma-docs-content h2[id],
-    .figma-docs-content h3[id],
-    .figma-docs-content h4[id] {
-        scroll-margin-top: 6rem;
-    }
-    </style>
+    </div>
+</div>
 @endsection
