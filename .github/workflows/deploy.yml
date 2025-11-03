@@ -31,10 +31,14 @@ jobs:
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
           ssh-keyscan -H 62.113.231.168 >> ~/.ssh/known_hosts
-          eval $(ssh-agent -s)
-          ssh-add ~/.ssh/deploy_key
-          echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> $GITHUB_ENV
-          echo "SSH_AGENT_PID=$SSH_AGENT_PID" >> $GITHUB_ENV
+          cat >> ~/.ssh/config << EOF
+          Host production
+            HostName 62.113.231.168
+            User web-user
+            IdentityFile ~/.ssh/deploy_key
+            StrictHostKeyChecking no
+          EOF
+          chmod 600 ~/.ssh/config
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
 
@@ -46,7 +50,7 @@ jobs:
         if: always()
         run: |
           rm -f ~/.ssh/deploy_key
-          ssh-agent -k || true
+          rm -f ~/.ssh/config
 
       - name: Deployment notification
         if: success()
