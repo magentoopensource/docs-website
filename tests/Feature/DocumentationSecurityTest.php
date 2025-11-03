@@ -27,10 +27,10 @@ class DocumentationSecurityTest extends TestCase
         // Test valid category/page path
         $result = $this->docs->get('start-selling/tutorial-creating-your-first-products');
 
-        // Should return an array with content and frontendMatter keys
+        // Should return an array with content and frontMatter keys
         $this->assertIsArray($result);
         $this->assertArrayHasKey('content', $result);
-        $this->assertArrayHasKey('frontendMatter', $result);
+        $this->assertArrayHasKey('frontMatter', $result);
     }
 
     /**

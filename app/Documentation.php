@@ -12,30 +12,12 @@ use League\CommonMark\Extension\FrontMatter\Output\RenderedContentWithFrontMatte
 class Documentation
 {
     /**
-     * The filesystem implementation.
-     *
-     * @var \Illuminate\Filesystem\Filesystem
-     */
-    protected $files;
-
-    /**
-     * The cache implementation.
-     *
-     * @var \Illuminate\Contracts\Cache\Repository
-     */
-    protected $cache;
-
-    /**
      * Create a new documentation instance.
-     *
-     * @param  \Illuminate\Filesystem\Filesystem  $files
-     * @param  \Illuminate\Contracts\Cache\Repository  $cache
-     * @return void
      */
-    public function __construct(Filesystem $files, Cache $cache)
-    {
-        $this->files = $files;
-        $this->cache = $cache;
+    public function __construct(
+        protected Filesystem $files,
+        protected Cache $cache
+    ) {
     }
 
     /**
@@ -91,14 +73,14 @@ class Documentation
                     $content = (new GithubFlavoredMarkdownConverter())->convert(
                         $content
                     );
-                    $frontendMatter = [];
+                    $frontMatter = [];
                     if ($content instanceof RenderedContentWithFrontMatter) {
-                        $frontendMatter = $content->getFrontMatter();
+                        $frontMatter = $content->getFrontMatter();
                     }
 
                     return [
                         "content" => $this->replaceLinks($content),
-                        "frontendMatter" => $frontendMatter,
+                        "frontMatter" => $frontMatter,
                     ];
                 }
 
@@ -178,11 +160,8 @@ class Documentation
 
     /**
      * Replace the version place-holder in links.
-     *
-     * @param  string  $content
-     * @return string
      */
-    public static function replaceLinks($content): string
+    public static function replaceLinks(string $content): string
     {
         // Remove /docs/{{version}}/ and replace with just /docs/
         $content = str_replace("/docs/{{version}}/", "/docs/", $content);
@@ -192,9 +171,6 @@ class Documentation
 
     /**
      * Check if the given section exists.
-     *
-     * @param  string  $page
-     * @return bool
      */
     public function sectionExists(string $page): bool
     {
@@ -212,9 +188,6 @@ class Documentation
 
     /**
      * Get the URL to edit a documentation file on GitHub.
-     *
-     * @param  string  $page
-     * @return string
      */
     public function getEditUrlForPage(string $page): string
     {
@@ -231,9 +204,7 @@ class Documentation
 
     /**
      * Sanitize a path to prevent path traversal attacks.
-     *
-     * @param  string  $path
-     * @return string|null Returns null if path is invalid
+     * Returns null if path is invalid.
      */
     protected function sanitizePath(string $path): ?string
     {
@@ -267,9 +238,6 @@ class Documentation
     /**
      * Extract table of contents from HTML content.
      * Returns array of headings with their text, slug, and level.
-     *
-     * @param  string  $html
-     * @return array
      */
     public static function extractTableOfContents(string $html): array
     {

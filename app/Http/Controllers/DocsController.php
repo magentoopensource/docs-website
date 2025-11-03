@@ -70,7 +70,7 @@ class DocsController extends Controller
         $docPage = $this->docs->get($sectionPage);
 
         $content = $docPage ? $docPage["content"] : null;
-        $pageCustomData = $docPage ? $docPage["frontendMatter"] : [];
+        $pageCustomData = $docPage ? $docPage["frontMatter"] : [];
         $metaDescription =
             $pageCustomData["description"] ?? self::DEFAULT_META_DESCRIPTION;
         $metaKeywords =
@@ -161,7 +161,7 @@ class DocsController extends Controller
         // Map articles to the expected format with metadata
         $articlesWithMetadata = $articles->map(function ($article) {
             $docPage = $this->docs->get($article["path"]);
-            $frontMatter = $docPage["frontendMatter"] ?? [];
+            $frontMatter = $docPage["frontMatter"] ?? [];
 
             return [
                 "title" => $article["title"],
