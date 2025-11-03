@@ -47,12 +47,12 @@ task('deploy:build', function () {
     cd('{{release_path}}');
     run('npm ci');
     run('npm run build');
-})->setPrivate();
+});
 
 desc('Sync external documentation');
 task('deploy:sync-docs', function () {
     run('cd {{release_path}} && DEPLOYER_ROOT={{deploy_path}} bash bin/checkout_latest_docs.sh');
-})->setPrivate();
+});
 
 desc('Clear and optimize Laravel caches');
 task('deploy:optimize', function () {
@@ -64,7 +64,7 @@ task('deploy:optimize', function () {
     run('php artisan config:cache');
     run('php artisan route:cache');
     run('php artisan view:cache');
-})->setPrivate();
+});
 
 // Hooks
 after('deploy:vendors', 'deploy:build');
