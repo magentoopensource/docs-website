@@ -1,4 +1,4 @@
-name: "🚀 - Deploy"
+name: Deploy to Production
 
 on:
   push:
@@ -6,64 +6,73 @@ on:
       - main
 
 jobs:
-  build:
-    name: "✏️ - Build and Deploy Website"
+  deploy:
+    name: Deploy to Production Server
     runs-on: ubuntu-latest
 
     steps:
-      - name: "⚙️ - Checkout Website Repo"
-        uses: actions/checkout@v3
-        with:
-          path: 'devdocs'
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: "🐘 - Setup PHP"
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.1'
-
-      - name: "🐘 - Install PHP dependencies"
+      - name: Setup SSH
         run: |
-          cd devdocs
-          composer install --no-progress --prefer-dist --optimize-autoloader
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H $SSH_HOST >> ~/.ssh/known_hosts
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
 
-      - name: "🤡 - Setup Node.js"
-        uses: actions/setup-node@v3
-        with:
-          node-version: '19'
-
-      - name: "🧱 - Install Node dependencies and build assets"
+      - name: Deploy to server
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
         run: |
-          cd devdocs
-          npm install
-          npm run build
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no ${SSH_USER}@${SSH_HOST} "
+            set -e
+            
+            echo '📍 Navigating to deployment directory...'
+            cd ${DEPLOY_PATH}
+            
+            echo '🔄 Pulling latest changes...'
+            git pull origin main
+            
+            echo '📦 Installing Composer dependencies...'
+            composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
+            
+            echo '📦 Installing NPM dependencies...'
+            npm ci
+            
+            echo '🏗️  Building assets...'
+            npm run build
+            
+            echo '🔧 Syncing documentation...'
+            bash bin/checkout_latest_docs.sh
+            
+            echo '🧹 Clearing Laravel cache...'
+            php artisan cache:clear
+            php artisan config:clear
+            php artisan route:clear
+            php artisan view:clear
+            
+            echo '♻️  Optimizing Laravel...'
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
+            
+            echo '✅ Deployment completed successfully!'
+          "
 
-      - name: "📦 - Add Docs to Website"
-        run: |
-          cd devdocs
-          chmod +x ./bin/checkout_latest_docs.sh
-          ./bin/checkout_latest_docs.sh
+      - name: Cleanup
+        if: always()
+        run: rm -f ~/.ssh/deploy_key
 
-      - name: "📦 - Deploy Website"
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.SSH_KEY }}
-          source: "devdocs/*"
-          target: "/var/www/share/devdocs.mage-os.org/"
+      - name: Deployment notification
+        if: success()
+        run: echo "🚀 Successfully deployed to production!"
 
-      - name: "🛸 - Extract and setup on server"
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.SSH_KEY }}
-          script: | 
-            cd /var/www/share/devdocs.mage-os.org/
-            rm -Rf htdocs
-            cp shared/.env devdocs/.env
-            ln -s devdocs/public htdocs
-            cd devdocs
-            composer install --no-dev
-            php artisan optimize
-            php artisan sitemap:generate
+      - name: Deployment failure notification
+        if: failure()
+        run: echo "❌ Deployment failed! Check the logs above for details."
