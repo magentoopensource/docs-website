@@ -6,7 +6,7 @@ require 'recipe/laravel.php';
 
 // Config
 set('application', 'merchant-docs');
-set('repository', 'git@github.com:magentoopensource/docs-website.git');
+set('repository', 'https://github.com/magentoopensource/docs-website.git');
 set('keep_releases', 5);
 set('writable_mode', 'chmod');
 
