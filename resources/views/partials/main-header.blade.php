@@ -1,10 +1,8 @@
 {{-- Main Header - White header with logo and navigation from Figma --}}
-<div class="bg-white flex items-center justify-between py-6 sm:py-8 md:py-10 lg:py-6 h-auto w-full max-w-[1440px] mx-auto">
-
-    {{-- Logo and Navigation Container --}}
-    <div class="flex flex-col lg:flex-row gap-8 items-center justify-center lg:justify-between">
+<div class="bg-white flex items-center justify-center py-6 sm:py-8 md:py-10 lg:py-6 h-auto w-full">
+    <div class="flex gap-[132px] items-center w-full max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
         {{-- Magento Logo --}}
-        <div class="flex flex-col gap-2.5 items-center lg:items-start justify-start">
+        <div class="flex flex-col gap-2.5 items-start justify-start shrink-0 w-[270px]">
             <div class="flex items-center">
                 <a href="/" class="inline-flex items-center">
                     <svg width="270" height="35" viewBox="0 0 270 35" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -47,39 +45,37 @@
                 </a>
             </div>
         </div>
-    </div>
 
-    {{-- Navigation Menu and Search --}}
-    <div class="flex flex-col sm:flex-row items-center justify-between w-full lg:w-auto gap-6 sm:gap-8">
-        {{-- Main Navigation --}}
-        <div class="flex flex-wrap gap-4 sm:gap-6 lg:gap-[30px] items-center justify-center">
-            <div class="h-6">
-                <a href="/" class="font-inter-tight text-base leading-[1.5] text-mine-shaft-500 hover:text-figma-orange-500 transition-colors"> Menu Item </a>
+        {{-- Navigation and Search Container --}}
+        <div class="flex items-center justify-between pt-[5px] shrink-0 w-[768px]">
+            {{-- Main Navigation --}}
+            <div class="flex gap-[30px] items-center justify-center shrink-0">
+                <div class="h-6 w-[75px]">
+                    <a href="/" class="font-inter-tight text-base leading-[1.5] text-mine-shaft-500 hover:text-figma-orange-500 transition-colors whitespace-nowrap"> Home </a>
+                </div>
+                <div class="h-6 w-[75px]">
+                    <a href="/docs" class="font-inter-tight text-base leading-[1.5] text-mine-shaft-500 hover:text-figma-orange-500 transition-colors whitespace-nowrap"> Documentation </a>
+                </div>
+                <div class="h-6 w-[75px]">
+                    <a href="/docs/start-selling" class="font-inter-tight text-base leading-[1.5] text-mine-shaft-500 hover:text-figma-orange-500 transition-colors whitespace-nowrap"> Get Started </a>
+                </div>
+                <div class="h-6 w-[75px]">
+                    <a href="/team" class="font-inter-tight text-base leading-[1.5] text-mine-shaft-500 hover:text-figma-orange-500 transition-colors whitespace-nowrap"> Team </a>
+                </div>
             </div>
-            <div class="h-6">
-                <a href="/docs" class="font-inter-tight text-base leading-[1.5] text-mine-shaft-500 hover:text-figma-orange-500 transition-colors"> Menu Item </a>
-            </div>
-            <div class="h-6">
-                <a href="/docs" class="font-inter-tight text-base leading-[1.5] text-mine-shaft-500 hover:text-figma-orange-500 transition-colors"> Menu Item </a>
-            </div>
-            <div class="h-6">
-                <a href="/docs" class="font-inter-tight text-base leading-[1.5] text-mine-shaft-500 hover:text-figma-orange-500 transition-colors"> Menu Item </a>
-            </div>
-        </div>
-    </div>
-    <div>
-        {{-- Search Component --}}
-        <button class="flex flex-col gap-1.5 items-start justify-start w-full sm:w-64 lg:w-[269px] pt-2.5 cursor-pointer hover:bg-alabaster-500 transition-colors duration-200 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-figma-orange-500 focus:ring-opacity-50" id="header-search">
-            <div class="flex items-center justify-between w-full">
+
+            {{-- Search Component --}}
+            <button class="flex flex-col gap-1.5 items-start justify-start w-[269px] pt-2.5 shrink-0 cursor-pointer hover:bg-alabaster-500 transition-colors duration-200 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-figma-orange-500 focus:ring-opacity-50" id="header-search">
+                <div class="flex items-center justify-between w-full">
                     <span class="font-inter-tight text-sm leading-[1.42] text-mine-shaft-500">
                         Search the documentation
                     </span>
-                <svg width="19" height="19" viewBox="0 0 19 19" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M8 16C9.77498 15.9996 11.4988 15.4054 12.897 14.312L17.293 18.708L18.707 17.294L14.311 12.898C15.405 11.4997 15.9996 9.77544 16 8C16 3.589 12.411 0 8 0C3.589 0 0 3.589 0 8C0 12.411 3.589 16 8 16ZM8 2C11.309 2 14 4.691 14 8C14 11.309 11.309 14 8 14C4.691 14 2 11.309 2 8C2 4.691 4.691 2 8 2Z" fill="#F26423"/>
-                </svg>
-
-            </div>
-            <div class="bg-alabaster-600 h-1 w-full"></div>
-        </button>
+                    <svg width="19" height="19" viewBox="0 0 19 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M8 16C9.77498 15.9996 11.4988 15.4054 12.897 14.312L17.293 18.708L18.707 17.294L14.311 12.898C15.405 11.4997 15.9996 9.77544 16 8C16 3.589 12.411 0 8 0C3.589 0 0 3.589 0 8C0 12.411 3.589 16 8 16ZM8 2C11.309 2 14 4.691 14 8C14 11.309 11.309 14 8 14C4.691 14 2 11.309 2 8C2 4.691 4.691 2 8 2Z" fill="#F26423"/>
+                    </svg>
+                </div>
+                <div class="bg-alabaster-600 h-1 w-full"></div>
+            </button>
+        </div>
     </div>
 </div>

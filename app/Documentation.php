@@ -39,24 +39,20 @@ class Documentation
     }
 
     /**
-     * Get the documentation index page.
+     * Get the documentation index page (navigation).
      *
-     * @param  string  $version
      * @return string|null
      */
-    public function getIndex($version)
+    public function getIndex(): ?string
     {
         return $this->cache->remember(
-            "docs." . $version . ".index",
+            "docs.main.navigation",
             5,
-            function () use ($version) {
-                $path = base_path(
-                    "resources/docs/" . $version . "/documentation.md"
-                );
+            function () {
+                $path = base_path("resources/docs/main/navigation.md");
 
                 if ($this->files->exists($path)) {
                     return $this->replaceLinks(
-                        $version,
                         (new GithubFlavoredMarkdownConverter())->convert(
                             $this->files->get($path)
                         )
@@ -69,37 +65,18 @@ class Documentation
     }
 
     /**
-     * Get the URL to edit the documentation.
-     *
-     * @param  string  $version
-     * @param  string  $page
-     * @return string
-     */
-    public function getEditUrl($version, $page)
-    {
-        $baseEditUrl = "https://github.com/mage-os/devdocs/edit/";
-
-        // Assuming page paths correspond with file paths in the repository,
-        // and that all files are .md (Markdown) files.
-        return "{$baseEditUrl}/{$version}/{$page}.md";
-    }
-
-    /**
      * Get the given documentation page.
      *
-     * @param  string  $version
      * @param  string  $page
      * @return array|null
      */
-    public function get($version, $page)
+    public function get(string $page): ?array
     {
         return $this->cache->remember(
-            "docs." . $version . "." . $page,
+            "docs.main." . $page,
             5,
-            function () use ($version, $page) {
-                $path = base_path(
-                    "resources/docs/" . $version . "/" . $page . ".md"
-                );
+            function () use ($page) {
+                $path = base_path("resources/docs/main/" . $page . ".md");
 
                 if ($this->files->exists($path)) {
                     $content = $this->files->get($path);
@@ -113,7 +90,7 @@ class Documentation
                     }
 
                     return [
-                        "content" => $this->replaceLinks($version, $content),
+                        "content" => $this->replaceLinks($content),
                         "frontendMatter" => $frontendMatter,
                     ];
                 }
@@ -126,18 +103,15 @@ class Documentation
     /**
      * Get the array based index representation of the documentation.
      *
-     * @param  string  $version
      * @return array
      */
-    public function indexArray($version)
+    public function indexArray(): array
     {
         return $this->cache->remember(
-            "docs.{" . $version . "}.index",
+            "docs.main.index.array",
             CarbonInterval::hour(1),
-            function () use ($version) {
-                $path = base_path(
-                    "resources/docs/" . $version . "/documentation.md"
-                );
+            function () {
+                $path = base_path("resources/docs/main/navigation.md");
 
                 if (!$this->files->exists($path)) {
                     return [];
@@ -147,24 +121,18 @@ class Documentation
                     "pages" => collect(
                         explode(
                             PHP_EOL,
-                            $this->replaceLinks(
-                                $version,
-                                $this->files->get($path)
-                            )
+                            $this->replaceLinks($this->files->get($path))
                         )
                     )
                         ->filter(
-                            fn($line) => Str::contains(
-                                $line,
-                                "/docs/{{version}}/"
-                            )
+                            fn($line) => Str::contains($line, "/docs/")
                         )
                         ->map(
                             fn($line) => resource_path(
                                 Str::of($line)
-                                    ->afterLast("(/")
+                                    ->afterLast("(/docs/")
                                     ->before(")")
-                                    ->replace("{{version}}", $version)
+                                    ->prepend("docs/main/")
                                     ->append(".md")
                             )
                         )
@@ -187,7 +155,7 @@ class Documentation
                                 (string) Str::of($path)
                                     ->afterLast("/")
                                     ->before(".md") => [
-                                    "title" => $page["title"],
+                                    "title" => $page["title"] ?? "",
                                     "sections" => collect($section["fragments"])
                                         ->combine($section["titles"])
                                         ->map(
@@ -204,55 +172,78 @@ class Documentation
     /**
      * Replace the version place-holder in links.
      *
-     * @param  string  $version
      * @param  string  $content
      * @return string
      */
-    public static function replaceLinks($version, $content)
+    public static function replaceLinks($content): string
     {
-        return str_replace("%7B%7Bversion%7D%7D", $version, $content);
+        // Remove /docs/{{version}}/ and replace with just /docs/
+        $content = str_replace("/docs/{{version}}/", "/docs/", $content);
+        $content = str_replace("/docs/%7B%7Bversion%7D%7D/", "/docs/", $content);
+        return $content;
     }
 
     /**
      * Check if the given section exists.
      *
-     * @param  string  $version
      * @param  string  $page
-     * @return boolean
+     * @return bool
      */
-    public function sectionExists($version, $page)
+    public function sectionExists(string $page): bool
     {
         return $this->files->exists(
-            base_path("resources/docs/" . $version . "/" . $page . ".md")
+            base_path("resources/docs/main/" . $page . ".md")
         );
     }
 
     /**
-     * Determine which versions a page exists in.
+     * Get the URL to edit a documentation file on GitHub.
      *
      * @param  string  $page
-     * @return \Illuminate\Support\Collection
+     * @return string
      */
-    public function versionsContainingPage($page)
+    public function getEditUrlForPage(string $page): string
     {
-        return collect(static::getDocVersions())->filter(function (
-            $version
-        ) use ($page) {
-            return $this->sectionExists($version, $page);
-        });
+        $baseEditUrl = "https://github.com/mage-os/devdocs/edit/main";
+        return "{$baseEditUrl}/{$page}.md";
     }
 
     /**
-     * Get the publicly available versions of the documentation
+     * Extract table of contents from HTML content.
+     * Returns array of headings with their text, slug, and level.
      *
+     * @param  string  $html
      * @return array
      */
-    public static function getDocVersions()
+    public static function extractTableOfContents(string $html): array
     {
-        return [
-            "main" => "Main",
-            "develop" => "Develop",
-            "2.4.5" => "2.4.5",
-        ];
+        $crawler = new \Symfony\Component\DomCrawler\Crawler($html);
+        $headings = [];
+
+        // Extract h2 and h3 headings
+        $crawler->filter('h2, h3')->each(function ($node) use (&$headings) {
+            $text = $node->text();
+            $level = (int) str_replace('h', '', $node->nodeName());
+
+            // Generate slug from heading text
+            $slug = Str::slug($text);
+
+            // Check if heading has an anchor name or id
+            $id = $node->attr('id') ?: $slug;
+
+            // Check for anchor tags immediately before the heading
+            $previousNode = $node->getNode(0)->previousSibling;
+            if ($previousNode && $previousNode->nodeName === 'a' && $previousNode->hasAttribute('name')) {
+                $id = $previousNode->getAttribute('name');
+            }
+
+            $headings[] = [
+                'text' => $text,
+                'slug' => $id,
+                'level' => $level,
+            ];
+        });
+
+        return $headings;
     }
 }
