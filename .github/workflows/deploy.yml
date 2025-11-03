@@ -14,60 +14,38 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, xml, ctype, json, bcmath
+          coverage: none
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -H $SSH_HOST >> ~/.ssh/known_hosts
+          ssh-keyscan -H 62.113.231.168 >> ~/.ssh/known_hosts
+          eval $(ssh-agent -s)
+          ssh-add ~/.ssh/deploy_key
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          SSH_HOST: ${{ secrets.SSH_HOST }}
 
-      - name: Deploy to server
-        env:
-          SSH_HOST: ${{ secrets.SSH_HOST }}
-          SSH_USER: ${{ secrets.SSH_USER }}
-          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+      - name: Deploy with Deployer
         run: |
-          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no ${SSH_USER}@${SSH_HOST} "
-            set -e
-            
-            echo '📍 Navigating to deployment directory...'
-            cd ${DEPLOY_PATH}
-            
-            echo '🔄 Pulling latest changes...'
-            git pull origin main
-            
-            echo '📦 Installing Composer dependencies...'
-            composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
-            
-            echo '📦 Installing NPM dependencies...'
-            npm ci
-            
-            echo '🏗️  Building assets...'
-            npm run build
-            
-            echo '🔧 Syncing documentation...'
-            bash bin/checkout_latest_docs.sh
-            
-            echo '🧹 Clearing Laravel cache...'
-            php artisan cache:clear
-            php artisan config:clear
-            php artisan route:clear
-            php artisan view:clear
-            
-            echo '♻️  Optimizing Laravel...'
-            php artisan config:cache
-            php artisan route:cache
-            php artisan view:cache
-            
-            echo '✅ Deployment completed successfully!'
-          "
+          vendor/bin/dep deploy production -vvv
+        env:
+          SSH_AUTH_SOCK: /tmp/ssh_agent.sock
 
       - name: Cleanup
         if: always()
-        run: rm -f ~/.ssh/deploy_key
+        run: |
+          rm -f ~/.ssh/deploy_key
+          ssh-agent -k || true
 
       - name: Deployment notification
         if: success()
