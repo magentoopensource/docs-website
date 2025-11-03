@@ -3,7 +3,6 @@ import Focus from '@alpinejs/focus';
 
 import './clipboard';
 import './components/search';
-import { initWebVitals } from './components/webVitals';
 import { initLazyLoading } from './components/lazyImages';
 import { initErrorLogging } from './components/errorLogging';
 
@@ -14,9 +13,6 @@ Alpine.start();
 
 // Initialize error logging first to catch any subsequent errors
 initErrorLogging();
-
-// Initialize Web Vitals tracking
-initWebVitals();
 
 document.addEventListener('DOMContentLoaded', () => {
     // Initialize lazy loading for all images
