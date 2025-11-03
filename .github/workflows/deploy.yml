@@ -33,14 +33,14 @@ jobs:
           ssh-keyscan -H 62.113.231.168 >> ~/.ssh/known_hosts
           eval $(ssh-agent -s)
           ssh-add ~/.ssh/deploy_key
+          echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> $GITHUB_ENV
+          echo "SSH_AGENT_PID=$SSH_AGENT_PID" >> $GITHUB_ENV
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: Deploy with Deployer
         run: |
           vendor/bin/dep deploy production -vvv
-        env:
-          SSH_AUTH_SOCK: /tmp/ssh_agent.sock
 
       - name: Cleanup
         if: always()
