@@ -115,7 +115,7 @@
                             ['title' => 'Credit card payments', 'desc' => 'Enable credit card payments securely.'],
                             ['title' => 'Free shipping', 'desc' => 'Add free shipping over a minimum cart value']
                         ] as $link)
-                            <a href="/category/start-selling" class="bg-white flex flex-col gap-4 items-center justify-start pb-5 w-full hover:bg-alabaster-500 transition-colors duration-200 rounded-lg p-2 -mx-2">
+                            <a href="/docs/start-selling" class="bg-white flex flex-col gap-4 items-center justify-start pb-5 w-full hover:bg-alabaster-500 transition-colors duration-200 rounded-lg p-2 -mx-2">
                                 <div class="bg-alabaster-600 h-1 w-full"></div>
                                 <div class="flex gap-2.5 items-start justify-start px-2 w-full">
                                     <div class="w-6 h-6 flex-shrink-0">
@@ -142,7 +142,7 @@
                         @endforeach
                     </div>
 
-                    <a href="/category/start-selling" class="text-base font-inter-tight leading-[1.5] text-figma-orange-700 underline decoration-solid"> See all in this section </a>
+                    <a href="/docs/start-selling" class="text-base font-inter-tight leading-[1.5] text-figma-orange-700 underline decoration-solid"> See all in this section </a>
                 </div>
 
                 {{-- Manage Catalog --}}
@@ -166,7 +166,7 @@
                             ['title' => 'Variants', 'desc' => 'Create configurable products with variants'],
                             ['title' => 'Categories', 'desc' => 'Organise products into categories efficiently']
                         ] as $link)
-                            <a href="/category/manage-catalog" class="bg-white flex flex-col gap-4 items-center justify-start pb-5 w-full hover:bg-alabaster-500 transition-colors duration-200 rounded-lg p-2 -mx-2">
+                            <a href="/docs/manage-catalog" class="bg-white flex flex-col gap-4 items-center justify-start pb-5 w-full hover:bg-alabaster-500 transition-colors duration-200 rounded-lg p-2 -mx-2">
                                 <div class="bg-alabaster-600 h-1 w-full"></div>
                                 <div class="flex gap-2.5 items-start justify-start px-2 w-full">
                                     <div class="w-6 h-6 flex-shrink-0">
@@ -193,7 +193,7 @@
                         @endforeach
                     </div>
 
-                    <a href="/category/manage-catalog" class="text-base font-inter-tight leading-[1.5] text-figma-orange-700 underline decoration-solid"> See all in this section </a>
+                    <a href="/docs/manage-catalog" class="text-base font-inter-tight leading-[1.5] text-figma-orange-700 underline decoration-solid"> See all in this section </a>
                 </div>
 
                 {{-- Handle Orders --}}
@@ -217,7 +217,7 @@
                             ['title' => 'Edit orders', 'desc' => 'Edit shipping details after purchase'],
                             ['title' => 'Label management', 'desc' => 'Print shipping labels directly from Magento']
                         ] as $link)
-                            <a href="/category/handle-orders" class="bg-white flex flex-col gap-4 items-center justify-start pb-5 w-full hover:bg-alabaster-500 transition-colors duration-200 rounded-lg p-2 -mx-2">
+                            <a href="/docs/handle-orders" class="bg-white flex flex-col gap-4 items-center justify-start pb-5 w-full hover:bg-alabaster-500 transition-colors duration-200 rounded-lg p-2 -mx-2">
                                 <div class="bg-alabaster-600 h-1 w-full"></div>
                                 <div class="flex gap-2.5 items-start justify-start px-2 w-full">
                                     <div class="w-6 h-6 flex-shrink-0">
@@ -255,7 +255,7 @@
                         @endforeach
                     </div>
 
-                    <a href="/category/handle-orders" class="text-base font-inter-tight leading-[1.5] text-figma-orange-700 underline decoration-solid"> See all in this section </a>
+                    <a href="/docs/handle-orders" class="text-base font-inter-tight leading-[1.5] text-figma-orange-700 underline decoration-solid"> See all in this section </a>
                 </div>
             </div>
 
@@ -282,7 +282,7 @@
                             ['title' => 'Customer retention', 'desc' => 'Build loyalty programs and repeat purchases'],
                             ['title' => 'Social media', 'desc' => 'Connect social channels to drive traffic']
                         ] as $link)
-                            <a href="/category/grow-store" class="bg-white flex flex-col gap-4 items-center justify-start pb-5 w-full hover:bg-alabaster-500 transition-colors duration-200 rounded-lg p-2 -mx-2">
+                            <a href="/docs/grow-store" class="bg-white flex flex-col gap-4 items-center justify-start pb-5 w-full hover:bg-alabaster-500 transition-colors duration-200 rounded-lg p-2 -mx-2">
                                 <div class="bg-alabaster-600 h-1 w-full"></div>
                                 <div class="flex gap-2.5 items-start justify-start px-2 w-full">
                                     <div class="w-6 h-6 flex-shrink-0">
@@ -317,7 +317,7 @@
                         @endforeach
                     </div>
 
-                    <a href="/category/grow-store" class="text-base font-inter-tight leading-[1.5] text-figma-orange-700 underline decoration-solid"> See all in this section </a>
+                    <a href="/docs/grow-store" class="text-base font-inter-tight leading-[1.5] text-figma-orange-700 underline decoration-solid"> See all in this section </a>
                 </div>
 
                 {{-- Improve UX --}}
@@ -341,7 +341,7 @@
                             ['title' => 'Performance', 'desc' => 'Speed up page loading and response times'],
                             ['title' => 'Mobile optimization', 'desc' => 'Ensure seamless mobile shopping experience']
                         ] as $link)
-                            <a href="/category/improve-ux" class="bg-white flex flex-col gap-4 items-center justify-start pb-5 w-full hover:bg-alabaster-500 transition-colors duration-200 rounded-lg p-2 -mx-2">
+                            <a href="/docs/improve-ux" class="bg-white flex flex-col gap-4 items-center justify-start pb-5 w-full hover:bg-alabaster-500 transition-colors duration-200 rounded-lg p-2 -mx-2">
                                 <div class="bg-alabaster-600 h-1 w-full"></div>
                                 <div class="flex gap-2.5 items-start justify-start px-2 w-full">
                                     <div class="w-6 h-6 flex-shrink-0">
@@ -376,7 +376,7 @@
                         @endforeach
                     </div>
 
-                    <a href="/category/improve-ux" class="text-base font-inter-tight leading-[1.5] text-figma-orange-700 underline decoration-solid"> See all in this section </a>
+                    <a href="/docs/improve-ux" class="text-base font-inter-tight leading-[1.5] text-figma-orange-700 underline decoration-solid"> See all in this section </a>
                 </div>
 
                 {{-- Stay Compliant --}}
@@ -400,7 +400,7 @@
                             ['title' => 'Legal pages', 'desc' => 'Set up terms, privacy policy, and disclaimers'],
                             ['title' => 'Accessibility', 'desc' => 'Make your store accessible to all users']
                         ] as $link)
-                            <a href="/category/stay-compliant" class="bg-white flex flex-col gap-4 items-center justify-start pb-5 w-full hover:bg-alabaster-500 transition-colors duration-200 rounded-lg p-2 -mx-2">
+                            <a href="/docs/stay-compliant" class="bg-white flex flex-col gap-4 items-center justify-start pb-5 w-full hover:bg-alabaster-500 transition-colors duration-200 rounded-lg p-2 -mx-2">
                                 <div class="bg-alabaster-600 h-1 w-full"></div>
                                 <div class="flex gap-2.5 items-start justify-start px-2 w-full">
                                     <div class="w-6 h-6 flex-shrink-0">
@@ -435,7 +435,7 @@
                         @endforeach
                     </div>
 
-                    <a href="/category/stay-compliant" class="text-base font-inter-tight leading-[1.5] text-figma-orange-700 underline decoration-solid"> See all in this section </a>
+                    <a href="/docs/stay-compliant" class="text-base font-inter-tight leading-[1.5] text-figma-orange-700 underline decoration-solid"> See all in this section </a>
                 </div>
             </div>
         </div>

@@ -13,3 +13,6 @@ for v in "${DOCS_VERSIONS[@]}"; do
         git clone --single-branch --branch "$v" https://github.com/mage-os/devdocs.git "resources/docs/$v"
     fi;
 done
+
+echo "Clearing application cache..."
+php artisan cache:clear

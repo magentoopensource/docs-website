@@ -27,13 +27,13 @@ class GithubFlavoredMarkdownConverter extends MarkdownConverter
     {
         $config['heading_permalink'] = [
             'html_class' => 'heading-permalink',
-            'id_prefix' => 'content',
-            'apply_id_to_heading' => false,
+            'id_prefix' => '',
+            'apply_id_to_heading' => true,
             'heading_class' => '',
-            'fragment_prefix' => 'content',
+            'fragment_prefix' => '',
             'insert' => 'before',
             'min_heading_level' => 1,
-            'max_heading_level' => 3,
+            'max_heading_level' => 6,
             'title' => 'Permalink',
             'symbol' => '',
             'aria_hidden' => true,

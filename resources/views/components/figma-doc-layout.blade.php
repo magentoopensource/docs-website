@@ -2,43 +2,43 @@
 <div class="bg-flamingo-50 min-h-screen pt-16">
     <div class="flex gap-[31px] items-start justify-start px-[279px] py-[21px]">
         {{-- Left Sidebar Navigation --}}
-        <aside class="flex flex-col gap-[30px] items-start justify-start pr-5 w-[269px]">
+        <aside class="flex flex-col gap-[28px] items-start justify-start pr-5 w-[280px]">
             {{-- Closed Side Menu --}}
             <div class="flex flex-col gap-2.5 items-start justify-start w-full">
-                <div class="flex flex-row gap-2.5 items-center justify-center pl-2.5 pr-0 py-0 w-full">
-                    <div class="basis-0 grow min-h-px min-w-px font-alegreya text-waterloo-900 text-base leading-6">
-                        Closed Side Menu
+                <div class="flex flex-row items-center justify-between pl-2.5 pr-0 py-0 w-full">
+                    <div class="flex gap-2.5 items-center justify-center">
+                        <p class="font-alegreya font-bold text-[#2c2c2c] text-base leading-6">
+                            Closed Side Menu
+                        </p>
                     </div>
-                    <div class="overflow-clip size-6">
-                        <svg class="w-full h-full text-waterloo-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                        </svg>
-                    </div>
+                    <p class="font-['Font_Awesome_6_Free'] text-sm leading-[1.42] not-italic text-[#818181]">
+
+                    </p>
                 </div>
             </div>
 
             {{-- Expanded Side Menu --}}
             <div class="flex flex-col gap-2.5 items-start justify-start w-full">
-                <div class="flex flex-row gap-2.5 items-center justify-center pl-2.5 pr-0 py-0 w-full">
-                    <div class="basis-0 grow min-h-px min-w-px font-alegreya font-bold text-waterloo-900 text-base leading-6">
-                        Expanded Side Menu
+                <div class="flex flex-row items-center justify-between pl-2.5 pr-0 py-0 w-full">
+                    <div class="flex gap-2.5 items-center justify-center">
+                        <p class="font-alegreya font-bold text-[#2c2c2c] text-base leading-6">
+                            Expanded Side Menu
+                        </p>
                     </div>
-                    <div class="rotate-180">
-                        <svg class="w-6 h-6 text-waterloo-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                        </svg>
-                    </div>
+                    <p class="font-['Font_Awesome_6_Free'] text-sm leading-[1.42] not-italic text-[#818181]">
+
+                    </p>
                 </div>
-                <div class="flex flex-col gap-2 items-start justify-start w-full">
-                    <div class="bg-lightningYellow-500 flex flex-row gap-2.5 items-center justify-start p-2.5 rounded-[5px] w-full">
-                        <div class="font-alegreya text-waterloo-950 text-sm leading-[1.42] whitespace-pre">
-                            Active Side Menu item
-                        </div>
+                <div class="flex flex-col items-start w-full">
+                    <div class="bg-[#f1bc1b] flex gap-2.5 items-center py-2.5 pl-2.5 pr-0 w-full">
+                        <p class="font-alegreya text-[#2c2c2c] text-sm leading-[1.42] whitespace-pre">
+                            Active Side Menu Item
+                        </p>
                     </div>
-                    <div class="flex flex-row gap-2.5 items-center justify-center px-2.5 py-0 w-full">
-                        <div class="basis-0 grow min-h-px min-w-px font-alegreya text-waterloo-900 text-sm leading-[1.42]">
-                            Inactive Side Menu item
-                        </div>
+                    <div class="bg-[#fafafa] flex gap-2.5 items-center py-2.5 pl-2.5 pr-0 w-full">
+                        <p class="font-alegreya text-[#2c2c2c] text-sm leading-[1.42] whitespace-pre">
+                            Inactive Side Menu Item
+                        </p>
                     </div>
                 </div>
             </div>
@@ -46,42 +46,39 @@
             {{-- Side Menu Item with Icon --}}
             <div class="flex flex-col gap-2.5 items-center justify-center w-full">
                 <div class="flex flex-row items-center justify-between pl-2.5 pr-0 py-0 w-full">
-                    <div class="basis-0 flex flex-row gap-2.5 grow items-center justify-center min-h-px min-w-px">
-                        <div class="h-[19px] w-4">
-                            <svg class="w-full h-full text-waterloo-900" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
-                                <polyline points="9,22 9,12 15,12 15,22"/>
+                    <div class="flex gap-2.5 items-center justify-center">
+                        <div class="size-6">
+                            <svg class="w-full h-full text-[#2c2c2c]" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/>
                             </svg>
                         </div>
-                        <div class="basis-0 grow min-h-px min-w-px font-alegreya text-waterloo-900 text-base leading-6">
-                            Side Menu item with icon
-                        </div>
+                        <p class="font-alegreya font-bold text-[#2c2c2c] text-base leading-6">
+                            Side Menu with icon
+                        </p>
                     </div>
-                    <div class="overflow-clip size-6">
-                        <svg class="w-full h-full text-waterloo-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                        </svg>
-                    </div>
+                    <p class="font-['Font_Awesome_6_Free'] text-sm leading-[1.42] not-italic text-[#818181]">
+
+                    </p>
                 </div>
             </div>
 
             {{-- Always Expanded Side Menu --}}
             <div class="flex flex-col gap-2.5 items-start justify-start w-full">
-                <div class="flex flex-row gap-2.5 items-center justify-center pl-2.5 pr-0 py-0 w-full">
-                    <div class="basis-0 grow min-h-px min-w-px font-alegreya font-bold text-waterloo-900 text-base leading-6">
+                <div class="flex gap-2.5 items-center pl-2.5 pr-0 py-0 w-full">
+                    <p class="font-alegreya font-bold text-[#2c2c2c] text-base leading-6">
                         Always Expanded Side Menu
-                    </div>
+                    </p>
                 </div>
-                <div class="flex flex-col gap-2 items-start justify-start w-full">
-                    <div class="flex flex-row gap-2.5 items-center justify-center px-2.5 py-0 w-full">
-                        <div class="basis-0 grow min-h-px min-w-px font-alegreya text-waterloo-900 text-sm leading-[1.42]">
-                            Inactive Side Menu item
-                        </div>
+                <div class="flex flex-col items-start w-full">
+                    <div class="bg-[#fafafa] flex gap-2.5 items-center py-2.5 pl-2.5 pr-0 w-full">
+                        <p class="font-alegreya text-[#2c2c2c] text-sm leading-[1.42] whitespace-pre">
+                            Active Side Menu Item
+                        </p>
                     </div>
-                    <div class="flex flex-row gap-2.5 items-center justify-center px-2.5 py-0 w-full">
-                        <div class="basis-0 grow min-h-px min-w-px font-alegreya text-waterloo-900 text-sm leading-[1.42]">
-                            Inactive Side Menu item
-                        </div>
+                    <div class="bg-[#fafafa] flex gap-2.5 items-center py-2.5 pl-2.5 pr-0 w-full">
+                        <p class="font-alegreya text-[#2c2c2c] text-sm leading-[1.42] whitespace-pre">
+                            Inactive Side Menu Item
+                        </p>
                     </div>
                 </div>
             </div>

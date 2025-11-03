@@ -3,20 +3,20 @@
         [
             'title' => 'Documentation',
             'links' => [
-                'Start Selling' => '/category/start-selling',
-                'Manage Catalog' => '/category/manage-catalog',
-                'Handle Orders' => '/category/handle-orders',
-                'Grow Store' => '/category/grow-store',
-                'Improve UX' => '/category/improve-ux',
-                'Stay Compliant' => '/category/stay-compliant',
+                'Start Selling' => '/docs/start-selling',
+                'Manage Catalog' => '/docs/manage-catalog',
+                'Handle Orders' => '/docs/handle-orders',
+                'Grow Store' => '/docs/grow-store',
+                'Improve UX' => '/docs/improve-ux',
+                'Stay Compliant' => '/docs/stay-compliant',
             ],
         ],
         [
             'title' => 'Resources',
             'links' => [
-                'Getting Started Guide' => '/docs/main/getting-started',
-                'FAQ' => '/docs/main/faq',
-                'Video Tutorials' => '/docs/main/videos',
+                'Getting Started' => '/docs/getting-started',
+                'Support and Resources' => '/docs/support-and-resources',
+                'Troubleshooting' => '/docs/troubleshooting',
                 'Magento User Guide' => 'https://docs.magento.com/user-guide/',
                 'Magento StackExchange' => 'https://magento.stackexchange.com/',
             ],
@@ -38,7 +38,7 @@
                 'Report Issues' => '/issues',
                 'Feature Requests' => '/feature-requests',
                 'Developer Resources' => 'https://developer.adobe.com/commerce/',
-                'System Requirements' => '/docs/main/requirements',
+                'Community Resources' => 'https://community.magento.com/',
             ],
         ],
     ];

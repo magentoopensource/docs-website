@@ -19,12 +19,12 @@
                         @foreach($categoryArticles as $article)
                             <a
                                 href="/docs/{{ $article['path'] }}"
-                                class="group flex items-start gap-3 px-3 py-2 text-sm rounded-lg transition-colors duration-150
-                                    {{ $article['slug'] === $page ? 'bg-orange-50 text-orange-600 font-medium' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900' }}"
+                                class="group flex items-start gap-3 px-3 py-2 text-sm rounded-lg transition-colors duration-150 no-underline
+                                    {{ $article['slug'] === $page ? 'bg-lightning-yellow-500 text-mine-shaft-500 font-medium' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900' }}"
                             >
                                 <span class="flex-1">{{ $article['title'] }}</span>
                                 @if($article['slug'] === $page)
-                                    <svg class="w-5 h-5 text-orange-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <svg class="w-5 h-5 text-mine-shaft-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
                                     </svg>
                                 @endif
@@ -36,7 +36,7 @@
                     <div class="mt-6 pt-6 border-t border-gray-200">
                         <a
                             href="/docs/{{ $category }}"
-                            class="flex items-center gap-2 px-3 py-2 text-sm font-medium text-orange-600 hover:text-orange-700 transition-colors"
+                            class="flex items-center gap-2 px-3 py-2 text-sm font-medium text-orange-600 hover:text-orange-700 transition-colors no-underline"
                         >
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
@@ -104,7 +104,7 @@
                         @foreach($tableOfContents as $heading)
                             <a
                                 href="#{{ $heading['slug'] }}"
-                                class="block text-sm transition-colors duration-150
+                                class="block text-sm transition-colors duration-150 no-underline
                                     {{ $heading['level'] === 2 ? 'font-medium text-gray-700 hover:text-orange-600' : 'pl-4 text-gray-600 hover:text-gray-900' }}"
                             >
                                 {{ $heading['text'] }}
@@ -116,7 +116,7 @@
                     <div class="mt-8 pt-6 border-t border-gray-200">
                         <a
                             href="#"
-                            class="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-orange-600 transition-colors"
+                            class="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-orange-600 transition-colors no-underline"
                         >
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/>
@@ -188,8 +188,8 @@
                     @foreach($categoryArticles as $article)
                         <a
                             href="/docs/{{ $article['path'] }}"
-                            class="block px-3 py-2 text-sm rounded-lg transition-colors
-                                {{ $article['slug'] === $page ? 'bg-orange-50 text-orange-600 font-medium' : 'text-gray-700 hover:bg-gray-50' }}"
+                            class="block px-3 py-2 text-sm rounded-lg transition-colors no-underline
+                                {{ $article['slug'] === $page ? 'bg-lightning-yellow-500 text-mine-shaft-500 font-medium' : 'text-gray-700 hover:bg-gray-50' }}"
                         >
                             {{ $article['title'] }}
                         </a>
@@ -208,7 +208,7 @@
                         <a
                             href="#{{ $heading['slug'] }}"
                             @click="mobileNavOpen = false"
-                            class="block text-sm transition-colors
+                            class="block text-sm transition-colors no-underline
                                 {{ $heading['level'] === 2 ? 'font-medium text-gray-700' : 'pl-4 text-gray-600' }}"
                         >
                             {{ $heading['text'] }}
