@@ -117,11 +117,8 @@ class DocsController extends Controller
         // Extract table of contents for right sidebar
         $tableOfContents = Documentation::extractTableOfContents($content);
 
-        // Use new Figma-designed template for specific pages
-        $viewTemplate = "docs";
-        if ($sectionPage === "products/simple-product") {
-            $viewTemplate = "docs-figma";
-        }
+        // Determine view template from front matter or use default
+        $viewTemplate = $pageCustomData["template"] ?? "docs";
 
         return view($viewTemplate, [
             "title" => count($title)
