@@ -28,18 +28,15 @@ jobs:
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
-          echo "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
-          chmod 600 ~/.ssh/deploy_key
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H 62.113.231.168 >> ~/.ssh/known_hosts
-          cat >> ~/.ssh/config << EOF
-          Host 62.113.231.168
-            User web-user
-            IdentityFile ~/.ssh/deploy_key
-            StrictHostKeyChecking no
-          EOF
-          chmod 600 ~/.ssh/config
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Test SSH Connection
+        run: |
+          ssh -o StrictHostKeyChecking=no web-user@62.113.231.168 'echo "SSH connection successful"'
 
       - name: Deploy with Deployer
         run: |
@@ -48,8 +45,7 @@ jobs:
       - name: Cleanup
         if: always()
         run: |
-          rm -f ~/.ssh/deploy_key
-          rm -f ~/.ssh/config
+          rm -f ~/.ssh/id_rsa
 
       - name: Deployment notification
         if: success()
