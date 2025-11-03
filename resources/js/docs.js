@@ -1,18 +1,9 @@
-import Prism from 'prismjs';
-Prism.manual = true;
-
-// highlightCode();
+// Initialize docs page functionality
 wrapHeadingsInAnchors();
 setupNavCurrentLinkHandling();
 replaceBlockquotesWithCalloutsInDocs();
 highlightSupportPolicyTable();
 generateTableOfContents();
-
-function highlightCode() {
-    [...document.querySelectorAll('pre code')].forEach(el => {
-        Prism.highlightElement(el);
-    });
-}
 
 function wrapHeadingsInAnchors() {
     [...document.querySelector('.docs_main').querySelectorAll('a[name]')].forEach(anchor => {

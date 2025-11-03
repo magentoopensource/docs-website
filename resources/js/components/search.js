@@ -1,9 +1,20 @@
 import docsearch from '@docsearch/js';
 
-// Wait for DOM to be ready and for algolia variables to be available
+// Wait for DOM to be ready
 document.addEventListener('DOMContentLoaded', () => {
+    const docsearchContainer = document.getElementById('docsearch');
+
+    if (!docsearchContainer) {
+        console.warn('DocSearch container not found.');
+        return;
+    }
+
+    // Get Algolia credentials from data attributes
+    const algoliaAppId = docsearchContainer.dataset.algoliaAppId;
+    const algoliaSearchKey = docsearchContainer.dataset.algoliaSearchKey;
+
     // Check if Algolia credentials are available
-    if (typeof algolia_app_id === 'undefined' || !algolia_app_id || !algolia_search_key) {
+    if (!algoliaAppId || !algoliaSearchKey) {
         console.warn('Algolia credentials not found. Search functionality will be disabled.');
         return;
     }
@@ -11,8 +22,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize DocSearch
     const docSearchInstance = docsearch({
         container: '#docsearch',
-        appId: algolia_app_id,
-        apiKey: algolia_search_key,
+        appId: algoliaAppId,
+        apiKey: algoliaSearchKey,
         indexName: 'devmage-os',
         searchParameters: {},
     });

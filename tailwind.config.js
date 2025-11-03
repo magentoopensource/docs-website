@@ -201,30 +201,6 @@ export default {
             purple: {
                 600: "#8338ec",
             },
-            vapor: "#25c4f2",
-            forge: "#1EB786",
-            envoyer: "#F56857",
-            horizon: "#8C6ED3",
-            nova: "#4099DE",
-            echo: "#4AB2B0",
-            lumen: "#F6AE7A",
-            homestead: "#E7801C",
-            spark: "#9B8BFB",
-            valet: "#5E47CD",
-            mix: "#294BA5",
-            cashier: "#91D630",
-            dusk: "#BB358B",
-            passport: "#7DD9F2",
-            scout: "#F55D5C",
-            socialite: "#E394BA",
-            telescope: "#4040C8",
-            tinker: "#EC7658",
-            jetstream: "#6875f5",
-            sail: "#38BDF7",
-            sanctum: "#1D5873",
-            octane: "#CA3A31",
-            breeze: "#F3C14B",
-            pint: "#ffd000",
             // Figma Design System Colors
             "mine-shaft": {
                 50: "#f1f1f1",   // Mine Shaft/50 from Figma
@@ -274,12 +250,10 @@ export default {
             },
         },
         fontFamily: {
-            sans: ["Inter Tight", ...defaultTheme.fontFamily.sans], // Primary Figma typeface
+            sans: ["Inter Tight", ...defaultTheme.fontFamily.sans],
             mono: ["source-code-pro", "SF Mono", "Monaco", "Inconsolata", "Roboto Mono", ...defaultTheme.fontFamily.mono],
-            display: ["Inter Tight", ...defaultTheme.fontFamily.sans], // Figma typeface
-            "inter-tight": ["Inter Tight", ...defaultTheme.fontFamily.sans], // Explicit Figma font
-            "neue-haas": ["Neue Haas Grotesk Text Pro", ...defaultTheme.fontFamily.sans], // Figma body typeface
-            alegreya: ["Alegreya Sans", ...defaultTheme.fontFamily.sans], // Frame 53 font
+            display: ["Inter Tight", ...defaultTheme.fontFamily.sans],
+            "inter-tight": ["Inter Tight", ...defaultTheme.fontFamily.sans], // Used in typography
         },
         letterSpacing: {
             tighter: "-0.05em",

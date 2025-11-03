@@ -24,8 +24,8 @@
 
     <!-- Twitter / X -->
     <meta property="twitter:card" content="summary_large_image">
-    <meta property="og:url" content="{{ $canonical ? url($canonical) : url('/') }}">
-    <meta property="og:title" content="{{ $metaTitle }}">
+    <meta property="twitter:url" content="{{ $canonical ? url($canonical) : url('/') }}">
+    <meta property="twitter:title" content="{{ $metaTitle }}">
     <meta property="twitter:description" content="{{ $metaDescription }}">
     <meta property="twitter:image" content="{{ url('/img/merchant-docs-og.png') }}">
 
@@ -48,7 +48,18 @@
     })(window,document,'script','dataLayer','GTM-5DBRTJMQ');</script>
     <!-- End Google Tag Manager -->
 
+    <!-- Preconnect to external domains for performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://{{ config('algolia.connections.main.id') }}-dsn.algolia.net" crossorigin />
+    <link rel="preconnect" href="https://www.googletagmanager.com">
+
+    <!-- DNS prefetch as fallback for older browsers -->
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+    <link rel="dns-prefetch" href="https://{{ config('algolia.connections.main.id') }}-dsn.algolia.net">
+    <link rel="dns-prefetch" href="https://www.googletagmanager.com">
+    <link rel="dns-prefetch" href="https://www.google-analytics.com">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
@@ -78,17 +89,13 @@
 @include('partials.footer')
 
 {{-- Hidden DocSearch container for Algolia integration --}}
-<div id="docsearch" style="display: none;"></div>
-
-<script>
-    var algolia_app_id = '{{ config('algolia.connections.main.id', false) }}';
-    var algolia_search_key = '{{ config('algolia.connections.main.search_key', false) }}';
-    var version = 'main';
-</script>
-
-<div class="fixed">
-    <input type="text">
-</div>
+<div
+    id="docsearch"
+    style="display: none;"
+    data-algolia-app-id="{{ config('algolia.connections.main.id', '') }}"
+    data-algolia-search-key="{{ config('algolia.connections.main.search_key', '') }}"
+    data-version="main"
+></div>
 
 </body>
 </html>
