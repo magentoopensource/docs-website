@@ -86,9 +86,19 @@ class DocsController extends Controller
                     "content" => view("docs-missing", [
                         "page" => $sectionPage,
                         "category" => $category,
+                        "otherVersions" => collect([]), // Empty collection for now as we only have 'main' version
                     ]),
                     "currentSection" => "",
                     "canonical" => null,
+                    "category" => $category,
+                    "page" => $page,
+                    "categoryArticles" => collect([]),
+                    "tableOfContents" => [],
+                    "metaTitle" => "Page not found - " . self::DEFAULT_META_TITLE,
+                    "metaDescription" => self::DEFAULT_META_DESCRIPTION,
+                    "metaKeywords" => self::DEFAULT_META_KEYWORDS,
+                    "communityNote" => false,
+                    "edit_link" => "",
                 ],
                 404
             );

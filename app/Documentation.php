@@ -47,7 +47,7 @@ class Documentation
     {
         return $this->cache->remember(
             "docs.main.navigation",
-            5,
+            CarbonInterval::minutes(5),
             function () {
                 $path = base_path("resources/docs/main/navigation.md");
 
@@ -72,9 +72,16 @@ class Documentation
      */
     public function get(string $page): ?array
     {
+        // Sanitize page path to prevent path traversal attacks
+        $page = $this->sanitizePath($page);
+
+        if ($page === null) {
+            return null;
+        }
+
         return $this->cache->remember(
             "docs.main." . $page,
-            5,
+            CarbonInterval::minutes(5),
             function () use ($page) {
                 $path = base_path("resources/docs/main/" . $page . ".md");
 
@@ -191,6 +198,13 @@ class Documentation
      */
     public function sectionExists(string $page): bool
     {
+        // Sanitize page path to prevent path traversal attacks
+        $page = $this->sanitizePath($page);
+
+        if ($page === null) {
+            return false;
+        }
+
         return $this->files->exists(
             base_path("resources/docs/main/" . $page . ".md")
         );
@@ -204,8 +218,50 @@ class Documentation
      */
     public function getEditUrlForPage(string $page): string
     {
+        // Sanitize page path to prevent path traversal attacks
+        $page = $this->sanitizePath($page);
+
+        if ($page === null) {
+            $page = '';
+        }
+
         $baseEditUrl = "https://github.com/mage-os/devdocs/edit/main";
         return "{$baseEditUrl}/{$page}.md";
+    }
+
+    /**
+     * Sanitize a path to prevent path traversal attacks.
+     *
+     * @param  string  $path
+     * @return string|null Returns null if path is invalid
+     */
+    protected function sanitizePath(string $path): ?string
+    {
+        // Remove null bytes
+        $path = str_replace("\0", '', $path);
+
+        // Normalize path separators to forward slash
+        $path = str_replace('\\', '/', $path);
+
+        // Remove any attempts at parent directory traversal
+        if (str_contains($path, '..')) {
+            return null;
+        }
+
+        // Remove leading slashes
+        $path = ltrim($path, '/');
+
+        // Ensure path doesn't start with a protocol or absolute path indicator
+        if (preg_match('/^[a-z]+:/i', $path)) {
+            return null;
+        }
+
+        // Additional validation: only allow alphanumeric, hyphens, underscores, forward slashes
+        if (!preg_match('/^[a-zA-Z0-9\/_-]+$/', $path)) {
+            return null;
+        }
+
+        return $path;
     }
 
     /**
