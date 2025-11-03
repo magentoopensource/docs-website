@@ -15,7 +15,9 @@ host('production')
     ->setHostname('62.113.231.168')
     ->setRemoteUser('web-user')
     ->setDeployPath('~/docs.magento-opensource.com')
-    ->setLabels(['stage' => 'production']);
+    ->setLabels(['stage' => 'production'])
+    ->set('ssh_multiplexing', false)
+    ->setSshArguments(['-o StrictHostKeyChecking=no']);
 
 // Shared files/dirs
 add('shared_files', [
