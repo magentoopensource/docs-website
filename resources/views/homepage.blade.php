@@ -91,50 +91,37 @@
 
     {{-- Categories Grid Section --}}
     <section class="flex flex-col items-center justify-start gap-8 sm:gap-10 md:gap-12 px-6 sm:px-12 md:px-16 lg:px-24 xl:px-32 py-12 sm:py-16">
-        <div class="flex flex-col items-center justify-start gap-6 w-full">
-            {{-- Top Row Categories --}}
-            <div class="flex flex-col lg:flex-row gap-6 sm:gap-8 lg:gap-[30px] items-stretch justify-start w-full">
-                {{-- Start Selling --}}
-                <div class="flex-1 bg-white flex flex-col gap-[30px] items-start justify-start p-6 pt-8 pb-6 rounded border-t-4 border-yellow shadow-lg hover:shadow-xl transition-all duration-300 hover:border-orange focus-within:ring-2 focus-within:ring-orange focus-within:ring-opacity-20">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-[30px] w-full">
+            @foreach($categories as $category)
+                {{-- Category Card --}}
+                <div class="bg-white flex flex-col gap-[30px] items-start justify-start p-6 pt-8 pb-6 rounded border-t-4 border-yellow shadow-lg hover:shadow-xl transition-all duration-300 hover:border-orange focus-within:ring-2 focus-within:ring-orange focus-within:ring-opacity-20">
                     <div class="flex items-center justify-start gap-[26px] w-full">
-                        <h3 class="text-3xl font-inter-tight font-normal leading-[1.2] text-charcoal">
-                            Start selling
+                        <h3 class="text-3xl font-inter-tight font-bold leading-[1.2] text-charcoal">
+                            {{ $category['name'] }}
                         </h3>
                     </div>
-                    <div class="flex flex-col items-start justify-start gap-[15px] w-full">
-                        <p class="text-base font-inter-tight font-normal leading-[1.5] text-charcoal">
-                            Get your store up and running with your first products, payments and shipping setup.
-                        </p>
-                    </div>
+                    @if($category['description'])
+                        <div class="flex flex-col items-start justify-start gap-[15px] w-full">
+                            <p class="text-base font-inter-tight font-normal leading-[1.5] text-charcoal">
+                                {{ $category['description'] }}
+                            </p>
+                        </div>
+                    @endif
 
-                    {{-- Link Boxes --}}
+                    {{-- Article Links --}}
                     <div class="flex flex-col gap-2 items-start justify-start w-full">
-                        @foreach([
-                            ['title' => 'Simple products', 'desc' => 'How to create your first simple product.'],
-                            ['title' => 'Shipping rates', 'desc' => 'Set up shipping rates by country or region.'],
-                            ['title' => 'Credit card payments', 'desc' => 'Enable credit card payments securely.'],
-                            ['title' => 'Free shipping', 'desc' => 'Add free shipping over a minimum cart value']
-                        ] as $link)
-                            <a href="/docs/start-selling" class="bg-white flex flex-col gap-4 items-center justify-start pb-5 w-full hover:bg-off-white transition-colors duration-200 rounded-lg p-2 -mx-2">
+                        @foreach($category['articles'] as $article)
+                            <a href="/docs/{{ $article['path'] }}" class="bg-white flex flex-col gap-4 items-center justify-start pb-5 w-full hover:bg-off-white transition-colors duration-200 rounded-lg p-2 -mx-2">
                                 <div class="bg-gray-light h-1 w-full"></div>
                                 <div class="flex gap-2.5 items-start justify-start px-2 w-full">
                                     <div class="w-6 h-6 flex-shrink-0">
-                                        @if($link['title'] === 'Simple products')
-                                            <img src="{{ asset('img/icons/simple-products.svg') }}" alt="Simple products icon" class="w-full h-full">
-                                        @elseif($link['title'] === 'Shipping rates')
-                                            <img src="{{ asset('img/icons/shipping-rates.svg') }}" alt="Shipping rates icon" class="w-full h-full">
-                                        @elseif($link['title'] === 'Credit card payments')
-                                            <img src="{{ asset('img/icons/credit-card.svg') }}" alt="Credit card icon" class="w-full h-full">
-                                        @elseif($link['title'] === 'Free shipping')
-                                            <img src="{{ asset('img/icons/free-shipping.svg') }}" alt="Free shipping icon" class="w-full h-full">
-                                        @endif
+                                        <svg class="w-full h-full text-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                        </svg>
                                     </div>
                                     <div class="flex flex-col items-start justify-center flex-1">
-                                        <div class="text-base font-inter-tight leading-[1.5] text-charcoal font-bold">
-                                            {{ $link['title'] }}
-                                        </div>
-                                        <div class="text-xs font-inter-tight leading-[1.333] text-gray-darkest">
-                                            {{ $link['desc'] }}
+                                        <div class="text-base font-inter-tight font-medium leading-[1.5] text-charcoal">
+                                            {{ $article['title'] }}
                                         </div>
                                     </div>
                                 </div>
@@ -142,302 +129,9 @@
                         @endforeach
                     </div>
 
-                    <a href="/docs/start-selling" class="text-base font-inter-tight leading-[1.5] text-red underline decoration-solid"> See all in this section </a>
+                    <a href="/docs/{{ $category['slug'] }}" class="text-base font-inter-tight leading-[1.5] text-red underline decoration-solid">See all in this section</a>
                 </div>
-
-                {{-- Manage Catalog --}}
-                <div class="flex-1 bg-white flex flex-col gap-[30px] items-start justify-start p-6 pt-8 pb-6 rounded border-t-4 border-yellow shadow-lg hover:shadow-xl transition-all duration-300 hover:border-orange focus-within:ring-2 focus-within:ring-orange focus-within:ring-opacity-20">
-                    <div class="flex items-center justify-start gap-[26px] w-full">
-                        <h3 class="text-3xl font-inter-tight font-normal leading-[1.2] text-charcoal">
-                            Manage catalog
-                        </h3>
-                    </div>
-                    <div class="flex flex-col items-start justify-start gap-[15px] w-full">
-                        <p class="text-base font-inter-tight font-normal leading-[1.5] text-charcoal">
-                            Organise and maintain your product catalog with bulk operations and smart workflows.
-                        </p>
-                    </div>
-
-                    {{-- Link Boxes --}}
-                    <div class="flex flex-col gap-2 items-start justify-start w-full">
-                        @foreach([
-                            ['title' => 'Import products', 'desc' => 'Bulk import products via CSV'],
-                            ['title' => 'Images', 'desc' => 'How to update product images quickly'],
-                            ['title' => 'Variants', 'desc' => 'Create configurable products with variants'],
-                            ['title' => 'Categories', 'desc' => 'Organise products into categories efficiently']
-                        ] as $link)
-                            <a href="/docs/manage-catalog" class="bg-white flex flex-col gap-4 items-center justify-start pb-5 w-full hover:bg-off-white transition-colors duration-200 rounded-lg p-2 -mx-2">
-                                <div class="bg-gray-light h-1 w-full"></div>
-                                <div class="flex gap-2.5 items-start justify-start px-2 w-full">
-                                    <div class="w-6 h-6 flex-shrink-0">
-                                        @if($link['title'] === 'Import products')
-                                            <img src="{{ asset('img/icons/import-products.svg') }}" alt="Import products icon" class="w-full h-full">
-                                        @elseif($link['title'] === 'Images')
-                                            <img src="{{ asset('img/icons/product-images.svg') }}" alt="Product images icon" class="w-full h-full">
-                                        @elseif($link['title'] === 'Variants')
-                                            <img src="{{ asset('img/icons/variants.svg') }}" alt="Variants icon" class="w-full h-full">
-                                        @elseif($link['title'] === 'Categories')
-                                            <img src="{{ asset('img/icons/categories.svg') }}" alt="Categories icon" class="w-full h-full">
-                                        @endif
-                                    </div>
-                                    <div class="flex flex-col items-start justify-center flex-1">
-                                        <div class="text-base font-inter-tight leading-[1.5] text-charcoal">
-                                            {{ $link['title'] }}
-                                        </div>
-                                        <div class="text-xs font-inter-tight leading-[1.333] text-gray-darkest">
-                                            {{ $link['desc'] }}
-                                        </div>
-                                    </div>
-                                </div>
-                            </a>
-                        @endforeach
-                    </div>
-
-                    <a href="/docs/manage-catalog" class="text-base font-inter-tight leading-[1.5] text-red underline decoration-solid"> See all in this section </a>
-                </div>
-
-                {{-- Handle Orders --}}
-                <div class="flex-1 bg-white flex flex-col gap-[30px] items-start justify-start p-6 pt-8 pb-6 rounded border-t-4 border-yellow shadow-lg hover:shadow-xl transition-all duration-300 hover:border-orange focus-within:ring-2 focus-within:ring-orange focus-within:ring-opacity-20">
-                    <div class="flex items-center justify-start gap-[26px] w-full">
-                        <h3 class="text-3xl font-inter-tight font-normal leading-[1.2] text-charcoal">
-                            Handle orders
-                        </h3>
-                    </div>
-                    <div class="flex flex-col items-start justify-start gap-[15px] w-full">
-                        <p class="text-base font-inter-tight font-normal leading-[1.5] text-charcoal">
-                            Process orders, manage fulfilment and handle customer service quickly and efficiently.
-                        </p>
-                    </div>
-
-                    {{-- Link Boxes --}}
-                    <div class="flex flex-col gap-2 items-start justify-start w-full">
-                        @foreach([
-                            ['title' => 'Orders', 'desc' => 'Process your first customer order'],
-                            ['title' => 'Refunds', 'desc' => 'Issue a refund or partial refund'],
-                            ['title' => 'Edit orders', 'desc' => 'Edit shipping details after purchase'],
-                            ['title' => 'Label management', 'desc' => 'Print shipping labels directly from Magento']
-                        ] as $link)
-                            <a href="/docs/handle-orders" class="bg-white flex flex-col gap-4 items-center justify-start pb-5 w-full hover:bg-off-white transition-colors duration-200 rounded-lg p-2 -mx-2">
-                                <div class="bg-gray-light h-1 w-full"></div>
-                                <div class="flex gap-2.5 items-start justify-start px-2 w-full">
-                                    <div class="w-6 h-6 flex-shrink-0">
-                                        @if($link['title'] === 'Orders')
-                                            <svg class="w-full h-full text-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                            </svg>
-                                        @elseif($link['title'] === 'Refunds')
-                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <path d="M5 3H3V21H21V19H5V3Z" fill="#F26423"/>
-                                                <path d="M13 12.586L8.70697 8.29297L7.29297 9.70697L13 15.414L16 12.414L20.293 16.707L21.707 15.293L16 9.58597L13 12.586Z" fill="#F26423"/>
-                                            </svg>
-                                        @elseif($link['title'] === 'Edit orders')
-                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <path d="M7 17.013L11.413 16.998L21.045 7.45802C21.423 7.08003 21.631 6.57802 21.631 6.04402C21.631 5.51002 21.423 5.00802 21.045 4.63002L19.459 3.04402C18.703 2.28802 17.384 2.29202 16.634 3.04102L7 12.583V17.013ZM18.045 4.45802L19.634 6.04102L18.037 7.62302L16.451 6.03802L18.045 4.45802ZM9 13.417L15.03 7.44402L16.616 9.03002L10.587 15.001L9 15.006V13.417Z" fill="#F26423"/>
-                                                <path d="M5 21H19C20.103 21 21 20.103 21 19V10.332L19 12.332V19H8.158C8.132 19 8.105 19.01 8.079 19.01C8.046 19.01 8.013 19.001 7.979 19H5V5H11.847L13.847 3H5C3.897 3 3 3.897 3 5V19C3 20.103 3.897 21 5 21Z" fill="#F26423"/>
-                                            </svg>
-
-                                        @elseif($link['title'] === 'Label management')
-                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <path d="M17 5V3C17 2.448 16.552 2 16 2H7C6.448 2 6 2.448 6 3V5C4.346 5 3 6.346 3 8V18C3 19.654 4.346 21 6 21H17C18.654 21 20 19.654 20 18V8C20 6.346 18.654 5 17 5ZM8 4H15V9H8V4ZM6 7V10C6 10.552 6.448 11 7 11H16C16.552 11 17 10.552 17 10V7C17.551 7 18 7.449 18 8V10.5C18 11.327 17.327 12 16.5 12H6.5C5.673 12 5 11.327 5 10.5V8C5 7.449 5.449 7 6 7ZM17 19H6C5.449 19 5 18.551 5 18V12.487C5.419 12.805 5.935 13 6.5 13H16.5C17.065 13 17.581 12.805 18 12.487V18C18 18.551 17.551 19 17 19ZM13.5 7H9.5C9.224 7 9 7.224 9 7.5C9 7.776 9.224 8 9.5 8H13.5C13.776 8 14 7.776 14 7.5C14 7.224 13.776 7 13.5 7ZM15 16H8C7.724 16 7.5 16.224 7.5 16.5C7.5 16.776 7.724 17 8 17H15C15.276 17 15.5 16.776 15.5 16.5C15.5 16.224 15.276 16 15 16ZM13.5 5H9.5C9.224 5 9 5.224 9 5.5C9 5.776 9.224 6 9.5 6H13.5C13.776 6 14 5.776 14 5.5C14 5.224 13.776 5 13.5 5Z" fill="#F26423"/>
-                                            </svg>
-                                        @endif
-                                    </div>
-                                    <div class="flex flex-col items-start justify-center flex-1">
-                                        <div class="text-base font-inter-tight leading-[1.5] text-charcoal">
-                                            {{ $link['title'] }}
-                                        </div>
-                                        <div class="text-xs font-inter-tight leading-[1.333] text-gray-darkest">
-                                            {{ $link['desc'] }}
-                                        </div>
-                                    </div>
-                                </div>
-                            </a>
-                        @endforeach
-                    </div>
-
-                    <a href="/docs/handle-orders" class="text-base font-inter-tight leading-[1.5] text-red underline decoration-solid"> See all in this section </a>
-                </div>
-            </div>
-
-            {{-- Bottom Row Categories --}}
-            <div class="flex flex-col lg:flex-row gap-6 sm:gap-8 lg:gap-[30px] items-stretch justify-start w-full">
-                {{-- Grow Your Store --}}
-                <div class="flex-1 bg-white flex flex-col gap-[30px] items-start justify-start p-6 pt-8 pb-6 rounded border-t-4 border-yellow shadow-lg hover:shadow-xl transition-all duration-300 hover:border-orange focus-within:ring-2 focus-within:ring-orange focus-within:ring-opacity-20">
-                    <div class="flex items-center justify-start gap-[26px] w-full">
-                        <h3 class="text-3xl font-inter-tight font-normal leading-[1.2] text-charcoal">
-                            Grow your store
-                        </h3>
-                    </div>
-                    <div class="flex flex-col items-start justify-start gap-[15px] w-full">
-                        <p class="text-base font-inter-tight font-normal leading-[1.5] text-charcoal">
-                            Scale your business with marketing tools, analytics and customer retention strategies.
-                        </p>
-                    </div>
-
-                    {{-- Link Boxes --}}
-                    <div class="flex flex-col gap-2 items-start justify-start w-full">
-                        @foreach([
-                            ['title' => 'Analytics', 'desc' => 'Track sales performance and customer behavior'],
-                            ['title' => 'Marketing tools', 'desc' => 'Set up email campaigns and promotions'],
-                            ['title' => 'Customer retention', 'desc' => 'Build loyalty programs and repeat purchases'],
-                            ['title' => 'Social media', 'desc' => 'Connect social channels to drive traffic']
-                        ] as $link)
-                            <a href="/docs/grow-store" class="bg-white flex flex-col gap-4 items-center justify-start pb-5 w-full hover:bg-off-white transition-colors duration-200 rounded-lg p-2 -mx-2">
-                                <div class="bg-gray-light h-1 w-full"></div>
-                                <div class="flex gap-2.5 items-start justify-start px-2 w-full">
-                                    <div class="w-6 h-6 flex-shrink-0">
-                                        @if($link['title'] === 'Analytics')
-                                            <svg class="w-full h-full text-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                                            </svg>
-                                        @elseif($link['title'] === 'Marketing tools')
-                                            <svg class="w-full h-full text-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/>
-                                            </svg>
-                                        @elseif($link['title'] === 'Customer retention')
-                                            <svg class="w-full h-full text-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-                                            </svg>
-                                        @elseif($link['title'] === 'Social media')
-                                            <svg class="w-full h-full text-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
-                                            </svg>
-                                        @endif
-                                    </div>
-                                    <div class="flex flex-col items-start justify-center flex-1">
-                                        <div class="text-base font-inter-tight leading-[1.5] text-charcoal">
-                                            {{ $link['title'] }}
-                                        </div>
-                                        <div class="text-xs font-inter-tight leading-[1.333] text-gray-darkest">
-                                            {{ $link['desc'] }}
-                                        </div>
-                                    </div>
-                                </div>
-                            </a>
-                        @endforeach
-                    </div>
-
-                    <a href="/docs/grow-store" class="text-base font-inter-tight leading-[1.5] text-red underline decoration-solid"> See all in this section </a>
-                </div>
-
-                {{-- Improve UX --}}
-                <div class="flex-1 bg-white flex flex-col gap-[30px] items-start justify-start p-6 pt-8 pb-6 rounded border-t-4 border-yellow shadow-lg hover:shadow-xl transition-all duration-300 hover:border-orange focus-within:ring-2 focus-within:ring-orange focus-within:ring-opacity-20">
-                    <div class="flex items-center justify-start gap-[26px] w-full">
-                        <h3 class="text-3xl font-inter-tight font-normal leading-[1.2] text-charcoal">
-                            Improve UX
-                        </h3>
-                    </div>
-                    <div class="flex flex-col items-start justify-start gap-[15px] w-full">
-                        <p class="text-base font-inter-tight font-normal leading-[1.5] text-charcoal">
-                            Enhance customer experience with design, navigation and performance optimizations.
-                        </p>
-                    </div>
-
-                    {{-- Link Boxes --}}
-                    <div class="flex flex-col gap-2 items-start justify-start w-full">
-                        @foreach([
-                            ['title' => 'Theme design', 'desc' => 'Customize your store\'s visual appearance'],
-                            ['title' => 'Navigation', 'desc' => 'Optimize menu structure and user flow'],
-                            ['title' => 'Performance', 'desc' => 'Speed up page loading and response times'],
-                            ['title' => 'Mobile optimization', 'desc' => 'Ensure seamless mobile shopping experience']
-                        ] as $link)
-                            <a href="/docs/improve-ux" class="bg-white flex flex-col gap-4 items-center justify-start pb-5 w-full hover:bg-off-white transition-colors duration-200 rounded-lg p-2 -mx-2">
-                                <div class="bg-gray-light h-1 w-full"></div>
-                                <div class="flex gap-2.5 items-start justify-start px-2 w-full">
-                                    <div class="w-6 h-6 flex-shrink-0">
-                                        @if($link['title'] === 'Theme design')
-                                            <svg class="w-full h-full text-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z"/>
-                                            </svg>
-                                        @elseif($link['title'] === 'Navigation')
-                                            <svg class="w-full h-full text-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
-                                            </svg>
-                                        @elseif($link['title'] === 'Performance')
-                                            <svg class="w-full h-full text-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                                            </svg>
-                                        @elseif($link['title'] === 'Mobile optimization')
-                                            <svg class="w-full h-full text-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a1 1 0 001-1V4a1 1 0 00-1-1H8a1 1 0 00-1 1v16a1 1 0 001 1z"/>
-                                            </svg>
-                                        @endif
-                                    </div>
-                                    <div class="flex flex-col items-start justify-center flex-1">
-                                        <div class="text-base font-inter-tight leading-[1.5] text-charcoal">
-                                            {{ $link['title'] }}
-                                        </div>
-                                        <div class="text-xs font-inter-tight leading-[1.333] text-gray-darkest">
-                                            {{ $link['desc'] }}
-                                        </div>
-                                    </div>
-                                </div>
-                            </a>
-                        @endforeach
-                    </div>
-
-                    <a href="/docs/improve-ux" class="text-base font-inter-tight leading-[1.5] text-red underline decoration-solid"> See all in this section </a>
-                </div>
-
-                {{-- Stay Compliant --}}
-                <div class="flex-1 bg-white flex flex-col gap-[30px] items-start justify-start p-6 pt-8 pb-6 rounded border-t-4 border-yellow shadow-lg hover:shadow-xl transition-all duration-300 hover:border-orange focus-within:ring-2 focus-within:ring-orange focus-within:ring-opacity-20">
-                    <div class="flex items-center justify-start gap-[26px] w-full">
-                        <h3 class="text-3xl font-inter-tight font-normal leading-[1.2] text-charcoal">
-                            Stay compliant
-                        </h3>
-                    </div>
-                    <div class="flex flex-col items-start justify-start gap-[15px] w-full">
-                        <p class="text-base font-inter-tight font-normal leading-[1.5] text-charcoal">
-                            Ensure your store meets legal and industry standards for data protection and commerce.
-                        </p>
-                    </div>
-
-                    {{-- Link Boxes --}}
-                    <div class="flex flex-col gap-2 items-start justify-start w-full">
-                        @foreach([
-                            ['title' => 'GDPR compliance', 'desc' => 'Implement data protection and privacy controls'],
-                            ['title' => 'Tax settings', 'desc' => 'Configure tax rules for different regions'],
-                            ['title' => 'Legal pages', 'desc' => 'Set up terms, privacy policy, and disclaimers'],
-                            ['title' => 'Accessibility', 'desc' => 'Make your store accessible to all users']
-                        ] as $link)
-                            <a href="/docs/stay-compliant" class="bg-white flex flex-col gap-4 items-center justify-start pb-5 w-full hover:bg-off-white transition-colors duration-200 rounded-lg p-2 -mx-2">
-                                <div class="bg-gray-light h-1 w-full"></div>
-                                <div class="flex gap-2.5 items-start justify-start px-2 w-full">
-                                    <div class="w-6 h-6 flex-shrink-0">
-                                        @if($link['title'] === 'GDPR compliance')
-                                            <svg class="w-full h-full text-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
-                                            </svg>
-                                        @elseif($link['title'] === 'Tax settings')
-                                            <svg class="w-full h-full text-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3-4h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-                                            </svg>
-                                        @elseif($link['title'] === 'Legal pages')
-                                            <svg class="w-full h-full text-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                                            </svg>
-                                        @elseif($link['title'] === 'Accessibility')
-                                            <svg class="w-full h-full text-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                                            </svg>
-                                        @endif
-                                    </div>
-                                    <div class="flex flex-col items-start justify-center flex-1">
-                                        <div class="text-base font-inter-tight leading-[1.5] text-charcoal">
-                                            {{ $link['title'] }}
-                                        </div>
-                                        <div class="text-xs font-inter-tight leading-[1.333] text-gray-darkest">
-                                            {{ $link['desc'] }}
-                                        </div>
-                                    </div>
-                                </div>
-                            </a>
-                        @endforeach
-                    </div>
-
-                    <a href="/docs/stay-compliant" class="text-base font-inter-tight leading-[1.5] text-red underline decoration-solid"> See all in this section </a>
-                </div>
-            </div>
+            @endforeach
         </div>
     </section>
 @endsection

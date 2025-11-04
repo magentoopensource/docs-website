@@ -15,9 +15,6 @@
             'title' => 'Resources',
             'links' => [
                 'Getting Started' => '/docs/getting-started',
-                'Support and Resources' => '/docs/support-and-resources',
-                'Troubleshooting' => '/docs/troubleshooting',
-                'Magento User Guide' => 'https://docs.magento.com/user-guide/',
                 'Magento StackExchange' => 'https://magento.stackexchange.com/',
             ],
         ],
@@ -29,15 +26,13 @@
                  'Magento Marketplace' => 'https://marketplace.magento.com/',
                  'Magento Blog' => 'https://magento.com/blog',
                  'GitHub' => 'https://github.com/magento/magento2',
-             ]
+             ],
          ],
         [
             'title' => 'Support',
             'links' => [
-                'Contact Support' => '/support',
-                'Report Issues' => '/issues',
-                'Feature Requests' => '/feature-requests',
-                'Developer Resources' => 'https://developer.adobe.com/commerce/',
+                'Contact Support' => 'https://github.com/magentoopensource/docs/issues',
+                'Report Issues' => 'https://github.com/magentoopensource/docs/issues',
                 'Community Resources' => 'https://community.magento.com/',
             ],
         ],
@@ -57,8 +52,7 @@
                     <path d="M16.0862 26.2367L14.7883 26.9779L13.4492 26.2135V14.233L10.178 16.0975V27.3485L13.4492 29.213L14.7883 29.9773L16.0862 29.2362L19.4045 27.3485V16.0975L16.0862 14.2098V26.2367Z" fill="#F1BC1B"/>
                 </svg>
 
-                <span class="ml-3 text-xl font-inter-tight font-bold text-charcoal">Merchant Documentation</span>
-            </a>
+                <span class="ml-3 text-xl font-inter-tight font-bold text-charcoal">Merchant Documentation</span> </a>
         </div>
 
         <div class="mt-6 grid grid-cols-12 md:gap-x-8 gap-y-12 sm:mt-12">

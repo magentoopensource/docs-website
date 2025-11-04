@@ -198,7 +198,7 @@ class Documentation
             $page = '';
         }
 
-        $baseEditUrl = "https://github.com/mage-os/devdocs/edit/main";
+        $baseEditUrl = "https://github.com/magentoopensource/docs/edit/main";
         return "{$baseEditUrl}/{$page}.md";
     }
 
