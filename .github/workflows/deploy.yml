@@ -37,6 +37,14 @@ jobs:
       - name: Build assets
         run: npm run build
 
+      - name: Verify build completed
+        run: |
+          if [ ! -f public/build/manifest.json ]; then
+            echo "❌ Build failed - manifest.json not found!"
+            exit 1
+          fi
+          echo "✅ Build successful - manifest.json exists"
+
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
