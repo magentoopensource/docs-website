@@ -9,12 +9,14 @@ import { initErrorLogging } from './components/errorLogging';
 window.Alpine = Alpine;
 
 Alpine.plugin(Focus);
-Alpine.start();
 
 // Initialize error logging first to catch any subsequent errors
 initErrorLogging();
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Start Alpine after DOM is loaded to ensure x-data elements exist
+    Alpine.start();
+
     // Initialize lazy loading for all images
     initLazyLoading();
 
