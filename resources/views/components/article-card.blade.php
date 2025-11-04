@@ -65,21 +65,21 @@
             @endif
         </div>
         
-        <div class="{{ $config['bg'] }} {{ $config['text'] }} flex items-center justify-center px-2 py-1.5 rounded text-xs font-inter-tight leading-[1.333]">
+        <div class="{{ $config['bg'] }} {{ $config['text'] }} flex items-center justify-center px-2 py-1.5 rounded text-xs font-bold font-inter-tight leading-[1.333]">
             {{ $config['label'] }}
         </div>
     </div>
     
     {{-- Title --}}
     <div class="flex items-center justify-start w-full">
-        <h3 class="text-3xl font-inter-tight font-normal leading-[1.2] text-charcoal">
+        <h3 class="text-3xl font-inter-tight font-bold mt-0 leading-[1.2] text-charcoal">
             {{ $title }}
         </h3>
     </div>
     
     {{-- Description and Actions --}}
     <div class="flex flex-col gap-6 items-start justify-start w-full">
-        <p class="text-base font-inter-tight font-normal leading-[1.5] text-charcoal">
+        <p class="text-base font-inter-tight font-medium leading-[1.5] text-charcoal">
             {{ $description }}
         </p>
         

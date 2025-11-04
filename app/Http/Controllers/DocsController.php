@@ -24,7 +24,17 @@ class DocsController extends Controller
      */
     public function showRootPage()
     {
-        $categories = $this->navigationParser->getCategories();
+        $categories = $this->navigationParser->getCategories()
+            ->map(function ($category) {
+                // Limit each category to max 4 articles
+                $category['articles'] = array_slice($category['articles'], 0, 4);
+
+                // Add metadata (description, color, etc.)
+                $metadata = $this->getCategoryMetadata($category['slug']);
+                $category['description'] = $metadata['description'];
+
+                return $category;
+            });
 
         return view("homepage", [
             "title" => "Merchant Documentation",
@@ -41,7 +51,12 @@ class DocsController extends Controller
      */
     public function showDocsIndex()
     {
-        $categories = $this->navigationParser->getCategories();
+        $categories = $this->navigationParser->getCategories()
+            ->map(function ($category) {
+                // Limit each category to max 4 articles
+                $category['articles'] = array_slice($category['articles'], 0, 4);
+                return $category;
+            });
 
         return view("docs-index", [
             "title" => "Documentation Index",
