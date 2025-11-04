@@ -1,0 +1,342 @@
+/**
+ * GitHub Contributors Widget - Tailwind CSS Styles
+ *
+ * Beautiful, responsive widget design inspired by GitHub's aesthetic
+ * Includes smooth animations, hover effects, and accessibility features
+ *
+ * @requires Tailwind CSS 3.x (via CDN or build process)
+ */
+
+/* ============================================
+   Widget Container
+   ============================================ */
+
+.github-contributors-widget {
+    @apply bg-white rounded-lg shadow-md p-6 max-w-4xl mx-auto;
+    @apply border border-gray-200;
+}
+
+.github-contributors-widget.dark-mode {
+    @apply bg-gray-900 border-gray-700;
+}
+
+/* ============================================
+   Header Section
+   ============================================ */
+
+.widget-header {
+    @apply mb-6;
+}
+
+.widget-title {
+    @apply text-2xl font-semibold text-gray-800 mb-2;
+    @apply flex items-center gap-2;
+}
+
+.widget-title.dark-mode {
+    @apply text-gray-100;
+}
+
+.widget-title svg {
+    @apply w-6 h-6 text-purple-600;
+}
+
+.period-label {
+    @apply text-sm text-gray-500 font-medium;
+}
+
+.period-label.dark-mode {
+    @apply text-gray-400;
+}
+
+/* ============================================
+   Contributors Grid
+   ============================================ */
+
+.contributors-grid {
+    @apply grid gap-6 mb-6;
+    @apply grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5;
+}
+
+.contributors-list {
+    @apply flex flex-col gap-4 mb-6;
+}
+
+.contributors-inline {
+    @apply flex flex-wrap gap-4 mb-6;
+}
+
+/* ============================================
+   Contributor Card
+   ============================================ */
+
+.contributor-item {
+    @apply transition-all duration-300 ease-out;
+    @apply transform hover:-translate-y-2;
+    @apply focus-within:outline-2 focus-within:outline-purple-500 focus-within:outline-offset-2;
+    @apply rounded-lg;
+}
+
+.contributor-link {
+    @apply block text-center no-underline;
+    @apply focus:outline-none;
+}
+
+.contributor-link:hover .contributor-name {
+    @apply text-purple-600;
+}
+
+/* ============================================
+   Avatar Section
+   ============================================ */
+
+.contributor-avatar {
+    @apply relative inline-block mb-3;
+}
+
+.contributor-avatar img {
+    @apply w-20 h-20 rounded-full;
+    @apply border-4 border-gray-200;
+    @apply transition-all duration-300;
+    @apply object-cover;
+}
+
+.contributor-item:hover .contributor-avatar img {
+    @apply border-purple-500 shadow-lg;
+}
+
+.contributor-avatar.large img {
+    @apply w-24 h-24;
+}
+
+/* ============================================
+   Rank Badge
+   ============================================ */
+
+.rank-badge {
+    @apply absolute -bottom-1 -right-1;
+    @apply bg-gradient-to-br from-purple-600 to-indigo-600;
+    @apply text-white text-xs font-bold;
+    @apply rounded-full w-7 h-7;
+    @apply flex items-center justify-center;
+    @apply shadow-lg;
+    @apply ring-2 ring-white;
+}
+
+.rank-badge.rank-1 {
+    @apply from-yellow-500 to-yellow-600;
+}
+
+.rank-badge.rank-2 {
+    @apply from-gray-400 to-gray-500;
+}
+
+.rank-badge.rank-3 {
+    @apply from-orange-600 to-orange-700;
+}
+
+/* ============================================
+   Contributor Info
+   ============================================ */
+
+.contributor-info {
+    @apply text-center;
+}
+
+.contributor-name {
+    @apply font-semibold text-gray-800 mb-1;
+    @apply transition-colors duration-200;
+    @apply truncate;
+}
+
+.contributor-name.dark-mode {
+    @apply text-gray-100;
+}
+
+.contribution-count {
+    @apply text-sm text-gray-500;
+}
+
+.contribution-count.dark-mode {
+    @apply text-gray-400;
+}
+
+/* ============================================
+   Footer Section
+   ============================================ */
+
+.widget-footer {
+    @apply mt-6 pt-4 border-t border-gray-200 text-center;
+}
+
+.widget-footer.dark-mode {
+    @apply border-gray-700;
+}
+
+.view-all-link {
+    @apply text-purple-600 font-medium no-underline;
+    @apply transition-colors duration-200;
+    @apply inline-flex items-center gap-1;
+}
+
+.view-all-link:hover {
+    @apply text-purple-700 underline;
+}
+
+.view-all-link svg {
+    @apply w-4 h-4;
+}
+
+/* ============================================
+   Loading State
+   ============================================ */
+
+.widget-loading {
+    @apply flex items-center justify-center py-12;
+}
+
+.loading-spinner {
+    @apply animate-spin h-12 w-12 text-purple-600;
+}
+
+.loading-text {
+    @apply text-gray-500 ml-3;
+}
+
+/* ============================================
+   Error State
+   ============================================ */
+
+.widget-error {
+    @apply bg-red-50 border border-red-200 rounded-lg p-6 text-center;
+}
+
+.error-icon {
+    @apply w-12 h-12 text-red-600 mx-auto mb-3;
+}
+
+.error-title {
+    @apply text-red-800 font-semibold mb-2;
+}
+
+.error-message {
+    @apply text-red-600 text-sm;
+}
+
+/* ============================================
+   Empty State
+   ============================================ */
+
+.widget-empty {
+    @apply text-center py-12;
+}
+
+.empty-icon {
+    @apply w-16 h-16 text-gray-300 mx-auto mb-4;
+}
+
+.empty-text {
+    @apply text-gray-500;
+}
+
+/* ============================================
+   Animations
+   ============================================ */
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.contributor-item {
+    animation: fadeIn 0.5s ease-out forwards;
+}
+
+.contributor-item:nth-child(1) { animation-delay: 0.1s; }
+.contributor-item:nth-child(2) { animation-delay: 0.2s; }
+.contributor-item:nth-child(3) { animation-delay: 0.3s; }
+.contributor-item:nth-child(4) { animation-delay: 0.4s; }
+.contributor-item:nth-child(5) { animation-delay: 0.5s; }
+
+/* ============================================
+   Responsive Adjustments
+   ============================================ */
+
+@media (max-width: 640px) {
+    .github-contributors-widget {
+        @apply p-4;
+    }
+
+    .widget-title {
+        @apply text-xl;
+    }
+
+    .contributors-grid {
+        @apply grid-cols-2 gap-4;
+    }
+
+    .contributor-avatar img {
+        @apply w-16 h-16;
+    }
+
+    .rank-badge {
+        @apply w-6 h-6 text-xs;
+    }
+}
+
+/* ============================================
+   Print Styles
+   ============================================ */
+
+@media print {
+    .github-contributors-widget {
+        @apply shadow-none border-2;
+    }
+
+    .contributor-item {
+        @apply transform-none;
+        page-break-inside: avoid;
+    }
+
+    .view-all-link {
+        @apply hidden;
+    }
+}
+
+/* ============================================
+   Accessibility
+   ============================================ */
+
+.contributor-link:focus {
+    @apply outline-2 outline-purple-500 outline-offset-2;
+}
+
+.sr-only {
+    @apply absolute w-px h-px p-0 -m-px overflow-hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}
+
+/* ============================================
+   Utility Classes
+   ============================================ */
+
+.gradient-bg {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.github-green {
+    @apply text-green-600;
+}
+
+.github-badge {
+    @apply inline-flex items-center px-2 py-1 rounded-full text-xs font-medium;
+    @apply bg-green-100 text-green-800;
+}

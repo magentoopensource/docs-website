@@ -1,0 +1,1193 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Creating Your First Products | Magento Open Source Docs</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
+    ></script>
+
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              ink: {
+                900: "#1a1a1a",
+                800: "#2a2a2a",
+                700: "#3a3a3a",
+                600: "#4a4a4a",
+                500: "#6b6b6b",
+                300: "#9e9e9e",
+                200: "#d7d7d7",
+                100: "#efefef",
+                50: "#fafafa"
+              },
+              panel: {
+                50: "#fdfcfb",
+                100: "#f9f6f3"
+              },
+              brand: {
+                600: "#d35400",
+                700: "#b54700",
+                800: "#8a3600"
+              },
+              info: {
+                50: "#eef5ff",
+                200: "#bfd3ff",
+                500: "#1a3ea8"
+              }
+            },
+            fontFamily: {
+              sans: [
+                "Inter",
+                "system-ui",
+                "-apple-system",
+                "BlinkMacSystemFont",
+                "Segoe UI",
+                "Roboto",
+                "Helvetica Neue",
+                "sans-serif"
+              ]
+            },
+            boxShadow: {
+              card: "0 8px 24px rgba(0,0,0,0.06)",
+              header: "0 1px 2px rgba(0,0,0,0.06)",
+              insetTop: "inset 0 1px 0 rgba(255,255,255,0.6)"
+            },
+            borderRadius: {
+              xl: "0.75rem"
+            }
+          }
+        }
+      };
+    </script>
+
+    <style>
+      .doc-section h2 {
+        @apply text-2xl font-bold text-ink-900 tracking-tight mb-4 scroll-mt-24;
+      }
+      .doc-section h3 {
+        @apply text-lg font-semibold text-ink-900 mb-3;
+      }
+      .doc-section h4 {
+        @apply text-base font-semibold text-ink-900 mb-2;
+      }
+      .doc-section p {
+        @apply text-[15px] leading-relaxed text-ink-700 mb-4;
+      }
+      .doc-section ul {
+        @apply list-disc pl-5 space-y-2 mb-6 text-[15px] leading-relaxed text-ink-700;
+      }
+      .doc-section ol {
+        @apply list-decimal pl-5 space-y-2 mb-6 text-[15px] leading-relaxed text-ink-700;
+      }
+      .badge-outline {
+        @apply inline-flex items-center rounded-full border border-brand-600/30 bg-brand-600/5 px-2 py-0.5 text-[11px] font-medium text-brand-700;
+      }
+      .callout {
+        @apply rounded-md border border-brand-600/20 bg-brand-600/5 px-4 py-3 text-[13px] leading-relaxed text-brand-800 mb-6;
+      }
+      .content-block {
+        @apply bg-panel-100 rounded-xl shadow-card border border-ink-100/80 p-8 mb-10;
+      }
+      .section-frame {
+        @apply border-b border-ink-100 pb-12 mb-12;
+      }
+      .aside-link {
+        @apply text-[13px] text-ink-700 hover:text-brand-700 hover:underline leading-snug;
+      }
+      .aside-heading {
+        @apply text-[11px] font-semibold uppercase tracking-wide text-ink-500 mb-2;
+      }
+      .footer-heading {
+        @apply text-[11px] font-semibold uppercase tracking-wide text-ink-500 mb-3;
+      }
+      .footer-link {
+        @apply block text-[13px] text-ink-700 hover:text-brand-700 hover:underline leading-relaxed;
+      }
+      .toc-link {
+        @apply block text-[13px] leading-snug text-ink-700 hover:text-brand-700 hover:underline;
+      }
+      .toc-group-title {
+        @apply text-[11px] font-semibold uppercase tracking-wide text-ink-500 mb-2;
+      }
+      .section-heading-row {
+        @apply flex items-start justify-between flex-wrap gap-4;
+      }
+      .section-heading-left h2 .accent-bar {
+        @apply inline-block w-2 h-2 rounded-sm bg-brand-600 mr-2 align-middle;
+      }
+      .card-heading {
+        @apply text-lg font-semibold text-ink-900 mb-2 flex items-center gap-2;
+      }
+      .card-heading .dot {
+        @apply w-1.5 h-1.5 rounded-sm bg-brand-600;
+      }
+
+      :root {
+        --gh-avatar-size: 36px;
+        --gh-avatar-border: 2px;
+        --gh-avatar-overlap: -8px;
+        --gh-popup-bg: #ffffff;
+        --gh-popup-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+        --gh-text-primary: #24292f;
+        --gh-text-secondary: #57606a;
+        --gh-border-color: #d0d7de;
+        --gh-hover-bg: #f6f8fa;
+        --gh-link-color: #0969da;
+      }
+
+      .gh-contributors-mini {
+        position: relative;
+        display: inline-block;
+        margin: 20px 0;
+      }
+
+      .gh-avatars-compact {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        padding: 4px;
+        border-radius: 24px;
+        transition: background-color 0.2s ease;
+      }
+
+      .gh-avatars-compact:hover {
+        background-color: var(--gh-hover-bg);
+      }
+
+      .gh-avatar {
+        width: var(--gh-avatar-size);
+        height: var(--gh-avatar-size);
+        border-radius: 50%;
+        border: var(--gh-avatar-border) solid var(--gh-popup-bg);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+        object-fit: cover;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        position: relative;
+      }
+
+      .gh-avatar:not(:first-child) {
+        margin-left: var(--gh-avatar-overlap);
+      }
+
+      .gh-avatar:hover {
+        transform: translateY(-2px) scale(1.05);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        z-index: 10;
+      }
+
+      .gh-more {
+        font-size: 0.75rem;
+        color: var(--gh-text-secondary);
+        font-weight: 500;
+        margin-left: 8px;
+        white-space: nowrap;
+      }
+
+      .gh-popup {
+        position: absolute;
+        top: calc(100% + 8px);
+        left: 0;
+        background: var(--gh-popup-bg);
+        border: 1px solid var(--gh-border-color);
+        border-radius: 8px;
+        box-shadow: var(--gh-popup-shadow);
+        min-width: 320px;
+        max-width: 360px;
+        z-index: 1000;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-8px);
+        transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+      }
+
+      .gh-contributors-mini:hover .gh-popup,
+      .gh-popup.active {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+      }
+
+      .gh-popup-header {
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--gh-border-color);
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--gh-text-primary);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .gh-popup-title {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .gh-icon {
+        width: 16px;
+        height: 16px;
+        fill: currentColor;
+      }
+
+      .gh-close {
+        display: none;
+        background: none;
+        border: none;
+        color: var(--gh-text-secondary);
+        cursor: pointer;
+        padding: 4px;
+        border-radius: 4px;
+      }
+
+      .gh-contributor-list {
+        padding: 8px;
+        max-height: 280px;
+        overflow-y: auto;
+      }
+
+      .gh-contributor {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 8px;
+        border-radius: 6px;
+        text-decoration: none;
+        color: var(--gh-text-primary);
+        transition: background-color 0.2s ease;
+      }
+
+      .gh-contributor:hover {
+        background-color: var(--gh-hover-bg);
+      }
+
+      .gh-contributor-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        border: 1px solid var(--gh-border-color);
+        object-fit: cover;
+        flex-shrink: 0;
+      }
+
+      .gh-info {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .gh-name {
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--gh-text-primary);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .gh-count {
+        font-size: 0.75rem;
+        color: var(--gh-text-secondary);
+        margin-top: 2px;
+      }
+
+      .gh-rank {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--gh-text-secondary);
+        min-width: 24px;
+        text-align: center;
+      }
+
+      .gh-popup-footer {
+        padding: 8px 16px;
+        border-top: 1px solid var(--gh-border-color);
+      }
+
+      .gh-view-all {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        font-size: 0.8125rem;
+        color: var(--gh-link-color);
+        text-decoration: none;
+        padding: 6px;
+        border-radius: 4px;
+        transition: background-color 0.2s ease;
+      }
+
+      .gh-view-all:hover {
+        background-color: var(--gh-hover-bg);
+      }
+
+      .gh-arrow {
+        width: 14px;
+        height: 14px;
+        fill: currentColor;
+      }
+
+      @media (max-width: 768px) {
+        .gh-popup {
+          position: fixed;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%) scale(0.95);
+          min-width: calc(100vw - 32px);
+          max-width: calc(100vw - 32px);
+        }
+
+        .gh-popup.active {
+          transform: translate(-50%, -50%) scale(1);
+        }
+
+        .gh-close {
+          display: block;
+        }
+
+        .gh-contributors-mini.active::before {
+          content: "";
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(0, 0, 0, 0.4);
+          opacity: 1;
+          visibility: visible;
+          z-index: 999;
+        }
+      }
+    </style>
+  </head>
+
+  <body class="min-h-screen bg-ink-50 text-ink-900 flex flex-col">
+    <header class="bg-white shadow-header border-b border-ink-100 text-[14px] sticky top-0 z-50">
+      <div class="mx-auto max-w-[1400px] px-4 flex items-center justify-between h-11">
+        <div class="flex items-center gap-4">
+          <div class="flex items-center gap-2 font-semibold text-ink-900 text-[13px]">
+            <div class="w-2 h-2 rounded-sm bg-brand-600"></div>
+            <span>Magento Open Source Docs</span>
+          </div>
+
+          <nav class="hidden md:flex items-center text-[13px] text-ink-500 gap-2">
+            <a class="hover:text-brand-700 doc-section h2" href="#">Start Selling</a>
+            <span class="text-ink-200">/</span>
+            <a class="hover:text-brand-700" href="#">Creating Your First Products</a>
+          </nav>
+        </div>
+
+        <div class="flex items-center gap-4">
+          <div class="hidden lg:flex items-center text-[13px] text-ink-500">
+            <input
+              type="search"
+              placeholder="Search docs..."
+              class="text-[13px] leading-none rounded-md border border-ink-200 bg-white px-2.5 py-1.5 placeholder-ink-400 text-ink-700 focus:outline-none focus:ring-2 focus:ring-brand-600/30 focus:border-brand-600/50"
+            />
+          </div>
+
+          <button
+            class="lg:hidden text-[13px] text-ink-700 border border-ink-200 rounded-md px-2 py-1"
+            x-data
+            @click="$dispatch('toggle-sidebar')"
+          >
+            Menu
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div
+      class="flex-1 w-full mx-auto max-w-[1400px] px-4 lg:px-6 flex gap-6 py-10"
+      x-data="{ sidebarOpen: false }"
+      @toggle-sidebar.window="sidebarOpen = !sidebarOpen"
+    >
+      <aside class="shrink-0 w-56 hidden lg:block pt-2">
+        <nav class="sticky top-16">
+          <div class="mb-8">
+            <div class="toc-group-title font-semibold">Start Selling</div>
+            <ul class="space-y-2">
+              <li><a class="toc-link font-medium text-brand-700" href="#intro">Creating Your First Products</a></li>
+              <li><a class="toc-link" href="#learning-outcomes">What You'll Learn</a></li>
+              <li><a class="toc-link" href="#audience-prereqs">Who This Is For</a></li>
+              <li><a class="toc-link" href="#step-by-step">Step-by-Step Path</a></li>
+              <li><a class="toc-link" href="#practice">Practice & Skills</a></li>
+              <li><a class="toc-link" href="#troubleshooting">Troubleshooting</a></li>
+              <li><a class="toc-link" href="#continue-learning">Continue Learning</a></li>
+              <li><a class="toc-link" href="#next-steps">Next Steps</a></li>
+              <li><a class="toc-link" href="#final-summary">Summary</a></li>
+            </ul>
+          </div>
+
+          <div>
+            <div class="toc-group-title font-semibold">Quick Links</div>
+            <ul class="space-y-2">
+              <li><a class="toc-link" href="#">Bulk import via CSV</a></li>
+              <li><a class="toc-link" href="#">Manage categories</a></li>
+              <li><a class="toc-link" href="#">Create attributes</a></li>
+              <li><a class="toc-link" href="#">Stock sources (MSI)</a></li>
+              <li><a class="toc-link" href="#">Catalog price rules</a></li>
+            </ul>
+          </div>
+        </nav>
+      </aside>
+
+      <aside
+        class="lg:hidden fixed inset-y-0 left-0 w-64 bg-white border-r border-ink-100 shadow-card z-40 p-4 overflow-y-auto"
+        x-show="sidebarOpen"
+        x-transition
+        @click.outside="sidebarOpen=false"
+      >
+        <nav class="space-y-8 text-[14px]">
+          <div>
+            <div class="toc-group-title">Start Selling</div>
+            <ul class="space-y-2">
+              <li><a class="toc-link font-medium text-brand-700" href="#intro" @click="sidebarOpen=false">Creating Your First Products</a></li>
+              <li><a class="toc-link" href="#learning-outcomes" @click="sidebarOpen=false">What You'll Learn</a></li>
+              <li><a class="toc-link" href="#audience-prereqs" @click="sidebarOpen=false">Who This Is For</a></li>
+              <li><a class="toc-link" href="#step-by-step" @click="sidebarOpen=false">Step-by-Step Path</a></li>
+              <li><a class="toc-link" href="#practice" @click="sidebarOpen=false">Practice & Skills</a></li>
+              <li><a class="toc-link" href="#troubleshooting" @click="sidebarOpen=false">Troubleshooting</a></li>
+              <li><a class="toc-link" href="#continue-learning" @click="sidebarOpen=false">Continue Learning</a></li>
+              <li><a class="toc-link" href="#next-steps" @click="sidebarOpen=false">Next Steps</a></li>
+              <li><a class="toc-link" href="#final-summary" @click="sidebarOpen=false">Summary</a></li>
+            </ul>
+          </div>
+
+          <div>
+            <div class="toc-group-title">Quick Links</div>
+            <ul class="space-y-2">
+              <li><a class="toc-link" href="#" @click="sidebarOpen=false">Bulk import via CSV</a></li>
+              <li><a class="toc-link" href="#" @click="sidebarOpen=false">Manage categories</a></li>
+              <li><a class="toc-link" href="#" @click="sidebarOpen=false">Create attributes</a></li>
+              <li><a class="toc-link" href="#" @click="sidebarOpen=false">Stock sources (MSI)</a></li>
+              <li><a class="toc-link" href="#" @click="sidebarOpen=false">Catalog price rules</a></li>
+            </ul>
+          </div>
+        </nav>
+      </aside>
+
+      <main class="min-w-0 flex-1 pt-2">
+        <article class="doc-section">
+          <section class="section-frame" id="overview-and-basics">
+            <div class="content-block bg-white p-2 mt-4">
+              <div class="section-heading-row section-heading-left">
+                <div>
+                  <h2 class="text-2xl font-bold text-ink-900 tracking-tight mb-2">
+                    <span class="accent-bar"></span>
+                    Why This Tutorial Matters
+                  </h2>
+                  <div class="text-[14px] text-ink-600 leading-snug">
+                    Get your first products live with correct pricing, stock, and visibility.
+                  </div>
+                </div>
+
+                <div class="flex items-start gap-2 text-[11px]">
+                  <div class="badge-outline">~30 min</div>
+                  <div class="badge-outline text-green">Beginner</div>
+                  <div class="badge-outline text-red text -bold">High Impact</div>
+                </div>
+              </div>
+
+              <div class="mt-6 grid gap-6 md:grid-cols-2">
+                <div class="rounded-lg bg-panel-100 border border-ink-100 p-6 shadow-card">
+                  <div class="card-heading">
+                    <div class="dot"></div>
+                    <span>Business Impact</span>
+                  </div>
+                  <ul class="list-disc pl-5 space-y-2 text-[15px] leading-relaxed text-ink-700 mb-0">
+                    <li>Launch products faster to capture revenue sooner</li>
+                    <li>Improve conversion with accurate pricing, stock, and attribute-driven options</li>
+                    <li>Reduce catalog maintenance and returns by centralizing variations in configurable products</li>
+                  </ul>
+                </div>
+
+                <div class="rounded-lg bg-panel-100 border border-ink-100 p-6 shadow-card">
+                  <div class="card-heading">
+                    <div class="dot"></div>
+                    <span>What You'll Achieve</span>
+                  </div>
+                  <ul class="list-disc pl-5 space-y-2 text-[15px] leading-relaxed text-ink-700 mb-0">
+                    <li>Publish a Simple Product and a Configurable Product</li>
+                    <li>Correctly set price, tax class, stock, visibility, and categories</li>
+                    <li>Verify both appear on the storefront and are purchasable</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div class="mt-10 border-t border-ink-100 pt-6">
+                <h3 class="text-xl font-semibold text-ink-900 mb-4 flex items-center gap-2">
+                  <span class="w-1.5 h-1.5 bg-brand-600 rounded-sm"></span>
+                  Learning Journey Overview
+                </h3>
+
+                <div class="mb-6">
+                  <h4 class="text-base font-semibold text-ink-800 mb-2">Your Situation</h4>
+                  <p class="text-[15px] leading-relaxed text-ink-700 mb-0">
+                    You're onboarding Magento 2 and need to publish your first products today with accurate
+                    pricing and stock so customers can buy immediately.
+                  </p>
+                </div>
+
+                <div class="grid lg:grid-cols-3 gap-6">
+                  <div class="bg-white border border-ink-100 rounded-lg p-5 shadow-card">
+                    <h4 class="text-base font-semibold text-ink-900 mb-3 flex items-center gap-2">
+                      <span class="w-1.5 h-1.5 bg-brand-600 rounded-sm"></span>
+                      What You'll Learn
+                    </h4>
+                    <ul class="list-disc pl-5 space-y-2 text-[14px] leading-relaxed text-ink-700 mb-0">
+                      <li>Create a Simple Product from Admin (Catalog &gt; Products)</li>
+                      <li>Create a Configurable Product using the configuration wizard</li>
+                      <li>Set price, tax class, stock, visibility, categories, and images</li>
+                      <li>Assign products to websites and categories</li>
+                      <li>Verify storefront visibility and troubleshoot common issues</li>
+                    </ul>
+                  </div>
+
+                  <div class="bg-white border border-ink-100 rounded-lg p-5 shadow-card">
+                    <h4 class="text-base font-semibold text-ink-900 mb-3 flex items-center gap-2">
+                      <span class="w-1.5 h-1.5 bg-brand-600 rounded-sm"></span>
+                      Success Criteria
+                    </h4>
+                    <p class="text-[14px] leading-relaxed text-ink-700 mb-3">
+                      You'll know you've succeeded when:
+                    </p>
+                    <ul class="list-disc pl-5 space-y-2 text-[14px] leading-relaxed text-ink-700 mb-0">
+                      <li>A Simple Product is visible on the storefront and can be added to cart</li>
+                      <li>A Configurable Product displays swatches/options and allows selection for all variations</li>
+                      <li>
+                        Stock status shows <span class="font-semibold text-ink-900">In Stock</span>,
+                        products appear in assigned categories and search
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div class="bg-white border border-ink-100 rounded-lg p-5 shadow-card">
+                    <h4 class="text-base font-semibold text-ink-900 mb-3 flex items-center gap-2">
+                      <span class="w-1.5 h-1.5 bg-brand-600 rounded-sm"></span>
+                      Time Investment
+                    </h4>
+                    <ul class="list-disc pl-5 space-y-2 text-[14px] leading-relaxed text-ink-700 mb-0">
+                      <li>Estimated time: 20–30 minutes</li>
+                      <li>Skill level after completion: Confident with creating Simple and Configurable products</li>
+                      <li>Business value unlock: Faster go-live for new items and fewer catalog errors</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-12 grid lg:grid-cols-2 gap-8">
+              <div class="content-block">
+                <h2 class="text-2xl font-bold text-ink-900 tracking-tight mb-4 flex items-center gap-2">
+                  <span class="w-1.5 h-1.5 bg-brand-600 rounded-sm"></span>
+                  Who This Is For
+                </h2>
+                <p class="text-[15px] leading-relaxed text-ink-700 mb-4">
+                  This tutorial is designed for:
+                </p>
+                <ul class="list-disc pl-5 space-y-2 text-[15px] leading-relaxed text-ink-700 mb-0">
+                  <li>Catalog Managers and Merchandisers new to Magento 2</li>
+                  <li>Store Owners setting up their first products</li>
+                  <li>Anyone familiar with basic eCommerce concepts (SKU, price, stock)</li>
+                </ul>
+              </div>
+
+              <div class="content-block">
+                <h2 class="text-2xl font-bold text-ink-900 tracking-tight mb-4 flex items-center gap-2">
+                  <span class="w-1.5 h-1.5 bg-brand-600 rounded-sm"></span>
+                  What You Need
+                </h2>
+                <p class="text-[15px] leading-relaxed text-ink-700 mb-4">
+                  Make sure you have:
+                </p>
+                <ul class="list-disc pl-5 space-y-2 text-[15px] leading-relaxed text-ink-700 mb-0">
+                  <li>Admin access with Catalog permissions (Products, Categories, Attributes) to the target website/store view</li>
+                  <li>Magento 2.4.x (Open Source or Adobe Commerce)</li>
+                  <li>At least one Website/Store/View configured</li>
+                  <li>Tax Classes configured (Stores &gt; Tax Rules)</li>
+                  <li>Shipping Origin set (Stores &gt; Configuration &gt; Sales &gt; Shipping Settings)</li>
+                  <li>Inventory setup decided: Single Source (Default) or defined Sources/Stocks (Stores &gt; Inventory)</li>
+                  <li>An Attribute Set ready (or use Default)</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="mt-12 content-block">
+              <h2 class="text-2xl font-bold text-ink-900 tracking-tight mb-4 flex items-center gap-2">
+                <span class="w-1.5 h-1.5 bg-brand-600 rounded-sm"></span>
+                Preparation Checklist
+              </h2>
+              <p class="text-[15px] leading-relaxed text-ink-700 mb-4">
+                Before starting, complete these preparation steps:
+              </p>
+              <ul class="list-disc pl-5 space-y-2 text-[15px] leading-relaxed text-ink-700 mb-0">
+                <li>Confirm you can create/edit attributes (Stores &gt; Attributes &gt; Product)</li>
+                <li>
+                  For Configurable Products, ensure variation attributes (e.g., Color, Size) exist and are set to
+                  <span class="italic">Use To Create Configurable Product = Yes</span>
+                  with input type Dropdown, Visual Swatch, or Text Swatch
+                </li>
+                <li>Verify cron is running to process indexers (or set indexers to Update on Save during testing)</li>
+                <li>Have sample product images ready (JPG/PNG)</li>
+              </ul>
+            </div>
+
+            <div class="mt-12 content-block bg-white">
+              <h2 class="text-2xl font-bold text-ink-900 tracking-tight mb-6 flex items-center gap-2">
+                <span class="w-1.5 h-1.5 bg-brand-600 rounded-sm"></span>
+                Step-by-Step Learning Path
+              </h2>
+
+              <div class="mb-10">
+                <h3 class="text-xl font-semibold text-ink-900 mb-4 flex items-center gap-2">
+                  <span class="w-1.5 h-1.5 bg-brand-600 rounded-sm"></span>
+                  Part 1: Create a Simple Product
+                </h3>
+                <ol class="list-decimal pl-5 space-y-2 text-[15px] leading-relaxed text-ink-700 mb-6">
+                  <li>Go to Admin sidebar &gt; Catalog &gt; Products and click Add Product &gt; Simple Product.</li>
+                  <li>Set Attribute Set = Default (or your attribute set).</li>
+                  <li>Enter Product Name and a unique SKU.</li>
+                  <li>Set Price and Tax Class (for example, Taxable Goods).</li>
+                  <li class="font-semibold text-ink-900">Set Quantity and Stock:</li>
+                  <li class="ml-5">
+                    <span class="font-medium text-ink-900">Single Source:</span>
+                    Set Quantity and Stock Status = In Stock.
+                  </li>
+                  <li class="ml-5">
+                    <span class="font-medium text-ink-900">Multi-Source (MSI):</span>
+                    Open the Sources section, Assign Sources, and enter quantities per source. Ensure each source's status is In Stock.
+                  </li>
+                  <li>Set Weight (if the product ships) or mark <em>This item has no weight (virtual)</em>.</li>
+                  <li>Enable Product = Yes; set Visibility = Catalog, Search.</li>
+                  <li>Assign Categories (click Select or create a new category).</li>
+                  <li>Upload Images and Videos; optionally designate Base, Small, and Thumbnail.</li>
+                  <li>In Search Engine Optimization, review URL Key and Meta Title.</li>
+                  <li>In Product in Websites, ensure the correct website is checked.</li>
+                  <li>Click Save, then click the View/Preview link to open the storefront page.</li>
+                </ol>
+
+                <div class="rounded-lg border border-ink-100 bg-panel-100 p-5 shadow-card">
+                  <h4 class="text-base font-semibold text-ink-900 mb-2 flex items-center gap-2">
+                    <span class="w-1.5 h-1.5 bg-brand-600 rounded-sm"></span>
+                    Verification for Simple Product
+                  </h4>
+                  <ul class="list-disc pl-5 space-y-2 text-[15px] leading-relaxed text-ink-700 mb-0">
+                    <li>
+                      Confirm the product page loads, shows price and image, indicates
+                      <span class="font-semibold text-ink-900">In Stock</span>,
+                      and can be added to cart.
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              <hr class="border-ink-100 my-10" />
+
+              <div>
+                <h3 class="text-xl font-semibold text-ink-900 mb-4 flex items-center gap-2">
+                  <span class="w-1.5 h-1.5 bg-brand-600 rounded-sm"></span>
+                  Part 2: Create a Configurable Product
+                </h3>
+                <ol class="list-decimal pl-5 space-y-2 text-[15px] leading-relaxed text-ink-700 mb-6">
+                  <li>Go to Admin sidebar &gt; Catalog &gt; Products &gt; Add Product &gt; Configurable Product.</li>
+                  <li>
+                    Choose Attribute Set and add basics: Name, base SKU, Price (optional; can be set for variants),
+                    Tax Class. Set Enable Product = Yes and Visibility = Catalog, Search.
+                  </li>
+                  <li>In the Configurations section, click Create Configurations.</li>
+                  <li>
+                    Select attributes for variations (e.g., Color, Size). If needed, click Create New Attribute and ensure:
+                    <ul class="list-disc pl-5 space-y-2 mt-2">
+                      <li>Catalog Input Type for Store Owner = Dropdown, Visual Swatch, or Text Swatch</li>
+                      <li>Use To Create Configurable Product = Yes</li>
+                    </ul>
+                  </li>
+                  <li>Select attribute values (e.g., Color: Red, Blue; Size: S, M, L).</li>
+                  <li>
+                    Configure Images, Price, and Quantity for variants:
+                    <ul class="list-disc pl-5 space-y-2 mt-2">
+                      <li>Apply to all SKUs or set by attribute (e.g., different image per Color, different price per Size)</li>
+                      <li>If you leave quantity blank here, set quantities after generation for each child SKU</li>
+                    </ul>
+                  </li>
+                  <li>Click Generate Products to create the child SKUs.</li>
+                  <li>
+                    <span class="font-medium text-ink-900">Inventory and Sources (MSI):</span>
+                    <ul class="list-disc pl-5 space-y-2 mt-2">
+                      <li>For Single Source: Ensure each child has Quantity &gt; 0 and Stock Status = In Stock</li>
+                      <li>For Multi-Source: Open each child (or use mass action) to assign per-source quantities under Sources</li>
+                      <li>Child products typically have Visibility = Not Visible Individually (default)</li>
+                    </ul>
+                  </li>
+                  <li>
+                    Assign Categories to the parent and upload images (parent image + variant images as needed).
+                    For color swatch display, you can set swatch images in
+                    Stores &gt; Attributes &gt; Product &gt; Color.
+                  </li>
+                  <li>Ensure Product in Websites includes your website, then Save and Preview.</li>
+                </ol>
+
+                <div class="rounded-lg border border-ink-100 bg-panel-100 p-5 shadow-card">
+                  <h4 class="text-base font-semibold text-ink-900 mb-2 flex items-center gap-2">
+                    <span class="w-1.5 h-1.5 bg-brand-600 rounded-sm"></span>
+                    Verification for Configurable Product
+                  </h4>
+                  <ul class="list-disc pl-5 space-y-2 text-[15px] leading-relaxed text-ink-700 mb-0">
+                    <li>
+                      On the storefront, confirm the configurable shows selectable options.
+                      Selecting options updates the SKU/price if configured. Add to cart successfully.
+                    </li>
+                    <li>Confirm the product appears in assigned categories and in search results.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-12 grid lg:grid-cols-2 gap-8">
+              <div class="content-block">
+                <h2 class="text-2xl font-bold text-ink-900 tracking-tight mb-4 flex items-center gap-2">
+                  <span class="w-1.5 h-1.5 bg-brand-600 rounded-sm"></span>
+                  Practice and Reinforcement
+                </h2>
+                <p class="text-[15px] leading-relaxed text-ink-700 mb-4">
+                  Now that you've learned the core process, let's reinforce your skills:
+                </p>
+                <ul class="list-disc pl-5 space-y-2 text-[15px] leading-relaxed text-ink-700 mb-6">
+                  <li>Create a Simple Product with tier pricing (Price &gt; Advanced Pricing &gt; Tier Price)</li>
+                  <li>Add a new Size attribute value and regenerate configurations for an existing Configurable Product</li>
+                </ul>
+
+                <h3 class="text-lg font-semibold text-ink-900 mb-3 flex items-center gap-2">
+                  <span class="w-1.5 h-1.5 bg-brand-600 rounded-sm"></span>
+                  What You've Accomplished
+                </h3>
+                <p class="text-[15px] leading-relaxed text-ink-700 mb-3">
+                  🎉 <span class="font-semibold text-ink-900">Congratulations!</span> You have successfully:
+                </p>
+                <ul class="list-disc pl-5 space-y-2 text-[15px] leading-relaxed text-ink-700 mb-0">
+                  <li>Created and published a Simple Product and a Configurable Product with correct stock, pricing, and visibility</li>
+                  <li>Verified storefront appearance in categories and search, and completed add-to-cart for both product types</li>
+                  <li>Applied MSI-aware inventory settings to avoid out-of-stock visibility issues</li>
+                </ul>
+              </div>
+
+              <div class="content-block">
+                <h2 class="text-2xl font-bold text-ink-900 tracking-tight mb-4 flex items-center gap-2">
+                  <span class="w-1.5 h-1.5 bg-brand-600 rounded-sm"></span>
+                  Business Impact
+                </h2>
+                <ul class="list-disc pl-5 space-y-2 text-[15px] leading-relaxed text-ink-700 mb-6">
+                  <li>Faster time-to-publish for new SKUs, accelerating revenue capture</li>
+                  <li>Improved product discovery and selection through accurate categories, search, and swatches</li>
+                  <li>Reduced catalog maintenance by centralizing variations under a single configurable</li>
+                  <li>KPIs to watch: time-to-publish, product page conversion rate, out-of-stock rate, category/search visibility</li>
+                </ul>
+
+                <h2 class="text-lg font-semibold text-ink-900 tracking-tight mb-3 flex items-center gap-2">
+                  <span class="w-1.5 h-1.5 bg-brand-600 rounded-sm"></span>
+                  Skills Gained
+                </h2>
+                <p class="text-[15px] leading-relaxed text-ink-700 mb-3">You now have the ability to:</p>
+                <ul class="list-disc pl-5 space-y-2 text-[15px] leading-relaxed text-ink-700 mb-0">
+                  <li>Create and configure Simple and Configurable products</li>
+                  <li>Manage stock for Single Source and Multi-Source (MSI) setups</li>
+                  <li>Configure variation attributes that power swatches/options</li>
+                  <li>Troubleshoot common visibility and inventory issues</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="mt-12 grid lg:grid-cols-2 gap-8">
+              <div class="content-block">
+                <h2 class="text-2xl font-bold text-ink-900 tracking-tight mb-4 flex items-center gap-2">
+                  <span class="w-1.5 h-1.5 bg-brand-600 rounded-sm"></span>
+                  Next Steps in Your Journey
+                </h2>
+                <p class="text-[15px] leading-relaxed text-ink-700 mb-6">
+                  Now that you've mastered this process, here's how to build on your success:
+                </p>
+
+                <div class="grid md:grid-cols-2 gap-6">
+                  <div>
+                    <h3 class="text-base font-semibold text-ink-900 mb-2 flex items-center gap-2">
+                      <span class="w-1.5 h-1.5 bg-brand-600 rounded-sm"></span>
+                      Immediate Actions
+                    </h3>
+                    <ul class="list-disc pl-5 space-y-2 text-[14px] leading-relaxed text-ink-700 mb-0">
+                      <li>Add related, upsell, and cross-sell products to boost average order value</li>
+                      <li>Enable and refine swatches for visual clarity on configurable products</li>
+                      <li>Encourage and moderate product reviews to increase trust and conversion</li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h3 class="text-base font-semibold text-ink-900 mb-2 flex items-center gap-2">
+                      <span class="w-1.5 h-1.5 bg-brand-600 rounded-sm"></span>
+                      Level Up Your Skills
+                    </h3>
+                    <ul class="list-disc pl-5 space-y-2 text-[14px] leading-relaxed text-ink-700 mb-0">
+                      <li>Learn bulk import via CSV (System &gt; Data Transfer &gt; Import) for faster catalog scaling</li>
+                      <li>Optimize attribute sets to streamline product creation for your categories</li>
+                      <li>Configure advanced pricing (special, group, tier) and catalog rules</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div class="mt-6">
+                  <h3 class="text-base font-semibold text-ink-900 mb-2 flex items-center gap-2">
+                    <span class="w-1.5 h-1.5 bg-brand-600 rounded-sm"></span>
+                    Advanced Applications
+                  </h3>
+                  <ul class="list-disc pl-5 space-y-2 text-[14px] leading-relaxed text-ink-700 mb-0">
+                    <li>Set up scheduled updates for seasonal pricing and content</li>
+                    <li>Add custom options for simple variations not requiring child SKUs</li>
+                    <li>Use layered navigation with attributes to improve product discovery</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div class="content-block">
+                <h2 class="text-2xl font-bold text-ink-900 tracking-tight mb-4 flex items-center gap-2">
+                  <span class="w-1.5 h-1.5 bg-brand-600 rounded-sm"></span>
+                  Summary
+                </h2>
+                <p class="text-[15px] leading-relaxed text-ink-700 mb-6">
+                  You created both Simple and Configurable products with correct data, inventory, and visibility.
+                  You verified storefront behavior and learned how to troubleshoot common issues, setting a
+                  foundation to scale your catalog efficiently.
+                </p>
+
+                <h3 class="text-base font-semibold text-ink-900 mb-3 flex items-center gap-2">
+                  <span class="w-1.5 h-1.5 bg-brand-600 rounded-sm"></span>
+                  Key Takeaways
+                </h3>
+                <ul class="list-disc pl-5 space-y-2 text-[14px] leading-relaxed text-ink-700 mb-6">
+                  <li>Accurate attributes and MSI-aware stock are critical to visibility and conversion</li>
+                  <li>Configurable products reduce SKU clutter and speed updates</li>
+                  <li>Verify, index, and cache-clear if changes don’t appear immediately</li>
+                </ul>
+
+                <h3 class="text-base font-semibold text-ink-900 mb-3 flex items-center gap-2">
+                  <span class="w-1.5 h-1.5 bg-brand-600 rounded-sm"></span>
+                  Remember
+                </h3>
+                <ul class="list-disc pl-5 space-y-2 text-[14px] leading-relaxed text-ink-700 mb-0">
+                  <li>
+                    If you use multiple sources, set quantities per source under Sources.
+                    If using the Default Source only, use the Quantity field.
+                    Correct stock drives storefront visibility and sales.
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="content-block bg-white px-2 mt-4">
+              <div class="text-ink-900">
+                <div class="font-semibold text-[15px] text-ink-900 py-2">
+                  Community-Maintained Documentation
+                </div>
+                <div class="border-t border-ink-100"></div>
+
+                <div id="gh-widget-container"></div>
+                <div class="border-t border-ink-100"></div>
+
+                <div class="text-[14px] leading-relaxed text-ink-900 pt-2">
+                  This documentation is maintained by the Magento community.
+                  Help improve it by
+                  <a href="#" class="underline font-medium text-ink-900"
+                    >contributing on GitHub</a
+                  >.
+                </div>
+              </div>
+            </div>
+          </section>
+        </article>
+      </main>
+
+      <aside class="hidden xl:block w-64 shrink-0 pt-2">
+        <div class="sticky top-16 text-[13px] leading-relaxed">
+          <div class="mb-8">
+            <div class="aside-heading">ON THIS PAGE</div>
+            <ul class="space-y-2">
+              <li><a class="aside-link" href="#intro">Why this matters</a></li>
+              <li><a class="aside-link" href="#audience-prereqs">Requirements</a></li>
+              <li><a class="aside-link" href="#step-by-step">Steps</a></li>
+              <li><a class="aside-link" href="#practice">Skills gained</a></li>
+              <li><a class="aside-link" href="#troubleshooting">Fix common issues</a></li>
+              <li><a class="aside-link" href="#next-steps">Next steps</a></li>
+              <li><a class="aside-link" href="#final-summary">Summary</a></li>
+            </ul>
+          </div>
+
+          <div class="mb-8">
+            <div class="aside-heading">RELATED</div>
+            <ul class="space-y-2">
+              <li><a class="aside-link" href="#">Simple vs Configurable</a></li>
+              <li><a class="aside-link" href="#">Stock sources (MSI)</a></li>
+              <li><a class="aside-link" href="#">Tier Pricing</a></li>
+              <li><a class="aside-link" href="#">SEO basics</a></li>
+              <li><a class="aside-link" href="#">Assigning categories</a></li>
+            </ul>
+          </div>
+
+          <div class="rounded-md border border-brand-600/20 bg-brand-600/5 p-4 text-brand-800 shadow-card">
+            <div class="text-[12px] font-semibold uppercase tracking-wide mb-1">
+              NEED HELP?
+            </div>
+            <p class="text-[13px] leading-relaxed">
+              Ask the community or open a support request if something isn't working.
+            </p>
+            <a
+              href="#"
+              class="mt-3 inline-flex items-center text-[13px] font-medium text-brand-700 hover:underline"
+              >Get Support →</a
+            >
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <footer class="border-t border-ink-100 bg-white text-[13px] text-ink-700 mt-8">
+      <div class="mx-auto max-w-[1400px] px-4 lg:px-6 py-10 grid md:grid-cols-4 gap-8">
+        <div class="space-y-3">
+          <div class="flex items-center gap-2 font-semibold text-ink-900 text-[13px]">
+            <div class="w-2 h-2 rounded-sm bg-brand-600"></div>
+            <span>Magento Open Source</span>
+          </div>
+          <p class="text-[12px] text-ink-500 leading-relaxed">
+            This is community-maintained documentation. Some features may differ
+            in Adobe Commerce.
+          </p>
+          <a class="text-brand-700 hover:underline block" href="#">
+            Contribute on GitHub
+          </a>
+        </div>
+
+        <div>
+          <div class="footer-heading">Documentation</div>
+          <a class="footer-link" href="#">Start Selling</a>
+          <a class="footer-link" href="#">Manage Catalog</a>
+          <a class="footer-link" href="#">Handle Orders</a>
+          <a class="footer-link" href="#">Improve UX</a>
+          <a class="footer-link" href="#">Stay Compliant</a>
+        </div>
+
+        <div>
+          <div class="footer-heading">Resources</div>
+          <a class="footer-link" href="#">Community Forum</a>
+          <a class="footer-link" href="#">Extension Marketplace</a>
+          <a class="footer-link" href="#">Release Notes</a>
+          <a class="footer-link" href="#">Security Advisories</a>
+        </div>
+
+        <div>
+          <div class="footer-heading">Support</div>
+          <a class="footer-link" href="#">Report an Issue</a>
+          <a class="footer-link" href="#">Contact Support</a>
+          <a class="footer-link" href="#">System Requirements</a>
+          <a class="footer-link" href="#">Licensing</a>
+        </div>
+      </div>
+
+      <div class="border-t border-ink-100 text-[11px] text-ink-500 py-6">
+        <div class="mx-auto max-w-[1400px] px-4 lg:px-6 leading-relaxed">
+          <p>
+            © Magento Open Source Documentation. Content provided by the Magento
+            community. This page is for guidance only and does not replace legal
+            or tax advice.
+          </p>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      (function() {
+        const REPO_OWNER = "ukmeds";
+        const REPO_NAME = "ukmeds";
+        const API_BASE = "https://api.github.com";
+        const GITHUB_TOKEN = ""; // Add your token here for private repos
+
+        async function fetchContributors() {
+          const url = `${API_BASE}/repos/${REPO_OWNER}/${REPO_NAME}/contributors?per_page=10`;
+          const headers = {
+            Accept: "application/vnd.github.v3+json"
+          };
+
+          if (GITHUB_TOKEN) {
+            headers["Authorization"] = `Bearer ${GITHUB_TOKEN}`;
+          }
+
+          try {
+            const response = await fetch(url, { headers });
+
+            if (!response.ok) {
+              console.warn(
+                "GitHub Contributors Widget: Could not fetch contributors",
+                response.status
+              );
+              return;
+            }
+
+            const contributors = await response.json();
+
+            if (!Array.isArray(contributors) || contributors.length === 0) {
+              console.warn(
+                "GitHub Contributors Widget: No contributors found"
+              );
+              return;
+            }
+
+            renderWidget(contributors);
+          } catch (error) {
+            console.error("GitHub Contributors Widget Error:", error);
+          }
+        }
+
+        function renderWidget(contributors) {
+          const container = document.getElementById("gh-widget-container");
+          if (!container) return;
+
+          const top5 = contributors.slice(0, 5);
+          const remaining = contributors.length - 5;
+
+          const html = `
+            <div class="gh-contributors-mini" id="gh-widget">
+              <div class="gh-avatars-compact" role="button" aria-label="View top contributors" aria-expanded="false" tabindex="0">
+                ${top5
+                  .map(
+                    (c) => `
+                  <img class="gh-avatar" src="${c.avatar_url}?size=40" alt="${c.login}" loading="lazy" title="${c.login}" />
+                `
+                  )
+                  .join("")}
+                ${
+                  remaining > 0
+                    ? `<span class="gh-more">+${remaining} more</span>`
+                    : ""
+                }
+              </div>
+
+              <div class="gh-popup" role="dialog" aria-label="Top Contributors">
+                <div class="gh-popup-header">
+                  <div class="gh-popup-title">
+                    <svg class="gh-icon" viewBox="0 0 16 16">
+                      <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+                    </svg>
+                    <span>Top Contributors</span>
+                  </div>
+                  <button class="gh-close" aria-label="Close">×</button>
+                </div>
+
+                <div class="gh-contributor-list">
+                  ${contributors
+                    .slice(0, 10)
+                    .map(
+                      (c, i) => `
+                    <a href="${c.html_url}" class="gh-contributor" target="_blank" rel="noopener noreferrer">
+                      <span class="gh-rank">#${i + 1}</span>
+                      <img class="gh-contributor-avatar" src="${c.avatar_url}?size=80" alt="${c.login}" loading="lazy" />
+                      <div class="gh-info">
+                        <div class="gh-name">${c.login}</div>
+                        <div class="gh-count">${c.contributions.toLocaleString()} contributions</div>
+                      </div>
+                    </a>
+                  `
+                    )
+                    .join("")}
+                </div>
+
+                <div class="gh-popup-footer">
+                  <a href="https://github.com/${REPO_OWNER}/${REPO_NAME}/graphs/contributors" class="gh-view-all" target="_blank" rel="noopener noreferrer">
+                    <span>View all contributors</span>
+                    <svg class="gh-arrow" viewBox="0 0 16 16" fill="currentColor">
+                      <path d="M8.22 2.97a.75.75 0 011.06 0l4.25 4.25a.75.75 0 010 1.06l-4.25 4.25a.75.75 0 01-1.06-1.06l2.97-2.97H3.75a.75.75 0 010-1.5h7.44L8.22 4.03a.75.75 0 010-1.06z"/>
+                    </svg>
+                  </a>
+                </div>
+              </div>
+            </div>
+          `;
+
+          container.innerHTML = html;
+          setupWidgetInteractions();
+        }
+
+        function setupWidgetInteractions() {
+          const widget = document.getElementById("gh-widget");
+          if (!widget) return;
+
+          const trigger = widget.querySelector(".gh-avatars-compact");
+          const popup = widget.querySelector(".gh-popup");
+          const closeBtn = popup.querySelector(".gh-close");
+
+          function togglePopup(show) {
+            const isActive =
+              show !== undefined ? show : !popup.classList.contains("active");
+
+            if (isActive) {
+              popup.classList.add("active");
+              widget.classList.add("active");
+              trigger.setAttribute("aria-expanded", "true");
+            } else {
+              popup.classList.remove("active");
+              widget.classList.remove("active");
+              trigger.setAttribute("aria-expanded", "false");
+            }
+          }
+
+          trigger.addEventListener("click", (e) => {
+            e.stopPropagation();
+            togglePopup();
+          });
+
+          trigger.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              togglePopup();
+            }
+          });
+
+          if (closeBtn) {
+            closeBtn.addEventListener("click", (e) => {
+              e.stopPropagation();
+              togglePopup(false);
+            });
+          }
+
+          document.addEventListener("click", (e) => {
+            if (
+              popup.classList.contains("active") &&
+              !popup.contains(e.target) &&
+              !trigger.contains(e.target)
+            ) {
+              togglePopup(false);
+            }
+          });
+
+          document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape" && popup.classList.contains("active")) {
+              togglePopup(false);
+              trigger.focus();
+            }
+          });
+
+          popup.addEventListener("click", (e) => e.stopPropagation());
+        }
+
+        if (document.readyState === "loading") {
+          document.addEventListener("DOMContentLoaded", fetchContributors);
+        } else {
+          fetchContributors();
+        }
+      })();
+    </script>
+  </body>
+</html>

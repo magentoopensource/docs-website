@@ -1,0 +1,410 @@
+Project Overview
+Create a production-grade GitHub contributors widget for a Magento 2 documentation website. This is a critically important project that will be peer-reviewed and must demonstrate exceptional code quality and beautiful execution. This is NOT a prototype - it must be deployment-ready, secure, performant, and maintainable.
+Technology Stack
+
+PHP 8.x (strict types, modern features)
+Tailwind CSS (utility-first styling)
+MySQL/MariaDB (secure data persistence)
+GitHub REST/GraphQL API
+PSR-12 coding standards
+Magento 2 environment compatibility
+
+Core Requirements
+1. GitHub API Integration
+Objective: Fetch contributor data from GitHub repository with proper authentication and error handling.
+Implementation Requirements:
+
+Use GitHub REST API v3 or GraphQL API v4 (analyze which is better for this use case)
+Authenticate using Personal Access Token (environment variable, never hardcoded)
+Required API endpoints:
+
+Repository contributors
+Commit activity
+User profiles (for avatars, names, links)
+
+
+Implement proper rate limiting handling (GitHub: 5000 requests/hour authenticated)
+Graceful fallback when API is unavailable
+Comprehensive error logging
+
+API Token Setup:
+envGITHUB_API_TOKEN=your_github_personal_access_token
+GITHUB_REPO_OWNER=organization_name
+GITHUB_REPO_NAME=repository_name
+Please tell me:
+
+Which GitHub API approach (REST vs GraphQL) is better for this use case
+What permissions the Personal Access Token needs
+Recommended API endpoints to use
+Best practices for rate limit management
+
+2. Database Schema Design
+Objective: Create a secure, normalized database schema for caching contributor data.
+Requirements:
+
+Follow database normalization principles (3NF minimum)
+Use prepared statements (PDO) - zero SQL injection vulnerabilities
+Efficient indexing strategy
+Store:
+
+Contributor data (username, avatar_url, profile_url, contribution_count)
+Time period metadata (month, year)
+Last sync timestamp
+API response cache
+
+
+
+Schema should include:
+
+contributors table
+contribution_periods table
+sync_log table (for monitoring and debugging)
+Proper foreign keys and constraints
+UTC timestamps
+
+Security:
+
+Parameterized queries only
+Input validation and sanitization
+Secure connection credentials (environment variables)
+No sensitive data in version control
+
+3. Data Aggregation & Correlation
+Objective: Process GitHub data to identify top contributors by time period.
+Requirements:
+
+Calculate contributions for:
+
+Last 7 days (weekly view)
+Last 30 days (monthly view)
+Overall (all-time)
+
+
+Contribution metrics:
+
+Commit count
+Pull requests
+Code reviews
+Issues (optional weighting)
+
+
+Rank contributors and select top 5
+Handle edge cases (tied ranks, new contributors, deleted accounts)
+
+4. Cron Job Implementation
+Objective: Automated monthly data refresh on the 1st of each month.
+Requirements:
+
+PHP script suitable for cron execution
+Runs on 1st of each month at optimal time (suggest best time)
+Updates data for the previous month
+Implements:
+
+Locking mechanism (prevent concurrent runs)
+Comprehensive logging
+Email notifications on failure
+Graceful error recovery
+
+
+Executable via: php /path/to/cron-update-contributors.php
+
+Cron configuration:
+bash# Suggest the optimal cron schedule
+0 2 1 * * php /path/to/cron-update-contributors.php
+5. Frontend Widget
+Objective: Beautiful, responsive UI component that integrates seamlessly into Magento 2 documentation.
+Design Inspiration:
+
+GitHub's contribution graph aesthetic (green squares, clean design)
+Modern, professional appearance
+Smooth animations and transitions
+Accessible (WCAG 2.1 AA compliant)
+
+Layout:
+
+Top 5 Contributors prominently displayed
+Avatar images (circular, with hover effects)
+Contributor names (GitHub username)
+Contribution count for period
+Link to GitHub profile
+Time period selector (tabs/toggle):
+
+Weekly (last 7 days)
+Monthly (last 30 days)
+
+
+
+Visual Elements:
+
+Contribution heatmap/graph (optional but recommended)
+Smooth hover states
+Loading states
+Empty states (no contributions)
+Error states (API failure)
+
+Responsive Design:
+
+Mobile-first approach
+Breakpoints: mobile (320px+), tablet (768px+), desktop (1024px+)
+Touch-friendly on mobile
+
+Tailwind CSS:
+
+Use utility classes effectively
+Custom @layer components for reusable patterns
+Dark mode support (optional but impressive)
+
+6. PHP Architecture
+Objective: Clean, maintainable, testable code following SOLID principles.
+Structure:
+src/
+├── Config/
+│   └── Database.php          // DB connection singleton
+├── Services/
+│   ├── GitHubApiService.php  // API integration
+│   ├── CacheService.php      // Data caching logic
+│   └── ContributorService.php // Business logic
+├── Models/
+│   ├── Contributor.php       // Contributor entity
+│   └── ContributionPeriod.php
+├── Repositories/
+│   └── ContributorRepository.php // Data access layer
+├── Utils/
+│   ├── Logger.php            // Logging utility
+│   └── RateLimiter.php       // API rate limiting
+└── Views/
+    └── widget.php            // HTML template
+
+public/
+└── widget-loader.php         // Public entry point
+
+cron/
+└── update-contributors.php   // Cron job script
+Code Quality Standards:
+
+PSR-12 coding style
+Type declarations (strict_types=1)
+PHPDoc blocks for all methods
+Single Responsibility Principle
+Dependency Injection where appropriate
+No global variables
+Meaningful variable/method names
+DRY principle
+
+7. Performance & Optimization
+
+Database query optimization (EXPLAIN analysis)
+Lazy loading of avatar images
+Minimize API calls (efficient caching)
+Gzip compression for JSON responses
+CDN-ready (if needed)
+Page load impact < 100ms
+
+8. Security Checklist
+
+ SQL injection prevention (prepared statements)
+ XSS prevention (output escaping)
+ CSRF protection (if applicable)
+ API token security (environment variables)
+ Input validation and sanitization
+ Error messages don't leak sensitive info
+ Database credentials secured
+ Rate limiting on widget endpoint
+ HTTPS enforcement
+
+9. Error Handling & Logging
+
+Graceful degradation
+User-friendly error messages
+Detailed logging for debugging (PSR-3 compliant)
+Log levels: DEBUG, INFO, WARNING, ERROR, CRITICAL
+Log rotation strategy
+Monitoring hooks (optional: Sentry, Bugsnag)
+
+10. Documentation
+Create comprehensive documentation:
+README.md:
+
+Installation instructions
+Configuration guide
+API token setup
+Database setup
+Cron job configuration
+Troubleshooting guide
+
+ARCHITECTURE.md:
+
+System design overview
+Database schema diagram
+API flow diagrams
+Class relationships (UML)
+
+API.md:
+
+GitHub API integration details
+Rate limiting strategy
+Error codes and handling
+
+Code Comments:
+
+PHPDoc blocks for all public methods
+Inline comments for complex logic
+TODO/FIXME markers for future improvements
+
+Deliverables
+Phase 1: Analysis & Planning
+
+Technical Specification Document
+
+GitHub API strategy (REST vs GraphQL)
+Database schema design
+Architecture diagrams
+Security considerations
+
+
+Answers to Questions:
+
+Which GitHub API to use and why
+Required API token permissions
+Recommended API endpoints
+Rate limit management strategy
+Optimal cron schedule
+Caching strategy details
+
+
+
+Phase 2: Implementation
+
+Database Setup
+
+Migration scripts (up/down)
+Seed data (for testing)
+Schema documentation
+
+
+Core Services
+
+GitHubApiService (with tests)
+CacheService (with tests)
+ContributorService (with tests)
+All supporting classes
+
+
+Cron Job
+
+Standalone PHP script
+Logging implementation
+Error handling
+Lock mechanism
+
+
+Frontend Widget
+
+HTML/Tailwind template
+JavaScript (if needed, minimal)
+CSS custom components
+Responsive design
+
+
+Integration Points
+
+Widget loader script
+Magento 2 integration guide
+Configuration file template
+
+
+
+Phase 3: Quality Assurance
+
+Code Quality
+
+PSR-12 compliance check
+Static analysis (PHPStan level 8)
+Code review checklist
+
+
+Testing
+
+Unit tests (PHPUnit)
+Integration tests
+Manual testing scenarios
+
+
+Performance
+
+Database query benchmarks
+API call optimization
+Frontend load time analysis
+
+
+Security Audit
+
+Complete security checklist
+Penetration testing recommendations
+Vulnerability assessment
+
+
+
+Success Criteria
+This project will be judged as exceptional if it demonstrates:
+✅ Code Excellence
+
+Clean, readable, maintainable code
+Proper separation of concerns
+No code smells or anti-patterns
+Comprehensive error handling
+
+✅ Security
+
+Zero vulnerabilities
+Best practices throughout
+Secure by design
+
+✅ Performance
+
+Fast page loads
+Efficient database queries
+Smart caching strategy
+
+✅ User Experience
+
+Beautiful, intuitive interface
+Smooth animations
+Responsive design
+Accessible
+
+✅ Maintainability
+
+Well-documented
+Easy to understand
+Simple to modify
+Future-proof architecture
+
+✅ Professional Polish
+
+Production-ready
+No shortcuts or hacks
+Peer-review worthy
+Portfolio-quality work
+
+Project Constraints
+
+No AI-generated code dumps - every line must be purposeful and well-crafted
+No hardcoded values - use configuration/environment variables
+No shortcuts - implement proper solutions, not quick hacks
+No security vulnerabilities - this will be audited
+Full documentation - others must be able to maintain this
+
+Next Steps
+
+Analyze the requirements and ask clarifying questions
+Create technical specification with your recommendations
+Design database schema and get approval
+Implement core services with proper testing
+Build frontend widget with beautiful UI
+Integrate cron job with monitoring
+Document everything thoroughly
+Security review and optimization
+Final quality check against success criteria
+
+
