@@ -22,7 +22,7 @@ for v in "${DOCS_VERSIONS[@]}"; do
     else
         echo "Cloning $v..."
         mkdir -p "$BASE_PATH/resources/docs"
-        git clone --single-branch --branch "$v" https://github.com/mage-os/devdocs.git "$BASE_PATH/resources/docs/$v"
+        git clone --single-branch --branch "$v" https://github.com/magentoopensource/docs.git "$BASE_PATH/resources/docs/$v"
     fi;
 done
 
