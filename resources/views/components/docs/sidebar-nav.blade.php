@@ -15,12 +15,12 @@
                             {!! $section['icon'] !!}
                         </div>
                     @endif
-                    <div class="font-inter-tight leading-[0] not-italic relative shrink-0 text-mine-shaft-500 text-base text-nowrap">
+                    <div class="font-inter-tight leading-[0] not-italic relative shrink-0 text-charcoal text-base text-nowrap">
                         <p class="leading-[1.5] whitespace-pre">{{ $section['title'] }}</p>
                     </div>
                 </div>
                 @if(isset($section['items']) && count($section['items']) > 0)
-                    <div class="font-['Font_Awesome_6_Free:Solid',_sans-serif] leading-[0] not-italic relative shrink-0 text-mine-shaft-300 text-sm text-nowrap">
+                    <div class="font-['Font_Awesome_6_Free:Solid',_sans-serif] leading-[0] not-italic relative shrink-0 text-gray-darker text-sm text-nowrap">
                         <p class="leading-[1.42] whitespace-pre">{{ $section['expanded'] ?? false ? 'angle-up' : 'angle-down' }}</p>
                     </div>
                 @endif
@@ -30,8 +30,8 @@
             @if(isset($section['items']) && ($section['expanded'] ?? false))
                 <div class="content-stretch flex flex-col items-start justify-start relative shrink-0 w-full">
                     @foreach($section['items'] as $item)
-                        <div class="@if($currentPath === $item['url']) bg-lightning-yellow-500 @else bg-alabaster-500 @endif box-border content-stretch flex gap-2.5 items-center justify-start pl-2.5 pr-0 py-2.5 relative shrink-0 w-full">
-                            <div class="font-inter-tight leading-[0] not-italic relative shrink-0 text-mine-shaft-500 text-sm text-nowrap">
+                        <div class="@if($currentPath === $item['url']) bg-yellow @else bg-off-white @endif box-border content-stretch flex gap-2.5 items-center justify-start pl-2.5 pr-0 py-2.5 relative shrink-0 w-full">
+                            <div class="font-inter-tight leading-[0] not-italic relative shrink-0 text-charcoal text-sm text-nowrap">
                                 <p class="leading-[1.42] whitespace-pre">{{ $item['title'] }}</p>
                             </div>
                         </div>

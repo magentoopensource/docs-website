@@ -43,13 +43,16 @@ class ContentSecurityPolicy
     {
         $algoliaId = config('algolia.connections.main.id', '');
 
+        // Allow Vite dev server in local development
+        $viteDevServer = app()->environment('local') ? ' http://127.0.0.1:5173 http://127.0.0.1:5174 http://127.0.0.1:5175 ws://127.0.0.1:5173 ws://127.0.0.1:5174 ws://127.0.0.1:5175' : '';
+
         $policy = [
             "default-src 'self'",
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com https://{$algoliaId}-dsn.algolia.net",
-            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval'{$viteDevServer} https://www.googletagmanager.com https://www.google-analytics.com https://{$algoliaId}-dsn.algolia.net",
+            "style-src 'self' 'unsafe-inline'{$viteDevServer} https://fonts.googleapis.com",
             "font-src 'self' https://fonts.gstatic.com",
             "img-src 'self' data: https:",
-            "connect-src 'self' https://www.google-analytics.com https://{$algoliaId}-dsn.algolia.net https://*.algolia.net https://*.algolianet.com",
+            "connect-src 'self'{$viteDevServer} https://www.google-analytics.com https://{$algoliaId}-dsn.algolia.net https://*.algolia.net https://*.algolianet.com",
             "frame-src 'none'",
             "object-src 'none'",
             "base-uri 'self'",

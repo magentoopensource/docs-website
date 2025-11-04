@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="relative bg-white">
-    <div class="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-[1440px]">
         <div class="flex gap-8 py-8">
             {{-- Left Sidebar: Category Articles --}}
             <aside class="hidden lg:block w-64 flex-shrink-0">
@@ -20,11 +20,11 @@
                             <a
                                 href="/docs/{{ $article['path'] }}"
                                 class="group flex items-start gap-3 px-3 py-2 text-sm rounded-lg transition-colors duration-150 no-underline
-                                    {{ $article['slug'] === $page ? 'bg-lightning-yellow-500 text-mine-shaft-500 font-medium' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900' }}"
+                                    {{ $article['slug'] === $page ? 'bg-yellow text-charcoal font-medium' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900' }}"
                             >
                                 <span class="flex-1">{{ $article['title'] }}</span>
                                 @if($article['slug'] === $page)
-                                    <svg class="w-5 h-5 text-mine-shaft-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <svg class="w-5 h-5 text-charcoal flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
                                     </svg>
                                 @endif
@@ -49,26 +49,6 @@
 
             {{-- Main Content Area --}}
             <main class="flex-1 min-w-0">
-                {{-- Community Note Banner --}}
-                @if($communityNote)
-                <div class="mb-8 rounded-lg border border-blue-200 bg-blue-50 p-4">
-                    <div class="flex gap-3">
-                        <svg class="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
-                        </svg>
-                        <div class="flex-1 text-sm text-blue-900">
-                            <p class="font-medium mb-1">Community-Maintained Documentation</p>
-                            <p class="text-blue-800">
-                                This documentation is maintained by the Magento community. Help improve it by
-                                <a href="{{ $edit_link }}" target="_blank" rel="noopener" class="underline hover:text-blue-900">
-                                    contributing on GitHub
-                                </a>.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                @endif
-
                 {{-- Documentation Content --}}
                 <article class="docs-content max-w-none">
                     {!! $content !!}
@@ -189,7 +169,7 @@
                         <a
                             href="/docs/{{ $article['path'] }}"
                             class="block px-3 py-2 text-sm rounded-lg transition-colors no-underline
-                                {{ $article['slug'] === $page ? 'bg-lightning-yellow-500 text-mine-shaft-500 font-medium' : 'text-gray-700 hover:bg-gray-50' }}"
+                                {{ $article['slug'] === $page ? 'bg-yellow text-charcoal font-medium' : 'text-gray-700 hover:bg-gray-50' }}"
                         >
                             {{ $article['title'] }}
                         </a>

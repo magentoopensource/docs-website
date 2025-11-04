@@ -6,7 +6,7 @@
 ])
 
 <div class="flex flex-col items-center justify-center gap-16 px-6 sm:px-12 md:px-16 lg:px-24 xl:px-32 pt-24 pb-0 w-full">
-    <div class="flex flex-col gap-5 items-start justify-start {{ $centerContent ? 'text-center' : '' }} text-mine-shaft-500">
+    <div class="flex flex-col gap-5 items-start justify-start {{ $centerContent ? 'text-center' : '' }} text-charcoal">
         <h1 class="text-5xl font-inter-tight font-extrabold leading-none {{ $centerContent ? 'w-full' : '' }}">
             {{ $title }}
         </h1>

@@ -1,5 +1,5 @@
 {{-- New documentation layout matching Figma node-id=61-192 --}}
-<div class="bg-flamingo-50 min-h-screen pt-16">
+<div class="bg-orange min-h-screen pt-16">
     <div class="flex gap-[31px] items-start justify-start px-[279px] py-[21px]">
         {{-- Left Sidebar Navigation --}}
         <aside class="flex flex-col gap-[28px] items-start justify-start pr-5 w-[280px]">

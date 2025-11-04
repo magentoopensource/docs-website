@@ -11,14 +11,14 @@ export default {
                 "7xl": ["4.5rem", { lineHeight: "1" }],
                 "8xl": ["6rem", { lineHeight: "1" }],
                 // Figma design system sizes
-                "6xl": ["60px", { lineHeight: "1" }],     // Type/6xl from Figma
-                "5xl": ["48px", { lineHeight: "1" }],     // Type/5xl from Figma  
-                "3xl": ["30px", { lineHeight: "1.2" }],   // Type/3xl from Figma
-                "xl": ["20px", { lineHeight: "1.4" }],    // Type/xl from Figma
-                "lg": ["18px", { lineHeight: "1.42" }],   // Type/lg from Figma
-                "base": ["16px", { lineHeight: "1.5" }],  // text-base from Figma
-                "sm": ["14px", { lineHeight: "1.42" }],   // text-sm from Figma
-                "xs": ["12px", { lineHeight: "1.333" }],  // text-xs from Figma
+                "6xl": ["60px", { lineHeight: "1" }],     // Type/6xl
+                "5xl": ["48px", { lineHeight: "1" }],     // Type/5xl
+                "3xl": ["30px", { lineHeight: "1.2" }],   // Type/3xl
+                "xl": ["20px", { lineHeight: "1.4" }],    // Type/xl
+                "lg": ["18px", { lineHeight: "1.42" }],   // Type/lg
+                "base": ["16px", { lineHeight: "1.5" }],  // text-base
+                "sm": ["14px", { lineHeight: "1.42" }],   // text-sm
+                "xs": ["12px", { lineHeight: "1.333" }],  // text-xs
             },
             maxWidth: {
                 xxs: "16rem",
@@ -69,184 +69,75 @@ export default {
         colors: {
             transparent: "transparent",
             current: "currentColor",
-            black: "#000",
-            white: "#fff",
-            // Primary brand colors (Flamingo from Figma)
-            primary: {
-                50: "#fef7f0",
-                100: "#fef1e7",
-                200: "#faccae", // Flamingo/200 from Figma
-                300: "#fdba74", 
-                400: "#f27945", // Flamingo/400 from Figma
-                500: "#ff6500", // Keep existing for compatibility
-                600: "#e85d04",
-                700: "#d9480f",
-                800: "#8a2e13",
-                900: "#73230d",
-            },
-            // Frame 53 specific colors
-            waterloo: {
-                500: "#7b7792", // Waterloo/500 from Figma
-                600: "#6f6a7f", // Waterloo/600 from Figma
-                800: "#504e56", // Waterloo/800 from Figma
-                900: "#434246", // Waterloo/900 from Figma
-                950: "#27262a", // Waterloo/950 from Figma
-            },
-            blackrock: {
-                900: "#05021e", // Black Rock/900 from Figma
-            },
-            flamingo: {
-                50: "#fef5ee",   // Flamingo/50 from Figma
-                100: "#fde7d7",  // Flamingo/100 from Figma
-                200: "#faccae",  // Flamingo/200 from Figma
-                300: "#f5a77a",  // Medium light flamingo 
-                400: "#f27945",  // Flamingo/400 from Figma
-                500: "#ef5924",  // Flamingo/500 from Figma
-                600: "#d14d1c",  // Much darker flamingo
-                700: "#b8451a",  // Even darker flamingo
-                800: "#973617",  // Very dark flamingo
-                900: "#7f2814",  // Darkest flamingo
-            },
-            secondary: {
-                50: "#fee2e2",
-                100: "#fecaca",
-                200: "#fca5a5",
-                300: "#f87171",
-                400: "#EB4432",
-                500: "#F9322C",
-                600: "#ec0e00", // Main secondary red
-                700: "#ca473f",
-                800: "#981d15",
-                900: "#7f1d1d",
-            },
-            gray: {
-                900: "#232323",
-                800: "#222222",
-                700: "#565454",
-                600: "#777777",
-                500: "#93939e",
-                400: "#B5B5BD",
-                300: "#d7d7dc",
-                200: "#e7e8f2",
-                100: "#f5f5fa",
-                50: "#fbfbfd",
-            },
-            dark: {
-                900: "#0C0D12",
-                800: "#12141C",
-                700: "#171923",
-                600: "#252A37",
-                500: "#394056",
-            },
-            red: {
-                50: "#fef2f2",
-                100: "#fee2e2",
-                200: "#fecaca",
-                300: "#fca5a5",
-                400: "#f87171",
-                500: "#ef4444",
-                600: "#dc2626",
-                700: "#b91c1c",
-                800: "#991b1b",
-                900: "#7f1d1d",
-            },
+            // Brand colors
             orange: {
-                50: "#fff7ed",
-                100: "#ffedd5",
-                200: "#fed7aa",
-                300: "#fdba74",
-                400: "#fb923c",
-                500: "#ff6500", // Keep for backward compatibility
-                600: "#e85d04",
-                700: "#d9480f",
-                800: "#8a2e13",
-                900: "#73230d",
+                DEFAULT: "#F26423",
+                500: "#F26423",  // For @apply directives
             },
+            yellow: "#F1BC1B",
+            red: {
+                DEFAULT: "#BC3312",
+                500: "#BC3312",  // For theme() function
+                600: "#BC3312",  // For @apply directives
+            },
+            purple: "#9747FF",
+            // Neutrals
+            black: "#000000",
+            white: "#FFFFFF",
+            charcoal: "#2C2C2C",
+            slate: "#34323A",
+            brown: "#442204",
+            "off-white": "#FAFAFA",
+            silver: "#C9C9C9",
+            // Dark mode colors (very dark backgrounds)
+            dark: {
+                500: "#171923",
+                600: "#12141C",
+            },
+            // Gray scale with semantic names
+            gray: {
+                darkest: "#474747",
+                darker: "#818181",
+                medium: "#848484",
+                light: "#CCCCCC",
+                lighter: "#D9D9D9",
+                lightest: "#F1F1F1",
+                // Numbered shades for @apply directives
+                50: "#FAFAFA",
+                100: "#F1F1F1",
+                200: "#D9D9D9",
+                300: "#CCCCCC",
+                400: "#848484",
+                500: "#848484",
+                600: "#818181",
+                700: "#474747",
+                800: "#34323A",
+                900: "#2C2C2C",
+            },
+            // Minimal functional colors for callouts/alerts (keep minimal shades)
             blue: {
                 50: "#eff6ff",
-                100: "#dbeafe", 
-                200: "#bfdbfe",
-                300: "#93c5fd",
                 400: "#60a5fa",
-                500: "#3b82f6",
-                600: "#2563eb",
-                700: "#1d4ed8",
                 800: "#1e40af",
-                900: "#1e3a8a",
             },
             green: {
                 50: "#f0fdf4",
-                100: "#dcfce7",
-                200: "#bbf7d0", 
-                300: "#86efac",
                 400: "#4ade80",
-                500: "#22c55e",
-                600: "#16a34a",
-                700: "#15803d",
                 800: "#166534",
-                900: "#14532d",
             },
-            yellow: {
-                50: "#fefce8",
-                100: "#fef3c7",
-                200: "#fde68a",
-                300: "#fcd34d", 
-                400: "#fbbf24",
-                500: "#f59e0b",
-                600: "#d97706",
-                700: "#b45309",
-                800: "#92400e",
-                900: "#78350f",
+            // Legacy color names for @apply directives (mapped to our palette)
+            primary: {
+                50: "#FFF7F0",    // Very light orange
+                100: "#FFE7D7",   // Light orange
+                500: "#F26423",   // Main orange
+                600: "#F26423",   // Orange
+                700: "#E65D1F",   // Darker orange
+                800: "#D9541B",   // Even darker orange
             },
-            purple: {
-                600: "#8338ec",
-            },
-            // Figma Design System Colors
-            "mine-shaft": {
-                50: "#f1f1f1",   // Mine Shaft/50 from Figma
-                100: "#d9d9d9",  // Mine Shaft/100 from Figma
-                300: "#818181",  // Mine Shaft/300 from Figma (secondary text)
-                400: "#474747",  // Mine Shaft/400 from Figma
-                500: "#2c2c2c",  // Mine Shaft/500 from Figma (primary text)
-            },
-            "alabaster": {
-                500: "#fafafa",  // Alabaster/500 from Figma (background)
-                600: "#cccccc",  // Alabaster/600 from Figma (borders)
-            },
-            "figma-orange": {
-                500: "#f26423",  // Orange/500 from Figma (accent)
-                700: "#bc3312",  // Orange/700 from Figma (links)
-            },
-            "lightning-yellow": {
-                500: "#f1bc1b",  // Lightning Yellow/500 from Figma (highlights)
-                950: "#442204",  // Lightning Yellow/950 from Figma (text on yellow)
-            },
-            // Lightning Yellow palette from Figma
-            lightningYellow: {
-                50: "#fffef7",
-                100: "#fffaeb",
-                200: "#fff2cc",
-                300: "#fff147", // Lightning Yellow/300 from Figma
-                400: "#ffd633",
-                500: "#f2bc02", // Lightning Yellow/500 from Figma
-                600: "#e09900", // Lightning Yellow/600 from Figma
-                700: "#cc9900",
-                800: "#b37d00",
-                900: "#7c450b", // Lightning Yellow/900 from Figma
-            },
-            // Sweet Corn palette from Figma
-            sweetCorn: {
-                50: "#fef5ee", // Flamingo/50 from Figma for bg
-                100: "#fde7d7", // Flamingo/100 from Figma
-                200: "#fff2cc",
-                300: "#ffe599",
-                400: "#ffdc66", // Sweet Corn/400 from Figma
-                500: "#ffd333",
-                600: "#e6b800",
-                700: "#cc9900",
-                800: "#b37d00",
-                900: "#996100",
-                950: "#6c3d08", // Sweet Corn/950 from Figma
+            secondary: {
+                500: "#BC3312",   // Red
+                600: "#BC3312",   // Red
+                700: "#A62D10",   // Darker red
             },
         },
         fontFamily: {

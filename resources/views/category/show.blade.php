@@ -3,8 +3,8 @@
 @section('content')
     {{-- Category Header --}}
     <x-category-header
-        title="Start selling"
-        description="Get your store up and running with your first products, payments and shipping setup."
+        :title="$category['name']"
+        :description="$category['description'] ?? 'Learn more about ' . $category['name']"
     />
 
     {{-- Articles Grid --}}

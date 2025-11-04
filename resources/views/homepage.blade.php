@@ -4,11 +4,11 @@
     {{-- Hero Section - Commerce begins with Community --}}
     <section class="bg-white flex flex-col items-center justify-center py-12 sm:pt-16 md:pt-20 lg:pt-24 gap-8 sm:gap-12 md:gap-16 pb-0 mb-0">
         {{-- Main Hero Content --}}
-        <div class="flex flex-col items-start justify-start gap-5 text-mine-shaft-500">
-            <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-inter-tight font-normal leading-none text-center sm:text-left">
+        <div class="flex flex-col items-start justify-start text-charcoal">
+            <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-inter-tight leading-none text-center sm:text-left font-bold mb-8">
                 Commerce begins with Community.
             </h1>
-            <p class="text-lg sm:text-xl font-inter-tight font-normal leading-[1.4] text-center w-full">
+            <p class="text-xl font-inter-tight font-medium leading-[1.4] text-center w-full">
                 Your comprehensive guide to building, managing, and growing a successful Magento 2 store.
             </p>
         </div>
@@ -58,24 +58,24 @@
     </section>
 
     {{-- Search Section with Search Content --}}
-    <section class="relative flex flex-col gap-2.5 items-center justify-start">
+    <section class="relative flex flex-col gap-2.5 items-center justify-start pt-24">
         {{-- Search Content --}}
-        <div class="flex flex-col items-center justify-start gap-6 sm:gap-8 md:gap-10 px-6 sm:px-8 md:px-12 py-12 sm:py-16 md:py-20 lg:py-24 relative w-full ">
+        <div class="flex flex-col items-center justify-start gap-6 sm:gap-8 md:gap-10 relative w-full ">
             {{-- Search Header --}}
             <div class="flex flex-col items-center justify-start gap-6 sm:gap-8 w-full">
-                <h2 class="text-3xl sm:text-4xl md:text-5xl font-inter-tight font-bold leading-none text-mine-shaft-500 text-center">
+                <h2 class="text-3xl sm:text-4xl md:text-5xl font-inter-tight font-bold leading-none text-charcoal text-center mb-2">
                     How can we help you today?
                 </h2>
-                <p class="text-lg sm:text-xl font-inter-tight font-medium leading-[1.4] text-center text-mine-shaft-500 max-w-4xl">
+                <p class="text-lg sm:text-xl font-inter-tight font-medium leading-[1.4] text-center text-charcoal max-w-4xl">
                     Find step-by-step guides, best practices, and expert tips to unlock your store's full potential.
                 </p>
             </div>
 
             {{-- Search Bar --}}
-            <div class="px-6 sm:px-12 md:px-24 lg:px-48 xl:px-64 w-full">
-                <button class="flex flex-col gap-3 sm:gap-4 w-full pt-3 sm:pt-4 cursor-pointer hover:bg-alabaster-500 transition-colors duration-200 rounded-lg p-4 focus:outline-none focus:ring-2 focus:ring-figma-orange-500 focus:ring-opacity-50" id="homepage-search">
+            <div class="px-6 sm:px-12 md:px-16 lg:px-24 xl:px-32 w-full">
+                <button class="flex flex-col gap-3 sm:gap-4 w-full pt-3 sm:pt-4 cursor-pointer hover:bg-off-white transition-colors duration-200 rounded-lg py-4 focus:outline-none focus:ring-2 focus:ring-orange focus:ring-opacity-50" id="homepage-search">
                     <div class="flex items-center justify-between w-full">
-                        <span class="text-base sm:text-lg font-inter-tight leading-[1.42] text-mine-shaft-500">
+                        <span class="text-base sm:text-lg font-inter-tight leading-[1.42] text-charcoal">
                             Search the documentation
                         </span>
                         <svg width="19" height="19" viewBox="0 0 19 19" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -83,26 +83,26 @@
                         </svg>
 
                     </div>
-                    <div class="bg-mine-shaft-500 h-1 w-full"></div>
+                    <div class="bg-charcoal h-1 w-full"></div>
                 </button>
             </div>
         </div>
     </section>
 
     {{-- Categories Grid Section --}}
-    <section class="flex flex-col items-center justify-start gap-8 sm:gap-10 md:gap-12 px-6 sm:px-12 md:px-16 lg:px-24 xl:px-32 py-12 sm:py-16 md:py-20 lg:py-24">
+    <section class="flex flex-col items-center justify-start gap-8 sm:gap-10 md:gap-12 px-6 sm:px-12 md:px-16 lg:px-24 xl:px-32 py-12 sm:py-16">
         <div class="flex flex-col items-center justify-start gap-6 w-full">
             {{-- Top Row Categories --}}
             <div class="flex flex-col lg:flex-row gap-6 sm:gap-8 lg:gap-[30px] items-stretch justify-start w-full">
                 {{-- Start Selling --}}
-                <div class="flex-1 bg-white flex flex-col gap-[30px] items-start justify-start p-6 pt-8 pb-6 rounded border-t-4 border-lightning-yellow-500 shadow-lg hover:shadow-xl transition-all duration-300 hover:border-figma-orange-500 focus-within:ring-2 focus-within:ring-figma-orange-500 focus-within:ring-opacity-20">
+                <div class="flex-1 bg-white flex flex-col gap-[30px] items-start justify-start p-6 pt-8 pb-6 rounded border-t-4 border-yellow shadow-lg hover:shadow-xl transition-all duration-300 hover:border-orange focus-within:ring-2 focus-within:ring-orange focus-within:ring-opacity-20">
                     <div class="flex items-center justify-start gap-[26px] w-full">
-                        <h3 class="text-3xl font-inter-tight font-normal leading-[1.2] text-mine-shaft-500">
+                        <h3 class="text-3xl font-inter-tight font-normal leading-[1.2] text-charcoal">
                             Start selling
                         </h3>
                     </div>
                     <div class="flex flex-col items-start justify-start gap-[15px] w-full">
-                        <p class="text-base font-inter-tight font-normal leading-[1.5] text-mine-shaft-500">
+                        <p class="text-base font-inter-tight font-normal leading-[1.5] text-charcoal">
                             Get your store up and running with your first products, payments and shipping setup.
                         </p>
                     </div>
@@ -115,8 +115,8 @@
                             ['title' => 'Credit card payments', 'desc' => 'Enable credit card payments securely.'],
                             ['title' => 'Free shipping', 'desc' => 'Add free shipping over a minimum cart value']
                         ] as $link)
-                            <a href="/docs/start-selling" class="bg-white flex flex-col gap-4 items-center justify-start pb-5 w-full hover:bg-alabaster-500 transition-colors duration-200 rounded-lg p-2 -mx-2">
-                                <div class="bg-alabaster-600 h-1 w-full"></div>
+                            <a href="/docs/start-selling" class="bg-white flex flex-col gap-4 items-center justify-start pb-5 w-full hover:bg-off-white transition-colors duration-200 rounded-lg p-2 -mx-2">
+                                <div class="bg-gray-light h-1 w-full"></div>
                                 <div class="flex gap-2.5 items-start justify-start px-2 w-full">
                                     <div class="w-6 h-6 flex-shrink-0">
                                         @if($link['title'] === 'Simple products')
@@ -130,10 +130,10 @@
                                         @endif
                                     </div>
                                     <div class="flex flex-col items-start justify-center flex-1">
-                                        <div class="text-base font-inter-tight leading-[1.5] text-mine-shaft-500">
+                                        <div class="text-base font-inter-tight leading-[1.5] text-charcoal font-bold">
                                             {{ $link['title'] }}
                                         </div>
-                                        <div class="text-xs font-inter-tight leading-[1.333] text-mine-shaft-400">
+                                        <div class="text-xs font-inter-tight leading-[1.333] text-gray-darkest">
                                             {{ $link['desc'] }}
                                         </div>
                                     </div>
@@ -142,18 +142,18 @@
                         @endforeach
                     </div>
 
-                    <a href="/docs/start-selling" class="text-base font-inter-tight leading-[1.5] text-figma-orange-700 underline decoration-solid"> See all in this section </a>
+                    <a href="/docs/start-selling" class="text-base font-inter-tight leading-[1.5] text-red underline decoration-solid"> See all in this section </a>
                 </div>
 
                 {{-- Manage Catalog --}}
-                <div class="flex-1 bg-white flex flex-col gap-[30px] items-start justify-start p-6 pt-8 pb-6 rounded border-t-4 border-lightning-yellow-500 shadow-lg hover:shadow-xl transition-all duration-300 hover:border-figma-orange-500 focus-within:ring-2 focus-within:ring-figma-orange-500 focus-within:ring-opacity-20">
+                <div class="flex-1 bg-white flex flex-col gap-[30px] items-start justify-start p-6 pt-8 pb-6 rounded border-t-4 border-yellow shadow-lg hover:shadow-xl transition-all duration-300 hover:border-orange focus-within:ring-2 focus-within:ring-orange focus-within:ring-opacity-20">
                     <div class="flex items-center justify-start gap-[26px] w-full">
-                        <h3 class="text-3xl font-inter-tight font-normal leading-[1.2] text-mine-shaft-500">
+                        <h3 class="text-3xl font-inter-tight font-normal leading-[1.2] text-charcoal">
                             Manage catalog
                         </h3>
                     </div>
                     <div class="flex flex-col items-start justify-start gap-[15px] w-full">
-                        <p class="text-base font-inter-tight font-normal leading-[1.5] text-mine-shaft-500">
+                        <p class="text-base font-inter-tight font-normal leading-[1.5] text-charcoal">
                             Organise and maintain your product catalog with bulk operations and smart workflows.
                         </p>
                     </div>
@@ -166,8 +166,8 @@
                             ['title' => 'Variants', 'desc' => 'Create configurable products with variants'],
                             ['title' => 'Categories', 'desc' => 'Organise products into categories efficiently']
                         ] as $link)
-                            <a href="/docs/manage-catalog" class="bg-white flex flex-col gap-4 items-center justify-start pb-5 w-full hover:bg-alabaster-500 transition-colors duration-200 rounded-lg p-2 -mx-2">
-                                <div class="bg-alabaster-600 h-1 w-full"></div>
+                            <a href="/docs/manage-catalog" class="bg-white flex flex-col gap-4 items-center justify-start pb-5 w-full hover:bg-off-white transition-colors duration-200 rounded-lg p-2 -mx-2">
+                                <div class="bg-gray-light h-1 w-full"></div>
                                 <div class="flex gap-2.5 items-start justify-start px-2 w-full">
                                     <div class="w-6 h-6 flex-shrink-0">
                                         @if($link['title'] === 'Import products')
@@ -181,10 +181,10 @@
                                         @endif
                                     </div>
                                     <div class="flex flex-col items-start justify-center flex-1">
-                                        <div class="text-base font-inter-tight leading-[1.5] text-mine-shaft-500">
+                                        <div class="text-base font-inter-tight leading-[1.5] text-charcoal">
                                             {{ $link['title'] }}
                                         </div>
-                                        <div class="text-xs font-inter-tight leading-[1.333] text-mine-shaft-400">
+                                        <div class="text-xs font-inter-tight leading-[1.333] text-gray-darkest">
                                             {{ $link['desc'] }}
                                         </div>
                                     </div>
@@ -193,18 +193,18 @@
                         @endforeach
                     </div>
 
-                    <a href="/docs/manage-catalog" class="text-base font-inter-tight leading-[1.5] text-figma-orange-700 underline decoration-solid"> See all in this section </a>
+                    <a href="/docs/manage-catalog" class="text-base font-inter-tight leading-[1.5] text-red underline decoration-solid"> See all in this section </a>
                 </div>
 
                 {{-- Handle Orders --}}
-                <div class="flex-1 bg-white flex flex-col gap-[30px] items-start justify-start p-6 pt-8 pb-6 rounded border-t-4 border-lightning-yellow-500 shadow-lg hover:shadow-xl transition-all duration-300 hover:border-figma-orange-500 focus-within:ring-2 focus-within:ring-figma-orange-500 focus-within:ring-opacity-20">
+                <div class="flex-1 bg-white flex flex-col gap-[30px] items-start justify-start p-6 pt-8 pb-6 rounded border-t-4 border-yellow shadow-lg hover:shadow-xl transition-all duration-300 hover:border-orange focus-within:ring-2 focus-within:ring-orange focus-within:ring-opacity-20">
                     <div class="flex items-center justify-start gap-[26px] w-full">
-                        <h3 class="text-3xl font-inter-tight font-normal leading-[1.2] text-mine-shaft-500">
+                        <h3 class="text-3xl font-inter-tight font-normal leading-[1.2] text-charcoal">
                             Handle orders
                         </h3>
                     </div>
                     <div class="flex flex-col items-start justify-start gap-[15px] w-full">
-                        <p class="text-base font-inter-tight font-normal leading-[1.5] text-mine-shaft-500">
+                        <p class="text-base font-inter-tight font-normal leading-[1.5] text-charcoal">
                             Process orders, manage fulfilment and handle customer service quickly and efficiently.
                         </p>
                     </div>
@@ -217,12 +217,12 @@
                             ['title' => 'Edit orders', 'desc' => 'Edit shipping details after purchase'],
                             ['title' => 'Label management', 'desc' => 'Print shipping labels directly from Magento']
                         ] as $link)
-                            <a href="/docs/handle-orders" class="bg-white flex flex-col gap-4 items-center justify-start pb-5 w-full hover:bg-alabaster-500 transition-colors duration-200 rounded-lg p-2 -mx-2">
-                                <div class="bg-alabaster-600 h-1 w-full"></div>
+                            <a href="/docs/handle-orders" class="bg-white flex flex-col gap-4 items-center justify-start pb-5 w-full hover:bg-off-white transition-colors duration-200 rounded-lg p-2 -mx-2">
+                                <div class="bg-gray-light h-1 w-full"></div>
                                 <div class="flex gap-2.5 items-start justify-start px-2 w-full">
                                     <div class="w-6 h-6 flex-shrink-0">
                                         @if($link['title'] === 'Orders')
-                                            <svg class="w-full h-full text-figma-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg class="w-full h-full text-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                             </svg>
                                         @elseif($link['title'] === 'Refunds')
@@ -243,10 +243,10 @@
                                         @endif
                                     </div>
                                     <div class="flex flex-col items-start justify-center flex-1">
-                                        <div class="text-base font-inter-tight leading-[1.5] text-mine-shaft-500">
+                                        <div class="text-base font-inter-tight leading-[1.5] text-charcoal">
                                             {{ $link['title'] }}
                                         </div>
-                                        <div class="text-xs font-inter-tight leading-[1.333] text-mine-shaft-400">
+                                        <div class="text-xs font-inter-tight leading-[1.333] text-gray-darkest">
                                             {{ $link['desc'] }}
                                         </div>
                                     </div>
@@ -255,21 +255,21 @@
                         @endforeach
                     </div>
 
-                    <a href="/docs/handle-orders" class="text-base font-inter-tight leading-[1.5] text-figma-orange-700 underline decoration-solid"> See all in this section </a>
+                    <a href="/docs/handle-orders" class="text-base font-inter-tight leading-[1.5] text-red underline decoration-solid"> See all in this section </a>
                 </div>
             </div>
 
             {{-- Bottom Row Categories --}}
             <div class="flex flex-col lg:flex-row gap-6 sm:gap-8 lg:gap-[30px] items-stretch justify-start w-full">
                 {{-- Grow Your Store --}}
-                <div class="flex-1 bg-white flex flex-col gap-[30px] items-start justify-start p-6 pt-8 pb-6 rounded border-t-4 border-lightning-yellow-500 shadow-lg hover:shadow-xl transition-all duration-300 hover:border-figma-orange-500 focus-within:ring-2 focus-within:ring-figma-orange-500 focus-within:ring-opacity-20">
+                <div class="flex-1 bg-white flex flex-col gap-[30px] items-start justify-start p-6 pt-8 pb-6 rounded border-t-4 border-yellow shadow-lg hover:shadow-xl transition-all duration-300 hover:border-orange focus-within:ring-2 focus-within:ring-orange focus-within:ring-opacity-20">
                     <div class="flex items-center justify-start gap-[26px] w-full">
-                        <h3 class="text-3xl font-inter-tight font-normal leading-[1.2] text-mine-shaft-500">
+                        <h3 class="text-3xl font-inter-tight font-normal leading-[1.2] text-charcoal">
                             Grow your store
                         </h3>
                     </div>
                     <div class="flex flex-col items-start justify-start gap-[15px] w-full">
-                        <p class="text-base font-inter-tight font-normal leading-[1.5] text-mine-shaft-500">
+                        <p class="text-base font-inter-tight font-normal leading-[1.5] text-charcoal">
                             Scale your business with marketing tools, analytics and customer retention strategies.
                         </p>
                     </div>
@@ -282,33 +282,33 @@
                             ['title' => 'Customer retention', 'desc' => 'Build loyalty programs and repeat purchases'],
                             ['title' => 'Social media', 'desc' => 'Connect social channels to drive traffic']
                         ] as $link)
-                            <a href="/docs/grow-store" class="bg-white flex flex-col gap-4 items-center justify-start pb-5 w-full hover:bg-alabaster-500 transition-colors duration-200 rounded-lg p-2 -mx-2">
-                                <div class="bg-alabaster-600 h-1 w-full"></div>
+                            <a href="/docs/grow-store" class="bg-white flex flex-col gap-4 items-center justify-start pb-5 w-full hover:bg-off-white transition-colors duration-200 rounded-lg p-2 -mx-2">
+                                <div class="bg-gray-light h-1 w-full"></div>
                                 <div class="flex gap-2.5 items-start justify-start px-2 w-full">
                                     <div class="w-6 h-6 flex-shrink-0">
                                         @if($link['title'] === 'Analytics')
-                                            <svg class="w-full h-full text-figma-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg class="w-full h-full text-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
                                             </svg>
                                         @elseif($link['title'] === 'Marketing tools')
-                                            <svg class="w-full h-full text-figma-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg class="w-full h-full text-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/>
                                             </svg>
                                         @elseif($link['title'] === 'Customer retention')
-                                            <svg class="w-full h-full text-figma-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg class="w-full h-full text-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
                                             </svg>
                                         @elseif($link['title'] === 'Social media')
-                                            <svg class="w-full h-full text-figma-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg class="w-full h-full text-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
                                             </svg>
                                         @endif
                                     </div>
                                     <div class="flex flex-col items-start justify-center flex-1">
-                                        <div class="text-base font-inter-tight leading-[1.5] text-mine-shaft-500">
+                                        <div class="text-base font-inter-tight leading-[1.5] text-charcoal">
                                             {{ $link['title'] }}
                                         </div>
-                                        <div class="text-xs font-inter-tight leading-[1.333] text-mine-shaft-400">
+                                        <div class="text-xs font-inter-tight leading-[1.333] text-gray-darkest">
                                             {{ $link['desc'] }}
                                         </div>
                                     </div>
@@ -317,18 +317,18 @@
                         @endforeach
                     </div>
 
-                    <a href="/docs/grow-store" class="text-base font-inter-tight leading-[1.5] text-figma-orange-700 underline decoration-solid"> See all in this section </a>
+                    <a href="/docs/grow-store" class="text-base font-inter-tight leading-[1.5] text-red underline decoration-solid"> See all in this section </a>
                 </div>
 
                 {{-- Improve UX --}}
-                <div class="flex-1 bg-white flex flex-col gap-[30px] items-start justify-start p-6 pt-8 pb-6 rounded border-t-4 border-lightning-yellow-500 shadow-lg hover:shadow-xl transition-all duration-300 hover:border-figma-orange-500 focus-within:ring-2 focus-within:ring-figma-orange-500 focus-within:ring-opacity-20">
+                <div class="flex-1 bg-white flex flex-col gap-[30px] items-start justify-start p-6 pt-8 pb-6 rounded border-t-4 border-yellow shadow-lg hover:shadow-xl transition-all duration-300 hover:border-orange focus-within:ring-2 focus-within:ring-orange focus-within:ring-opacity-20">
                     <div class="flex items-center justify-start gap-[26px] w-full">
-                        <h3 class="text-3xl font-inter-tight font-normal leading-[1.2] text-mine-shaft-500">
+                        <h3 class="text-3xl font-inter-tight font-normal leading-[1.2] text-charcoal">
                             Improve UX
                         </h3>
                     </div>
                     <div class="flex flex-col items-start justify-start gap-[15px] w-full">
-                        <p class="text-base font-inter-tight font-normal leading-[1.5] text-mine-shaft-500">
+                        <p class="text-base font-inter-tight font-normal leading-[1.5] text-charcoal">
                             Enhance customer experience with design, navigation and performance optimizations.
                         </p>
                     </div>
@@ -341,33 +341,33 @@
                             ['title' => 'Performance', 'desc' => 'Speed up page loading and response times'],
                             ['title' => 'Mobile optimization', 'desc' => 'Ensure seamless mobile shopping experience']
                         ] as $link)
-                            <a href="/docs/improve-ux" class="bg-white flex flex-col gap-4 items-center justify-start pb-5 w-full hover:bg-alabaster-500 transition-colors duration-200 rounded-lg p-2 -mx-2">
-                                <div class="bg-alabaster-600 h-1 w-full"></div>
+                            <a href="/docs/improve-ux" class="bg-white flex flex-col gap-4 items-center justify-start pb-5 w-full hover:bg-off-white transition-colors duration-200 rounded-lg p-2 -mx-2">
+                                <div class="bg-gray-light h-1 w-full"></div>
                                 <div class="flex gap-2.5 items-start justify-start px-2 w-full">
                                     <div class="w-6 h-6 flex-shrink-0">
                                         @if($link['title'] === 'Theme design')
-                                            <svg class="w-full h-full text-figma-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg class="w-full h-full text-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z"/>
                                             </svg>
                                         @elseif($link['title'] === 'Navigation')
-                                            <svg class="w-full h-full text-figma-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg class="w-full h-full text-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
                                             </svg>
                                         @elseif($link['title'] === 'Performance')
-                                            <svg class="w-full h-full text-figma-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg class="w-full h-full text-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
                                             </svg>
                                         @elseif($link['title'] === 'Mobile optimization')
-                                            <svg class="w-full h-full text-figma-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg class="w-full h-full text-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a1 1 0 001-1V4a1 1 0 00-1-1H8a1 1 0 00-1 1v16a1 1 0 001 1z"/>
                                             </svg>
                                         @endif
                                     </div>
                                     <div class="flex flex-col items-start justify-center flex-1">
-                                        <div class="text-base font-inter-tight leading-[1.5] text-mine-shaft-500">
+                                        <div class="text-base font-inter-tight leading-[1.5] text-charcoal">
                                             {{ $link['title'] }}
                                         </div>
-                                        <div class="text-xs font-inter-tight leading-[1.333] text-mine-shaft-400">
+                                        <div class="text-xs font-inter-tight leading-[1.333] text-gray-darkest">
                                             {{ $link['desc'] }}
                                         </div>
                                     </div>
@@ -376,18 +376,18 @@
                         @endforeach
                     </div>
 
-                    <a href="/docs/improve-ux" class="text-base font-inter-tight leading-[1.5] text-figma-orange-700 underline decoration-solid"> See all in this section </a>
+                    <a href="/docs/improve-ux" class="text-base font-inter-tight leading-[1.5] text-red underline decoration-solid"> See all in this section </a>
                 </div>
 
                 {{-- Stay Compliant --}}
-                <div class="flex-1 bg-white flex flex-col gap-[30px] items-start justify-start p-6 pt-8 pb-6 rounded border-t-4 border-lightning-yellow-500 shadow-lg hover:shadow-xl transition-all duration-300 hover:border-figma-orange-500 focus-within:ring-2 focus-within:ring-figma-orange-500 focus-within:ring-opacity-20">
+                <div class="flex-1 bg-white flex flex-col gap-[30px] items-start justify-start p-6 pt-8 pb-6 rounded border-t-4 border-yellow shadow-lg hover:shadow-xl transition-all duration-300 hover:border-orange focus-within:ring-2 focus-within:ring-orange focus-within:ring-opacity-20">
                     <div class="flex items-center justify-start gap-[26px] w-full">
-                        <h3 class="text-3xl font-inter-tight font-normal leading-[1.2] text-mine-shaft-500">
+                        <h3 class="text-3xl font-inter-tight font-normal leading-[1.2] text-charcoal">
                             Stay compliant
                         </h3>
                     </div>
                     <div class="flex flex-col items-start justify-start gap-[15px] w-full">
-                        <p class="text-base font-inter-tight font-normal leading-[1.5] text-mine-shaft-500">
+                        <p class="text-base font-inter-tight font-normal leading-[1.5] text-charcoal">
                             Ensure your store meets legal and industry standards for data protection and commerce.
                         </p>
                     </div>
@@ -400,33 +400,33 @@
                             ['title' => 'Legal pages', 'desc' => 'Set up terms, privacy policy, and disclaimers'],
                             ['title' => 'Accessibility', 'desc' => 'Make your store accessible to all users']
                         ] as $link)
-                            <a href="/docs/stay-compliant" class="bg-white flex flex-col gap-4 items-center justify-start pb-5 w-full hover:bg-alabaster-500 transition-colors duration-200 rounded-lg p-2 -mx-2">
-                                <div class="bg-alabaster-600 h-1 w-full"></div>
+                            <a href="/docs/stay-compliant" class="bg-white flex flex-col gap-4 items-center justify-start pb-5 w-full hover:bg-off-white transition-colors duration-200 rounded-lg p-2 -mx-2">
+                                <div class="bg-gray-light h-1 w-full"></div>
                                 <div class="flex gap-2.5 items-start justify-start px-2 w-full">
                                     <div class="w-6 h-6 flex-shrink-0">
                                         @if($link['title'] === 'GDPR compliance')
-                                            <svg class="w-full h-full text-figma-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg class="w-full h-full text-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
                                             </svg>
                                         @elseif($link['title'] === 'Tax settings')
-                                            <svg class="w-full h-full text-figma-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg class="w-full h-full text-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3-4h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
                                             </svg>
                                         @elseif($link['title'] === 'Legal pages')
-                                            <svg class="w-full h-full text-figma-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg class="w-full h-full text-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                                             </svg>
                                         @elseif($link['title'] === 'Accessibility')
-                                            <svg class="w-full h-full text-figma-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg class="w-full h-full text-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                                             </svg>
                                         @endif
                                     </div>
                                     <div class="flex flex-col items-start justify-center flex-1">
-                                        <div class="text-base font-inter-tight leading-[1.5] text-mine-shaft-500">
+                                        <div class="text-base font-inter-tight leading-[1.5] text-charcoal">
                                             {{ $link['title'] }}
                                         </div>
-                                        <div class="text-xs font-inter-tight leading-[1.333] text-mine-shaft-400">
+                                        <div class="text-xs font-inter-tight leading-[1.333] text-gray-darkest">
                                             {{ $link['desc'] }}
                                         </div>
                                     </div>
@@ -435,7 +435,7 @@
                         @endforeach
                     </div>
 
-                    <a href="/docs/stay-compliant" class="text-base font-inter-tight leading-[1.5] text-figma-orange-700 underline decoration-solid"> See all in this section </a>
+                    <a href="/docs/stay-compliant" class="text-base font-inter-tight leading-[1.5] text-red underline decoration-solid"> See all in this section </a>
                 </div>
             </div>
         </div>
