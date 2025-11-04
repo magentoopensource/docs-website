@@ -1,5 +1,5 @@
-{{-- Ecosystem Menu - Top dark bar from Figma --}}
-<div class="bg-charcoal flex items-center justify-center px-8 sm:px-16 md:px-24 lg:px-32 py-0 h-10 w-full">
+{{-- Ecosystem Menu - Top dark bar from Figma (hidden on mobile) --}}
+<div class="hidden md:flex bg-charcoal items-center justify-center px-4 sm:px-8 md:px-16 lg:px-32 py-0 h-10 w-full">
     <div class="max-w-[1440px] w-full flex items-center justify-between relative">
     {{-- Left side: "Explore the Magento Open Source Ecosystem" text --}}
     <div class="flex gap-2.5 items-center justify-center self-stretch shrink-0">
@@ -7,9 +7,9 @@
             Explore the Magento<span class="text-[9px]">®</span> Open Source Ecosystem
         </div>
     </div>
-    
+
     {{-- Right side: Navigation buttons --}}
-    <div class="flex flex-wrap gap-px items-center justify-start shrink-0">
+    <div class="flex gap-px items-center justify-start shrink-0">
         {{-- Magento Open Source --}}
         <div class="bg-charcoal flex gap-2.5 items-center justify-start px-5 py-2.5 text-sm leading-[1.42]">
             <a href="https://github.com/magento/magento2" target="_blank" class="font-inter-tight text-gray-lightest font-bold no-underline">Magento Open Source</a>

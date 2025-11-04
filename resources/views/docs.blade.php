@@ -48,7 +48,7 @@
             </aside>
 
             {{-- Main Content Area --}}
-            <main class="flex-1 min-w-0">
+            <main class="flex-1 min-w-0 px-4 sm:px-6 lg:px-0">
                 {{-- Documentation Content --}}
                 <article class="docs-content max-w-none">
                     {!! $content !!}

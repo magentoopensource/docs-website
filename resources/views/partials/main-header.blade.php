@@ -1,10 +1,10 @@
 {{-- Main Header - White header with logo and navigation from Figma --}}
-<div class="bg-white flex items-center justify-center py-6 sm:py-8 md:py-10 lg:py-6 h-auto w-full">
-    <div class="flex items-center justify-between w-full max-w-[1440px] mx-auto">
+<div class="bg-white flex items-center justify-center py-4 sm:py-6 lg:py-6 h-auto w-full">
+    <div class="flex items-center justify-between w-full max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
         {{-- Magento Logo --}}
-        <div class="flex">
+        <div class="flex items-center">
             <a href="/" class="inline-flex items-center">
-                <svg width="270" height="35" viewBox="0 0 270 35" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <svg class="w-[220px] sm:w-[240px] md:w-[270px] h-auto" viewBox="0 0 270 35" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <g clip-path="url(#clip0_2008_219)">
                         <path d="M0 4.06492H29.6763V31.8882C29.6763 32.502 29.1713 33 28.5487 33H1.12762C0.505079 33 0 32.502 0 31.8882V4.06492Z" fill="#34323A"/>
                         <path d="M1.26857 0H28.4078C29.1066 0 29.6763 0.561678 29.6763 1.25075V4.06492H0V1.25075C0 0.561678 0.569682 0 1.26857 0Z" fill="#C9C9C9"/>
@@ -44,19 +44,35 @@
             </a>
         </div>
 
-        {{-- Navigation and Search Container --}}
-        <div class="flex items-center justify-between">
-            {{-- Main Navigation --}}
-            <div class="flex flex-row gap-x-[30px] items-center justify-center">
-                    <a href="/docs/getting-started" class="font-inter-tight text-medium no-underline leading-[1.5] text-charcoal hover:text-orange transition-colors whitespace-nowrap"> Getting Started </a>
-                    <a href="/docs/start-selling" class="font-inter-tight text-medium no-underline leading-[1.5] text-charcoal hover:text-orange transition-colors whitespace-nowrap"> Start Selling </a>
-                    <a href="/docs/manage-catalog" class="font-inter-tight text-medium no-underline leading-[1.5] text-charcoal hover:text-orange transition-colors whitespace-nowrap"> Manage Catalog </a>
-                    <a href="/docs/handle-orders" class="font-inter-tight text-medium no-underline leading-[1.5] text-charcoal hover:text-orange transition-colors whitespace-nowrap"> Handle Orders </a>
-                    <a href="/docs" class="font-inter-tight text-medium no-underline leading-[1.5] text-charcoal hover:text-orange transition-colors whitespace-nowrap"> More </a>
-            </div>
-        </div>
+        {{-- Mobile burger menu button (visible on mobile only) --}}
+        <button
+            @click="navIsOpen = !navIsOpen"
+            class="lg:hidden flex items-center justify-center w-10 h-10 text-charcoal hover:text-orange transition-colors"
+            aria-label="Toggle navigation menu"
+            aria-expanded="false"
+            x-bind:aria-expanded="navIsOpen.toString()"
+        >
+            {{-- Hamburger icon --}}
+            <svg x-show="!navIsOpen" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+            {{-- Close icon --}}
+            <svg x-show="navIsOpen" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+        </button>
 
-        <div class="flex items-center justify-between">
+        {{-- Desktop Navigation and Search --}}
+        <div class="hidden lg:flex items-center gap-8">
+            {{-- Main Navigation --}}
+            <nav class="flex flex-row gap-x-[30px] items-center justify-center">
+                <a href="/docs/getting-started" class="font-inter-tight text-medium no-underline leading-[1.5] text-charcoal hover:text-orange transition-colors whitespace-nowrap">Getting Started</a>
+                <a href="/docs/start-selling" class="font-inter-tight text-medium no-underline leading-[1.5] text-charcoal hover:text-orange transition-colors whitespace-nowrap">Start Selling</a>
+                <a href="/docs/manage-catalog" class="font-inter-tight text-medium no-underline leading-[1.5] text-charcoal hover:text-orange transition-colors whitespace-nowrap">Manage Catalog</a>
+                <a href="/docs/handle-orders" class="font-inter-tight text-medium no-underline leading-[1.5] text-charcoal hover:text-orange transition-colors whitespace-nowrap">Handle Orders</a>
+                <a href="/docs" class="font-inter-tight text-medium no-underline leading-[1.5] text-charcoal hover:text-orange transition-colors whitespace-nowrap">More</a>
+            </nav>
+
             {{-- Search Component --}}
             <button class="flex flex-col gap-1.5 items-start min-w-[269px] justify-start pt-2.5 shrink-0 cursor-pointer hover:bg-off-white transition-colors duration-200 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-orange focus:ring-opacity-50" id="header-search">
                 <div class="flex items-center justify-between w-full">
@@ -68,6 +84,83 @@
                     </svg>
                 </div>
                 <div class="bg-gray-light h-1 w-full"></div>
+            </button>
+        </div>
+    </div>
+</div>
+
+{{-- Mobile Menu Overlay --}}
+<div
+    x-show="navIsOpen"
+    x-cloak
+    x-transition:enter="transition ease-out duration-200"
+    x-transition:enter-start="opacity-0"
+    x-transition:enter-end="opacity-100"
+    x-transition:leave="transition ease-in duration-150"
+    x-transition:leave-start="opacity-100"
+    x-transition:leave-end="opacity-0"
+    @click="navIsOpen = false"
+    class="fixed inset-0 bg-charcoal/50 z-40 lg:hidden"
+    aria-hidden="true"
+></div>
+
+{{-- Mobile Menu Panel --}}
+<div
+    x-show="navIsOpen"
+    x-cloak
+    x-transition:enter="transition ease-out duration-300"
+    x-transition:enter-start="transform translate-x-full"
+    x-transition:enter-end="transform translate-x-0"
+    x-transition:leave="transition ease-in duration-200"
+    x-transition:leave-start="transform translate-x-0"
+    x-transition:leave-end="transform translate-x-full"
+    class="fixed top-0 right-0 h-full w-80 max-w-[85%] bg-white shadow-2xl z-50 lg:hidden overflow-y-auto"
+>
+    <div class="flex flex-col h-full">
+        {{-- Mobile Menu Header --}}
+        <div class="flex items-center justify-between p-6 border-b border-gray-light">
+            <h2 class="text-lg font-bold text-charcoal">Menu</h2>
+            <button
+                @click="navIsOpen = false"
+                class="flex items-center justify-center w-8 h-8 text-charcoal hover:text-orange transition-colors"
+                aria-label="Close navigation menu"
+            >
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+
+        {{-- Mobile Navigation Links --}}
+        <nav class="flex flex-col py-4">
+            <a href="/docs/getting-started" @click="navIsOpen = false" class="px-6 py-4 font-inter-tight text-base text-charcoal hover:bg-off-white hover:text-orange transition-colors border-b border-gray-light">
+                Getting Started
+            </a>
+            <a href="/docs/start-selling" @click="navIsOpen = false" class="px-6 py-4 font-inter-tight text-base text-charcoal hover:bg-off-white hover:text-orange transition-colors border-b border-gray-light">
+                Start Selling
+            </a>
+            <a href="/docs/manage-catalog" @click="navIsOpen = false" class="px-6 py-4 font-inter-tight text-base text-charcoal hover:bg-off-white hover:text-orange transition-colors border-b border-gray-light">
+                Manage Catalog
+            </a>
+            <a href="/docs/handle-orders" @click="navIsOpen = false" class="px-6 py-4 font-inter-tight text-base text-charcoal hover:bg-off-white hover:text-orange transition-colors border-b border-gray-light">
+                Handle Orders
+            </a>
+            <a href="/docs" @click="navIsOpen = false" class="px-6 py-4 font-inter-tight text-base text-charcoal hover:bg-off-white hover:text-orange transition-colors border-b border-gray-light">
+                More
+            </a>
+        </nav>
+
+        {{-- Mobile Search Button --}}
+        <div class="px-6 py-4 mt-auto border-t border-gray-light">
+            <button
+                id="mobile-menu-search"
+                @click="navIsOpen = false"
+                class="w-full flex items-center justify-between px-4 py-3 bg-off-white hover:bg-gray-light transition-colors rounded-lg"
+            >
+                <span class="font-inter-tight text-sm text-charcoal">Search the documentation</span>
+                <svg class="w-5 h-5" viewBox="0 0 19 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M8 16C9.77498 15.9996 11.4988 15.4054 12.897 14.312L17.293 18.708L18.707 17.294L14.311 12.898C15.405 11.4997 15.9996 9.77544 16 8C16 3.589 12.411 0 8 0C3.589 0 0 3.589 0 8C0 12.411 3.589 16 8 16ZM8 2C11.309 2 14 4.691 14 8C14 11.309 11.309 14 8 14C4.691 14 2 11.309 2 8C2 4.691 4.691 2 8 2Z" fill="#F26423"/>
+                </svg>
             </button>
         </div>
     </div>
