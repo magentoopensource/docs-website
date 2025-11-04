@@ -44,12 +44,8 @@ add('writable_dirs', [
 ]);
 
 // Tasks
-desc('Build assets');
-task('deploy:build', function () {
-    cd('{{release_path}}');
-    run('npm ci');
-    run('npm run build');
-});
+// Note: Assets are built in GitHub Actions before deployment
+// No need to build on production server
 
 desc('Sync external documentation');
 task('deploy:sync-docs', function () {
@@ -69,7 +65,6 @@ task('deploy:optimize', function () {
 });
 
 // Hooks
-after('deploy:vendors', 'deploy:build');
 after('deploy:symlink', 'deploy:sync-docs');
 after('deploy:sync-docs', 'deploy:optimize');
 
@@ -78,7 +73,6 @@ desc('Deploy the application');
 task('deploy', [
     'deploy:prepare',
     'deploy:vendors',
-    'deploy:build',
     'deploy:publish',
 ]);
 
