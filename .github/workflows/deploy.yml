@@ -45,6 +45,18 @@ jobs:
           fi
           echo "✅ Build successful - manifest.json exists"
 
+      - name: Commit built assets
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add public/build/
+          # Only commit if there are changes
+          git diff --staged --quiet || git commit -m "chore: build assets for deployment [skip ci]"
+
+      - name: Push built assets
+        run: |
+          git push origin main
+
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
