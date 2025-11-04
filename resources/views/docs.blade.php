@@ -3,9 +3,9 @@
 @section('content')
 <div class="relative bg-white">
     <div class="mx-auto max-w-[1440px]">
-        <div class="flex gap-8 py-8">
+        <div class="flex py-8">
             {{-- Left Sidebar: Category Articles --}}
-            <aside class="hidden lg:block w-64 flex-shrink-0">
+            <aside class="hidden lg:block w-[400px] flex-shrink-0 pr-[120px]">
                 <div class="sticky top-24">
                     {{-- Category Header --}}
                     <div class="mb-6">
@@ -19,7 +19,7 @@
                         @foreach($categoryArticles as $article)
                             <a
                                 href="/docs/{{ $article['path'] }}"
-                                class="group flex items-start gap-3 px-3 py-2 text-sm rounded-lg transition-colors duration-150 no-underline
+                                class="group flex items-start gap-3 px-3 py-2 text-sm transition-colors duration-150 no-underline
                                     {{ $article['slug'] === $page ? 'bg-yellow text-charcoal font-medium' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900' }}"
                             >
                                 <span class="flex-1">{{ $article['title'] }}</span>
@@ -72,7 +72,7 @@
 
             {{-- Right Sidebar: Table of Contents --}}
             @if(count($tableOfContents) > 0)
-            <aside class="hidden xl:block w-64 flex-shrink-0">
+            <aside class="hidden xl:block w-64 flex-shrink-0 pl-[30px]">
                 <div class="sticky top-24">
                     <div class="mb-4">
                         <h3 class="text-xs font-semibold text-gray-900 uppercase tracking-wider">

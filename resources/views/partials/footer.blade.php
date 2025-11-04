@@ -76,10 +76,10 @@
                 <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
                     <span class="uppercase font-inter-tight text-charcoal font-semibold">{{ $column['title'] }}</span>
                     <div class="mt-5">
-                        <ul class="space-y-3.5 md:space-y-3 font-inter-tight text-gray-darkest">
+                        <ul class="space-y-3.5 md:space-y-3 font-inter-tight text-gray-darkest list-none">
                             @foreach ($column['links'] as $title => $href)
                                 <li>
-                                    <a href="{{ $href }}" class="transition-colors hover:text-orange py-1.5 md:py-1">{{ $title }}</a>
+                                    <a href="{{ $href }}" class="transition-colors no-underline hover:text-orange py-1.5 md:py-1">{{ $title }}</a>
                                 </li>
                             @endforeach
                         </ul>

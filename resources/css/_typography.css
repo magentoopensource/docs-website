@@ -86,12 +86,41 @@
         @apply flex-shrink-0 w-5;
     }
 
+    /* Ordered list items with nested lists also need block display */
+    ol > li:has(ol),
+    ol > li:has(ul) {
+        @apply block;
+    }
+
+    ol > li:has(ol)::before,
+    ol > li:has(ul)::before {
+        @apply inline mr-2;
+    }
+
+    /* Alternative approach: directly target list items containing nested lists */
+    li > ul,
+    li > ol {
+        @apply mt-0 mb-2 ml-7;
+    }
+
+    /* Parent list items containing nested lists must be block */
+    li:has(> ul),
+    li:has(> ol) {
+        display: block !important;
+    }
+
+    li:has(> ul)::before,
+    li:has(> ol)::before {
+        display: inline !important;
+        margin-right: 0.5rem !important;
+    }
+
     /* Nested list indentation - Level 2 */
     ul ul,
     ul ol,
     ol ul,
     ol ol {
-        @apply mt-2 mb-2 ml-7;
+        @apply mt-0 mb-2 ml-7;
     }
 
     /* Nested list indentation - Level 3 */
@@ -103,7 +132,7 @@
     ol ul ol,
     ol ol ul,
     ol ol ol {
-        @apply mt-2 mb-2 ml-7;
+        @apply mt-0 mb-2 ml-7;
     }
 
     /* Nested list indentation - Level 4 */
@@ -123,7 +152,7 @@
     ol ol ul ol,
     ol ol ol ul,
     ol ol ol ol {
-        @apply mt-2 mb-2 ml-7;
+        @apply mt-0 mb-2 ml-7;
     }
 
     /* Different bullet styles for nested levels */

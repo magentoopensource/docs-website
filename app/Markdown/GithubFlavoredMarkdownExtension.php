@@ -13,7 +13,8 @@ final class GithubFlavoredMarkdownExtension implements ExtensionInterface
 {
     public function register(EnvironmentBuilderInterface $environment): void
     {
-        $environment->addExtension(new AutolinkExtension());
+        // Disabled AutolinkExtension to prevent automatic URL linking
+        // $environment->addExtension(new AutolinkExtension());
         $environment->addExtension(new StrikethroughExtension());
         $environment->addExtension(new TableExtension());
         $environment->addExtension(new TaskListExtension());
