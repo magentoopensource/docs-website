@@ -53,15 +53,5 @@
             </svg>
         </div>
     </div>
-    
-        {{-- Collapse button (right side) --}}
-        <button class="right-8 top-2 w-6 h-6 cursor-pointer text-white">
-            {{-- Double chevron up icon from Figma --}}
-            <svg width="12" height="13" viewBox="0 0 12 13" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M0.292969 6.293L1.70697 7.707L5.99997 3.414L10.293 7.707L11.707 6.293L5.99997 0.586L0.292969 6.293Z" fill="#D9D9D9"/>
-                <path d="M0.292969 11.293L1.70697 12.707L5.99997 8.414L10.293 12.707L11.707 11.293L5.99997 5.586L0.292969 11.293Z" fill="#D9D9D9"/>
-            </svg>
-
-        </button>
     </div>
 </div>
