@@ -65,6 +65,14 @@ function initDocSearch() {
             triggerSearch();
         });
     }
+
+    // Add keyboard shortcut (CMD+K on Mac, CTRL+K on Windows/Linux)
+    document.addEventListener('keydown', (e) => {
+        if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+            e.preventDefault();
+            triggerSearch();
+        }
+    });
 }
 
 // Check if DOM is already loaded (module scripts defer by default)
