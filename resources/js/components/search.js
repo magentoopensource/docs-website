@@ -1,7 +1,7 @@
 import docsearch from '@docsearch/js';
 
-// Wait for DOM to be ready
-document.addEventListener('DOMContentLoaded', () => {
+// Initialize DocSearch
+function initDocSearch() {
     const docsearchContainer = document.getElementById('docsearch');
 
     if (!docsearchContainer) {
@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Get Algolia credentials from data attributes
     const algoliaAppId = docsearchContainer.dataset.algoliaAppId;
     const algoliaSearchKey = docsearchContainer.dataset.algoliaSearchKey;
+    const algoliaIndexName = docsearchContainer.dataset.algoliaIndexName || 'devmage-os';
 
     // Check if Algolia credentials are available
     if (!algoliaAppId || !algoliaSearchKey) {
@@ -24,16 +25,16 @@ document.addEventListener('DOMContentLoaded', () => {
         container: '#docsearch',
         appId: algoliaAppId,
         apiKey: algoliaSearchKey,
-        indexName: 'devmage-os',
+        indexName: algoliaIndexName,
         searchParameters: {},
     });
 
     // Function to trigger search modal
     const triggerSearch = () => {
         // Try to find and click the DocSearch button
-        const searchButton = document.querySelector('.DocSearch-Button') || 
+        const searchButton = document.querySelector('.DocSearch-Button') ||
                              document.querySelector('[data-docsearch-placeholder]');
-        
+
         if (searchButton) {
             searchButton.click();
         } else {
@@ -46,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 100);
         }
     };
-    
+
     // Handle homepage search button
     const homepageSearchBtn = document.getElementById('homepage-search');
     if (homepageSearchBtn) {
@@ -55,7 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
             triggerSearch();
         });
     }
-    
+
     // Handle header search button
     const headerSearchBtn = document.getElementById('header-search');
     if (headerSearchBtn) {
@@ -64,4 +65,13 @@ document.addEventListener('DOMContentLoaded', () => {
             triggerSearch();
         });
     }
-});
+}
+
+// Check if DOM is already loaded (module scripts defer by default)
+// If so, run immediately; otherwise wait for DOMContentLoaded
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initDocSearch);
+} else {
+    // DOM is already ready, run immediately
+    initDocSearch();
+}
