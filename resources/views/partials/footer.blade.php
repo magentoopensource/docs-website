@@ -3,18 +3,18 @@
         [
             'title' => 'Documentation',
             'links' => [
-                'Start Selling' => '/docs/start-selling',
-                'Manage Catalog' => '/docs/manage-catalog',
-                'Handle Orders' => '/docs/handle-orders',
-                'Grow Store' => '/docs/grow-store',
-                'Improve UX' => '/docs/improve-ux',
-                'Stay Compliant' => '/docs/stay-compliant',
+                'Start Selling' => '/merchant/start-selling',
+                'Manage Catalog' => '/merchant/manage-catalog',
+                'Handle Orders' => '/merchant/handle-orders',
+                'Grow Store' => '/merchant/grow-store',
+                'Improve UX' => '/merchant/improve-ux',
+                'Stay Compliant' => '/merchant/stay-compliant',
             ],
         ],
         [
             'title' => 'Resources',
             'links' => [
-                'Getting Started' => '/docs/getting-started',
+                'Getting Started' => '/merchant/getting-started',
                 'Magento StackExchange' => 'https://magento.stackexchange.com/',
             ],
         ],

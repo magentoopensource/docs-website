@@ -34,8 +34,8 @@ class GenerateSitemap extends Command
     {
         SitemapGenerator::create(config('app.url'))
             ->shouldCrawl(function (UriInterface $url) {
-                // Crawl everything without "docs" in the path, as we'll crawl the docs separately...
-                return ! Str::contains($url->getPath(), 'docs');
+                // Crawl everything without "merchant" in the path, as we'll crawl the merchant docs separately...
+                return ! Str::contains($url->getPath(), 'merchant');
             })
             ->hasCrawled(function (Url $url) {
                 if ($url->segment(1) === 'team') {
@@ -46,15 +46,15 @@ class GenerateSitemap extends Command
             })
             ->writeToFile(public_path('sitemap_pages.xml'));
 
-        SitemapGenerator::create(config('app.url').'/docs/main')
+        SitemapGenerator::create(config('app.url').'/merchant/main')
             ->shouldCrawl(function (UriInterface $url) {
-                return Str::contains($url->getPath(), 'docs');
+                return Str::contains($url->getPath(), 'merchant');
             })
-            ->writeToFile(public_path('sitemap_docs.xml'));
+            ->writeToFile(public_path('sitemap_merchant.xml'));
 
         SitemapIndex::create()
             ->add('sitemap_pages.xml')
-            ->add('sitemap_docs.xml')
+            ->add('sitemap_merchant.xml')
             ->writeToFile(public_path('sitemap.xml'));
 
         return 0;

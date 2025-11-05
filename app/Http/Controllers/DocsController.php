@@ -123,7 +123,7 @@ class DocsController extends Controller
 
         $canonical = null;
         if ($this->docs->sectionExists($sectionPage)) {
-            $canonical = "docs/" . $sectionPage;
+            $canonical = "merchant/" . $sectionPage;
         }
 
         // Get category articles for left sidebar
@@ -180,7 +180,7 @@ class DocsController extends Controller
                 "description" =>
                     $frontMatter["description"] ??
                     "Learn about " . strtolower($article["title"]),
-                "url" => "/docs/" . $article["path"],
+                "url" => "/merchant/" . $article["path"],
                 "difficulty" => $frontMatter["difficulty"] ?? "Intermediate",
                 "read_time" => $frontMatter["read_time"] ?? 5,
             ];
@@ -198,7 +198,7 @@ class DocsController extends Controller
                 $categoryMeta["description"] ??
                 "Learn about " . $categoryData["name"],
             "metaKeywords" => self::DEFAULT_META_KEYWORDS,
-            "canonical" => "docs/" . $category,
+            "canonical" => "merchant/" . $category,
             "category" => $categoryData,
             "articles" => $articlesWithMetadata,
         ]);
@@ -286,7 +286,7 @@ class DocsController extends Controller
                     "color" => $meta["color"] ?? "bg-gray-100",
                     "icon" => $meta["icon"],
                     "count" => count($cat["articles"]),
-                    "url" => "/docs/" . $cat["slug"],
+                    "url" => "/merchant/" . $cat["slug"],
                 ];
             })
             ->toArray();

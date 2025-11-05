@@ -57,7 +57,7 @@ class RateLimitingTest extends TestCase
      */
     public function test_docs_endpoints_are_rate_limited(): void
     {
-        $response = $this->get('/docs');
+        $response = $this->get('/merchant');
 
         $response->assertStatus(200);
         $this->assertNotNull($response->headers->get('X-RateLimit-Limit'));
@@ -79,7 +79,7 @@ class RateLimitingTest extends TestCase
      */
     public function test_api_endpoint_is_rate_limited(): void
     {
-        $response = $this->get('/docs/index.json');
+        $response = $this->get('/merchant/index.json');
 
         $response->assertStatus(200);
         $this->assertNotNull($response->headers->get('X-RateLimit-Limit'));

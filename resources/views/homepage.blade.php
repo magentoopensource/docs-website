@@ -111,7 +111,7 @@
                     {{-- Article Links --}}
                     <div class="flex flex-col gap-2 items-start justify-start w-full">
                         @foreach($category['articles'] as $article)
-                            <a href="/docs/{{ $article['path'] }}" class="bg-white flex flex-col gap-4 items-center justify-start pb-5 w-full hover:bg-off-white transition-colors duration-200 rounded-lg p-2 -mx-2">
+                            <a href="/merchant/{{ $article['path'] }}" class="bg-white flex flex-col gap-4 items-center justify-start pb-5 w-full hover:bg-off-white transition-colors duration-200 rounded-lg p-2 -mx-2">
                                 <div class="bg-gray-light h-1 w-full"></div>
                                 <div class="flex gap-2.5 items-start justify-start px-2 w-full">
                                     <div class="w-6 h-6 flex-shrink-0">
@@ -129,7 +129,7 @@
                         @endforeach
                     </div>
 
-                    <a href="/docs/{{ $category['slug'] }}" class="text-base font-inter-tight leading-[1.5] text-red underline decoration-solid">See all in this section</a>
+                    <a href="/merchant/{{ $category['slug'] }}" class="text-base font-inter-tight leading-[1.5] text-red underline decoration-solid">See all in this section</a>
                 </div>
             @endforeach
         </div>

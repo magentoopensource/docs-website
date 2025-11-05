@@ -158,7 +158,7 @@ class DocumentationSecurityTest extends TestCase
      */
     public function test_route_blocks_path_traversal(): void
     {
-        $response = $this->get('/docs/category/../../.env');
+        $response = $this->get('/merchant/category/../../.env');
 
         // Should return 404, not expose files
         $response->assertStatus(404);
@@ -177,7 +177,7 @@ class DocumentationSecurityTest extends TestCase
 
         foreach ($paths as $path) {
             // Test via URL
-            $response = $this->get('/docs/category/' . $path);
+            $response = $this->get('/merchant/category/' . $path);
             $response->assertStatus(404);
         }
     }

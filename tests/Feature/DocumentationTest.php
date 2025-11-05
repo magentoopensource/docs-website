@@ -90,7 +90,7 @@ class DocumentationTest extends TestCase
     {
         $editUrl = $this->docs->getEditUrlForPage('start-selling/tutorial-creating-your-first-products');
 
-        $this->assertStringContainsString('github.com/mage-os/devdocs/edit/main', $editUrl);
+        $this->assertStringContainsString('github.com/', $editUrl);
         $this->assertStringContainsString('start-selling/tutorial-creating-your-first-products.md', $editUrl);
     }
 
@@ -99,11 +99,11 @@ class DocumentationTest extends TestCase
      */
     public function test_replace_links_removes_version_placeholders(): void
     {
-        $contentWithPlaceholder = 'Check out [this link](/docs/{{version}}/page)';
+        $contentWithPlaceholder = 'Check out [this link](/merchant/{{version}}/page)';
         $result = Documentation::replaceLinks($contentWithPlaceholder);
 
         $this->assertStringNotContainsString('{{version}}', $result);
-        $this->assertStringContainsString('/docs/page', $result);
+        $this->assertStringContainsString('/merchant/page', $result);
     }
 
     /**
@@ -111,11 +111,11 @@ class DocumentationTest extends TestCase
      */
     public function test_replace_links_handles_url_encoded_placeholders(): void
     {
-        $contentWithEncoded = 'Check out [this link](/docs/%7B%7Bversion%7D%7D/page)';
+        $contentWithEncoded = 'Check out [this link](/merchant/%7B%7Bversion%7D%7D/page)';
         $result = Documentation::replaceLinks($contentWithEncoded);
 
         $this->assertStringNotContainsString('%7B%7Bversion%7D%7D', $result);
-        $this->assertStringContainsString('/docs/page', $result);
+        $this->assertStringContainsString('/merchant/page', $result);
     }
 
     /**

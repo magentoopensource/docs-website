@@ -114,12 +114,12 @@ class Documentation
                         )
                     )
                         ->filter(
-                            fn($line) => Str::contains($line, "/docs/")
+                            fn($line) => Str::contains($line, "/merchant/")
                         )
                         ->map(
                             fn($line) => resource_path(
                                 Str::of($line)
-                                    ->afterLast("(/docs/")
+                                    ->afterLast("(/merchant/")
                                     ->before(")")
                                     ->prepend("docs/main/")
                                     ->append(".md")
@@ -163,9 +163,9 @@ class Documentation
      */
     public static function replaceLinks(string $content): string
     {
-        // Remove /docs/{{version}}/ and replace with just /docs/
-        $content = str_replace("/docs/{{version}}/", "/docs/", $content);
-        $content = str_replace("/docs/%7B%7Bversion%7D%7D/", "/docs/", $content);
+        // Remove /merchant/{{version}}/ and replace with just /merchant/
+        $content = str_replace("/merchant/{{version}}/", "/merchant/", $content);
+        $content = str_replace("/merchant/%7B%7Bversion%7D%7D/", "/merchant/", $content);
         return $content;
     }
 
