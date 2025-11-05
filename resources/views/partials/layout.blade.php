@@ -15,6 +15,9 @@
     <meta name="description" content="{{ $metaDescription }}">
     <meta name="keywords" content="{{ $metaKeywords }}">
 
+    <!-- Algolia Site Verification -->
+    <meta name="algolia-site-verification" content="2D7B67D7596729A9" />
+
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="{{ $canonical ? url($canonical) : url('/') }}">
@@ -94,6 +97,7 @@
     style="display: none;"
     data-algolia-app-id="{{ config('algolia.connections.main.id', '') }}"
     data-algolia-search-key="{{ config('algolia.connections.main.search_key', '') }}"
+    data-algolia-index-name="{{ config('algolia.connections.main.index_name', 'devmage-os') }}"
     data-version="main"
 ></div>
 

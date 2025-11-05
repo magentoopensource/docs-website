@@ -43,6 +43,7 @@ return [
             'id' => env('ALGOLIA_ID'),
             'search_key' => env('ALGOLIA_SEARCH_KEY'),
             'key' => env('ALGOLIA_KEY'),
+            'index_name' => env('ALGOLIA_INDEX_NAME', 'devmage-os'),
         ],
 
     ],
