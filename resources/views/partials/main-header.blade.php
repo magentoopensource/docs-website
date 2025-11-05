@@ -1,6 +1,6 @@
 {{-- Main Header - White header with logo and navigation from Figma --}}
 <div class="bg-white flex items-center justify-center py-4 sm:py-6 lg:py-6 h-auto w-full">
-    <div class="flex items-center justify-between w-full max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between w-full max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-0">
         {{-- Magento Logo --}}
         <div class="flex items-center">
             <a href="/" class="inline-flex items-center">
