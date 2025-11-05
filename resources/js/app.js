@@ -13,7 +13,8 @@ Alpine.plugin(Focus);
 // Initialize error logging first to catch any subsequent errors
 initErrorLogging();
 
-document.addEventListener('DOMContentLoaded', () => {
+// Main initialization function
+function initApp() {
     // Start Alpine after DOM is loaded to ensure x-data elements exist
     Alpine.start();
 
@@ -45,4 +46,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     import('./components/accessibility');
-});
+}
+
+// Check if DOM is already loaded (module scripts defer by default)
+// If so, run immediately; otherwise wait for DOMContentLoaded
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initApp);
+} else {
+    // DOM is already ready, run immediately
+    initApp();
+}
