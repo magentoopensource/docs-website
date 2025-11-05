@@ -64,9 +64,32 @@ task('deploy:optimize', function () {
     run('php artisan view:cache');
 });
 
+desc('Clear PHP OPcache');
+task('deploy:clear-opcache', function () {
+    $script = <<<'PHP'
+<?php
+if (function_exists('opcache_reset')) {
+    opcache_reset();
+    echo "OPcache cleared\n";
+} else {
+    echo "OPcache not enabled\n";
+}
+PHP;
+
+    // Create temporary script
+    run("echo '$script' > {{release_path}}/public/clear-opcache-temp.php");
+
+    // Execute it via HTTP to clear OPcache
+    run('curl -s http://localhost/clear-opcache-temp.php || curl -s https://docs.magento-opensource.com/clear-opcache-temp.php');
+
+    // Remove temporary script
+    run('rm -f {{release_path}}/public/clear-opcache-temp.php');
+});
+
 // Hooks
 after('deploy:symlink', 'deploy:sync-docs');
 after('deploy:sync-docs', 'deploy:optimize');
+after('deploy:optimize', 'deploy:clear-opcache');
 
 // Main deployment flow
 desc('Deploy the application');
