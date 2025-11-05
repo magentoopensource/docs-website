@@ -57,7 +57,7 @@
                     </p>
 
                     <div class="flex items-center justify-between w-full">
-                        <a href="/docs/{{ $category['slug'] }}" class="text-base font-inter-tight leading-[1.5] text-red underline decoration-solid hover:text-orange transition-colors">
+                        <a href="/merchant/{{ $category['slug'] }}" class="text-base font-inter-tight leading-[1.5] text-red underline decoration-solid hover:text-orange transition-colors">
                             View category
                         </a>
 

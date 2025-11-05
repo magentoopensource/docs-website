@@ -9,15 +9,15 @@ use App\Http\Controllers\TeamController;
 Route::middleware('throttle:120,1')->group(function () {
     Route::get("/", [DocsController::class, "showRootPage"])->name("home");
 
-    Route::get("/docs", [DocsController::class, "showDocsIndex"])->name("docs.index");
-    Route::get("/docs/index.json", [DocsController::class, "index"]);
+    Route::get("/merchant", [DocsController::class, "showDocsIndex"])->name("merchant.index");
+    Route::get("/merchant/index.json", [DocsController::class, "index"]);
 
-    Route::get("/docs/{category}/{page}", [DocsController::class, "show"])
+    Route::get("/merchant/{category}/{page}", [DocsController::class, "show"])
         ->where("page", ".*")
-        ->name("docs.show");
+        ->name("merchant.show");
 
-    Route::get("/docs/{category}", [DocsController::class, "showCategory"])
-        ->name("docs.category");
+    Route::get("/merchant/{category}", [DocsController::class, "showCategory"])
+        ->name("merchant.category");
 
     Route::get("team", [TeamController::class, "index"])->name("team");
 });

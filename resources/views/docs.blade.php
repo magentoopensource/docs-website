@@ -18,7 +18,7 @@
                     <nav class="space-y-1" aria-label="Category navigation">
                         @foreach($categoryArticles as $article)
                             <a
-                                href="/docs/{{ $article['path'] }}"
+                                href="/merchant/{{ $article['path'] }}"
                                 class="group flex items-start gap-3 px-3 py-2 text-sm transition-colors duration-150 no-underline
                                     {{ $article['slug'] === $page ? 'bg-yellow text-charcoal font-medium' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900' }}"
                             >
@@ -35,7 +35,7 @@
                     {{-- View All in Category --}}
                     <div class="mt-6 pt-6 border-t border-gray-200">
                         <a
-                            href="/docs/{{ $category }}"
+                            href="/merchant/{{ $category }}"
                             class="flex items-center gap-2 px-3 py-2 text-sm font-medium text-orange-600 hover:text-orange-700 transition-colors no-underline"
                         >
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -167,7 +167,7 @@
                 <nav class="space-y-1">
                     @foreach($categoryArticles as $article)
                         <a
-                            href="/docs/{{ $article['path'] }}"
+                            href="/merchant/{{ $article['path'] }}"
                             class="block px-3 py-2 text-sm rounded-lg transition-colors no-underline
                                 {{ $article['slug'] === $page ? 'bg-yellow text-charcoal font-medium' : 'text-gray-700 hover:bg-gray-50' }}"
                         >

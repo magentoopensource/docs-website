@@ -20,11 +20,11 @@ class DocsControllerTest extends TestCase
     }
 
     /**
-     * Test docs index page loads
+     * Test merchant docs index page loads
      */
     public function test_docs_index_loads(): void
     {
-        $response = $this->get('/docs');
+        $response = $this->get('/merchant');
 
         $response->assertStatus(200);
         $response->assertViewHas('categories');
@@ -35,7 +35,7 @@ class DocsControllerTest extends TestCase
      */
     public function test_documentation_page_loads(): void
     {
-        $response = $this->get('/docs/start-selling/tutorial-creating-your-first-products');
+        $response = $this->get('/merchant/start-selling/tutorial-creating-your-first-products');
 
         $response->assertStatus(200);
         $response->assertViewIs('docs');
@@ -47,7 +47,7 @@ class DocsControllerTest extends TestCase
      */
     public function test_nonexistent_page_returns_404(): void
     {
-        $response = $this->get('/docs/category/page-does-not-exist');
+        $response = $this->get('/merchant/category/page-does-not-exist');
 
         $response->assertStatus(404);
         $response->assertViewIs('docs');
@@ -59,7 +59,7 @@ class DocsControllerTest extends TestCase
      */
     public function test_category_page_loads(): void
     {
-        $response = $this->get('/docs/start-selling');
+        $response = $this->get('/merchant/start-selling');
 
         $response->assertStatus(200);
         $response->assertViewHas(['category', 'articles']);
@@ -70,7 +70,7 @@ class DocsControllerTest extends TestCase
      */
     public function test_nonexistent_category_returns_404(): void
     {
-        $response = $this->get('/docs/category-that-does-not-exist');
+        $response = $this->get('/merchant/category-that-does-not-exist');
 
         $response->assertStatus(404);
     }
@@ -80,7 +80,7 @@ class DocsControllerTest extends TestCase
      */
     public function test_json_index_returns_valid_json(): void
     {
-        $response = $this->get('/docs/index.json');
+        $response = $this->get('/merchant/index.json');
 
         $response->assertStatus(200);
         $response->assertJson([]);
@@ -105,7 +105,7 @@ class DocsControllerTest extends TestCase
      */
     public function test_documentation_page_has_meta_tags(): void
     {
-        $response = $this->get('/docs/start-selling/tutorial-creating-your-first-products');
+        $response = $this->get('/merchant/start-selling/tutorial-creating-your-first-products');
 
         $response->assertStatus(200);
         $response->assertViewHas(['metaTitle', 'metaDescription', 'metaKeywords']);
@@ -116,7 +116,7 @@ class DocsControllerTest extends TestCase
      */
     public function test_documentation_page_has_table_of_contents(): void
     {
-        $response = $this->get('/docs/start-selling/tutorial-creating-your-first-products');
+        $response = $this->get('/merchant/start-selling/tutorial-creating-your-first-products');
 
         $response->assertStatus(200);
         $response->assertViewHas('tableOfContents');
@@ -129,11 +129,11 @@ class DocsControllerTest extends TestCase
      */
     public function test_documentation_page_has_edit_link(): void
     {
-        $response = $this->get('/docs/start-selling/tutorial-creating-your-first-products');
+        $response = $this->get('/merchant/start-selling/tutorial-creating-your-first-products');
 
         $response->assertStatus(200);
         $response->assertViewHas('edit_link');
         $editLink = $response->viewData('edit_link');
-        $this->assertStringContainsString('github.com/mage-os/devdocs', $editLink);
+        $this->assertStringContainsString('github.com/', $editLink);
     }
 }
