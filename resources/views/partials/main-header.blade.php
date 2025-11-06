@@ -46,7 +46,7 @@
 
         {{-- Mobile burger menu button (visible on mobile only) --}}
         <button
-            @click="navIsOpen = !navIsOpen"
+            @click="toggleNav()"
             class="lg:hidden flex items-center justify-center w-10 h-10 text-charcoal hover:text-orange transition-colors"
             aria-label="Toggle navigation menu"
             aria-expanded="false"
@@ -99,7 +99,7 @@
     x-transition:leave="transition ease-in duration-150"
     x-transition:leave-start="opacity-100"
     x-transition:leave-end="opacity-0"
-    @click="navIsOpen = false"
+    @click="closeNav()"
     class="fixed inset-0 bg-charcoal/50 z-40 lg:hidden"
     aria-hidden="true"
 ></div>
@@ -121,7 +121,7 @@
         <div class="flex items-center justify-between p-6 border-b border-gray-light">
             <h2 class="text-lg font-bold text-charcoal">Menu</h2>
             <button
-                @click="navIsOpen = false"
+                @click="closeNav()"
                 class="flex items-center justify-center w-8 h-8 text-charcoal hover:text-orange transition-colors"
                 aria-label="Close navigation menu"
             >
@@ -133,19 +133,19 @@
 
         {{-- Mobile Navigation Links --}}
         <nav class="flex flex-col py-4">
-            <a href="/merchant/getting-started" @click="navIsOpen = false" class="px-6 py-4 font-inter-tight text-base text-charcoal hover:bg-off-white hover:text-orange transition-colors border-b border-gray-light">
+            <a href="/merchant/getting-started" @click="closeNav()" class="px-6 py-4 font-inter-tight text-base text-charcoal hover:bg-off-white hover:text-orange transition-colors border-b border-gray-light">
                 Getting Started
             </a>
-            <a href="/merchant/start-selling" @click="navIsOpen = false" class="px-6 py-4 font-inter-tight text-base text-charcoal hover:bg-off-white hover:text-orange transition-colors border-b border-gray-light">
+            <a href="/merchant/start-selling" @click="closeNav()" class="px-6 py-4 font-inter-tight text-base text-charcoal hover:bg-off-white hover:text-orange transition-colors border-b border-gray-light">
                 Start Selling
             </a>
-            <a href="/merchant/manage-catalog" @click="navIsOpen = false" class="px-6 py-4 font-inter-tight text-base text-charcoal hover:bg-off-white hover:text-orange transition-colors border-b border-gray-light">
+            <a href="/merchant/manage-catalog" @click="closeNav()" class="px-6 py-4 font-inter-tight text-base text-charcoal hover:bg-off-white hover:text-orange transition-colors border-b border-gray-light">
                 Manage Catalog
             </a>
-            <a href="/merchant/handle-orders" @click="navIsOpen = false" class="px-6 py-4 font-inter-tight text-base text-charcoal hover:bg-off-white hover:text-orange transition-colors border-b border-gray-light">
+            <a href="/merchant/handle-orders" @click="closeNav()" class="px-6 py-4 font-inter-tight text-base text-charcoal hover:bg-off-white hover:text-orange transition-colors border-b border-gray-light">
                 Handle Orders
             </a>
-            <a href="/merchant" @click="navIsOpen = false" class="px-6 py-4 font-inter-tight text-base text-charcoal hover:bg-off-white hover:text-orange transition-colors border-b border-gray-light">
+            <a href="/merchant" @click="closeNav()" class="px-6 py-4 font-inter-tight text-base text-charcoal hover:bg-off-white hover:text-orange transition-colors border-b border-gray-light">
                 More
             </a>
         </nav>
@@ -154,7 +154,7 @@
         <div class="px-6 py-4 mt-auto border-t border-gray-light">
             <button
                 id="mobile-menu-search"
-                @click="navIsOpen = false"
+                @click="closeNav()"
                 class="w-full flex items-center justify-between px-4 py-3 bg-off-white hover:bg-gray-light transition-colors rounded-lg"
             >
                 <span class="font-inter-tight text-sm text-charcoal">Search the documentation</span>

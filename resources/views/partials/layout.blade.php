@@ -74,6 +74,8 @@
 <body
     x-data="{
         navIsOpen: false,
+        closeNav() { this.navIsOpen = false; },
+        toggleNav() { this.navIsOpen = !this.navIsOpen; },
     }"
     class="w-full h-full font-sans antialiased text-gray-900 language-php bg-white"
 >
