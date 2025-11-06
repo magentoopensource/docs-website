@@ -46,19 +46,14 @@
 
         {{-- Mobile burger menu button (visible on mobile only) --}}
         <button
-            @click="toggleNav()"
+            data-mobile-menu-toggle
             class="lg:hidden flex items-center justify-center w-10 h-10 text-charcoal hover:text-orange transition-colors"
             aria-label="Toggle navigation menu"
             aria-expanded="false"
-            x-bind:aria-expanded="navIsOpen.toString()"
         >
             {{-- Hamburger icon --}}
-            <svg x-show="!navIsOpen" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-            </svg>
-            {{-- Close icon --}}
-            <svg x-show="navIsOpen" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
             </svg>
         </button>
 
@@ -91,37 +86,23 @@
 
 {{-- Mobile Menu Overlay --}}
 <div
-    x-show="navIsOpen"
-    x-cloak
-    x-transition:enter="transition ease-out duration-200"
-    x-transition:enter-start="opacity-0"
-    x-transition:enter-end="opacity-100"
-    x-transition:leave="transition ease-in duration-150"
-    x-transition:leave-start="opacity-100"
-    x-transition:leave-end="opacity-0"
-    @click="closeNav()"
-    class="fixed inset-0 bg-charcoal/50 z-40 lg:hidden"
+    data-mobile-menu-overlay
+    class="hidden fixed inset-0 bg-charcoal/50 z-40 lg:hidden transition-opacity duration-200"
     aria-hidden="true"
 ></div>
 
 {{-- Mobile Menu Panel --}}
 <div
-    x-show="navIsOpen"
-    x-cloak
-    x-transition:enter="transition ease-out duration-300"
-    x-transition:enter-start="transform translate-x-full"
-    x-transition:enter-end="transform translate-x-0"
-    x-transition:leave="transition ease-in duration-200"
-    x-transition:leave-start="transform translate-x-0"
-    x-transition:leave-end="transform translate-x-full"
-    class="fixed top-0 right-0 h-full w-80 max-w-[85%] bg-white shadow-2xl z-50 lg:hidden overflow-y-auto"
+    data-mobile-menu-panel
+    aria-hidden="true"
+    class="hidden fixed top-0 right-0 h-full w-80 max-w-[85%] bg-white shadow-2xl z-50 lg:hidden overflow-y-auto transform translate-x-full transition-transform duration-300 ease-out"
 >
     <div class="flex flex-col h-full">
         {{-- Mobile Menu Header --}}
         <div class="flex items-center justify-between p-6 border-b border-gray-light">
             <h2 class="text-lg font-bold text-charcoal">Menu</h2>
             <button
-                @click="closeNav()"
+                data-mobile-menu-close
                 class="flex items-center justify-center w-8 h-8 text-charcoal hover:text-orange transition-colors"
                 aria-label="Close navigation menu"
             >
@@ -133,19 +114,19 @@
 
         {{-- Mobile Navigation Links --}}
         <nav class="flex flex-col py-4">
-            <a href="/merchant/getting-started" @click="closeNav()" class="px-6 py-4 font-inter-tight text-base text-charcoal hover:bg-off-white hover:text-orange transition-colors border-b border-gray-light">
+            <a href="/merchant/getting-started" class="px-6 py-4 font-inter-tight text-base text-charcoal hover:bg-off-white hover:text-orange transition-colors border-b border-gray-light">
                 Getting Started
             </a>
-            <a href="/merchant/start-selling" @click="closeNav()" class="px-6 py-4 font-inter-tight text-base text-charcoal hover:bg-off-white hover:text-orange transition-colors border-b border-gray-light">
+            <a href="/merchant/start-selling" class="px-6 py-4 font-inter-tight text-base text-charcoal hover:bg-off-white hover:text-orange transition-colors border-b border-gray-light">
                 Start Selling
             </a>
-            <a href="/merchant/manage-catalog" @click="closeNav()" class="px-6 py-4 font-inter-tight text-base text-charcoal hover:bg-off-white hover:text-orange transition-colors border-b border-gray-light">
+            <a href="/merchant/manage-catalog" class="px-6 py-4 font-inter-tight text-base text-charcoal hover:bg-off-white hover:text-orange transition-colors border-b border-gray-light">
                 Manage Catalog
             </a>
-            <a href="/merchant/handle-orders" @click="closeNav()" class="px-6 py-4 font-inter-tight text-base text-charcoal hover:bg-off-white hover:text-orange transition-colors border-b border-gray-light">
+            <a href="/merchant/handle-orders" class="px-6 py-4 font-inter-tight text-base text-charcoal hover:bg-off-white hover:text-orange transition-colors border-b border-gray-light">
                 Handle Orders
             </a>
-            <a href="/merchant" @click="closeNav()" class="px-6 py-4 font-inter-tight text-base text-charcoal hover:bg-off-white hover:text-orange transition-colors border-b border-gray-light">
+            <a href="/merchant" class="px-6 py-4 font-inter-tight text-base text-charcoal hover:bg-off-white hover:text-orange transition-colors border-b border-gray-light">
                 More
             </a>
         </nav>
@@ -154,7 +135,6 @@
         <div class="px-6 py-4 mt-auto border-t border-gray-light">
             <button
                 id="mobile-menu-search"
-                @click="closeNav()"
                 class="w-full flex items-center justify-between px-4 py-3 bg-off-white hover:bg-gray-light transition-colors rounded-lg"
             >
                 <span class="font-inter-tight text-sm text-charcoal">Search the documentation</span>

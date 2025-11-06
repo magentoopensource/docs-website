@@ -5,6 +5,7 @@ import './clipboard';
 import './components/search';
 import { initLazyLoading } from './components/lazyImages';
 import { initErrorLogging } from './components/errorLogging';
+import { initMobileMenu } from './components/mobileMenu';
 
 window.Alpine = Alpine;
 
@@ -17,6 +18,9 @@ initErrorLogging();
 function initApp() {
     // Start Alpine after DOM is loaded to ensure x-data elements exist
     Alpine.start();
+
+    // Initialize mobile menu (vanilla JS, no Alpine dependency)
+    initMobileMenu();
 
     // Initialize lazy loading for all images
     initLazyLoading();
