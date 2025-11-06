@@ -114,7 +114,9 @@
 {{-- Mobile Navigation Toggle (for smaller screens) --}}
 <div class="lg:hidden fixed bottom-4 right-4 z-50">
     <button
-        @click="mobileNavOpen = !mobileNavOpen"
+        data-mobile-menu-toggle
+        aria-label="Toggle navigation menu"
+        aria-expanded="false"
         class="flex items-center gap-2 px-4 py-3 bg-orange-600 text-white rounded-full shadow-lg hover:bg-orange-700 transition-colors"
     >
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -126,32 +128,20 @@
 
 {{-- Mobile Navigation Overlay --}}
 <div
-    x-data="{ mobileNavOpen: false }"
-    x-show="mobileNavOpen"
-    @click.away="mobileNavOpen = false"
-    x-transition:enter="transition ease-out duration-200"
-    x-transition:enter-start="opacity-0"
-    x-transition:enter-end="opacity-100"
-    x-transition:leave="transition ease-in duration-150"
-    x-transition:leave-start="opacity-100"
-    x-transition:leave-end="opacity-0"
-    class="lg:hidden fixed inset-0 z-40 bg-gray-800 bg-opacity-50"
-    style="display: none;"
+    data-mobile-menu-overlay
+    class="hidden lg:hidden fixed inset-0 z-40 bg-gray-800 bg-opacity-50 transition-opacity duration-200"
+    aria-hidden="true"
 >
     <div
-        x-show="mobileNavOpen"
-        x-transition:enter="transition ease-out duration-200 transform"
-        x-transition:enter-start="translate-x-full"
-        x-transition:enter-end="translate-x-0"
-        x-transition:leave="transition ease-in duration-150 transform"
-        x-transition:leave-start="translate-x-0"
-        x-transition:leave-end="translate-x-full"
-        class="absolute right-0 top-0 bottom-0 w-80 max-w-full bg-white shadow-xl overflow-y-auto"
+        data-mobile-menu-panel
+        aria-hidden="true"
+        class="hidden absolute right-0 top-0 bottom-0 w-80 max-w-full bg-white shadow-xl overflow-y-auto transform translate-x-full transition-transform duration-200 ease-out"
     >
         <div class="p-6">
             {{-- Close Button --}}
             <button
-                @click="mobileNavOpen = false"
+                data-mobile-menu-close
+                aria-label="Close navigation menu"
                 class="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
             >
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -187,7 +177,6 @@
                     @foreach($tableOfContents as $heading)
                         <a
                             href="#{{ $heading['slug'] }}"
-                            @click="mobileNavOpen = false"
                             class="block text-sm transition-colors no-underline
                                 {{ $heading['level'] === 2 ? 'font-medium text-gray-700' : 'pl-4 text-gray-600' }}"
                         >
