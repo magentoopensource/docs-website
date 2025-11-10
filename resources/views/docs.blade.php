@@ -2,10 +2,10 @@
 
 @section('content')
 <div class="relative bg-white">
-    <div class="mx-auto max-w-[1440px]">
+    <div class="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
         <div class="flex py-8">
             {{-- Left Sidebar: Category Articles --}}
-            <aside class="hidden lg:block w-[400px] flex-shrink-0 pr-[120px]">
+            <aside class="hidden lg:block w-[400px] flex-shrink-0 pr-8 lg:pr-12 xl:pr-[120px]">
                 <div class="sticky top-24">
                     {{-- Category Header --}}
                     <div class="mb-6">
@@ -48,7 +48,7 @@
             </aside>
 
             {{-- Main Content Area --}}
-            <main class="flex-1 min-w-0 px-4 sm:px-6 lg:px-0">
+            <main class="flex-1 min-w-0">
                 {{-- Documentation Content --}}
                 <article class="docs-content max-w-none">
                     {!! $content !!}
