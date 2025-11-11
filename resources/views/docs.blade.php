@@ -8,11 +8,9 @@
             <aside class="hidden lg:block w-64 xl:w-72 flex-shrink-0">
                 <div class="sticky top-24">
                     {{-- Category Header --}}
-                    <div class="mb-6">
-                        <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4">
-                            {{ ucwords(str_replace('-', ' ', $category)) }}
-                        </h3>
-                    </div>
+                    <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4">
+                        {{ ucwords(str_replace('-', ' ', $category)) }}
+                    </h3>
 
                     {{-- Category Articles Navigation --}}
                     <nav class="space-y-1" aria-label="Category navigation">
@@ -51,13 +49,11 @@
             <main class="flex-1 min-w-0">
                 {{-- Documentation Content with optimal reading width --}}
                 <article class="docs-content prose prose-charcoal max-w-[75ch] mx-auto lg:mx-0">
-                    <div class="px-4 sm:px-6 lg:px-8">
-                        {!! $content !!}
-                    </div>
+                    {!! $content !!}
                 </article>
 
                 {{-- Edit Link Footer --}}
-                <div class="mt-16 pt-8 border-t border-gray-200 px-4 sm:px-6 lg:px-8 max-w-[75ch] mx-auto lg:mx-0">
+                <div class="mt-16 pt-8 border-t border-gray-200 max-w-[75ch] mx-auto lg:mx-0">
                     <a
                         href="{{ $edit_link }}"
                         target="_blank"
@@ -76,11 +72,9 @@
             @if(count($tableOfContents) > 0)
             <aside class="hidden xl:block w-64 flex-shrink-0">
                 <div class="sticky top-24">
-                    <div class="mb-4">
-                        <h3 class="text-xs font-semibold text-gray-900 uppercase tracking-wider">
-                            On this page
-                        </h3>
-                    </div>
+                    <h3 class="text-xs font-semibold text-gray-900 uppercase tracking-wider mb-4">
+                        On this page
+                    </h3>
 
                     <nav class="space-y-1.5" aria-label="Table of contents">
                         @foreach($tableOfContents as $heading)
