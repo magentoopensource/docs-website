@@ -8,7 +8,7 @@
             <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-inter-tight leading-none text-center sm:text-left font-bold mb-8">
                 Commerce begins with Community.
             </h1>
-            <p class="text-lg sm:text-xl font-inter-tight font-medium leading-relaxed text-center max-w-3xl px-4">
+            <p class="text-lg sm:text-xl font-inter-tight font-medium leading-relaxed text-center max-w-3xl mx-auto px-4">
                 Your comprehensive guide to building, managing, and growing a successful Magento 2 store.
             </p>
         </div>
