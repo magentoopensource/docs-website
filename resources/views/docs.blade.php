@@ -3,9 +3,9 @@
 @section('content')
 <div class="relative bg-white">
     <div class="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
-        <div class="flex py-8">
+        <div class="flex gap-8 lg:gap-12 py-8 lg:py-12">
             {{-- Left Sidebar: Category Articles --}}
-            <aside class="hidden lg:block w-[400px] flex-shrink-0 pr-8 lg:pr-12 xl:pr-[120px]">
+            <aside class="hidden lg:block w-64 xl:w-72 flex-shrink-0">
                 <div class="sticky top-24">
                     {{-- Category Header --}}
                     <div class="mb-6">
@@ -19,12 +19,12 @@
                         @foreach($categoryArticles as $article)
                             <a
                                 href="/merchant/{{ $article['path'] }}"
-                                class="group flex items-start gap-3 px-3 py-2 text-sm transition-colors duration-150 no-underline
+                                class="group flex items-start gap-3 px-3 py-2.5 text-sm rounded-lg transition-colors duration-150 no-underline focus:outline-none focus:ring-2 focus:ring-orange focus:ring-inset
                                     {{ $article['slug'] === $page ? 'bg-yellow text-charcoal font-medium' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900' }}"
                             >
                                 <span class="flex-1">{{ $article['title'] }}</span>
                                 @if($article['slug'] === $page)
-                                    <svg class="w-5 h-5 text-charcoal flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <svg class="w-5 h-5 text-charcoal flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                                         <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
                                     </svg>
                                 @endif
@@ -36,9 +36,9 @@
                     <div class="mt-6 pt-6 border-t border-gray-200">
                         <a
                             href="/merchant/{{ $category }}"
-                            class="flex items-center gap-2 px-3 py-2 text-sm font-medium text-orange-600 hover:text-orange-700 transition-colors no-underline"
+                            class="flex items-center gap-2 px-3 py-2 text-sm font-medium text-orange-600 hover:text-orange-700 hover:bg-orange-50 rounded-lg transition-colors no-underline focus:outline-none focus:ring-2 focus:ring-orange focus:ring-offset-2"
                         >
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                             </svg>
                             View all in category
@@ -49,20 +49,22 @@
 
             {{-- Main Content Area --}}
             <main class="flex-1 min-w-0">
-                {{-- Documentation Content --}}
-                <article class="docs-content max-w-none">
-                    {!! $content !!}
+                {{-- Documentation Content with optimal reading width --}}
+                <article class="docs-content prose prose-charcoal max-w-[75ch] mx-auto lg:mx-0">
+                    <div class="px-4 sm:px-6 lg:px-8">
+                        {!! $content !!}
+                    </div>
                 </article>
 
                 {{-- Edit Link Footer --}}
-                <div class="mt-12 pt-8 border-t border-gray-200">
+                <div class="mt-16 pt-8 border-t border-gray-200 px-4 sm:px-6 lg:px-8 max-w-[75ch] mx-auto lg:mx-0">
                     <a
                         href="{{ $edit_link }}"
                         target="_blank"
-                        rel="noopener"
-                        class="inline-flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+                        rel="noopener noreferrer"
+                        class="inline-flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors rounded focus:outline-none focus:ring-2 focus:ring-orange focus:ring-offset-2"
                     >
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                         </svg>
                         Edit this page on GitHub
@@ -72,7 +74,7 @@
 
             {{-- Right Sidebar: Table of Contents --}}
             @if(count($tableOfContents) > 0)
-            <aside class="hidden xl:block w-64 flex-shrink-0 pl-[30px]">
+            <aside class="hidden xl:block w-64 flex-shrink-0">
                 <div class="sticky top-24">
                     <div class="mb-4">
                         <h3 class="text-xs font-semibold text-gray-900 uppercase tracking-wider">
@@ -80,12 +82,12 @@
                         </h3>
                     </div>
 
-                    <nav class="space-y-2" aria-label="Table of contents">
+                    <nav class="space-y-1.5" aria-label="Table of contents">
                         @foreach($tableOfContents as $heading)
                             <a
                                 href="#{{ $heading['slug'] }}"
-                                class="block text-sm transition-colors duration-150 no-underline
-                                    {{ $heading['level'] === 2 ? 'font-medium text-gray-700 hover:text-orange-600' : 'pl-4 text-gray-600 hover:text-gray-900' }}"
+                                class="block py-1.5 text-sm transition-colors duration-150 no-underline rounded focus:outline-none focus:ring-2 focus:ring-orange focus:ring-inset
+                                    {{ $heading['level'] === 2 ? 'font-medium text-gray-700 hover:text-orange-600' : 'pl-3 text-gray-600 hover:text-gray-900' }}"
                             >
                                 {{ $heading['text'] }}
                             </a>
@@ -96,9 +98,9 @@
                     <div class="mt-8 pt-6 border-t border-gray-200">
                         <a
                             href="#"
-                            class="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-orange-600 transition-colors no-underline"
+                            class="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-orange-600 transition-colors no-underline rounded focus:outline-none focus:ring-2 focus:ring-orange focus:ring-offset-2"
                         >
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/>
                             </svg>
                             Back to top
@@ -117,9 +119,9 @@
         data-mobile-menu-toggle
         aria-label="Toggle navigation menu"
         aria-expanded="false"
-        class="flex items-center gap-2 px-4 py-3 bg-orange-600 text-white rounded-full shadow-lg hover:bg-orange-700 transition-colors"
+        class="flex items-center gap-2 px-4 py-3 bg-orange-600 text-white rounded-full shadow-lg hover:bg-orange-700 transition-colors focus:outline-none focus:ring-2 focus:ring-orange focus:ring-offset-2"
     >
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
         </svg>
         <span class="text-sm font-medium">Menu</span>
@@ -142,9 +144,9 @@
             <button
                 data-mobile-menu-close
                 aria-label="Close navigation menu"
-                class="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+                class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-orange focus:ring-offset-2"
             >
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                 </svg>
             </button>
@@ -158,7 +160,7 @@
                     @foreach($categoryArticles as $article)
                         <a
                             href="/merchant/{{ $article['path'] }}"
-                            class="block px-3 py-2 text-sm rounded-lg transition-colors no-underline
+                            class="block px-3 py-2.5 text-sm rounded-lg transition-colors no-underline focus:outline-none focus:ring-2 focus:ring-orange focus:ring-inset
                                 {{ $article['slug'] === $page ? 'bg-yellow text-charcoal font-medium' : 'text-gray-700 hover:bg-gray-50' }}"
                         >
                             {{ $article['title'] }}
@@ -173,12 +175,12 @@
                 <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4">
                     On this page
                 </h3>
-                <nav class="space-y-2">
+                <nav class="space-y-1.5">
                     @foreach($tableOfContents as $heading)
                         <a
                             href="#{{ $heading['slug'] }}"
-                            class="block text-sm transition-colors no-underline
-                                {{ $heading['level'] === 2 ? 'font-medium text-gray-700' : 'pl-4 text-gray-600' }}"
+                            class="block py-1.5 text-sm transition-colors no-underline rounded focus:outline-none focus:ring-2 focus:ring-orange focus:ring-inset
+                                {{ $heading['level'] === 2 ? 'font-medium text-gray-700 hover:text-orange-600' : 'pl-3 text-gray-600 hover:text-gray-900' }}"
                         >
                             {{ $heading['text'] }}
                         </a>
