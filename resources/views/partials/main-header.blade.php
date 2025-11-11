@@ -1,6 +1,6 @@
 {{-- Main Header - White header with logo and navigation from Figma --}}
 <div class="bg-white flex items-center justify-center py-4 sm:py-6 lg:py-6 h-auto w-full">
-    <div class="flex items-center justify-between w-full max-w-7xl mx-auto px-6 lg:px-8">
+    <div class="flex items-center justify-between w-full max-w-[1440px] mx-auto px-6 lg:px-8">
         {{-- Magento Logo --}}
         <div class="flex items-center">
             <a href="/" class="inline-flex items-center">
@@ -47,7 +47,7 @@
         {{-- Mobile burger menu button (visible on mobile only) --}}
         <button
             data-mobile-menu-toggle
-            class="lg:hidden flex items-center justify-center w-12 h-12 -mr-3 text-charcoal hover:text-orange transition-colors focus:outline-none focus:ring-2 focus:ring-orange focus:ring-offset-2 rounded-md"
+            class="lg:hidden flex items-center justify-center w-10 h-10 text-charcoal hover:text-orange transition-colors focus:outline-none focus:ring-2 focus:ring-orange focus:ring-offset-2 rounded-md"
             aria-label="Toggle navigation menu"
             aria-expanded="false"
         >
@@ -60,17 +60,17 @@
         {{-- Desktop Navigation and Search --}}
         <div class="hidden lg:flex items-center gap-8">
             {{-- Main Navigation --}}
-            <nav class="flex flex-row gap-x-8 items-center justify-center">
-                <a href="/merchant/getting-started" class="font-inter-tight text-medium no-underline leading-relaxed text-charcoal hover:text-orange transition-colors whitespace-nowrap">Getting Started</a>
-                <a href="/merchant/start-selling" class="font-inter-tight text-medium no-underline leading-relaxed text-charcoal hover:text-orange transition-colors whitespace-nowrap">Start Selling</a>
-                <a href="/merchant/manage-catalog" class="font-inter-tight text-medium no-underline leading-relaxed text-charcoal hover:text-orange transition-colors whitespace-nowrap">Manage Catalog</a>
-                <a href="/merchant/handle-orders" class="font-inter-tight text-medium no-underline leading-relaxed text-charcoal hover:text-orange transition-colors whitespace-nowrap">Handle Orders</a>
-                <a href="/merchant" class="font-inter-tight text-medium no-underline leading-relaxed text-charcoal hover:text-orange transition-colors whitespace-nowrap">More</a>
+            <nav class="flex flex-row gap-x-[30px] items-center justify-center">
+                <a href="/merchant/getting-started" class="font-inter-tight text-medium no-underline leading-[1.5] text-charcoal hover:text-orange transition-colors whitespace-nowrap">Getting Started</a>
+                <a href="/merchant/start-selling" class="font-inter-tight text-medium no-underline leading-[1.5] text-charcoal hover:text-orange transition-colors whitespace-nowrap">Start Selling</a>
+                <a href="/merchant/manage-catalog" class="font-inter-tight text-medium no-underline leading-[1.5] text-charcoal hover:text-orange transition-colors whitespace-nowrap">Manage Catalog</a>
+                <a href="/merchant/handle-orders" class="font-inter-tight text-medium no-underline leading-[1.5] text-charcoal hover:text-orange transition-colors whitespace-nowrap">Handle Orders</a>
+                <a href="/merchant" class="font-inter-tight text-medium no-underline leading-[1.5] text-charcoal hover:text-orange transition-colors whitespace-nowrap">More</a>
             </nav>
 
              {{-- Search Icon (triggers Algolia) --}}
             <button
-                class="flex items-center justify-center w-12 h-12 rounded-lg hover:bg-off-white transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-orange focus:ring-offset-2"
+                class="flex items-center justify-center w-10 h-10 rounded-lg hover:bg-off-white transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-orange focus:ring-opacity-50"
                 aria-label="Search the documentation"
                 id="header-search"
             >
@@ -85,7 +85,7 @@
 {{-- Mobile Menu Overlay --}}
 <div
     data-mobile-menu-overlay
-    class="hidden fixed inset-0 bg-charcoal/50 backdrop-blur-sm z-40 lg:hidden transition-opacity duration-200"
+    class="hidden fixed inset-0 bg-charcoal/50 z-40 lg:hidden transition-opacity duration-200"
     aria-hidden="true"
 ></div>
 
@@ -101,7 +101,7 @@
             <h2 class="text-lg font-bold text-charcoal">Menu</h2>
             <button
                 data-mobile-menu-close
-                class="flex items-center justify-center w-12 h-12 text-charcoal hover:text-orange transition-colors rounded-md focus:outline-none focus:ring-2 focus:ring-orange focus:ring-offset-2"
+                class="flex items-center justify-center w-8 h-8 text-charcoal hover:text-orange transition-colors"
                 aria-label="Close navigation menu"
             >
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
