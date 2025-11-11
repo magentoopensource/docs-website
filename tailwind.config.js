@@ -22,7 +22,7 @@ export default {
             },
             maxWidth: {
                 xxs: "16rem",
-                "8xl": "88rem",
+                "8xl": "90rem", // 1440px - Standard large desktop viewport
                 "9xl": "96rem",
             },
             spacing: {
@@ -32,6 +32,11 @@ export default {
                 128: "32rem",
                 144: "36rem",
                 224: "56rem",
+            },
+            width: {
+                "logo-sm": "220px",  // Mobile logo width
+                "logo-md": "240px",  // Tablet logo width
+                "logo-lg": "270px",  // Desktop logo width
             },
             borderRadius: {
                 "4xl": "2rem",

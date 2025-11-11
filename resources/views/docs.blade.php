@@ -2,10 +2,10 @@
 
 @section('content')
 <div class="relative bg-white">
-    <div class="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-7xl xl:max-w-8xl px-4 sm:px-6 lg:px-8">
         <div class="flex gap-8 lg:gap-12 py-8 lg:py-12">
             {{-- Left Sidebar: Category Articles --}}
-            <aside class="hidden lg:block w-64 xl:w-72 flex-shrink-0">
+            <aside class="hidden lg:block w-64 flex-shrink-0">
                 <div class="sticky top-24">
                     {{-- Category Header --}}
                     <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4">

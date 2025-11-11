@@ -1,10 +1,10 @@
 {{-- Main Header - White header with logo and navigation from Figma --}}
-<div class="bg-white flex items-center justify-center py-4 sm:py-6 lg:py-6 h-auto w-full">
-    <div class="flex items-center justify-between w-full max-w-[1440px] mx-auto px-6 lg:px-8">
+<div class="sticky top-0 z-50 bg-white flex items-center justify-center py-4 sm:py-6 lg:py-6 h-auto w-full border-b border-gray-200 shadow-sm">
+    <div class="flex items-center justify-between w-full max-w-7xl xl:max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
         {{-- Magento Logo --}}
         <div class="flex items-center">
             <a href="/" class="inline-flex items-center">
-                <svg class="w-[220px] sm:w-[240px] md:w-[270px] h-auto" viewBox="0 0 270 35" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <svg class="w-logo-sm sm:w-logo-md md:w-logo-lg h-auto" viewBox="0 0 270 35" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <g clip-path="url(#clip0_2008_219)">
                         <path d="M0 4.06492H29.6763V31.8882C29.6763 32.502 29.1713 33 28.5487 33H1.12762C0.505079 33 0 32.502 0 31.8882V4.06492Z" fill="#34323A"/>
                         <path d="M1.26857 0H28.4078C29.1066 0 29.6763 0.561678 29.6763 1.25075V4.06492H0V1.25075C0 0.561678 0.569682 0 1.26857 0Z" fill="#C9C9C9"/>
@@ -60,7 +60,7 @@
         {{-- Desktop Navigation and Search --}}
         <div class="hidden lg:flex items-center gap-8">
             {{-- Main Navigation --}}
-            <nav class="flex flex-row gap-x-[30px] items-center justify-center">
+            <nav class="flex flex-row gap-x-6 lg:gap-x-7 xl:gap-x-8 items-center justify-center">
                 <a href="/merchant/getting-started" class="font-inter-tight text-medium no-underline leading-[1.5] text-charcoal hover:text-orange transition-colors whitespace-nowrap">Getting Started</a>
                 <a href="/merchant/start-selling" class="font-inter-tight text-medium no-underline leading-[1.5] text-charcoal hover:text-orange transition-colors whitespace-nowrap">Start Selling</a>
                 <a href="/merchant/manage-catalog" class="font-inter-tight text-medium no-underline leading-[1.5] text-charcoal hover:text-orange transition-colors whitespace-nowrap">Manage Catalog</a>

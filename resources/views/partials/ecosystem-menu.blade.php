@@ -1,6 +1,6 @@
 {{-- Ecosystem Menu - Top dark bar from Figma (hidden on mobile) --}}
-<div class="hidden xl:flex bg-charcoal items-center justify-center px-4 sm:px-8 md:px-16 lg:px-32 py-0 h-10 w-full">
-    <div class="max-w-[1440px] w-full flex items-center justify-between relative">
+<div class="hidden lg:flex bg-charcoal items-center justify-center py-0 h-10 w-full">
+    <div class="max-w-7xl xl:max-w-8xl w-full flex items-center justify-between relative px-4 sm:px-6 lg:px-8">
     {{-- Left side: "Explore the Magento Open Source Ecosystem" text --}}
     <div class="flex gap-2.5 items-center justify-center self-stretch shrink-0">
         <div class="font-inter-tight text-sm leading-[1.42] text-white font-bold">
