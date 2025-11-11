@@ -60,7 +60,7 @@
         {{-- Desktop Navigation and Search --}}
         <div class="hidden lg:flex items-center gap-8">
             {{-- Main Navigation --}}
-            <nav class="flex flex-row gap-x-6 lg:gap-x-7 xl:gap-x-8 items-center justify-center">
+            <nav class="flex flex-row gap-x-6 lg:gap-x-7 xl:gap-x-8 items-center justify-center py-1.5">
                 <a href="/merchant/getting-started" class="font-inter-tight text-medium no-underline leading-none text-charcoal hover:text-orange transition-colors whitespace-nowrap">Getting Started</a>
                 <a href="/merchant/start-selling" class="font-inter-tight text-medium no-underline leading-none text-charcoal hover:text-orange transition-colors whitespace-nowrap">Start Selling</a>
                 <a href="/merchant/manage-catalog" class="font-inter-tight text-medium no-underline leading-none text-charcoal hover:text-orange transition-colors whitespace-nowrap">Manage Catalog</a>
