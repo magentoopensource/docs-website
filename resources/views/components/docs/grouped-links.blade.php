@@ -13,10 +13,10 @@
     ];
 @endphp
 
-<div class="content-stretch flex flex-col gap-5 items-start justify-start relative shrink-0 w-full">
+<div class="content-stretch flex flex-col gap-6 items-start justify-start relative shrink-0 w-full">
     @if($title)
         <div class="font-inter-tight font-bold leading-[0] min-w-full not-italic relative shrink-0 text-charcoal text-2xl" style="width: min-content">
-            <p class="leading-[1.333]">{{ $title }}</p>
+            <p class="leading-snug">{{ $title }}</p>
         </div>
     @endif
     
@@ -39,14 +39,14 @@
                                     <div class="basis-0 content-stretch flex flex-col font-inter-tight grow items-start justify-center leading-[0] min-h-px min-w-px not-italic relative shrink-0">
                                         <div class="relative shrink-0 text-charcoal text-base w-full">
                                             @if(isset($link['url']))
-                                                <a href="{{ $link['url'] }}" class="leading-[1.5] text-charcoal hover:text-orange">{{ $link['title'] ?? 'Link' }}</a>
+                                                <a href="{{ $link['url'] }}" class="leading-relaxed text-charcoal hover:text-orange">{{ $link['title'] ?? 'Link' }}</a>
                                             @else
-                                                <p class="leading-[1.5]">{{ $link['title'] ?? 'Link' }}</p>
+                                                <p class="leading-relaxed">{{ $link['title'] ?? 'Link' }}</p>
                                             @endif
                                         </div>
                                         @if(isset($link['description']))
                                             <div class="relative shrink-0 text-gray-darkest text-xs w-full">
-                                                <p class="leading-[1.333]">{{ $link['description'] }}</p>
+                                                <p class="leading-snug">{{ $link['description'] }}</p>
                                             </div>
                                         @endif
                                     </div>

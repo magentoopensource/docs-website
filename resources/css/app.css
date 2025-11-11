@@ -34,14 +34,23 @@
  * One-off helpers that don't fit into components
  */
 @layer utilities {
-    /* Smooth scrolling for anchor links */
-    html {
-        scroll-behavior: smooth;
-    }
+    /* Smooth scrolling now handled via JavaScript (see smoothScroll.js) */
+    /* for better accessibility and reduced-motion support */
 
     /* Hide elements with x-cloak (Alpine.js) */
     [x-cloak] {
         @apply hidden;
+    }
+
+    /* Respect reduced motion preference */
+    @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+        }
     }
 
     /* Radial gradient utility */
