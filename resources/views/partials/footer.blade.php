@@ -40,7 +40,7 @@
 @endphp
 
 <footer class="relative pt-12 bg-white border-t border-charcoal">
-    <div class="max-w-7xl mx-auto w-full px-8">
+    <div class="max-w-7xl xl:max-w-8xl mx-auto w-full px-4 sm:px-6 lg:px-8">
         <div>
             <a href="/" class="inline-flex items-center">
                 <svg width="30" height="33" viewBox="0 0 30 33" fill="none" xmlns="http://www.w3.org/2000/svg">
