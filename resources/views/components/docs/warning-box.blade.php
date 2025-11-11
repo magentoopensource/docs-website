@@ -13,12 +13,12 @@
     <div class="basis-0 content-stretch flex flex-col gap-6 grow items-start justify-start min-h-px min-w-px relative shrink-0">
         @if($title)
             <div class="font-inter-tight font-bold leading-[0] not-italic relative shrink-0 text-[#442204] text-base w-full">
-                <p class="leading-[1.5]">{{ $title }}</p>
+                <p class="leading-relaxed">{{ $title }}</p>
             </div>
         @endif
         @if($content)
             <div class="font-inter-tight leading-[0] not-italic relative shrink-0 text-[#442204] text-base w-full">
-                <p class="leading-[1.5]">{{ $content }}</p>
+                <p class="leading-relaxed">{{ $content }}</p>
             </div>
         @elseif($slot->isNotEmpty())
             <div class="font-inter-tight leading-[0] not-italic relative shrink-0 text-[#442204] text-base w-full">

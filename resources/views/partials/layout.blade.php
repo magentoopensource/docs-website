@@ -85,7 +85,7 @@
 
 {{-- Main content with top padding to accommodate fixed header and max-width constraint --}}
 <main class="">
-    <div class="max-w-[1440px] mx-auto">
+    <div class="max-w-7xl mx-auto">
         @yield('content')
     </div>
 </main>

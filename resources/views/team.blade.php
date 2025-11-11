@@ -7,7 +7,7 @@
             <h1 class="text-4xl sm:text-5xl md:text-6xl font-inter-tight font-normal leading-none text-charcoal mb-6">
                 Meet the Team
             </h1>
-            <p class="text-lg sm:text-xl font-inter-tight font-normal leading-[1.4] text-charcoal max-w-3xl mx-auto">
+            <p class="text-lg sm:text-xl font-inter-tight font-normal leading-snug text-charcoal max-w-3xl mx-auto">
                 The passionate people behind Magento Merchant Documentation. We're dedicated to helping merchants succeed with clear, comprehensive, and actionable documentation.
             </p>
         </div>

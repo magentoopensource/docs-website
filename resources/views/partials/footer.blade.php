@@ -40,7 +40,7 @@
 @endphp
 
 <footer class="relative pt-12 bg-white border-t border-charcoal">
-    <div class="max-w-[1440px] mx-auto w-full px-8">
+    <div class="max-w-7xl mx-auto w-full px-8">
         <div>
             <a href="/" class="inline-flex items-center">
                 <svg width="30" height="33" viewBox="0 0 30 33" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -69,11 +69,11 @@
             @foreach ($links as $column)
                 <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
                     <span class="uppercase font-inter-tight text-charcoal font-semibold">{{ $column['title'] }}</span>
-                    <div class="mt-5">
+                    <div class="mt-6">
                         <ul class="space-y-3.5 md:space-y-3 font-inter-tight text-gray-darkest list-none">
                             @foreach ($column['links'] as $title => $href)
                                 <li>
-                                    <a href="{{ $href }}" class="transition-colors no-underline hover:text-orange py-1.5 md:py-1">{{ $title }}</a>
+                                    <a href="{{ $href }}" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white rounded px-2 -mx-2 focus:outline-none focus:ring-2 focus:ring-orange focus:ring-offset-2">{{ $title }}</a>
                                 </li>
                             @endforeach
                         </ul>
@@ -81,7 +81,7 @@
                 </div>
             @endforeach
         </div>
-        <div class="mt-10 border-t pt-6 pb-16 border-charcoal">
+        <div class="mt-12 border-t pt-6 pb-16 border-charcoal">
             <p class="text-xs font-inter-tight text-charcoal">
                 © {{ now()->format('Y') }} Magento 2 Merchant Documentation
                 Magento® is a registered trademark of Adobe Inc.
