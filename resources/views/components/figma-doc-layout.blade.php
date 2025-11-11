@@ -1,8 +1,8 @@
 {{-- New documentation layout matching Figma node-id=61-192 --}}
 <div class="bg-orange min-h-screen pt-16">
-    <div class="flex gap-[31px] items-start justify-start px-[279px] py-[21px]">
+    <div class="flex gap-8 items-start justify-start px-4 sm:px-6 lg:px-8 py-6">
         {{-- Left Sidebar Navigation --}}
-        <aside class="flex flex-col gap-[28px] items-start justify-start pr-5 w-[280px]">
+        <aside class="flex flex-col gap-6 items-start justify-start pr-5 w-[280px]">
             {{-- Closed Side Menu --}}
             <div class="flex flex-col gap-2.5 items-start justify-start w-full">
                 <div class="flex flex-row items-center justify-between pl-2.5 pr-0 py-0 w-full">
@@ -11,7 +11,7 @@
                             Closed Side Menu
                         </p>
                     </div>
-                    <p class="font-['Font_Awesome_6_Free'] text-sm leading-[1.42] not-italic text-[#818181]">
+                    <p class="font-['Font_Awesome_6_Free'] text-sm leading-normal not-italic text-[#818181]">
 
                     </p>
                 </div>
@@ -25,18 +25,18 @@
                             Expanded Side Menu
                         </p>
                     </div>
-                    <p class="font-['Font_Awesome_6_Free'] text-sm leading-[1.42] not-italic text-[#818181]">
+                    <p class="font-['Font_Awesome_6_Free'] text-sm leading-normal not-italic text-[#818181]">
 
                     </p>
                 </div>
                 <div class="flex flex-col items-start w-full">
                     <div class="bg-[#f1bc1b] flex gap-2.5 items-center py-2.5 pl-2.5 pr-0 w-full">
-                        <p class="font-alegreya text-[#2c2c2c] text-sm leading-[1.42] whitespace-pre">
+                        <p class="font-alegreya text-[#2c2c2c] text-sm leading-normal whitespace-pre">
                             Active Side Menu Item
                         </p>
                     </div>
                     <div class="bg-[#fafafa] flex gap-2.5 items-center py-2.5 pl-2.5 pr-0 w-full">
-                        <p class="font-alegreya text-[#2c2c2c] text-sm leading-[1.42] whitespace-pre">
+                        <p class="font-alegreya text-[#2c2c2c] text-sm leading-normal whitespace-pre">
                             Inactive Side Menu Item
                         </p>
                     </div>
@@ -56,7 +56,7 @@
                             Side Menu with icon
                         </p>
                     </div>
-                    <p class="font-['Font_Awesome_6_Free'] text-sm leading-[1.42] not-italic text-[#818181]">
+                    <p class="font-['Font_Awesome_6_Free'] text-sm leading-normal not-italic text-[#818181]">
 
                     </p>
                 </div>
@@ -71,12 +71,12 @@
                 </div>
                 <div class="flex flex-col items-start w-full">
                     <div class="bg-[#fafafa] flex gap-2.5 items-center py-2.5 pl-2.5 pr-0 w-full">
-                        <p class="font-alegreya text-[#2c2c2c] text-sm leading-[1.42] whitespace-pre">
+                        <p class="font-alegreya text-[#2c2c2c] text-sm leading-normal whitespace-pre">
                             Active Side Menu Item
                         </p>
                     </div>
                     <div class="bg-[#fafafa] flex gap-2.5 items-center py-2.5 pl-2.5 pr-0 w-full">
-                        <p class="font-alegreya text-[#2c2c2c] text-sm leading-[1.42] whitespace-pre">
+                        <p class="font-alegreya text-[#2c2c2c] text-sm leading-normal whitespace-pre">
                             Inactive Side Menu Item
                         </p>
                     </div>
@@ -85,18 +85,18 @@
         </aside>
 
         {{-- Main Content and Right Sidebar --}}
-        <div class="flex flex-row gap-[30px] items-start justify-start">
+        <div class="flex flex-row gap-8 items-start justify-start">
             {{-- Main Content Area --}}
             <main class="flex flex-col gap-8 items-start justify-start w-[670px]">
                 {{ $slot }}
             </main>
 
             {{-- Right Sidebar - Page Navigation --}}
-            <aside class="flex flex-col gap-[9px] items-start justify-start px-0 py-[13px] w-[170px]">
-                <div class="font-alegreya text-[#45556c] text-sm leading-[1.42] w-full">
+            <aside class="flex flex-col gap-2 items-start justify-start px-0 py-3 w-[170px]">
+                <div class="font-alegreya text-[#45556c] text-sm leading-normal w-full">
                     On this page
                 </div>
-                <div class="flex flex-col font-alegreya gap-2 items-start justify-start text-[#1d293d] text-sm leading-[1.42] w-full">
+                <div class="flex flex-col font-alegreya gap-2 items-start justify-start text-[#1d293d] text-sm leading-normal w-full">
                     <div class="w-full">
                         What you'll learn
                     </div>

@@ -15,7 +15,7 @@
                 </div>
 
                 {{-- Menu Items --}}
-                <nav class="hidden lg:flex items-center gap-[30px] font-alegreya text-slate text-base">
+                <nav class="hidden lg:flex items-center gap-8 font-alegreya text-slate text-base">
                     <a href="#" class="hover:text-orange transition-colors duration-200 py-2.5">
                         Menu item
                     </a>
@@ -32,8 +32,8 @@
             </div>
 
             {{-- Right Section: Search Bar --}}
-            <div class="flex items-center gap-[30px] w-[368px] justify-end pl-2.5 py-2.5">
-                <div class="flex-1 bg-white border border-orange rounded-[50px] px-5 py-2.5 relative">
+            <div class="flex items-center gap-8 w-[368px] justify-end pl-2.5 py-2.5">
+                <div class="flex-1 bg-white border border-orange rounded-[50px] px-4 py-2.5 relative">
                     <div class="flex items-center justify-between w-full">
                         <button
                             id="docsearch"

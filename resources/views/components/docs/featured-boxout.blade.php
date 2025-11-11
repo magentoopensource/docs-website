@@ -8,7 +8,7 @@
     <div class="content-stretch flex flex-col gap-6 items-start justify-start relative shrink-0 w-full">
         @if($title)
             <div class="font-inter-tight font-bold leading-[0] not-italic relative shrink-0 text-charcoal text-2xl w-full">
-                <p class="leading-[1.333]">{{ $title }}</p>
+                <p class="leading-snug">{{ $title }}</p>
             </div>
         @endif
         
@@ -16,13 +16,13 @@
             <div class="content-stretch flex flex-col gap-2 items-start justify-start relative shrink-0 w-full">
                 @foreach($items as $item)
                     <div class="content-stretch flex gap-2.5 items-center justify-center relative shrink-0 w-full">
-                        <div class="h-[13.856px] relative shrink-0 w-[11.584px] flex-shrink-0">
+                        <div class="w-3 h-3 relative flex-shrink-0">
                             <svg class="block max-w-none size-full" viewBox="0 0 14 16" fill="none">
                                 <path d="M7 0L13.062 4V12L7 16L0.938 12V4L7 0Z" fill="#f26423" stroke="#f26423"/>
                             </svg>
                         </div>
                         <div class="basis-0 font-inter-tight grow leading-[0] min-h-px min-w-px not-italic relative shrink-0 text-charcoal text-base">
-                            <p class="leading-[1.5]">{{ $item }}</p>
+                            <p class="leading-relaxed">{{ $item }}</p>
                         </div>
                     </div>
                 @endforeach

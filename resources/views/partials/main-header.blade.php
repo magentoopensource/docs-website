@@ -1,6 +1,6 @@
 {{-- Main Header - White header with logo and navigation from Figma --}}
 <div class="bg-white flex items-center justify-center py-4 sm:py-6 lg:py-6 h-auto w-full">
-    <div class="flex items-center justify-between w-full max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-0">
+    <div class="flex items-center justify-between w-full max-w-7xl mx-auto px-6 lg:px-8">
         {{-- Magento Logo --}}
         <div class="flex items-center">
             <a href="/" class="inline-flex items-center">
@@ -47,7 +47,7 @@
         {{-- Mobile burger menu button (visible on mobile only) --}}
         <button
             data-mobile-menu-toggle
-            class="lg:hidden flex items-center justify-center w-10 h-10 text-charcoal hover:text-orange transition-colors"
+            class="lg:hidden flex items-center justify-center w-12 h-12 -mr-3 text-charcoal hover:text-orange transition-colors focus:outline-none focus:ring-2 focus:ring-orange focus:ring-offset-2 rounded-md"
             aria-label="Toggle navigation menu"
             aria-expanded="false"
         >
@@ -60,25 +60,23 @@
         {{-- Desktop Navigation and Search --}}
         <div class="hidden lg:flex items-center gap-8">
             {{-- Main Navigation --}}
-            <nav class="flex flex-row gap-x-[30px] items-center justify-center">
-                <a href="/merchant/getting-started" class="font-inter-tight text-medium no-underline leading-[1.5] text-charcoal hover:text-orange transition-colors whitespace-nowrap">Getting Started</a>
-                <a href="/merchant/start-selling" class="font-inter-tight text-medium no-underline leading-[1.5] text-charcoal hover:text-orange transition-colors whitespace-nowrap">Start Selling</a>
-                <a href="/merchant/manage-catalog" class="font-inter-tight text-medium no-underline leading-[1.5] text-charcoal hover:text-orange transition-colors whitespace-nowrap">Manage Catalog</a>
-                <a href="/merchant/handle-orders" class="font-inter-tight text-medium no-underline leading-[1.5] text-charcoal hover:text-orange transition-colors whitespace-nowrap">Handle Orders</a>
-                <a href="/merchant" class="font-inter-tight text-medium no-underline leading-[1.5] text-charcoal hover:text-orange transition-colors whitespace-nowrap">More</a>
+            <nav class="flex flex-row gap-x-8 items-center justify-center">
+                <a href="/merchant/getting-started" class="font-inter-tight text-medium no-underline leading-relaxed text-charcoal hover:text-orange transition-colors whitespace-nowrap">Getting Started</a>
+                <a href="/merchant/start-selling" class="font-inter-tight text-medium no-underline leading-relaxed text-charcoal hover:text-orange transition-colors whitespace-nowrap">Start Selling</a>
+                <a href="/merchant/manage-catalog" class="font-inter-tight text-medium no-underline leading-relaxed text-charcoal hover:text-orange transition-colors whitespace-nowrap">Manage Catalog</a>
+                <a href="/merchant/handle-orders" class="font-inter-tight text-medium no-underline leading-relaxed text-charcoal hover:text-orange transition-colors whitespace-nowrap">Handle Orders</a>
+                <a href="/merchant" class="font-inter-tight text-medium no-underline leading-relaxed text-charcoal hover:text-orange transition-colors whitespace-nowrap">More</a>
             </nav>
 
-            {{-- Search Component --}}
-            <button class="flex flex-col gap-1.5 items-start min-w-[269px] justify-start pt-2.5 shrink-0 cursor-pointer hover:bg-off-white transition-colors duration-200 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-orange focus:ring-opacity-50" id="header-search">
-                <div class="flex items-center justify-between w-full">
-                    <span class="font-inter-tight text-sm leading-[1.42] text-charcoal">
-                        Search the documentation
-                    </span>
-                    <svg width="19" height="19" viewBox="0 0 19 19" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M8 16C9.77498 15.9996 11.4988 15.4054 12.897 14.312L17.293 18.708L18.707 17.294L14.311 12.898C15.405 11.4997 15.9996 9.77544 16 8C16 3.589 12.411 0 8 0C3.589 0 0 3.589 0 8C0 12.411 3.589 16 8 16ZM8 2C11.309 2 14 4.691 14 8C14 11.309 11.309 14 8 14C4.691 14 2 11.309 2 8C2 4.691 4.691 2 8 2Z" fill="#F26423"/>
-                    </svg>
-                </div>
-                <div class="bg-gray-light h-1 w-full"></div>
+             {{-- Search Icon (triggers Algolia) --}}
+            <button
+                class="flex items-center justify-center w-12 h-12 rounded-lg hover:bg-off-white transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-orange focus:ring-offset-2"
+                aria-label="Search the documentation"
+                id="header-search"
+            >
+                <svg width="19" height="19" viewBox="0 0 19 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M8 16C9.77498 15.9996 11.4988 15.4054 12.897 14.312L17.293 18.708L18.707 17.294L14.311 12.898C15.405 11.4997 15.9996 9.77544 16 8C16 3.589 12.411 0 8 0C3.589 0 0 3.589 0 8C0 12.411 3.589 16 8 16ZM8 2C11.309 2 14 4.691 14 8C14 11.309 11.309 14 8 14C4.691 14 2 11.309 2 8C2 4.691 4.691 2 8 2Z" fill="#F26423"/>
+                </svg>
             </button>
         </div>
     </div>
@@ -87,7 +85,7 @@
 {{-- Mobile Menu Overlay --}}
 <div
     data-mobile-menu-overlay
-    class="hidden fixed inset-0 bg-charcoal/50 z-40 lg:hidden transition-opacity duration-200"
+    class="hidden fixed inset-0 bg-charcoal/50 backdrop-blur-sm z-40 lg:hidden transition-opacity duration-200"
     aria-hidden="true"
 ></div>
 
@@ -103,7 +101,7 @@
             <h2 class="text-lg font-bold text-charcoal">Menu</h2>
             <button
                 data-mobile-menu-close
-                class="flex items-center justify-center w-8 h-8 text-charcoal hover:text-orange transition-colors"
+                class="flex items-center justify-center w-12 h-12 text-charcoal hover:text-orange transition-colors rounded-md focus:outline-none focus:ring-2 focus:ring-orange focus:ring-offset-2"
                 aria-label="Close navigation menu"
             >
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

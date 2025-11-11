@@ -3,18 +3,18 @@
 @section('content')
 <div class="flex flex-col gap-12 items-center justify-start w-full">
     {{-- Header --}}
-    <div class="flex flex-col gap-2 items-center justify-center px-6 py-24 w-full max-w-[800px] text-center">
+    <div class="flex flex-col gap-2 items-center justify-center px-6 py-24 w-full max-w-3xl text-center">
         <h1 class="text-5xl font-inter-tight font-bold leading-tight text-charcoal dark:text-white sm:text-6xl">
             Documentation Index
         </h1>
-        <p class="text-xl font-inter-tight font-normal leading-[1.5] text-charcoal dark:text-gray-300">
+        <p class="text-xl font-inter-tight font-normal leading-relaxed text-charcoal dark:text-gray-300">
             Browse all documentation categories and guides
         </p>
     </div>
 
     {{-- Categories Grid --}}
-    <section class="flex flex-col gap-12 items-center justify-start px-6 sm:px-12 md:px-16 lg:px-24 xl:px-32 pb-24 w-full">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-[1440px]">
+    <section class="flex flex-col gap-12 items-center justify-start px-4 sm:px-6 lg:px-8 pb-24 w-full">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-7xl">
             @php
                 $borderColors = ['border-yellow', 'border-orange', 'border-yellow', 'border-orange', 'border-yellow', 'border-orange'];
                 $categoryDescriptions = [
@@ -33,7 +33,7 @@
                 $colorIndex = 0;
             @endphp
             @foreach($categories as $category)
-            <div class="bg-white dark:bg-gray-800 flex flex-col gap-5 p-6 rounded border-t-4 {{ $borderColors[$colorIndex % count($borderColors)] }} shadow-sm hover:shadow-lg hover:border-orange transition-all duration-300 focus-within:ring-2 focus-within:ring-orange focus-within:ring-opacity-20">
+            <div class="bg-white dark:bg-gray-800 flex flex-col gap-6 p-6 rounded-lg border-2 border-gray-200 dark:border-gray-700 border-t-4 border-t-{{ $borderColors[$colorIndex % count($borderColors)] === 'border-yellow' ? 'yellow' : 'orange' }} shadow-sm hover:shadow-lg hover:border-t-orange hover:-translate-y-1 transition-all duration-200 focus-within:ring-2 focus-within:ring-orange focus-within:ring-offset-2">
                 {{-- Icon --}}
                 <div class="flex items-start justify-start w-full">
                     <div class="w-8 h-8 flex-shrink-0">
@@ -45,19 +45,19 @@
 
                 {{-- Title --}}
                 <div class="flex items-center justify-start w-full">
-                    <h3 class="text-3xl font-inter-tight font-bold leading-[1.2] text-charcoal dark:text-white">
+                    <h3 class="text-3xl font-inter-tight font-bold leading-tight text-charcoal dark:text-white">
                         {{ $category['name'] }}
                     </h3>
                 </div>
 
                 {{-- Description and Actions --}}
                 <div class="flex flex-col gap-6 items-start justify-start w-full">
-                    <p class="text-base font-inter-tight font-normal leading-[1.5] text-charcoal dark:text-gray-300">
+                    <p class="text-base font-inter-tight font-normal leading-relaxed text-charcoal dark:text-gray-300">
                         {{ $categoryDescriptions[$category['slug']] ?? 'Explore guides and tutorials for ' . strtolower($category['name']) }}
                     </p>
 
                     <div class="flex items-center justify-between w-full">
-                        <a href="/merchant/{{ $category['slug'] }}" class="text-base font-inter-tight leading-[1.5] text-red underline decoration-solid hover:text-orange transition-colors">
+                        <a href="/merchant/{{ $category['slug'] }}" class="text-base font-inter-tight leading-relaxed text-red underline decoration-solid hover:text-orange transition-colors focus:outline-none focus:ring-2 focus:ring-orange focus:ring-offset-2 rounded">
                             View category
                         </a>
 
@@ -65,7 +65,7 @@
                             <svg class="w-6 h-6 text-gray-darker" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                             </svg>
-                            <span class="text-base font-inter-tight leading-[1.5] text-gray-darker">
+                            <span class="text-base font-inter-tight leading-relaxed text-gray-darker">
                                 {{ count($category['articles']) }} articles
                             </span>
                         </div>
