@@ -2,19 +2,19 @@
 
 @section('content')
     {{-- Hero Section - Commerce begins with Community --}}
-    <section class="bg-white flex flex-col items-center justify-center py-12 sm:pt-16 md:pt-20 lg:pt-24 gap-8 sm:gap-12 md:gap-16 pb-0 mb-0">
+    <section class="bg-white flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 pt-12 sm:pt-16 lg:pt-24 pb-12 sm:pb-16 gap-12">
         {{-- Main Hero Content --}}
         <div class="flex flex-col items-start justify-start text-charcoal">
             <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-inter-tight leading-none text-center sm:text-left font-bold mb-8">
                 Commerce begins with Community.
             </h1>
-            <p class="text-xl font-inter-tight font-medium leading-[1.4] text-center w-full">
+            <p class="text-lg sm:text-xl font-inter-tight font-medium leading-relaxed text-center max-w-3xl mx-auto px-4">
                 Your comprehensive guide to building, managing, and growing a successful Magento 2 store.
             </p>
         </div>
 
-        <div class="w-full">
-            <svg width="1728" height="680" viewBox="0 0 1728 680" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-auto">
+        <div class="w-full -mx-4 sm:mx-0 px-4 sm:px-0">
+            <svg width="1728" height="680" viewBox="0 0 1728 680" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-auto" aria-hidden="true">
                 <rect x="759" y="191" width="10" height="190" fill="#2C2C2C"/>
                 <rect x="779" y="191" width="10" height="190" fill="#2C2C2C"/>
                 <rect x="799" y="191" width="10" height="190" fill="#2C2C2C"/>
@@ -58,51 +58,52 @@
     </section>
 
     {{-- Search Section with Search Content --}}
-    <section class="relative flex flex-col gap-2.5 items-center justify-start pt-24">
+    <section class="relative flex flex-col items-center justify-start px-4 sm:px-6 lg:px-8 py-16 sm:py-24" aria-label="Documentation search">
         {{-- Search Content --}}
-        <div class="flex flex-col items-center justify-start gap-6 sm:gap-8 md:gap-10 relative w-full ">
+        <div class="flex flex-col items-center justify-start gap-6 sm:gap-8 md:gap-12 relative w-full ">
             {{-- Search Header --}}
             <div class="flex flex-col items-center justify-start gap-6 sm:gap-8 w-full">
                 <h2 class="text-3xl sm:text-4xl md:text-5xl font-inter-tight font-bold leading-none text-charcoal text-center mb-2">
                     How can we help you today?
                 </h2>
-                <p class="text-lg sm:text-xl font-inter-tight font-medium leading-[1.4] text-center text-charcoal max-w-4xl">
+                <p class="text-lg sm:text-xl font-inter-tight font-medium leading-relaxed text-center text-charcoal max-w-4xl">
                     Find step-by-step guides, best practices, and expert tips to unlock your store's full potential.
                 </p>
             </div>
 
             {{-- Search Bar --}}
-            <div class="px-6 sm:px-12 md:px-16 lg:px-24 xl:px-32 w-full">
-                <button class="flex flex-col gap-3 sm:gap-4 w-full pt-3 sm:pt-4 cursor-pointer hover:bg-off-white transition-colors duration-200 rounded-lg py-4 focus:outline-none focus:ring-2 focus:ring-orange focus:ring-opacity-50" id="homepage-search">
-                    <div class="flex items-center justify-between w-full">
-                        <span class="text-base sm:text-lg font-inter-tight leading-[1.42] text-charcoal">
-                            Search the documentation
-                        </span>
-                        <svg width="19" height="19" viewBox="0 0 19 19" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M8 16C9.77498 15.9996 11.4988 15.4054 12.897 14.312L17.293 18.708L18.707 17.294L14.311 12.898C15.405 11.4997 15.9996 9.77544 16 8C16 3.589 12.411 0 8 0C3.589 0 0 3.589 0 8C0 12.411 3.589 16 8 16ZM8 2C11.309 2 14 4.691 14 8C14 11.309 11.309 14 8 14C4.691 14 2 11.309 2 8C2 4.691 4.691 2 8 2Z" fill="#F26423"/>
-                        </svg>
-
-                    </div>
-                    <div class="bg-charcoal h-1 w-full"></div>
+            <div class="w-full max-w-2xl">
+                <button
+                    class="flex items-center justify-between w-full px-4 sm:px-6 py-3 sm:py-4 border-2 border-gray-200 rounded-lg hover:border-orange hover:bg-off-white transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange focus:ring-offset-2"
+                    id="homepage-search"
+                    aria-label="Search the documentation"
+                >
+                    <span class="text-base sm:text-lg font-inter-tight font-normal text-gray-600">
+                        Search the documentation
+                    </span>
+                    <svg class="w-5 h-5 flex-shrink-0 text-orange" width="19" height="19" viewBox="0 0 19 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M8 16C9.77498 15.9996 11.4988 15.4054 12.897 14.312L17.293 18.708L18.707 17.294L14.311 12.898C15.405 11.4997 15.9996 9.77544 16 8C16 3.589 12.411 0 8 0C3.589 0 0 3.589 0 8C0 12.411 3.589 16 8 16ZM8 2C11.309 2 14 4.691 14 8C14 11.309 11.309 14 8 14C4.691 14 2 11.309 2 8C2 4.691 4.691 2 8 2Z" fill="currentColor"/>
+                    </svg>
                 </button>
             </div>
         </div>
     </section>
 
     {{-- Categories Grid Section --}}
-    <section class="flex flex-col items-center justify-start gap-8 sm:gap-10 md:gap-12 px-6 sm:px-12 md:px-16 lg:px-24 xl:px-32 py-12 sm:py-16">
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-[30px] w-full">
+    <section class="flex flex-col items-center justify-start gap-8 sm:gap-12 py-12 sm:py-16">
+        <div class="max-w-7xl xl:max-w-8xl mx-auto w-full px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 w-full">
             @foreach($categories as $category)
                 {{-- Category Card --}}
-                <div class="bg-white flex flex-col gap-[30px] items-start justify-start p-6 pt-8 pb-6 rounded border-t-4 border-yellow shadow-lg hover:shadow-xl transition-all duration-300 hover:border-orange focus-within:ring-2 focus-within:ring-orange focus-within:ring-opacity-20">
-                    <div class="flex items-center justify-start gap-[26px] w-full">
-                        <h3 class="text-3xl font-inter-tight font-bold leading-[1.2] text-charcoal">
+                <div class="bg-white flex flex-col gap-6 items-start justify-start p-6 sm:p-8 rounded-lg border-2 border-gray-200 border-t-4 border-t-yellow shadow-sm hover:shadow-lg hover:border-t-orange hover:-translate-y-1 transition-all duration-200 focus-within:ring-2 focus-within:ring-orange focus-within:ring-offset-2">
+                    <div class="flex items-center justify-start gap-6 w-full">
+                        <h3 class="text-3xl font-inter-tight font-bold leading-tight text-charcoal">
                             {{ $category['name'] }}
                         </h3>
                     </div>
                     @if($category['description'])
-                        <div class="flex flex-col items-start justify-start gap-[15px] w-full">
-                            <p class="text-base font-inter-tight font-normal leading-[1.5] text-charcoal">
+                        <div class="flex flex-col items-start justify-start gap-4 w-full">
+                            <p class="text-base font-inter-tight font-normal leading-relaxed text-charcoal">
                                 {{ $category['description'] }}
                             </p>
                         </div>
@@ -111,27 +112,21 @@
                     {{-- Article Links --}}
                     <div class="flex flex-col gap-2 items-start justify-start w-full">
                         @foreach($category['articles'] as $article)
-                            <a href="/merchant/{{ $article['path'] }}" class="bg-white flex flex-col gap-4 items-center justify-start pb-5 w-full hover:bg-off-white transition-colors duration-200 rounded-lg p-2 -mx-2">
-                                <div class="bg-gray-light h-1 w-full"></div>
-                                <div class="flex gap-2.5 items-start justify-start px-2 w-full">
-                                    <div class="w-6 h-6 flex-shrink-0">
-                                        <svg class="w-full h-full text-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                                        </svg>
-                                    </div>
-                                    <div class="flex flex-col items-start justify-center flex-1">
-                                        <div class="text-base font-inter-tight font-medium leading-[1.5] text-charcoal">
-                                            {{ $article['title'] }}
-                                        </div>
-                                    </div>
-                                </div>
+                            <a href="/merchant/{{ $article['path'] }}" class="flex items-center gap-3 p-3 -mx-3 w-full hover:bg-off-white transition-colors duration-150 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange focus:ring-inset">
+                                <svg class="w-5 h-5 flex-shrink-0 text-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                </svg>
+                                <span class="flex-1 text-base font-inter-tight font-medium leading-normal text-charcoal">
+                                    {{ $article['title'] }}
+                                </span>
                             </a>
                         @endforeach
                     </div>
 
-                    <a href="/merchant/{{ $category['slug'] }}" class="text-base font-inter-tight leading-[1.5] text-red underline decoration-solid">See all in this section</a>
+                    <a href="/merchant/{{ $category['slug'] }}" class="text-base font-inter-tight leading-relaxed text-red underline decoration-solid hover:text-orange transition-colors focus:outline-none focus:ring-2 focus:ring-orange focus:ring-offset-2 rounded">See all in this section</a>
                 </div>
             @endforeach
+            </div>
         </div>
     </section>
 @endsection

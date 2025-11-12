@@ -8,8 +8,8 @@
     />
 
     {{-- Articles Grid --}}
-    <section class="flex flex-col gap-12 items-center justify-start px-6 sm:px-12 md:px-16 lg:px-24 xl:px-32 py-24 w-full">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-[1440px]">
+    <section class="flex flex-col gap-12 items-center justify-start py-24 w-full">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-7xl xl:max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
             @foreach($articles as $article)
             <div class="flex-1">
                 <x-article-card

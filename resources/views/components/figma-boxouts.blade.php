@@ -5,7 +5,7 @@
 @if($type === 'standard')
 <div class="flex flex-col gap-6 items-center justify-center p-6 rounded-[5px] mb-8 w-full border border-orange">
     <div class="flex flex-col gap-6 items-start justify-start w-full">
-        <div class="font-alegreya font-bold text-slate-900 text-2xl leading-[1.333] w-full">
+        <div class="font-alegreya font-bold text-slate-900 text-2xl leading-snug w-full">
             This is a standard boxout with a standard heading
         </div>
         <div class="flex flex-col gap-2 items-start justify-start w-full">
@@ -18,7 +18,7 @@
 @elseif($type === 'featured')
 <div class="bg-white flex flex-col gap-6 items-center justify-center p-6 rounded-[5px] mb-8 w-full border border-orange">
     <div class="flex flex-col gap-6 items-start justify-start w-full">
-        <div class="font-alegreya font-bold text-slate-900 text-2xl leading-[1.333] w-full">
+        <div class="font-alegreya font-bold text-slate-900 text-2xl leading-snug w-full">
             This is a featured boxout with a standard heading
         </div>
         <div class="flex flex-col gap-2 items-start justify-start w-full">
@@ -38,7 +38,7 @@
                     <path d="M11 11h2v6h-2zm0-4h2v2h-2z"/>
                 </svg>
             </div>
-            <div class="font-alegreya text-slate text-base leading-[1.333]">
+            <div class="font-alegreya text-slate text-base leading-snug">
                 <span class="font-bold">Did you know: </span>
                 <span class="font-medium">this is a tips boxout with an icon</span>
             </div>
@@ -55,7 +55,7 @@
         </svg>
     </div>
     <div class="basis-0 flex flex-col gap-6 grow items-start justify-start min-h-px min-w-px">
-        <div class="font-alegreya font-bold text-brown text-base leading-[1.333] w-full">
+        <div class="font-alegreya font-bold text-brown text-base leading-snug w-full">
             This is a warning boxout
         </div>
     </div>

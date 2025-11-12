@@ -1,6 +1,6 @@
 <div id="main-content">
     @if ($communityNote)
-    <div class="gradient-box py-8 px-5 gap-3 flex flex-col mb-10">
+    <div class="gradient-box py-8 px-6 gap-3 flex flex-col mb-12">
         <p style="margin-bottom: 0!important;">
             <span class="block font-bold">📝 Community Note</span>
             The content on this page was generated with the assistance of AI and is pending a
