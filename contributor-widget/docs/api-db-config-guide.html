@@ -1,0 +1,1194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Configuration Guide - GitHub Contributors Widget</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #333;
+            background: #f8f9fa;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 4px solid #e74c3c;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+        h2 {
+            color: #34495e;
+            margin-top: 40px;
+            border-left: 5px solid #e74c3c;
+            padding-left: 15px;
+        }
+        h3 {
+            color: #7f8c8d;
+            margin-top: 25px;
+        }
+        .critical-box {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 8px;
+            margin: 30px 0;
+            font-size: 1.05em;
+            box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+        }
+        .critical-box strong {
+            font-size: 1.3em;
+            display: block;
+            margin-bottom: 10px;
+        }
+        .info-box {
+            background: #e8f4f8;
+            border-left: 4px solid #3498db;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .success-box {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        code {
+            background: #f4f4f4;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+        }
+        pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+        pre code {
+            background: transparent;
+            color: #f8f8f2;
+            padding: 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        table th {
+            background: #e74c3c;
+            color: white;
+            padding: 15px;
+            text-align: left;
+        }
+        table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #ddd;
+        }
+        table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        .schema-diagram {
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+            font-family: monospace;
+        }
+        .permission-badge {
+            display: inline-block;
+            background: #28a745;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            margin: 3px;
+        }
+        .command-box {
+            background: #212529;
+            color: #00ff00;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+        }
+        ul {
+            line-height: 1.9;
+        }
+        .checklist {
+            list-style: none;
+            padding-left: 0;
+        }
+        .checklist li:before {
+            content: "✓ ";
+            color: #28a745;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+        .step-number {
+            display: inline-block;
+            background: #e74c3c;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 API Token, Database & Configuration Guide</h1>
+        <p style="font-size: 1.1em; color: #555;">Complete security and configuration documentation for the GitHub Contributors Widget</p>
+
+        <div class="critical-box">
+            <strong>🔒 SECURITY FIRST APPROACH</strong>
+            This guide follows industry best practices for PHP 8 security. Every recommendation is designed to protect against common vulnerabilities while maintaining production-grade performance.
+        </div>
+
+        <!-- ==================== SECTION 1: API TOKEN ==================== -->
+        <h2>1. API Token Configuration</h2>
+
+        <h3>Required Permissions/Scopes</h3>
+
+        <div class="info-box">
+            <strong>📋 Token Type Recommendation:</strong> Use <strong>Fine-Grained Personal Access Token</strong> (not Classic PAT) for maximum security and minimal permissions.
+        </div>
+
+        <h4>For Public Repositories (Recommended)</h4>
+        <table>
+            <thead>
+                <tr>
+                    <th>Permission Category</th>
+                    <th>Specific Permission</th>
+                    <th>Access Level</th>
+                    <th>Why Needed</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Metadata</strong></td>
+                    <td>Repository metadata</td>
+                    <td><span class="permission-badge">Read</span></td>
+                    <td>Access repository information</td>
+                </tr>
+                <tr>
+                    <td><strong>Contents</strong></td>
+                    <td>Repository contents</td>
+                    <td><span class="permission-badge">Read</span></td>
+                    <td>Read contributor statistics</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h4>For Private Repositories</h4>
+        <table>
+            <thead>
+                <tr>
+                    <th>Permission Category</th>
+                    <th>Specific Permission</th>
+                    <th>Access Level</th>
+                    <th>Why Needed</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Metadata</strong></td>
+                    <td>Repository metadata</td>
+                    <td><span class="permission-badge">Read</span></td>
+                    <td>Access repository information</td>
+                </tr>
+                <tr>
+                    <td><strong>Contents</strong></td>
+                    <td>Repository contents</td>
+                    <td><span class="permission-badge">Read</span></td>
+                    <td>Read contributor statistics</td>
+                </tr>
+                <tr>
+                    <td><strong>Statistics</strong></td>
+                    <td>Commit statistics</td>
+                    <td><span class="permission-badge">Read</span></td>
+                    <td>Access detailed contributor stats</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="warning-box">
+            <strong>⚠️ Important:</strong> DO NOT use Classic Personal Access Tokens with <code>repo</code> scope as this grants access to ALL repositories. Fine-grained tokens allow you to specify exactly which repository the token can access.
+        </div>
+
+        <h3>Creating the Token: Step-by-Step</h3>
+
+        <div style="margin: 20px 0;">
+            <p><span class="step-number">1</span><strong>Navigate to GitHub Settings</strong></p>
+            <p style="margin-left: 50px;">GitHub.com → Profile Picture → Settings → Developer settings → Personal access tokens → Fine-grained tokens</p>
+        </div>
+
+        <div style="margin: 20px 0;">
+            <p><span class="step-number">2</span><strong>Generate New Token</strong></p>
+            <p style="margin-left: 50px;">Click "Generate new token"</p>
+        </div>
+
+        <div style="margin: 20px 0;">
+            <p><span class="step-number">3</span><strong>Configure Token</strong></p>
+            <ul style="margin-left: 50px;">
+                <li><strong>Token name:</strong> <code>Contributors-Widget-Production</code></li>
+                <li><strong>Expiration:</strong> 90 days (recommended) or 1 year max</li>
+                <li><strong>Description:</strong> "Read-only access for contributors widget on Magento 2 docs"</li>
+                <li><strong>Repository access:</strong> "Only select repositories" → Choose your documentation repo</li>
+            </ul>
+        </div>
+
+        <div style="margin: 20px 0;">
+            <p><span class="step-number">4</span><strong>Set Permissions</strong></p>
+            <ul style="margin-left: 50px;">
+                <li>Repository permissions → <strong>Metadata:</strong> Read</li>
+                <li>Repository permissions → <strong>Contents:</strong> Read</li>
+            </ul>
+        </div>
+
+        <div style="margin: 20px 0;">
+            <p><span class="step-number">5</span><strong>Generate and Copy</strong></p>
+            <p style="margin-left: 50px;">Click "Generate token" and immediately copy it (you won't see it again!)</p>
+        </div>
+
+        <h3>Secure Storage & Access</h3>
+
+        <div class="critical-box">
+            <strong>🚨 NEVER commit tokens to version control</strong>
+            Tokens in Git history = compromised security. Always use environment variables or secrets management.
+        </div>
+
+        <h4>Option 1: Environment Variables (Recommended for Most Cases)</h4>
+
+        <p><strong>Directory Structure:</strong></p>
+        <pre><code>project-root/
+├── .env                    # NEVER commit this
+├── .env.example           # Commit this (no values)
+├── .gitignore             # Must include .env
+├── config/
+│   └── github.php         # Configuration loader
+├── src/
+└── vendor/</code></pre>
+
+        <p><strong>.env file:</strong></p>
+        <pre><code># GitHub API Configuration
+GITHUB_API_TOKEN=ghp_your_token_here_xxxxxxxxxxxxx
+GITHUB_REPO_OWNER=ukmeds
+GITHUB_REPO_NAME=magento2-docs
+
+# Database Configuration
+DB_HOST=localhost
+DB_NAME=github_contributors
+DB_USER=widget_user
+DB_PASSWORD=secure_password_here
+DB_CHARSET=utf8mb4
+
+# Application Configuration
+APP_ENV=production
+CACHE_DURATION_DAYS=30</code></pre>
+
+        <p><strong>.env.example file (commit this):</strong></p>
+        <pre><code># GitHub API Configuration
+GITHUB_API_TOKEN=your_github_token_here
+GITHUB_REPO_OWNER=your_org_or_username
+GITHUB_REPO_NAME=your_repo_name
+
+# Database Configuration
+DB_HOST=localhost
+DB_NAME=database_name
+DB_USER=database_user
+DB_PASSWORD=database_password
+DB_CHARSET=utf8mb4
+
+# Application Configuration
+APP_ENV=production
+CACHE_DURATION_DAYS=30</code></pre>
+
+        <p><strong>.gitignore file:</strong></p>
+        <pre><code># Environment files
+.env
+.env.local
+.env.*.local
+
+# Sensitive data
+config/credentials.php
+
+# IDE files
+.idea/
+.vscode/
+
+# Dependencies
+/vendor/
+composer.lock</code></pre>
+
+        <p><strong>Loading with vlucas/phpdotenv:</strong></p>
+        <pre><code>&lt;?php
+declare(strict_types=1);
+
+require_once __DIR__ . '/vendor/autoload.php';
+
+use Dotenv\Dotenv;
+
+// Load environment variables
+$dotenv = Dotenv::createImmutable(__DIR__);
+$dotenv->load();
+
+// Validate required variables
+$dotenv->required([
+    'GITHUB_API_TOKEN',
+    'GITHUB_REPO_OWNER', 
+    'GITHUB_REPO_NAME',
+    'DB_HOST',
+    'DB_NAME',
+    'DB_USER',
+    'DB_PASSWORD'
+])->notEmpty();
+
+// Access variables
+$githubToken = $_ENV['GITHUB_API_TOKEN'];
+$repoOwner = $_ENV['GITHUB_REPO_OWNER'];
+$repoName = $_ENV['GITHUB_REPO_NAME'];</code></pre>
+
+        <h4>Option 2: Apache Environment Variables (Production Server)</h4>
+
+        <p><strong>In Apache VirtualHost configuration:</strong></p>
+        <pre><code>&lt;VirtualHost *:443&gt;
+    ServerName docs.example.com
+    DocumentRoot /var/www/html/public
+    
+    # Set environment variables (not visible in phpinfo)
+    SetEnv GITHUB_API_TOKEN "ghp_your_token_here"
+    SetEnv GITHUB_REPO_OWNER "ukmeds"
+    SetEnv GITHUB_REPO_NAME "magento2-docs"
+    SetEnv DB_HOST "localhost"
+    SetEnv DB_NAME "github_contributors"
+    SetEnv DB_USER "widget_user"
+    SetEnv DB_PASSWORD "secure_password"
+    
+    # Restrict PHP to document root only
+    php_admin_value open_basedir "/var/www/html:/tmp"
+    
+    &lt;Directory /var/www/html&gt;
+        AllowOverride All
+        Require all granted
+    &lt;/Directory&gt;
+&lt;/VirtualHost&gt;</code></pre>
+
+        <p><strong>Access in PHP:</strong></p>
+        <pre><code>&lt;?php
+declare(strict_types=1);
+
+// Access Apache environment variables
+$githubToken = getenv('GITHUB_API_TOKEN');
+// OR
+$githubToken = $_SERVER['GITHUB_API_TOKEN'];</code></pre>
+
+        <h4>Option 3: Secrets Manager (Enterprise/High-Security)</h4>
+
+        <div class="info-box">
+            <strong>💎 For production environments requiring audit trails, automatic rotation, and hardware encryption:</strong>
+            <ul style="margin-bottom: 0;">
+                <li><strong>AWS Secrets Manager</strong> - Full automation, rotation, auditing</li>
+                <li><strong>HashiCorp Vault</strong> - Open source, self-hosted option</li>
+                <li><strong>Azure Key Vault</strong> - Microsoft Azure integration</li>
+            </ul>
+        </div>
+
+        <h3>Configuration Class (Production-Ready)</h3>
+
+        <pre><code>&lt;?php
+declare(strict_types=1);
+
+namespace ContributorsWidget\Config;
+
+use RuntimeException;
+
+class Configuration
+{
+    private static ?self $instance = null;
+    private array $config = [];
+
+    private function __construct()
+    {
+        $this->loadEnvironmentVariables();
+        $this->validateConfiguration();
+    }
+
+    public static function getInstance(): self
+    {
+        if (self::$instance === null) {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
+
+    private function loadEnvironmentVariables(): void
+    {
+        // Try to load from .env file (development)
+        if (file_exists(__DIR__ . '/../../.env')) {
+            $dotenv = \Dotenv\Dotenv::createImmutable(__DIR__ . '/../..');
+            $dotenv->load();
+        }
+
+        // Load configuration
+        $this->config = [
+            'github' => [
+                'token' => $this->getEnv('GITHUB_API_TOKEN'),
+                'owner' => $this->getEnv('GITHUB_REPO_OWNER'),
+                'repo' => $this->getEnv('GITHUB_REPO_NAME'),
+            ],
+            'database' => [
+                'host' => $this->getEnv('DB_HOST', 'localhost'),
+                'name' => $this->getEnv('DB_NAME'),
+                'user' => $this->getEnv('DB_USER'),
+                'password' => $this->getEnv('DB_PASSWORD'),
+                'charset' => $this->getEnv('DB_CHARSET', 'utf8mb4'),
+            ],
+            'cache' => [
+                'duration_days' => (int) $this->getEnv('CACHE_DURATION_DAYS', '30'),
+            ],
+            'app' => [
+                'env' => $this->getEnv('APP_ENV', 'production'),
+            ]
+        ];
+    }
+
+    private function getEnv(string $key, ?string $default = null): string
+    {
+        $value = getenv($key) ?: ($_ENV[$key] ?? ($_SERVER[$key] ?? $default));
+        
+        if ($value === null || $value === '') {
+            throw new RuntimeException("Required environment variable '{$key}' is not set");
+        }
+        
+        return $value;
+    }
+
+    private function validateConfiguration(): void
+    {
+        // Validate GitHub token format
+        if (!preg_match('/^gh[ps]_[a-zA-Z0-9]{36,}$/', $this->config['github']['token'])) {
+            throw new RuntimeException('Invalid GitHub token format');
+        }
+
+        // Validate database configuration
+        if (empty($this->config['database']['host'])) {
+            throw new RuntimeException('Database host cannot be empty');
+        }
+    }
+
+    public function get(string $key, $default = null)
+    {
+        $keys = explode('.', $key);
+        $value = $this->config;
+
+        foreach ($keys as $k) {
+            if (!isset($value[$k])) {
+                return $default;
+            }
+            $value = $value[$k];
+        }
+
+        return $value;
+    }
+
+    public function getGithubToken(): string
+    {
+        return $this->config['github']['token'];
+    }
+
+    public function getGithubRepo(): array
+    {
+        return [
+            'owner' => $this->config['github']['owner'],
+            'repo' => $this->config['github']['repo'],
+        ];
+    }
+
+    public function getDatabaseConfig(): array
+    {
+        return $this->config['database'];
+    }
+}</code></pre>
+
+        <h3>Fallback Strategies for Invalid/Expired Tokens</h3>
+
+        <pre><code>&lt;?php
+declare(strict_types=1);
+
+namespace ContributorsWidget\Services;
+
+use ContributorsWidget\Config\Configuration;
+use ContributorsWidget\Utils\Logger;
+use Exception;
+
+class GitHubApiService
+{
+    private Configuration $config;
+    private Logger $logger;
+    private bool $tokenValid = true;
+
+    public function __construct(Configuration $config, Logger $logger)
+    {
+        $this->config = $config;
+        $this->logger = $logger;
+    }
+
+    public function fetchContributors(): array
+    {
+        try {
+            // Validate token before making request
+            $this->validateToken();
+            
+            // Make API request
+            $data = $this->makeApiRequest('/contributors');
+            
+            return $data;
+            
+        } catch (TokenExpiredException $e) {
+            $this->logger->error('GitHub token expired', [
+                'error' => $e->getMessage()
+            ]);
+            return $this->useCachedDataFallback();
+            
+        } catch (TokenInvalidException $e) {
+            $this->logger->critical('GitHub token invalid', [
+                'error' => $e->getMessage()
+            ]);
+            $this->notifyAdministrator('Invalid GitHub token');
+            return $this->useCachedDataFallback();
+            
+        } catch (Exception $e) {
+            $this->logger->error('GitHub API error', [
+                'error' => $e->getMessage()
+            ]);
+            return $this->useCachedDataFallback();
+        }
+    }
+
+    private function validateToken(): void
+    {
+        // Check token format
+        $token = $this->config->getGithubToken();
+        if (!preg_match('/^gh[ps]_[a-zA-Z0-9]{36,}$/', $token)) {
+            throw new TokenInvalidException('Token format invalid');
+        }
+
+        // Test token with a simple API call
+        try {
+            $response = $this->makeSimpleRequest('/rate_limit');
+            
+            // Check if token is still valid
+            if ($response['rate']['remaining'] === 0) {
+                $resetTime = $response['rate']['reset'];
+                $this->logger->warning('Rate limit exceeded', [
+                    'reset_time' => date('Y-m-d H:i:s', $resetTime)
+                ]);
+            }
+            
+        } catch (Exception $e) {
+            if (strpos($e->getMessage(), '401') !== false) {
+                throw new TokenExpiredException('Token expired or revoked');
+            }
+            if (strpos($e->getMessage(), '403') !== false) {
+                throw new TokenInvalidException('Token lacks required permissions');
+            }
+            throw $e;
+        }
+    }
+
+    private function useCachedDataFallback(): array
+    {
+        $this->logger->info('Using cached data as fallback');
+        
+        // Return last successfully cached data
+        $repository = new \ContributorsWidget\Repositories\ContributorRepository(
+            $this->config
+        );
+        
+        $cachedData = $repository->getLatestCachedContributors();
+        
+        if (empty($cachedData)) {
+            $this->logger->error('No cached data available');
+            return [];
+        }
+        
+        return $cachedData;
+    }
+
+    private function notifyAdministrator(string $message): void
+    {
+        // Send email notification
+        $adminEmail = $this->config->get('app.admin_email');
+        
+        $subject = 'GitHub Contributors Widget: Critical Error';
+        $body = "Error: {$message}\n\n";
+        $body .= "Action required: Please update the GitHub API token.\n";
+        $body .= "Time: " . date('Y-m-d H:i:s') . "\n";
+        
+        mail($adminEmail, $subject, $body);
+        
+        $this->logger->critical('Administrator notified', [
+            'message' => $message
+        ]);
+    }
+}</code></pre>
+
+        <div class="success-box">
+            <strong>✅ Fallback Strategy Summary:</strong>
+            <ol style="margin-bottom: 0;">
+                <li><strong>Validate token</strong> before making expensive API calls</li>
+                <li><strong>Catch specific exceptions</strong> (expired, invalid, rate limit)</li>
+                <li><strong>Use cached data</strong> as fallback when API fails</li>
+                <li><strong>Log all errors</strong> for monitoring and debugging</li>
+                <li><strong>Notify administrators</strong> of critical failures</li>
+                <li><strong>Display last known good data</strong> to users</li>
+            </ol>
+        </div>
+
+        <!-- ==================== SECTION 2: DATABASE DESIGN ==================== -->
+        <h2>2. Database Design</h2>
+
+        <h3>Complete Schema (Normalized, Secure, Performant)</h3>
+
+        <div class="schema-diagram">
+<strong>┌─────────────────────────────────────┐</strong>
+│         <strong>contributors</strong>              │
+├─────────────────────────────────────┤
+│ id (PK) - BIGINT UNSIGNED AUTO_INC │
+│ github_id - BIGINT UNSIGNED UNIQUE │
+│ username - VARCHAR(255) NOT NULL   │
+│ avatar_url - VARCHAR(500)          │
+│ profile_url - VARCHAR(500)         │
+│ type - ENUM('User', 'Bot')         │
+│ created_at - TIMESTAMP             │
+│ updated_at - TIMESTAMP             │
+└─────────────────────────────────────┘
+           ▲
+           │ (FK)
+           │
+<strong>┌─────────────────────────────────────┐</strong>
+│      <strong>contributor_stats</strong>           │
+├─────────────────────────────────────┤
+│ id (PK) - BIGINT UNSIGNED AUTO_INC │
+│ contributor_id (FK) - BIGINT       │
+│ period_id (FK) - BIGINT            │
+│ contribution_count - INT UNSIGNED  │
+│ commits - INT UNSIGNED             │
+│ pull_requests - INT UNSIGNED       │
+│ issues - INT UNSIGNED              │
+│ code_reviews - INT UNSIGNED        │
+│ additions - INT UNSIGNED           │
+│ deletions - INT UNSIGNED           │
+│ rank_position - TINYINT UNSIGNED   │
+│ created_at - TIMESTAMP             │
+└─────────────────────────────────────┘
+           │
+           │ (FK)
+           ▼
+<strong>┌─────────────────────────────────────┐</strong>
+│      <strong>contribution_periods</strong>         │
+├─────────────────────────────────────┤
+│ id (PK) - BIGINT UNSIGNED AUTO_INC │
+│ period_type - ENUM('weekly',...)   │
+│ start_date - DATE NOT NULL         │
+│ end_date - DATE NOT NULL           │
+│ year - YEAR NOT NULL               │
+│ month - TINYINT UNSIGNED           │
+│ week - TINYINT UNSIGNED            │
+│ is_current - BOOLEAN DEFAULT 0     │
+│ created_at - TIMESTAMP             │
+│ UNIQUE(period_type, start_date)    │
+└─────────────────────────────────────┘
+
+<strong>┌─────────────────────────────────────┐</strong>
+│          <strong>api_sync_log</strong>             │
+├─────────────────────────────────────┤
+│ id (PK) - BIGINT UNSIGNED AUTO_INC │
+│ sync_type - ENUM('monthly','manual')│
+│ status - ENUM('success',...)       │
+│ contributors_fetched - INT         │
+│ api_calls_made - INT               │
+│ duration_seconds - DECIMAL(10,2)   │
+│ error_message - TEXT               │
+│ started_at - TIMESTAMP             │
+│ completed_at - TIMESTAMP           │
+└─────────────────────────────────────┘
+
+<strong>┌─────────────────────────────────────┐</strong>
+│         <strong>api_rate_limits</strong>           │
+├─────────────────────────────────────┤
+│ id (PK) - INT UNSIGNED AUTO_INC    │
+│ remaining_calls - INT UNSIGNED     │
+│ limit_total - INT UNSIGNED         │
+│ reset_at - TIMESTAMP               │
+│ checked_at - TIMESTAMP             │
+└─────────────────────────────────────┘
+        </div>
+
+        <h3>SQL Migration Script</h3>
+
+        <pre><code>-- =====================================================
+-- GitHub Contributors Widget - Database Schema
+-- Version: 1.0
+-- PHP: 8.0+
+-- MySQL: 8.0+ / MariaDB: 10.5+
+-- =====================================================
+
+-- Create database
+CREATE DATABASE IF NOT EXISTS github_contributors
+    CHARACTER SET utf8mb4
+    COLLATE utf8mb4_unicode_ci;
+
+USE github_contributors;
+
+-- =====================================================
+-- Table: contributors
+-- Stores unique GitHub contributor information
+-- =====================================================
+CREATE TABLE IF NOT EXISTS contributors (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    github_id BIGINT UNSIGNED NOT NULL UNIQUE COMMENT 'GitHub user ID',
+    username VARCHAR(255) NOT NULL COMMENT 'GitHub username',
+    avatar_url VARCHAR(500) DEFAULT NULL COMMENT 'Avatar image URL',
+    profile_url VARCHAR(500) DEFAULT NULL COMMENT 'GitHub profile URL',
+    contributor_type ENUM('User', 'Bot', 'Organization') NOT NULL DEFAULT 'User',
+    is_active BOOLEAN NOT NULL DEFAULT TRUE COMMENT 'Whether contributor is still active',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    INDEX idx_username (username),
+    INDEX idx_github_id (github_id),
+    INDEX idx_active (is_active)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+COMMENT='GitHub contributors master table';
+
+-- =====================================================
+-- Table: contribution_periods
+-- Defines time periods for tracking contributions
+-- =====================================================
+CREATE TABLE IF NOT EXISTS contribution_periods (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    period_type ENUM('weekly', 'monthly', 'yearly') NOT NULL,
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL,
+    year YEAR NOT NULL,
+    month TINYINT UNSIGNED DEFAULT NULL COMMENT '1-12',
+    week TINYINT UNSIGNED DEFAULT NULL COMMENT '1-53',
+    is_current BOOLEAN NOT NULL DEFAULT FALSE COMMENT 'Currently active period',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    
+    UNIQUE KEY unique_period (period_type, start_date),
+    INDEX idx_period_type (period_type),
+    INDEX idx_year_month (year, month),
+    INDEX idx_is_current (is_current),
+    INDEX idx_date_range (start_date, end_date)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+COMMENT='Time periods for contribution tracking';
+
+-- =====================================================
+-- Table: contributor_stats
+-- Stores contribution statistics per contributor per period
+-- =====================================================
+CREATE TABLE IF NOT EXISTS contributor_stats (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    contributor_id BIGINT UNSIGNED NOT NULL,
+    period_id BIGINT UNSIGNED NOT NULL,
+    contribution_count INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Total contributions',
+    commits INT UNSIGNED NOT NULL DEFAULT 0,
+    pull_requests INT UNSIGNED NOT NULL DEFAULT 0,
+    issues INT UNSIGNED NOT NULL DEFAULT 0,
+    code_reviews INT UNSIGNED NOT NULL DEFAULT 0,
+    additions INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Lines added',
+    deletions INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Lines deleted',
+    rank_position TINYINT UNSIGNED DEFAULT NULL COMMENT 'Rank in top contributors',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    UNIQUE KEY unique_contributor_period (contributor_id, period_id),
+    INDEX idx_period_rank (period_id, rank_position),
+    INDEX idx_contribution_count (contribution_count DESC),
+    
+    CONSTRAINT fk_stats_contributor 
+        FOREIGN KEY (contributor_id) 
+        REFERENCES contributors(id) 
+        ON DELETE CASCADE 
+        ON UPDATE CASCADE,
+        
+    CONSTRAINT fk_stats_period 
+        FOREIGN KEY (period_id) 
+        REFERENCES contribution_periods(id) 
+        ON DELETE CASCADE 
+        ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+COMMENT='Contribution statistics per contributor per period';
+
+-- =====================================================
+-- Table: api_sync_log
+-- Audit trail for API synchronization operations
+-- =====================================================
+CREATE TABLE IF NOT EXISTS api_sync_log (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    sync_type ENUM('monthly', 'weekly', 'manual', 'emergency') NOT NULL,
+    status ENUM('started', 'success', 'failed', 'partial') NOT NULL,
+    contributors_fetched INT UNSIGNED DEFAULT 0,
+    api_calls_made INT UNSIGNED DEFAULT 0,
+    duration_seconds DECIMAL(10, 2) DEFAULT NULL,
+    error_message TEXT DEFAULT NULL,
+    error_code VARCHAR(50) DEFAULT NULL,
+    started_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    completed_at TIMESTAMP NULL DEFAULT NULL,
+    
+    INDEX idx_status (status),
+    INDEX idx_sync_type (sync_type),
+    INDEX idx_started_at (started_at DESC)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+COMMENT='API synchronization audit log';
+
+-- =====================================================
+-- Table: api_rate_limits
+-- Tracks GitHub API rate limit status
+-- =====================================================
+CREATE TABLE IF NOT EXISTS api_rate_limits (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    remaining_calls INT UNSIGNED NOT NULL,
+    limit_total INT UNSIGNED NOT NULL,
+    reset_at TIMESTAMP NOT NULL,
+    checked_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    
+    INDEX idx_reset_at (reset_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+COMMENT='GitHub API rate limit tracking';
+
+-- =====================================================
+-- Table: widget_cache
+-- Simple key-value cache for widget data
+-- =====================================================
+CREATE TABLE IF NOT EXISTS widget_cache (
+    cache_key VARCHAR(255) PRIMARY KEY,
+    cache_value LONGTEXT NOT NULL,
+    expires_at TIMESTAMP NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    
+    INDEX idx_expires_at (expires_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+COMMENT='General purpose cache for widget data';
+
+-- =====================================================
+-- Create dedicated database user (run separately)
+-- =====================================================
+-- CREATE USER 'widget_user'@'localhost' IDENTIFIED BY 'STRONG_PASSWORD_HERE';
+-- GRANT SELECT, INSERT, UPDATE, DELETE ON github_contributors.* TO 'widget_user'@'localhost';
+-- FLUSH PRIVILEGES;</code></pre>
+
+        <h3>Caching Strategy</h3>
+
+        <div class="info-box">
+            <strong>Multi-Layer Caching Approach</strong>
+            <p>We implement a three-tier caching strategy for optimal performance:</p>
+            <ol style="margin-bottom: 0;">
+                <li><strong>Database Cache</strong> (30 days) - Primary persistent cache</li>
+                <li><strong>Application Cache</strong> (24 hours) - In-memory PHP cache</li>
+                <li><strong>Widget Cache</strong> (1 hour) - HTML fragment cache</li>
+            </ol>
+        </div>
+
+        <pre><code>&lt;?php
+declare(strict_types=1);
+
+namespace ContributorsWidget\Services;
+
+class CacheService
+{
+    private \PDO $db;
+    private array $memoryCache = [];
+    
+    // Database cache duration: 30 days
+    private const DB_CACHE_DAYS = 30;
+    
+    // Memory cache duration: 24 hours (in seconds)
+    private const MEMORY_CACHE_SECONDS = 86400;
+
+    public function get(string $key): ?array
+    {
+        // 1. Check memory cache first (fastest)
+        if (isset($this->memoryCache[$key])) {
+            $cached = $this->memoryCache[$key];
+            if ($cached['expires_at'] > time()) {
+                return $cached['data'];
+            }
+            unset($this->memoryCache[$key]);
+        }
+
+        // 2. Check database cache
+        $stmt = $this->db->prepare("
+            SELECT cache_value, expires_at 
+            FROM widget_cache 
+            WHERE cache_key = :key 
+            AND expires_at > NOW()
+        ");
+        $stmt->execute(['key' => $key]);
+        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+        if ($result) {
+            $data = json_decode($result['cache_value'], true);
+            
+            // Store in memory cache
+            $this->memoryCache[$key] = [
+                'data' => $data,
+                'expires_at' => time() + self::MEMORY_CACHE_SECONDS
+            ];
+            
+            return $data;
+        }
+
+        return null;
+    }
+
+    public function set(string $key, array $data, int $ttlDays = self::DB_CACHE_DAYS): bool
+    {
+        $expiresAt = date('Y-m-d H:i:s', strtotime("+{$ttlDays} days"));
+        
+        // Store in database
+        $stmt = $this->db->prepare("
+            INSERT INTO widget_cache (cache_key, cache_value, expires_at)
+            VALUES (:key, :value, :expires_at)
+            ON DUPLICATE KEY UPDATE 
+                cache_value = :value,
+                expires_at = :expires_at
+        ");
+        
+        $success = $stmt->execute([
+            'key' => $key,
+            'value' => json_encode($data),
+            'expires_at' => $expiresAt
+        ]);
+
+        // Store in memory cache
+        if ($success) {
+            $this->memoryCache[$key] = [
+                'data' => $data,
+                'expires_at' => time() + self::MEMORY_CACHE_SECONDS
+            ];
+        }
+
+        return $success;
+    }
+
+    public function delete(string $key): bool
+    {
+        unset($this->memoryCache[$key]);
+        
+        $stmt = $this->db->prepare("DELETE FROM widget_cache WHERE cache_key = :key");
+        return $stmt->execute(['key' => $key]);
+    }
+
+    public function cleanup(): int
+    {
+        $stmt = $this->db->prepare("DELETE FROM widget_cache WHERE expires_at < NOW()");
+        $stmt->execute();
+        return $stmt->rowCount();
+    }
+}</code></pre>
+
+        <h3>Data Retention Policy</h3>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Data Type</th>
+                    <th>Retention Period</th>
+                    <th>Reason</th>
+                    <th>Cleanup Method</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Contributor Data</strong></td>
+                    <td>Indefinite</td>
+                    <td>Historical records</td>
+                    <td>Manual only</td>
+                </tr>
+                <tr>
+                    <td><strong>Current Stats</strong></td>
+                    <td>12 months</td>
+                    <td>Recent performance</td>
+                    <td>Automated monthly</td>
+                </tr>
+                <tr>
+                    <td><strong>Historical Stats</strong></td>
+                    <td>24 months</td>
+                    <td>Trend analysis</td>
+                    <td>Automated quarterly</td>
+                </tr>
+                <tr>
+                    <td><strong>API Sync Logs</strong></td>
+                    <td>90 days</td>
+                    <td>Debugging/audit</td>
+                    <td>Automated weekly</td>
+                </tr>
+                <tr>
+                    <td><strong>Rate Limit Data</strong></td>
+                    <td>7 days</td>
+                    <td>Rate monitoring</td>
+                    <td>Automated daily</td>
+                </tr>
+                <tr>
+                    <td><strong>Widget Cache</strong></td>
+                    <td>30 days</td>
+                    <td>Performance</td>
+                    <td>Auto-expiring</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p><strong>Automated Cleanup Script:</strong></p>
+        <pre><code>&lt;?php
+// Run daily via cron: 0 3 * * * php cleanup.php
+
+declare(strict_types=1);
+
+require_once __DIR__ . '/vendor/autoload.php';
+
+use ContributorsWidget\Config\Configuration;
+use PDO;
+
+$config = Configuration::getInstance();
+$db = new PDO(/* connection */);
+
+// Clean expired cache
+$db->exec("DELETE FROM widget_cache WHERE expires_at < NOW()");
+
+// Clean old rate limit data (> 7 days)
+$db->exec("DELETE FROM api_rate_limits WHERE checked_at < DATE_SUB(NOW(), INTERVAL 7 DAY)");
+
+// Clean old sync logs (> 90 days)
+$db->exec("DELETE FROM api_sync_log WHERE started_at < DATE_SUB(NOW(), INTERVAL 90 DAY)");
+
+// Clean old contributor stats (> 24 months)
+$db->exec("
+    DELETE cs FROM contributor_stats cs
+    INNER JOIN contribution_periods cp ON cs.period_id = cp.id
+    WHERE cp.end_date < DATE_SUB(NOW(), INTERVAL 24 MONTH)
+");
+
+echo "Cleanup completed\n";</code></pre>
+
+        <!-- ==================== SECTION 3: CONFIGURATION MANAGEMENT ==================== -->
+        <h2>3. Configuration Management</h2>
+
+        <h3>Environment-Based Configuration</h3>
+
+        <p><strong>Directory Structure:</strong></p>
+        <pre><code>config/
+├── app.php              # Application config
+├── database.php         # Database config
+├── github.php           # GitHub API config
+├── cache.php            # Cache config
+└── environments/
+    ├── development.php  # Dev overrides
+    ├── staging.php      # Staging overrides
+    └── production.php   # Production settings</code></pre>
+
+        <p><strong>config/app.php:</strong></p>
+        <pre><code>&lt;?php
+declare(strict_types=1);
+
+return [
+    'name' => 'GitHub Contributors Widget',
+    'version' => '1.0.0',
+    'env' => $_ENV['APP_ENV'] ?? 'production',
+    'debug' => $_ENV['APP_DEBUG'] === 'true',
+    'timezone' => $_ENV['APP_TIMEZONE'] ?? 'UTC',
+    'admin_email' => $_ENV['ADMIN_EMAIL'] ?? 'admin@example.com',
+    
+    'logging' => [
+        'enabled' => true,
+        'level' => $_ENV['LOG_LEVEL'] ?? 'error',
+        'path' => $_ENV['LOG_PATH'] ?? __DIR__ . '/../storage/logs',
+    ],
+];</code></pre>
+
+        <p><strong>config/github.php:</strong></p>
+        <pre><code>&lt;?php
+declare(strict_types=1);
+
+return [
+    'token' => $_ENV['GITHUB_API_TOKEN'],
+    'repository' => [
+        'owner' => $_ENV['GITHUB_REPO_OWNER'],
+        'name' => $_ENV['GITHUB_REPO_NAME'],
+    ],
+    'api' => [
+        'base_url' => 'https://api.github.com',
+        'version' => '2022-11-28',
+        'timeout' => (int) ($_ENV['GITHUB_TIMEOUT'] ?? 30),
+        'retry_attempts' => 3,
+        'retry_delay' => 2,
+    ],
+    'rate_limit' => [
+        'threshold' => 100, // Minimum remaining calls
+        'check_interval' => 300, // Check every 5 minutes
+    ],
+];</code></pre>
+
+        <div class="success-box">
+            <strong>✅ Complete Configuration Checklist:</strong>
+            <ul class="checklist" style="margin-bottom: 0;">
+                <li>GitHub fine-grained PAT created with minimal permissions</li>
+                <li>Environment variables stored in .env (development) or Apache SetEnv (production)</li>
+                <li>.env added to .gitignore</li>
+                <li>.env.example committed with dummy values</li>
+                <li>Database schema created with proper indexes</li>
+                <li>Dedicated database user with limited permissions</li>
+                <li>Multi-tier caching implemented</li>
+                <li>Data retention policies defined</li>
+                <li>Token validation and fallback strategies in place</li>
+                <li>Error logging and admin notifications configured</li>
+            </ul>
+        </div>
+
+        <div class="critical-box">
+            <strong>🔐 Final Security Reminders:</strong>
+            <ol style="margin-bottom: 0;">
+                <li><strong>Never commit</strong> .env files or tokens to Git</li>
+                <li><strong>Use fine-grained PATs</strong> not Classic tokens</li>
+                <li><strong>Set token expiration</strong> (90 days recommended)</li>
+                <li><strong>Monitor API usage</strong> and set up alerts</li>
+                <li><strong>Regular security audits</strong> of permissions</li>
+                <li><strong>Keep dependencies updated</strong> (composer update)</li>
+                <li><strong>Implement rate limiting</strong> on widget endpoint</li>
+                <li><strong>Use prepared statements</strong> always (never string concatenation)</li>
+            </ol>
+        </div>
+
+    </div>
+</body>
+</html>

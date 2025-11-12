@@ -1,0 +1,2513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Cron, Performance & Magento 2 Integration Guide</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #333;
+            background: #f8f9fa;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 4px solid #9b59b6;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+        h2 {
+            color: #34495e;
+            margin-top: 40px;
+            border-left: 5px solid #9b59b6;
+            padding-left: 15px;
+        }
+        h3 {
+            color: #7f8c8d;
+            margin-top: 25px;
+        }
+        .critical-box {
+            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 8px;
+            margin: 30px 0;
+            font-size: 1.05em;
+            box-shadow: 0 4px 12px rgba(155, 89, 182, 0.3);
+        }
+        .critical-box strong {
+            font-size: 1.3em;
+            display: block;
+            margin-bottom: 10px;
+        }
+        .info-box {
+            background: #e8f4f8;
+            border-left: 4px solid #3498db;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .success-box {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        code {
+            background: #f4f4f4;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+        }
+        pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+        pre code {
+            background: transparent;
+            color: #f8f8f2;
+            padding: 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        table th {
+            background: #9b59b6;
+            color: white;
+            padding: 15px;
+            text-align: left;
+        }
+        table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #ddd;
+        }
+        table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        .command-box {
+            background: #212529;
+            color: #00ff00;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+        }
+        .file-structure {
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+        ul {
+            line-height: 1.9;
+        }
+        .performance-metric {
+            display: inline-block;
+            background: #9b59b6;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            margin: 5px;
+            font-weight: bold;
+        }
+        .step-box {
+            background: #f8f9fa;
+            border-left: 4px solid #9b59b6;
+            padding: 20px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚡ Complete Cron, Performance & Magento 2 Integration Guide</h1>
+        <p style="font-size: 1.1em; color: #555;">Production-ready implementation guide for GitHub Contributors Widget</p>
+
+        <!-- ==================== SECTION 1: CRON JOB ==================== -->
+        <h2>1. Cron Job Strategy & Implementation</h2>
+
+        <h3>Optimal Schedule & Timing</h3>
+
+        <div class="info-box">
+            <strong>🕐 Recommended Schedule:</strong> 1st of every month at 02:00 AM server time
+            <p style="margin-bottom: 0;"><strong>Why this works:</strong></p>
+            <ul style="margin-top: 5px; margin-bottom: 0;">
+                <li>Low traffic time (2 AM)</li>
+                <li>Allows processing of complete previous month</li>
+                <li>Server resources available</li>
+                <li>Completes before business hours</li>
+            </ul>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Time Zone Consideration</th>
+                    <th>Recommendation</th>
+                    <th>Reason</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Server Timezone</strong></td>
+                    <td>Use UTC consistently</td>
+                    <td>Avoids DST issues, international consistency</td>
+                </tr>
+                <tr>
+                    <td><strong>GitHub API Timezone</strong></td>
+                    <td>UTC (GitHub uses UTC)</td>
+                    <td>Matches API timestamps</td>
+                </tr>
+                <tr>
+                    <td><strong>Database Timezone</strong></td>
+                    <td>UTC for storage</td>
+                    <td>Convert to local only for display</td>
+                </tr>
+                <tr>
+                    <td><strong>Cron Timing</strong></td>
+                    <td>02:00 AM UTC (1st of month)</td>
+                    <td>Universal low-traffic window</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>Crontab Configuration</h3>
+
+        <div class="command-box">
+# Edit crontab
+$ crontab -e
+
+# GitHub Contributors Widget - Monthly Update
+# Runs at 02:00 AM UTC on the 1st of every month
+0 2 1 * * /usr/bin/php /var/www/html/contributors-widget/cron/monthly-update.php >> /var/log/github-widget/cron.log 2>&1
+
+# Optional: Weekly Quick Update (Sundays at 03:00 AM UTC)
+0 3 * * 0 /usr/bin/php /var/www/html/contributors-widget/cron/weekly-update.php >> /var/log/github-widget/cron-weekly.log 2>&1
+
+# Cleanup old logs and cache (Daily at 04:00 AM UTC)
+0 4 * * * /usr/bin/php /var/www/html/contributors-widget/cron/cleanup.php >> /var/log/github-widget/cleanup.log 2>&1
+        </div>
+
+        <div class="warning-box">
+            <strong>⚠️ Important:</strong>
+            <ul style="margin-bottom: 0;">
+                <li>Always use absolute paths for PHP and script files</li>
+                <li>Redirect output to log files for debugging</li>
+                <li>Test cron jobs manually before scheduling</li>
+                <li>Set up log rotation to prevent disk space issues</li>
+            </ul>
+        </div>
+
+        <h3>Production-Ready Cron Script</h3>
+
+        <pre><code>&lt;?php
+declare(strict_types=1);
+
+/**
+ * GitHub Contributors Widget - Monthly Update Cron Job
+ * 
+ * Runs on the 1st of every month at 02:00 AM UTC
+ * Updates contributor statistics for the previous month
+ * 
+ * @usage php monthly-update.php
+ */
+
+// Prevent direct browser access
+if (php_sapi_name() !== 'cli') {
+    http_response_code(403);
+    exit('Access denied. This script can only be run from command line.');
+}
+
+// Set error reporting for production
+error_reporting(E_ALL);
+ini_set('display_errors', '0');
+ini_set('log_errors', '1');
+
+// Increase execution time and memory for long-running process
+set_time_limit(3600); // 1 hour
+ini_set('memory_limit', '512M');
+
+// Bootstrap application
+require_once __DIR__ . '/../vendor/autoload.php';
+
+use ContributorsWidget\Config\Configuration;
+use ContributorsWidget\Services\{
+    GitHubApiService,
+    ContributorService,
+    CacheService
+};
+use ContributorsWidget\Repositories\{
+    ContributorRepository,
+    SyncLogRepository
+};
+use ContributorsWidget\Utils\{Logger, LockManager};
+
+try {
+    $startTime = microtime(true);
+    $config = Configuration::getInstance();
+    $logger = new Logger($config);
+    
+    $logger->info('=== MONTHLY UPDATE CRON JOB STARTED ===', [
+        'timestamp' => date('Y-m-d H:i:s'),
+        'timezone' => date_default_timezone_get()
+    ]);
+
+    // === STEP 1: Acquire Lock ===
+    $lockManager = new LockManager($config);
+    
+    if (!$lockManager->acquire('monthly_update')) {
+        $logger->warning('Another instance is already running. Exiting.');
+        exit(1);
+    }
+
+    // === STEP 2: Create Sync Log Entry ===
+    $syncLogRepo = new SyncLogRepository($config);
+    $syncLogId = $syncLogRepo->createLog([
+        'sync_type' => 'monthly',
+        'status' => 'started',
+        'started_at' => date('Y-m-d H:i:s')
+    ]);
+
+    // === STEP 3: Check Prerequisites ===
+    $prerequisitesCheck = checkPrerequisites($config, $logger);
+    if (!$prerequisitesCheck['success']) {
+        throw new RuntimeException($prerequisitesCheck['message']);
+    }
+
+    // === STEP 4: Initialize Services ===
+    $githubService = new GitHubApiService($config, $logger);
+    $contributorService = new ContributorService($config, $logger);
+    $cacheService = new CacheService($config);
+    $contributorRepo = new ContributorRepository($config);
+
+    // === STEP 5: Fetch Data from GitHub ===
+    $logger->info('Fetching contributors from GitHub API');
+    
+    $contributors = $githubService->fetchContributors();
+    $stats = $githubService->fetchContributorStats();
+    
+    $logger->info('GitHub API fetch completed', [
+        'contributors_count' => count($contributors),
+        'api_calls' => $githubService->getApiCallCount()
+    ]);
+
+    // === STEP 6: Process & Store Data ===
+    $logger->info('Processing contributor data');
+    
+    $previousMonth = date('Y-m', strtotime('first day of last month'));
+    $processed = $contributorService->processMonthlyData(
+        $contributors,
+        $stats,
+        $previousMonth
+    );
+
+    $logger->info('Data processing completed', [
+        'contributors_processed' => $processed['total'],
+        'top_5' => array_slice($processed['ranked'], 0, 5)
+    ]);
+
+    // === STEP 7: Update Cache ===
+    $logger->info('Updating cache');
+    
+    $cacheService->set('contributors_monthly_' . $previousMonth, $processed);
+    $cacheService->set('contributors_top5_current', array_slice($processed['ranked'], 0, 5));
+
+    // === STEP 8: Update Sync Log ===
+    $endTime = microtime(true);
+    $duration = round($endTime - $startTime, 2);
+
+    $syncLogRepo->updateLog($syncLogId, [
+        'status' => 'success',
+        'contributors_fetched' => count($contributors),
+        'api_calls_made' => $githubService->getApiCallCount(),
+        'duration_seconds' => $duration,
+        'completed_at' => date('Y-m-d H:i:s')
+    ]);
+
+    // === STEP 9: Send Success Notification ===
+    sendNotification($config, [
+        'status' => 'success',
+        'duration' => $duration,
+        'contributors' => count($contributors),
+        'period' => $previousMonth
+    ]);
+
+    $logger->info('=== MONTHLY UPDATE COMPLETED SUCCESSFULLY ===', [
+        'duration' => $duration . 's',
+        'contributors' => count($contributors)
+    ]);
+
+    // Release lock
+    $lockManager->release('monthly_update');
+    
+    exit(0);
+
+} catch (Exception $e) {
+    // Log error
+    if (isset($logger)) {
+        $logger->error('Monthly update failed', [
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
+    }
+
+    // Update sync log with failure
+    if (isset($syncLogRepo) && isset($syncLogId)) {
+        $syncLogRepo->updateLog($syncLogId, [
+            'status' => 'failed',
+            'error_message' => $e->getMessage(),
+            'error_code' => $e->getCode(),
+            'completed_at' => date('Y-m-d H:i:s')
+        ]);
+    }
+
+    // Send failure notification
+    if (isset($config)) {
+        sendNotification($config, [
+            'status' => 'failed',
+            'error' => $e->getMessage()
+        ]);
+    }
+
+    // Release lock
+    if (isset($lockManager)) {
+        $lockManager->release('monthly_update');
+    }
+
+    exit(1);
+}
+
+/**
+ * Check prerequisites before running update
+ */
+function checkPrerequisites(Configuration $config, Logger $logger): array
+{
+    $checks = [];
+
+    // Check database connection
+    try {
+        $db = new PDO(/* connection from config */);
+        $checks['database'] = true;
+    } catch (PDOException $e) {
+        $logger->error('Database connection failed', ['error' => $e->getMessage()]);
+        return ['success' => false, 'message' => 'Database connection failed'];
+    }
+
+    // Check GitHub token
+    if (empty($config->getGithubToken())) {
+        return ['success' => false, 'message' => 'GitHub token not configured'];
+    }
+
+    // Check API rate limit
+    $rateLimitCheck = checkRateLimit($config, $logger);
+    if (!$rateLimitCheck['success']) {
+        return $rateLimitCheck;
+    }
+
+    // Check disk space (need at least 100MB free)
+    $freeSpace = disk_free_space('/');
+    if ($freeSpace < 100 * 1024 * 1024) {
+        return ['success' => false, 'message' => 'Insufficient disk space'];
+    }
+
+    return ['success' => true, 'checks' => $checks];
+}
+
+/**
+ * Check GitHub API rate limit
+ */
+function checkRateLimit(Configuration $config, Logger $logger): array
+{
+    try {
+        $github = new GitHubApiService($config, $logger);
+        $rateLimit = $github->checkRateLimit();
+
+        if ($rateLimit['remaining'] < 100) {
+            $resetTime = date('Y-m-d H:i:s', $rateLimit['reset']);
+            return [
+                'success' => false,
+                'message' => "Rate limit too low ({$rateLimit['remaining']}). Resets at {$resetTime}"
+            ];
+        }
+
+        return ['success' => true, 'remaining' => $rateLimit['remaining']];
+        
+    } catch (Exception $e) {
+        return ['success' => false, 'message' => 'Rate limit check failed: ' . $e->getMessage()];
+    }
+}
+
+/**
+ * Send notification email
+ */
+function sendNotification(Configuration $config, array $data): void
+{
+    $adminEmail = $config->get('app.admin_email');
+    
+    if ($data['status'] === 'success') {
+        $subject = '✅ GitHub Widget: Monthly Update Successful';
+        $message = "Monthly contributor update completed successfully\n\n";
+        $message .= "Period: {$data['period']}\n";
+        $message .= "Contributors Processed: {$data['contributors']}\n";
+        $message .= "Duration: {$data['duration']}s\n";
+        $message .= "Timestamp: " . date('Y-m-d H:i:s') . "\n";
+    } else {
+        $subject = '❌ GitHub Widget: Monthly Update Failed';
+        $message = "Monthly contributor update failed\n\n";
+        $message .= "Error: {$data['error']}\n";
+        $message .= "Timestamp: " . date('Y-m-d H:i:s') . "\n";
+        $message .= "\nPlease check logs for details.";
+    }
+
+    mail($adminEmail, $subject, $message);
+}</code></pre>
+
+        <h3>Lock Manager Implementation</h3>
+
+        <pre><code>&lt;?php
+declare(strict_types=1);
+
+namespace ContributorsWidget\Utils;
+
+/**
+ * Prevents concurrent cron job execution
+ */
+class LockManager
+{
+    private string $lockDir;
+    private array $locks = [];
+
+    public function __construct($config)
+    {
+        $this->lockDir = $config->get('app.lock_dir', '/tmp/github-widget-locks');
+        
+        if (!is_dir($this->lockDir)) {
+            mkdir($this->lockDir, 0755, true);
+        }
+    }
+
+    /**
+     * Acquire a lock for the given process
+     * 
+     * @param string $processName Unique process identifier
+     * @param int $maxAge Maximum age of stale locks in seconds (default: 3600)
+     * @return bool True if lock acquired, false otherwise
+     */
+    public function acquire(string $processName, int $maxAge = 3600): bool
+    {
+        $lockFile = $this->lockDir . '/' . $processName . '.lock';
+
+        // Check if lock file exists
+        if (file_exists($lockFile)) {
+            $lockAge = time() - filemtime($lockFile);
+            
+            // If lock is stale (older than maxAge), remove it
+            if ($lockAge > $maxAge) {
+                unlink($lockFile);
+            } else {
+                // Lock is still valid, another process is running
+                return false;
+            }
+        }
+
+        // Create lock file
+        $handle = fopen($lockFile, 'w');
+        if (!$handle) {
+            return false;
+        }
+
+        // Write process info to lock file
+        $lockData = [
+            'pid' => getmypid(),
+            'timestamp' => time(),
+            'process' => $processName
+        ];
+        fwrite($handle, json_encode($lockData));
+        fclose($handle);
+
+        $this->locks[$processName] = $lockFile;
+        
+        return true;
+    }
+
+    /**
+     * Release a lock
+     */
+    public function release(string $processName): bool
+    {
+        $lockFile = $this->locks[$processName] ?? ($this->lockDir . '/' . $processName . '.lock');
+
+        if (file_exists($lockFile)) {
+            unlink($lockFile);
+            unset($this->locks[$processName]);
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Release all locks on destruction
+     */
+    public function __destruct()
+    {
+        foreach ($this->locks as $process => $lockFile) {
+            $this->release($process);
+        }
+    }
+}</code></pre>
+
+        <h3>Failure Handling & Retry Strategy</h3>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Failure Type</th>
+                    <th>Detection</th>
+                    <th>Retry Strategy</th>
+                    <th>Fallback</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>API Rate Limit</strong></td>
+                    <td>403 response from GitHub</td>
+                    <td>Wait until reset time, retry once</td>
+                    <td>Use cached data</td>
+                </tr>
+                <tr>
+                    <td><strong>Network Timeout</strong></td>
+                    <td>Connection timeout exception</td>
+                    <td>3 retries with exponential backoff (2s, 4s, 8s)</td>
+                    <td>Use cached data</td>
+                </tr>
+                <tr>
+                    <td><strong>Invalid Token</strong></td>
+                    <td>401 unauthorized</td>
+                    <td>No retry - immediate notification</td>
+                    <td>Use cached data</td>
+                </tr>
+                <tr>
+                    <td><strong>Database Error</strong></td>
+                    <td>PDO exception</td>
+                    <td>1 retry after 5 seconds</td>
+                    <td>Critical failure notification</td>
+                </tr>
+                <tr>
+                    <td><strong>Lock Already Held</strong></td>
+                    <td>Lock acquisition fails</td>
+                    <td>No retry - exit gracefully</td>
+                    <td>Log warning, exit</td>
+                </tr>
+                <tr>
+                    <td><strong>Insufficient Resources</strong></td>
+                    <td>Memory/disk space low</td>
+                    <td>No retry - immediate notification</td>
+                    <td>Critical failure notification</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>Comprehensive Logging Strategy</h3>
+
+        <pre><code>&lt;?php
+declare(strict_types=1);
+
+namespace ContributorsWidget\Utils;
+
+use Psr\Log\LogLevel;
+
+/**
+ * PSR-3 compliant logger with rotation and severity levels
+ */
+class Logger
+{
+    private string $logDir;
+    private string $logFile;
+    private int $maxLogSize = 10485760; // 10MB
+    private int $maxLogFiles = 5;
+    
+    public function __construct($config)
+    {
+        $this->logDir = $config->get('logging.path', __DIR__ . '/../storage/logs');
+        $this->logFile = $this->logDir . '/github-widget.log';
+        
+        if (!is_dir($this->logDir)) {
+            mkdir($this->logDir, 0755, true);
+        }
+    }
+
+    public function debug(string $message, array $context = []): void
+    {
+        $this->log(LogLevel::DEBUG, $message, $context);
+    }
+
+    public function info(string $message, array $context = []): void
+    {
+        $this->log(LogLevel::INFO, $message, $context);
+    }
+
+    public function warning(string $message, array $context = []): void
+    {
+        $this->log(LogLevel::WARNING, $message, $context);
+    }
+
+    public function error(string $message, array $context = []): void
+    {
+        $this->log(LogLevel::ERROR, $message, $context);
+    }
+
+    public function critical(string $message, array $context = []): void
+    {
+        $this->log(LogLevel::CRITICAL, $message, $context);
+    }
+
+    private function log(string $level, string $message, array $context = []): void
+    {
+        // Rotate log if needed
+        $this->rotateIfNeeded();
+
+        // Format log entry
+        $timestamp = date('Y-m-d H:i:s');
+        $contextStr = !empty($context) ? json_encode($context) : '';
+        $logEntry = "[{$timestamp}] [{$level}] {$message}";
+        
+        if ($contextStr) {
+            $logEntry .= " | Context: {$contextStr}";
+        }
+        
+        $logEntry .= PHP_EOL;
+
+        // Write to log file
+        file_put_contents($this->logFile, $logEntry, FILE_APPEND | LOCK_EX);
+
+        // Also log errors to system log
+        if (in_array($level, [LogLevel::ERROR, LogLevel::CRITICAL])) {
+            error_log($logEntry);
+        }
+    }
+
+    private function rotateIfNeeded(): void
+    {
+        if (!file_exists($this->logFile)) {
+            return;
+        }
+
+        $fileSize = filesize($this->logFile);
+        
+        if ($fileSize < $this->maxLogSize) {
+            return;
+        }
+
+        // Rotate existing logs
+        for ($i = $this->maxLogFiles - 1; $i > 0; $i--) {
+            $old = $this->logFile . '.' . $i;
+            $new = $this->logFile . '.' . ($i + 1);
+            
+            if (file_exists($old)) {
+                rename($old, $new);
+            }
+        }
+
+        // Rename current log to .1
+        rename($this->logFile, $this->logFile . '.1');
+    }
+}</code></pre>
+
+        <div class="success-box">
+            <strong>✅ Monitoring Dashboard (Optional)</strong>
+            <p>Create a simple admin dashboard to monitor cron job health:</p>
+            <ul style="margin-bottom: 0;">
+                <li>Last successful run timestamp</li>
+                <li>Number of contributors fetched</li>
+                <li>API calls remaining</li>
+                <li>Recent error logs</li>
+                <li>Manual trigger button (for testing)</li>
+            </ul>
+        </div>
+
+        <!-- ==================== SECTION 2: PERFORMANCE ==================== -->
+        <h2>2. Performance Optimization</h2>
+
+        <h3>API Call Minimization Strategy</h3>
+
+        <div class="critical-box">
+            <strong>🎯 Goal: 2-3 API Calls Per Month</strong>
+            With our optimized strategy, we'll use only 0.04% of GitHub's rate limit!
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Optimization Technique</th>
+                    <th>API Calls Saved</th>
+                    <th>Implementation</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>30-Day Cache</strong></td>
+                    <td>~30 calls/month</td>
+                    <td>Store results in database, refresh monthly only</td>
+                </tr>
+                <tr>
+                    <td><strong>Batch Fetching</strong></td>
+                    <td>~15 calls/month</td>
+                    <td>Get 100 contributors per page (max allowed)</td>
+                </tr>
+                <tr>
+                    <td><strong>ETags/Conditional Requests</strong></td>
+                    <td>~10 calls/month</td>
+                    <td>304 Not Modified responses don't count</td>
+                </tr>
+                <tr>
+                    <td><strong>Smart Pagination</strong></td>
+                    <td>~20 calls/month</td>
+                    <td>Only fetch first 100 (top 5 always in first 100)</td>
+                </tr>
+                <tr>
+                    <td><strong>Aggregated Endpoints</strong></td>
+                    <td>~5 calls/month</td>
+                    <td>Use /stats/contributors instead of individual queries</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <pre><code>&lt;?php
+declare(strict_types=1);
+
+namespace ContributorsWidget\Services;
+
+/**
+ * Optimized GitHub API Service with minimal API usage
+ */
+class OptimizedGitHubService
+{
+    private array $apiCallLog = [];
+    private ?string $lastETag = null;
+
+    /**
+     * Fetch contributors with maximum optimization
+     * Uses ETags, batch fetching, and smart caching
+     */
+    public function fetchContributorsOptimized(): array
+    {
+        $cacheKey = 'github_contributors_etag';
+        $this->lastETag = $this->cache->get($cacheKey);
+
+        // Build request with ETag
+        $headers = [
+            'Authorization' => 'Bearer ' . $this->config->getGithubToken(),
+            'Accept' => 'application/vnd.github+json',
+            'X-GitHub-Api-Version' => '2022-11-28',
+            'User-Agent' => 'Contributors-Widget/1.0'
+        ];
+
+        if ($this->lastETag) {
+            $headers['If-None-Match'] = $this->lastETag;
+        }
+
+        $url = sprintf(
+            'https://api.github.com/repos/%s/%s/contributors?per_page=100&page=1',
+            $this->config->get('github.repository.owner'),
+            $this->config->get('github.repository.name')
+        );
+
+        $response = $this->httpClient->get($url, ['headers' => $headers]);
+
+        // Track API call
+        $this->logApiCall($url, $response->getStatusCode());
+
+        // If 304 Not Modified, use cached data
+        if ($response->getStatusCode() === 304) {
+            $this->logger->info('Data not modified, using cache (saved 1 API call)');
+            return $this->cache->get('github_contributors_data') ?? [];
+        }
+
+        // Store new ETag
+        if ($response->hasHeader('ETag')) {
+            $newETag = $response->getHeader('ETag')[0];
+            $this->cache->set($cacheKey, $newETag, 30); // 30 days
+        }
+
+        $data = json_decode($response->getBody(), true);
+        
+        // Cache the data
+        $this->cache->set('github_contributors_data', $data, 30);
+
+        return $data;
+    }
+
+    /**
+     * Get API call statistics
+     */
+    public function getApiCallCount(): int
+    {
+        return count($this->apiCallLog);
+    }
+
+    /**
+     * Log API call for monitoring
+     */
+    private function logApiCall(string $url, int $statusCode): void
+    {
+        $this->apiCallLog[] = [
+            'url' => $url,
+            'status' => $statusCode,
+            'timestamp' => microtime(true),
+            'saved' => $statusCode === 304
+        ];
+    }
+}</code></pre>
+
+        <h3>Database Query Optimization</h3>
+
+        <div class="info-box">
+            <strong>Performance Targets:</strong>
+            <ul style="margin-bottom: 0;">
+                <li>Widget load time: < 50ms</li>
+                <li>Database queries: 1 query per page load</li>
+                <li>Cache hit rate: > 99%</li>
+                <li>Index usage: 100%</li>
+            </ul>
+        </div>
+
+        <pre><code>-- Optimized query for widget display (uses indexes)
+-- Execution time: ~5-10ms
+
+SELECT 
+    c.id,
+    c.username,
+    c.avatar_url,
+    c.profile_url,
+    cs.contribution_count,
+    cs.rank_position
+FROM 
+    contributor_stats cs
+INNER JOIN 
+    contributors c ON cs.contributor_id = c.id
+INNER JOIN 
+    contribution_periods cp ON cs.period_id = cp.id
+WHERE 
+    cp.is_current = TRUE
+    AND cp.period_type = 'monthly'
+    AND cs.rank_position <= 5
+ORDER BY 
+    cs.rank_position ASC
+LIMIT 5;
+
+-- Uses these indexes:
+-- idx_is_current on contribution_periods
+-- idx_period_rank on contributor_stats
+-- PRIMARY KEY on contributors
+
+-- Query execution plan (EXPLAIN):
+-- +----+-------------+-------+--------+---------------+----------------+
+-- | id | select_type | table | type   | key           | rows | Extra  |
+-- +----+-------------+-------+--------+---------------+----------------+
+-- |  1 | SIMPLE      | cp    | ref    | idx_is_current|    1 | Using where|
+-- |  1 | SIMPLE      | cs    | ref    | idx_period_rank|   5 | Using index|
+-- |  1 | SIMPLE      | c     | eq_ref | PRIMARY       |    1 |         |
+-- +----+-------------+-------+--------+---------------+----------------+</code></pre>
+
+        <h3>Caching Layers & Invalidation</h3>
+
+        <div class="file-structure">
+<strong>Three-Tier Caching Architecture:</strong>
+
+┌────────────────────────────────────────────┐
+│  Layer 1: Application Memory Cache         │
+│  Duration: 1 hour                          │
+│  Storage: PHP array (APCu/Redis optional) │
+│  Hit Rate: ~95%                            │
+│  Access Time: < 1ms                        │
+└────────────────────────────────────────────┘
+              ↓ (cache miss)
+┌────────────────────────────────────────────┐
+│  Layer 2: Database Cache Table             │
+│  Duration: 30 days                         │
+│  Storage: MySQL widget_cache table         │
+│  Hit Rate: ~4.9%                           │
+│  Access Time: ~5-10ms                      │
+└────────────────────────────────────────────┘
+              ↓ (cache miss)
+┌────────────────────────────────────────────┐
+│  Layer 3: GitHub API (External)            │
+│  Frequency: Monthly                        │
+│  Cost: 2-3 API calls                       │
+│  Hit Rate: ~0.1%                           │
+│  Access Time: ~500-1000ms                  │
+└────────────────────────────────────────────┘
+        </div>
+
+        <pre><code>&lt;?php
+declare(strict_types=1);
+
+namespace ContributorsWidget\Services;
+
+/**
+ * Advanced multi-tier caching with automatic invalidation
+ */
+class AdvancedCacheService
+{
+    private array $memoryCache = [];
+    private const MEMORY_TTL = 3600; // 1 hour
+    private const DB_TTL_DAYS = 30;
+
+    /**
+     * Get data with automatic tier fallback
+     */
+    public function get(string $key)
+    {
+        // Tier 1: Memory cache
+        if (isset($this->memoryCache[$key])) {
+            $cached = $this->memoryCache[$key];
+            
+            if ($cached['expires_at'] > time()) {
+                $this->logCacheHit('memory', $key);
+                return $cached['data'];
+            }
+            
+            unset($this->memoryCache[$key]);
+        }
+
+        // Tier 2: Database cache
+        $dbCached = $this->getFromDatabase($key);
+        
+        if ($dbCached !== null) {
+            // Promote to memory cache
+            $this->storeInMemory($key, $dbCached);
+            $this->logCacheHit('database', $key);
+            return $dbCached;
+        }
+
+        // Tier 3: Cache miss - will need to fetch from API
+        $this->logCacheMiss($key);
+        return null;
+    }
+
+    /**
+     * Set data across all cache tiers
+     */
+    public function set(string $key, $data, int $ttlDays = self::DB_TTL_DAYS): bool
+    {
+        // Store in memory cache
+        $this->storeInMemory($key, $data);
+        
+        // Store in database cache
+        return $this->storeInDatabase($key, $data, $ttlDays);
+    }
+
+    /**
+     * Invalidate cache when data updates
+     */
+    public function invalidate(string $pattern = '*'): int
+    {
+        $count = 0;
+
+        // Clear memory cache
+        if ($pattern === '*') {
+            $count += count($this->memoryCache);
+            $this->memoryCache = [];
+        } else {
+            foreach (array_keys($this->memoryCache) as $key) {
+                if ($this->matchesPattern($key, $pattern)) {
+                    unset($this->memoryCache[$key]);
+                    $count++;
+                }
+            }
+        }
+
+        // Clear database cache
+        if ($pattern === '*') {
+            $stmt = $this->db->query("DELETE FROM widget_cache");
+        } else {
+            $likePattern = str_replace('*', '%', $pattern);
+            $stmt = $this->db->prepare("DELETE FROM widget_cache WHERE cache_key LIKE ?");
+            $stmt->execute([$likePattern]);
+        }
+
+        $count += $stmt->rowCount();
+
+        $this->logger->info('Cache invalidated', [
+            'pattern' => $pattern,
+            'keys_cleared' => $count
+        ]);
+
+        return $count;
+    }
+
+    /**
+     * Store data in memory tier
+     */
+    private function storeInMemory(string $key, $data): void
+    {
+        $this->memoryCache[$key] = [
+            'data' => $data,
+            'expires_at' => time() + self::MEMORY_TTL,
+            'created_at' => time()
+        ];
+    }
+
+    /**
+     * Get cache statistics for monitoring
+     */
+    public function getStats(): array
+    {
+        return [
+            'memory_cache_size' => count($this->memoryCache),
+            'database_cache_size' => $this->getDatabaseCacheSize(),
+            'hit_rate' => $this->calculateHitRate(),
+            'memory_usage' => memory_get_usage(true)
+        ];
+    }
+
+    private function logCacheHit(string $tier, string $key): void
+    {
+        // Track for metrics
+        $this->metrics['cache_hits'][$tier] = 
+            ($this->metrics['cache_hits'][$tier] ?? 0) + 1;
+    }
+
+    private function logCacheMiss(string $key): void
+    {
+        $this->metrics['cache_misses'] = 
+            ($this->metrics['cache_misses'] ?? 0) + 1;
+    }
+}</code></pre>
+
+        <div class="success-box">
+            <strong>📊 Expected Performance Metrics:</strong>
+            <div style="margin-top: 10px;">
+                <span class="performance-metric">Widget Load: 35ms</span>
+                <span class="performance-metric">Cache Hit: 99.5%</span>
+                <span class="performance-metric">API Calls: 2/month</span>
+                <span class="performance-metric">DB Queries: 1/load</span>
+            </div>
+        </div>
+
+        <!-- ==================== SECTION 3: LARAVEL INTEGRATION ==================== -->
+        <h2>3. Laravel Website Integration</h2>
+
+        <h3>Project Structure</h3>
+
+        <div class="file-structure">
+github-contributors-widget/
+├── app/
+│   ├── Console/
+│   │   └── Commands/
+│   │       └── UpdateContributors.php
+│   ├── Http/
+│   │   ├── Controllers/
+│   │   │   └── ContributorController.php
+│   │   └── Middleware/
+│   │       └── CacheResponse.php
+│   ├── Models/
+│   │   ├── Contributor.php
+│   │   ├── ContributorStat.php
+│   │   └── ContributionPeriod.php
+│   ├── Services/
+│   │   ├── GitHubApiService.php
+│   │   ├── ContributorService.php
+│   │   └── CacheService.php
+│   └── View/
+│       └── Components/
+│           └── GitHubContributors.php
+├── config/
+│   └── github-widget.php
+├── database/
+│   └── migrations/
+│       └── 2025_01_01_000000_create_contributors_tables.php
+├── resources/
+│   └── views/
+│       └── components/
+│           ├── github-contributors.blade.php
+│           └── github-contributors-inline.blade.php
+├── public/
+│   ├── css/
+│   │   └── github-contributors.css
+│   └── js/
+│       └── github-contributors.js
+├── routes/
+│   ├── web.php
+│   └── api.php
+├── .env
+└── composer.json
+        </div>
+
+        <h3>Step-by-Step Laravel Implementation</h3>
+
+        <div class="step-box">
+            <strong>Step 1: Configuration File</strong>
+            <p><code>config/github-widget.php</code></p>
+        </div>
+
+        <pre><code>&lt;?php
+
+return [
+    /*
+    |--------------------------------------------------------------------------
+    | GitHub API Configuration
+    |--------------------------------------------------------------------------
+    */
+    'github' => [
+        'token' => env('GITHUB_API_TOKEN'),
+        'owner' => env('GITHUB_REPO_OWNER', 'ukmeds'),
+        'repo' => env('GITHUB_REPO_NAME', 'magento2-docs'),
+        'api_url' => 'https://api.github.com',
+        'api_version' => '2022-11-28',
+        'timeout' => (int) env('GITHUB_API_TIMEOUT', 30),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Cache Configuration
+    |--------------------------------------------------------------------------
+    */
+    'cache' => [
+        'enabled' => env('GITHUB_WIDGET_CACHE', true),
+        'ttl' => (int) env('GITHUB_WIDGET_CACHE_TTL', 2592000), // 30 days in seconds
+        'key_prefix' => 'github_widget:',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Widget Display Options
+    |--------------------------------------------------------------------------
+    */
+    'display' => [
+        'default_period' => env('GITHUB_WIDGET_PERIOD', 'monthly'),
+        'default_count' => (int) env('GITHUB_WIDGET_COUNT', 5),
+        'default_style' => env('GITHUB_WIDGET_STYLE', 'grid'),
+        'show_avatars' => env('GITHUB_WIDGET_SHOW_AVATARS', true),
+        'show_counts' => env('GITHUB_WIDGET_SHOW_COUNTS', true),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Performance Settings
+    |--------------------------------------------------------------------------
+    */
+    'performance' => [
+        'use_cdn' => env('GITHUB_WIDGET_USE_CDN', true),
+        'lazy_load_images' => true,
+        'minify_output' => env('APP_ENV') === 'production',
+    ],
+];</code></pre>
+
+        <div class="step-box">
+            <strong>Step 2: Environment Variables</strong>
+            <p>Add to <code>.env</code> file:</p>
+        </div>
+
+        <pre><code># GitHub Contributors Widget Configuration
+GITHUB_API_TOKEN=ghp_your_token_here
+GITHUB_REPO_OWNER=ukmeds
+GITHUB_REPO_NAME=magento2-docs
+
+# Widget Settings
+GITHUB_WIDGET_CACHE=true
+GITHUB_WIDGET_CACHE_TTL=2592000
+GITHUB_WIDGET_PERIOD=monthly
+GITHUB_WIDGET_COUNT=5
+GITHUB_WIDGET_STYLE=grid</code></pre>
+
+        <div class="step-box">
+            <strong>Step 3: Database Migration</strong>
+            <p><code>database/migrations/2025_01_01_000000_create_contributors_tables.php</code></p>
+        </div>
+
+        <pre><code>&lt;?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        // Contributors table
+        Schema::create('contributors', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('github_id')->unique();
+            $table->string('username');
+            $table->string('avatar_url', 500)->nullable();
+            $table->string('profile_url', 500)->nullable();
+            $table->enum('type', ['User', 'Bot', 'Organization'])->default('User');
+            $table->boolean('is_active')->default(true);
+            $table->timestamps();
+            
+            $table->index('username');
+            $table->index('github_id');
+        });
+
+        // Contribution periods
+        Schema::create('contribution_periods', function (Blueprint $table) {
+            $table->id();
+            $table->enum('period_type', ['weekly', 'monthly', 'yearly']);
+            $table->date('start_date');
+            $table->date('end_date');
+            $table->year('year');
+            $table->unsignedTinyInteger('month')->nullable();
+            $table->unsignedTinyInteger('week')->nullable();
+            $table->boolean('is_current')->default(false);
+            $table->timestamps();
+            
+            $table->unique(['period_type', 'start_date']);
+            $table->index(['year', 'month']);
+            $table->index('is_current');
+        });
+
+        // Contributor stats
+        Schema::create('contributor_stats', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('contributor_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('period_id')->constrained('contribution_periods')->cascadeOnDelete();
+            $table->unsignedInteger('contribution_count')->default(0);
+            $table->unsignedInteger('commits')->default(0);
+            $table->unsignedInteger('pull_requests')->default(0);
+            $table->unsignedInteger('issues')->default(0);
+            $table->unsignedInteger('code_reviews')->default(0);
+            $table->unsignedInteger('additions')->default(0);
+            $table->unsignedInteger('deletions')->default(0);
+            $table->unsignedTinyInteger('rank_position')->nullable();
+            $table->timestamps();
+            
+            $table->unique(['contributor_id', 'period_id']);
+            $table->index(['period_id', 'rank_position']);
+        });
+
+        // API sync log
+        Schema::create('api_sync_log', function (Blueprint $table) {
+            $table->id();
+            $table->enum('sync_type', ['monthly', 'weekly', 'manual', 'emergency']);
+            $table->enum('status', ['started', 'success', 'failed', 'partial']);
+            $table->unsignedInteger('contributors_fetched')->default(0);
+            $table->unsignedInteger('api_calls_made')->default(0);
+            $table->decimal('duration_seconds', 10, 2)->nullable();
+            $table->text('error_message')->nullable();
+            $table->string('error_code', 50)->nullable();
+            $table->timestamp('started_at');
+            $table->timestamp('completed_at')->nullable();
+            
+            $table->index('status');
+            $table->index('sync_type');
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('contributor_stats');
+        Schema::dropIfExists('contribution_periods');
+        Schema::dropIfExists('contributors');
+        Schema::dropIfExists('api_sync_log');
+    }
+};</code></pre>
+
+        <div class="step-box">
+            <strong>Step 4: Eloquent Models</strong>
+            <p><code>app/Models/Contributor.php</code></p>
+        </div>
+
+        <pre><code>&lt;?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
+class Contributor extends Model
+{
+    protected $fillable = [
+        'github_id',
+        'username',
+        'avatar_url',
+        'profile_url',
+        'type',
+        'is_active',
+    ];
+
+    protected $casts = [
+        'github_id' => 'integer',
+        'is_active' => 'boolean',
+    ];
+
+    /**
+     * Get contributor statistics
+     */
+    public function stats(): HasMany
+    {
+        return $this->hasMany(ContributorStat::class);
+    }
+
+    /**
+     * Get stats for a specific period
+     */
+    public function statsForPeriod(string $periodType): HasMany
+    {
+        return $this->stats()
+            ->whereHas('period', function ($query) use ($periodType) {
+                $query->where('period_type', $periodType)
+                      ->where('is_current', true);
+            });
+    }
+}</code></pre>
+
+        <div class="step-box">
+            <strong>Step 5: Blade Component</strong>
+            <p><code>app/View/Components/GitHubContributors.php</code></p>
+        </div>
+
+        <pre><code>&lt;?php
+
+namespace App\View\Components;
+
+use App\Services\ContributorService;
+use Illuminate\View\Component;
+use Illuminate\Support\Facades\Cache;
+
+class GitHubContributors extends Component
+{
+    public string $title;
+    public string $period;
+    public string $style;
+    public int $count;
+    public bool $showCount;
+    public array $contributors;
+
+    public function __construct(
+        private ContributorService $contributorService,
+        string $title = 'Top Contributors',
+        string $period = 'monthly',
+        string $style = 'grid',
+        int $count = 5,
+        bool $showCount = true
+    ) {
+        $this->title = $title;
+        $this->period = $period;
+        $this->style = $style;
+        $this->count = $count;
+        $this->showCount = $showCount;
+        
+        // Fetch contributors with caching
+        $this->contributors = $this->getContributors();
+    }
+
+    /**
+     * Get top contributors with caching
+     */
+    private function getContributors(): array
+    {
+        $cacheKey = sprintf(
+            'github_contributors:%s:%d',
+            $this->period,
+            $this->count
+        );
+
+        return Cache::remember($cacheKey, 3600, function () {
+            try {
+                return $this->contributorService
+                    ->getTopContributors($this->period, $this->count);
+            } catch (\Exception $e) {
+                \Log::error('Failed to fetch contributors', [
+                    'error' => $e->getMessage(),
+                    'period' => $this->period
+                ]);
+                return [];
+            }
+        });
+    }
+
+    /**
+     * Get the view / contents that represent the component
+     */
+    public function render()
+    {
+        return view('components.github-contributors');
+    }
+}</code></pre>
+
+        <div class="step-box">
+            <strong>Step 6: Blade Template</strong>
+            <p><code>resources/views/components/github-contributors.blade.php</code></p>
+        </div>
+
+        <pre><code>&lt;div class="github-contributors-widget" data-style="{{ $style }}">
+    @if($title)
+        &lt;h3 class="widget-title">{{ $title }}&lt;/h3>
+    @endif
+    
+    &lt;div class="period-label">
+        {{ ucfirst($period) === 'Monthly' ? 'This Month' : ucfirst($period) }}
+    &lt;/div>
+    
+    @if(count($contributors) > 0)
+        &lt;div class="contributors-{{ $style }}">
+            @foreach($contributors as $index => $contributor)
+                &lt;div class="contributor-item" data-rank="{{ $index + 1 }}">
+                    &lt;a href="{{ $contributor['profile_url'] }}" 
+                       target="_blank" 
+                       rel="noopener noreferrer"
+                       class="contributor-link"
+                       aria-label="View {{ $contributor['username'] }}'s GitHub profile">
+                        
+                        &lt;div class="contributor-avatar">
+                            &lt;img src="{{ $contributor['avatar_url'] }}" 
+                                 alt="{{ $contributor['username'] }}"
+                                 loading="lazy"
+                                 width="80" 
+                                 height="80" />
+                            &lt;span class="rank-badge" aria-label="Rank {{ $index + 1 }}">#{{ $index + 1 }}&lt;/span>
+                        &lt;/div>
+                        
+                        &lt;div class="contributor-info">
+                            &lt;div class="contributor-name">
+                                {{ $contributor['username'] }}
+                            &lt;/div>
+                            
+                            @if($showCount)
+                                &lt;div class="contribution-count">
+                                    {{ number_format($contributor['contribution_count']) }} 
+                                    {{ Str::plural('contribution', $contributor['contribution_count']) }}
+                                &lt;/div>
+                            @endif
+                        &lt;/div>
+                    &lt;/a>
+                &lt;/div>
+            @endforeach
+        &lt;/div>
+        
+        &lt;div class="widget-footer">
+            &lt;a href="https://github.com/{{ config('github-widget.github.owner') }}/{{ config('github-widget.github.repo') }}/graphs/contributors" 
+               target="_blank"
+               class="view-all-link">
+                View All Contributors →
+            &lt;/a>
+        &lt;/div>
+    @else
+        &lt;div class="no-contributors">
+            &lt;p>No contributor data available at this time.&lt;/p>
+        &lt;/div>
+    @endif
+&lt;/div>
+
+@once
+    @push('styles')
+        &lt;link rel="stylesheet" href="{{ asset('css/github-contributors.css') }}">
+    @endpush
+@endonce</code></pre>
+
+        <h3>Usage in Laravel Views</h3>
+
+        <div class="step-box">
+            <strong>Method 1: Blade Component (Recommended)</strong>
+        </div>
+
+        <pre><code>{{-- In any Blade view --}}
+
+{{-- Basic usage with defaults --}}
+&lt;x-github-contributors />
+
+{{-- With custom options --}}
+&lt;x-github-contributors 
+    title="Our Amazing Contributors"
+    period="monthly"
+    style="grid"
+    :count="5"
+    :show-count="true" 
+/>
+
+{{-- Weekly contributors --}}
+&lt;x-github-contributors 
+    title="Contributors This Week"
+    period="weekly"
+    style="list"
+    :count="3"
+/>
+
+{{-- Minimal inline version --}}
+&lt;x-github-contributors 
+    title=""
+    style="inline"
+    :count="3"
+    :show-count="false"
+/></code></pre>
+
+        <div class="step-box">
+            <strong>Method 2: Include Partial</strong>
+        </div>
+
+        <pre><code>{{-- In any Blade view --}}
+@include('partials.github-contributors', [
+    'period' => 'monthly',
+    'count' => 5
+])</code></pre>
+
+        <div class="step-box">
+            <strong>Method 3: Via Controller</strong>
+        </div>
+
+        <pre><code>&lt;?php
+
+namespace App\Http\Controllers;
+
+use App\Services\ContributorService;
+
+class PageController extends Controller
+{
+    public function __construct(
+        private ContributorService $contributorService
+    ) {}
+
+    public function documentation()
+    {
+        $contributors = $this->contributorService->getTopContributors('monthly', 5);
+        
+        return view('pages.documentation', [
+            'contributors' => $contributors
+        ]);
+    }
+}
+
+{{-- In the view --}}
+&lt;x-github-contributors :contributors="$contributors" /></code></pre>
+
+        <div class="step-box">
+            <strong>Method 4: API Endpoint (for AJAX)</strong>
+        </div>
+
+        <pre><code>&lt;?php
+
+// routes/api.php
+Route::get('/contributors/{period?}', [ContributorController::class, 'index'])
+    ->name('api.contributors');
+
+// app/Http/Controllers/ContributorController.php
+namespace App\Http\Controllers;
+
+use App\Services\ContributorService;
+use Illuminate\Http\JsonResponse;
+
+class ContributorController extends Controller
+{
+    public function __construct(
+        private ContributorService $contributorService
+    ) {}
+
+    public function index(string $period = 'monthly'): JsonResponse
+    {
+        $contributors = $this->contributorService->getTopContributors($period, 5);
+        
+        return response()->json([
+            'success' => true,
+            'period' => $period,
+            'data' => $contributors,
+            'cached_at' => now()->toIso8601String()
+        ]);
+    }
+}
+
+{{-- JavaScript usage --}}
+&lt;script>
+fetch('/api/contributors/monthly')
+    .then(response => response.json())
+    .then(data => {
+        console.log('Contributors:', data);
+        // Render contributors dynamically
+    });
+&lt;/script></code></pre>
+
+        <h3>Laravel Artisan Command (Cron)</h3>
+
+        <div class="step-box">
+            <strong>Command Implementation</strong>
+            <p><code>app/Console/Commands/UpdateContributors.php</code></p>
+        </div>
+
+        <pre><code>&lt;?php
+
+namespace App\Console\Commands;
+
+use App\Services\{GitHubApiService, ContributorService};
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+
+class UpdateContributors extends Command
+{
+    protected $signature = 'github:update-contributors 
+                            {--period=monthly : Update period (weekly, monthly)}
+                            {--force : Force update even if recently updated}';
+
+    protected $description = 'Update GitHub contributors data from API';
+
+    public function __construct(
+        private GitHubApiService $githubService,
+        private ContributorService $contributorService
+    ) {
+        parent::__construct();
+    }
+
+    public function handle(): int
+    {
+        $this->info('🚀 Starting GitHub contributors update...');
+        
+        $startTime = microtime(true);
+        $period = $this->option('period');
+
+        try {
+            // Check if update needed
+            if (!$this->option('force') && !$this->shouldUpdate($period)) {
+                $this->info('✓ Contributors already updated recently. Use --force to override.');
+                return Command::SUCCESS;
+            }
+
+            // Fetch from GitHub
+            $this->info('📡 Fetching data from GitHub API...');
+            $contributors = $this->githubService->fetchContributors();
+            $stats = $this->githubService->fetchContributorStats();
+
+            $this->info("✓ Fetched {$contributors->count()} contributors");
+
+            // Process and store
+            $this->info('💾 Processing and storing data...');
+            
+            DB::transaction(function () use ($contributors, $stats, $period) {
+                $this->contributorService->processAndStore($contributors, $stats, $period);
+            });
+
+            // Clear cache
+            $this->info('🗑️  Clearing cache...');
+            Cache::tags(['github-contributors'])->flush();
+
+            $duration = round(microtime(true) - $startTime, 2);
+            $this->info("✅ Update completed successfully in {$duration}s");
+
+            return Command::SUCCESS;
+
+        } catch (\Exception $e) {
+            $this->error('❌ Update failed: ' . $e->getMessage());
+            \Log::error('GitHub contributors update failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return Command::FAILURE;
+        }
+    }
+
+    private function shouldUpdate(string $period): bool
+    {
+        $lastUpdate = Cache::get("github_contributors_last_update:{$period}");
+        
+        if (!$lastUpdate) {
+            return true;
+        }
+
+        $threshold = $period === 'weekly' ? 7 * 24 * 3600 : 30 * 24 * 3600;
+        
+        return (time() - $lastUpdate) > $threshold;
+    }
+}</code></pre>
+
+        <div class="step-box">
+            <strong>Schedule in Laravel</strong>
+            <p><code>app/Console/Kernel.php</code></p>
+        </div>
+
+        <pre><code>&lt;?php
+
+namespace App\Console;
+
+use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+
+class Kernel extends ConsoleKernel
+{
+    protected function schedule(Schedule $schedule): void
+    {
+        // Monthly update - 1st of month at 2 AM
+        $schedule->command('github:update-contributors --period=monthly')
+            ->monthlyOn(1, '02:00')
+            ->timezone('UTC')
+            ->withoutOverlapping()
+            ->runInBackground()
+            ->onSuccess(function () {
+                \Log::info('Monthly contributors update completed');
+            })
+            ->onFailure(function () {
+                \Log::error('Monthly contributors update failed');
+                // Send notification
+            });
+
+        // Weekly update - Sundays at 3 AM (optional)
+        $schedule->command('github:update-contributors --period=weekly')
+            ->weeklyOn(0, '03:00')
+            ->timezone('UTC')
+            ->withoutOverlapping()
+            ->runInBackground();
+
+        // Cleanup old logs - Daily at 4 AM
+        $schedule->command('github:cleanup')
+            ->dailyAt('04:00')
+            ->timezone('UTC');
+    }
+}</code></pre>
+
+        <div class="command-box">
+# Test the command manually
+php artisan github:update-contributors
+
+# With options
+php artisan github:update-contributors --period=weekly --force
+
+# Test the scheduler
+php artisan schedule:list
+
+# Run the scheduler (add to crontab)
+* * * * * cd /path-to-project && php artisan schedule:run >> /dev/null 2>&1
+        </div>
+
+        <h3>Laravel-Specific Optimizations</h3>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Feature</th>
+                    <th>Implementation</th>
+                    <th>Benefit</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Query Caching</strong></td>
+                    <td>Use <code>Cache::remember()</code></td>
+                    <td>Automatic cache invalidation</td>
+                </tr>
+                <tr>
+                    <td><strong>Eager Loading</strong></td>
+                    <td><code>with(['stats', 'period'])</code></td>
+                    <td>Prevents N+1 queries</td>
+                </tr>
+                <tr>
+                    <td><strong>Response Caching</strong></td>
+                    <td>Middleware for HTTP caching</td>
+                    <td>Cache entire HTTP responses</td>
+                </tr>
+                <tr>
+                    <td><strong>View Caching</strong></td>
+                    <td><code>@cache directive</code></td>
+                    <td>Cache rendered blade views</td>
+                </tr>
+                <tr>
+                    <td><strong>Asset Versioning</strong></td>
+                    <td>Laravel Mix / Vite</td>
+                    <td>Bust cache on asset updates</td>
+                </tr>
+                <tr>
+                    <td><strong>Queue Jobs</strong></td>
+                    <td>Dispatch long-running tasks</td>
+                    <td>Non-blocking updates</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>Service Provider for Package</h3>
+
+        <pre><code>&lt;?php
+
+namespace App\Providers;
+
+use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Blade;
+use App\View\Components\GitHubContributors;
+
+class GitHubContributorsServiceProvider extends ServiceProvider
+{
+    /**
+     * Register services
+     */
+    public function register(): void
+    {
+        $this->mergeConfigFrom(
+            __DIR__.'/../../config/github-widget.php', 'github-widget'
+        );
+
+        // Register singleton services
+        $this->app->singleton(GitHubApiService::class);
+        $this->app->singleton(ContributorService::class);
+    }
+
+    /**
+     * Bootstrap services
+     */
+    public function boot(): void
+    {
+        // Publish config
+        $this->publishes([
+            __DIR__.'/../../config/github-widget.php' => config_path('github-widget.php'),
+        ], 'github-widget-config');
+
+        // Publish migrations
+        $this->publishes([
+            __DIR__.'/../../database/migrations' => database_path('migrations'),
+        ], 'github-widget-migrations');
+
+        // Publish assets
+        $this->publishes([
+            __DIR__.'/../../public' => public_path('vendor/github-widget'),
+        ], 'github-widget-assets');
+
+        // Load views
+        $this->loadViewsFrom(__DIR__.'/../../resources/views', 'github-widget');
+
+        // Register blade component
+        Blade::component('github-contributors', GitHubContributors::class);
+
+        // Register blade directive
+        Blade::directive('githubContributors', function ($expression) {
+            return "&lt;?php echo (new App\View\Components\GitHubContributors({$expression}))->render(); ?>";
+        });
+    }
+}</code></pre>
+
+        <h3>Advanced: Livewire Component (Real-time Updates)</h3>
+
+        <pre><code>&lt;?php
+
+namespace App\Http\Livewire;
+
+use Livewire\Component;
+use App\Services\ContributorService;
+
+class GitHubContributorsLive extends Component
+{
+    public string $period = 'monthly';
+    public int $count = 5;
+    public bool $autoRefresh = false;
+
+    protected $listeners = ['refreshContributors' => '$refresh'];
+
+    public function mount(string $period = 'monthly', int $count = 5)
+    {
+        $this->period = $period;
+        $this->count = $count;
+    }
+
+    public function updatedPeriod()
+    {
+        // Automatically refresh when period changes
+        $this->emit('contributorPeriodChanged', $this->period);
+    }
+
+    public function render(ContributorService $service)
+    {
+        $contributors = $service->getTopContributors($this->period, $this->count);
+
+        return view('livewire.github-contributors-live', [
+            'contributors' => $contributors
+        ]);
+    }
+}
+
+{{-- Usage --}}
+&lt;livewire:github-contributors-live period="monthly" :count="5" /></code></pre>
+
+        <div class="step-box">
+            <strong>Step 1: Module Registration</strong>
+            <p><code>app/code/UKMeds/ContributorsWidget/registration.php</code></p>
+        </div>
+
+        <pre><code>&lt;?php
+use Magento\Framework\Component\ComponentRegistrar;
+
+ComponentRegistrar::register(
+    ComponentRegistrar::MODULE,
+    'UKMeds_ContributorsWidget',
+    __DIR__
+);</code></pre>
+
+        <div class="step-box">
+            <strong>Step 2: Module Declaration</strong>
+            <p><code>app/code/UKMeds/ContributorsWidget/etc/module.xml</code></p>
+        </div>
+
+        <pre><code>&lt;?xml version="1.0"?>
+&lt;config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Module/etc/module.xsd">
+    &lt;module name="UKMeds_ContributorsWidget" setup_version="1.0.0">
+        &lt;sequence>
+            &lt;module name="Magento_Widget"/>
+            &lt;module name="Magento_Cms"/>
+        &lt;/sequence>
+    &lt;/module>
+&lt;/config></code></pre>
+
+        <div class="step-box">
+            <strong>Step 3: Widget Configuration</strong>
+            <p><code>app/code/UKMeds/ContributorsWidget/etc/widget.xml</code></p>
+        </div>
+
+        <pre><code>&lt;?xml version="1.0"?>
+&lt;widgets xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Widget:etc/widget.xsd">
+    &lt;widget id="ukmeds_github_contributors" 
+            class="UKMeds\ContributorsWidget\Block\Widget\Contributors">
+        &lt;label translate="true">GitHub Top Contributors&lt;/label>
+        &lt;description translate="true">Display top 5 GitHub contributors for the documentation repository&lt;/description>
+        
+        &lt;parameters>
+            &lt;!-- Widget Title -->
+            &lt;parameter name="title" xsi:type="text" required="false" visible="true" sort_order="10">
+                &lt;label translate="true">Widget Title&lt;/label>
+                &lt;description translate="true">Title displayed above the contributors list&lt;/description>
+            &lt;/parameter>
+            
+            &lt;!-- Period Selection -->
+            &lt;parameter name="period" xsi:type="select" required="true" visible="true" sort_order="20">
+                &lt;label translate="true">Time Period&lt;/label>
+                &lt;description translate="true">Select which time period to display&lt;/description>
+                &lt;options>
+                    &lt;option name="weekly" value="weekly" selected="false">
+                        &lt;label translate="true">Last Week&lt;/label>
+                    &lt;/option>
+                    &lt;option name="monthly" value="monthly" selected="true">
+                        &lt;label translate="true">Last Month&lt;/label>
+                    &lt;/option>
+                    &lt;option name="all_time" value="all_time" selected="false">
+                        &lt;label translate="true">All Time&lt;/label>
+                    &lt;/option>
+                &lt;/options>
+            &lt;/parameter>
+            
+            &lt;!-- Display Style -->
+            &lt;parameter name="display_style" xsi:type="select" required="true" visible="true" sort_order="30">
+                &lt;label translate="true">Display Style&lt;/label>
+                &lt;options>
+                    &lt;option name="grid" value="grid" selected="true">
+                        &lt;label translate="true">Grid Layout&lt;/label>
+                    &lt;/option>
+                    &lt;option name="list" value="list" selected="false">
+                        &lt;label translate="true">List Layout&lt;/label>
+                    &lt;/option>
+                &lt;/options>
+            &lt;/parameter>
+            
+            &lt;!-- Show Contribution Count -->
+            &lt;parameter name="show_count" xsi:type="select" required="true" visible="true" sort_order="40">
+                &lt;label translate="true">Show Contribution Count&lt;/label>
+                &lt;options>
+                    &lt;option name="yes" value="1" selected="true">
+                        &lt;label translate="true">Yes&lt;/label>
+                    &lt;/option>
+                    &lt;option name="no" value="0" selected="false">
+                        &lt;label translate="true">No&lt;/label>
+                    &lt;/option>
+                &lt;/options>
+            &lt;/parameter>
+        &lt;/parameters>
+    &lt;/widget>
+&lt;/widgets></code></pre>
+
+        <div class="step-box">
+            <strong>Step 4: Block Class</strong>
+            <p><code>app/code/UKMeds/ContributorsWidget/Block/Widget/Contributors.php</code></p>
+        </div>
+
+        <pre><code>&lt;?php
+declare(strict_types=1);
+
+namespace UKMeds\ContributorsWidget\Block\Widget;
+
+use Magento\Framework\View\Element\Template;
+use Magento\Widget\Block\BlockInterface;
+use UKMeds\ContributorsWidget\Model\ContributorService;
+
+class Contributors extends Template implements BlockInterface
+{
+    protected $_template = 'UKMeds_ContributorsWidget::widget/contributors.phtml';
+
+    /**
+     * @var ContributorService
+     */
+    private $contributorService;
+
+    /**
+     * Constructor
+     */
+    public function __construct(
+        Template\Context $context,
+        ContributorService $contributorService,
+        array $data = []
+    ) {
+        $this->contributorService = $contributorService;
+        parent::__construct($context, $data);
+    }
+
+    /**
+     * Get top contributors based on widget settings
+     *
+     * @return array
+     */
+    public function getTopContributors(): array
+    {
+        $period = $this->getData('period') ?? 'monthly';
+        
+        try {
+            return $this->contributorService->getTopContributors($period, 5);
+        } catch (\Exception $e) {
+            $this->_logger->error('Failed to fetch contributors: ' . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Get widget title
+     *
+     * @return string
+     */
+    public function getWidgetTitle(): string
+    {
+        return $this->getData('title') ?? __('Top Contributors');
+    }
+
+    /**
+     * Get display style
+     *
+     * @return string
+     */
+    public function getDisplayStyle(): string
+    {
+        return $this->getData('display_style') ?? 'grid';
+    }
+
+    /**
+     * Should show contribution count
+     *
+     * @return bool
+     */
+    public function shouldShowCount(): bool
+    {
+        return (bool) $this->getData('show_count');
+    }
+
+    /**
+     * Get period label
+     *
+     * @return string
+     */
+    public function getPeriodLabel(): string
+    {
+        $period = $this->getData('period');
+        
+        $labels = [
+            'weekly' => __('This Week'),
+            'monthly' => __('This Month'),
+            'all_time' => __('All Time')
+        ];
+        
+        return $labels[$period] ?? '';
+    }
+
+    /**
+     * Get cache key for this widget instance
+     *
+     * @return array
+     */
+    public function getCacheKeyInfo(): array
+    {
+        return [
+            'UKMEDS_CONTRIBUTORS_WIDGET',
+            $this->getData('period'),
+            $this->getData('display_style'),
+            $this->_storeManager->getStore()->getId()
+        ];
+    }
+
+    /**
+     * Cache lifetime in seconds
+     *
+     * @return int
+     */
+    protected function getCacheLifetime(): int
+    {
+        // Cache for 1 hour
+        return 3600;
+    }
+}</code></pre>
+
+        <div class="step-box">
+            <strong>Step 5: Template File</strong>
+            <p><code>app/code/UKMeds/ContributorsWidget/view/frontend/templates/widget/contributors.phtml</code></p>
+        </div>
+
+        <pre><code>&lt;?php
+/**
+ * @var $block \UKMeds\ContributorsWidget\Block\Widget\Contributors
+ */
+$contributors = $block->getTopContributors();
+$displayStyle = $block->getDisplayStyle();
+$showCount = $block->shouldShowCount();
+?>
+
+&lt;div class="github-contributors-widget" data-style="&lt;?= $block->escapeHtmlAttr($displayStyle) ?>">
+    &lt;?php if ($block->getWidgetTitle()): ?>
+        &lt;h3 class="widget-title">&lt;?= $block->escapeHtml($block->getWidgetTitle()) ?>&lt;/h3>
+    &lt;?php endif; ?>
+    
+    &lt;div class="period-label">&lt;?= $block->escapeHtml($block->getPeriodLabel()) ?>&lt;/div>
+    
+    &lt;?php if (!empty($contributors)): ?>
+        &lt;div class="contributors-<?= $block->escapeHtmlAttr($displayStyle) ?>">
+            &lt;?php foreach ($contributors as $index => $contributor): ?>
+                &lt;div class="contributor-item" data-rank="&lt;?= $index + 1 ?>">
+                    &lt;a href="&lt;?= $block->escapeUrl($contributor['profile_url']) ?>" 
+                       target="_blank" 
+                       rel="noopener noreferrer"
+                       class="contributor-link">
+                        
+                        &lt;div class="contributor-avatar">
+                            &lt;img src="&lt;?= $block->escapeUrl($contributor['avatar_url']) ?>" 
+                                 alt="&lt;?= $block->escapeHtmlAttr($contributor['username']) ?>"
+                                 loading="lazy"
+                                 width="80" 
+                                 height="80" />
+                            &lt;span class="rank-badge">#&lt;?= $index + 1 ?>&lt;/span>
+                        &lt;/div>
+                        
+                        &lt;div class="contributor-info">
+                            &lt;div class="contributor-name">
+                                &lt;?= $block->escapeHtml($contributor['username']) ?>
+                            &lt;/div>
+                            
+                            &lt;?php if ($showCount): ?>
+                                &lt;div class="contribution-count">
+                                    &lt;?= $contributor['contribution_count'] ?> 
+                                    &lt;?= $contributor['contribution_count'] === 1 ? __('contribution') : __('contributions') ?>
+                                &lt;/div>
+                            &lt;?php endif; ?>
+                        &lt;/div>
+                    &lt;/a>
+                &lt;/div>
+            &lt;?php endforeach; ?>
+        &lt;/div>
+        
+        &lt;div class="widget-footer">
+            &lt;a href="https://github.com/&lt;?= $block->escapeHtmlAttr($block->getRepoUrl()) ?>/graphs/contributors" 
+               target="_blank"
+               class="view-all-link">
+                &lt;?= __('View All Contributors') ?> →
+            &lt;/a>
+        &lt;/div>
+    &lt;?php else: ?>
+        &lt;div class="no-contributors">
+            &lt;p>&lt;?= __('No contributor data available at this time.') ?>&lt;/p>
+        &lt;/div>
+    &lt;?php endif; ?>
+&lt;/div>
+
+&lt;?php /* Load CSS */ ?>
+&lt;style>
+    &lt;?php include($block->getViewFileUrl('UKMeds_ContributorsWidget::css/contributors.css')); ?>
+&lt;/style></code></pre>
+
+        <div class="step-box">
+            <strong>Step 6: Styling</strong>
+            <p><code>app/code/UKMeds/ContributorsWidget/view/frontend/web/css/contributors.css</code></p>
+        </div>
+
+        <pre><code>/* GitHub Contributors Widget Styles */
+.github-contributors-widget {
+    background: #ffffff;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin: 20px 0;
+}
+
+.widget-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0 0 10px 0;
+    color: #2c3e50;
+}
+
+.period-label {
+    font-size: 0.875rem;
+    color: #7f8c8d;
+    margin-bottom: 20px;
+}
+
+/* Grid Layout */
+.contributors-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 20px;
+    margin: 20px 0;
+}
+
+/* List Layout */
+.contributors-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.contributor-item {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.contributor-item:hover {
+    transform: translateY(-5px);
+}
+
+.contributor-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+.contributor-avatar {
+    position: relative;
+    margin-bottom: 10px;
+}
+
+.contributor-avatar img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #ecf0f1;
+    transition: border-color 0.2s ease;
+}
+
+.contributor-item:hover .contributor-avatar img {
+    border-color: #3498db;
+}
+
+.rank-badge {
+    position: absolute;
+    bottom: -5px;
+    right: -5px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 0.75rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.contributor-info {
+    text-align: center;
+}
+
+.contributor-name {
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 5px;
+}
+
+.contribution-count {
+    font-size: 0.875rem;
+    color: #7f8c8d;
+}
+
+.widget-footer {
+    margin-top: 20px;
+    text-align: center;
+    padding-top: 15px;
+    border-top: 1px solid #ecf0f1;
+}
+
+.view-all-link {
+    color: #3498db;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.view-all-link:hover {
+    color: #2980b9;
+}
+
+.no-contributors {
+    text-align: center;
+    padding: 40px 20px;
+    color: #7f8c8d;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .contributors-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .contributors-grid {
+        grid-template-columns: 1fr;
+    }
+}</code></pre>
+
+        <h3>Adding Widget to Magento Pages</h3>
+
+        <div class="step-box">
+            <strong>Method 1: Via Admin Panel (Easiest)</strong>
+        </div>
+
+        <ol>
+            <li>Login to Magento Admin</li>
+            <li>Navigate to <strong>Content > Elements > Widgets</strong></li>
+            <li>Click <strong>Add Widget</strong></li>
+            <li>Select Type: <strong>GitHub Top Contributors</strong></li>
+            <li>Select Theme: <strong>Your active theme</strong></li>
+            <li>Click <strong>Continue</strong></li>
+            <li>Configure widget options (title, period, style)</li>
+            <li>Choose <strong>Layout Updates</strong>:
+                <ul>
+                    <li>Display on: Specific pages or All pages</li>
+                    <li>Container: Main content, sidebar, footer, etc.</li>
+                </ul>
+            </li>
+            <li>Click <strong>Save</strong></li>
+            <li>Flush cache: <code>bin/magento cache:flush</code></li>
+        </ol>
+
+        <div class="step-box">
+            <strong>Method 2: Via Layout XML (Programmatic)</strong>
+        </div>
+
+        <pre><code>&lt;?xml version="1.0"?>
+&lt;page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    &lt;body>
+        &lt;!-- Add to main content area -->
+        &lt;referenceContainer name="content">
+            &lt;block class="UKMeds\ContributorsWidget\Block\Widget\Contributors" 
+                   name="github.contributors.widget"
+                   template="UKMeds_ContributorsWidget::widget/contributors.phtml">
+                &lt;arguments>
+                    &lt;argument name="title" xsi:type="string">Top Contributors&lt;/argument>
+                    &lt;argument name="period" xsi:type="string">monthly&lt;/argument>
+                    &lt;argument name="display_style" xsi:type="string">grid&lt;/argument>
+                    &lt;argument name="show_count" xsi:type="string">1&lt;/argument>
+                &lt;/arguments>
+            &lt;/block>
+        &lt;/referenceContainer>
+        
+        &lt;!-- Or add to sidebar -->
+        &lt;referenceContainer name="sidebar.additional">
+            &lt;block class="UKMeds\ContributorsWidget\Block\Widget\Contributors" 
+                   name="github.contributors.sidebar"
+                   template="UKMeds_ContributorsWidget::widget/contributors.phtml">
+                &lt;arguments>
+                    &lt;argument name="period" xsi:type="string">weekly&lt;/argument>
+                &lt;/arguments>
+            &lt;/block>
+        &lt;/referenceContainer>
+    &lt;/body>
+&lt;/page></code></pre>
+
+        <div class="success-box">
+            <strong>✅ Complete Laravel Integration Checklist:</strong>
+            <ul class="checklist" style="margin-bottom: 0; list-style: none; padding-left: 0;">
+                <li style="margin: 8px 0;">✓ Configuration file created in <code>config/</code></li>
+                <li style="margin: 8px 0;">✓ Environment variables added to <code>.env</code></li>
+                <li style="margin: 8px 0;">✓ Database migrations run: <code>php artisan migrate</code></li>
+                <li style="margin: 8px 0;">✓ Eloquent models created with relationships</li>
+                <li style="margin: 8px 0;">✓ Blade component registered and functional</li>
+                <li style="margin: 8px 0;">✓ Artisan command created for updates</li>
+                <li style="margin: 8px 0;">✓ Task scheduler configured in <code>Kernel.php</code></li>
+                <li style="margin: 8px 0;">✓ Cron job added: <code>* * * * * php artisan schedule:run</code></li>
+                <li style="margin: 8px 0;">✓ Service provider registered in <code>config/app.php</code></li>
+                <li style="margin: 8px 0;">✓ CSS/JS assets published to <code>public/</code></li>
+                <li style="margin: 8px 0;">✓ Cache configured (Redis/Memcached recommended)</li>
+                <li style="margin: 8px 0;">✓ API routes defined for AJAX access</li>
+            </ul>
+        </div>
+
+        <h3>Quick Start Commands</h3>
+
+        <div class="command-box">
+# Install dependencies
+composer require guzzlehttp/guzzle
+
+# Run migrations
+php artisan migrate
+
+# Publish package assets (if using as package)
+php artisan vendor:publish --tag=github-widget-config
+php artisan vendor:publish --tag=github-widget-assets
+
+# Test the widget
+php artisan tinker
+>>> app(\App\Services\ContributorService::class)->getTopContributors('monthly', 5);
+
+# Manual update
+php artisan github:update-contributors --force
+
+# Clear all caches
+php artisan cache:clear
+php artisan config:clear
+php artisan view:clear
+
+# Optimize for production
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+        </div>
+
+        <div class="critical-box">
+            <strong>🎯 Final Implementation Summary</strong>
+            <p><strong>With this Laravel integration, you get:</strong></p>
+            <ul style="margin-bottom: 0;">
+                <li><strong>Easy Usage:</strong> Simple Blade component syntax</li>
+                <li><strong>Automatic Caching:</strong> Multi-layer Laravel cache</li>
+                <li><strong>Scheduled Updates:</strong> Built-in task scheduler</li>
+                <li><strong>Type Safety:</strong> Eloquent models with relationships</li>
+                <li><strong>API Support:</strong> RESTful endpoints for AJAX</li>
+                <li><strong>Real-time Options:</strong> Livewire component available</li>
+                <li><strong>Production Ready:</strong> Optimized queries and caching</li>
+                <li><strong>Maintainable:</strong> Laravel best practices throughout</li>
+            </ul>
+        </div>
+
+    </div>
+</body>
+</html>

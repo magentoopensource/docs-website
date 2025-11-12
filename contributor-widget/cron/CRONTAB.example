@@ -1,0 +1,161 @@
+# GitHub Contributors Widget - Crontab Configuration
+#
+# This file contains example crontab entries for the GitHub Contributors Widget
+#
+# To install:
+#   1. Edit this file with your actual paths
+#   2. Run: crontab -e
+#   3. Paste the appropriate line below
+#   4. Save and exit
+#
+# To view current crontab:
+#   crontab -l
+#
+# To remove all cron jobs:
+#   crontab -r
+
+# ============================================================================
+# Production Schedule (Recommended)
+# ============================================================================
+
+# Run on the 1st of every month at 2:00 AM UTC
+# This is the recommended schedule for production use
+0 2 1 * * /usr/bin/php /path/to/m2docs-widget/cron/update-contributors.php >> /path/to/m2docs-widget/storage/logs/cron.log 2>&1
+
+# ============================================================================
+# Alternative Schedules
+# ============================================================================
+
+# Weekly update (every Monday at 3:00 AM UTC)
+# 0 3 * * 1 /usr/bin/php /path/to/m2docs-widget/cron/update-contributors.php >> /path/to/m2docs-widget/storage/logs/cron.log 2>&1
+
+# Daily update (every day at 4:00 AM UTC)
+# 0 4 * * * /usr/bin/php /path/to/m2docs-widget/cron/update-contributors.php >> /path/to/m2docs-widget/storage/logs/cron.log 2>&1
+
+# Hourly update (top of every hour) - NOT RECOMMENDED due to rate limits
+# 0 * * * * /usr/bin/php /path/to/m2docs-widget/cron/update-contributors.php >> /path/to/m2docs-widget/storage/logs/cron.log 2>&1
+
+# ============================================================================
+# Testing Schedule
+# ============================================================================
+
+# Run every 5 minutes (for testing only - remove after testing!)
+# */5 * * * * /usr/bin/php /path/to/m2docs-widget/cron/update-contributors.php >> /path/to/m2docs-widget/storage/logs/cron.log 2>&1
+
+# ============================================================================
+# Cron Format Reference
+# ============================================================================
+#
+# ┌───────────── minute (0 - 59)
+# │ ┌───────────── hour (0 - 23)
+# │ │ ┌───────────── day of month (1 - 31)
+# │ │ │ ┌───────────── month (1 - 12)
+# │ │ │ │ ┌───────────── day of week (0 - 6) (Sunday to Saturday)
+# │ │ │ │ │
+# │ │ │ │ │
+# * * * * * command to execute
+#
+# Special strings:
+#   @reboot    Run once, at startup
+#   @yearly    Run once a year (0 0 1 1 *)
+#   @monthly   Run once a month (0 0 1 * *)
+#   @weekly    Run once a week (0 0 * * 0)
+#   @daily     Run once a day (0 0 * * *)
+#   @hourly    Run once an hour (0 * * * *)
+#
+# ============================================================================
+# Path Configuration
+# ============================================================================
+
+# IMPORTANT: Replace these paths with your actual installation paths
+
+# For macOS (Homebrew PHP):
+# /opt/homebrew/bin/php /path/to/m2docs-widget/cron/update-contributors.php
+
+# For Linux (system PHP):
+# /usr/bin/php /path/to/m2docs-widget/cron/update-contributors.php
+
+# For custom PHP installation:
+# /usr/local/php/bin/php /path/to/m2docs-widget/cron/update-contributors.php
+
+# ============================================================================
+# Logging
+# ============================================================================
+
+# Output to log file (recommended):
+# >> /path/to/storage/logs/cron.log 2>&1
+
+# Discard all output:
+# > /dev/null 2>&1
+
+# Email output (default cron behavior):
+# (no redirect)
+
+# ============================================================================
+# Environment Variables
+# ============================================================================
+
+# If your cron needs environment variables, set them before the command:
+# ENVIRONMENT=production /usr/bin/php /path/to/cron/update-contributors.php
+
+# Or use a wrapper script that sources .env:
+# /path/to/cron/run-update.sh
+
+# ============================================================================
+# macOS Specific Notes
+# ============================================================================
+
+# On macOS, you may need to grant Full Disk Access to cron:
+# System Preferences > Security & Privacy > Privacy > Full Disk Access
+# Add /usr/sbin/cron
+
+# Check if PHP is in PATH:
+# which php
+
+# ============================================================================
+# Troubleshooting
+# ============================================================================
+
+# Test the command manually first:
+# /usr/bin/php /path/to/cron/update-contributors.php
+
+# Check cron logs (varies by OS):
+# macOS: tail -f /var/log/system.log | grep cron
+# Linux: tail -f /var/log/syslog | grep cron
+# Or: journalctl -u cron -f
+
+# Verify cron is running:
+# ps aux | grep cron
+
+# Test cron with a simple command first:
+# * * * * * echo "Cron works!" >> /tmp/crontest.txt
+
+# ============================================================================
+# Example: Complete Installation
+# ============================================================================
+
+# 1. Find your PHP path:
+#    which php
+#    Output: /usr/bin/php
+
+# 2. Find your project path:
+#    pwd
+#    Output: /Users/carlsimpson/Documents/m2docs-widget
+
+# 3. Create log directory if needed:
+#    mkdir -p /Users/carlsimpson/Documents/m2docs-widget/storage/logs
+
+# 4. Make script executable:
+#    chmod +x /Users/carlsimpson/Documents/m2docs-widget/cron/update-contributors.php
+
+# 5. Test manually:
+#    /usr/bin/php /Users/carlsimpson/Documents/m2docs-widget/cron/update-contributors.php
+
+# 6. Edit crontab:
+#    crontab -e
+
+# 7. Add this line (replace paths):
+#    0 2 1 * * /usr/bin/php /Users/carlsimpson/Documents/m2docs-widget/cron/update-contributors.php >> /Users/carlsimpson/Documents/m2docs-widget/storage/logs/cron.log 2>&1
+
+# 8. Save and verify:
+#    crontab -l

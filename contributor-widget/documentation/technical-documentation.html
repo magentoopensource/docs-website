@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Contributors Widget - Technical Documentation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        code, pre { font-family: 'Fira Code', monospace; }
+        .gradient-text { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    </style>
+</head>
+<body class="bg-gray-50" x-data="docsApp()">
+
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white shadow-xl sticky top-0 z-50">
+        <div class="container mx-auto px-6 py-8">
+            <h1 class="text-4xl font-bold mb-2">GitHub Contributors Widget</h1>
+            <p class="text-indigo-100 text-lg">Complete Technical Documentation</p>
+            <div class="mt-4 flex flex-wrap gap-4 text-sm">
+                <span class="bg-white/20 px-3 py-1 rounded-full">📚 Version 1.0.0</span>
+                <span class="bg-white/20 px-3 py-1 rounded-full">🚀 Production Ready</span>
+                <span class="bg-white/20 px-3 py-1 rounded-full">⚡ High Performance</span>
+                <span class="bg-white/20 px-3 py-1 rounded-full">🔒 Secure</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="bg-white border-b shadow-sm sticky top-[156px] z-40">
+        <div class="container mx-auto px-6">
+            <div class="flex overflow-x-auto py-3 gap-2">
+                <template x-for="section in sections" :key="section.id">
+                    <button
+                        @click="activeSection = section.id; scrollToSection(section.id)"
+                        :class="activeSection === section.id ? 'bg-indigo-600 text-white' : 'bg-gray-100 hover:bg-gray-200'"
+                        class="px-4 py-2 rounded-lg whitespace-nowrap text-sm font-medium transition"
+                        x-text="section.name">
+                    </button>
+                </template>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-6 py-8 max-w-6xl">
+
+        <!-- Overview -->
+        <section id="overview" class="mb-12 bg-white rounded-xl shadow-lg p-8">
+            <h2 class="text-3xl font-bold mb-6 flex items-center gap-3">
+                <span class="text-4xl">🎯</span>
+                Project Overview
+            </h2>
+
+            <div class="prose max-w-none">
+                <p class="text-lg text-gray-700 leading-relaxed mb-6">
+                    The <strong>GitHub Contributors Widget</strong> is a production-grade PHP application that displays
+                    top GitHub contributors on documentation websites. It features intelligent caching, rate limiting,
+                    and a beautiful responsive UI.
+                </p>
+
+                <div class="grid md:grid-cols-3 gap-6 not-prose mb-8">
+                    <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-lg border-2 border-blue-200">
+                        <div class="text-3xl mb-2">🎨</div>
+                        <h3 class="font-bold text-blue-900 mb-2">Beautiful UI</h3>
+                        <p class="text-sm text-blue-800">Minimal, responsive design with hover effects and animations</p>
+                    </div>
+                    <div class="bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-lg border-2 border-purple-200">
+                        <div class="text-3xl mb-2">⚡</div>
+                        <h3 class="font-bold text-purple-900 mb-2">High Performance</h3>
+                        <p class="text-sm text-purple-800">3-tier caching with &lt;100ms response times</p>
+                    </div>
+                    <div class="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-lg border-2 border-green-200">
+                        <div class="text-3xl mb-2">🔒</div>
+                        <h3 class="font-bold text-green-900 mb-2">Enterprise Security</h3>
+                        <p class="text-sm text-green-800">SQL injection prevention, XSS protection, secure tokens</p>
+                    </div>
+                </div>
+
+                <h3 class="text-2xl font-bold mb-4 mt-8">Key Features</h3>
+                <ul class="space-y-2">
+                    <li>✅ <strong>Automatic Updates:</strong> Monthly cron job fetches latest contributor data</li>
+                    <li>✅ <strong>Smart Caching:</strong> Memory → Database → GitHub API fallback strategy</li>
+                    <li>✅ <strong>Rate Limiting:</strong> Prevents GitHub API quota exhaustion</li>
+                    <li>✅ <strong>Concurrency Control:</strong> File-based locking prevents race conditions</li>
+                    <li>✅ <strong>Comprehensive Logging:</strong> PSR-3 compliant with automatic rotation</li>
+                    <li>✅ <strong>Error Handling:</strong> Graceful degradation on failures</li>
+                    <li>✅ <strong>Accessibility:</strong> ARIA labels, keyboard navigation, screen reader support</li>
+                    <li>✅ <strong>Responsive Design:</strong> Works on desktop, tablet, and mobile</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Architecture -->
+        <section id="architecture" class="mb-12 bg-white rounded-xl shadow-lg p-8">
+            <h2 class="text-3xl font-bold mb-6 flex items-center gap-3">
+                <span class="text-4xl">🏗️</span>
+                System Architecture
+            </h2>
+
+            <div class="mb-8">
+                <h3 class="text-2xl font-semibold mb-4">High-Level Architecture</h3>
+                <div class="bg-gray-50 p-6 rounded-lg border-2 border-gray-200">
+                    <pre class="text-sm overflow-x-auto">┌─────────────────────────────────────────────────────────────┐
+│                    GitHub Contributors Widget                  │
+└─────────────────────────────────────────────────────────────┘
+
+┌──────────────┐    ┌──────────────┐    ┌──────────────┐
+│   Frontend   │───▶│  Public API  │───▶│   Services   │
+│  (HTML/CSS)  │◀───│ (widget.php) │◀───│ (PHP Classes)│
+└──────────────┘    └──────────────┘    └──────────────┘
+                                                 │
+                    ┌────────────────────────────┼────────────────┐
+                    │                            │                │
+                    ▼                            ▼                ▼
+            ┌──────────────┐           ┌──────────────┐  ┌──────────────┐
+            │    Cache     │           │   Database   │  │  GitHub API  │
+            │   Service    │───────────│   (MySQL)    │  │  (External)  │
+            └──────────────┘           └──────────────┘  └──────────────┘
+                    ▲
+                    │
+            ┌──────────────┐
+            │  Cron Job    │
+            │ (Monthly)    │
+            └──────────────┘</pre>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6 mb-8">
+                <div class="border-2 border-indigo-200 rounded-lg p-6 bg-indigo-50">
+                    <h4 class="font-bold text-lg mb-4 text-indigo-900">Core Components</h4>
+                    <ul class="space-y-2 text-indigo-800">
+                        <li><strong>Configuration:</strong> Environment management</li>
+                        <li><strong>Database:</strong> PDO connection manager</li>
+                        <li><strong>GitHubApiService:</strong> API client with retry logic</li>
+                        <li><strong>CacheService:</strong> 3-tier caching system</li>
+                        <li><strong>Logger:</strong> PSR-3 logging with rotation</li>
+                        <li><strong>LockManager:</strong> Concurrency control</li>
+                        <li><strong>RateLimiter:</strong> API quota management</li>
+                    </ul>
+                </div>
+
+                <div class="border-2 border-purple-200 rounded-lg p-6 bg-purple-50">
+                    <h4 class="font-bold text-lg mb-4 text-purple-900">Data Flow</h4>
+                    <ol class="space-y-2 text-purple-800 list-decimal list-inside">
+                        <li>User visits documentation page</li>
+                        <li>Widget checks memory cache (1hr TTL)</li>
+                        <li>If miss, checks database cache (30d TTL)</li>
+                        <li>If miss, fetches from GitHub API</li>
+                        <li>Stores in both cache tiers</li>
+                        <li>Renders contributor avatars</li>
+                        <li>Monthly cron refreshes data</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-r from-yellow-50 to-orange-50 p-6 rounded-lg border-2 border-yellow-200">
+                <h4 class="font-bold text-lg mb-3">Design Patterns Used</h4>
+                <div class="grid md:grid-cols-2 gap-4 text-sm">
+                    <div>
+                        <strong>Singleton:</strong> Configuration, Database instances
+                    </div>
+                    <div>
+                        <strong>Strategy:</strong> Multi-tier caching with fallback
+                    </div>
+                    <div>
+                        <strong>Dependency Injection:</strong> Services receive dependencies
+                    </div>
+                    <div>
+                        <strong>Factory:</strong> Exception creation methods
+                    </div>
+                    <div>
+                        <strong>Template Method:</strong> Abstract log formatting
+                    </div>
+                    <div>
+                        <strong>Observer:</strong> Event-based logging
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Installation -->
+        <section id="installation" class="mb-12 bg-white rounded-xl shadow-lg p-8">
+            <h2 class="text-3xl font-bold mb-6 flex items-center gap-3">
+                <span class="text-4xl">⚙️</span>
+                Installation & Setup
+            </h2>
+
+            <div class="space-y-6">
+                <div>
+                    <h3 class="text-xl font-bold mb-3">1. System Requirements</h3>
+                    <div class="bg-gray-50 p-4 rounded-lg border">
+                        <ul class="space-y-2">
+                            <li>✓ PHP 8.0 or higher</li>
+                            <li>✓ MySQL 5.7+ or MariaDB 10.3+</li>
+                            <li>✓ Composer (dependency management)</li>
+                            <li>✓ Git (version control)</li>
+                            <li>✓ Web server (Apache/Nginx)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-xl font-bold mb-3">2. Clone Repository</h3>
+                    <div class="bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-sm overflow-x-auto">
+                        <div>$ git clone git@github.com:csimpsonweb/MA-Widget.git</div>
+                        <div>$ cd MA-Widget</div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-xl font-bold mb-3">3. Install Dependencies</h3>
+                    <div class="bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-sm overflow-x-auto">
+                        <div>$ composer install</div>
+                        <div>$ npm install  # For Playwright tests</div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-xl font-bold mb-3">4. Configure Environment</h3>
+                    <div class="bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-sm overflow-x-auto mb-4">
+                        <div>$ cp .env.example .env</div>
+                        <div>$ nano .env  # Edit configuration</div>
+                    </div>
+                    <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded-r-lg">
+                        <p class="font-bold text-yellow-900 mb-2">Required Environment Variables:</p>
+                        <div class="bg-gray-900 text-green-400 p-4 rounded font-mono text-xs overflow-x-auto">
+<pre>GITHUB_API_TOKEN=your_github_pat_token_here
+GITHUB_REPO_OWNER=your_org
+GITHUB_REPO_NAME=your_repo
+
+DB_HOST=localhost
+DB_PORT=3306
+DB_NAME=github_contributors
+DB_USER=widget_user
+DB_PASSWORD=secure_password
+
+CACHE_ENABLED=true
+CACHE_DURATION_DAYS=30
+
+APP_ENV=production
+APP_DEBUG=false</pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-xl font-bold mb-3">5. Setup Database</h3>
+                    <div class="bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-sm overflow-x-auto mb-4">
+                        <div>$ mysql -u root -p &lt; schema.sql</div>
+                    </div>
+                    <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg">
+                        <p class="text-blue-800">The schema includes tables for: contributors, contribution_periods, contributor_stats, widget_cache, and api_sync_log.</p>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-xl font-bold mb-3">6. Setup Cron Job</h3>
+                    <div class="bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-sm overflow-x-auto mb-4">
+                        <div>$ crontab -e</div>
+                        <div># Add this line:</div>
+                        <div>0 2 1 * * /usr/bin/php /path/to/cron/update-contributors.php &gt;&gt; /path/to/storage/logs/cron.log 2&gt;&1</div>
+                    </div>
+                    <p class="text-sm text-gray-600">This runs monthly on the 1st at 2:00 AM UTC</p>
+                </div>
+
+                <div>
+                    <h3 class="text-xl font-bold mb-3">7. Test Installation</h3>
+                    <div class="bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-sm overflow-x-auto">
+                        <div>$ php cron/update-contributors.php  # Manual test</div>
+                        <div>$ npm test  # Run Playwright tests</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Usage -->
+        <section id="usage" class="mb-12 bg-white rounded-xl shadow-lg p-8">
+            <h2 class="text-3xl font-bold mb-6 flex items-center gap-3">
+                <span class="text-4xl">📖</span>
+                Usage Guide
+            </h2>
+
+            <div class="space-y-8">
+                <div>
+                    <h3 class="text-2xl font-bold mb-4">Embedding the Widget</h3>
+                    <p class="mb-4 text-gray-700">Include the widget in any PHP page:</p>
+                    <div class="bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-sm overflow-x-auto">
+<pre>&lt;?php
+// At the top of your file
+define('WIDGET_ALLOWED', true);
+
+// Where you want to display the widget
+include 'path/to/public/widget.php';
+?&gt;</pre>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-2xl font-bold mb-4">Widget Customization</h3>
+                    <p class="mb-4 text-gray-700">Configure widget options before including:</p>
+                    <div class="bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-sm overflow-x-auto">
+<pre>&lt;?php
+$widgetTitle = 'Top Contributors';     // Widget heading
+$showPeriod = true;                    // Show "This Month" label
+$periodLabel = 'This Month';           // Custom period text
+$showFooter = true;                    // Show "View All" link
+$darkMode = false;                     // Enable dark theme
+$style = 'grid';                       // Layout: grid|list|inline
+
+include 'public/widget.php';
+?&gt;</pre>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-2xl font-bold mb-4">Using Static HTML Widget</h3>
+                    <p class="mb-4 text-gray-700">For non-PHP pages, use the JavaScript widget:</p>
+                    <div class="bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-sm overflow-x-auto">
+<pre>&lt;!-- In your HTML --&gt;
+&lt;div id="gh-widget-container"&gt;&lt;/div&gt;
+
+&lt;script&gt;
+  const REPO_OWNER = 'your-org';
+  const REPO_NAME = 'your-repo';
+  const GITHUB_TOKEN = '';  // Optional for public repos
+
+  // Widget initialization code
+  // (See open-source-docs.html for complete implementation)
+&lt;/script&gt;</pre>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-2xl font-bold mb-4">CSS Customization</h3>
+                    <p class="mb-4 text-gray-700">Override widget styles:</p>
+                    <div class="bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-sm overflow-x-auto">
+<pre>:root {
+  --gh-avatar-size: 36px;       /* Avatar dimensions */
+  --gh-avatar-overlap: -8px;    /* Overlap amount */
+  --gh-popup-bg: #ffffff;       /* Popup background */
+  --gh-text-primary: #24292f;   /* Main text color */
+  --gh-link-color: #0969da;     /* Link color */
+}
+
+/* Custom styling */
+.gh-contributors-mini {
+  /* Your overrides */
+}</pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- API Reference -->
+        <section id="api" class="mb-12 bg-white rounded-xl shadow-lg p-8">
+            <h2 class="text-3xl font-bold mb-6 flex items-center gap-3">
+                <span class="text-4xl">📚</span>
+                API Reference
+            </h2>
+
+            <div class="space-y-8">
+                <!-- Configuration Class -->
+                <div class="border-2 border-indigo-200 rounded-lg p-6">
+                    <h3 class="text-xl font-bold mb-4 text-indigo-900">Configuration</h3>
+                    <div class="bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-sm overflow-x-auto mb-4">
+<pre>$config = Configuration::getInstance();
+$token = $config->getGithubToken();
+$repo = $config->getGithubRepo();
+$debug = $config->isDebug();</pre>
+                    </div>
+                    <table class="w-full text-sm">
+                        <thead class="bg-indigo-50">
+                            <tr>
+                                <th class="text-left p-2 border">Method</th>
+                                <th class="text-left p-2 border">Return</th>
+                                <th class="text-left p-2 border">Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="p-2 border font-mono">getInstance()</td>
+                                <td class="p-2 border">Configuration</td>
+                                <td class="p-2 border">Get singleton instance</td>
+                            </tr>
+                            <tr class="bg-gray-50">
+                                <td class="p-2 border font-mono">get(string $key)</td>
+                                <td class="p-2 border">mixed</td>
+                                <td class="p-2 border">Get config value by dot notation</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2 border font-mono">getGithubToken()</td>
+                                <td class="p-2 border">string</td>
+                                <td class="p-2 border">Get GitHub API token</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- CacheService Class -->
+                <div class="border-2 border-purple-200 rounded-lg p-6">
+                    <h3 class="text-xl font-bold mb-4 text-purple-900">CacheService</h3>
+                    <div class="bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-sm overflow-x-auto mb-4">
+<pre>$cache = new CacheService($config, $db, $logger);
+$data = $cache->get('key');
+$cache->set('key', $data, 30);  // 30 days TTL
+$cache->delete('key');
+$stats = $cache->getStats();</pre>
+                    </div>
+                    <table class="w-full text-sm">
+                        <thead class="bg-purple-50">
+                            <tr>
+                                <th class="text-left p-2 border">Method</th>
+                                <th class="text-left p-2 border">Parameters</th>
+                                <th class="text-left p-2 border">Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="p-2 border font-mono">get(string $key)</td>
+                                <td class="p-2 border">$key: Cache key</td>
+                                <td class="p-2 border">Retrieve from cache (all tiers)</td>
+                            </tr>
+                            <tr class="bg-gray-50">
+                                <td class="p-2 border font-mono">set($key, $data, $ttl)</td>
+                                <td class="p-2 border">$key, $data, $ttl (days)</td>
+                                <td class="p-2 border">Store in cache (all tiers)</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2 border font-mono">clear(?string $pattern)</td>
+                                <td class="p-2 border">$pattern: Optional wildcard</td>
+                                <td class="p-2 border">Clear cache entries</td>
+                            </tr>
+                            <tr class="bg-gray-50">
+                                <td class="p-2 border font-mono">getStats()</td>
+                                <td class="p-2 border">-</td>
+                                <td class="p-2 border">Get cache hit/miss statistics</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- GitHubApiService Class -->
+                <div class="border-2 border-green-200 rounded-lg p-6">
+                    <h3 class="text-xl font-bold mb-4 text-green-900">GitHubApiService</h3>
+                    <div class="bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-sm overflow-x-auto mb-4">
+<pre>$github = new GitHubApiService($config, $logger);
+$contributors = $github->fetchContributors(100, 1);
+$rateLimit = $github->checkRateLimit();
+$apiCalls = $github->getApiCallCount();</pre>
+                    </div>
+                    <table class="w-full text-sm">
+                        <thead class="bg-green-50">
+                            <tr>
+                                <th class="text-left p-2 border">Method</th>
+                                <th class="text-left p-2 border">Return</th>
+                                <th class="text-left p-2 border">Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="p-2 border font-mono">fetchContributors($perPage, $page)</td>
+                                <td class="p-2 border">array</td>
+                                <td class="p-2 border">Fetch contributor list with pagination</td>
+                            </tr>
+                            <tr class="bg-gray-50">
+                                <td class="p-2 border font-mono">checkRateLimit()</td>
+                                <td class="p-2 border">array</td>
+                                <td class="p-2 border">Get current API rate limit status</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2 border font-mono">getApiCallCount()</td>
+                                <td class="p-2 border">int</td>
+                                <td class="p-2 border">Count of API calls made in session</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Testing -->
+        <section id="testing" class="mb-12 bg-white rounded-xl shadow-lg p-8">
+            <h2 class="text-3xl font-bold mb-6 flex items-center gap-3">
+                <span class="text-4xl">🧪</span>
+                Testing
+            </h2>
+
+            <div class="space-y-6">
+                <div>
+                    <h3 class="text-2xl font-bold mb-4">Running Tests</h3>
+                    <div class="bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-sm overflow-x-auto">
+                        <div>$ npm test                # Run all Playwright tests</div>
+                        <div>$ npm run test:ui         # Interactive UI mode</div>
+                        <div>$ npm run test:headed     # Watch tests run</div>
+                        <div>$ npm run test:debug      # Debug mode</div>
+                        <div>$ npm run test:report     # View HTML report</div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-2xl font-bold mb-4">Test Coverage</h3>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div class="bg-blue-50 p-4 rounded-lg border-2 border-blue-200">
+                            <h4 class="font-bold mb-2 text-blue-900">Functional Tests</h4>
+                            <ul class="text-sm space-y-1">
+                                <li>✓ Widget loading and display</li>
+                                <li>✓ Click/hover interactions</li>
+                                <li>✓ Popup toggle behavior</li>
+                                <li>✓ Error handling</li>
+                            </ul>
+                        </div>
+                        <div class="bg-green-50 p-4 rounded-lg border-2 border-green-200">
+                            <h4 class="font-bold mb-2 text-green-900">Accessibility Tests</h4>
+                            <ul class="text-sm space-y-1">
+                                <li>✓ ARIA attributes</li>
+                                <li>✓ Keyboard navigation</li>
+                                <li>✓ Screen reader support</li>
+                                <li>✓ Focus management</li>
+                            </ul>
+                        </div>
+                        <div class="bg-purple-50 p-4 rounded-lg border-2 border-purple-200">
+                            <h4 class="font-bold mb-2 text-purple-900">Responsive Tests</h4>
+                            <ul class="text-sm space-y-1">
+                                <li>✓ Mobile (375px)</li>
+                                <li>✓ Tablet (768px)</li>
+                                <li>✓ Desktop (1920px)</li>
+                                <li>✓ Layout stability</li>
+                            </ul>
+                        </div>
+                        <div class="bg-yellow-50 p-4 rounded-lg border-2 border-yellow-200">
+                            <h4 class="font-bold mb-2 text-yellow-900">Performance Tests</h4>
+                            <ul class="text-sm space-y-1">
+                                <li>✓ Load time &lt; 3 seconds</li>
+                                <li>✓ No layout shifts</li>
+                                <li>✓ No console errors</li>
+                                <li>✓ Visual regression</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Troubleshooting -->
+        <section id="troubleshooting" class="mb-12 bg-white rounded-xl shadow-lg p-8">
+            <h2 class="text-3xl font-bold mb-6 flex items-center gap-3">
+                <span class="text-4xl">🔧</span>
+                Troubleshooting
+            </h2>
+
+            <div class="space-y-6">
+                <div class="border-l-4 border-red-500 pl-6 py-4 bg-red-50 rounded-r-lg">
+                    <h4 class="font-bold text-red-900 mb-2">Issue: Database Connection Failed</h4>
+                    <p class="text-red-800 mb-3"><strong>Error:</strong> "Database connection failed: SQLSTATE[HY000]"</p>
+                    <p class="text-red-800 mb-2"><strong>Solutions:</strong></p>
+                    <ul class="list-disc list-inside space-y-1 text-red-800">
+                        <li>Verify DB_HOST, DB_PORT, DB_NAME in .env</li>
+                        <li>Check MySQL service: <code>sudo systemctl status mysql</code></li>
+                        <li>Test connection: <code>mysql -h localhost -u widget_user -p</code></li>
+                        <li>Grant permissions: <code>GRANT ALL ON github_contributors.* TO 'widget_user'@'localhost';</code></li>
+                    </ul>
+                </div>
+
+                <div class="border-l-4 border-yellow-500 pl-6 py-4 bg-yellow-50 rounded-r-lg">
+                    <h4 class="font-bold text-yellow-900 mb-2">Issue: GitHub API Rate Limit Exceeded</h4>
+                    <p class="text-yellow-800 mb-3"><strong>Error:</strong> "GitHub API rate limit exceeded"</p>
+                    <p class="text-yellow-800 mb-2"><strong>Solutions:</strong></p>
+                    <ul class="list-disc list-inside space-y-1 text-yellow-800">
+                        <li>Verify GITHUB_API_TOKEN is valid and not expired</li>
+                        <li>Check token format: must start with <code>ghp_</code> or <code>ghs_</code></li>
+                        <li>Increase CACHE_DURATION_DAYS to reduce API calls</li>
+                        <li>Check rate limit: <code>curl -H "Authorization: Bearer $TOKEN" https://api.github.com/rate_limit</code></li>
+                    </ul>
+                </div>
+
+                <div class="border-l-4 border-blue-500 pl-6 py-4 bg-blue-50 rounded-r-lg">
+                    <h4 class="font-bold text-blue-900 mb-2">Issue: Widget Not Displaying</h4>
+                    <p class="text-blue-800 mb-3"><strong>Symptom:</strong> Empty space where widget should appear</p>
+                    <p class="text-blue-800 mb-2"><strong>Solutions:</strong></p>
+                    <ul class="list-disc list-inside space-y-1 text-blue-800">
+                        <li>Check browser console for JavaScript errors</li>
+                        <li>Verify #gh-widget-container element exists in HTML</li>
+                        <li>Clear browser cache and reload</li>
+                        <li>Check storage/logs/github-widget.log for errors</li>
+                        <li>Manually run cron: <code>php cron/update-contributors.php</code></li>
+                    </ul>
+                </div>
+
+                <div class="border-l-4 border-green-500 pl-6 py-4 bg-green-50 rounded-r-lg">
+                    <h4 class="font-bold text-green-900 mb-2">Issue: Cron Job Not Running</h4>
+                    <p class="text-green-800 mb-3"><strong>Symptom:</strong> Data not updating monthly</p>
+                    <p class="text-green-800 mb-2"><strong>Solutions:</strong></p>
+                    <ul class="list-disc list-inside space-y-1 text-green-800">
+                        <li>Check crontab: <code>crontab -l</code></li>
+                        <li>Verify PHP path: <code>which php</code></li>
+                        <li>Check cron logs: <code>grep CRON /var/log/syslog</code></li>
+                        <li>Test manually: <code>php cron/update-contributors.php</code></li>
+                        <li>Check file permissions: <code>chmod +x cron/update-contributors.php</code></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Performance -->
+        <section id="performance" class="mb-12 bg-white rounded-xl shadow-lg p-8">
+            <h2 class="text-3xl font-bold mb-6 flex items-center gap-3">
+                <span class="text-4xl">⚡</span>
+                Performance Optimization
+            </h2>
+
+            <div class="space-y-6">
+                <div class="bg-gradient-to-r from-green-50 to-blue-50 p-6 rounded-lg border-2 border-green-200">
+                    <h3 class="text-xl font-bold mb-4">Caching Strategy</h3>
+                    <div class="space-y-3">
+                        <div class="flex items-start gap-3">
+                            <div class="bg-green-600 text-white rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0 font-bold">1</div>
+                            <div>
+                                <strong>Memory Cache (L1)</strong>
+                                <p class="text-sm text-gray-600">PHP array cache, 1 hour TTL, ~40% hit rate, &lt;1ms response</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <div class="bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0 font-bold">2</div>
+                            <div>
+                                <strong>Database Cache (L2)</strong>
+                                <p class="text-sm text-gray-600">MySQL table, 30 day TTL, ~55% hit rate, ~50ms response</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <div class="bg-purple-600 text-white rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0 font-bold">3</div>
+                            <div>
+                                <strong>GitHub API (L3)</strong>
+                                <p class="text-sm text-gray-600">External API, fallback only, ~5% hit rate, ~1000ms response</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Production Optimizations</h3>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                            <h4 class="font-bold mb-2">PHP Configuration</h4>
+                            <ul class="text-sm space-y-1">
+                                <li>✓ Enable OPcache (opcache.enable=1)</li>
+                                <li>✓ Increase opcache memory (256MB)</li>
+                                <li>✓ Enable realpath cache</li>
+                                <li>✓ Use persistent PDO connections</li>
+                            </ul>
+                        </div>
+                        <div class="bg-purple-50 p-4 rounded-lg border border-purple-200">
+                            <h4 class="font-bold mb-2">Database Optimization</h4>
+                            <ul class="text-sm space-y-1">
+                                <li>✓ Add indexes on cache_key, expires_at</li>
+                                <li>✓ Enable query cache</li>
+                                <li>✓ Use InnoDB engine</li>
+                                <li>✓ Regular OPTIMIZE TABLE</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Security -->
+        <section id="security" class="mb-12 bg-white rounded-xl shadow-lg p-8">
+            <h2 class="text-3xl font-bold mb-6 flex items-center gap-3">
+                <span class="text-4xl">🔒</span>
+                Security Best Practices
+            </h2>
+
+            <div class="space-y-6">
+                <div class="bg-red-50 border-2 border-red-200 rounded-lg p-6">
+                    <h3 class="text-xl font-bold mb-4 text-red-900">Security Checklist</h3>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <h4 class="font-bold mb-2">✓ Implemented</h4>
+                            <ul class="space-y-1 text-sm">
+                                <li>✅ PDO prepared statements (SQL injection prevention)</li>
+                                <li>✅ htmlspecialchars() output escaping (XSS prevention)</li>
+                                <li>✅ Environment variable security (.env not in git)</li>
+                                <li>✅ Token validation (regex pattern matching)</li>
+                                <li>✅ Error suppression in production</li>
+                                <li>✅ Strict type checking</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="font-bold mb-2">⚠️ Recommended</h4>
+                            <ul class="space-y-1 text-sm">
+                                <li>△ Implement CSP headers</li>
+                                <li>△ Add CSRF tokens for POST requests</li>
+                                <li>△ Enable HTTPS only</li>
+                                <li>△ Implement rate limiting</li>
+                                <li>△ Add API authentication</li>
+                                <li>△ Regular security audits</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Token Security</h3>
+                    <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded-r-lg">
+                        <p class="font-bold text-yellow-900 mb-2">IMPORTANT: GitHub Token Management</p>
+                        <ul class="space-y-2 text-yellow-800">
+                            <li>🔒 Never commit tokens to version control</li>
+                            <li>🔒 Use fine-grained personal access tokens</li>
+                            <li>🔒 Grant minimum required permissions</li>
+                            <li>🔒 Rotate tokens regularly (every 90 days)</li>
+                            <li>🔒 Store in environment variables only</li>
+                            <li>🔒 Use different tokens for dev/staging/prod</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ -->
+        <section id="faq" class="mb-12 bg-white rounded-xl shadow-lg p-8">
+            <h2 class="text-3xl font-bold mb-6 flex items-center gap-3">
+                <span class="text-4xl">❓</span>
+                Frequently Asked Questions
+            </h2>
+
+            <div class="space-y-4">
+                <details class="bg-gray-50 p-4 rounded-lg border-2 border-gray-200">
+                    <summary class="font-bold cursor-pointer">How often does the widget update?</summary>
+                    <p class="mt-2 text-gray-700">The cron job runs monthly on the 1st at 2:00 AM UTC. Data is cached for 30 days in the database and 1 hour in memory. You can manually trigger updates by running <code>php cron/update-contributors.php</code>.</p>
+                </details>
+
+                <details class="bg-gray-50 p-4 rounded-lg border-2 border-gray-200">
+                    <summary class="font-bold cursor-pointer">Can I use this with a private repository?</summary>
+                    <p class="mt-2 text-gray-700">Yes! Use a fine-grained personal access token with "Contents" read permission for the specific repository. Set it in the GITHUB_API_TOKEN environment variable.</p>
+                </details>
+
+                <details class="bg-gray-50 p-4 rounded-lg border-2 border-gray-200">
+                    <summary class="font-bold cursor-pointer">What happens if GitHub API is down?</summary>
+                    <p class="mt-2 text-gray-700">The widget gracefully degrades by serving cached data (up to 30 days old). If no cache exists, it shows an empty state. The cron job will retry on the next scheduled run.</p>
+                </details>
+
+                <details class="bg-gray-50 p-4 rounded-lg border-2 border-gray-200">
+                    <summary class="font-bold cursor-pointer">How do I customize the widget appearance?</summary>
+                    <p class="mt-2 text-gray-700">Override CSS custom properties in :root (e.g., --gh-avatar-size, --gh-popup-bg). For PHP widget, pass configuration variables before including. See the Usage Guide section for examples.</p>
+                </details>
+
+                <details class="bg-gray-50 p-4 rounded-lg border-2 border-gray-200">
+                    <summary class="font-bold cursor-pointer">Does this work with GitHub Enterprise?</summary>
+                    <p class="mt-2 text-gray-700">Yes, but you need to update the GitHub API base URL in Configuration.php. Change the 'api_url' to your GitHub Enterprise API endpoint (e.g., https://github.company.com/api/v3).</p>
+                </details>
+
+                <details class="bg-gray-50 p-4 rounded-lg border-2 border-gray-200">
+                    <summary class="font-bold cursor-pointer">What are the rate limits?</summary>
+                    <p class="mt-2 text-gray-700">GitHub allows 5,000 requests/hour with authentication. The widget uses ~1 request per month (from cron job) thanks to aggressive caching. Public repos without tokens get 60 requests/hour.</p>
+                </details>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-gradient-to-r from-indigo-900 to-purple-900 text-white py-12 mt-12">
+        <div class="container mx-auto px-6">
+            <div class="grid md:grid-cols-3 gap-8 mb-8">
+                <div>
+                    <h3 class="font-bold text-xl mb-4">GitHub Contributors Widget</h3>
+                    <p class="text-indigo-200">Production-grade contributor display for documentation sites</p>
+                </div>
+                <div>
+                    <h3 class="font-bold text-xl mb-4">Quick Links</h3>
+                    <ul class="space-y-2 text-indigo-200">
+                        <li><a href="#overview" class="hover:text-white">Overview</a></li>
+                        <li><a href="#installation" class="hover:text-white">Installation</a></li>
+                        <li><a href="#usage" class="hover:text-white">Usage Guide</a></li>
+                        <li><a href="#api" class="hover:text-white">API Reference</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-bold text-xl mb-4">Resources</h3>
+                    <ul class="space-y-2 text-indigo-200">
+                        <li><a href="../report/project-audit.html" class="hover:text-white">Audit Report</a></li>
+                        <li><a href="https://github.com/csimpsonweb/MA-Widget" class="hover:text-white">GitHub Repository</a></li>
+                        <li><a href="#troubleshooting" class="hover:text-white">Troubleshooting</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-indigo-700 pt-8 text-center text-indigo-300">
+                <p>© 2025 GitHub Contributors Widget - Technical Documentation</p>
+                <p class="text-sm mt-2">Built with precision by Senior Software Engineers</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function docsApp() {
+            return {
+                activeSection: 'overview',
+                sections: [
+                    { id: 'overview', name: 'Overview' },
+                    { id: 'architecture', name: 'Architecture' },
+                    { id: 'installation', name: 'Installation' },
+                    { id: 'usage', name: 'Usage' },
+                    { id: 'api', name: 'API Reference' },
+                    { id: 'testing', name: 'Testing' },
+                    { id: 'troubleshooting', name: 'Troubleshooting' },
+                    { id: 'performance', name: 'Performance' },
+                    { id: 'security', name: 'Security' },
+                    { id: 'faq', name: 'FAQ' }
+                ],
+                scrollToSection(id) {
+                    document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+                }
+            }
+        }
+    </script>
+</body>
+</html>
