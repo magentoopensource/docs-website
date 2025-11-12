@@ -23,9 +23,9 @@
             </div>
             <div class="font-inter-tight leading-[0] not-italic relative shrink-0 text-charcoal text-base text-nowrap">
                 @if($title)
-                    <p class="leading-[1.5] whitespace-pre">{{ $title }}</p>
+                    <p class="leading-relaxed whitespace-pre">{{ $title }}</p>
                 @elseif($content)
-                    <p class="leading-[1.5] whitespace-pre">{{ $content }}</p>
+                    <p class="leading-relaxed whitespace-pre">{{ $content }}</p>
                 @else
                     {{ $slot }}
                 @endif

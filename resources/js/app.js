@@ -6,6 +6,7 @@ import './components/search';
 import { initLazyLoading } from './components/lazyImages';
 import { initErrorLogging } from './components/errorLogging';
 import { initMobileMenu } from './components/mobileMenu';
+import { initSmoothScroll } from './components/smoothScroll';
 
 window.Alpine = Alpine;
 
@@ -21,6 +22,9 @@ function initApp() {
 
     // Initialize mobile menu (vanilla JS, no Alpine dependency)
     initMobileMenu();
+
+    // Initialize smooth scroll with reduced-motion support
+    initSmoothScroll();
 
     // Initialize lazy loading for all images
     initLazyLoading();

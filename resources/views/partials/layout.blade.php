@@ -80,12 +80,13 @@
     class="w-full h-full font-sans antialiased text-gray-900 language-php bg-white"
 >
 
-{{-- Fixed Header from Figma --}}
-@include('partials.header')
+{{-- Fixed Header from Figma - Components included directly to enable sticky positioning --}}
+@include('partials.ecosystem-menu')
+@include('partials.main-header')
 
 {{-- Main content with top padding to accommodate fixed header and max-width constraint --}}
 <main class="">
-    <div class="max-w-[1440px] mx-auto">
+    <div class="max-w-7xl xl:max-w-8xl mx-auto">
         @yield('content')
     </div>
 </main>
