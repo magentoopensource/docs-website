@@ -19,13 +19,18 @@ export default {
                 "base": ["16px", { lineHeight: "1.5" }],  // text-base
                 "sm": ["14px", { lineHeight: "1.42" }],   // text-sm
                 "xs": ["12px", { lineHeight: "1.333" }],  // text-xs
+                // Documentation component sizes
+                "15": ["0.9375rem", { lineHeight: "1.6" }],  // text-15 for solution content
+                "13": ["0.8125rem", { lineHeight: "1.5" }],  // text-13 for small labels
             },
             maxWidth: {
                 xxs: "16rem",
                 "8xl": "90rem", // 1440px - Standard large desktop viewport
                 "9xl": "96rem",
+                "75ch": "75ch",  // For readable documentation line length
             },
             spacing: {
+                7: "1.75rem",  // For exact p-7 in verification checklist
                 18: "4.5rem",
                 22: "5.5rem",
                 88: "22rem",
@@ -37,6 +42,9 @@ export default {
                 "logo-sm": "220px",  // Mobile logo width
                 "logo-md": "240px",  // Tablet logo width
                 "logo-lg": "270px",  // Desktop logo width
+            },
+            gridTemplateColumns: {
+                'accordion': '1fr auto auto',  // For accordion button layout
             },
             borderRadius: {
                 "4xl": "2rem",
@@ -70,6 +78,10 @@ export default {
             sm: `0 10px 15px -8px rgba(9, 9, 16, .1)`,
             lg: "0 20px 30px -16px rgba(9, 9, 16, .2)",
             xl: "0 10px 20px 0 rgba(9, 9, 16, .15)",
+            // Documentation component shadows
+            card: "0 1px 3px rgba(0,0,0,0.08)",
+            featured: "0 1px 3px rgba(0,0,0,0.1)",
+            accordion: "0 2px 8px rgba(0,0,0,0.06)",
         },
         colors: {
             transparent: "transparent",
@@ -77,9 +89,16 @@ export default {
             // Brand colors
             orange: {
                 DEFAULT: "#F26423",
-                500: "#F26423",  // For @apply directives
+                50: "#FFF7F0",   // Light orange for hover states
+                500: "#F26423",  // Main orange
+                600: "#F26423",  // For @apply directives
+                700: "#D9531F",  // Darker orange for hover
             },
-            yellow: "#F1BC1B",
+            yellow: {
+                DEFAULT: "#F1BC1B",
+                50: "#FFFBEB",   // Light yellow for hover states
+                500: "#F1BC1B",  // Main yellow
+            },
             red: {
                 DEFAULT: "#BC3312",
                 500: "#BC3312",  // For theme() function
@@ -108,13 +127,13 @@ export default {
                 lighter: "#D9D9D9",
                 lightest: "#F1F1F1",
                 // Numbered shades for @apply directives
-                50: "#FAFAFA",
+                50: "#FAFAFA",   // Verification checklist backgrounds
                 100: "#F1F1F1",
-                200: "#D9D9D9",
+                200: "#E5E7EB",  // Accordion borders
                 300: "#CCCCCC",
                 400: "#848484",
-                500: "#848484",
-                600: "#818181",
+                500: "#6B7280",  // Info severity badges
+                600: "#818181",  // Muted text
                 700: "#474747",
                 800: "#34323A",
                 900: "#2C2C2C",
