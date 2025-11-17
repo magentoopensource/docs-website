@@ -123,12 +123,18 @@ export default {
             blue: {
                 50: "#eff6ff",
                 400: "#60a5fa",
+                600: "#2563eb",
                 800: "#1e40af",
             },
             green: {
                 50: "#f0fdf4",
                 400: "#4ade80",
+                600: "#16a34a",
                 800: "#166534",
+            },
+            amber: {
+                50: "#fffbeb",
+                500: "#f59e0b",
             },
             // Legacy color names for @apply directives (mapped to our palette)
             primary: {
