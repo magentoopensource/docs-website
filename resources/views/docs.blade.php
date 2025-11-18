@@ -12,7 +12,7 @@
             <span class="current">{{ $title }}</span>
         </nav>
 
-        <div class="grid grid-cols-1 lg:grid-cols-[16rem_1fr] xl:grid-cols-[16rem_1fr_16rem] gap-8 lg:gap-12 py-8 lg:py-8">
+        <div class="docs-layout-grid">
             {{-- Left Sidebar: Category Articles --}}
             <aside class="hidden lg:block">
                 <div class="sticky top-24">
@@ -57,12 +57,12 @@
             {{-- Main Content Area --}}
             <main class="min-w-0 max-w-full overflow-hidden">
                 {{-- Documentation Content with optimal reading width --}}
-                <article class="docs-content prose prose-charcoal max-w-none lg:max-w-[75ch] mx-auto lg:mx-0">
+                <article class="docs-content prose prose-charcoal max-w-none lg:max-w-[90ch] mx-auto lg:mx-0">
                     {!! $content !!}
                 </article>
 
                 {{-- Edit Link Footer --}}
-                <div class="mt-16 pt-8 border-t border-gray-200 max-w-[75ch] mx-auto lg:mx-0">
+                <div class="mt-16 pt-8 border-t border-gray-200 max-w-[90ch] mx-auto lg:mx-0">
                     <a
                         href="{{ $edit_link }}"
                         target="_blank"
