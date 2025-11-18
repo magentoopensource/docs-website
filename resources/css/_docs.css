@@ -1,4 +1,28 @@
 /* Modern KB Page Styling */
+
+/* 3-column docs layout grid */
+.docs-layout-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+}
+
+@media (min-width: 1024px) {
+    .docs-layout-grid {
+        grid-template-columns: 16rem 1fr;
+        gap: 3rem;
+    }
+}
+
+@media (min-width: 1280px) {
+    .docs-layout-grid {
+        grid-template-columns: 16rem 1fr 20rem;
+        gap: 3rem;
+    }
+}
+
 .callout {
     @apply bg-blue-50 border-l-4 border-blue-400 p-4 mb-6 rounded-r-lg;
     
@@ -65,7 +89,8 @@
 
     /* Enhanced code blocks - Coordinated with _code.css */
     pre {
-        @apply bg-gray-900 text-gray-100 rounded-lg overflow-x-auto shadow-lg max-w-full;
+        @apply text-gray-100 rounded-lg overflow-x-auto shadow-lg max-w-full;
+        /* Background color is set by Torchlight inline styles on code element */
         /* Mobile-first padding */
         @apply p-4 mb-6;
 
@@ -599,8 +624,8 @@
     overflow-wrap: break-word !important;
 }
 
-/* Also prevent pre>code blocks from rendering in step-timeline */
-.step-timeline .step-content pre {
+/* Inline code blocks in step-timeline (but NOT Torchlight syntax-highlighted blocks) */
+.step-timeline .step-content pre:not(:has(code.torchlight)) {
     display: inline !important;
     background: transparent !important;
     padding: 0 !important;
@@ -610,7 +635,7 @@
     border-radius: 0 !important;
 }
 
-.step-timeline .step-content pre code {
+.step-timeline .step-content pre:not(:has(code.torchlight)) code {
     display: inline !important;
     width: auto !important;
     background: #2C2C2C !important;
