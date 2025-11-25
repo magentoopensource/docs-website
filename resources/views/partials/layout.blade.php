@@ -77,7 +77,7 @@
         closeNav() { this.navIsOpen = false; },
         toggleNav() { this.navIsOpen = !this.navIsOpen; },
     }"
-    class="w-full h-full font-sans antialiased text-gray-900 language-php bg-white"
+    class="w-full h-full font-sans antialiased text-gray-900 language-php bg-off-white"
 >
 
 {{-- Fixed Header from Figma - Components included directly to enable sticky positioning --}}
