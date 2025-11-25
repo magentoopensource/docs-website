@@ -44,8 +44,42 @@ add('writable_dirs', [
 ]);
 
 // Tasks
-// Note: Assets are built in GitHub Actions before deployment
-// No need to build on production server
+
+desc('Install npm dependencies');
+task('deploy:npm-install', function () {
+    cd('{{release_path}}');
+    run('npm ci --production=false');
+});
+
+desc('Build Vite assets');
+task('deploy:build-assets', function () {
+    cd('{{release_path}}');
+    run('npm run build');
+});
+
+desc('Verify assets were built successfully');
+task('deploy:verify-assets', function () {
+    cd('{{release_path}}');
+
+    // Check manifest exists
+    if (!test('[ -f public/build/manifest.json ]')) {
+        throw new \Exception('❌ Build verification failed: manifest.json not found!');
+    }
+
+    // Check at least one CSS file exists
+    $cssCount = run('find public/build/assets -name "*.css" -type f | wc -l');
+    if ((int)trim($cssCount) === 0) {
+        throw new \Exception('❌ Build verification failed: No CSS files found in build directory!');
+    }
+
+    // Check at least one JS file exists
+    $jsCount = run('find public/build/assets -name "*.js" -type f | wc -l');
+    if ((int)trim($jsCount) === 0) {
+        throw new \Exception('❌ Build verification failed: No JS files found in build directory!');
+    }
+
+    writeln('✅ Build verification passed - all required assets exist');
+});
 
 desc('Sync external documentation');
 task('deploy:sync-docs', function () {
@@ -84,12 +118,50 @@ PHP;
 
     // Remove temporary script
     run('rm -f {{release_path}}/public/clear-opcache-temp.php');
+
+    writeln('✅ OPcache cleared successfully');
+});
+
+desc('Verify deployment health');
+task('deploy:health-check', function () {
+    writeln('🔍 Running post-deployment health checks...');
+
+    // Check if homepage loads
+    $response = run('curl -s -o /dev/null -w "%{http_code}" https://docs.magento-opensource.com/');
+    if (trim($response) !== '200') {
+        writeln('⚠️  Warning: Homepage returned HTTP ' . trim($response));
+    } else {
+        writeln('✅ Homepage loads successfully (HTTP 200)');
+    }
+
+    // Fetch homepage HTML and check for Vite assets
+    $html = run('curl -s https://docs.magento-opensource.com/');
+
+    // Extract CSS filename from HTML
+    if (preg_match('/build\/assets\/app-([a-f0-9]+)\.css/', $html, $matches)) {
+        $cssFile = "build/assets/app-{$matches[1]}.css";
+        $cssResponse = run("curl -s -o /dev/null -w \"%{http_code}\" https://docs.magento-opensource.com/$cssFile");
+
+        if (trim($cssResponse) === '200') {
+            writeln("✅ CSS file loads successfully: $cssFile");
+        } else {
+            throw new \Exception("❌ CSS file failed to load: $cssFile (HTTP " . trim($cssResponse) . ")");
+        }
+    } else {
+        writeln('⚠️  Warning: Could not find CSS reference in HTML');
+    }
+
+    writeln('✅ All health checks passed');
 });
 
 // Hooks
+after('deploy:vendors', 'deploy:npm-install');
+after('deploy:npm-install', 'deploy:build-assets');
+after('deploy:build-assets', 'deploy:verify-assets');
 after('deploy:symlink', 'deploy:sync-docs');
 after('deploy:sync-docs', 'deploy:optimize');
 after('deploy:optimize', 'deploy:clear-opcache');
+after('deploy:clear-opcache', 'deploy:health-check');
 
 // Main deployment flow
 desc('Deploy the application');

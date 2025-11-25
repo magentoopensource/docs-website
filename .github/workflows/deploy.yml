@@ -25,26 +25,8 @@ jobs:
       - name: Install Composer dependencies
         run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-
-      - name: Install npm dependencies
-        run: npm ci
-
-      - name: Build assets
-        run: npm run build
-
-      - name: Verify build completed
-        run: |
-          if [ ! -f public/build/manifest.json ]; then
-            echo "❌ Build failed - manifest.json not found!"
-            exit 1
-          fi
-          echo "✅ Build successful - manifest.json exists"
-          echo "ℹ️  Note: Built assets should be committed to git before pushing code changes"
+      # Note: Assets are now built on the production server during deployment
+      # This ensures consistency and avoids git conflicts with built files
 
       - name: Setup SSH
         run: |
