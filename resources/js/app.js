@@ -7,6 +7,7 @@ import { initLazyLoading } from './components/lazyImages';
 import { initErrorLogging } from './components/errorLogging';
 import { initMobileMenu } from './components/mobileMenu';
 import { initSmoothScroll } from './components/smoothScroll';
+import { initAccordion } from './components/accordion';
 
 window.Alpine = Alpine;
 
@@ -28,6 +29,9 @@ function initApp() {
 
     // Initialize lazy loading for all images
     initLazyLoading();
+
+    // Initialize vanilla JS accordion
+    initAccordion();
 
     if (document.querySelector('#docsScreen')) {
         import('./docs.js');
