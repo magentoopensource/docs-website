@@ -1,1 +1,0 @@
-const e=document.querySelector("#skip-to-content-link"),t=document.querySelector("#main-content");e&&t&&(e.addEventListener("click",function(e){e.preventDefault(),t.setAttribute("tabindex",-1),t.focus()}),t.addEventListener("blur",function(){t.removeAttribute("tabindex")})),e&&!t&&e.parentNode.removeChild(e);
