@@ -1,4 +1,28 @@
 /* Modern KB Page Styling */
+
+/* 3-column docs layout grid */
+.docs-layout-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+}
+
+@media (min-width: 1024px) {
+    .docs-layout-grid {
+        grid-template-columns: 16rem 1fr;
+        gap: 3rem;
+    }
+}
+
+@media (min-width: 1280px) {
+    .docs-layout-grid {
+        grid-template-columns: 16rem 1fr 20rem;
+        gap: 3rem;
+    }
+}
+
 .callout {
     @apply bg-blue-50 border-l-4 border-blue-400 p-4 mb-6 rounded-r-lg;
     
@@ -33,6 +57,9 @@
 }
 
 .docs_main {
+    /* Light gray background matching Figma design */
+    @apply bg-off-white;
+
     /* Enhanced anchor styling for KB pages */
     a[name] {
         @apply relative block invisible -top-[45px] sm:-top-[30px];
@@ -60,18 +87,64 @@
         }
     }
 
-    /* Enhanced code blocks */
+    /* Enhanced code blocks - Coordinated with _code.css */
     pre {
-        @apply bg-gray-900 text-gray-100 rounded-lg p-6 mb-8 overflow-x-auto shadow-lg;
-        
+        @apply text-gray-100 rounded-lg overflow-x-auto shadow-lg max-w-full;
+        /* Background color is set by Torchlight inline styles on code element */
+        /* Mobile-first padding */
+        @apply p-4 mb-6;
+
+        @screen md {
+            @apply p-6 mb-8;
+        }
+
         code {
             @apply text-sm font-mono;
+
+            @screen md {
+                @apply text-base;
+            }
         }
     }
 
-    /* Inline code styling */
+    /* Inline code styling - For filenames, parameters, and short code snippets */
     :not(pre) > code {
-        @apply bg-gray-100 text-gray-800 px-2 py-1 rounded text-sm font-mono;
+        @apply bg-gray-100 text-gray-800 px-2 py-1 rounded text-sm font-mono border border-gray-300;
+    }
+
+    /**
+     * Documentation List Styling - Enhanced for command display
+     * Provides better visual hierarchy for step-by-step instructions
+     */
+
+    /* Ordered lists with steps/instructions */
+    ol {
+        @apply mb-8;
+
+        /* Step numbers */
+        & > li::before {
+            @apply font-semibold text-gray-900;
+        }
+
+        /* List items containing commands need more space */
+        & > li:has(code) {
+            @apply mb-6;
+
+            @screen md {
+                @apply mb-8;
+            }
+        }
+
+        /* Description text before command */
+        & > li > p {
+            @apply mb-3 text-gray-700 leading-relaxed;
+        }
+    }
+
+    /* Strong/bold text in lists (often step descriptions) */
+    ol > li > strong:first-child,
+    ul > li > strong:first-child {
+        @apply text-gray-900 font-semibold block mb-2;
     }
 
     ul:not(:first-of-type),
@@ -136,4 +209,958 @@
 
 .table-of-contents {
     @apply !mb-4;
+}
+
+/**
+ * Verification Checklist Components - Design Option 3: Status Badges
+ * White card groups with status badges, yellow checkboxes, grid layout
+ */
+
+.verification-checklist {
+    @apply list-none my-8 pl-0;
+}
+
+.verification-step {
+    background: white;
+    padding: 1.75rem;
+    margin-bottom: 1.25rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    list-style: none !important;
+}
+
+/* Remove default list markers */
+.verification-step::before {
+    content: none !important;
+    display: none !important;
+}
+
+/* Group header with title and status badge */
+.verification-step > strong:first-of-type {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.25rem;
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #2C2C2C;
+}
+
+/* Status badge (appears after title using ::after) */
+.verification-step > strong:first-of-type::after {
+    content: "REQUIRED";
+    background: #F26423;
+    color: white;
+    padding: 0.375rem 1rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Nested verification items list */
+.verification-step > ul {
+    display: grid;
+    gap: 0.75rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+/* Individual verification items */
+.verification-step > ul > li {
+    display: flex;
+    align-items: start;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background: #FAFAFA;
+    transition: all 0.2s;
+    list-style: none !important;
+    position: relative;
+    padding-left: 2.5rem;
+}
+
+.verification-step > ul > li:hover {
+    background: #FFF7F0;
+}
+
+/* Yellow checkbox */
+.verification-step > ul > li::before {
+    content: "✓";
+    position: absolute;
+    left: 0.75rem;
+    top: 0.75rem;
+    width: 1.25rem;
+    height: 1.25rem;
+    border: 2px solid #F1BC1B;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #F1BC1B;
+    font-weight: 700;
+    font-size: 0.875rem;
+}
+
+/* Item text */
+.verification-step > ul > li {
+    color: #2C2C2C;
+    font-size: 0.9375rem;
+    line-height: 1.6;
+}
+
+/* Inline code within verification items */
+.verification-step code,
+.verification-step > ul > li code {
+    @apply bg-gray-100 px-2 py-0.5 text-[0.8125rem] font-mono border border-gray-300 text-charcoal;
+}
+
+/* Links within verification steps */
+.verification-step a {
+    @apply text-blue-800 underline hover:text-orange transition-colors duration-150;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 640px) {
+    .verification-checklist {
+        margin: 1.5rem 0;
+    }
+
+    .verification-step {
+        padding: 1.25rem;
+        margin-bottom: 1rem;
+    }
+
+    .verification-step > strong:first-of-type {
+        font-size: 1rem;
+        margin-bottom: 1rem;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+
+    .verification-step > strong:first-of-type::after {
+        align-self: flex-start;
+    }
+
+    .verification-step > ul > li {
+        padding: 0.625rem;
+        padding-left: 2.25rem;
+        font-size: 0.875rem;
+    }
+
+    .verification-step > ul > li::before {
+        left: 0.625rem;
+        top: 0.625rem;
+        width: 1rem;
+        height: 1rem;
+        font-size: 0.75rem;
+    }
+}
+
+/* Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+    .verification-step {
+        @apply transition-none;
+    }
+}
+
+/* Focus states for keyboard navigation */
+.verification-step:focus-within {
+    @apply ring-2 ring-orange ring-offset-2 outline-none;
+}
+
+/* Print styles */
+@media print {
+    .verification-step {
+        @apply break-inside-avoid shadow-none border-2;
+    }
+}
+
+/**
+ * Breadcrumb Navigation
+ * Positioned under logo in main body
+ */
+.docs-breadcrumb {
+    @apply flex items-center gap-2 text-sm mb-6;
+}
+
+.docs-breadcrumb a {
+    @apply no-underline transition-colors duration-200;
+    color: #F26423;
+}
+
+.docs-breadcrumb a:hover {
+    @apply text-orange;
+    text-decoration: underline;
+}
+
+.docs-breadcrumb span:not(.current) {
+    @apply select-none;
+    color: #F26423;
+}
+
+.docs-breadcrumb .current {
+    @apply text-charcoal font-medium;
+}
+
+/**
+ * Featured Boxout
+ * Yellow top border with orange hexagon bullets
+ */
+.featured-boxout {
+    @apply bg-white mb-8 p-8;
+    border-top: 4px solid #F1BC1B;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.featured-boxout h3 {
+    @apply text-2xl font-bold text-charcoal mb-6;
+    margin-top: 0;
+}
+
+.featured-boxout ul {
+    @apply list-none pl-0 space-y-3;
+}
+
+.featured-boxout ul li {
+    @apply relative pl-8 text-gray-700 leading-relaxed;
+    list-style: none !important;
+}
+
+.featured-boxout ul li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.4em;
+    width: 14px;
+    height: 14px;
+    background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 2L21 7V17L12 22L3 17V7L12 2Z' stroke='%23F26423' stroke-width='2.5' stroke-linejoin='miter'/%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+/**
+ * Prerequisites List
+ * Simple list with orange hexagon bullets
+ */
+.prerequisites-list ul {
+    @apply list-none pl-0 space-y-3 mb-8;
+}
+
+.prerequisites-list ul li {
+    @apply relative pl-8 text-gray-700 leading-relaxed;
+    list-style: none !important;
+}
+
+.prerequisites-list ul li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.4em;
+    width: 14px;
+    height: 14px;
+    background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 2L21 7V17L12 22L3 17V7L12 2Z' stroke='%23F26423' stroke-width='2.5' stroke-linejoin='miter'/%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+/**
+ * Step-by-Step Timeline
+ * Yellow top border with square yellow badges
+ */
+.step-timeline {
+    position: relative;
+    padding-left: 0;
+    margin-bottom: 3rem;
+    background: transparent;
+}
+
+/* Individual step item with top border */
+.step-timeline .step-item {
+    border-top: 4px solid #F1BC1B;
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+    background: white;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+/* Step header with number and title side-by-side */
+.step-timeline .step-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.step-timeline .step-number-box {
+    width: 2.5rem;
+    height: 2.5rem;
+    background: #F1BC1B;
+    color: #2C2C2C;
+    font-weight: 800;
+    font-size: 1.125rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+/* Title in step header - perfectly aligned with number badge */
+.step-timeline .step-header h3 {
+    @apply text-2xl font-bold text-charcoal;
+    margin: 0;
+    line-height: 1.4;
+    flex: 1;
+}
+
+.step-timeline .step-content {
+    @apply text-gray-700;
+    line-height: 1.75;
+}
+
+.step-timeline .step-content h4 {
+    @apply text-lg font-semibold text-charcoal;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+}
+
+.step-timeline .step-content p {
+    margin-bottom: 1.25rem;
+}
+
+/* More spacing when paragraph directly precedes ordered list */
+.step-timeline .step-content p + ol {
+    margin-top: 2rem;
+}
+
+.step-timeline .step-content ul {
+    @apply list-none pl-0;
+    margin-top: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.step-timeline .step-content ul li {
+    margin-bottom: 0.875rem;
+    line-height: 1.7;
+    padding-left: 1.75rem;
+    position: relative;
+}
+
+.step-timeline .step-content ul li svg {
+    @apply w-5 h-5 text-orange;
+    position: absolute;
+    left: 0;
+    top: 0.25rem;
+}
+
+/* Icon-only list - no bullets, just icons */
+.step-timeline .step-content ul.icon-list {
+    @apply list-none;
+}
+
+.step-timeline .step-content ul.icon-list li {
+    list-style: none;
+}
+
+.step-timeline .step-content ul.icon-list li::before {
+    display: none !important;
+}
+
+.step-timeline .step-content ol {
+    @apply list-none;
+    margin-top: 1.5rem;
+    margin-bottom: 2rem;
+    padding-left: 0;
+}
+
+.step-timeline .step-content ol li {
+    display: block !important;
+    margin-bottom: 1.5rem;
+    line-height: 1.75;
+    padding-left: 0;
+}
+
+.step-timeline .step-content ol > li::before {
+    display: inline !important;
+    margin-right: 0.5rem;
+}
+
+/* Code blocks within ordered list items need breathing room */
+.step-timeline .step-content ol li code {
+    margin-top: 0.125rem;
+    margin-bottom: 0.125rem;
+}
+
+/* Last list item doesn't need bottom margin */
+.step-timeline .step-content ol li:last-child {
+    margin-bottom: 0;
+}
+
+.step-timeline .step-content code {
+    background: #2C2C2C;
+    color: #F1BC1B;
+    padding: 0.25rem 0.5rem;
+    font-family: 'Courier New', monospace;
+    font-size: 0.875rem;
+    display: inline;
+    white-space: pre-wrap;
+    word-break: break-all;
+    border-radius: 0;
+    max-width: 100%;
+    overflow-wrap: break-word;
+}
+
+/* Prevent command-block-inline class from making code blocks in step-timeline */
+.step-timeline .step-content code.command-block-inline {
+    display: inline !important;
+    width: auto !important;
+    padding: 0.25rem 0.5rem !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+    white-space: pre-wrap !important;
+    word-break: break-all !important;
+    border-radius: 0 !important;
+    max-width: 100% !important;
+    overflow-wrap: break-word !important;
+}
+
+/* Inline code blocks in step-timeline (but NOT Torchlight syntax-highlighted blocks) */
+.step-timeline .step-content pre:not(:has(code.torchlight)) {
+    display: inline !important;
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+}
+
+.step-timeline .step-content pre:not(:has(code.torchlight)) code {
+    display: inline !important;
+    width: auto !important;
+    background: #2C2C2C !important;
+    color: #F1BC1B !important;
+    padding: 0.25rem 0.5rem !important;
+    margin: 0 !important;
+    white-space: pre-wrap !important;
+    word-break: break-all !important;
+    border-radius: 0 !important;
+    max-width: 100% !important;
+    overflow-wrap: break-word !important;
+}
+
+.step-timeline .verify-box {
+    background: white;
+    border: 3px solid #F26423;
+    padding: 1.5rem;
+    margin-top: 2rem;
+}
+
+.step-timeline .verify-box .verify-header {
+    background: #F26423;
+    color: white;
+    padding: 0.5rem 1rem;
+    margin: -1.5rem -1.5rem 1rem -1.5rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.875rem;
+    letter-spacing: 0.05em;
+}
+
+.step-timeline .verify-box .verify-icon {
+    display: none;
+}
+
+.step-timeline .verify-box ul {
+    margin: 0;
+}
+
+.step-timeline .verify-box ul li {
+    @apply flex items-start gap-3;
+    margin-bottom: 0.875rem;
+    line-height: 1.65;
+}
+
+.step-timeline .verify-box ul li:last-child {
+    margin-bottom: 0;
+}
+
+.step-timeline .verify-box ul li::before {
+    content: "•";
+    @apply text-orange font-bold;
+    margin-top: 0.15rem;
+}
+
+/* Meta Pills */
+.docs-meta-pills {
+    @apply flex flex-wrap items-center gap-3 mb-6;
+}
+
+.docs-meta-pill {
+    @apply inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium;
+}
+
+.docs-meta-pill svg {
+    @apply w-4 h-4;
+}
+
+.docs-meta-pill.time {
+    @apply bg-blue-50;
+    color: #1e40af;
+}
+
+.docs-meta-pill.difficulty {
+    @apply bg-amber-50;
+    color: #92400e;
+}
+
+.docs-meta-pill.category {
+    @apply bg-green-50;
+    color: #166534;
+}
+
+/* Responsive adjustments for featured boxout */
+@media (max-width: 640px) {
+    .featured-boxout {
+        @apply p-6;
+    }
+
+    .featured-boxout h3 {
+        @apply text-xl mb-4;
+    }
+
+    .featured-boxout ul li {
+        @apply text-sm;
+    }
+}
+
+/**
+ * Prerequisites Card Grid
+ * Visual icon-based prerequisites layout
+ */
+
+.prerequisites-grid {
+    @apply grid md:grid-cols-2 gap-4 my-8;
+}
+
+.prerequisite-card {
+    @apply relative bg-gradient-to-br border p-5 transition-all duration-200;
+}
+
+.prerequisite-card:hover {
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+.prerequisite-card.blue {
+    @apply from-blue-50 to-white;
+    border-color: #bfdbfe;
+}
+
+.prerequisite-card.purple {
+    @apply to-white;
+    background-image: linear-gradient(to bottom right, #f3e8ff, white);
+    border-color: #ddd6fe;
+}
+
+.prerequisite-card.green {
+    @apply from-green-50 to-white;
+    border-color: #bbf7d0;
+}
+
+.prerequisite-card.amber {
+    @apply from-amber-50 to-white;
+    border-color: #fde68a;
+}
+
+.prerequisite-card.orange {
+    border-color: rgba(242, 100, 35, 0.3);
+    background: linear-gradient(to bottom right, rgba(242, 100, 35, 0.1), white);
+}
+
+.prerequisite-card.full-width {
+    @apply md:col-span-2;
+}
+
+.prerequisite-icon {
+    @apply flex-shrink-0 w-10 h-10 flex items-center justify-center;
+}
+
+.prerequisite-icon svg {
+    @apply w-5 h-5 text-white;
+}
+
+.prerequisite-icon.blue {
+    @apply bg-blue-600;
+}
+
+.prerequisite-icon.purple {
+    background-color: #9333ea;
+}
+
+.prerequisite-icon.green {
+    @apply bg-green-600;
+}
+
+.prerequisite-icon.amber {
+    background-color: #d97706;
+}
+
+.prerequisite-icon.orange {
+    @apply bg-orange;
+}
+
+/**
+ * Resources Card Grid
+ * Card-based resource layout with hover effects
+ */
+
+.resources-grid {
+    @apply grid md:grid-cols-2 lg:grid-cols-3 gap-6 my-8;
+}
+
+.resource-card {
+    @apply block bg-gradient-to-br border p-6 no-underline transition-all duration-200;
+}
+
+.resource-card:hover {
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    transform: scale(1.05);
+}
+
+.resource-card.blue {
+    @apply from-blue-50 to-white;
+    border-color: #bfdbfe;
+}
+
+.resource-card.purple {
+    @apply to-white;
+    background-image: linear-gradient(to bottom right, #f3e8ff, white);
+    border-color: #ddd6fe;
+}
+
+.resource-card.orange {
+    border-color: rgba(242, 100, 35, 0.3);
+    background: linear-gradient(to bottom right, rgba(242, 100, 35, 0.1), white);
+}
+
+.resource-card.green {
+    @apply from-green-50 to-white;
+    border-color: #bbf7d0;
+}
+
+.resource-card.amber {
+    @apply from-amber-50 to-white;
+    border-color: #fde68a;
+}
+
+.resource-card.pink {
+    @apply to-white;
+    background-image: linear-gradient(to bottom right, #fce7f3, white);
+    border-color: #fbcfe8;
+}
+
+.resource-icon {
+    @apply w-12 h-12 flex items-center justify-center flex-shrink-0;
+}
+
+.resource-icon svg {
+    @apply w-6 h-6 text-white;
+}
+
+.resource-icon.blue {
+    @apply bg-blue-600;
+}
+
+.resource-icon.purple {
+    background-color: #9333ea;
+}
+
+.resource-icon.orange {
+    @apply bg-orange;
+}
+
+.resource-icon.green {
+    @apply bg-green-600;
+}
+
+.resource-icon.amber {
+    background-color: #d97706;
+}
+
+.resource-icon.pink {
+    background-color: #db2777;
+}
+
+.resource-arrow {
+    @apply w-5 h-5 transition-transform duration-200;
+}
+
+.resource-card:hover .resource-arrow {
+    @apply translate-x-1;
+}
+
+.resource-card h3 {
+    @apply font-semibold text-gray-900 mb-2 transition-colors duration-200;
+}
+
+.resource-card.blue:hover h3 {
+    color: #1d4ed8;
+}
+
+.resource-card.purple:hover h3 {
+    color: #7c3aed;
+}
+
+.resource-card.orange:hover h3 {
+    @apply text-orange;
+}
+
+.resource-card.green:hover h3 {
+    color: #15803d;
+}
+
+.resource-card.amber:hover h3 {
+    color: #b45309;
+}
+
+.resource-card.pink:hover h3 {
+    color: #be185d;
+}
+
+/**
+ * Common Issues Accordion
+ * Collapsible problem/solution cards with severity indicators
+ */
+
+/**
+ * Common Issues Accordion - Working Implementation
+ * Design: Top border for severity, horizontal badge layout, collapsible panels
+ */
+
+.issues-accordion {
+    @apply space-y-4 my-8;
+}
+
+/* Issue panel with top border */
+.issue-panel {
+    background: white;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    overflow: hidden;
+    border-top: 4px solid transparent;
+}
+
+.issue-panel.warning {
+    border-top-color: #F1BC1B;
+}
+
+.issue-panel.critical {
+    border-top-color: #F26423;
+}
+
+.issue-panel.info {
+    border-top-color: #6B7280;
+}
+
+/* Issue header button - grid layout: text, badge, chevron */
+.issue-header-btn {
+    width: 100%;
+    padding: 1.25rem 1.5rem;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 1rem;
+    align-items: center;
+}
+
+.issue-panel.warning .issue-header-btn:hover {
+    background: #FFFBEB;
+}
+
+.issue-panel.critical .issue-header-btn:hover {
+    background: #FFF7F0;
+}
+
+.issue-panel.info .issue-header-btn:hover {
+    background: #F3F4F6;
+}
+
+/* Severity label - rectangular badge */
+.severity-label {
+    padding: 0.5rem 1.25rem;
+    font-size: 0.875rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.075em;
+    white-space: nowrap;
+}
+
+.severity-label.warning {
+    background: #F1BC1B;
+    color: #2C2C2C;
+}
+
+.severity-label.critical {
+    background: #F26423;
+    color: white;
+}
+
+.severity-label.info {
+    background: #6B7280;
+    color: white;
+}
+
+/* Issue title and description */
+.issue-text h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #2C2C2C;
+    margin-bottom: 0.25rem;
+}
+
+.issue-text p {
+    font-size: 0.9375rem;
+    color: #818181;
+    line-height: 1.5;
+}
+
+/* Expand chevron */
+.expand-btn {
+    width: 2rem;
+    height: 2rem;
+    color: #818181;
+    transition: transform 0.3s;
+}
+
+.expand-btn.open {
+    transform: rotate(180deg);
+}
+
+/* Solution panel */
+.solution-panel {
+    border-top: 1px solid #E5E7EB;
+}
+
+.solution-grid {
+    display: flex;
+    gap: 1rem;
+    padding: 1.5rem;
+}
+
+/* Hide solution icon box (user's custom requirement) */
+.solution-icon-box {
+    display: none;
+}
+
+/* Solution content */
+.solution-content {
+    flex: 1;
+}
+
+.solution-content h4 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #2C2C2C;
+    margin-bottom: 0.75rem;
+}
+
+.solution-content ul {
+    list-style: none;
+    padding: 0;
+}
+
+.solution-content li {
+    position: relative;
+    padding-left: 1.75rem;
+    padding-top: 0.375rem;
+    padding-bottom: 0.375rem;
+    color: #2C2C2C;
+    font-size: 0.9375rem;
+    line-height: 1.6;
+}
+
+/* Colored circular bullets matching severity (user's custom requirement) */
+.issue-panel.warning .solution-content li::before {
+    content: "";
+    position: absolute;
+    left: 0.375rem;
+    top: 0.875rem;
+    width: 0.5rem;
+    height: 0.5rem;
+    background: #F1BC1B;
+    border-radius: 50%;
+}
+
+.issue-panel.critical .solution-content li::before {
+    content: "";
+    position: absolute;
+    left: 0.375rem;
+    top: 0.875rem;
+    width: 0.5rem;
+    height: 0.5rem;
+    background: #F26423;
+    border-radius: 50%;
+}
+
+.issue-panel.info .solution-content li::before {
+    content: "";
+    position: absolute;
+    left: 0.375rem;
+    top: 0.875rem;
+    width: 0.5rem;
+    height: 0.5rem;
+    background: #6B7280;
+    border-radius: 50%;
+}
+
+/* Mobile responsive - stack badge below title */
+@media (max-width: 640px) {
+    .issue-header-btn {
+        grid-template-columns: 1fr auto;
+        grid-template-areas:
+            "text expand"
+            "badge badge";
+        padding: 1rem;
+    }
+
+    .issue-text {
+        grid-area: text;
+    }
+
+    .severity-label {
+        grid-area: badge;
+        justify-self: start;
+        margin-top: 0.75rem;
+        padding: 0.375rem 1rem;
+        font-size: 0.75rem;
+    }
+
+    .expand-btn {
+        grid-area: expand;
+    }
+
+    .issue-text h3 {
+        font-size: 1.0625rem;
+    }
+
+    .issue-text p {
+        font-size: 0.875rem;
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .docs-hero {
+        @apply p-6;
+    }
+
+    .resources-grid {
+        @apply grid-cols-1;
+    }
+
+    .prerequisites-grid {
+        @apply grid-cols-1;
+    }
 }
