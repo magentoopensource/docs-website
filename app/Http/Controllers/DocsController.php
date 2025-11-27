@@ -86,6 +86,7 @@ class DocsController extends Controller
 
         $content = $docPage ? $docPage["content"] : null;
         $pageCustomData = $docPage ? $docPage["frontMatter"] : [];
+        $isStyledHtml = $docPage ? ($docPage["isStyledHtml"] ?? false) : false;
         $metaDescription =
             $pageCustomData["description"] ?? self::DEFAULT_META_DESCRIPTION;
         $metaKeywords =
@@ -154,6 +155,7 @@ class DocsController extends Controller
             "page" => $page,
             "categoryArticles" => $categoryArticles,
             "tableOfContents" => $tableOfContents,
+            "isStyledHtml" => $isStyledHtml,
         ]);
     }
 

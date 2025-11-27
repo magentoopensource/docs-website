@@ -52,7 +52,11 @@ class GithubFlavoredMarkdownConverter extends MarkdownConverter
         $environment->addExtension(new CommonMarkCoreExtension());
         $environment->addExtension(new GithubFlavoredMarkdownExtension());
         $environment->addExtension(new AttributesExtension());
-        $environment->addExtension(new TorchlightExtension());
+
+        if (config('torchlight.token')) {
+            $environment->addExtension(new TorchlightExtension());
+        }
+
         $environment->addExtension(new HeadingPermalinkExtension());
         $environment->addExtension(new TableOfContentsExtension());
         $environment->addExtension(new FrontMatterExtension());
