@@ -65,6 +65,29 @@ class Documentation
             "docs.main." . $page,
             CarbonInterval::minutes(5),
             function () use ($page) {
+                $htmlPath = base_path("resources/docs/html/" . $page . ".html");
+
+                if ($this->files->exists($htmlPath)) {
+                    $content = $this->files->get($htmlPath);
+
+                    $frontMatter = [];
+                    $mdPath = base_path("resources/docs/main/" . $page . ".md");
+                    if ($this->files->exists($mdPath)) {
+                        $mdContent = $this->files->get($mdPath);
+                        $converter = new GithubFlavoredMarkdownConverter();
+                        $rendered = $converter->convert($mdContent);
+                        if ($rendered instanceof RenderedContentWithFrontMatter) {
+                            $frontMatter = $rendered->getFrontMatter();
+                        }
+                    }
+
+                    return [
+                        "content" => $this->replaceLinks($content),
+                        "frontMatter" => $frontMatter,
+                        "isStyledHtml" => true,
+                    ];
+                }
+
                 $path = base_path("resources/docs/main/" . $page . ".md");
 
                 if ($this->files->exists($path)) {
@@ -181,9 +204,8 @@ class Documentation
             return false;
         }
 
-        return $this->files->exists(
-            base_path("resources/docs/main/" . $page . ".md")
-        );
+        return $this->files->exists(base_path("resources/docs/html/" . $page . ".html"))
+            || $this->files->exists(base_path("resources/docs/main/" . $page . ".md"));
     }
 
     /**
