@@ -57,7 +57,7 @@
             {{-- Main Content Area --}}
             <main class="min-w-0 max-w-full overflow-hidden">
                 {{-- Documentation Content with optimal reading width --}}
-                <article class="docs-content prose prose-charcoal max-w-none lg:max-w-[90ch] mx-auto lg:mx-0">
+                <article class="docs-content max-w-none lg:max-w-[90ch] mx-auto lg:mx-0 {{ ($isStyledHtml ?? false) ? 'styled-html' : '' }}">
                     {!! $content !!}
                 </article>
 
