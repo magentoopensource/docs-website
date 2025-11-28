@@ -13,7 +13,9 @@ export default {
                 // Figma design system sizes
                 "6xl": ["60px", { lineHeight: "1" }],     // Type/6xl
                 "5xl": ["48px", { lineHeight: "1" }],     // Type/5xl
+                "4xl": ["36px", { lineHeight: "1.1" }],   // Type/4xl
                 "3xl": ["30px", { lineHeight: "1.2" }],   // Type/3xl
+                "2xl": ["24px", { lineHeight: "1.3" }],   // Type/2xl
                 "xl": ["20px", { lineHeight: "1.4" }],    // Type/xl
                 "lg": ["18px", { lineHeight: "1.42" }],   // Type/lg
                 "base": ["16px", { lineHeight: "1.5" }],  // text-base
@@ -154,6 +156,8 @@ export default {
             amber: {
                 50: "#fffbeb",
                 500: "#f59e0b",
+                600: "#d97706",
+                700: "#b45309",
             },
             // Legacy color names for @apply directives (mapped to our palette)
             primary: {
