@@ -45,6 +45,22 @@ add('writable_dirs', [
 
 // Tasks
 
+desc('Authenticate with maxcluster control plane');
+task('deploy:cluster-auth', function () {
+    writeln('🔐 Authenticating with cluster-control...');
+
+    // Get PAT from environment variable (set in GitHub Actions)
+    $pat = getenv('MAXCLUSTER_PAT');
+    if (empty($pat)) {
+        throw new \Exception('❌ MAXCLUSTER_PAT environment variable not set!');
+    }
+
+    // Login to cluster-control with PAT
+    run("echo '$pat' | cluster-control login --no-interaction");
+
+    writeln('✅ Cluster-control authentication successful');
+});
+
 desc('Install npm dependencies');
 task('deploy:npm-install', function () {
     cd('{{release_path}}');
@@ -98,28 +114,15 @@ task('deploy:optimize', function () {
     run('php artisan view:cache');
 });
 
-desc('Clear PHP OPcache');
+desc('Clear PHP OPcache by reloading PHP-FPM');
 task('deploy:clear-opcache', function () {
-    $script = <<<'PHP'
-<?php
-if (function_exists('opcache_reset')) {
-    opcache_reset();
-    echo "OPcache cleared\n";
-} else {
-    echo "OPcache not enabled\n";
-}
-PHP;
+    writeln('🔄 Reloading PHP-FPM to clear OPcache...');
 
-    // Create temporary script
-    run("echo '$script' > {{release_path}}/public/clear-opcache-temp.php");
+    // Use cluster-control to gracefully reload PHP-FPM
+    // This clears OPcache and allows running processes to complete (30s timeout)
+    run('cluster-control php:reload C-727 srv-a --no-interaction');
 
-    // Execute it via HTTP to clear OPcache
-    run('curl -s http://localhost/clear-opcache-temp.php || curl -s https://docs.magento-opensource.com/clear-opcache-temp.php');
-
-    // Remove temporary script
-    run('rm -f {{release_path}}/public/clear-opcache-temp.php');
-
-    writeln('✅ OPcache cleared successfully');
+    writeln('✅ PHP-FPM reloaded, OPcache cleared');
 });
 
 desc('Verify deployment health');
@@ -155,13 +158,14 @@ task('deploy:health-check', function () {
 });
 
 // Hooks
+after('deploy:prepare', 'deploy:cluster-auth');
 after('deploy:vendors', 'deploy:npm-install');
 after('deploy:npm-install', 'deploy:build-assets');
 after('deploy:build-assets', 'deploy:verify-assets');
 after('deploy:symlink', 'deploy:sync-docs');
-after('deploy:sync-docs', 'deploy:optimize');
-after('deploy:optimize', 'deploy:clear-opcache');
-after('deploy:clear-opcache', 'deploy:health-check');
+after('deploy:sync-docs', 'deploy:clear-opcache');  // Clear OPcache BEFORE rebuilding caches
+after('deploy:clear-opcache', 'deploy:optimize');   // Rebuild Laravel caches with fresh PHP
+after('deploy:optimize', 'deploy:health-check');
 
 // Main deployment flow
 desc('Deploy the application');
