@@ -49,14 +49,16 @@ desc('Authenticate with maxcluster control plane');
 task('deploy:cluster-auth', function () {
     writeln('🔐 Authenticating with cluster-control...');
 
-    // Get PAT from environment variable (set in GitHub Actions)
+    // Get PAT from local environment (set in GitHub Actions)
+    // Note: This runs on the CI runner, not the remote server
     $pat = getenv('MAXCLUSTER_PAT');
     if (empty($pat)) {
         throw new \Exception('❌ MAXCLUSTER_PAT environment variable not set!');
     }
 
-    // Login to cluster-control with PAT
-    run("echo '$pat' | cluster-control login --no-interaction");
+    // Pass the PAT to the remote server and login
+    // Using printf to avoid shell interpretation issues
+    run(sprintf("printf '%%s' %s | cluster-control login --no-interaction", escapeshellarg($pat)));
 
     writeln('✅ Cluster-control authentication successful');
 });
