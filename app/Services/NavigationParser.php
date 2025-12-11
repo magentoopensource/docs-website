@@ -53,8 +53,8 @@ class NavigationParser
                     continue;
                 }
 
-                // Match article links: - [Article Title](/merchant/{{version}}/path/to/article)
-                if ($currentCategory && preg_match('/^\s+- \[(.+)\]\(\/merchant\/\{\{version\}\}\/(.+)\)$/', $line, $matches)) {
+                // Match article links: - [Article Title](/docs/{{version}}/path/to/article)
+                if ($currentCategory && preg_match('/^\s+- \[(.+)\]\(\/docs\/\{\{version\}\}\/(.+)\)$/', $line, $matches)) {
                     $articleTitle = trim($matches[1]);
                     $articlePath = trim($matches[2]);
 
