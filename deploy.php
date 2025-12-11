@@ -56,9 +56,7 @@ task('deploy:cluster-auth', function () {
         throw new \Exception('❌ MAXCLUSTER_PAT environment variable not set!');
     }
 
-    // Pass the PAT to the remote server and login
-    // Using printf to avoid shell interpretation issues
-    run(sprintf("printf '%%s' %s | cluster-control login --no-interaction", escapeshellarg($pat)));
+    run("cluster-control login --pa_token=" . escapeshellarg($pat));
 
     writeln('✅ Cluster-control authentication successful');
 });
@@ -123,6 +121,7 @@ task('deploy:clear-opcache', function () {
     // Use cluster-control to gracefully reload PHP-FPM
     // This clears OPcache and allows running processes to complete (30s timeout)
     run('cluster-control php:reload C-727 srv-a --no-interaction');
+    run('cluster-control logout');
 
     writeln('✅ PHP-FPM reloaded, OPcache cleared');
 });
