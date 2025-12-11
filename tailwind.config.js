@@ -2,7 +2,11 @@ import defaultTheme from "tailwindcss/defaultTheme";
 import colors from "tailwindcss/colors";
 
 export default {
-    content: ["resources/views/**/*.blade.php", "resources/js/**/*.js"],
+    content: [
+        "resources/views/**/*.blade.php",
+        "resources/js/**/*.js",
+        "resources/docs/html/**/*.html",
+    ],
     darkMode: "class",
     theme: {
         extend: {
