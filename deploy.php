@@ -26,7 +26,7 @@ add('shared_files', [
 
 add('shared_dirs', [
     'storage',
-    'resources/docs',
+    'resources/docs/main',
 ]);
 
 // Writable dirs
