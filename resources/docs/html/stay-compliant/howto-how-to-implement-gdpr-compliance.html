@@ -1,0 +1,727 @@
+
+<h1 class="text-4xl font-bold text-charcoal mb-6">How to Implement GDPR Compliance</h1>
+
+<div class="flex flex-wrap items-center gap-3 mb-8">
+    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-orange-50 text-orange-700">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        6 minutes
+    </span>
+    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-yellow-50 text-brown">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+        </svg>
+        Advanced
+    </span>
+    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-orange-50 text-orange-700">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.99 1.99 0 013 12V7a4 4 0 014-4z"/>
+        </svg>
+        How-To
+    </span>
+</div>
+
+<section class="bg-white mb-8 p-8 border-t-4 border-yellow-500 shadow-sm">
+    <h2 class="text-2xl font-bold text-charcoal mb-4 mt-0">Overview</h2>
+    <p class="text-lg text-gray-700 leading-relaxed mb-6">
+        Implement GDPR controls in Magento 2 to unlock EU sales, build customer trust, and reduce regulatory risk. This how-to guides new store owners and growing merchants to configure privacy features, cookie consent, and data-subject request workflows with measurable outcomes.
+    </p>
+    <p class="text-gray-700 leading-relaxed mb-4">
+        Supported versions: Magento Open Source and Adobe Commerce 2.4.x. Some settings may differ by version; where relevant, notes are provided.
+    </p>
+    <p class="text-gray-700 leading-relaxed mb-4">
+        <strong>Estimated effort:</strong> Plan 60–120 minutes for the baseline configuration, plus 30–60 minutes if integrating a Consent Management Platform (CMP) and tag manager.
+    </p>
+
+    <div class="mt-6">
+        <p class="font-semibold text-charcoal mb-3">Recommended KPIs to track:</p>
+        <ul class="space-y-2 pl-6">
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Cookie consent acceptance rate and opt-out rate</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Share of orders with recorded checkout agreement consent</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700">DSAR (data subject access request) handling time (target: internal 7 days; legal maximum 30 days)</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Accuracy of analytics attribution post-consent (e.g., reduction in "direct/none" after implementing consented tracking)</li>
+        </ul>
+    </div>
+</section>
+
+<section class="bg-white mb-8 p-8 border-t-4 border-yellow-500 shadow-sm">
+    <h2 class="text-2xl font-bold text-charcoal mb-6 mt-0">Prerequisites</h2>
+    <p class="text-gray-700 mb-6">Before you begin, make sure you have:</p>
+    <div class="grid md:grid-cols-2 gap-4">
+        <div class="relative bg-gradient-to-br from-orange-50 to-white border border-orange-500/30 p-5">
+            <div class="flex items-start gap-4">
+                <div class="w-10 h-10 bg-orange-500 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-charcoal mb-1">Admin Panel Access</h4>
+                    <p class="text-sm text-charcoal/70">Required: Access to Magento Admin Panel with configuration permissions</p>
+                </div>
+            </div>
+        </div>
+        <div class="relative bg-gradient-to-br from-yellow-50 to-white border border-yellow-500/30 p-5">
+            <div class="flex items-start gap-4">
+                <div class="w-10 h-10 bg-yellow-500 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>
+                    </svg>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-charcoal mb-1">PHP Knowledge (Optional)</h4>
+                    <p class="text-sm text-charcoal/70">Basic PHP knowledge and Magento development environment (for Step 4 only)</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white border-4 border-yellow-500 p-4 mt-6 flex gap-4 items-start">
+        <div class="flex-shrink-0 w-6 h-6">
+            <svg class="w-full h-full text-orange-500" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7zm2.85 11.1l-.85.6V16h-4v-2.3l-.85-.6A4.997 4.997 0 017 9c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.63-.8 3.16-2.15 4.1z"/>
+            </svg>
+        </div>
+        <div class="flex-1">
+            <p class="font-bold text-charcoal mb-1">Tip: Configuration Scope</p>
+            <p class="text-charcoal leading-relaxed">Many privacy settings are Website or Store View scoped. Use the scope switcher in the upper-left of <span class="step-code">Stores › Configuration</span> to set values at the intended scope (e.g., EU website or store view) before saving.</p>
+        </div>
+    </div>
+</section>
+
+<section class="bg-white mb-8 p-8 border-t-4 border-yellow-500 shadow-sm">
+    <h2 class="text-2xl font-bold text-charcoal mb-4 mt-0">What You'll Accomplish</h2>
+    <p class="text-gray-700 mb-4">By following this guide, you will:</p>
+    <ul class="space-y-3 pl-6">
+        <li class="relative hexagon-bullet pl-6 text-gray-700">Implement GDPR baseline controls in Magento 2 (privacy policy, cookie consent, and consent at key touchpoints)</li>
+        <li class="relative hexagon-bullet pl-6 text-gray-700">Establish DSAR (data subject access request) export and deletion/anonymization procedures</li>
+        <li class="relative hexagon-bullet pl-6 text-gray-700">Reduce compliance risk while maintaining marketing performance</li>
+    </ul>
+</section>
+
+<h2 class="text-3xl font-bold text-charcoal mb-8">Step-by-Step Instructions</h2>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">0</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Create a GDPR-ready Privacy Policy page and footer link</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <p class="text-gray-700 leading-relaxed mb-4">
+            Navigate to <span class="step-code">Admin › Content › Elements › Pages › Add New Page</span>. Set Title "Privacy Policy" and URL Key "privacy-policy". Add your approved policy content. Set Store View(s) to your EU stores. Save and enable.
+        </p>
+        <p class="text-gray-700 leading-relaxed mb-4">
+            Add a footer link: <span class="step-code">Content › Elements › Blocks</span> › search for "Footer Links" (or a similarly named footer block). Edit and add a link using a store-aware directive:
+        </p>
+        <pre class="bg-charcoal text-yellow-500 p-4 overflow-x-auto mb-4 text-sm font-mono">&lt;a href="{{store url='privacy-policy'}}"&gt;Privacy Policy&lt;/a&gt;</pre>
+        <p class="text-gray-700 leading-relaxed">
+            If your theme lacks a footer block, go to <span class="step-code">Content › Design › Configuration › [EU Store View] › Footer › Miscellaneous HTML</span> and add the anchor link. Flush cache via <span class="step-code">System › Cache Management › Flush Magento Cache</span>.
+        </p>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">1</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Enable cookie consent (baseline) or integrate a CMP</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <p class="font-semibold text-charcoal mb-2">Option A — Native banner (baseline; Website scope):</p>
+        <p class="text-gray-700 leading-relaxed mb-4">
+            Navigate to <span class="step-code">Stores › Configuration › General › Web › Default Cookie Settings</span>. Set Cookie Restriction Mode = Yes at the Website scope for your EU site(s). Optionally adjust Cookie Lifetime to a minimal necessary duration. Save, then flush cache.
+        </p>
+        <div class="bg-white border-4 border-yellow-500 p-4 mb-4 flex gap-3 items-start">
+            <svg class="w-5 h-5 text-orange-500 flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+            <p class="text-charcoal text-sm">Native mode shows a consent banner and blocks Magento cookies but does not manage third-party scripts.</p>
+        </div>
+
+        <p class="font-semibold text-charcoal mb-2">Option B — CMP integration (recommended if using analytics/ads):</p>
+        <p class="text-gray-700 leading-relaxed mb-3">Install and configure a CMP to block all non-essential tags by default and gate third-party scripts via consent:</p>
+        <ul class="space-y-2 pl-6 mb-4">
+            <li class="relative hexagon-bullet pl-6 text-gray-700"><strong>Install CMP script:</strong> <span class="step-code">Content › Design › Configuration › [Store View] › HTML Head › Scripts and Style Sheets</span>. Paste your CMP script.</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700"><strong>Configure categories:</strong> In the CMP, set default-deny for non-essential categories (e.g., analytics, ads, personalization) until consent is granted.</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700"><strong>Tag Manager setup:</strong> In Google Tag Manager, add a Consent Initialization tag, then set tag firing conditions based on CMP consent signals (e.g., analytics_storage, ad_storage).</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700"><strong>Validate:</strong> Use GTM Preview/Debug to confirm no marketing tags fire before consent; verify they fire after accepting consent.</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700"><strong>Update banner text:</strong> Link to your Cookie Policy and Privacy Policy.</li>
+        </ul>
+        <p class="text-gray-700 leading-relaxed">
+            <strong>Business impact:</strong> A CMP preserves attribution accuracy and ad optimization by ensuring tracking resumes only after consent, improving ROAS measurement and reducing wasted ad spend.
+        </p>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">2</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Require Privacy/Terms agreement at checkout</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <p class="text-gray-700 leading-relaxed mb-4">
+            Enable agreements (Website scope): <span class="step-code">Stores › Configuration › Sales › Checkout › Checkout Options</span> › Enable Terms and Conditions = Yes. Use the scope selector to set this at the correct Website.
+        </p>
+        <p class="text-gray-700 leading-relaxed mb-4">
+            Create agreement: <span class="step-code">Stores › Settings › Terms and Conditions › Add New Condition</span>:
+        </p>
+        <ul class="space-y-2 pl-6 mb-4">
+            <li class="relative hexagon-bullet pl-6 text-gray-700"><strong>Name:</strong> "Privacy & Cookies Policy" (include versioning, e.g., "v2, effective 2025-09-01")</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700"><strong>Status:</strong> Enabled</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700"><strong>Checkbox Text:</strong> "I agree to the Privacy & Cookies Policy"</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700"><strong>Content:</strong> Summarize and link to /privacy-policy and your cookie policy</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700"><strong>Applied:</strong> Automatically</li>
+        </ul>
+        <p class="text-gray-700 leading-relaxed mb-4">
+            Assign to relevant Store Views/languages and create separate agreements per language store view to support localization and audit trails. Save and clear cache.
+        </p>
+        <p class="text-gray-700 leading-relaxed">
+            <strong>Business impact:</strong> Clear policy acknowledgment can reduce misunderstandings, cancellations, and chargebacks, lowering support effort and dispute fees.
+        </p>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">3</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Enable newsletter double opt-in</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <p class="text-gray-700 leading-relaxed mb-4">
+            Navigate to <span class="step-code">Stores › Configuration › Customers › Newsletter › Subscription Options</span> (Website scope): Set Need to Confirm = Yes. Optionally allow guest subscriptions as per your policy. Ensure your mail transport and cron are configured so confirmation emails send.
+        </p>
+        <p class="font-semibold text-charcoal mb-2">Verification:</p>
+        <ul class="space-y-2 pl-6 mb-4">
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Subscribe with a test email and confirm receipt of the confirmation email within 5 minutes.</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Click the confirmation link and verify status flips to Subscribed in <span class="step-code">Customers › All Customers › [Customer] › Newsletter</span> tab.</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Ensure cron is running (<code class="step-code">bin/magento cron:run</code>) and transactional emails are configured (<span class="step-code">Stores › Configuration › Advanced › System › Mail Sending Settings</span>).</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Consider updating the newsletter email templates to reference the Privacy Policy (<span class="step-code">Marketing › Communications › Email Templates</span>).</li>
+        </ul>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">4</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Add a consent checkbox to the Contact Us form (developer)</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <p class="text-gray-700 leading-relaxed mb-4">
+            Implement via a custom module and layout XML to avoid brittle template overrides. Add a child block/field to the contact form with a required checkbox labeled with a link to your Privacy Policy (input name example: <code class="step-code">gdpr_consent</code>).
+        </p>
+        <p class="text-gray-700 leading-relaxed mb-4">
+            Implement server-side validation: create a small plugin/observer on <code class="step-code">Magento\Contact\Controller\Index\Post</code> to check the request parameter and throw a localized error if not present. Ensure compatibility with reCAPTCHA (<span class="step-code">Stores › Configuration › Security › Google reCAPTCHA</span>) and form key validation. Deploy static content and clear cache. Test on staging first.
+        </p>
+        <p class="font-semibold text-charcoal mb-2">Consent evidence capture:</p>
+        <ul class="space-y-2 pl-6">
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Update the Contact Form email template (<span class="step-code">Marketing › Communications › Email Templates › Add New Template</span> › Load default: Contact Form) to include: "Consent: {{var gdpr_consent ? 'Yes' : 'No'}}" and a timestamp/IP if available.</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Optionally, create a custom table to log submissions with consent value and IP for audit, with a defined retention period per your policy.</li>
+        </ul>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">5</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Set up a DSAR export workflow</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <p class="text-gray-700 leading-relaxed mb-4">
+            For a specific requester: 1) Verify identity via your SOP. 2) Export customer profile: <span class="step-code">System › Data Transfer › Export</span> › Entity Type = Customers Main File. Filter by email and export CSV. 3) Export addresses similarly (Entity Type = Customer Addresses). 4) Export orders if requested: <span class="step-code">Sales › Orders</span> grid › filter by customer › Export = CSV.
+        </p>
+        <p class="font-semibold text-charcoal mb-2">Also consider additional data sources:</p>
+        <ul class="space-y-2 pl-6 mb-4">
+            <li class="relative hexagon-bullet pl-6 text-gray-700"><strong>Reviews:</strong> <span class="step-code">Marketing › User Content › Reviews</span> (filter by customer)</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700"><strong>Newsletter status:</strong> <span class="step-code">Customers › All Customers › [Customer] › Newsletter</span> tab</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700"><strong>Quotes/abandoned carts:</strong> <span class="step-code">Sales › Carts › Abandoned Carts</span> (filter by email)</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700"><strong>Wishlists:</strong> via Reports or database where applicable</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700"><strong>Third parties:</strong> payment gateways, shipping providers, analytics, email service providers—request exports where applicable</li>
+        </ul>
+        <p class="text-gray-700 leading-relaxed">
+            Consolidate files, review for third-party data, and securely transmit to the verified requester. Document the request and response date. Define an SLA: legal maximum 30 days; set an internal target of 7 days. Consider extensions/automation to reduce handling time and errors.
+        </p>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">6</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Set up account deletion/anonymization process</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <p class="text-gray-700 leading-relaxed mb-4">
+            If deletion is requested and permitted by your retention policy: <span class="step-code">Customers › All Customers</span> › search for the account › select › Actions › Delete. If deletion is blocked due to order retention rules or customizations, use a GDPR/anonymization extension to pseudonymize personal fields while preserving order records for accounting.
+        </p>
+        <p class="font-semibold text-charcoal mb-2">Before deletion/anonymization:</p>
+        <ul class="space-y-2 pl-6 mb-4">
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Back up the database or export the customer record</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Test the process in staging first</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Document the lawful basis and any retention exceptions (e.g., accounting) before proceeding</li>
+        </ul>
+        <p class="text-gray-700 leading-relaxed">
+            Update your SOP to handle exceptions and record actions taken.
+        </p>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">7</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Configure data retention and log cleaning</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <p class="text-gray-700 leading-relaxed mb-4">
+            Navigate to <span class="step-code">Stores › Configuration › Advanced › System › Log</span>: Enable Log Cleaning = Yes. Set Save Log, Days to your policy (e.g., 180 days). Save and flush cache.
+        </p>
+        <div class="bg-white border-4 border-yellow-500 p-4 mb-4 flex gap-3 items-start">
+            <svg class="w-5 h-5 text-orange-500 flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+            <p class="text-charcoal text-sm">If Advanced › System › Log is not present in your version, skip this setting and enforce retention via database-level jobs or reporting cleanup. Verify availability under Stores › Configuration › Advanced › System in your installation.</p>
+        </div>
+        <p class="text-gray-700 leading-relaxed mb-4">
+            Ensure cron is configured so log cleaning runs automatically (<code class="step-code">bin/magento cron:install</code> on server; verify crontab). Document your retention schedule in your privacy policy and review quarterly.
+        </p>
+        <p class="text-gray-700 leading-relaxed">
+            <strong>Business impact:</strong> Shorter retention reduces database size, improving report speed and lowering hosting costs.
+        </p>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">8</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Reference privacy in transactional emails and remove trackers until consent</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <p class="text-gray-700 leading-relaxed mb-4">
+            Navigate to <span class="step-code">Marketing › Communications › Email Templates › Add New Template</span>. Load a default footer template, customize to include a short privacy note and link to /privacy-policy.
+        </p>
+        <p class="text-gray-700 leading-relaxed mb-4">
+            Assign the footer across all transactional emails at <span class="step-code">Stores › Configuration › General › Design › Transactional Emails › Footer Template</span>. Use <span class="step-code">Stores › Configuration › Sales › Sales Emails</span> only when replacing specific sales email body templates (order, invoice, shipment, etc.).
+        </p>
+        <p class="text-gray-700 leading-relaxed">
+            Ensure any tracking pixels or link decorators that set cookies are disabled unless consent is granted (use your CMP/Tag Manager conditions) so no trackers load before consent.
+        </p>
+    </div>
+</div>
+
+<h2 class="text-3xl font-bold text-charcoal mb-6">Verification</h2>
+<p class="text-gray-700 mb-6">Use this checklist to confirm everything is working correctly:</p>
+
+<ul class="list-none my-8 pl-0 space-y-5">
+    <li class="bg-white p-7 shadow-sm">
+        <div class="flex items-center justify-between mb-5">
+            <strong class="text-lg font-bold text-charcoal">Privacy Policy</strong>
+        </div>
+        <ul class="grid gap-3 m-0 p-0 list-none">
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                Privacy Policy link appears in EU store footer and resolves correctly per store view (store-aware URL)
+            </li>
+        </ul>
+    </li>
+
+    <li class="bg-white p-7 shadow-sm">
+        <div class="flex items-center justify-between mb-5">
+            <strong class="text-lg font-bold text-charcoal">Cookie Consent</strong>
+        </div>
+        <ul class="grid gap-3 m-0 p-0 list-none">
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                New visitor sees cookie banner
+            </li>
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                Analytics/ads do not fire before consent (validate in GTM Preview/Network tab)
+            </li>
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                Tags load only after consent is granted
+            </li>
+        </ul>
+    </li>
+
+    <li class="bg-white p-7 shadow-sm">
+        <div class="flex items-center justify-between mb-5">
+            <strong class="text-lg font-bold text-charcoal">Checkout Terms</strong>
+        </div>
+        <ul class="grid gap-3 m-0 p-0 list-none">
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                Checkout shows Terms checkbox; order can't be placed until checked
+            </li>
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                Agreement text matches the correct language/version
+            </li>
+        </ul>
+    </li>
+
+    <li class="bg-white p-7 shadow-sm">
+        <div class="flex items-center justify-between mb-5">
+            <strong class="text-lg font-bold text-charcoal">Newsletter Double Opt-in</strong>
+        </div>
+        <ul class="grid gap-3 m-0 p-0 list-none">
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                Newsletter sign-up sends confirmation email
+            </li>
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                Status updates to Subscribed after clicking the link
+            </li>
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                Cron and mail sending settings verified
+            </li>
+        </ul>
+    </li>
+
+    <li class="bg-white p-7 shadow-sm">
+        <div class="flex items-center justify-between mb-5">
+            <strong class="text-lg font-bold text-charcoal">Contact Form Consent</strong>
+        </div>
+        <ul class="grid gap-3 m-0 p-0 list-none">
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                Contact form blocks submission without consent
+            </li>
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                Received email includes consent=Yes and timestamp (and IP if added)
+            </li>
+        </ul>
+    </li>
+
+    <li class="bg-white p-7 shadow-sm">
+        <div class="flex items-center justify-between mb-5">
+            <strong class="text-lg font-bold text-charcoal">DSAR Export</strong>
+        </div>
+        <ul class="grid gap-3 m-0 p-0 list-none">
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                Export includes all relevant entities (customers, addresses, orders, reviews, quotes)
+            </li>
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                Excludes other customers' data
+            </li>
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                Request is fulfilled within internal SLA
+            </li>
+        </ul>
+    </li>
+
+    <li class="bg-white p-7 shadow-sm">
+        <div class="flex items-center justify-between mb-5">
+            <strong class="text-lg font-bold text-charcoal">Deletion/Anonymization</strong>
+        </div>
+        <ul class="grid gap-3 m-0 p-0 list-none">
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                Deletion/anonymization behaves per policy in staging
+            </li>
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                Production backups exist prior to action
+            </li>
+        </ul>
+    </li>
+
+    <li class="bg-white p-7 shadow-sm">
+        <div class="flex items-center justify-between mb-5">
+            <strong class="text-lg font-bold text-charcoal">Data Retention</strong>
+        </div>
+        <ul class="grid gap-3 m-0 p-0 list-none">
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                Log cleaning job runs on schedule
+            </li>
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                Data older than policy threshold is removed
+            </li>
+        </ul>
+    </li>
+
+    <li class="bg-white p-7 shadow-sm">
+        <div class="flex items-center justify-between mb-5">
+            <strong class="text-lg font-bold text-charcoal">Transactional Emails</strong>
+        </div>
+        <ul class="grid gap-3 m-0 p-0 list-none">
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                Transactional emails include a privacy link
+            </li>
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                No tracking pixels or decorators load without consent
+            </li>
+        </ul>
+    </li>
+</ul>
+
+<h2 class="text-3xl font-bold text-charcoal mb-6">Common Issues and Solutions</h2>
+
+<div class="space-y-4 my-8">
+    <div class="bg-white shadow-md overflow-hidden border-t-4 border-orange-500">
+        <button class="w-full p-5 text-left cursor-pointer grid grid-cols-[1fr_auto] gap-4 items-center hover:bg-orange-50 transition-colors" onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('svg').classList.toggle('rotate-180')">
+            <div>
+                <h3 class="text-xl font-bold text-charcoal mb-1">Marketing tags firing before consent</h3>
+                <p class="text-charcoal/60 text-sm">CMP or GTM configuration issue</p>
+            </div>
+            <svg class="w-8 h-8 text-charcoal/50 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+        </button>
+        <div class="hidden border-t border-orange-500/30">
+            <div class="p-6">
+                <h4 class="font-bold text-charcoal mb-3">Solution</h4>
+                <ul class="list-none p-0 space-y-2">
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-orange-500 rounded-full"></span>
+                        Set CMP categories to default-deny and configure a Consent Initialization tag in GTM
+                    </li>
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-orange-500 rounded-full"></span>
+                        Ensure tags require consent states (e.g., analytics_storage='granted')
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white shadow-md overflow-hidden border-t-4 border-orange-500">
+        <button class="w-full p-5 text-left cursor-pointer grid grid-cols-[1fr_auto] gap-4 items-center hover:bg-orange-50 transition-colors" onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('svg').classList.toggle('rotate-180')">
+            <div>
+                <h3 class="text-xl font-bold text-charcoal mb-1">DSAR exports missing data</h3>
+                <p class="text-charcoal/60 text-sm">Incomplete data sources in export</p>
+            </div>
+            <svg class="w-8 h-8 text-charcoal/50 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+        </button>
+        <div class="hidden border-t border-orange-500/30">
+            <div class="p-6">
+                <h4 class="font-bold text-charcoal mb-3">Solution</h4>
+                <ul class="list-none p-0 space-y-2">
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-orange-500 rounded-full"></span>
+                        Include reviews, quotes, newsletter status, and third-party systems
+                    </li>
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-orange-500 rounded-full"></span>
+                        Filter exports by email to avoid including other customers' data
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white shadow-md overflow-hidden border-t-4 border-yellow-500">
+        <button class="w-full p-5 text-left cursor-pointer grid grid-cols-[1fr_auto] gap-4 items-center hover:bg-yellow-50 transition-colors" onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('svg').classList.toggle('rotate-180')">
+            <div>
+                <h3 class="text-xl font-bold text-charcoal mb-1">Cookie banner not showing</h3>
+                <p class="text-charcoal/60 text-sm">Configuration or JavaScript issue</p>
+            </div>
+            <svg class="w-8 h-8 text-charcoal/50 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+        </button>
+        <div class="hidden border-t border-yellow-500/30">
+            <div class="p-6">
+                <h4 class="font-bold text-charcoal mb-3">Solution</h4>
+                <ul class="list-none p-0 space-y-2">
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-yellow-500 rounded-full"></span>
+                        Confirm Cookie Restriction Mode is enabled at the correct Website scope and cache is flushed
+                    </li>
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-yellow-500 rounded-full"></span>
+                        If using a CMP, ensure the CMP script is added to the correct Store View head and loads without errors
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white shadow-md overflow-hidden border-t-4 border-yellow-500">
+        <button class="w-full p-5 text-left cursor-pointer grid grid-cols-[1fr_auto] gap-4 items-center hover:bg-yellow-50 transition-colors" onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('svg').classList.toggle('rotate-180')">
+            <div>
+                <h3 class="text-xl font-bold text-charcoal mb-1">Agreement not visible at checkout</h3>
+                <p class="text-charcoal/60 text-sm">Configuration or store view scope issue</p>
+            </div>
+            <svg class="w-8 h-8 text-charcoal/50 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+        </button>
+        <div class="hidden border-t border-yellow-500/30">
+            <div class="p-6">
+                <h4 class="font-bold text-charcoal mb-3">Solution</h4>
+                <ul class="list-none p-0 space-y-2">
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-yellow-500 rounded-full"></span>
+                        Verify the agreement is Enabled, Applied Automatically, and assigned to the correct Store Views/languages
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white shadow-md overflow-hidden border-t-4 border-yellow-500">
+        <button class="w-full p-5 text-left cursor-pointer grid grid-cols-[1fr_auto] gap-4 items-center hover:bg-yellow-50 transition-colors" onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('svg').classList.toggle('rotate-180')">
+            <div>
+                <h3 class="text-xl font-bold text-charcoal mb-1">Newsletter confirmation not sending</h3>
+                <p class="text-charcoal/60 text-sm">Cron or mail configuration issue</p>
+            </div>
+            <svg class="w-8 h-8 text-charcoal/50 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+        </button>
+        <div class="hidden border-t border-yellow-500/30">
+            <div class="p-6">
+                <h4 class="font-bold text-charcoal mb-3">Solution</h4>
+                <ul class="list-none p-0 space-y-2">
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-yellow-500 rounded-full"></span>
+                        Ensure cron is running and Mail Sending Settings are configured
+                    </li>
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-yellow-500 rounded-full"></span>
+                        Check that the Need to Confirm option is set at the intended Website scope
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white shadow-md overflow-hidden border-t-4 border-yellow-500">
+        <button class="w-full p-5 text-left cursor-pointer grid grid-cols-[1fr_auto] gap-4 items-center hover:bg-yellow-50 transition-colors" onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('svg').classList.toggle('rotate-180')">
+            <div>
+                <h3 class="text-xl font-bold text-charcoal mb-1">Contact form errors</h3>
+                <p class="text-charcoal/60 text-sm">Validation or reCAPTCHA compatibility issue</p>
+            </div>
+            <svg class="w-8 h-8 text-charcoal/50 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+        </button>
+        <div class="hidden border-t border-yellow-500/30">
+            <div class="p-6">
+                <h4 class="font-bold text-charcoal mb-3">Solution</h4>
+                <ul class="list-none p-0 space-y-2">
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-yellow-500 rounded-full"></span>
+                        Ensure your module validates gdpr_consent server-side, preserves form key validation, and is compatible with Google reCAPTCHA
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white shadow-md overflow-hidden border-t-4 border-charcoal">
+        <button class="w-full p-5 text-left cursor-pointer grid grid-cols-[1fr_auto] gap-4 items-center hover:bg-off-white transition-colors" onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('svg').classList.toggle('rotate-180')">
+            <div>
+                <h3 class="text-xl font-bold text-charcoal mb-1">Can't find Terms and Conditions</h3>
+                <p class="text-charcoal/60 text-sm">Navigation or menu location issue</p>
+            </div>
+            <svg class="w-8 h-8 text-charcoal/50 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+        </button>
+        <div class="hidden border-t border-charcoal/20">
+            <div class="p-6">
+                <h4 class="font-bold text-charcoal mb-3">Solution</h4>
+                <ul class="list-none p-0 space-y-2">
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-charcoal rounded-full"></span>
+                        Navigate to Stores › Settings › Terms and Conditions (not "Other Settings")
+                    </li>
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-charcoal rounded-full"></span>
+                        Ensure the feature is enabled at Website scope
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white shadow-md overflow-hidden border-t-4 border-charcoal">
+        <button class="w-full p-5 text-left cursor-pointer grid grid-cols-[1fr_auto] gap-4 items-center hover:bg-off-white transition-colors" onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('svg').classList.toggle('rotate-180')">
+            <div>
+                <h3 class="text-xl font-bold text-charcoal mb-1">Log cleaning option missing</h3>
+                <p class="text-charcoal/60 text-sm">Module availability or version issue</p>
+            </div>
+            <svg class="w-8 h-8 text-charcoal/50 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+        </button>
+        <div class="hidden border-t border-charcoal/20">
+            <div class="p-6">
+                <h4 class="font-bold text-charcoal mb-3">Solution</h4>
+                <ul class="list-none p-0 space-y-2">
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-charcoal rounded-full"></span>
+                        Your installation may not include the Magento_Log module; manage retention via database-level jobs and verify availability under Advanced › System
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white shadow-md overflow-hidden border-t-4 border-charcoal">
+        <button class="w-full p-5 text-left cursor-pointer grid grid-cols-[1fr_auto] gap-4 items-center hover:bg-off-white transition-colors" onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('svg').classList.toggle('rotate-180')">
+            <div>
+                <h3 class="text-xl font-bold text-charcoal mb-1">Email footer not updating</h3>
+                <p class="text-charcoal/60 text-sm">Template assignment or cache issue</p>
+            </div>
+            <svg class="w-8 h-8 text-charcoal/50 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+        </button>
+        <div class="hidden border-t border-charcoal/20">
+            <div class="p-6">
+                <h4 class="font-bold text-charcoal mb-3">Solution</h4>
+                <ul class="list-none p-0 space-y-2">
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-charcoal rounded-full"></span>
+                        Assign the Footer Template under General › Design › Transactional Emails
+                    </li>
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-charcoal rounded-full"></span>
+                        Clear caches and ensure you are not overriding per-email body templates unless intended
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Hexagon bullet marker for lists */
+.hexagon-bullet::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.5em;
+    width: 9px;
+    height: 9px;
+    background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 2L21 7V17L12 22L3 17V7L12 2Z' stroke='%23F26423' stroke-width='2.5' stroke-linejoin='miter'/%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+/* Step code styling for inline code paths */
+.step-code {
+    background: #2C2C2C;
+    color: #F1BC1B;
+    padding: 0.25rem 0.5rem;
+    font-family: 'Courier New', monospace;
+    font-size: 0.875rem;
+}
+</style>
