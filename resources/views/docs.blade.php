@@ -57,12 +57,12 @@
             {{-- Main Content Area --}}
             <main class="min-w-0 max-w-full overflow-hidden">
                 {{-- Documentation Content with optimal reading width --}}
-                <article class="docs-content max-w-none lg:max-w-[90ch] mx-auto lg:mx-0 {{ ($isStyledHtml ?? false) ? 'styled-html' : '' }}">
+                <article class="docs-content max-w-none lg:max-w-4xl mx-auto lg:mx-0 {{ ($isStyledHtml ?? false) ? 'styled-html' : '' }}">
                     {!! $content !!}
                 </article>
 
                 {{-- Edit Link Footer --}}
-                <div class="mt-16 pt-8 border-t border-gray-200 max-w-[90ch] mx-auto lg:mx-0">
+                <div class="mt-16 pt-8 border-t border-gray-200 max-w-4xl mx-auto lg:mx-0">
                     <a
                         href="{{ $edit_link }}"
                         target="_blank"
