@@ -1,0 +1,664 @@
+
+<h1 class="text-4xl font-bold text-charcoal mb-6">How to Maintain PCI Compliance</h1>
+
+<div class="flex flex-wrap items-center gap-3 mb-8">
+    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-orange-50 text-orange-700">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        6 minutes
+    </span>
+    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-yellow-50 text-brown">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+        </svg>
+        Advanced
+    </span>
+    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-orange-50 text-orange-700">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.99 1.99 0 013 12V7a4 4 0 014-4z"/>
+        </svg>
+        How-To
+    </span>
+</div>
+
+<section class="bg-white mb-8 p-8 border-t-4 border-yellow-500 shadow-sm">
+    <h2 class="text-2xl font-bold text-charcoal mb-4 mt-0">Overview</h2>
+
+    <div class="bg-gray-50 border-l-4 border-yellow-500 p-6 mb-6">
+        <h3 class="text-lg font-bold text-charcoal mb-3">Why PCI Compliance Matters</h3>
+        <ul class="space-y-2 pl-6">
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Accept cards safely and avoid fines up to $100,000/month</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Increase customer trust with secure payment handling</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Reduce annual PCI questions from hundreds to 20–30 with hosted payments</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Cut assessment time from weeks to hours with SAQ A qualification</li>
+        </ul>
+    </div>
+
+    <p class="text-lg text-gray-700 leading-relaxed mb-6">
+        Maintain PCI compliance to accept cards safely, avoid fines, and increase customer trust. This guide shows a low-effort path to PCI compliance for Magento stores by outsourcing card data, enforcing HTTPS, hardening Admin, and completing required scans/SAQs. Choosing a hosted redirect flow (often SAQ A) typically reduces annual PCI questions from hundreds to about 20–30 and can cut assessment time from weeks to hours—lowering compliance effort and risk exposure.
+    </p>
+    <p class="text-gray-700 leading-relaxed mb-4">
+        Merchants switching from on-site card forms to hosted redirect/hosted fields typically reduce annual PCI questionnaire effort by 70–90% and lower breach exposure from form-jacking. Enabling 3DS2 and network tokenization (when supported by your gateway) can improve authorization rates by 1–3% in regulated markets and reduce fraud losses, translating to lower compliance cost, direct revenue lift, and improved margins.
+    </p>
+    <p class="text-gray-700 leading-relaxed mb-4">
+        Plan on 90–120 minutes to complete the technical steps and validation (excludes acquirer/QSA coordination).
+    </p>
+    <p class="text-gray-700 leading-relaxed">
+        <strong>Version compatibility:</strong> Written for Magento 2.4.x. If you're on an older version, upgrade to 2.4.6+ for built‑in 2FA and security updates.
+    </p>
+</section>
+
+<section class="bg-white mb-8 p-8 border-t-4 border-yellow-500 shadow-sm">
+    <h2 class="text-2xl font-bold text-charcoal mb-6 mt-0">Prerequisites</h2>
+    <p class="text-gray-700 mb-6">Before you begin, make sure you have:</p>
+    <div class="grid md:grid-cols-2 gap-4">
+        <div class="relative bg-gradient-to-br from-orange-50 to-white border border-orange-500/30 p-5">
+            <div class="flex items-start gap-4">
+                <div class="w-10 h-10 bg-orange-500 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-charcoal mb-1">Admin Panel Access</h4>
+                    <p class="text-sm text-charcoal/70">Access to Magento Admin Panel</p>
+                </div>
+            </div>
+        </div>
+        <div class="relative bg-gradient-to-br from-yellow-50 to-white border border-yellow-500/30 p-5">
+            <div class="flex items-start gap-4">
+                <div class="w-10 h-10 bg-yellow-500 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-charcoal mb-1">Payment Provider Account</h4>
+                    <p class="text-sm text-charcoal/70">Active payment gateway account (PayPal, Braintree, Adyen, etc.)</p>
+                </div>
+            </div>
+        </div>
+        <div class="relative bg-gradient-to-br from-orange-50 to-white border border-orange-500/30 p-5">
+            <div class="flex items-start gap-4">
+                <div class="w-10 h-10 bg-orange-500 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-charcoal mb-1">SSL Certificate</h4>
+                    <p class="text-sm text-charcoal/70">Valid TLS certificate for all store domains and subdomains used during checkout</p>
+                </div>
+            </div>
+        </div>
+        <div class="relative bg-gradient-to-br from-yellow-50 to-white border border-yellow-500/30 p-5">
+            <div class="flex items-start gap-4">
+                <div class="w-10 h-10 bg-yellow-500 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-charcoal mb-1">SSH Access</h4>
+                    <p class="text-sm text-charcoal/70">SSH access to the application server with Composer and bin/magento CLI permissions</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="bg-white mb-8 p-8 border-t-4 border-yellow-500 shadow-sm">
+    <h2 class="text-2xl font-bold text-charcoal mb-4 mt-0">What You'll Accomplish</h2>
+    <p class="text-gray-700 mb-4">By following this guide, you will:</p>
+    <ul class="space-y-3 pl-6">
+        <li class="relative hexagon-bullet pl-6 text-gray-700">Reduce your PCI scope by using hosted/tokenized payments</li>
+        <li class="relative hexagon-bullet pl-6 text-gray-700">Enforce HTTPS/TLS 1.2+ across your store</li>
+        <li class="relative hexagon-bullet pl-6 text-gray-700">Harden Admin access (2FA, reCAPTCHA, least privilege)</li>
+        <li class="relative hexagon-bullet pl-6 text-gray-700">Pass security scans and complete the correct SAQ</li>
+    </ul>
+</section>
+
+<h2 class="text-3xl font-bold text-charcoal mb-8">Step-by-Step Instructions</h2>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">0</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Select a hosted or tokenized payment flow to minimize PCI scope</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <p class="text-gray-700 leading-relaxed mb-4">
+            Decide on a gateway and integration type that keeps card data off your servers. Prefer one of the following integration types:
+        </p>
+        <ul class="space-y-2 pl-6 mb-4">
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Hosted payment page (full redirect)</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Gateway-hosted fields/iframes via the official Magento extension (e.g., PayPal Smart Buttons, Braintree Hosted Fields, Adyen Drop-in)</li>
+        </ul>
+        <div class="bg-yellow-500 border-4 border-amber-600 p-4 mb-4 flex gap-3 items-start">
+            <svg class="w-6 h-6 text-amber-700 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2L1 21h22L12 2zm0 3.99L19.53 19H4.47L12 5.99zM11 16h2v2h-2v-2zm0-6h2v4h-2v-4z"/>
+            </svg>
+            <p class="text-brown"><strong>Avoid custom on-site card forms.</strong> They require SAQ D and significantly increase your compliance burden.</p>
+        </div>
+        <p class="text-gray-700 leading-relaxed mb-4">
+            <strong>Business value:</strong> Hosted redirects can qualify for SAQ A, reducing PCI effort substantially (fewer questions, faster assessments) and lowering breach exposure. Merchants moving to hosted redirect or hosted fields often see 70–90% less PCI questionnaire effort and fewer form‑jacking risks.
+        </p>
+        <div class="bg-white border-4 border-yellow-500 p-4 flex gap-3 items-start">
+            <svg class="w-5 h-5 text-orange-500 flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+            <p class="text-charcoal text-sm">Confirm with your acquirer/QSA which SAQ applies. Full redirect or gateway-hosted payment pages typically qualify for SAQ A. Hosted fields/JS integrations often require SAQ A-EP even when card data never touches your server.</p>
+        </div>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">1</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Enforce HTTPS everywhere with modern TLS</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <p class="text-gray-700 leading-relaxed mb-4">
+            In Magento Admin, go to <span class="step-code">Stores › Configuration › General › Web</span>. Under Base URLs (Secure), set Secure Base URL to your HTTPS URL with a trailing slash (e.g., <code class="step-code">https://example.com/</code>). Set <strong>Use Secure URLs on Storefront = Yes</strong> and <strong>Use Secure URLs in Admin = Yes</strong>. Save and then flush the Magento cache.
+        </p>
+        <p class="text-gray-700 leading-relaxed mb-4">
+            At your web server/CDN, force HTTP→HTTPS redirects and disable TLS 1.0/1.1. Optionally enable HSTS at the edge (start with a short max-age).
+        </p>
+        <p class="text-gray-700 leading-relaxed mb-4">
+            <strong>Cookie security:</strong> In Admin, go to <span class="step-code">Stores › Configuration › General › Web › Default Cookie Settings</span> and set <strong>Use HTTP Only = Yes</strong>. With HTTPS enforced, Magento will set the Secure flag on session cookies.
+        </p>
+        <p class="text-gray-700 leading-relaxed">
+            Test your domain with <a href="https://www.ssllabs.com/ssltest/" class="text-orange-500 hover:underline">SSL Labs</a> and remediate any grade lower than A. Ensure only TLS 1.2/1.3 are enabled and weak ciphers are disabled.
+        </p>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">2</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Install and configure the official gateway extension</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <p class="text-gray-700 leading-relaxed mb-4">
+            Install the vendor's official Magento 2 extension (Marketplace or Composer).
+        </p>
+        <h4 class="font-semibold text-charcoal mb-2">Install and deploy</h4>
+        <ol class="space-y-4 list-none pl-0 mb-4">
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">1.</span>
+                Enable maintenance mode and ensure backups: run <code class="step-code">bin/magento maintenance:enable</code>
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">2.</span>
+                Composer install: <code class="step-code">composer require adyen/module-payment:^&lt;latest-major&gt;</code>
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">3.</span>
+                Upgrade Magento: <code class="step-code">bin/magento setup:upgrade</code>
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">4.</span>
+                If production mode, run: <code class="step-code">bin/magento setup:di:compile</code> and <code class="step-code">bin/magento setup:static-content:deploy -f</code>
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">5.</span>
+                Clear cache: <code class="step-code">bin/magento cache:clean</code>
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">6.</span>
+                Disable maintenance mode: <code class="step-code">bin/magento maintenance:disable</code>
+            </li>
+        </ol>
+        <h4 class="font-semibold text-charcoal mb-2">Configure in Admin</h4>
+        <ol class="space-y-4 list-none pl-0 mb-4">
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">1.</span>
+                Go to <span class="step-code">Stores › Configuration › Sales › Payment Methods</span> and locate your gateway
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">2.</span>
+                Enter API credentials (start with sandbox). Enable tokenization/vault if available
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">3.</span>
+                Enable 3D Secure 2.x for PSD2 SCA compliance and fraud reduction
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">4.</span>
+                Set payment action: Authorize Only (for preorders) or Authorize and Capture (for immediate shipment)
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">5.</span>
+                Configure gateway webhooks/notifications and whitelist gateway IPs if required
+            </li>
+        </ol>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">3</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Verify no card data touches your servers</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <p class="text-gray-700 leading-relaxed mb-4">
+            In sandbox, place a test order. Open your browser's developer tools (Network tab) and confirm card iframes/scripts load from gateway domains (e.g., *.adyen.com, *.braintreegateway.com, *.paypal.com), not your store's domain.
+        </p>
+        <p class="text-gray-700 leading-relaxed mb-4">
+            On the server, inspect <code class="step-code">var/log</code> and your web server logs. Ensure logs never contain PAN or CVV. If any sensitive data appears, stop testing, purge logs securely, and remediate immediately.
+        </p>
+        <p class="text-gray-700 leading-relaxed mb-4">
+            <strong>Database verification (tokenization):</strong>
+        </p>
+        <pre class="bg-charcoal text-yellow-500 p-4 overflow-x-auto mb-4 text-sm font-mono">SELECT entity_id, payment_method_code, public_hash, type, token_details
+FROM vault_payment_token LIMIT 5;</pre>
+        <p class="text-gray-700 leading-relaxed">
+            Verify <code class="step-code">token_details</code> contains masked card data (e.g., ****1111) and no PAN/CVV.
+        </p>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">4</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Harden Magento Admin and checkout</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <ul class="space-y-3 pl-6 mb-4">
+            <li class="relative hexagon-bullet pl-6 text-gray-700"><strong>Enforce 2FA (Magento 2.4+):</strong> Go to <span class="step-code">Stores › Configuration › Security › 2FA</span> and enable providers (Google Authenticator, Duo Security, WebAuthn)</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700"><strong>Change the Admin URL:</strong> <span class="step-code">Stores › Configuration › Advanced › Admin</span>, set a custom Admin path</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700"><strong>Configure least-privilege roles:</strong> <span class="step-code">System › Permissions › User Roles</span></li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700"><strong>Enable Google reCAPTCHA:</strong> Configure separately for Admin Panel and Storefront under <span class="step-code">Stores › Configuration › Security</span></li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700"><strong>Strengthen password and session security:</strong> <span class="step-code">Stores › Configuration › Advanced › Admin › Security</span></li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700"><strong>Add a Content Security Policy (CSP):</strong> Restrict scripts to trusted domains (your store, CDN, payment gateway)</li>
+        </ul>
+        <div class="bg-white border-4 border-yellow-500 p-4 flex gap-3 items-start">
+            <svg class="w-5 h-5 text-orange-500 flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7zm2.85 11.1l-.85.6V16h-4v-2.3l-.85-.6A4.997 4.997 0 017 9c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.63-.8 3.16-2.15 4.1z"/>
+            </svg>
+            <p class="text-charcoal text-sm">Use reCAPTCHA v3 on checkout to minimize friction, but start with a moderate threshold (e.g., 0.3–0.5) and monitor conversion. If legitimate customers are challenged, lower the threshold.</p>
+        </div>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">5</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Keep Magento and extensions updated; run Adobe Security Scan</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <p class="text-gray-700 leading-relaxed mb-4">
+            Apply the latest Magento security patches and extension updates in staging, then production, following your change-control process.
+        </p>
+        <p class="text-gray-700 leading-relaxed">
+            Sign in to your Magento/Adobe Commerce account and register your site in the <a href="https://experienceleague.adobe.com/docs/commerce-operations/security/security-scan.html" class="text-orange-500 hover:underline">Security Scan tool</a>. Follow the "Register your site" steps to verify ownership and schedule recurring (e.g., weekly) scans. Review findings and remediate promptly.
+        </p>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">6</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Schedule quarterly ASV scans and complete the correct SAQ</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <p class="text-gray-700 leading-relaxed mb-4">
+            Most acquirers require quarterly external ASV scans for any merchant with Internet-facing domains in scope. Confirm scope and targets with your acquirer/QSA to ensure you scan all required hosts.
+        </p>
+        <p class="text-gray-700 leading-relaxed mb-4">
+            Use PCI SSC SAQ instructions to determine your SAQ type (A, A-EP, D, etc.). Complete the SAQ in your acquirer's portal and retain the Attestation of Compliance (AOC).
+        </p>
+        <div class="bg-gray-50 p-4 mb-4">
+            <p class="font-semibold text-charcoal mb-2">Examples (confirm with your acquirer/QSA):</p>
+            <ul class="space-y-2 pl-6">
+                <li class="relative hexagon-bullet pl-6 text-gray-700">PayPal Smart Buttons with full redirect → typically SAQ A</li>
+                <li class="relative hexagon-bullet pl-6 text-gray-700">Adyen/Braintree hosted fields (card entry iframe on your site) → typically SAQ A‑EP</li>
+                <li class="relative hexagon-bullet pl-6 text-gray-700">Custom on-site card forms or direct post → SAQ D for merchants</li>
+            </ul>
+        </div>
+        <p class="text-gray-700 leading-relaxed">
+            <strong>Operational value:</strong> Correctly scoping to SAQ A (when eligible) often eliminates internal network controls from the questionnaire and can cut annual compliance preparation from several weeks to a few hours.
+        </p>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">7</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Document and operationalize compliance</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <p class="text-gray-700 leading-relaxed mb-4">
+            Create a simple compliance runbook that includes:
+        </p>
+        <ul class="space-y-2 pl-6 mb-4">
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Gateway AOC on file, SAQ/ASV schedule, update cadence, key contacts, change control, and incident response steps</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Quarterly access review of admin users/roles and monthly log review procedures</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Backup/restore testing schedule and annual security training tracking</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Credential hygiene: rotate API keys and admin credentials regularly</li>
+        </ul>
+        <div class="bg-orange-50 border-4 border-orange-500 p-4 flex gap-3 items-start">
+            <svg class="w-6 h-6 text-orange-500 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2L1 21h22L12 2zm0 3.99L19.53 19H4.47L12 5.99zM11 16h2v2h-2v-2zm0-6h2v4h-2v-4z"/>
+            </svg>
+            <div>
+                <p class="font-bold text-charcoal mb-1">Incident Response</p>
+                <p class="text-charcoal text-sm">Immediately isolate affected systems, preserve logs, notify your acquirer within 24 hours, engage a PCI-approved forensic investigator (PFI) if directed, rotate all credentials, and communicate with customers per legal counsel.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h2 class="text-3xl font-bold text-charcoal mb-6">Verification</h2>
+<p class="text-gray-700 mb-6">Use this checklist to confirm everything is working correctly:</p>
+
+<ul class="list-none my-8 pl-0 space-y-5">
+    <li class="bg-white p-7 shadow-sm">
+        <div class="flex items-center justify-between mb-5">
+            <strong class="text-lg font-bold text-charcoal">Payment Integration</strong>
+        </div>
+        <ul class="grid gap-3 m-0 p-0 list-none">
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                SAQ type confirmed with acquirer/QSA and documented
+            </li>
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                Sandbox order succeeds; webhooks update order status automatically
+            </li>
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                3DS2 flows work as expected
+            </li>
+        </ul>
+    </li>
+
+    <li class="bg-white p-7 shadow-sm">
+        <div class="flex items-center justify-between mb-5">
+            <strong class="text-lg font-bold text-charcoal">HTTPS/TLS Configuration</strong>
+        </div>
+        <ul class="grid gap-3 m-0 p-0 list-none">
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                SSL Labs reports grade A
+            </li>
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                Only TLS 1.2/1.3 enabled
+            </li>
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                HTTP→HTTPS redirects enforced; HTTPOnly cookies enabled
+            </li>
+        </ul>
+    </li>
+
+    <li class="bg-white p-7 shadow-sm">
+        <div class="flex items-center justify-between mb-5">
+            <strong class="text-lg font-bold text-charcoal">Card Data Isolation</strong>
+        </div>
+        <ul class="grid gap-3 m-0 p-0 list-none">
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                Browser shows payment fields from gateway domain
+            </li>
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                Database stores only tokens/masked data
+            </li>
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                No PAN/CVV in logs
+            </li>
+        </ul>
+    </li>
+
+    <li class="bg-white p-7 shadow-sm">
+        <div class="flex items-center justify-between mb-5">
+            <strong class="text-lg font-bold text-charcoal">Admin Security</strong>
+        </div>
+        <ul class="grid gap-3 m-0 p-0 list-none">
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                2FA enforced on admin login
+            </li>
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                reCAPTCHA tuned for low checkout friction
+            </li>
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                Password/session policies applied; Admin URL changed
+            </li>
+        </ul>
+    </li>
+
+    <li class="bg-white p-7 shadow-sm">
+        <div class="flex items-center justify-between mb-5">
+            <strong class="text-lg font-bold text-charcoal">Security Scans</strong>
+        </div>
+        <ul class="grid gap-3 m-0 p-0 list-none">
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                Adobe Commerce Security Scan shows no critical/high issues
+            </li>
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                Recurring scans scheduled
+            </li>
+        </ul>
+    </li>
+
+    <li class="bg-white p-7 shadow-sm">
+        <div class="flex items-center justify-between mb-5">
+            <strong class="text-lg font-bold text-charcoal">Compliance Documentation</strong>
+        </div>
+        <ul class="grid gap-3 m-0 p-0 list-none">
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                Quarterly ASV scan passed for all in-scope hosts
+            </li>
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                Correct SAQ completed; AOC stored
+            </li>
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                Compliance runbook maintained with owners and cadence
+            </li>
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                Training records up to date; incident response plan documented
+            </li>
+        </ul>
+    </li>
+</ul>
+
+<h2 class="text-3xl font-bold text-charcoal mb-6">Common Issues and Solutions</h2>
+
+<div class="space-y-4 my-8">
+    <div class="bg-white shadow-md overflow-hidden border-t-4 border-orange-500">
+        <button class="w-full p-5 text-left cursor-pointer grid grid-cols-[1fr_auto] gap-4 items-center hover:bg-orange-50 transition-colors" onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('svg').classList.toggle('rotate-180')">
+            <div>
+                <h3 class="text-xl font-bold text-charcoal mb-1">Logs contain sensitive payment data</h3>
+                <p class="text-charcoal/60 text-sm">PAN/CVV data found in application logs - immediate security risk</p>
+            </div>
+            <svg class="w-8 h-8 text-charcoal/50 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+        </button>
+        <div class="hidden border-t border-orange-500/30">
+            <div class="p-6">
+                <h4 class="font-bold text-charcoal mb-3">Immediate Action Required</h4>
+                <ul class="list-none p-0 space-y-2">
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-orange-500 rounded-full"></span>
+                        Disable debug logging for payment modules in production
+                    </li>
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-orange-500 rounded-full"></span>
+                        Rotate and purge existing logs securely
+                    </li>
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-orange-500 rounded-full"></span>
+                        Investigate and remediate any leakage immediately
+                    </li>
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-orange-500 rounded-full"></span>
+                        Verify webhook signature validation is enabled
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white shadow-md overflow-hidden border-t-4 border-yellow-500">
+        <button class="w-full p-5 text-left cursor-pointer grid grid-cols-[1fr_auto] gap-4 items-center hover:bg-yellow-50 transition-colors" onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('svg').classList.toggle('rotate-180')">
+            <div>
+                <h3 class="text-xl font-bold text-charcoal mb-1">reCAPTCHA causes checkout friction</h3>
+                <p class="text-charcoal/60 text-sm">Users abandoning cart due to aggressive CAPTCHA challenges</p>
+            </div>
+            <svg class="w-8 h-8 text-charcoal/50 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+        </button>
+        <div class="hidden border-t border-yellow-500/30">
+            <div class="p-6">
+                <h4 class="font-bold text-charcoal mb-3">Solution</h4>
+                <ul class="list-none p-0 space-y-2">
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-yellow-500 rounded-full"></span>
+                        Use reCAPTCHA v3 on checkout for invisible protection
+                    </li>
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-yellow-500 rounded-full"></span>
+                        Reserve v2 for high-risk forms only (login, registration)
+                    </li>
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-yellow-500 rounded-full"></span>
+                        Tune score thresholds (start around 0.3–0.5) and monitor conversion impact
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white shadow-md overflow-hidden border-t-4 border-yellow-500">
+        <button class="w-full p-5 text-left cursor-pointer grid grid-cols-[1fr_auto] gap-4 items-center hover:bg-yellow-50 transition-colors" onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('svg').classList.toggle('rotate-180')">
+            <div>
+                <h3 class="text-xl font-bold text-charcoal mb-1">3DS2 challenges reduce conversions</h3>
+                <p class="text-charcoal/60 text-sm">Customers dropping off during Strong Customer Authentication flow</p>
+            </div>
+            <svg class="w-8 h-8 text-charcoal/50 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+        </button>
+        <div class="hidden border-t border-yellow-500/30">
+            <div class="p-6">
+                <h4 class="font-bold text-charcoal mb-3">Solution</h4>
+                <ul class="list-none p-0 space-y-2">
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-yellow-500 rounded-full"></span>
+                        Enable frictionless flow where supported by your gateway
+                    </li>
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-yellow-500 rounded-full"></span>
+                        Apply SCA exemptions (trusted devices, low-risk/TRA, low-value) if your gateway supports them
+                    </li>
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-yellow-500 rounded-full"></span>
+                        Use trusted beneficiary lists to reduce repeat challenges
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white shadow-md overflow-hidden border-t-4 border-charcoal">
+        <button class="w-full p-5 text-left cursor-pointer grid grid-cols-[1fr_auto] gap-4 items-center hover:bg-off-white transition-colors" onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('svg').classList.toggle('rotate-180')">
+            <div>
+                <h3 class="text-xl font-bold text-charcoal mb-1">ASV scan fails due to TLS configuration</h3>
+                <p class="text-charcoal/60 text-sm">Quarterly security scan detecting legacy SSL/TLS protocols</p>
+            </div>
+            <svg class="w-8 h-8 text-charcoal/50 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+        </button>
+        <div class="hidden border-t border-charcoal/20">
+            <div class="p-6">
+                <h4 class="font-bold text-charcoal mb-3">Solution</h4>
+                <ul class="list-none p-0 space-y-2">
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-charcoal rounded-full"></span>
+                        Disable TLS 1.0/1.1 on load balancer and web server configuration
+                    </li>
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-charcoal rounded-full"></span>
+                        Prefer modern ECDHE cipher suites
+                    </li>
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-charcoal rounded-full"></span>
+                        Re-run ASV scan to verify compliance
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white shadow-md overflow-hidden border-t-4 border-charcoal">
+        <button class="w-full p-5 text-left cursor-pointer grid grid-cols-[1fr_auto] gap-4 items-center hover:bg-off-white transition-colors" onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('svg').classList.toggle('rotate-180')">
+            <div>
+                <h3 class="text-xl font-bold text-charcoal mb-1">Security Scan flags admin exposure</h3>
+                <p class="text-charcoal/60 text-sm">Admin panel accessible from public internet without restrictions</p>
+            </div>
+            <svg class="w-8 h-8 text-charcoal/50 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+        </button>
+        <div class="hidden border-t border-charcoal/20">
+            <div class="p-6">
+                <h4 class="font-bold text-charcoal mb-3">Solution</h4>
+                <ul class="list-none p-0 space-y-2">
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-charcoal rounded-full"></span>
+                        Restrict the /admin path by IP at WAF/CDN level
+                    </li>
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-charcoal rounded-full"></span>
+                        Rename the Admin URL to a non-obvious path
+                    </li>
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-charcoal rounded-full"></span>
+                        Enable 2FA for all admin accounts
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Hexagon bullet marker for lists */
+.hexagon-bullet::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.5em;
+    width: 9px;
+    height: 9px;
+    background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 2L21 7V17L12 22L3 17V7L12 2Z' stroke='%23F26423' stroke-width='2.5' stroke-linejoin='miter'/%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+/* Step code styling for inline code paths */
+.step-code {
+    background: #2C2C2C;
+    color: #F1BC1B;
+    padding: 0.25rem 0.5rem;
+    font-family: 'Courier New', monospace;
+    font-size: 0.875rem;
+}
+</style>
