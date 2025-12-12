@@ -55,7 +55,7 @@
                 <defs>
                     <style>
                         .cls-1 { fill: #f26423; }
-                        .cls-2 { fill: #2c2c2c; }
+                        .cls-2 { fill: #2c2c2c; stroke: #2c2c2c; stroke-width: 1; }
                         .cls-3 { fill: #f1bc1b; }
                     </style>
                 </defs>
