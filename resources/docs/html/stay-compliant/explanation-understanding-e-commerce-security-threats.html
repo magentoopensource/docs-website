@@ -1,0 +1,528 @@
+
+<h1 class="text-4xl font-bold text-charcoal mb-6">Understanding E-commerce Security Threats</h1>
+
+<div class="flex flex-wrap items-center gap-3 mb-8">
+    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-orange-50 text-orange-700">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        15-20 minutes
+    </span>
+    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-yellow-50 text-brown">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+        </svg>
+        All Levels
+    </span>
+    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-orange-50 text-orange-700">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+        </svg>
+        Explanation
+    </span>
+</div>
+
+<section class="bg-white mb-8 p-8 border-t-4 border-yellow-500 shadow-sm">
+    <h2 class="text-2xl font-bold text-charcoal mb-4 mt-0">Introduction</h2>
+    <p class="text-lg text-gray-700 leading-relaxed mb-6">
+        Security is a growth enabler. For a growing merchant, understanding e-commerce threats and how Magento (Adobe Commerce and Magento Open Source) mitigates them leads to fewer outages, lower fraud, higher conversion, and sustained customer trust.
+    </p>
+    <p class="text-gray-700 leading-relaxed mb-6">
+        Applies to: Adobe Commerce and Magento Open Source 2.4.4 and later. Edition differences are noted where applicable.
+    </p>
+    <p class="text-gray-700 leading-relaxed">
+        This page explains the top e-commerce threats (bots, web skimming, XSS/CSRF, credential stuffing), what Magento mitigates natively, what requires a WAF/CDN, and a 60-minute hardening checklist with exact admin paths.
+    </p>
+</section>
+
+<section class="mb-10">
+    <h2 class="text-2xl font-bold text-charcoal mb-6">Key Concepts</h2>
+    <ul class="space-y-3">
+        <li class="relative pl-8 text-gray-700 leading-relaxed hexagon-bullet"><strong class="text-charcoal">Credential stuffing and brute-force:</strong> Automated login attempts using leaked credentials targeting Admin and customer accounts.</li>
+        <li class="relative pl-8 text-gray-700 leading-relaxed hexagon-bullet"><strong class="text-charcoal">Web skimming (Magecart):</strong> Malicious JavaScript injection to steal cardholder data on checkout.</li>
+        <li class="relative pl-8 text-gray-700 leading-relaxed hexagon-bullet"><strong class="text-charcoal">Cross-Site Scripting (XSS):</strong> Injection of scripts that run in customers' browsers.</li>
+        <li class="relative pl-8 text-gray-700 leading-relaxed hexagon-bullet"><strong class="text-charcoal">Cross-Site Request Forgery (CSRF):</strong> Forged requests that exploit authenticated sessions.</li>
+        <li class="relative pl-8 text-gray-700 leading-relaxed hexagon-bullet"><strong class="text-charcoal">Injection attacks (SQLi/Command):</strong> Attempts to manipulate backend via unvalidated input, often via extensions.</li>
+        <li class="relative pl-8 text-gray-700 leading-relaxed hexagon-bullet"><strong class="text-charcoal">Bot/card testing and scraping:</strong> Automated abuse of checkout and catalog endpoints.</li>
+        <li class="relative pl-8 text-gray-700 leading-relaxed hexagon-bullet"><strong class="text-charcoal">DDoS/traffic floods:</strong> Volumetric or L7 attacks overwhelming infrastructure.</li>
+        <li class="relative pl-8 text-gray-700 leading-relaxed hexagon-bullet"><strong class="text-charcoal">Supply-chain/extension risk:</strong> Vulnerabilities introduced by third-party modules or CI/CD.</li>
+        <li class="relative pl-8 text-gray-700 leading-relaxed hexagon-bullet"><strong class="text-charcoal">Misconfiguration and outdated software:</strong> Default admin paths, weak passwords, HTTP (no TLS), unpatched versions.</li>
+    </ul>
+</section>
+
+<section class="mb-10">
+    <h2 class="text-2xl font-bold text-charcoal mb-6">How It Works</h2>
+    <p class="text-gray-700 leading-relaxed mb-6">
+        Magento core mitigates many application-layer risks (CSRF, XSS, session security), but it does not itself block DDoS or large-scale bot floods. Use a WAF/CDN (Fastly WAF on Adobe Commerce on cloud, or a third-party WAF for Open Source/self-hosted) for network-layer and volumetric protection.
+    </p>
+
+    <div class="bg-white border-t-4 border-yellow-500 shadow-sm p-8 mb-6">
+        <h3 class="text-xl font-bold text-charcoal mb-4">Magento native protections (2.4.4+)</h3>
+        <ul class="space-y-3">
+            <li class="relative pl-8 text-gray-700 leading-relaxed hexagon-bullet"><strong class="text-charcoal">CSRF:</strong> Form keys on forms and Admin Secret Key in URLs mitigate CSRF.</li>
+            <li class="relative pl-8 text-gray-700 leading-relaxed hexagon-bullet"><strong class="text-charcoal">XSS:</strong> Input filtering and a Content Security Policy (CSP) framework. Test in Report-Only and then enforce.</li>
+            <li class="relative pl-8 text-gray-700 leading-relaxed hexagon-bullet"><strong class="text-charcoal">Session security:</strong> Secure and HttpOnly cookies, SameSite attributes, configurable session timeout (<span class="step-code">Stores > Settings > Configuration > Advanced > Admin > Security</span>).</li>
+            <li class="relative pl-8 text-gray-700 leading-relaxed hexagon-bullet"><strong class="text-charcoal">Authentication hardening:</strong> Admin Two-Factor Authentication (2FA), password policy controls, account lockout.</li>
+            <li class="relative pl-8 text-gray-700 leading-relaxed hexagon-bullet"><strong class="text-charcoal">CAPTCHA:</strong> Built-in CAPTCHA (<span class="step-code">Stores > Configuration > Advanced > Admin > CAPTCHA</span>; <span class="step-code">Customers > Customer Configuration > CAPTCHA</span>) and Google reCAPTCHA (<span class="step-code">Stores > Settings > Configuration > Security > Google reCAPTCHA Admin Panel / Storefront</span>).</li>
+            <li class="relative pl-8 text-gray-700 leading-relaxed hexagon-bullet"><strong class="text-charcoal">HTTPS:</strong> Force secure URLs (<span class="step-code">Stores > Settings > Configuration > General > Web > Base URLs (Secure)</span>).</li>
+        </ul>
+    </div>
+
+    <div class="bg-white border-t-4 border-orange-500 shadow-sm p-8 mb-6">
+        <h3 class="text-xl font-bold text-charcoal mb-4">Requires infrastructure/CDN/WAF</h3>
+        <p class="text-gray-700 leading-relaxed">
+            DDoS/bot mitigation, L7 rate limiting, IP reputation, and bot management. Use Fastly WAF (Adobe Commerce on cloud) or third-party WAF (e.g., Cloudflare, Akamai, Fastly) for Open Source/self-hosted deployments.
+        </p>
+    </div>
+
+    <div class="bg-white border-t-4 border-charcoal shadow-sm p-8">
+        <h3 class="text-xl font-bold text-charcoal mb-4">Operational controls</h3>
+        <p class="text-gray-700 leading-relaxed">
+            Regular patching via Composer updates and security-only patches, extension vetting, and least-privilege roles (<span class="step-code">System > Permissions > User Roles</span>).
+        </p>
+    </div>
+</section>
+
+<section class="mb-10">
+    <h2 class="text-2xl font-bold text-charcoal mb-6">Benefits and Advantages</h2>
+    <ul class="space-y-3 mb-8">
+        <li class="relative pl-8 text-gray-700 leading-relaxed hexagon-bullet"><strong class="text-charcoal">Higher conversion with lower friction:</strong> Use Invisible reCAPTCHA on checkout and risk-based challenges to deter bots while minimizing customer friction.</li>
+        <li class="relative pl-8 text-gray-700 leading-relaxed hexagon-bullet"><strong class="text-charcoal">Reduced fraud and chargebacks:</strong> Combine gateway risk tools and reCAPTCHA to filter abuse before authorization.</li>
+        <li class="relative pl-8 text-gray-700 leading-relaxed hexagon-bullet"><strong class="text-charcoal">Greater uptime and resilience:</strong> WAF/CDN absorbs abusive traffic and rate-limits hot endpoints.</li>
+        <li class="relative pl-8 text-gray-700 leading-relaxed hexagon-bullet"><strong class="text-charcoal">Stronger compliance posture:</strong> Enforce HTTPS and Admin 2FA to support PCI DSS obligations and pass ASV scans.</li>
+        <li class="relative pl-8 text-gray-700 leading-relaxed hexagon-bullet"><strong class="text-charcoal">Clear observability:</strong> Track WAF blocks, login failures, and admin actions (Adobe Commerce) to respond faster.</li>
+    </ul>
+
+    <div class="bg-white border-4 border-yellow-500 p-6 mb-6">
+        <div class="flex gap-4 items-start">
+            <div class="flex-shrink-0 w-8 h-8">
+                <svg class="w-full h-full text-orange-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                </svg>
+            </div>
+            <div class="flex-1">
+                <p class="font-bold text-charcoal mb-3">Example KPIs to monitor</p>
+                <ul class="space-y-2 text-gray-700">
+                    <li class="relative pl-8 hexagon-bullet">Checkout success rate, reCAPTCHA challenge rate, bot traffic percentage</li>
+                    <li class="relative pl-8 hexagon-bullet">Chargeback rate and fraud review queue volume</li>
+                    <li class="relative pl-8 hexagon-bullet">Uptime, WAF block counts, and average response time</li>
+                    <li class="relative pl-8 hexagon-bullet">ASV scan pass rate and number of open security findings</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="mb-10">
+    <h2 class="text-2xl font-bold text-charcoal mb-6">Common Challenges and Considerations</h2>
+    <ul class="space-y-3">
+        <li class="relative pl-8 text-gray-700 leading-relaxed hexagon-bullet"><strong class="text-charcoal">CAPTCHA friction:</strong> Start with Invisible reCAPTCHA for storefront; escalate to v2 Checkbox or higher sensitivity only on suspicious traffic.</li>
+        <li class="relative pl-8 text-gray-700 leading-relaxed hexagon-bullet"><strong class="text-charcoal">Extension risk:</strong> Prefer Adobe Marketplace vendors, review update cadence, limit module count, and pen-test checkout after adding payment/custom JS.</li>
+        <li class="relative pl-8 text-gray-700 leading-relaxed hexagon-bullet"><strong class="text-charcoal">CSP rollout:</strong> Start in Report-Only, fix violations, then Enforce; whitelist only necessary domains (payments, analytics, tag managers).</li>
+        <li class="relative pl-8 text-gray-700 leading-relaxed hexagon-bullet"><strong class="text-charcoal">Admin access sprawl:</strong> Enforce 2FA, unique accounts, role-based access, and regular user reviews.</li>
+        <li class="relative pl-8 text-gray-700 leading-relaxed hexagon-bullet"><strong class="text-charcoal">Headless/PWA:</strong> Ensure CSP and reCAPTCHA are implemented in the frontend app; protect GraphQL endpoints with WAF rules and rate limits.</li>
+    </ul>
+</section>
+
+<section class="mb-10">
+    <h2 class="text-2xl font-bold text-charcoal mb-6">Use Cases and Scenarios</h2>
+
+    <div class="grid gap-4 md:grid-cols-3">
+        <div class="bg-white border-t-4 border-yellow-500 shadow-sm p-6">
+            <h3 class="text-lg font-bold text-charcoal mb-3">SMB B2C</h3>
+            <p class="text-gray-700 text-sm leading-relaxed">
+                Enable HTTPS, 2FA, Invisible reCAPTCHA, and monthly patching. Add WAF with basic rate limits for login/checkout.
+            </p>
+        </div>
+
+        <div class="bg-white border-t-4 border-orange-500 shadow-sm p-6">
+            <h3 class="text-lg font-bold text-charcoal mb-3">Enterprise B2C</h3>
+            <p class="text-gray-700 text-sm leading-relaxed">
+                Enforce CSP, deploy WAF with bot management, set adaptive rate limits for GraphQL and REST, and integrate SIEM monitoring.
+            </p>
+        </div>
+
+        <div class="bg-white border-t-4 border-charcoal shadow-sm p-6">
+            <h3 class="text-lg font-bold text-charcoal mb-3">B2B</h3>
+            <p class="text-gray-700 text-sm leading-relaxed">
+                Prioritize 2FA, RBAC with least-privilege, IP allowlists for Admin/VPN, and WAF protections on quote and account endpoints.
+            </p>
+        </div>
+    </div>
+</section>
+
+<section class="mb-10">
+    <h2 class="text-2xl font-bold text-charcoal mb-6">Alternatives and Comparisons</h2>
+    <div class="bg-white shadow-sm overflow-hidden">
+        <table class="w-full text-sm">
+            <thead>
+                <tr class="bg-gray-100">
+                    <th class="text-left px-6 py-4 font-semibold text-gray-900 border-b border-gray-200 w-1/4">Platform</th>
+                    <th class="text-left px-6 py-4 font-semibold text-gray-900 border-b border-gray-200">Security Approach</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="px-6 py-4 font-medium text-charcoal border-b border-gray-100">Adobe Commerce on cloud</td>
+                    <td class="px-6 py-4 text-gray-700 border-b border-gray-100">Includes Fastly CDN + WAF integration; managed shielding and TLS; ideal for merchants wanting integrated edge security.</td>
+                </tr>
+                <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="px-6 py-4 font-medium text-charcoal border-b border-gray-100">Magento Open Source/self-hosted</td>
+                    <td class="px-6 py-4 text-gray-700 border-b border-gray-100">Pair with Cloudflare/Akamai/Fastly (paid) for WAF/bot mitigation; server hardening, TLS/HSTS, and monitoring are merchant/host responsibilities.</td>
+                </tr>
+                <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="px-6 py-4 font-medium text-charcoal">Fraud tools</td>
+                    <td class="px-6 py-4 text-gray-700">Compare gateway-native risk (e.g., Adyen, PayPal, Braintree) versus third-party fraud platforms; balance cost against chargeback reduction.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="mb-10">
+    <h2 class="text-2xl font-bold text-charcoal mb-6">Business Impact</h2>
+
+    <div class="bg-white border-t-4 border-yellow-500 shadow-sm p-8 mb-6">
+        <h3 class="text-xl font-bold text-charcoal mb-4">For Merchants</h3>
+        <p class="text-gray-700 leading-relaxed mb-4">Track a KPI set and set 90-day targets:</p>
+        <ul class="space-y-2 mb-6">
+            <li class="relative pl-8 text-gray-700 leading-relaxed hexagon-bullet">Conversion rate, checkout error rate, reCAPTCHA challenge rate</li>
+            <li class="relative pl-8 text-gray-700 leading-relaxed hexagon-bullet">Chargeback rate, fraud review queue volume</li>
+            <li class="relative pl-8 text-gray-700 leading-relaxed hexagon-bullet">WAF block count, bot traffic percentage, admin unauthorized attempt count</li>
+        </ul>
+
+        <p class="text-gray-700 leading-relaxed mb-4"><strong>Suggested 90-day targets after implementing Invisible reCAPTCHA + WAF rules:</strong></p>
+        <ul class="space-y-2 mb-6">
+            <li class="relative pl-8 text-gray-700 leading-relaxed hexagon-bullet">Bot traffic: -50%</li>
+            <li class="relative pl-8 text-gray-700 leading-relaxed hexagon-bullet">Chargebacks: -30%</li>
+            <li class="relative pl-8 text-gray-700 leading-relaxed hexagon-bullet">Conversion: +0.5 to +1.0 percentage points</li>
+        </ul>
+
+        <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4">
+            <p class="font-semibold text-charcoal mb-2">Simple ROI example</p>
+            <p class="text-gray-700 text-sm leading-relaxed">
+                If bot checkout attempts cause 1% false declines on 100k monthly sessions at AOV $80 and 2% base conversion, tightening reCAPTCHA and WAF rules can recover roughly 16 orders/month (~$1,280), often exceeding typical WAF costs.
+            </p>
+        </div>
+    </div>
+
+    <div class="bg-white border-t-4 border-orange-500 shadow-sm p-8 mb-6">
+        <h3 class="text-xl font-bold text-charcoal mb-4">For Customers</h3>
+        <ul class="space-y-2">
+            <li class="relative pl-8 text-gray-700 leading-relaxed hexagon-bullet"><strong class="text-charcoal">Greater trust and safety:</strong> Fewer skimming risks and consistent HTTPS.</li>
+            <li class="relative pl-8 text-gray-700 leading-relaxed hexagon-bullet"><strong class="text-charcoal">Lower friction:</strong> Invisible reCAPTCHA avoids unnecessary challenges for legitimate users.</li>
+            <li class="relative pl-8 text-gray-700 leading-relaxed hexagon-bullet"><strong class="text-charcoal">Stable experience:</strong> WAF shielding reduces downtime during abusive traffic spikes.</li>
+        </ul>
+    </div>
+
+    <div class="bg-white border-t-4 border-charcoal shadow-sm p-8">
+        <h3 class="text-xl font-bold text-charcoal mb-4">For Operations</h3>
+        <ul class="space-y-2">
+            <li class="relative pl-8 text-gray-700 leading-relaxed hexagon-bullet"><strong class="text-charcoal">Fewer incidents and faster response:</strong> Measurable WAF blocks, clear admin audit trails (Adobe Commerce), and improved monitoring.</li>
+            <li class="relative pl-8 text-gray-700 leading-relaxed hexagon-bullet"><strong class="text-charcoal">Predictable maintenance:</strong> Scheduled patching and extension hygiene lower emergency work.</li>
+            <li class="relative pl-8 text-gray-700 leading-relaxed hexagon-bullet"><strong class="text-charcoal">Improved compliance readiness:</strong> 2FA and secure configuration support PCI DSS requirements.</li>
+        </ul>
+    </div>
+</section>
+
+<section class="mb-10">
+    <h2 class="text-2xl font-bold text-charcoal mb-6">Common Misconceptions</h2>
+    <div class="space-y-4">
+        <div class="bg-white border-l-4 border-orange-500 p-6 shadow-sm">
+            <p class="font-bold text-charcoal mb-2">"Magento blocks DDoS by itself"</p>
+            <p class="text-gray-700 leading-relaxed">False; use a WAF/CDN for DDoS and large-scale bot mitigation.</p>
+        </div>
+        <div class="bg-white border-l-4 border-orange-500 p-6 shadow-sm">
+            <p class="font-bold text-charcoal mb-2">"reCAPTCHA kills conversion"</p>
+            <p class="text-gray-700 leading-relaxed">Use Invisible or risk-based reCAPTCHA and apply selectively to minimize friction.</p>
+        </div>
+        <div class="bg-white border-l-4 border-orange-500 p-6 shadow-sm">
+            <p class="font-bold text-charcoal mb-2">"PCI doesn't apply if we use tokens"</p>
+            <p class="text-gray-700 leading-relaxed">SAQ scope is reduced, not eliminated; maintain HTTPS, patching, and secure processes.</p>
+        </div>
+        <div class="bg-white border-l-4 border-orange-500 p-6 shadow-sm">
+            <p class="font-bold text-charcoal mb-2">"Marketplace extensions are always safe"</p>
+            <p class="text-gray-700 leading-relaxed">Vet vendors, update promptly, and audit code when possible.</p>
+        </div>
+        <div class="bg-white border-l-4 border-orange-500 p-6 shadow-sm">
+            <p class="font-bold text-charcoal mb-2">"2FA can be disabled in production"</p>
+            <p class="text-gray-700 leading-relaxed">Do not disable in 2.4+; 2FA is required and critical for Admin security.</p>
+        </div>
+    </div>
+</section>
+
+<section class="mb-10">
+    <h2 class="text-2xl font-bold text-charcoal mb-6">Implementation Considerations</h2>
+
+    <div class="bg-white border-4 border-yellow-500 p-4 mb-6">
+        <div class="flex items-start gap-3">
+            <svg class="w-5 h-5 text-orange-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+            </svg>
+            <div>
+                <p class="font-semibold text-charcoal mb-1">Note</p>
+                <p class="text-charcoal/80 text-sm leading-relaxed">Admin Two-Factor Authentication (2FA) is required in 2.4+ (Adobe Commerce and Magento Open Source). Configure under <span class="step-code">Stores > Settings > Configuration > Security > 2FA</span>. Do not disable 2FA in production environments.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white border-4 border-yellow-500 p-4 mb-8">
+        <div class="flex items-start gap-3">
+            <svg class="w-5 h-5 text-orange-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+            </svg>
+            <div>
+                <p class="font-semibold text-charcoal mb-1">Edition note</p>
+                <p class="text-charcoal/80 text-sm leading-relaxed">Admin Actions Log (<span class="step-code">System > Actions Logs</span>) is available in Adobe Commerce. For Magento Open Source, use server/application logs and third-party extensions for admin auditing.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<h2 class="text-3xl font-bold text-charcoal mb-8">Quick Wins (60 minutes)</h2>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">1</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Enforce HTTPS</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <ol class="space-y-4 list-none pl-0">
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">1.</span>
+                Path: <span class="step-code">Admin > Stores > Settings > Configuration > General > Web > Base URLs (Secure)</span>
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">2.</span>
+                Set "Use Secure URLs on Storefront" and "Use Secure URLs in Admin" to <strong>Yes</strong>.
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">3.</span>
+                Verify: Padlock icon present across storefront and Admin.
+            </li>
+        </ol>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">2</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Enable Google reCAPTCHA</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <ol class="space-y-4 list-none pl-0">
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">1.</span>
+                Path: <span class="step-code">Admin > Stores > Settings > Configuration > Security > Google reCAPTCHA Admin Panel and Storefront</span>
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">2.</span>
+                Recommendation: Use Invisible reCAPTCHA for checkout.
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">3.</span>
+                Verify: reCAPTCHA network calls present; challenges appear only on risky interactions.
+            </li>
+        </ol>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">3</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Harden Admin security</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <ol class="space-y-4 list-none pl-0">
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">1.</span>
+                Path: <span class="step-code">Admin > Stores > Settings > Configuration > Advanced > Admin > Security</span>
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">2.</span>
+                Set session timeout (e.g., 900-1800 seconds), maximum login failures, and lockout time.
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">3.</span>
+                Path: <span class="step-code">Advanced > Admin > Admin Base URL</span> - set a custom Admin path.
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">4.</span>
+                Verify: Failed login attempts trigger lockout; new Admin URL in use.
+            </li>
+        </ol>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">4</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Require 2FA</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <ol class="space-y-4 list-none pl-0">
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">1.</span>
+                Path: <span class="step-code">Admin > Stores > Settings > Configuration > Security > 2FA</span>
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">2.</span>
+                Enable desired providers (e.g., Google Authenticator).
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">3.</span>
+                Verify: Next Admin login prompts for 2FA.
+            </li>
+        </ol>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">5</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Review permissions</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <ol class="space-y-4 list-none pl-0">
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">1.</span>
+                Path: <span class="step-code">Admin > System > Permissions > All Users and User Roles</span>
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">2.</span>
+                Ensure least-privilege roles and unique users.
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">3.</span>
+                Verify: A non-admin role cannot access <span class="step-code">System > Extensions</span> or <span class="step-code">Stores > Configuration</span>.
+            </li>
+        </ol>
+    </div>
+</div>
+
+<h2 class="text-3xl font-bold text-charcoal mb-8">WAF/CDN Setup (same day)</h2>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">6</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Enable a WAF/CDN</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <ul class="space-y-3 mb-4">
+            <li class="relative pl-8 hexagon-bullet"><strong class="text-charcoal">Adobe Commerce on cloud:</strong> Enable Fastly WAF rules.</li>
+            <li class="relative pl-8 hexagon-bullet"><strong class="text-charcoal">Open Source/self-hosted:</strong> Configure a WAF (Cloudflare/Akamai/Fastly) and set rate limits for login, cart, checkout, and GraphQL endpoints.</li>
+        </ul>
+        <p class="text-gray-700">Verify: Observe WAF blocks for scripted login attempts and abnormal request velocity.</p>
+    </div>
+</div>
+
+<h2 class="text-3xl font-bold text-charcoal mb-8">CSP Rollout</h2>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">7</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Implement CSP</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <ol class="space-y-4 list-none pl-0">
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">1.</span>
+                Start with Report-Only; review and fix violations.
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">2.</span>
+                Move to Enforce once required sources are whitelisted (payments, analytics, tag managers).
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">3.</span>
+                Verify: No CSP report violations in production during normal user journeys.
+            </li>
+        </ol>
+    </div>
+</div>
+
+<h2 class="text-3xl font-bold text-charcoal mb-8">Patching & Cadence</h2>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">8</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Maintain patching discipline</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <ol class="space-y-4 list-none pl-0">
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">1.</span>
+                Schedule monthly Composer updates to the latest 2.4.x security release; apply security-only patches when released.
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">2.</span>
+                Verify: Application version matches latest security release; scanners report no known CVEs.
+            </li>
+        </ol>
+    </div>
+</div>
+
+<h2 class="text-3xl font-bold text-charcoal mb-8">Verification & Monitoring</h2>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-8">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">9</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Security Scan and Monitoring</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <ol class="space-y-4 list-none pl-0">
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">1.</span>
+                Run Adobe Commerce Security Scan Tool on your domains; remediate findings (e.g., insecure headers, outdated version).
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">2.</span>
+                Ensure automated backups and log monitoring; on Adobe Commerce, enable <span class="step-code">System > Actions Logs</span> (if available).
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">3.</span>
+                Verify: Admin activity is logged; alerts trigger on anomalies.
+            </li>
+        </ol>
+    </div>
+</div>
+
+<section class="mb-10">
+    <h2 class="text-2xl font-bold text-charcoal mb-6">Related Concepts</h2>
+    <div class="bg-white border-t-4 border-yellow-500 shadow-sm p-6">
+        <ul class="grid md:grid-cols-2 gap-3">
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Adobe Commerce Security Scan Tool</li>
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Configure Google reCAPTCHA (Admin and Storefront)</li>
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Configure Two-Factor Authentication (2FA)</li>
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Admin Security settings (session, lockout, admin URL)</li>
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Content Security Policy (CSP) in Magento</li>
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Fastly WAF (Adobe Commerce on cloud)</li>
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Applying security patches with Composer</li>
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Role-based access control (RBAC) and user management</li>
+        </ul>
+    </div>
+</section>
+
+<style>
+/* Hexagon bullet marker for lists */
+.hexagon-bullet::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.5em;
+    width: 9px;
+    height: 9px;
+    background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 2L21 7V17L12 22L3 17V7L12 2Z' stroke='%23F26423' stroke-width='2.5' stroke-linejoin='miter'/%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+/* Step code styling for inline code paths */
+.step-code {
+    background: #2C2C2C;
+    color: #F1BC1B;
+    padding: 0.25rem 0.5rem;
+    font-family: 'Courier New', monospace;
+    font-size: 0.875rem;
+}
+</style>
