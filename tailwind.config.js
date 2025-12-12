@@ -6,6 +6,8 @@ export default {
         "resources/views/**/*.blade.php",
         "resources/js/**/*.js",
         "resources/docs/html/**/*.html",
+        "resources/docs/**/*.md",
+        "app/Markdown/CustomBlocks/Renderers/**/*.php",
     ],
     darkMode: "class",
     theme: {
