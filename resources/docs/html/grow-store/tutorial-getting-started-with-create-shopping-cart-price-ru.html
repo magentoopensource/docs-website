@@ -1,0 +1,695 @@
+
+<h1 class="text-4xl font-bold text-charcoal mb-6">Getting Started with Create Shopping Cart Price Rules</h1>
+
+<div class="flex flex-wrap items-center gap-3 mb-8">
+    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-orange-50 text-orange-700">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        9 minutes
+    </span>
+    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-yellow-50 text-brown">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+        </svg>
+        Advanced
+    </span>
+    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-orange-50 text-orange-700">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
+        </svg>
+        Tutorial
+    </span>
+</div>
+
+<div class="bg-white border-4 border-yellow-500 p-4 mb-8">
+    <div class="flex items-start gap-3">
+        <svg class="w-5 h-5 text-orange-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+        </svg>
+        <div>
+            <p class="font-semibold text-charcoal mb-1">Note on terminology</p>
+            <p class="text-charcoal/80 text-sm leading-relaxed">In the Magento Admin, this feature is labeled Cart Price Rules. You'll find it under Marketing &gt; Promotions &gt; Cart Price Rules. This tutorial applies to Magento Open Source and Adobe Commerce 2.4.x. Field labels may vary slightly across minor versions (for example, Stop Further Rules Processing vs Discard Subsequent Rules).</p>
+        </div>
+    </div>
+</div>
+
+<section class="bg-white mb-8 p-8 border-t-4 border-yellow-500 shadow-sm">
+    <h2 class="text-2xl font-bold text-charcoal mb-4 mt-0">Why This Tutorial Matters</h2>
+    <p class="text-lg text-gray-700 leading-relaxed mb-6">
+        Cart Price Rules let you run targeted promotions at checkout—boosting conversion, increasing average order value (AOV), and moving inventory without changing product prices.
+    </p>
+    <p class="text-gray-700 leading-relaxed mb-4">
+        <strong class="text-charcoal">Business Impact:</strong> Use threshold discounts to lift AOV (for example, $20 off $150), sitewide codes to drive conversion, and SKU/category conditions to clear inventory. Control margin by scoping rules to specific websites and customer groups, and by preventing discount stacking.
+    </p>
+    <p class="text-gray-700 leading-relaxed">
+        <strong class="text-charcoal">What You'll Achieve:</strong> Create, schedule, and QA a working cart-level discount with a coupon code. Control stacking behavior using Priority and Stop Further Rules Processing, generate unique coupon codes for campaigns, and measure coupon performance.
+    </p>
+</section>
+
+<section class="mb-10">
+    <h2 class="text-2xl font-bold text-charcoal mb-6">Learning Journey Overview</h2>
+
+    <div class="bg-white border-t-4 border-orange-500 shadow-sm p-8 mb-6">
+        <h3 class="text-xl font-bold text-charcoal mb-4">Your Situation</h3>
+        <p class="text-gray-700 leading-relaxed">
+            You need a reliable way to launch cart-level promotions (with or without coupon codes) and verify they work across your websites and customer groups.
+        </p>
+    </div>
+
+    <div class="bg-white border-t-4 border-yellow-500 shadow-sm p-8 mb-6">
+        <h3 class="text-xl font-bold text-charcoal mb-4">What You'll Learn</h3>
+        <p class="text-gray-700 mb-4">By completing this tutorial, you will:</p>
+        <ul class="space-y-2">
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Navigate to Marketing &gt; Promotions &gt; Cart Price Rules</li>
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Configure Rule Information (websites, customer groups, coupon settings, dates, priority)</li>
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Define Conditions and Actions (Apply types, Free Shipping, Apply to Shipping Amount)</li>
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Add Labels for storefront clarity</li>
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Generate and test coupon codes</li>
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Control rule stacking with Priority and Stop Further Rules Processing</li>
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Validate results on storefront and in reports</li>
+        </ul>
+    </div>
+
+    <div class="bg-white border-t-4 border-charcoal shadow-sm p-8 mb-6">
+        <h3 class="text-xl font-bold text-charcoal mb-4">Success Criteria</h3>
+        <p class="text-gray-700 mb-4">You'll know you've succeeded when:</p>
+        <ul class="space-y-2">
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">A test coupon applies the expected discount in the cart and checkout</li>
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">The discount label displays correctly</li>
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">The promotion is restricted to the intended website and customer groups</li>
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">The rule does not stack with lower-priority discounts when configured to stop further processing</li>
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Coupon usage appears in Reports &gt; Sales &gt; Coupons</li>
+        </ul>
+    </div>
+
+    <div class="bg-white border-4 border-yellow-500 p-6 mb-6">
+        <div class="flex gap-4 items-start">
+            <div class="flex-shrink-0 w-8 h-8">
+                <svg class="w-full h-full text-orange-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M12 6v6l4 2"></path>
+                </svg>
+            </div>
+            <div class="flex-1">
+                <p class="font-bold text-charcoal mb-3">Time Investment</p>
+                <ul class="space-y-2 text-gray-700">
+                    <li><strong>Estimated time:</strong> 9 minutes</li>
+                    <li><strong>Skill level after completion:</strong> Intermediate</li>
+                    <li><strong>Business value unlock:</strong> Launch margin-safe promotions that increase conversion and AOV, with measurable results via coupon reports</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="mb-10">
+    <h2 class="text-2xl font-bold text-charcoal mb-6">Before We Start</h2>
+
+    <div class="mb-6">
+        <h3 class="text-xl font-bold text-charcoal mb-4">Who This Is For</h3>
+        <p class="text-gray-700 mb-4">This tutorial is designed for:</p>
+        <ul class="space-y-2">
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Merchants, Ecommerce Managers, and Marketers who run promotions</li>
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Store Admins configuring discounts for one or more websites/store views</li>
+        </ul>
+    </div>
+
+    <div class="mb-6">
+        <h3 class="text-xl font-bold text-charcoal mb-4">What You Need</h3>
+        <p class="text-gray-700 mb-4">Make sure you have:</p>
+
+        <div class="grid md:grid-cols-2 gap-4 mb-6">
+            <div class="relative bg-gradient-to-br from-orange-50 to-white border border-orange-500/30 p-5 transition-all hover:shadow-md">
+                <div class="flex items-start gap-4">
+                    <div class="flex-shrink-0 w-10 h-10 bg-orange-500 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
+                        </svg>
+                    </div>
+                    <div class="flex-1">
+                        <h4 class="font-semibold text-charcoal mb-1">Admin Access</h4>
+                        <p class="text-sm text-charcoal/70">Magento 2.4.x Admin access with Marketing and Sales permissions</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="relative bg-gradient-to-br from-yellow-50 to-white border border-yellow-500/30 p-5 transition-all hover:shadow-md">
+                <div class="flex items-start gap-4">
+                    <div class="flex-shrink-0 w-10 h-10 bg-yellow-500 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-charcoal" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/>
+                        </svg>
+                    </div>
+                    <div class="flex-1">
+                        <h4 class="font-semibold text-charcoal mb-1">Website & Customer Group</h4>
+                        <p class="text-sm text-charcoal/70">At least one website and customer group to target</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="relative bg-gradient-to-br from-orange-50 to-white border border-orange-500/30 p-5 transition-all hover:shadow-md">
+                <div class="flex items-start gap-4">
+                    <div class="flex-shrink-0 w-10 h-10 bg-orange-500 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                        </svg>
+                    </div>
+                    <div class="flex-1">
+                        <h4 class="font-semibold text-charcoal mb-1">Test Product</h4>
+                        <p class="text-sm text-charcoal/70">A test product and a test customer account</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="relative bg-gradient-to-br from-yellow-50 to-white border border-yellow-500/30 p-5 transition-all hover:shadow-md">
+                <div class="flex items-start gap-4">
+                    <div class="flex-shrink-0 w-10 h-10 bg-yellow-500 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-charcoal" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                        </svg>
+                    </div>
+                    <div class="flex-1">
+                        <h4 class="font-semibold text-charcoal mb-1">Staging Environment</h4>
+                        <p class="text-sm text-charcoal/70">Recommended to test before production</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white border-t-4 border-yellow-500 shadow-sm p-8">
+        <h3 class="text-xl font-bold text-charcoal mb-4">Preparation Checklist</h3>
+        <p class="text-gray-700 mb-4">Before starting, complete these preparation steps:</p>
+        <ul class="space-y-2">
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Decide the promotion goal (for example, 10% off orders over $100)</li>
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Determine target customer groups and websites</li>
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Choose coupon type: single code or auto-generated unique codes</li>
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Set start/end dates and time zone</li>
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Decide stacking behavior and rule priority</li>
+        </ul>
+    </div>
+</section>
+
+<h2 class="text-3xl font-bold text-charcoal mb-8">Step-by-Step Learning Path</h2>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">1</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Navigate to the rule creation screen</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <p class="mb-4"><strong>Admin path:</strong> <span class="step-code">Admin sidebar &gt; Marketing &gt; Promotions &gt; Cart Price Rules &gt; Add New Rule</span></p>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">2</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Rule Information</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <p class="font-semibold text-charcoal mb-3">Configure:</p>
+        <ul class="space-y-2 mb-4">
+            <li class="relative pl-8 hexagon-bullet"><strong>Rule Name:</strong> Summer 10% over $100</li>
+            <li class="relative pl-8 hexagon-bullet"><strong>Description:</strong> 10% off subtotal over $100 with code SUMMER10</li>
+            <li class="relative pl-8 hexagon-bullet"><strong>Active:</strong> Yes</li>
+            <li class="relative pl-8 hexagon-bullet"><strong>Websites:</strong> Select target website(s)</li>
+            <li class="relative pl-8 hexagon-bullet"><strong>Customer Groups:</strong> For example, NOT LOGGED IN, General (select as needed)</li>
+            <li class="relative pl-8 hexagon-bullet"><strong>Coupon:</strong> Specific Coupon</li>
+            <li class="relative pl-8 hexagon-bullet"><strong>Coupon Code:</strong> SUMMER10 (or set Use Auto Generation = Yes for bulk codes)</li>
+            <li class="relative pl-8 hexagon-bullet"><strong>Uses per Coupon:</strong> e.g., 1000</li>
+            <li class="relative pl-8 hexagon-bullet"><strong>Uses per Customer:</strong> 1</li>
+            <li class="relative pl-8 hexagon-bullet"><strong>From/To:</strong> Set start and end dates</li>
+            <li class="relative pl-8 hexagon-bullet"><strong>Priority:</strong> 1 (lower number = higher priority)</li>
+        </ul>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">3</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Conditions (order-qualification logic)</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <p class="mb-4">Leave blank to apply to all carts, or add thresholds:</p>
+        <ul class="space-y-2">
+            <li class="relative pl-8 hexagon-bullet">Click Add (+) &gt; Subtotal &gt; is equal or greater than &gt; 100</li>
+        </ul>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">4</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Actions (how the discount applies)</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <p class="font-semibold text-charcoal mb-3">Configure:</p>
+        <ul class="space-y-2 mb-4">
+            <li class="relative pl-8 hexagon-bullet"><strong>Apply:</strong> Percent of product price discount</li>
+            <li class="relative pl-8 hexagon-bullet"><strong>Discount Amount:</strong> 10</li>
+            <li class="relative pl-8 hexagon-bullet"><strong>Maximum Qty Discount is Applied To:</strong> [blank or a number]</li>
+            <li class="relative pl-8 hexagon-bullet"><strong>Discount Qty Step (Buy X):</strong> [blank unless doing Buy X Get Y]</li>
+            <li class="relative pl-8 hexagon-bullet"><strong>Apply to Shipping Amount:</strong> No (set to Yes if the discount should include shipping)</li>
+            <li class="relative pl-8 hexagon-bullet"><strong>Free Shipping:</strong> No (or select For matching items only, if applicable)</li>
+            <li class="relative pl-8 hexagon-bullet"><strong>Apply the rule only to cart items matching the following conditions:</strong> [leave blank unless restricting to specific SKUs/categories]</li>
+            <li class="relative pl-8 hexagon-bullet"><strong>Stop Further Rules Processing:</strong> Yes if you want to prevent other lower-priority rules from applying (may appear as Discard Subsequent Rules)</li>
+        </ul>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">5</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Labels (storefront text)</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <ul class="space-y-2">
+            <li class="relative pl-8 hexagon-bullet"><strong>Default Rule Label for All Store Views:</strong> Summer 10% Off</li>
+            <li class="relative pl-8 hexagon-bullet"><strong>Per Store View Labels:</strong> Optional, if you need localized or tailored text</li>
+        </ul>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">6</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Save the rule</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <p class="mb-4">Click <strong>Save</strong>. The rule activates within the configured date range and scope.</p>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">7</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Generate multiple coupons (optional)</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <p class="mb-4">If Use Auto Generation = Yes: After saving, a <strong>Manage Coupon Codes</strong> tab appears.</p>
+        <ol class="space-y-4 list-none pl-0">
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">1.</span>
+                Open the Manage Coupon Codes tab
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">2.</span>
+                Set Quantity, Code Length, and Format
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">3.</span>
+                Click Generate and Export
+            </li>
+        </ol>
+        <p class="mt-4 text-sm text-charcoal/80"><strong>Note:</strong> The Manage Coupon Codes tab appears only after the rule is saved with Use Auto Generation enabled.</p>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">8</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Test on the storefront</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <ol class="space-y-4 list-none pl-0">
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">1.</span>
+                Add qualifying products to the cart
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">2.</span>
+                Apply the coupon SUMMER10
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">3.</span>
+                <strong>Verify:</strong> The discount amount and the label appear on the Cart and Checkout totals
+            </li>
+        </ol>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-8">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">9</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Verify reporting</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <p>Go to <span class="step-code">Reports &gt; Sales &gt; Coupons</span> to confirm coupon usage after placing a test order</p>
+    </div>
+</div>
+
+<section class="bg-white mb-8 p-8 border-t-4 border-yellow-500 shadow-sm">
+    <h2 class="text-2xl font-bold text-charcoal mb-4 mt-0">Practice and Reinforcement</h2>
+    <p class="text-gray-700 mb-4">Now that you've learned the core process, let's reinforce your skills:</p>
+    <ul class="space-y-2">
+        <li class="relative pl-8 text-gray-700 hexagon-bullet">Create a Buy X Get Y rule: Buy 2, get 1 free of the same SKU
+            <ul class="space-y-1 mt-2 ml-4">
+                <li class="relative pl-6 text-sm text-gray-600 hexagon-bullet">Apply = Buy X get Y free (discount amount is Y), Discount Amount = 1, Discount Qty Step (Buy X) = 2</li>
+            </ul>
+        </li>
+        <li class="relative pl-8 text-gray-700 hexagon-bullet">Create a fixed cart discount: $15 off orders over $150
+            <ul class="space-y-1 mt-2 ml-4">
+                <li class="relative pl-6 text-sm text-gray-600 hexagon-bullet">Apply = Fixed amount discount for whole cart, Discount Amount = 15, add a Subtotal ≥ 150 condition</li>
+            </ul>
+        </li>
+        <li class="relative pl-8 text-gray-700 hexagon-bullet">Generate 500 unique coupons and export them for an email campaign</li>
+    </ul>
+</section>
+
+<section class="bg-white mb-8 p-8 border-t-4 border-orange-500 shadow-sm">
+    <h2 class="text-2xl font-bold text-charcoal mb-4 mt-0">What You've Accomplished</h2>
+    <p class="text-gray-700 mb-4"><strong>Congratulations!</strong> You have successfully:</p>
+    <ul class="space-y-2 mb-6">
+        <li class="relative pl-8 text-gray-700 hexagon-bullet">Created and activated a Cart Price Rule with a coupon code</li>
+        <li class="relative pl-8 text-gray-700 hexagon-bullet">Configured conditions, actions, and labels</li>
+        <li class="relative pl-8 text-gray-700 hexagon-bullet">Controlled stacking via priority and Stop Further Rules Processing</li>
+        <li class="relative pl-8 text-gray-700 hexagon-bullet">Tested the promotion end-to-end and verified reporting</li>
+    </ul>
+
+    <h3 class="text-xl font-bold text-charcoal mb-4">Business Impact</h3>
+    <p class="text-gray-700 mb-6">
+        You can now launch targeted, margin-safe promotions that increase conversion and AOV, and use reporting to quantify performance.
+    </p>
+
+    <h3 class="text-xl font-bold text-charcoal mb-4">Skills Gained</h3>
+    <p class="text-gray-700 mb-4">You now have the ability to:</p>
+    <ul class="space-y-2">
+        <li class="relative pl-8 text-gray-700 hexagon-bullet">Configure Cart Price Rules end-to-end, including coupon generation</li>
+        <li class="relative pl-8 text-gray-700 hexagon-bullet">Scope promotions to websites and customer groups</li>
+        <li class="relative pl-8 text-gray-700 hexagon-bullet">Prevent unintended discount stacking to protect margin</li>
+        <li class="relative pl-8 text-gray-700 hexagon-bullet">Validate and measure promo performance in the Admin</li>
+    </ul>
+</section>
+
+<section class="mb-10">
+    <h2 class="text-2xl font-bold text-charcoal mb-6">Next Steps in Your Journey</h2>
+    <p class="text-gray-700 mb-6">Now that you've mastered this process, here's how to build on your success:</p>
+
+    <div class="grid md:grid-cols-3 gap-4">
+        <div class="bg-white border-t-4 border-yellow-500 shadow-sm p-6">
+            <h3 class="text-lg font-bold text-charcoal mb-3">Immediate Actions</h3>
+            <ul class="space-y-2 text-sm">
+                <li class="relative pl-6 text-gray-700 hexagon-bullet">Launch a welcome coupon for new subscribers (single code, 10% off). Measure redemptions weekly in Reports &gt; Sales &gt; Coupons</li>
+                <li class="relative pl-6 text-gray-700 hexagon-bullet">Run a weekend threshold promotion ($20 off $150) with Stop Further Rules Processing to protect margins</li>
+                <li class="relative pl-6 text-gray-700 hexagon-bullet">Export 1,000 unique coupons for paid ads; track code-specific ROI and attribute redemptions to campaigns</li>
+            </ul>
+        </div>
+
+        <div class="bg-white border-t-4 border-orange-500 shadow-sm p-6">
+            <h3 class="text-lg font-bold text-charcoal mb-3">Level Up Your Skills</h3>
+            <ul class="space-y-2 text-sm">
+                <li class="relative pl-6 text-gray-700 hexagon-bullet">Localize labels per store view for international sites</li>
+                <li class="relative pl-6 text-gray-700 hexagon-bullet">Use conditions to include/exclude categories or SKUs to move specific inventory</li>
+                <li class="relative pl-6 text-gray-700 hexagon-bullet">Combine with customer groups to reward logged-in or VIP customers only</li>
+            </ul>
+        </div>
+
+        <div class="bg-white border-t-4 border-charcoal shadow-sm p-6">
+            <h3 class="text-lg font-bold text-charcoal mb-3">Advanced Applications</h3>
+            <ul class="space-y-2 text-sm">
+                <li class="relative pl-6 text-gray-700 hexagon-bullet">Offer free shipping for specific items or thresholds via Actions &gt; Free Shipping</li>
+                <li class="relative pl-6 text-gray-700 hexagon-bullet">Build Buy X Get Y cross-sell bundles by restricting Actions to matching items</li>
+                <li class="relative pl-6 text-gray-700 hexagon-bullet">Run multi-website A/B tests by cloning rules with different labels, codes, or thresholds, then compare coupon performance</li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<h2 class="text-3xl font-bold text-charcoal mb-6">When Things Don't Go as Expected</h2>
+<p class="text-gray-700 mb-6">Even experienced merchants encounter challenges. Here's how to handle common situations:</p>
+
+<div class="space-y-4 my-8">
+    <div class="bg-white shadow-md overflow-hidden border-t-4 border-orange-500">
+        <button class="w-full p-5 text-left cursor-pointer grid grid-cols-[1fr_auto] gap-4 items-center hover:bg-orange-50 transition-colors" onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('svg').classList.toggle('rotate-180')">
+            <div>
+                <h3 class="text-xl font-bold text-charcoal mb-1">Coupon not applying</h3>
+                <p class="text-charcoal/60 text-sm">Discount code doesn't work at checkout</p>
+            </div>
+            <svg class="w-8 h-8 text-charcoal/50 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+        </button>
+        <div class="hidden border-t border-orange-500/30">
+            <div class="p-6">
+                <h4 class="font-bold text-charcoal mb-3">Solution</h4>
+                <ul class="list-none p-0 space-y-2">
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-orange-500 rounded-full"></span>
+                        Verify Active = Yes, date range, website, and customer groups
+                    </li>
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-orange-500 rounded-full"></span>
+                        Confirm Uses per Coupon/Customer not exceeded
+                    </li>
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-orange-500 rounded-full"></span>
+                        Ensure Conditions evaluate to true (Subtotal vs including shipping/tax)
+                    </li>
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-orange-500 rounded-full"></span>
+                        If using specific item conditions, confirm products match attributes
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white shadow-md overflow-hidden border-t-4 border-yellow-500">
+        <button class="w-full p-5 text-left cursor-pointer grid grid-cols-[1fr_auto] gap-4 items-center hover:bg-yellow-50 transition-colors" onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('svg').classList.toggle('rotate-180')">
+            <div>
+                <h3 class="text-xl font-bold text-charcoal mb-1">Wrong discount amount</h3>
+                <p class="text-charcoal/60 text-sm">Discount calculation is incorrect</p>
+            </div>
+            <svg class="w-8 h-8 text-charcoal/50 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+        </button>
+        <div class="hidden border-t border-yellow-500/30">
+            <div class="p-6">
+                <h4 class="font-bold text-charcoal mb-3">Solution</h4>
+                <ul class="list-none p-0 space-y-2">
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-yellow-500 rounded-full"></span>
+                        Check Apply type (Percent vs Fixed)
+                    </li>
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-yellow-500 rounded-full"></span>
+                        Review tax settings (<span class="step-code">Stores &gt; Configuration &gt; Sales &gt; Tax &gt; Calculation Settings &gt; Apply Discount on Prices</span>)
+                    </li>
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-yellow-500 rounded-full"></span>
+                        Apply to Shipping Amount changes the base for the discount
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white shadow-md overflow-hidden border-t-4 border-yellow-500">
+        <button class="w-full p-5 text-left cursor-pointer grid grid-cols-[1fr_auto] gap-4 items-center hover:bg-yellow-50 transition-colors" onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('svg').classList.toggle('rotate-180')">
+            <div>
+                <h3 class="text-xl font-bold text-charcoal mb-1">Multiple discounts stacking</h3>
+                <p class="text-charcoal/60 text-sm">Unexpected discount combinations applying</p>
+            </div>
+            <svg class="w-8 h-8 text-charcoal/50 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+        </button>
+        <div class="hidden border-t border-yellow-500/30">
+            <div class="p-6">
+                <h4 class="font-bold text-charcoal mb-3">Solution</h4>
+                <ul class="list-none p-0 space-y-2">
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-yellow-500 rounded-full"></span>
+                        Increase Priority (lower number executes first)
+                    </li>
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-yellow-500 rounded-full"></span>
+                        Enable Stop Further Rules Processing (or Discard Subsequent Rules) on the high-value promo
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white shadow-md overflow-hidden border-t-4 border-charcoal">
+        <button class="w-full p-5 text-left cursor-pointer grid grid-cols-[1fr_auto] gap-4 items-center hover:bg-off-white transition-colors" onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('svg').classList.toggle('rotate-180')">
+            <div>
+                <h3 class="text-xl font-bold text-charcoal mb-1">Free shipping not triggered</h3>
+                <p class="text-charcoal/60 text-sm">Free shipping option doesn't appear</p>
+            </div>
+            <svg class="w-8 h-8 text-charcoal/50 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+        </button>
+        <div class="hidden border-t border-charcoal/20">
+            <div class="p-6">
+                <h4 class="font-bold text-charcoal mb-3">Solution</h4>
+                <ul class="list-none p-0 space-y-2">
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-charcoal rounded-full"></span>
+                        In Actions, set Free Shipping appropriately
+                    </li>
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-charcoal rounded-full"></span>
+                        Ensure your shipping methods allow free shipping when flagged
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white shadow-md overflow-hidden border-t-4 border-charcoal">
+        <button class="w-full p-5 text-left cursor-pointer grid grid-cols-[1fr_auto] gap-4 items-center hover:bg-off-white transition-colors" onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('svg').classList.toggle('rotate-180')">
+            <div>
+                <h3 class="text-xl font-bold text-charcoal mb-1">Auto-generated coupons tab missing</h3>
+                <p class="text-charcoal/60 text-sm">Cannot find Manage Coupon Codes option</p>
+            </div>
+            <svg class="w-8 h-8 text-charcoal/50 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+        </button>
+        <div class="hidden border-t border-charcoal/20">
+            <div class="p-6">
+                <h4 class="font-bold text-charcoal mb-3">Solution</h4>
+                <ul class="list-none p-0 space-y-2">
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-charcoal rounded-full"></span>
+                        Save the rule with Use Auto Generation = Yes to reveal Manage Coupon Codes
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white shadow-md overflow-hidden border-t-4 border-orange-500">
+        <button class="w-full p-5 text-left cursor-pointer grid grid-cols-[1fr_auto] gap-4 items-center hover:bg-orange-50 transition-colors" onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('svg').classList.toggle('rotate-180')">
+            <div>
+                <h3 class="text-xl font-bold text-charcoal mb-1">Scope issues on multi-website</h3>
+                <p class="text-charcoal/60 text-sm">Rule not applying on expected website</p>
+            </div>
+            <svg class="w-8 h-8 text-charcoal/50 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+        </button>
+        <div class="hidden border-t border-orange-500/30">
+            <div class="p-6">
+                <h4 class="font-bold text-charcoal mb-3">Solution</h4>
+                <ul class="list-none p-0 space-y-2">
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-orange-500 rounded-full"></span>
+                        Confirm Websites selection matches the store you test on
+                    </li>
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-orange-500 rounded-full"></span>
+                        Ensure you are testing in the correct storefront
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white shadow-md overflow-hidden border-t-4 border-yellow-500">
+        <button class="w-full p-5 text-left cursor-pointer grid grid-cols-[1fr_auto] gap-4 items-center hover:bg-yellow-50 transition-colors" onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('svg').classList.toggle('rotate-180')">
+            <div>
+                <h3 class="text-xl font-bold text-charcoal mb-1">Testing tips</h3>
+                <p class="text-charcoal/60 text-sm">General troubleshooting advice</p>
+            </div>
+            <svg class="w-8 h-8 text-charcoal/50 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+        </button>
+        <div class="hidden border-t border-yellow-500/30">
+            <div class="p-6">
+                <h4 class="font-bold text-charcoal mb-3">Tips</h4>
+                <ul class="list-none p-0 space-y-2">
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-yellow-500 rounded-full"></span>
+                        Clear/refresh the cart, re-add items, and sign in/out as needed
+                    </li>
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-yellow-500 rounded-full"></span>
+                        If storefront labels don't update, refresh caches
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="mb-10">
+    <h2 class="text-2xl font-bold text-charcoal mb-6">Continue Learning</h2>
+
+    <div class="grid md:grid-cols-2 gap-6">
+        <div class="bg-white border-t-4 border-yellow-500 shadow-sm p-6">
+            <h3 class="text-lg font-bold text-charcoal mb-4">Related Tutorials</h3>
+            <ul class="space-y-2">
+                <li class="relative pl-8 text-gray-700 hexagon-bullet">Catalog Price Rules vs Cart Price Rules: when to use each</li>
+                <li class="relative pl-8 text-gray-700 hexagon-bullet">Customer Segmentation (Adobe Commerce) to target high-value shoppers</li>
+            </ul>
+        </div>
+
+        <div class="bg-white border-t-4 border-orange-500 shadow-sm p-6">
+            <h3 class="text-lg font-bold text-charcoal mb-4">How-To Guides</h3>
+            <ul class="space-y-2">
+                <li class="relative pl-8 text-gray-700 hexagon-bullet">Reporting: Sales by Coupon and Sales reports to measure promo performance</li>
+                <li class="relative pl-8 text-gray-700 hexagon-bullet">Abandoned cart follow-ups using coupons</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="bg-white border-t-4 border-charcoal shadow-sm p-6 mt-6">
+        <h3 class="text-lg font-bold text-charcoal mb-4">Reference Materials</h3>
+        <ul class="space-y-2">
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Admin paths: Marketing &gt; Promotions &gt; Cart Price Rules; Reports &gt; Sales &gt; Coupons</li>
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Notes on labels: Stop Further Rules Processing may appear as Discard Subsequent Rules in some versions</li>
+        </ul>
+    </div>
+</section>
+
+<section class="bg-white mb-8 p-8 border-t-4 border-charcoal shadow-sm">
+    <h2 class="text-2xl font-bold text-charcoal mb-4 mt-0">Summary</h2>
+    <p class="text-gray-700 mb-6">
+        You created a cart-level promotion, controlled who sees it and when, prevented unintended stacking, and verified performance with reports. These steps are the foundation for reliable, margin-aware promotional campaigns.
+    </p>
+
+    <h3 class="text-lg font-bold text-charcoal mb-4">Key Takeaways</h3>
+    <ul class="space-y-2 mb-6">
+        <li class="relative pl-8 text-gray-700 hexagon-bullet">Cart Price Rules drive conversion and AOV without changing list prices</li>
+        <li class="relative pl-8 text-gray-700 hexagon-bullet">Priority and Stop Further Rules Processing prevent double-discounting</li>
+        <li class="relative pl-8 text-gray-700 hexagon-bullet">Coupon reports provide measurable ROI for your campaigns</li>
+    </ul>
+
+    <h3 class="text-lg font-bold text-charcoal mb-4">Remember</h3>
+    <ul class="space-y-2">
+        <li class="relative pl-8 text-gray-700 hexagon-bullet">Test in a staging environment first</li>
+        <li class="relative pl-8 text-gray-700 hexagon-bullet">Align dates/time zone, scope, and customer groups before launch</li>
+        <li class="relative pl-8 text-gray-700 hexagon-bullet">Document your rule naming, labeling, and priorities for team consistency</li>
+    </ul>
+</section>
+
+<style>
+/* Hexagon bullet marker for lists */
+.hexagon-bullet::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.5em;
+    width: 9px;
+    height: 9px;
+    background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 2L21 7V17L12 22L3 17V7L12 2Z' stroke='%23F26423' stroke-width='2.5' stroke-linejoin='miter'/%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+/* Step code styling for inline code paths */
+.step-code {
+    background: #2C2C2C;
+    color: #F1BC1B;
+    padding: 0.25rem 0.5rem;
+    font-family: 'Courier New', monospace;
+    font-size: 0.875rem;
+}
+</style>
