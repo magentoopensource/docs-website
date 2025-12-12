@@ -1,0 +1,756 @@
+
+<h1 class="text-4xl font-bold text-charcoal mb-6">How to Set Up Payment Processing</h1>
+
+<div class="flex flex-wrap items-center gap-3 mb-8">
+    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-orange-50 text-orange-700">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        6 minutes
+    </span>
+    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-yellow-50 text-brown">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+        </svg>
+        Advanced
+    </span>
+    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-orange-50 text-orange-700">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.99 1.99 0 013 12V7a4 4 0 014-4z"/>
+        </svg>
+        How-To
+    </span>
+</div>
+
+<section class="bg-white mb-8 p-8 border-t-4 border-yellow-500 shadow-sm">
+    <h2 class="text-2xl font-bold text-charcoal mb-4 mt-0">Overview</h2>
+
+    <div class="bg-gray-50 border-l-4 border-yellow-500 p-6 mb-6">
+        <h3 class="text-lg font-bold text-charcoal mb-3">Why Payment Processing Matters</h3>
+        <ul class="space-y-2 pl-6">
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Increase checkout conversion by 2–5% with optimized payment mix</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Reduce payment-related support tickets by 20–40%</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Accept cards and digital wallets to unlock immediate revenue</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Reduce cart abandonment with trusted payment options</li>
+        </ul>
+    </div>
+
+    <p class="text-lg text-gray-700 leading-relaxed mb-6">
+        Set up secure, reliable payment processing in Magento 2 to accept cards and digital wallets, reduce cart abandonment, and unlock immediate revenue. A well-optimized payment mix typically increases checkout conversion by 2–5% and reduces payment-related support tickets by 20–40%.
+    </p>
+
+    <div class="bg-yellow-500 border-4 border-amber-600 p-4 mb-4 flex gap-3 items-start">
+        <svg class="w-6 h-6 text-amber-700 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2L1 21h22L12 2zm0 3.99L19.53 19H4.47L12 5.99zM11 16h2v2h-2v-2zm0-6h2v4h-2v-4z"/>
+        </svg>
+        <div>
+            <p class="font-bold text-brown mb-1">PCI Compliance Considerations</p>
+            <p class="text-brown text-sm">To reduce PCI scope, prefer redirect or hosted fields integrations provided by your gateway. Avoid collecting card data on your server. Confirm which SAQ (A or A-EP) applies to your chosen gateway integration and complete it with your acquirer.</p>
+        </div>
+    </div>
+</section>
+
+<section class="bg-white mb-8 p-8 border-t-4 border-yellow-500 shadow-sm">
+    <h2 class="text-2xl font-bold text-charcoal mb-6 mt-0">Prerequisites</h2>
+    <p class="text-gray-700 mb-6">Before you begin, make sure you have:</p>
+
+    <div class="mb-6">
+        <h4 class="font-semibold text-charcoal mb-3">Merchant Prerequisites:</h4>
+        <div class="grid md:grid-cols-2 gap-4">
+            <div class="relative bg-gradient-to-br from-orange-50 to-white border border-orange-500/30 p-5">
+                <div class="flex items-start gap-4">
+                    <div class="w-10 h-10 bg-orange-500 flex items-center justify-center flex-shrink-0">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-charcoal mb-1">Admin Access</h4>
+                        <p class="text-sm text-charcoal/70">Access to Magento Admin Panel</p>
+                    </div>
+                </div>
+            </div>
+            <div class="relative bg-gradient-to-br from-yellow-50 to-white border border-yellow-500/30 p-5">
+                <div class="flex items-start gap-4">
+                    <div class="w-10 h-10 bg-yellow-500 flex items-center justify-center flex-shrink-0">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-charcoal mb-1">Payment Provider Account</h4>
+                        <p class="text-sm text-charcoal/70">Active payment provider account(s)</p>
+                    </div>
+                </div>
+            </div>
+            <div class="relative bg-gradient-to-br from-orange-50 to-white border border-orange-500/30 p-5">
+                <div class="flex items-start gap-4">
+                    <div class="w-10 h-10 bg-orange-500 flex items-center justify-center flex-shrink-0">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-charcoal mb-1">SSL Certificate</h4>
+                        <p class="text-sm text-charcoal/70">Valid SSL certificate</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div>
+        <h4 class="font-semibold text-charcoal mb-3">Technical Prerequisites (if installing extensions):</h4>
+        <div class="grid md:grid-cols-2 gap-4">
+            <div class="relative bg-gradient-to-br from-yellow-50 to-white border border-yellow-500/30 p-5">
+                <div class="flex items-start gap-4">
+                    <div class="w-10 h-10 bg-yellow-500 flex items-center justify-center flex-shrink-0">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-charcoal mb-1">SSH Access</h4>
+                        <p class="text-sm text-charcoal/70">Staging site with SSH/command-line access</p>
+                    </div>
+                </div>
+            </div>
+            <div class="relative bg-gradient-to-br from-orange-50 to-white border border-orange-500/30 p-5">
+                <div class="flex items-start gap-4">
+                    <div class="w-10 h-10 bg-orange-500 flex items-center justify-center flex-shrink-0">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-charcoal mb-1">Composer Installed</h4>
+                        <p class="text-sm text-charcoal/70">Composer package manager available</p>
+                    </div>
+                </div>
+            </div>
+            <div class="relative bg-gradient-to-br from-yellow-50 to-white border border-yellow-500/30 p-5">
+                <div class="flex items-start gap-4">
+                    <div class="w-10 h-10 bg-yellow-500 flex items-center justify-center flex-shrink-0">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-charcoal mb-1">Backup Created</h4>
+                        <p class="text-sm text-charcoal/70">Backup of code and database before installing extensions</p>
+                    </div>
+                </div>
+            </div>
+            <div class="relative bg-gradient-to-br from-orange-50 to-white border border-orange-500/30 p-5">
+                <div class="flex items-start gap-4">
+                    <div class="w-10 h-10 bg-orange-500 flex items-center justify-center flex-shrink-0">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-charcoal mb-1">Magento Cron</h4>
+                        <p class="text-sm text-charcoal/70">Magento cron configured and running</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="bg-white mb-8 p-8 border-t-4 border-yellow-500 shadow-sm">
+    <h2 class="text-2xl font-bold text-charcoal mb-4 mt-0">What You'll Accomplish</h2>
+    <p class="text-gray-700 mb-4">By following this guide, you will:</p>
+    <ul class="space-y-3 pl-6">
+        <li class="relative hexagon-bullet pl-6 text-gray-700">Successfully set up payment processing in Magento 2</li>
+        <li class="relative hexagon-bullet pl-6 text-gray-700">Improve your store's checkout performance and customer experience</li>
+    </ul>
+</section>
+
+<h2 class="text-3xl font-bold text-charcoal mb-8">Step-by-Step Instructions</h2>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">0</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Enable HTTPS across storefront and Admin</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <p class="text-gray-700 leading-relaxed mb-4">
+            In Admin, go to <span class="step-code">Stores › Configuration › General › Web</span> (Scope: Website). Under <strong>Base URLs (Secure)</strong>:
+        </p>
+        <ol class="space-y-3 list-none pl-0 mb-4">
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">1.</span>
+                Set <strong>Base URL (Secure)</strong> to <code class="step-code">https://&lt;your-domain&gt;/</code>
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">2.</span>
+                Set <strong>Use Secure URLs on Storefront</strong> = Yes
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">3.</span>
+                Set <strong>Use Secure URLs in Admin</strong> = Yes
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">4.</span>
+                (Optional) Enable <strong>HTTP Strict Transport Security (HSTS)</strong> = Yes
+            </li>
+        </ol>
+        <p class="text-gray-700 leading-relaxed mb-4">
+            Click <strong>Save Config</strong>, then go to <span class="step-code">System › Cache Management › Flush Magento Cache</span>. Ensure your SSL certificate is valid and your web server forces HTTPS.
+        </p>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">1</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Decide your payment mix and payment action</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <p class="text-gray-700 leading-relaxed mb-4">
+            Choose at least one wallet (e.g., PayPal) and one direct card processor (e.g., Stripe, Adyen, Braintree, Authorize.Net). Evaluate providers on:
+        </p>
+        <ul class="space-y-2 pl-6 mb-4">
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Regional coverage and local payment methods</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Fees and settlement currency support</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Approval/authorization rates and risk tools (AVS/CVV/3DS2)</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Features (vault/saved cards, subscriptions, Apple Pay/Google Pay)</li>
+        </ul>
+
+        <h4 class="font-semibold text-charcoal mb-3 mt-6">Choose Payment Action:</h4>
+        <div class="bg-gray-50 p-4 mb-4">
+            <div class="mb-3">
+                <p class="font-semibold text-charcoal mb-2">Authorize and Capture:</p>
+                <p class="text-gray-700 text-sm">Best for same-day shipping or digital goods where you fulfill immediately.</p>
+            </div>
+            <div>
+                <p class="font-semibold text-charcoal mb-2">Authorize Only:</p>
+                <p class="text-gray-700 text-sm">Best if you ship later, have backorders, or inventory variability. Note that authorizations expire (typically ~7 days for PayPal and 7–30 days for cards depending on issuer). Ensure capture occurs before expiry.</p>
+            </div>
+        </div>
+
+        <div class="bg-white border-4 border-yellow-500 p-4 flex gap-3 items-start">
+            <svg class="w-5 h-5 text-orange-500 flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+            <p class="text-charcoal text-sm">Note any regional requirements (e.g., SCA/3DS2 in the EEA) and enable 3DS where required.</p>
+        </div>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">2</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Gather sandbox credentials from providers</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <p class="text-gray-700 leading-relaxed mb-4">
+            Create or log in to your provider accounts and generate sandbox/test API credentials.
+        </p>
+        <ul class="space-y-3 pl-6 mb-4">
+            <li class="relative hexagon-bullet pl-6 text-gray-700">
+                <strong>For PayPal:</strong> Create sandbox business and buyer accounts and note API Username/Password/Signature (Classic API credentials required by Magento's core PayPal integration)
+            </li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700">
+                <strong>For card gateways:</strong> Collect Publishable/Secret keys or Merchant ID/Key pairs
+            </li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700">
+                <strong>Webhook signing keys:</strong> Keep webhook signing secret keys handy if applicable
+            </li>
+        </ul>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">3</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Enable and configure PayPal in Magento</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <p class="text-gray-700 leading-relaxed mb-4">
+            In Admin, go to <span class="step-code">Stores › Configuration › Sales › Payment Methods</span>. Expand the PayPal section and select the solution you need.
+        </p>
+        <ol class="space-y-3 list-none pl-0 mb-4">
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">1.</span>
+                Under PayPal, select <strong>PayPal Express Checkout</strong> (core integration) or other PayPal methods as needed
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">2.</span>
+                Set <strong>Enable</strong> to Yes
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">3.</span>
+                Set <strong>Sandbox Mode</strong> to Yes
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">4.</span>
+                Enter your PayPal sandbox API credentials
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">5.</span>
+                Configure <strong>Payment Action</strong> and <strong>Payment from Applicable Countries</strong> (and Payment from Specific Countries if applicable)
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">6.</span>
+                Save and flush cache
+            </li>
+        </ol>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">4</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Install your card gateway extension (Composer)</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <p class="text-gray-700 leading-relaxed mb-4">
+            On your staging server, run Composer to install the provider's Magento 2 extension (check the provider's docs for the exact package name).
+        </p>
+
+        <h4 class="font-semibold text-charcoal mb-3">Example commands:</h4>
+        <pre class="bg-charcoal text-yellow-500 p-4 overflow-x-auto mb-4 text-sm font-mono">composer require adyen/module-payment
+composer require stripe/stripe-payments</pre>
+
+        <h4 class="font-semibold text-charcoal mb-3">Then enable and register the module:</h4>
+        <pre class="bg-charcoal text-yellow-500 p-4 overflow-x-auto mb-4 text-sm font-mono">bin/magento module:enable Adyen_Payment && bin/magento setup:upgrade</pre>
+
+        <h4 class="font-semibold text-charcoal mb-3">In production mode, also run:</h4>
+        <pre class="bg-charcoal text-yellow-500 p-4 overflow-x-auto mb-4 text-sm font-mono">bin/magento setup:di:compile && bin/magento setup:static-content:deploy -f</pre>
+
+        <h4 class="font-semibold text-charcoal mb-3">Finally:</h4>
+        <pre class="bg-charcoal text-yellow-500 p-4 overflow-x-auto mb-4 text-sm font-mono">bin/magento cache:flush</pre>
+
+        <div class="bg-white border-4 border-yellow-500 p-4 flex gap-3 items-start">
+            <svg class="w-5 h-5 text-orange-500 flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+            <p class="text-charcoal text-sm">Magento 2.4.0+ removed several bundled payment methods (e.g., Braintree, Authorize.Net, eWay, CyberSource, Worldpay). Install the official Marketplace extension from your provider and verify version compatibility with your Magento version. Always install and test on staging before deploying to production.</p>
+        </div>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">5</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Configure the card gateway settings</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <p class="text-gray-700 leading-relaxed mb-4">
+            Go to <span class="step-code">Stores › Configuration › Sales › Payment Methods</span> and open your installed gateway.
+        </p>
+
+        <div class="bg-white border-4 border-yellow-500 p-4 mb-4 flex gap-3 items-start">
+            <svg class="w-5 h-5 text-orange-500 flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+            <p class="text-charcoal text-sm">Payment Methods are configured at Website scope—use the scope selector (top-left) to choose the correct Website before entering keys.</p>
+        </div>
+
+        <ul class="space-y-3 pl-6 mb-4">
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Enable it and set <strong>Mode</strong> to Sandbox/Test</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Enter API keys (publishable/secret or merchant credentials)</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Configure <strong>Payment Action</strong></li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Configure <strong>Currencies</strong> (if available in the gateway)—otherwise ensure <span class="step-code">Store › Configuration › General › Currency Setup</span> matches your gateway's settlement currency</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Set <strong>Payment from Applicable Countries</strong></li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Configure <strong>3D Secure/SCA options</strong></li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Enable <strong>Vault/saved cards</strong> if needed</li>
+        </ul>
+
+        <div class="bg-gray-50 p-4 mb-4">
+            <p class="font-semibold text-charcoal mb-2">If your gateway supports saved cards:</p>
+            <ul class="space-y-2 pl-6">
+                <li class="relative hexagon-bullet pl-6 text-gray-700">Enable Magento Vault at <span class="step-code">Stores › Configuration › Sales › Payment Methods › Stored Payment Methods (Vault)</span></li>
+                <li class="relative hexagon-bullet pl-6 text-gray-700">Enable "Enable Vault" in your gateway's settings</li>
+            </ul>
+        </div>
+
+        <p class="text-gray-700 leading-relaxed">
+            Save and flush cache.
+        </p>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">6</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Set up webhooks/IPN in the provider</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <h4 class="font-semibold text-charcoal mb-3">PayPal (IPN)</h4>
+        <p class="text-gray-700 leading-relaxed mb-4">
+            For core PayPal methods, configure IPN (not Webhooks) in your PayPal Business account. Go to <a href="https://www.paypal.com/businessmanage/preferences/notifications" class="text-orange-500 hover:underline">https://www.paypal.com/businessmanage/preferences/notifications</a> and set the IPN Notification URL to:
+        </p>
+        <pre class="bg-charcoal text-yellow-500 p-4 overflow-x-auto mb-4 text-sm font-mono">https://&lt;your-domain&gt;/paypal/ipn/</pre>
+
+        <div class="bg-white border-4 border-yellow-500 p-4 mb-6 flex gap-3 items-start">
+            <svg class="w-5 h-5 text-orange-500 flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+            <p class="text-charcoal text-sm">The core PayPal integration in Magento does not display this IPN URL in Admin. Ensure your site uses HTTPS and test IPN delivery from the PayPal console.</p>
+        </div>
+
+        <h4 class="font-semibold text-charcoal mb-3">Other gateways (Webhooks)</h4>
+        <p class="text-gray-700 leading-relaxed mb-4">
+            For third-party gateways, use the webhook endpoint displayed in the extension settings in Magento. Subscribe to events for payment authorized, captured, refunded, and failed. If a signing secret is provided, paste it into the Magento gateway settings. Test delivery from the provider console.
+        </p>
+
+        <div class="bg-gray-50 p-4">
+            <p class="font-semibold text-charcoal mb-3">Examples:</p>
+            <ul class="space-y-2 pl-6">
+                <li class="relative hexagon-bullet pl-6 text-gray-700">
+                    <strong>Adyen:</strong> Use the endpoint shown under <span class="step-code">Stores › Configuration › Sales › Payment Methods › Adyen › Webhooks (Notifications)</span>
+                </li>
+                <li class="relative hexagon-bullet pl-6 text-gray-700">
+                    <strong>Stripe:</strong> Use the endpoint shown under <span class="step-code">Stores › Configuration › Sales › Payment Methods › Stripe › Webhooks</span> (e.g., <code class="step-code">https://&lt;your-domain&gt;/stripe/webhook</code>)
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">7</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Test end-to-end checkout in sandbox</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <p class="text-gray-700 leading-relaxed mb-4">
+            On your storefront, place two orders: one using PayPal sandbox buyer and one using a test card. Use your gateway's test card matrix (include 3DS-required cards) and follow their instructions for triggering authorization, capture, and failure scenarios.
+        </p>
+
+        <div class="bg-gray-50 p-4 mb-4">
+            <p class="font-semibold text-charcoal mb-2">Example (generic):</p>
+            <p class="text-gray-700 text-sm">Visa 4111111111111111 with a future expiry and any 3-digit CVV.</p>
+        </div>
+
+        <ol class="space-y-3 list-none pl-0 mb-4">
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">1.</span>
+                Confirm taxes/shipping are applied
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">2.</span>
+                Complete payment
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">3.</span>
+                In Admin, verify order status and invoices/transactions
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">4.</span>
+                Issue a test refund from Magento and confirm it appears in the provider
+            </li>
+        </ol>
+
+        <h4 class="font-semibold text-charcoal mb-3">Expected results:</h4>
+        <div class="bg-gray-50 p-4">
+            <div class="mb-3">
+                <p class="font-semibold text-charcoal mb-2">Capture flow:</p>
+                <ul class="space-y-1 text-sm pl-6">
+                    <li class="relative hexagon-bullet pl-6 text-gray-700">Order state: Processing</li>
+                    <li class="relative hexagon-bullet pl-6 text-gray-700">Invoice auto-created</li>
+                    <li class="relative hexagon-bullet pl-6 text-gray-700">Transaction type: capture</li>
+                </ul>
+            </div>
+            <div>
+                <p class="font-semibold text-charcoal mb-2">Authorize flow:</p>
+                <ul class="space-y-1 text-sm pl-6">
+                    <li class="relative hexagon-bullet pl-6 text-gray-700">Order state: Processing or Payment Review (gateway dependent)</li>
+                    <li class="relative hexagon-bullet pl-6 text-gray-700">Invoice not created until capture</li>
+                    <li class="relative hexagon-bullet pl-6 text-gray-700">Transaction type: authorization</li>
+                    <li class="relative hexagon-bullet pl-6 text-gray-700">Verify the Transaction is visible under <span class="step-code">Sales › Transactions</span></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">8</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Switch to production (go live)</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <div class="bg-white border-4 border-yellow-500 p-4 mb-4 flex gap-3 items-start">
+            <svg class="w-5 h-5 text-orange-500 flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+            <p class="text-charcoal text-sm">Payment Methods are configured per Website scope. Switch the Configuration scope selector to each Website and enter the correct live credentials for each site.</p>
+        </div>
+
+        <p class="text-gray-700 leading-relaxed mb-4">When ready to go live:</p>
+
+        <ul class="space-y-3 pl-6 mb-4">
+            <li class="relative hexagon-bullet pl-6 text-gray-700">In each payment method, change <strong>Mode</strong> to Production/Live and replace sandbox keys with live credentials</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Verify HTTPS and the production domain are fully configured</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700">If enabling wallets like Apple Pay/Google Pay, complete any required domain verification steps in your gateway before enabling in production</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Click Save and flush cache</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Optionally place a low-value live test order</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Update Payment Failed Emails (<span class="step-code">Stores › Configuration › Sales › Checkout</span>) to notify your team</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Document and securely store keys</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Consider a short maintenance/change window to monitor immediately after cutover</li>
+        </ul>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">9</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Monitor, optimize, and scale</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <p class="text-gray-700 leading-relaxed mb-4">
+            Enable and review gateway debug logs (<code class="step-code">var/log/system.log</code>, <code class="step-code">var/log/debug.log</code>, and any module-specific logs like <code class="step-code">var/log/stripe*.log</code> or <code class="step-code">var/log/adyen/*.log</code>). Monitor conversion, decline rates, and error logs daily in the first week.
+        </p>
+
+        <h4 class="font-semibold text-charcoal mb-3">KPI benchmarks and levers:</h4>
+        <div class="bg-gray-50 p-4 mb-4">
+            <ul class="space-y-3 pl-6">
+                <li class="relative hexagon-bullet pl-6 text-gray-700">
+                    <strong>Authorization rate &gt; 90%:</strong> Improve by enabling 3DS exemptions where eligible, retrying soft declines, and routing high-risk orders through 3DS
+                </li>
+                <li class="relative hexagon-bullet pl-6 text-gray-700">
+                    <strong>3DS friction rate &lt; 10% for trusted traffic:</strong> Tune risk rules and exemptions
+                </li>
+                <li class="relative hexagon-bullet pl-6 text-gray-700">
+                    <strong>Chargeback rate &lt; 0.9%:</strong> Use AVS/CVV rules and post-authorization fraud screening
+                </li>
+            </ul>
+        </div>
+
+        <ul class="space-y-3 pl-6">
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Reorder payment methods via <strong>Sort Order</strong> so top performers appear first</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Add wallets (Apple Pay/Google Pay) through your gateway for mobile conversion—many require domain verification prior to enablement</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Schedule periodic webhook/IPN tests and key rotations</li>
+        </ul>
+    </div>
+</div>
+
+<h2 class="text-3xl font-bold text-charcoal mb-6">Verification</h2>
+<p class="text-gray-700 mb-6">Use this checklist to confirm everything is working correctly:</p>
+
+<ul class="list-none my-8 pl-0 space-y-5">
+    <li class="bg-white p-7 shadow-sm">
+        <div class="flex items-center justify-between mb-5">
+            <strong class="text-lg font-bold text-charcoal">Sandbox Testing</strong>
+        </div>
+        <ul class="grid gap-3 m-0 p-0 list-none">
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                Place sandbox orders (one PayPal, one card) and complete checkout
+            </li>
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                Open Sales › Orders and confirm the expected state and invoice creation based on Payment Action
+            </li>
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                Open Sales › Transactions and confirm authorization/capture entries are present for each order
+            </li>
+        </ul>
+    </li>
+
+    <li class="bg-white p-7 shadow-sm">
+        <div class="flex items-center justify-between mb-5">
+            <strong class="text-lg font-bold text-charcoal">Refund Testing</strong>
+        </div>
+        <ul class="grid gap-3 m-0 p-0 list-none">
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                Issue a partial and a full refund from Sales › Credit Memos
+            </li>
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                Confirm the refunds appear in the provider dashboard within 5 minutes
+            </li>
+        </ul>
+    </li>
+
+    <li class="bg-white p-7 shadow-sm">
+        <div class="flex items-center justify-between mb-5">
+            <strong class="text-lg font-bold text-charcoal">Webhook/IPN Testing</strong>
+        </div>
+        <ul class="grid gap-3 m-0 p-0 list-none">
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                From the provider dashboard, re-deliver a recent webhook/IPN event
+            </li>
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                Confirm Magento receives it (HTTP 200) and updates the order accordingly
+            </li>
+        </ul>
+    </li>
+</ul>
+
+<h2 class="text-3xl font-bold text-charcoal mb-6">Common Issues and Solutions</h2>
+
+<div class="space-y-4 my-8">
+    <div class="bg-white shadow-md overflow-hidden border-t-4 border-orange-500">
+        <button class="w-full p-5 text-left cursor-pointer grid grid-cols-[1fr_auto] gap-4 items-center hover:bg-orange-50 transition-colors" onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('svg').classList.toggle('rotate-180')">
+            <div>
+                <h3 class="text-xl font-bold text-charcoal mb-1">Payments fail with "Unable to place order"</h3>
+                <p class="text-charcoal/60 text-sm">Orders not completing at checkout with generic error message</p>
+            </div>
+            <svg class="w-8 h-8 text-charcoal/50 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+        </button>
+        <div class="hidden border-t border-orange-500/30">
+            <div class="p-6">
+                <h4 class="font-bold text-charcoal mb-3">Solution</h4>
+                <ul class="list-none p-0 space-y-2">
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-orange-500 rounded-full"></span>
+                        Enable gateway Debug/Logging and check var/log/*.log
+                    </li>
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-orange-500 rounded-full"></span>
+                        Verify API keys match the correct mode (Sandbox vs Live)
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white shadow-md overflow-hidden border-t-4 border-orange-500">
+        <button class="w-full p-5 text-left cursor-pointer grid grid-cols-[1fr_auto] gap-4 items-center hover:bg-orange-50 transition-colors" onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('svg').classList.toggle('rotate-180')">
+            <div>
+                <h3 class="text-xl font-bold text-charcoal mb-1">Orders not updating after payment</h3>
+                <p class="text-charcoal/60 text-sm">Payment completes but order status remains pending</p>
+            </div>
+            <svg class="w-8 h-8 text-charcoal/50 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+        </button>
+        <div class="hidden border-t border-orange-500/30">
+            <div class="p-6">
+                <h4 class="font-bold text-charcoal mb-3">Solution</h4>
+                <ul class="list-none p-0 space-y-2">
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-orange-500 rounded-full"></span>
+                        Verify webhook/IPN URL and signing secret
+                    </li>
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-orange-500 rounded-full"></span>
+                        Confirm HTTPS and 200 responses
+                    </li>
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-orange-500 rounded-full"></span>
+                        Check that Magento cron is running
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white shadow-md overflow-hidden border-t-4 border-yellow-500">
+        <button class="w-full p-5 text-left cursor-pointer grid grid-cols-[1fr_auto] gap-4 items-center hover:bg-yellow-50 transition-colors" onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('svg').classList.toggle('rotate-180')">
+            <div>
+                <h3 class="text-xl font-bold text-charcoal mb-1">3DS challenge not shown</h3>
+                <p class="text-charcoal/60 text-sm">3D Secure authentication not triggering for test cards</p>
+            </div>
+            <svg class="w-8 h-8 text-charcoal/50 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+        </button>
+        <div class="hidden border-t border-yellow-500/30">
+            <div class="p-6">
+                <h4 class="font-bold text-charcoal mb-3">Solution</h4>
+                <ul class="list-none p-0 space-y-2">
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-yellow-500 rounded-full"></span>
+                        Ensure 3DS is enabled in gateway config
+                    </li>
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-yellow-500 rounded-full"></span>
+                        Test with 3DS-required test cards
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white shadow-md overflow-hidden border-t-4 border-yellow-500">
+        <button class="w-full p-5 text-left cursor-pointer grid grid-cols-[1fr_auto] gap-4 items-center hover:bg-yellow-50 transition-colors" onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('svg').classList.toggle('rotate-180')">
+            <div>
+                <h3 class="text-xl font-bold text-charcoal mb-1">Currency mismatch</h3>
+                <p class="text-charcoal/60 text-sm">Payment gateway rejecting due to unsupported currency</p>
+            </div>
+            <svg class="w-8 h-8 text-charcoal/50 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+        </button>
+        <div class="hidden border-t border-yellow-500/30">
+            <div class="p-6">
+                <h4 class="font-bold text-charcoal mb-3">Solution</h4>
+                <ul class="list-none p-0 space-y-2">
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-yellow-500 rounded-full"></span>
+                        Ensure Stores › Configuration › General › Currency Setup matches gateway-enabled currencies
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white shadow-md overflow-hidden border-t-4 border-charcoal">
+        <button class="w-full p-5 text-left cursor-pointer grid grid-cols-[1fr_auto] gap-4 items-center hover:bg-off-white transition-colors" onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('svg').classList.toggle('rotate-180')">
+            <div>
+                <h3 class="text-xl font-bold text-charcoal mb-1">Duplicate captures</h3>
+                <p class="text-charcoal/60 text-sm">Customers charged twice for the same order</p>
+            </div>
+            <svg class="w-8 h-8 text-charcoal/50 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+        </button>
+        <div class="hidden border-t border-charcoal/20">
+            <div class="p-6">
+                <h4 class="font-bold text-charcoal mb-3">Solution</h4>
+                <ul class="list-none p-0 space-y-2">
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-charcoal rounded-full"></span>
+                        Ensure only one system performs capture (Magento or provider), not both
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Hexagon bullet marker for lists */
+.hexagon-bullet::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.5em;
+    width: 9px;
+    height: 9px;
+    background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 2L21 7V17L12 22L3 17V7L12 2Z' stroke='%23F26423' stroke-width='2.5' stroke-linejoin='miter'/%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+/* Step code styling for inline code paths */
+.step-code {
+    background: #2C2C2C;
+    color: #F1BC1B;
+    padding: 0.25rem 0.5rem;
+    font-family: 'Courier New', monospace;
+    font-size: 0.875rem;
+}
+</style>
