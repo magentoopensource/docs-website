@@ -134,7 +134,7 @@
     {{-- Categories Grid Section --}}
     <section class="flex flex-col items-center justify-start gap-8 sm:gap-12 py-12 sm:py-16">
         <div class="max-w-7xl xl:max-w-8xl mx-auto w-full px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 w-full">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 w-full">
             @foreach($categories as $category)
                 {{-- Category Card --}}
                 <div class="bg-white flex flex-col gap-6 items-start justify-start p-6 sm:p-8 border-2 border-gray-200 border-t-4 border-t-yellow shadow-sm hover:shadow-lg hover:border-t-orange hover:-translate-y-1 transition-all duration-200 focus-within:ring-2 focus-within:ring-orange focus-within:ring-offset-2 h-full">
@@ -165,7 +165,7 @@
                         @endforeach
                     </div>
 
-                    <a href="/merchant/{{ $category['slug'] }}" class="text-base font-inter-tight leading-relaxed text-red underline decoration-solid hover:text-orange transition-colors focus:outline-none focus:ring-2 focus:ring-orange focus:ring-offset-2 rounded mt-auto">See all in this section</a>
+                    <a href="/merchant/{{ $category['slug'] }}" class="text-base font-inter-tight leading-relaxed text-red no-underline hover:text-orange transition-colors focus:outline-none focus:ring-2 focus:ring-orange focus:ring-offset-2 rounded mt-auto">See all in this section</a>
                 </div>
             @endforeach
             </div>
