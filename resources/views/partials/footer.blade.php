@@ -42,7 +42,7 @@
 <footer class="relative pt-12 bg-white border-t border-charcoal">
     <div class="max-w-7xl xl:max-w-8xl mx-auto w-full px-4 sm:px-6 lg:px-8">
         <div>
-            <a href="/" class="inline-flex items-center">
+            <a href="/" class="inline-flex items-center no-underline">
                 <svg width="30" height="33" viewBox="0 0 30 33" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M0 4.06492H29.6763V31.8882C29.6763 32.502 29.1713 33 28.5487 33H1.12762C0.505079 33 0 32.502 0 31.8882V4.06492Z" fill="#34323A"/>
                     <path d="M1.26857 0H28.4078C29.1066 0 29.6763 0.561678 29.6763 1.25075V4.06492H0V1.25075C0 0.561678 0.569682 0 1.26857 0Z" fill="#C9C9C9"/>
@@ -59,7 +59,7 @@
             <div class="col-span-12 lg:col-span-4">
                 <p class="max-w-sm text-xs font-inter-tight text-charcoal sm:text-sm">Your comprehensive guide to managing and growing your Magento 2 store. From setting up your first product to advanced marketing strategies, we provide clear, actionable documentation for merchants of all experience levels.</p>
                 <ul class="mt-6 flex items-center space-x-3">
-                    <li>
+                    <li class="pl-0">
                         <a href="https://github.com/magento/magento2" class="p-2 md:p-0">
                             <img class="w-6 h-6" src="/img/social/github.min.svg" alt="GitHub" width="24" height="24" loading="lazy">
                         </a>
@@ -72,7 +72,7 @@
                     <div class="mt-6">
                         <ul class="space-y-3.5 md:space-y-3 font-inter-tight text-gray-darkest list-none">
                             @foreach ($column['links'] as $title => $href)
-                                <li>
+                                <li class="pl-0">
                                     <a href="{{ $href }}" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white rounded px-2 -mx-2 focus:outline-none focus:ring-2 focus:ring-orange focus:ring-offset-2">{{ $title }}</a>
                                 </li>
                             @endforeach
