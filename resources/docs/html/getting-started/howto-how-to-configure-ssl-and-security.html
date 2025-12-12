@@ -1,0 +1,806 @@
+
+<h1 class="text-4xl font-bold text-charcoal mb-6">How to Configure SSL and Security</h1>
+
+<div class="flex flex-wrap items-center gap-3 mb-8">
+    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-orange-50 text-orange-700">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        45–90 minutes
+    </span>
+    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-yellow-50 text-brown">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+        </svg>
+        Advanced
+    </span>
+    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-orange-50 text-orange-700">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.99 1.99 0 013 12V7a4 4 0 014-4z"/>
+        </svg>
+        How-To
+    </span>
+</div>
+
+<section class="bg-white mb-8 p-8 border-t-4 border-yellow-500 shadow-sm">
+    <h2 class="text-2xl font-bold text-charcoal mb-4 mt-0">Overview</h2>
+    <p class="text-lg text-gray-700 leading-relaxed mb-6">
+        Secure your Magento 2 store with SSL and baseline security controls to protect customer data, improve conversion rates, and meet payment and privacy expectations. This how-to shows new store owners and growing merchants how to configure HTTPS, enforce secure cookies, and enable core protections (2FA and reCAPTCHA) so customers see a trusted padlock and checkout completes without security warnings.
+    </p>
+    <p class="text-gray-700 leading-relaxed mb-4">
+        This guide applies to Magento Open Source and Adobe Commerce 2.4.x. HTTPS removes browser security warnings, improves trust, and is a Google ranking signal. Strong security reduces fraud and chargebacks and can increase checkout completion rates. Merchants typically see higher checkout completion when browsers show a valid padlock and no mixed content.
+    </p>
+    <p class="text-gray-700 leading-relaxed mb-4">
+        Enabling reCAPTCHA reduces bot signups and fake orders; enforcing Admin 2FA reduces risk of account takeover and fraudulent configuration changes. Fewer abandoned checkouts and blocked bot traffic can lift conversion and reduce chargebacks/support costs. Even a 0.5–1% checkout lift is material for most stores. Example ROI: If your monthly revenue is $250,000 and conversion increases 0.7%, estimated lift ≈ $1,750/month. If bot signups drop and save 10 agent hours/month at $30/hour, add ≈ $300/month in support savings.
+    </p>
+</section>
+
+<section class="bg-white mb-8 p-8 border-t-4 border-yellow-500 shadow-sm">
+    <h2 class="text-2xl font-bold text-charcoal mb-6 mt-0">Prerequisites</h2>
+    <p class="text-gray-700 mb-6">Before you begin, make sure you have:</p>
+
+    <h3 class="text-lg font-semibold text-charcoal mb-4">Technical access</h3>
+    <div class="grid md:grid-cols-2 gap-4 mb-6">
+        <div class="relative bg-gradient-to-br from-orange-50 to-white border border-orange-500/30 p-5">
+            <div class="flex items-start gap-4">
+                <div class="w-10 h-10 bg-orange-500 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-charcoal mb-1">Magento Admin Access</h4>
+                    <p class="text-sm text-charcoal/70">Access to Magento Admin Panel</p>
+                </div>
+            </div>
+        </div>
+        <div class="relative bg-gradient-to-br from-yellow-50 to-white border border-yellow-500/30 p-5">
+            <div class="flex items-start gap-4">
+                <div class="w-10 h-10 bg-yellow-500 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"/>
+                    </svg>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-charcoal mb-1">Server Control Panel Access</h4>
+                    <p class="text-sm text-charcoal/70">Hosting control panel or ability to request changes from support</p>
+                </div>
+            </div>
+        </div>
+        <div class="relative bg-gradient-to-br from-orange-50 to-white border border-orange-500/30 p-5">
+            <div class="flex items-start gap-4">
+                <div class="w-10 h-10 bg-orange-500 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-charcoal mb-1">CLI Access (SSH)</h4>
+                    <p class="text-sm text-charcoal/70">Ability to run CLI commands or coordinate with developer/host</p>
+                </div>
+            </div>
+        </div>
+        <div class="relative bg-gradient-to-br from-yellow-50 to-white border border-yellow-500/30 p-5">
+            <div class="flex items-start gap-4">
+                <div class="w-10 h-10 bg-yellow-500 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-charcoal mb-1">CDN Access (if applicable)</h4>
+                    <p class="text-sm text-charcoal/70">Access to CDN configuration if using Cloudflare, Fastly, etc.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h3 class="text-lg font-semibold text-charcoal mb-4">Operational readiness</h3>
+    <ul class="space-y-3 pl-6">
+        <li class="relative hexagon-bullet pl-6 text-gray-700">Schedule a low-traffic maintenance window</li>
+        <li class="relative hexagon-bullet pl-6 text-gray-700">Back up your database and app/etc/env.php and app/etc/config.php</li>
+        <li class="relative hexagon-bullet pl-6 text-gray-700">Ensure you have an Admin super user and SSH access</li>
+        <li class="relative hexagon-bullet pl-6 text-gray-700">Have a rollback plan (restore base URLs and revert server/CDN redirect rules)</li>
+    </ul>
+</section>
+
+<section class="bg-white mb-8 p-8 border-t-4 border-yellow-500 shadow-sm">
+    <h2 class="text-2xl font-bold text-charcoal mb-4 mt-0">What You'll Accomplish</h2>
+    <p class="text-gray-700 mb-4">By following this guide, you will:</p>
+    <ul class="space-y-3 pl-6">
+        <li class="relative hexagon-bullet pl-6 text-gray-700">Configure HTTPS, redirects, and secure cookies across your store</li>
+        <li class="relative hexagon-bullet pl-6 text-gray-700">Enable Admin 2FA and Google reCAPTCHA to block bots and account takeovers</li>
+        <li class="relative hexagon-bullet pl-6 text-gray-700">Verify a clean padlock (no mixed content) so checkout is trusted</li>
+    </ul>
+</section>
+
+<h2 class="text-3xl font-bold text-charcoal mb-8">Step-by-Step Instructions</h2>
+
+<div class="bg-yellow-50 border-4 border-yellow-500 p-6 mb-8 flex gap-4 items-start">
+    <svg class="w-6 h-6 text-orange-500 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7zm2.85 11.1l-.85.6V16h-4v-2.3l-.85-.6A4.997 4.997 0 017 9c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.63-.8 3.16-2.15 4.1z"/>
+    </svg>
+    <div>
+        <p class="font-bold text-charcoal mb-2">Quick Start (Most Stores)</p>
+        <ul class="space-y-2 text-sm text-charcoal">
+            <li class="relative hexagon-bullet pl-6">Steps 0–2: Install a valid SSL certificate and verify https:// loads without errors</li>
+            <li class="relative hexagon-bullet pl-6">Step 3: Enforce a single HTTP→HTTPS redirect at your CDN or web server (not both)</li>
+            <li class="relative hexagon-bullet pl-6">Step 4: Update Magento Base URLs to https and set Use Secure URLs (frontend/admin)</li>
+            <li class="relative hexagon-bullet pl-6">Step 5: Enable secure cookies, set Use SID on Frontend = No, and enable session validations</li>
+            <li class="relative hexagon-bullet pl-6">Steps 6–7: Require Admin 2FA and enable Google reCAPTCHA (test checkout thoroughly)</li>
+            <li class="relative hexagon-bullet pl-6">Step 8: Flush Magento caches and purge Varnish/Fastly/Cloudflare caches</li>
+            <li class="relative hexagon-bullet pl-6">Step 11: Verify padlock, no mixed content, webhooks, and all payments/shipping methods</li>
+        </ul>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">0</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Decide your SSL approach</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <p class="text-gray-700 leading-relaxed mb-4">Choose one:</p>
+        <ol class="space-y-3 list-none pl-0 mb-4">
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">1.</span>
+                Hosting-managed SSL (AutoSSL/Let's Encrypt) via your control panel or support ticket
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">2.</span>
+                Let's Encrypt with Certbot if you have server access
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">3.</span>
+                Commercial SSL from a CA if you require organization validation (OV/EV) for compliance or procurement
+            </li>
+        </ol>
+        <p class="text-gray-700 leading-relaxed mb-4">
+            Note: Most modern browsers do not prominently display EV/OV organization names in the address bar. If using a CDN (e.g., Cloudflare), set SSL/TLS mode to Full (strict) and ensure the origin also has a valid certificate.
+        </p>
+        <div class="bg-yellow-500 border-4 border-amber-600 p-4 flex gap-3 items-start">
+            <svg class="w-6 h-6 text-amber-700 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2L1 21h22L12 2zm0 3.99L19.53 19H4.47L12 5.99zM11 16h2v2h-2v-2zm0-6h2v4h-2v-4z"/>
+            </svg>
+            <p class="text-brown"><strong>Warning:</strong> Do not use Cloudflare "Flexible" SSL. It can cause redirect loops, mixed content, and checkout failures, harming SEO and revenue.</p>
+        </div>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">1</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Install the SSL certificate on your web server</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <p class="text-gray-700 leading-relaxed mb-4">
+            On managed hosting, enable SSL in your panel or ask support. For Let's Encrypt, run Certbot appropriate for your stack (Apache/Nginx) and domain; ensure auto-renew is configured. For a commercial cert, install the certificate, key, and intermediate chain per your server's documentation; restart the web server when done.
+        </p>
+        <p class="text-gray-700 leading-relaxed mb-4">
+            <strong>TLS best practices:</strong> Allow only TLS 1.2 and 1.3; disable TLS 1.0/1.1. Prefer modern ECDHE + AEAD ciphers. Test your site at <a href="https://www.ssllabs.com/ssltest/" class="text-orange-500 hover:underline">SSL Labs</a> and aim for an A grade. Set an automated expiry monitor (for example, a cron that runs certbot renew --dry-run with alerts, or an external uptime/expiry monitor) so certificates renew before expiry.
+        </p>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">2</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Verify the certificate works at your domain</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <p class="text-gray-700 leading-relaxed mb-4">
+            Open <code class="step-code">https://yourdomain</code> in a browser and check the padlock details. Alternatively, run:
+        </p>
+        <pre class="bg-charcoal text-yellow-500 p-4 overflow-x-auto mb-4 text-sm font-mono">curl -I https://yourdomain</pre>
+        <p class="text-gray-700 leading-relaxed">
+            Confirm a 200/301 response. If you see trust errors, reinstall the intermediate chain or correct the domain/SAN.
+        </p>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">3</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Enforce HTTP to HTTPS redirects at the edge or origin</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <p class="text-gray-700 leading-relaxed mb-4">
+            Decide where to enforce redirects: If using a CDN (Cloudflare, Fastly), enable the CDN's HTTPS redirect and do not add origin redirects. If not using a CDN, add a single redirect at your web server. Do not enable redirects in both places.
+        </p>
+        <ul class="space-y-4 pl-0 mb-4 list-none">
+            <li class="relative pl-7 py-2 text-gray-700">
+                <span class="absolute left-0 top-2 w-2 h-2 bg-orange-500 rounded-full"></span>
+                <strong>Do:</strong> Enable the HTTPS redirect in Cloudflare OR add a single redirect rule in Nginx/Apache (not both)
+            </li>
+        </ul>
+        <p class="font-semibold text-charcoal mb-2">Example (Nginx server block):</p>
+        <pre class="bg-charcoal text-yellow-500 p-4 overflow-x-auto mb-4 text-sm font-mono">if ($scheme = http) { return 301 https://$host$request_uri; }</pre>
+
+        <p class="font-semibold text-charcoal mb-2">Example (Apache .htaccess — direct origin, no proxy):</p>
+        <pre class="bg-charcoal text-yellow-500 p-4 overflow-x-auto mb-4 text-sm font-mono">RewriteCond %{HTTPS} !=on
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]</pre>
+
+        <p class="font-semibold text-charcoal mb-2">Example (Apache .htaccess — behind proxy/CDN that sets X-Forwarded-Proto):</p>
+        <pre class="bg-charcoal text-yellow-500 p-4 overflow-x-auto mb-4 text-sm font-mono">RewriteCond %{HTTP:X-Forwarded-Proto} !https
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]</pre>
+
+        <p class="text-gray-700 leading-relaxed mb-4">
+            Do not combine both conditions.
+        </p>
+        <p class="text-gray-700 leading-relaxed mb-4">
+            In Magento, also go to <span class="step-code">Stores › Configuration › General › Web › Url Options</span> and set Auto-redirect to Base URL. If you already enforce redirects at the CDN or web server, set Auto-redirect to Base URL = No to avoid duplicate redirects. After final verification, switch to Yes (301 Moved Permanently) only if Magento must enforce the canonical host.
+        </p>
+        <div class="bg-yellow-500 border-4 border-amber-600 p-4 mb-4 flex gap-3 items-start">
+            <svg class="w-6 h-6 text-amber-700 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2L1 21h22L12 2zm0 3.99L19.53 19H4.47L12 5.99zM11 16h2v2h-2v-2zm0-6h2v4h-2v-4z"/>
+            </svg>
+            <p class="text-brown">Cloudflare users: Never use Flexible SSL. Use Full (strict) with a valid origin certificate to prevent redirect loops and checkout/SEO issues.</p>
+        </div>
+        <p class="text-gray-700 leading-relaxed">
+            After one week of error-free operation, convert any temporary 302 redirects to 301 (permanent) at your CDN/web server to consolidate SEO signals.
+        </p>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">4</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Update Magento base URLs to HTTPS</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <p class="text-gray-700 leading-relaxed mb-4">
+            Admin path: <span class="step-code">Stores › Configuration › General › Web</span>
+        </p>
+        <div class="bg-white border-4 border-yellow-500 p-4 mb-4 flex gap-3 items-start">
+            <svg class="w-5 h-5 text-orange-500 flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+            <p class="text-charcoal text-sm"><strong>Important:</strong> Before editing, in the Configuration page (top-left), set Scope to the target Website (not Default Config). Click OK when prompted to change scope.</p>
+        </div>
+        <p class="text-gray-700 leading-relaxed mb-4">Do this as sub-steps:</p>
+        <ol class="space-y-3 list-none pl-0 mb-4">
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">1.</span>
+                In Configuration (upper-left), change Scope to the target Website (not Default Config) and confirm
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">2.</span>
+                Edit Base URLs and Base URLs (Secure) for that Website only. Repeat for each Website/domain
+            </li>
+        </ol>
+        <p class="text-gray-700 leading-relaxed mb-4">In Magento Admin, make these changes:</p>
+        <ul class="space-y-3 pl-6 mb-4">
+            <li class="relative hexagon-bullet pl-6 text-gray-700"><strong>Base URLs:</strong> Base URL = https://yourdomain/</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700"><strong>Base URLs (Secure):</strong> Base URL = https://yourdomain/</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700"><strong>Base URLs (Secure):</strong> Use Secure URLs on Storefront = Yes</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700"><strong>Base URLs (Secure):</strong> Use Secure URLs in Admin = Yes</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700">If you previously customized Base URL for Static View Files or Base URL for User Media, mirror them under Base URLs (Secure) with https. Otherwise, leave them blank to use defaults</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700">If TLS terminates at a load balancer/CDN (Fastly, Cloudflare, Nginx proxy), ensure it forwards X-Forwarded-Proto: https. Set <strong>Base URLs (Secure) › Offloader header = X-Forwarded-Proto</strong> (or your header name). Only set Offloader header if TLS terminates before Magento (CDN/load balancer/proxy); use X-Forwarded-Proto unless your provider documents a different header</li>
+        </ul>
+        <p class="text-gray-700 leading-relaxed mb-4">Save.</p>
+
+        <p class="font-semibold text-charcoal mb-2">If you can't access Admin, use CLI:</p>
+        <pre class="bg-charcoal text-yellow-500 p-4 overflow-x-auto mb-4 text-sm font-mono">bin/magento config:set web/unsecure/base_url https://yourdomain/
+bin/magento config:set web/secure/base_url https://yourdomain/
+bin/magento config:set web/secure/use_in_frontend 1
+bin/magento config:set web/secure/use_in_adminhtml 1
+bin/magento config:set web/secure/offloader_header X-Forwarded-Proto
+bin/magento cache:flush</pre>
+
+        <p class="font-semibold text-charcoal mb-2">CLI audit and fix (if previously customized):</p>
+        <p class="text-gray-700 leading-relaxed mb-2">Check:</p>
+        <pre class="bg-charcoal text-yellow-500 p-4 overflow-x-auto mb-4 text-sm font-mono">bin/magento config:show web/unsecure/base_static_url
+bin/magento config:show web/unsecure/base_media_url
+bin/magento config:show web/secure/base_static_url
+bin/magento config:show web/secure/base_media_url</pre>
+
+        <p class="text-gray-700 leading-relaxed mb-2">If set, update secure values to https or clear to use defaults:</p>
+        <pre class="bg-charcoal text-yellow-500 p-4 overflow-x-auto mb-4 text-sm font-mono">bin/magento config:set web/secure/base_static_url https://yourdomain/static/
+bin/magento config:set web/secure/base_media_url https://yourdomain/media/</pre>
+
+        <p class="text-gray-700 leading-relaxed">(Set unsecure values blank or https as per your policy.)</p>
+
+        <div class="bg-white border-4 border-yellow-500 p-4 mt-4 flex gap-3 items-start">
+            <svg class="w-5 h-5 text-orange-500 flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+            <p class="text-charcoal text-sm"><strong>Multi-site note:</strong> Each website with its own domain requires its own SSL certificate, DNS, redirects, and separate reCAPTCHA keys. Repeat configuration per website/domain to avoid downtime or SEO issues on secondary storefronts.</p>
+        </div>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">5</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Enable secure cookies and session protections</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <p class="text-gray-700 leading-relaxed mb-4">
+            Admin path: <span class="step-code">Stores › Configuration › General › Web › Default Cookie Settings</span>
+        </p>
+        <ul class="space-y-3 pl-6 mb-4">
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Go to <span class="step-code">Stores › Configuration › General › Web › Default Cookie Settings</span>. Set <strong>Use HTTP Only = Yes</strong> and <strong>Cookie Secure = Yes</strong>. Set Cookie SameSite according to your integrations: Lax (default) is safe for most sites. Use None (requires Cookie Secure = Yes) if you rely on cross-site flows (for example, embedded checkout/iFrames, SSO). Leave Cookie Domain blank unless you must scope cookies to a specific domain. If needed, enter your exact domain without protocol (for example, example.com). Set Cookie Lifetime as needed (for example, 3600)</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Go to <span class="step-code">Stores › Configuration › General › Web › URL Options</span> and set <strong>Use SID on Frontend = No</strong></li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Go to <span class="step-code">Stores › Configuration › General › Web › Session Validation Settings</span> and enable appropriate validations (for example, Validate HTTP_USER_AGENT = Yes)</li>
+        </ul>
+        <p class="text-gray-700 leading-relaxed">Save and flush cache. Test Admin and Storefront logins after changing.</p>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">6</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Enforce Two-Factor Authentication for Admin</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <p class="text-gray-700 leading-relaxed mb-4">
+            Admin path: <span class="step-code">Stores › Configuration › Security › 2FA</span>
+        </p>
+        <p class="text-gray-700 leading-relaxed mb-4">
+            In Magento 2.4+, Admin 2FA is required. Go to <span class="step-code">Stores › Configuration › Security › 2FA</span>. Choose Providers to Use (for example, Google Authenticator, Email, Duo) and optionally enable Force providers for all users. Ensure transactional email works before enabling the Email provider to avoid enrollment delays. Require 2FA for all Admin users, then log out and log in to enroll devices. Ensure all admin users enroll.
+        </p>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">7</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Enable Google reCAPTCHA for storefront and Admin</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <p class="text-gray-700 leading-relaxed mb-4">
+            Obtain site and secret keys from <a href="https://www.google.com/recaptcha" class="text-orange-500 hover:underline">Google reCAPTCHA</a> for your domain.
+        </p>
+        <p class="text-gray-700 leading-relaxed mb-4">Admin paths:</p>
+        <ul class="space-y-2 pl-6 mb-4">
+            <li class="relative hexagon-bullet pl-6 text-gray-700"><span class="step-code">Stores › Configuration › Security › Google reCAPTCHA Admin Panel</span></li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700"><span class="step-code">Stores › Configuration › Security › Google reCAPTCHA Storefront</span></li>
+        </ul>
+        <p class="text-gray-700 leading-relaxed mb-4">
+            Configure v2 or v3 in each section for the relevant forms. For Admin Panel, enable for Admin Login (and other admin forms as desired). For Storefront, enable for customer login, registration, contact, and checkout forms where applicable. Explicitly enable protection for Place Order to cover checkout.
+        </p>
+        <div class="bg-yellow-500 border-4 border-amber-600 p-4 mb-4 flex gap-3 items-start">
+            <svg class="w-6 h-6 text-amber-700 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2L1 21h22L12 2zm0 3.99L19.53 19H4.47L12 5.99zM11 16h2v2h-2v-2zm0-6h2v4h-2v-4z"/>
+            </svg>
+            <div>
+                <p class="text-brown mb-2"><strong>Caution:</strong> Enabling reCAPTCHA on Place Order may interfere with some payment methods (wallets/APMs like Apple Pay/Google Pay, certain hosted/redirect flows). Test each payment method end-to-end in staging before enabling in production. If false positives occur, adjust the score threshold (v3) or disable reCAPTCHA for Place Order and rely on protections on other checkout forms.</p>
+            </div>
+        </div>
+        <p class="text-gray-700 leading-relaxed mb-4">
+            For v3 Invisible, start with Score Threshold 0.5 and adjust based on false positives/negatives. Rule of thumb: If legitimate customers are challenged or blocked, lower to 0.3; if bots get through, raise to 0.7–0.9. Review reCAPTCHA admin analytics weekly during rollout.
+        </p>
+        <p class="text-gray-700 leading-relaxed">
+            Use a separate key pair per domain/environment. If using Google reCAPTCHA, disable native CAPTCHA to avoid double prompts: <span class="step-code">Stores › Configuration › Security › CAPTCHA</span>. Set Enable CAPTCHA on Frontend = No and (optionally) Admin = No, depending on your reCAPTCHA coverage. Save and test challenges in a private browser window.
+        </p>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">8</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Flush Magento caches and deploy static content if needed</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <p class="text-gray-700 leading-relaxed mb-4">
+            Run <code class="step-code">bin/magento cache:flush</code> and <code class="step-code">bin/magento cache:clean</code>. If your site runs in production mode or you changed theme/static URLs, run <code class="step-code">bin/magento setup:static-content:deploy</code> for your active locales. In developer mode, this is usually not required. Verify the site loads styles/scripts over HTTPS.
+        </p>
+        <p class="font-semibold text-charcoal mb-2">Check mode:</p>
+        <pre class="bg-charcoal text-yellow-500 p-4 overflow-x-auto mb-4 text-sm font-mono">bin/magento deploy:mode:show</pre>
+
+        <p class="font-semibold text-charcoal mb-2">If production and you changed theme/static URLs:</p>
+        <pre class="bg-charcoal text-yellow-500 p-4 overflow-x-auto mb-4 text-sm font-mono">bin/magento setup:static-content:deploy -f en_US &lt;add other locales&gt;
+bin/magento cache:flush</pre>
+
+        <p class="font-semibold text-charcoal mb-2">Edge/CDN cache purge:</p>
+        <p class="text-gray-700 leading-relaxed mb-4">
+            If you use Varnish or Fastly, purge the cache after switching to HTTPS to prevent cached http assets.
+        </p>
+        <ul class="space-y-2 pl-6">
+            <li class="relative hexagon-bullet pl-6 text-gray-700"><strong>Fastly:</strong> In Admin go to <span class="step-code">Stores › Configuration › Advanced › System › Full Page Cache › Fastly Configuration</span> and click Purge All (or use your Fastly dashboard)</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700"><strong>Varnish:</strong> Issue a PURGE via your hosting panel or Varnish management tool</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700"><strong>Cloudflare:</strong> Perform a "Purge Everything"</li>
+        </ul>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">9</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Optional: Change the Admin URL</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <p class="text-gray-700 leading-relaxed">
+            For security-by-hardening, change the Admin frontName. Use <code class="step-code">bin/magento setup:config:set --backend-frontname=your-new-admin</code> and update bookmarks. Communicate the change to authorized admins only.
+        </p>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">10</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Optional: Enable HSTS</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <p class="text-gray-700 leading-relaxed mb-4">
+            After confirming everything works over HTTPS, configure your server/CDN to send Strict-Transport-Security with an initial short max-age (for example, 300). Increase to 15552000 (180 days) after a week of successful operation. Include preload and subdomains only when fully ready.
+        </p>
+        <p class="font-semibold text-charcoal mb-2">Example headers:</p>
+        <ul class="space-y-2 pl-6 mb-4">
+            <li class="relative hexagon-bullet pl-6 text-gray-700"><strong>Initial:</strong> Strict-Transport-Security: max-age=300</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700"><strong>After a week:</strong> Strict-Transport-Security: max-age=15552000; includeSubDomains</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700"><strong>Preload (only when all subdomains are HTTPS):</strong> Strict-Transport-Security: max-age=31536000; includeSubDomains; preload</li>
+        </ul>
+        <p class="text-gray-700 leading-relaxed">
+            Set via your web server (Apache/Nginx) or your CDN's security headers feature.
+        </p>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">11</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Final end-to-end test</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <p class="text-gray-700 leading-relaxed mb-4">
+            Test homepage, product page, cart, checkout, account login, password reset, and Admin login. Confirm HTTPS padlock, reCAPTCHA, and 2FA work; watch browser console for mixed content; ensure payment test transactions complete without security warnings.
+        </p>
+
+        <p class="font-semibold text-charcoal mb-2">Mixed content check and remediation:</p>
+        <ul class="space-y-2 pl-6 mb-4">
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Open browser DevTools Console and look for mixed content warnings</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700">In Admin, review <span class="step-code">Content › Pages</span> and <span class="step-code">Content › Blocks</span> for http:// links; change to https://, protocol-relative (//), or use the store url="" directive to generate your store's base URL. Example: &lt;a href="store url='contact'"&gt;Contact&lt;/a&gt;</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700">CLI search for http values: <code class="step-code">bin/magento config:show | grep "http://"</code></li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Database (backup first): <code class="step-code">SELECT path, scope, scope_id, value FROM core_config_data WHERE value LIKE 'http://%';</code></li>
+        </ul>
+
+        <p class="font-semibold text-charcoal mb-2">Payments & shipping regression tests:</p>
+        <ul class="space-y-2 pl-6 mb-4">
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Test each enabled payment method (credit card gateways, wallets like Apple Pay/Google Pay, PayPal, BNPL) and each shipping method end-to-end in sandbox/staging and then production. Verify redirects/return URLs use https and webhooks are delivered</li>
+        </ul>
+
+        <p class="font-semibold text-charcoal mb-2">Integrations:</p>
+        <p class="text-gray-700 leading-relaxed mb-4">
+            Update callback/webhook URLs at your payment provider (for example, PayPal, Adyen, Stripe) and any third-party services (ERP/CRM, marketing forms) to use https://. Verify webhook deliveries after cutover.
+        </p>
+
+        <p class="text-gray-700 leading-relaxed mb-4">
+            If you use a CDN, purge its cache after switching to HTTPS to avoid serving cached http assets.
+        </p>
+
+        <p class="font-semibold text-charcoal mb-2">SEO follow-up:</p>
+        <ul class="space-y-2 pl-6">
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Regenerate and serve your sitemap over HTTPS (<span class="step-code">Marketing › SEO & Search › Site Map</span>), then submit the HTTPS sitemap URL in Google Search Console and Bing Webmaster Tools</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Verify canonical tags, hreflang, and structured data fetch correctly over HTTPS</li>
+        </ul>
+    </div>
+</div>
+
+<h2 class="text-3xl font-bold text-charcoal mb-6">Verification</h2>
+<p class="text-gray-700 mb-6">Use this checklist to confirm everything is working correctly:</p>
+
+<ul class="list-none my-8 pl-0 space-y-5">
+    <li class="bg-white p-7 shadow-sm">
+        <div class="flex items-center justify-between mb-5">
+            <strong class="text-lg font-bold text-charcoal">Storefront</strong>
+        </div>
+        <ul class="grid gap-3 m-0 p-0 list-none">
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                Homepage, category, product pages load with a padlock (no mixed content)
+            </li>
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                Customer login, registration, contact forms load and reCAPTCHA triggers as configured
+            </li>
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                Add to cart, cart page, and checkout steps load over HTTPS without warnings
+            </li>
+        </ul>
+    </li>
+
+    <li class="bg-white p-7 shadow-sm">
+        <div class="flex items-center justify-between mb-5">
+            <strong class="text-lg font-bold text-charcoal">Checkout</strong>
+        </div>
+        <ul class="grid gap-3 m-0 p-0 list-none">
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                Place a test order with a sandbox/test payment method without errors
+            </li>
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                Order confirmation page and emails are delivered correctly
+            </li>
+        </ul>
+    </li>
+
+    <li class="bg-white p-7 shadow-sm">
+        <div class="flex items-center justify-between mb-5">
+            <strong class="text-lg font-bold text-charcoal">Admin</strong>
+        </div>
+        <ul class="grid gap-3 m-0 p-0 list-none">
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                Admin login requires 2FA and allows enrollment for all users
+            </li>
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                Admin pages load over HTTPS; configuration saves and caches flush without error
+            </li>
+        </ul>
+    </li>
+
+    <li class="bg-white p-7 shadow-sm">
+        <div class="flex items-center justify-between mb-5">
+            <strong class="text-lg font-bold text-charcoal">External</strong>
+        </div>
+        <ul class="grid gap-3 m-0 p-0 list-none">
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                Webhooks/callbacks from payment provider(s) deliver successfully to https URLs
+            </li>
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                SSL Labs test returns A grade and no legacy TLS versions are enabled
+            </li>
+        </ul>
+    </li>
+
+    <li class="bg-white p-7 shadow-sm">
+        <div class="flex items-center justify-between mb-5">
+            <strong class="text-lg font-bold text-charcoal">KPIs to monitor for 14 days</strong>
+        </div>
+        <ul class="grid gap-3 m-0 p-0 list-none">
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                Conversion rate and checkout drop-off by step
+            </li>
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                Payment decline/error rates by method; false-positive reCAPTCHA events
+            </li>
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                Bot/signup volume and WAF/captcha challenge counts
+            </li>
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                Organic traffic and indexation (Search Console): crawl errors after HTTPS switch
+            </li>
+        </ul>
+    </li>
+</ul>
+
+<h2 class="text-3xl font-bold text-charcoal mb-6">Common Issues and Solutions</h2>
+
+<div class="space-y-4 my-8">
+    <div class="bg-white shadow-md overflow-hidden border-t-4 border-orange-500">
+        <button class="w-full p-5 text-left cursor-pointer grid grid-cols-[1fr_auto] gap-4 items-center hover:bg-orange-50 transition-colors" onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('svg').classList.toggle('rotate-180')">
+            <div>
+                <h3 class="text-xl font-bold text-charcoal mb-1">Redirect loop after enabling CDN</h3>
+                <p class="text-charcoal/60 text-sm">CDN SSL configuration or duplicate redirect rules</p>
+            </div>
+            <svg class="w-8 h-8 text-charcoal/50 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+        </button>
+        <div class="hidden border-t border-orange-500/30">
+            <div class="p-6">
+                <h4 class="font-bold text-charcoal mb-3">Solution</h4>
+                <ul class="list-none p-0 space-y-2">
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-orange-500 rounded-full"></span>
+                        Ensure Cloudflare SSL is Full (strict) and origin has a valid cert
+                    </li>
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-orange-500 rounded-full"></span>
+                        Remove duplicate redirects at origin if CDN handles HTTPS redirect
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white shadow-md overflow-hidden border-t-4 border-orange-500">
+        <button class="w-full p-5 text-left cursor-pointer grid grid-cols-[1fr_auto] gap-4 items-center hover:bg-orange-50 transition-colors" onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('svg').classList.toggle('rotate-180')">
+            <div>
+                <h3 class="text-xl font-bold text-charcoal mb-1">Admin login loop after cookie changes</h3>
+                <p class="text-charcoal/60 text-sm">Cookie configuration or session validation issue</p>
+            </div>
+            <svg class="w-8 h-8 text-charcoal/50 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+        </button>
+        <div class="hidden border-t border-orange-500/30">
+            <div class="p-6">
+                <h4 class="font-bold text-charcoal mb-3">Solution</h4>
+                <ul class="list-none p-0 space-y-2">
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-orange-500 rounded-full"></span>
+                        Clear cookies for your domain in browser
+                    </li>
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-orange-500 rounded-full"></span>
+                        Set Cookie Domain blank in Admin configuration
+                    </li>
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-orange-500 rounded-full"></span>
+                        Set Use SID on Storefront = No
+                    </li>
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-orange-500 rounded-full"></span>
+                        Flush cache and verify HTTPS base URLs are set correctly
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white shadow-md overflow-hidden border-t-4 border-yellow-500">
+        <button class="w-full p-5 text-left cursor-pointer grid grid-cols-[1fr_auto] gap-4 items-center hover:bg-yellow-50 transition-colors" onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('svg').classList.toggle('rotate-180')">
+            <div>
+                <h3 class="text-xl font-bold text-charcoal mb-1">No padlock/mixed content warnings</h3>
+                <p class="text-charcoal/60 text-sm">HTTP resources loaded on HTTPS pages</p>
+            </div>
+            <svg class="w-8 h-8 text-charcoal/50 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+        </button>
+        <div class="hidden border-t border-yellow-500/30">
+            <div class="p-6">
+                <h4 class="font-bold text-charcoal mb-3">Solution</h4>
+                <ul class="list-none p-0 space-y-2">
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-yellow-500 rounded-full"></span>
+                        Search CMS content (Pages/Blocks) for http:// assets and update to https://
+                    </li>
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-yellow-500 rounded-full"></span>
+                        Redeploy static content if theme references HTTP URLs
+                    </li>
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-yellow-500 rounded-full"></span>
+                        Clear browser cache and CDN cache
+                    </li>
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-yellow-500 rounded-full"></span>
+                        Check database for hard-coded http:// URLs in config
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white shadow-md overflow-hidden border-t-4 border-yellow-500">
+        <button class="w-full p-5 text-left cursor-pointer grid grid-cols-[1fr_auto] gap-4 items-center hover:bg-yellow-50 transition-colors" onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('svg').classList.toggle('rotate-180')">
+            <div>
+                <h3 class="text-xl font-bold text-charcoal mb-1">2FA lockout (Email provider)</h3>
+                <p class="text-charcoal/60 text-sm">Email 2FA not working or transactional email not configured</p>
+            </div>
+            <svg class="w-8 h-8 text-charcoal/50 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+        </button>
+        <div class="hidden border-t border-yellow-500/30">
+            <div class="p-6">
+                <h4 class="font-bold text-charcoal mb-3">Solution</h4>
+                <ul class="list-none p-0 space-y-2">
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-yellow-500 rounded-full"></span>
+                        Verify transactional email works before enabling Email 2FA provider
+                    </li>
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-yellow-500 rounded-full"></span>
+                        Use another provider (Google Authenticator, Duo) as backup
+                    </li>
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-yellow-500 rounded-full"></span>
+                        In emergency (non-production), disable 2FA via CLI and re-enable after fixing
+                    </li>
+                </ul>
+                <pre class="bg-charcoal text-yellow-500 p-4 overflow-x-auto mt-4 text-sm font-mono"># Disable (emergency only):
+bin/magento module:disable Magento_TwoFactorAuth
+bin/magento setup:upgrade
+bin/magento cache:flush
+
+# Re-enable after fixing:
+bin/magento module:enable Magento_TwoFactorAuth
+bin/magento setup:upgrade
+bin/magento cache:flush</pre>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white shadow-md overflow-hidden border-t-4 border-charcoal">
+        <button class="w-full p-5 text-left cursor-pointer grid grid-cols-[1fr_auto] gap-4 items-center hover:bg-off-white transition-colors" onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('svg').classList.toggle('rotate-180')">
+            <div>
+                <h3 class="text-xl font-bold text-charcoal mb-1">Payment method failures after HTTPS switch</h3>
+                <p class="text-charcoal/60 text-sm">Webhook URLs or return URLs not updated to HTTPS</p>
+            </div>
+            <svg class="w-8 h-8 text-charcoal/50 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+        </button>
+        <div class="hidden border-t border-charcoal/20">
+            <div class="p-6">
+                <h4 class="font-bold text-charcoal mb-3">Solution</h4>
+                <ul class="list-none p-0 space-y-2">
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-charcoal rounded-full"></span>
+                        Update callback/webhook URLs at payment provider to use https://
+                    </li>
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-charcoal rounded-full"></span>
+                        Test each payment method end-to-end in sandbox/staging
+                    </li>
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-charcoal rounded-full"></span>
+                        Verify return URLs and IPNs deliver successfully
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white shadow-md overflow-hidden border-t-4 border-charcoal">
+        <button class="w-full p-5 text-left cursor-pointer grid grid-cols-[1fr_auto] gap-4 items-center hover:bg-off-white transition-colors" onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('svg').classList.toggle('rotate-180')">
+            <div>
+                <h3 class="text-xl font-bold text-charcoal mb-1">reCAPTCHA blocking legitimate customers</h3>
+                <p class="text-charcoal/60 text-sm">Score threshold too strict or checkout friction too high</p>
+            </div>
+            <svg class="w-8 h-8 text-charcoal/50 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+        </button>
+        <div class="hidden border-t border-charcoal/20">
+            <div class="p-6">
+                <h4 class="font-bold text-charcoal mb-3">Solution</h4>
+                <ul class="list-none p-0 space-y-2">
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-charcoal rounded-full"></span>
+                        Lower reCAPTCHA v3 Score Threshold to 0.3 (from 0.5) and monitor
+                    </li>
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-charcoal rounded-full"></span>
+                        Consider disabling reCAPTCHA on Place Order if payment methods are sensitive
+                    </li>
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-charcoal rounded-full"></span>
+                        Review reCAPTCHA admin analytics weekly during rollout
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Hexagon bullet marker for lists */
+.hexagon-bullet::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.5em;
+    width: 9px;
+    height: 9px;
+    background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 2L21 7V17L12 22L3 17V7L12 2Z' stroke='%23F26423' stroke-width='2.5' stroke-linejoin='miter'/%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+/* Step code styling for inline code paths */
+.step-code {
+    background: #2C2C2C;
+    color: #F1BC1B;
+    padding: 0.25rem 0.5rem;
+    font-family: 'Courier New', monospace;
+    font-size: 0.875rem;
+}
+</style>
