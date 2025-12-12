@@ -1,0 +1,714 @@
+
+<h1 class="text-4xl font-bold text-charcoal mb-6">How to Optimize Checkout for Higher Conversions</h1>
+
+<div class="flex flex-wrap items-center gap-3 mb-8">
+    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-orange-50 text-orange-700">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        6 minutes
+    </span>
+    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-yellow-50 text-brown">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+        </svg>
+        Advanced
+    </span>
+    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-orange-50 text-orange-700">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.99 1.99 0 013 12V7a4 4 0 014-4z"/>
+        </svg>
+        How-To
+    </span>
+</div>
+
+<section class="bg-white mb-8 p-8 border-t-4 border-yellow-500 shadow-sm">
+    <h2 class="text-2xl font-bold text-charcoal mb-4 mt-0">Overview</h2>
+
+    <div class="bg-gray-50 border-l-4 border-yellow-500 p-6 mb-6">
+        <h3 class="text-lg font-bold text-charcoal mb-3">Business Impact</h3>
+        <ul class="space-y-2 pl-6">
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Express wallets can reduce checkout time by 30–60% and lift mobile conversion by 5–15%</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Guest checkout can increase completion 10–20% for first-time buyers</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Fewer fields typically reduce drop-off on the shipping step and lower support contacts</li>
+        </ul>
+    </div>
+
+    <p class="text-lg text-gray-700 leading-relaxed mb-6">
+        Reduce cart abandonment and increase revenue by streamlining Magento 2 checkout. This guide helps Magento merchants enable guest checkout, reduce form fields, add express wallets (PayPal/Apple Pay/Google Pay), and enable Instant Purchase and persistent cart—improving conversion with measurable results.
+    </p>
+
+    <p class="text-gray-700 leading-relaxed mb-4">
+        <strong>Scope and compatibility:</strong> Supported versions/editions: Magento Open Source and Adobe Commerce 2.4.x. Note: Braintree requires the official Braintree extension (Marketplace/Adobe) on 2.4.x.
+    </p>
+</section>
+
+<section class="bg-white mb-8 p-8 border-t-4 border-yellow-500 shadow-sm">
+    <h2 class="text-2xl font-bold text-charcoal mb-6 mt-0">Prerequisites</h2>
+    <p class="text-gray-700 mb-6">Before you begin, make sure you have:</p>
+    <div class="grid md:grid-cols-2 gap-4">
+        <div class="relative bg-gradient-to-br from-orange-50 to-white border border-orange-500/30 p-5">
+            <div class="flex items-start gap-4">
+                <div class="w-10 h-10 bg-orange-500 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-charcoal mb-1">Admin Panel Access</h4>
+                    <p class="text-sm text-charcoal/70">Access to Magento Admin Panel</p>
+                </div>
+            </div>
+        </div>
+        <div class="relative bg-gradient-to-br from-yellow-50 to-white border border-yellow-500/30 p-5">
+            <div class="flex items-start gap-4">
+                <div class="w-10 h-10 bg-yellow-500 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-charcoal mb-1">Payment Provider Account</h4>
+                    <p class="text-sm text-charcoal/70">PayPal and/or Braintree sandbox credentials ready for testing</p>
+                </div>
+            </div>
+        </div>
+        <div class="relative bg-gradient-to-br from-orange-50 to-white border border-orange-500/30 p-5">
+            <div class="flex items-start gap-4">
+                <div class="w-10 h-10 bg-orange-500 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-charcoal mb-1">SSL Certificate</h4>
+                    <p class="text-sm text-charcoal/70">Valid SSL certificate for secure checkout</p>
+                </div>
+            </div>
+        </div>
+        <div class="relative bg-gradient-to-br from-yellow-50 to-white border border-yellow-500/30 p-5">
+            <div class="flex items-start gap-4">
+                <div class="w-10 h-10 bg-yellow-500 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
+                    </svg>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-charcoal mb-1">Testing Resources</h4>
+                    <p class="text-sm text-charcoal/70">Test cards and wallet test accounts (PayPal sandbox, Apple Pay device, Google Pay test environment)</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white border-4 border-yellow-500 p-4 mt-6 flex gap-3 items-start">
+        <svg class="w-5 h-5 text-orange-500 flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+        </svg>
+        <p class="text-charcoal text-sm">If using Braintree wallets: Official Braintree Payments extension must be installed and enabled. Optional: GA4 implemented via Google Tag Manager or a GA4 extension for measurement. Plan 30–60 minutes to complete, depending on wallet setup and verification steps.</p>
+    </div>
+</section>
+
+<section class="bg-white mb-8 p-8 border-t-4 border-yellow-500 shadow-sm">
+    <h2 class="text-2xl font-bold text-charcoal mb-4 mt-0">What You'll Accomplish</h2>
+    <p class="text-gray-700 mb-4">By following this guide, you will:</p>
+    <ul class="space-y-3 pl-6">
+        <li class="relative hexagon-bullet pl-6 text-gray-700">Configure checkout for higher conversions using proven settings</li>
+        <li class="relative hexagon-bullet pl-6 text-gray-700">Reduce checkout time and form friction for customers</li>
+    </ul>
+</section>
+
+<div class="bg-yellow-500 border-4 border-amber-600 p-4 mb-8 flex gap-3 items-start">
+    <svg class="w-6 h-6 text-amber-700 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 2L1 21h22L12 2zm0 3.99L19.53 19H4.47L12 5.99zM11 16h2v2h-2v-2zm0-6h2v4h-2v-4z"/>
+    </svg>
+    <div>
+        <p class="font-bold text-brown mb-1">Important Note</p>
+        <p class="text-brown text-sm">After any configuration change, go to System > Cache Management and click Flush Magento Cache. If prompted, refresh invalidated caches.</p>
+    </div>
+</div>
+
+<h2 class="text-3xl font-bold text-charcoal mb-8">Step-by-Step Instructions</h2>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">0</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Enable guest checkout and streamline checkout options</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <p class="text-gray-700 leading-relaxed mb-4">
+            Go to <span class="step-code">Stores › Configuration › Sales › Checkout › Checkout Options</span>. Set:
+        </p>
+        <ul class="space-y-2 pl-6 mb-4">
+            <li class="relative hexagon-bullet pl-6 text-gray-700"><strong>Allow Guest Checkout</strong> = Yes</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700"><strong>Display Billing Address On</strong> = Payment Page (keeps billing off the method tile)</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700"><strong>Enable Terms and Conditions</strong> = No (unless required by law)</li>
+        </ul>
+        <p class="text-gray-700 leading-relaxed mb-4">
+            If you do not need multi-address orders, go to <span class="step-code">Stores › Configuration › Sales › Multishipping Settings</span> and set:
+        </p>
+        <ul class="space-y-2 pl-6 mb-4">
+            <li class="relative hexagon-bullet pl-6 text-gray-700"><strong>Allow Shipping to Multiple Addresses</strong> = No</li>
+        </ul>
+        <p class="text-gray-700 leading-relaxed">
+            Save Config, then flush cache.
+        </p>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">1</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Reduce required form fields for faster entry</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <p class="text-gray-700 leading-relaxed mb-4">
+            Go to <span class="step-code">Stores › Configuration › Customers › Customer Configuration › Name and Address Options</span>. Set:
+        </p>
+        <ul class="space-y-2 pl-6 mb-4">
+            <li class="relative hexagon-bullet pl-6 text-gray-700"><strong>Number of Lines in a Street Address</strong> = 1 or 2</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700"><strong>Show Prefix</strong> = No</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700"><strong>Show Middle Name (initial)</strong> = No</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700"><strong>Show Suffix</strong> = No</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700"><strong>Show Company</strong> = No</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700"><strong>Show Fax</strong> = No</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700"><strong>Show Telephone</strong> = Optional (or Required if your fraud/risk model needs it)</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700"><strong>Show Tax/VAT Number</strong> = No (unless you sell B2B)</li>
+        </ul>
+        <p class="text-gray-700 leading-relaxed">
+            Save Config, then flush cache.
+        </p>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">2</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Set default country and minimize location friction</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <p class="text-gray-700 leading-relaxed mb-4">
+            Go to <span class="step-code">Stores › Configuration › General › General › Country Options</span>. Set:
+        </p>
+        <ul class="space-y-2 pl-6 mb-4">
+            <li class="relative hexagon-bullet pl-6 text-gray-700"><strong>Default Country</strong> = your primary market</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700"><strong>Allow Countries</strong> = only markets you ship to</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700"><strong>Zip/Postal Code is Optional for Selected Countries</strong> = select countries where it isn't required</li>
+        </ul>
+        <p class="text-gray-700 leading-relaxed">
+            Save Config, then flush cache.
+        </p>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">3</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Simplify shipping choices to one clear option</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <p class="text-gray-700 leading-relaxed mb-4">
+            Go to <span class="step-code">Stores › Configuration › Sales › Delivery Methods</span>. Enable one simple method customers understand:
+        </p>
+        <ul class="space-y-2 pl-6 mb-4">
+            <li class="relative hexagon-bullet pl-6 text-gray-700"><strong>Free Shipping:</strong> Enabled = Yes and Minimum Order Amount per your threshold, or</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700"><strong>Flat Rate:</strong> Enabled = Yes with a simple Rate</li>
+        </ul>
+
+        <div class="bg-white border-4 border-yellow-500 p-4 mb-4 flex gap-3 items-start">
+            <svg class="w-5 h-5 text-orange-500 flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7zm2.85 11.1l-.85.6V16h-4v-2.3l-.85-.6A4.997 4.997 0 017 9c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.63-.8 3.16-2.15 4.1z"/>
+            </svg>
+            <div>
+                <p class="font-bold text-charcoal mb-1">Tips</p>
+                <ul class="space-y-1 text-sm pl-6">
+                    <li class="relative hexagon-bullet pl-6 text-charcoal">Disable unused carriers to avoid choice overload</li>
+                    <li class="relative hexagon-bullet pl-6 text-charcoal">Set Sort Order = 0 (lowest number) on your preferred method so it's preselected. Keep backup methods enabled with a higher Sort Order for edge cases</li>
+                </ul>
+            </div>
+        </div>
+
+        <p class="text-gray-700 leading-relaxed mb-4">
+            Then go to <span class="step-code">Stores › Configuration › Sales › Shipping Settings › Origin</span> and ensure your origin is correctly set.
+        </p>
+        <p class="text-gray-700 leading-relaxed">
+            Save Config, then flush cache.
+        </p>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">4</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Add an express wallet (choose one primary path)</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <h4 class="font-semibold text-charcoal mb-3">Option A – Core PayPal Express Checkout (NVP)</h4>
+        <ol class="space-y-3 list-none pl-0 mb-6">
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">1.</span>
+                Go to <span class="step-code">Stores › Configuration › Sales › Payment Methods › PayPal › PayPal Express Checkout</span>
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">2.</span>
+                Enable PayPal Express Checkout and enter API Username, API Password, and Signature from your PayPal account
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">3.</span>
+                Surface buttons earlier:
+                <ul class="space-y-1 pl-6 mt-2">
+                    <li class="relative hexagon-bullet pl-6 text-gray-700"><strong>Display on Shopping Cart</strong> = Yes</li>
+                    <li class="relative hexagon-bullet pl-6 text-gray-700"><strong>Display on Product Detail Page</strong> = Yes (if desired)</li>
+                </ul>
+                <p class="text-sm text-gray-700 mt-2">Note: "Display on Mini Cart" is not a standard core PayPal setting. If your integration or theme adds mini cart buttons, follow that provider's instructions.</p>
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">4.</span>
+                Save Config, then flush cache
+            </li>
+        </ol>
+
+        <h4 class="font-semibold text-charcoal mb-3">Option B – Braintree (Marketplace extension) with PayPal, Apple Pay, Google Pay</h4>
+        <p class="text-gray-700 leading-relaxed mb-4">
+            <strong>Prerequisite:</strong> Install and enable the official Braintree Payments extension. Paths below appear after installation.
+        </p>
+        <ol class="space-y-3 list-none pl-0 mb-4">
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">1.</span>
+                Go to <span class="step-code">Stores › Configuration › Sales › Payment Methods › Braintree</span>
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">2.</span>
+                Enable Braintree and enter Merchant ID, Public Key, and Private Key
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">3.</span>
+                Enable Vault = Yes (required for saved cards/Instant Purchase)
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">4.</span>
+                (Optional) Enable PayPal via Braintree and configure button placement per the extension's settings
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">5.</span>
+                <strong>Apple Pay:</strong>
+                <ul class="space-y-1 pl-6 mt-2">
+                    <li class="relative hexagon-bullet pl-6 text-gray-700">In the Braintree Control Panel, enable Apple Pay, upload the certificate, and complete domain verification for your site</li>
+                    <li class="relative hexagon-bullet pl-6 text-gray-700">Ensure your site is served over HTTPS</li>
+                    <li class="relative hexagon-bullet pl-6 text-gray-700">Test with Safari on a supported iOS/macOS device with a card in Apple Wallet</li>
+                </ul>
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">6.</span>
+                <strong>Google Pay:</strong>
+                <ul class="space-y-1 pl-6 mt-2">
+                    <li class="relative hexagon-bullet pl-6 text-gray-700">In the Braintree Control Panel, enable Google Pay, select allowed card networks, and set Environment = Sandbox for testing</li>
+                </ul>
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">7.</span>
+                Save Config, then flush cache
+            </li>
+        </ol>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">5</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Enable Instant Purchase for returning customers</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <p class="text-gray-700 leading-relaxed mb-4">
+            Go to <span class="step-code">Stores › Configuration › Sales › Sales</span>. Set:
+        </p>
+        <ul class="space-y-2 pl-6 mb-4">
+            <li class="relative hexagon-bullet pl-6 text-gray-700"><strong>Enable Instant Purchase</strong> = Yes</li>
+        </ul>
+
+        <div class="bg-gray-50 p-4 mb-4">
+            <p class="font-semibold text-charcoal mb-3">Prerequisites for the Instant Purchase button to appear:</p>
+            <ul class="space-y-2 pl-6">
+                <li class="relative hexagon-bullet pl-6 text-gray-700">The customer is logged in and has a vaulted payment method supported by Instant Purchase (e.g., Braintree with Vault)</li>
+                <li class="relative hexagon-bullet pl-6 text-gray-700">The customer has default billing and shipping addresses saved in their account</li>
+            </ul>
+        </div>
+
+        <p class="text-gray-700 leading-relaxed">
+            Save Config, then flush cache.
+        </p>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">6</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Turn on Persistent Shopping Cart</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <p class="text-gray-700 leading-relaxed mb-4">
+            Go to <span class="step-code">Stores › Configuration › Customers › Persistent Shopping Cart</span>. Set:
+        </p>
+        <ul class="space-y-2 pl-6 mb-4">
+            <li class="relative hexagon-bullet pl-6 text-gray-700"><strong>Enable Persistence</strong> = Yes</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700"><strong>Persistence Lifetime (seconds)</strong> = your typical purchase window (e.g., 604800 for 7 days)</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700"><strong>Enable Remember Me</strong> = Yes (allow customers to opt in)</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700">(Optional) <strong>Clear Persistence on Sign Out</strong> = Yes</li>
+        </ul>
+
+        <p class="text-gray-700 leading-relaxed mb-4">
+            Align cookie lifetime: Go to <span class="step-code">Stores › Configuration › General › Web › Default Cookie Settings</span> and ensure <strong>Cookie Lifetime (seconds)</strong> is equal to or greater than your Persistence Lifetime.
+        </p>
+
+        <div class="bg-white border-4 border-yellow-500 p-4 mb-4 flex gap-3 items-start">
+            <svg class="w-5 h-5 text-orange-500 flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7zm2.85 11.1l-.85.6V16h-4v-2.3l-.85-.6A4.997 4.997 0 017 9c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.63-.8 3.16-2.15 4.1z"/>
+            </svg>
+            <p class="text-charcoal text-sm"><strong>Business note:</strong> Persistent carts support recovery of returning buyers and improve the effectiveness of cart reminder emails.</p>
+        </div>
+
+        <p class="text-gray-700 leading-relaxed">
+            Save Config, then flush cache.
+        </p>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">7</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Optimize cart behavior to keep shoppers in flow</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <p class="text-gray-700 leading-relaxed mb-4">
+            Go to <span class="step-code">Stores › Configuration › Sales › Checkout › Shopping Cart</span>. Set:
+        </p>
+        <ul class="space-y-2 pl-6 mb-4">
+            <li class="relative hexagon-bullet pl-6 text-gray-700"><strong>After Adding a Product Redirect to Shopping Cart</strong> = No (so shoppers aren't pulled away from browsing)</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700"><strong>Number of Cross-sell Items to Display</strong> = 0–2 (keep distractions minimal)</li>
+        </ul>
+
+        <p class="text-gray-700 leading-relaxed mb-4">
+            Go to <span class="step-code">Stores › Configuration › Sales › Checkout › Mini Cart</span>. Set:
+        </p>
+        <ul class="space-y-2 pl-6 mb-4">
+            <li class="relative hexagon-bullet pl-6 text-gray-700"><strong>Display Mini Cart</strong> = Yes</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700"><strong>Maximum Number of Items to Display</strong> = your preference (e.g., 3–5)</li>
+        </ul>
+
+        <p class="text-gray-700 leading-relaxed mb-4">
+            <strong>Shipping preselection reminder:</strong> Ensure your preferred delivery method has the lowest Sort Order under <span class="step-code">Stores › Configuration › Sales › Delivery Methods</span> (see Step 3).
+        </p>
+
+        <p class="text-gray-700 leading-relaxed">
+            Save Config, then flush cache.
+        </p>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">8</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Validate end-to-end with test orders</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <ul class="space-y-3 pl-6 mb-4">
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Open a private browser window</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700">As a guest, add a product and proceed to checkout. Confirm minimal fields and that express wallet buttons appear on cart (and PDP if enabled)</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Complete a test order using PayPal sandbox or a low-value product</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Create a test customer account, save a payment method (via Braintree Vault), and place an order using Instant Purchase</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700">For Apple Pay: test in Safari on a supported device with Apple Pay set up; confirm the Apple Pay button appears and completes authorization</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700">For Google Pay (via Braintree): ensure Environment = Sandbox and complete a test authorization</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Record time-to-complete and note any friction</li>
+        </ul>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">9</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Measure conversion impact</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <p class="text-gray-700 leading-relaxed mb-4">
+            If using GA4 via Google Tag Manager or a GA4 extension, verify events in Google Analytics > Admin > DebugView (or Realtime) to confirm <code class="step-code">begin_checkout</code> and <code class="step-code">purchase</code> fire. If GA4 isn't set up, implement GA4 first via GTM or an extension.
+        </p>
+
+        <div class="bg-gray-50 p-4 mb-4">
+            <p class="font-semibold text-charcoal mb-3">Key KPIs and targets:</p>
+            <ul class="space-y-2 pl-6">
+                <li class="relative hexagon-bullet pl-6 text-gray-700"><strong>Checkout completion rate</strong> = purchase events ÷ begin_checkout events (target +3–10% improvement)</li>
+                <li class="relative hexagon-bullet pl-6 text-gray-700"><strong>Mobile conversion rate</strong> (target +5–15%)</li>
+                <li class="relative hexagon-bullet pl-6 text-gray-700"><strong>Average checkout duration</strong> (target -20–40%)</li>
+            </ul>
+        </div>
+
+        <p class="text-gray-700 leading-relaxed">
+            Compare a 7–14 day baseline before changes to the same duration after changes, keeping seasonality consistent. In Magento, validate order uplift via <span class="step-code">Reports › Sales › Orders</span>.
+        </p>
+    </div>
+</div>
+
+<h2 class="text-3xl font-bold text-charcoal mb-6">Verification</h2>
+<p class="text-gray-700 mb-6">Use this checklist to confirm everything is working correctly:</p>
+
+<ul class="list-none my-8 pl-0 space-y-5">
+    <li class="bg-white p-7 shadow-sm">
+        <div class="flex items-center justify-between mb-5">
+            <strong class="text-lg font-bold text-charcoal">Checkout Configuration</strong>
+        </div>
+        <ul class="grid gap-3 m-0 p-0 list-none">
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                Guest checkout is available on checkout
+            </li>
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                Checkout shows only 1–2 street lines; Prefix/Middle/Suffix/Fax are hidden
+            </li>
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                Only one shipping method visible (or your preferred method is preselected)
+            </li>
+        </ul>
+    </li>
+
+    <li class="bg-white p-7 shadow-sm">
+        <div class="flex items-center justify-between mb-5">
+            <strong class="text-lg font-bold text-charcoal">Cart Behavior</strong>
+        </div>
+        <ul class="grid gap-3 m-0 p-0 list-none">
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                Cart does not redirect after add-to-cart; mini cart shows recent item(s)
+            </li>
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                Persistent cart retains items across browser sessions within your set lifetime
+            </li>
+        </ul>
+    </li>
+
+    <li class="bg-white p-7 shadow-sm">
+        <div class="flex items-center justify-between mb-5">
+            <strong class="text-lg font-bold text-charcoal">Express Wallets</strong>
+        </div>
+        <ul class="grid gap-3 m-0 p-0 list-none">
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                PayPal/Braintree wallet buttons visible on Cart (and PDP if enabled)
+            </li>
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                Instant Purchase button visible for a logged-in test customer with a vaulted payment method and default addresses
+            </li>
+        </ul>
+    </li>
+</ul>
+
+<h2 class="text-3xl font-bold text-charcoal mb-6">Common Issues and Solutions</h2>
+
+<div class="space-y-4 my-8">
+    <div class="bg-white shadow-md overflow-hidden border-t-4 border-orange-500">
+        <button class="w-full p-5 text-left cursor-pointer grid grid-cols-[1fr_auto] gap-4 items-center hover:bg-orange-50 transition-colors" onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('svg').classList.toggle('rotate-180')">
+            <div>
+                <h3 class="text-xl font-bold text-charcoal mb-1">Apple Pay button not showing</h3>
+                <p class="text-charcoal/60 text-sm">Apple Pay button doesn't appear on cart or product page</p>
+            </div>
+            <svg class="w-8 h-8 text-charcoal/50 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+        </button>
+        <div class="hidden border-t border-orange-500/30">
+            <div class="p-6">
+                <h4 class="font-bold text-charcoal mb-3">Solution</h4>
+                <ul class="list-none p-0 space-y-2">
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-orange-500 rounded-full"></span>
+                        Test in Safari on a device with Apple Pay set up
+                    </li>
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-orange-500 rounded-full"></span>
+                        Ensure domain verification is completed in Braintree
+                    </li>
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-orange-500 rounded-full"></span>
+                        Your site must be served over HTTPS
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white shadow-md overflow-hidden border-t-4 border-orange-500">
+        <button class="w-full p-5 text-left cursor-pointer grid grid-cols-[1fr_auto] gap-4 items-center hover:bg-orange-50 transition-colors" onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('svg').classList.toggle('rotate-180')">
+            <div>
+                <h3 class="text-xl font-bold text-charcoal mb-1">Google Pay not available (via Braintree)</h3>
+                <p class="text-charcoal/60 text-sm">Google Pay option not appearing at checkout</p>
+            </div>
+            <svg class="w-8 h-8 text-charcoal/50 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+        </button>
+        <div class="hidden border-t border-orange-500/30">
+            <div class="p-6">
+                <h4 class="font-bold text-charcoal mb-3">Solution</h4>
+                <ul class="list-none p-0 space-y-2">
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-orange-500 rounded-full"></span>
+                        Enable Google Pay in the Braintree Control Panel
+                    </li>
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-orange-500 rounded-full"></span>
+                        Ensure card networks are enabled
+                    </li>
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-orange-500 rounded-full"></span>
+                        Set Environment = Sandbox for testing
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white shadow-md overflow-hidden border-t-4 border-yellow-500">
+        <button class="w-full p-5 text-left cursor-pointer grid grid-cols-[1fr_auto] gap-4 items-center hover:bg-yellow-50 transition-colors" onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('svg').classList.toggle('rotate-180')">
+            <div>
+                <h3 class="text-xl font-bold text-charcoal mb-1">PayPal buttons missing on cart</h3>
+                <p class="text-charcoal/60 text-sm">PayPal Express buttons not displaying on cart page</p>
+            </div>
+            <svg class="w-8 h-8 text-charcoal/50 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+        </button>
+        <div class="hidden border-t border-yellow-500/30">
+            <div class="p-6">
+                <h4 class="font-bold text-charcoal mb-3">Solution</h4>
+                <ul class="list-none p-0 space-y-2">
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-yellow-500 rounded-full"></span>
+                        Confirm Display on Shopping Cart = Yes in PayPal settings
+                    </li>
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-yellow-500 rounded-full"></span>
+                        Clear caches
+                    </li>
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-yellow-500 rounded-full"></span>
+                        Check the browser console for theme/JS conflicts
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white shadow-md overflow-hidden border-t-4 border-yellow-500">
+        <button class="w-full p-5 text-left cursor-pointer grid grid-cols-[1fr_auto] gap-4 items-center hover:bg-yellow-50 transition-colors" onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('svg').classList.toggle('rotate-180')">
+            <div>
+                <h3 class="text-xl font-bold text-charcoal mb-1">Instant Purchase not visible</h3>
+                <p class="text-charcoal/60 text-sm">Instant Purchase button not appearing for logged-in customers</p>
+            </div>
+            <svg class="w-8 h-8 text-charcoal/50 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+        </button>
+        <div class="hidden border-t border-yellow-500/30">
+            <div class="p-6">
+                <h4 class="font-bold text-charcoal mb-3">Solution</h4>
+                <ul class="list-none p-0 space-y-2">
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-yellow-500 rounded-full"></span>
+                        Ensure the customer is logged in
+                    </li>
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-yellow-500 rounded-full"></span>
+                        Verify customer has a vaulted payment method
+                    </li>
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-yellow-500 rounded-full"></span>
+                        Confirm customer has default billing/shipping addresses saved
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white shadow-md overflow-hidden border-t-4 border-charcoal">
+        <button class="w-full p-5 text-left cursor-pointer grid grid-cols-[1fr_auto] gap-4 items-center hover:bg-off-white transition-colors" onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('svg').classList.toggle('rotate-180')">
+            <div>
+                <h3 class="text-xl font-bold text-charcoal mb-1">Guest checkout disabled unexpectedly</h3>
+                <p class="text-charcoal/60 text-sm">Guest checkout option not available even though it's enabled</p>
+            </div>
+            <svg class="w-8 h-8 text-charcoal/50 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+        </button>
+        <div class="hidden border-t border-charcoal/20">
+            <div class="p-6">
+                <h4 class="font-bold text-charcoal mb-3">Solution</h4>
+                <ul class="list-none p-0 space-y-2">
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-charcoal rounded-full"></span>
+                        Confirm Allow Guest Checkout = Yes
+                    </li>
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-charcoal rounded-full"></span>
+                        Review any product-specific restrictions that require customer accounts
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white shadow-md overflow-hidden border-t-4 border-charcoal">
+        <button class="w-full p-5 text-left cursor-pointer grid grid-cols-[1fr_auto] gap-4 items-center hover:bg-off-white transition-colors" onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('svg').classList.toggle('rotate-180')">
+            <div>
+                <h3 class="text-xl font-bold text-charcoal mb-1">Multiple shipping options appearing</h3>
+                <p class="text-charcoal/60 text-sm">Too many shipping methods causing decision paralysis</p>
+            </div>
+            <svg class="w-8 h-8 text-charcoal/50 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+        </button>
+        <div class="hidden border-t border-charcoal/20">
+            <div class="p-6">
+                <h4 class="font-bold text-charcoal mb-3">Solution</h4>
+                <ul class="list-none p-0 space-y-2">
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-charcoal rounded-full"></span>
+                        Disable unused carriers in Stores › Configuration › Sales › Delivery Methods
+                    </li>
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-charcoal rounded-full"></span>
+                        Verify your preferred carrier has the lowest Sort Order (0)
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Hexagon bullet marker for lists */
+.hexagon-bullet::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.5em;
+    width: 9px;
+    height: 9px;
+    background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 2L21 7V17L12 22L3 17V7L12 2Z' stroke='%23F26423' stroke-width='2.5' stroke-linejoin='miter'/%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+/* Step code styling for inline code paths */
+.step-code {
+    background: #2C2C2C;
+    color: #F1BC1B;
+    padding: 0.25rem 0.5rem;
+    font-family: 'Courier New', monospace;
+    font-size: 0.875rem;
+}
+</style>
