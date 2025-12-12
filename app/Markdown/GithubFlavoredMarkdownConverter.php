@@ -2,6 +2,7 @@
 
 namespace App\Markdown;
 
+use App\Markdown\CustomBlocks\CustomBlockExtension;
 use League\CommonMark\Extension\HeadingPermalink\HeadingPermalinkExtension;
 use League\CommonMark\Extension\TableOfContents\TableOfContentsExtension;
 use League\CommonMark\MarkdownConverter;
@@ -60,6 +61,7 @@ class GithubFlavoredMarkdownConverter extends MarkdownConverter
         $environment->addExtension(new HeadingPermalinkExtension());
         $environment->addExtension(new TableOfContentsExtension());
         $environment->addExtension(new FrontMatterExtension());
+        $environment->addExtension(new CustomBlockExtension());
 
         parent::__construct($environment);
     }
