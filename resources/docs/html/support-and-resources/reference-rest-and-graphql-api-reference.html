@@ -1,0 +1,451 @@
+
+<h1 class="text-4xl font-bold text-charcoal mb-6">REST and GraphQL API Reference</h1>
+
+<div class="flex flex-wrap items-center gap-3 mb-8">
+    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-orange-50 text-orange-700">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+        </svg>
+        Reference
+    </span>
+</div>
+
+<!-- ============================================== -->
+<!-- SECTION: Overview (Featured Boxout Style) -->
+<!-- ============================================== -->
+<section class="bg-white mb-8 p-8 border-t-4 border-yellow-500 shadow-sm">
+    <h2 class="text-2xl font-bold text-charcoal mb-4 mt-0">Overview</h2>
+    <p class="text-lg text-gray-700 leading-relaxed mb-6">
+        Use Magento 2 REST and GraphQL APIs to automate catalog, order, and customer workflows. This guide shows how to authenticate, choose REST vs GraphQL, and run common operations (price/inventory updates, order exports) with links to the full API references.
+    </p>
+    <p class="text-gray-700 leading-relaxed mb-4">
+        For growing merchants, these APIs reduce manual work, improve data accuracy, and speed up ERP, PIM, and fulfillment integrations. Automating daily price and inventory updates can cut manual effort by 60–80% and reduce out-of-stock cancellations, protecting revenue during promotions.
+    </p>
+
+    <p class="text-gray-700 leading-relaxed mb-4">
+        <strong>Business impact examples:</strong>
+    </p>
+    <ul class="space-y-2 mb-6">
+        <li class="relative pl-8 text-gray-700 hexagon-bullet">Nightly price sync from PIM reduces catalog admin time by ~8–12 hours per week.</li>
+        <li class="relative pl-8 text-gray-700 hexagon-bullet">Near real-time inventory push from WMS reduces oversells by 20–40% during promotions.</li>
+        <li class="relative pl-8 text-gray-700 hexagon-bullet">Automated shipment creation with tracking reduces order-to-ship SLA by 15–25%.</li>
+    </ul>
+
+    <p class="text-gray-700 leading-relaxed mb-4">
+        <strong>Version and edition support:</strong>
+    </p>
+    <ul class="space-y-2">
+        <li class="relative pl-8 text-gray-700 hexagon-bullet">This guidance applies to Magento Open Source and Adobe Commerce 2.4.x unless otherwise noted.</li>
+        <li class="relative pl-8 text-gray-700 hexagon-bullet">Some features (for example, B2B GraphQL and selected service contracts) are available only in Adobe Commerce. Always verify against your installed version.</li>
+    </ul>
+</section>
+
+<!-- ============================================== -->
+<!-- SECTION: Quick Start -->
+<!-- ============================================== -->
+<section class="bg-white mb-8 p-8 border-t-4 border-orange-500 shadow-sm">
+    <h2 class="text-2xl font-bold text-charcoal mb-4 mt-0">Quick start (2-minute test)</h2>
+    <ol class="space-y-3 list-none pl-0">
+        <li class="relative pl-10">
+            <span class="absolute left-0 top-0 font-semibold text-charcoal">1.</span>
+            Get an admin or integration token (REST) and run a small GET products call to verify access.
+        </li>
+        <li class="relative pl-10">
+            <span class="absolute left-0 top-0 font-semibold text-charcoal">2.</span>
+            Run a basic GraphQL products query using the Store header to scope to a store view.
+        </li>
+        <li class="relative pl-10">
+            <span class="absolute left-0 top-0 font-semibold text-charcoal">3.</span>
+            Confirm you can see the same product in Admin to validate scope alignment.
+        </li>
+    </ol>
+</section>
+
+<!-- ============================================== -->
+<!-- SECTION: Prerequisites -->
+<!-- ============================================== -->
+<section class="mb-10">
+    <h2 class="text-2xl font-bold text-charcoal mb-6">Prerequisites</h2>
+    <ul class="space-y-3">
+        <li class="relative pl-8 text-gray-700 leading-relaxed hexagon-bullet">Admin access to your Magento Admin and the ability to create Integrations (<span class="step-code">System > Extensions > Integrations</span>).</li>
+        <li class="relative pl-8 text-gray-700 leading-relaxed hexagon-bullet">A dedicated Integration user role with least-privilege Resource Access.</li>
+        <li class="relative pl-8 text-gray-700 leading-relaxed hexagon-bullet">Know your store codes (<span class="step-code">Stores > All Stores</span>) for REST paths; use the Store header for GraphQL.</li>
+        <li class="relative pl-8 text-gray-700 leading-relaxed hexagon-bullet">For inventory updates, ensure Inventory Management (MSI) modules are enabled (default in 2.4.x).</li>
+        <li class="relative pl-8 text-gray-700 leading-relaxed hexagon-bullet">Test in a staging environment before production.</li>
+    </ul>
+</section>
+
+<!-- ============================================== -->
+<!-- SECTION: Configuration -->
+<!-- ============================================== -->
+<h2 class="text-3xl font-bold text-charcoal mb-6">Configuration</h2>
+
+<p class="text-gray-700 mb-6">Follow these steps to authenticate and find the correct endpoints for your store.</p>
+
+<!-- Authentication -->
+<section class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <h3 class="text-xl font-bold text-charcoal mb-4">Authentication</h3>
+
+    <div class="space-y-6">
+        <!-- Admin token -->
+        <div class="bg-gray-50 p-4">
+            <h4 class="font-semibold text-charcoal mb-2">Admin token (REST) — for back-office operations</h4>
+            <p class="text-sm text-gray-700 mb-2"><strong>Endpoint:</strong> <span class="step-code">POST https://yourdomain/rest/V1/integration/admin/token</span></p>
+            <p class="text-sm text-gray-700 mb-2"><strong>Body:</strong></p>
+            <div class="bg-gray-900 text-gray-100 p-3 mb-2 text-xs font-mono overflow-x-auto">
+<pre>{"username":"&lt;admin_user&gt;","password":"&lt;admin_password&gt;"}</pre>
+            </div>
+            <p class="text-sm text-gray-700">Use the returned token in requests: <span class="step-code">Authorization: Bearer &lt;token&gt;</span></p>
+        </div>
+
+        <!-- Customer token -->
+        <div class="bg-gray-50 p-4">
+            <h4 class="font-semibold text-charcoal mb-2">Customer token (REST/GraphQL) — for storefront customer actions (cart, checkout, account)</h4>
+            <p class="text-sm text-gray-700 mb-2"><strong>Endpoint:</strong> <span class="step-code">POST https://yourdomain/rest/V1/integration/customer/token</span></p>
+            <p class="text-sm text-gray-700 mb-2"><strong>Body:</strong></p>
+            <div class="bg-gray-900 text-gray-100 p-3 mb-2 text-xs font-mono overflow-x-auto">
+<pre>{"username":"customer@example.com","password":"&lt;password&gt;"}</pre>
+            </div>
+            <p class="text-sm text-gray-700"><strong>Note:</strong> You can also obtain a customer token via GraphQL using the generateCustomerToken mutation.</p>
+        </div>
+
+        <!-- Integration access token -->
+        <div class="bg-gray-50 p-4">
+            <h4 class="font-semibold text-charcoal mb-2">Integration access token (UI) — for system-to-system automation via REST</h4>
+            <ol class="space-y-2 text-sm text-gray-700 list-none pl-0">
+                <li class="relative pl-6">
+                    <span class="absolute left-0 top-0">1.</span>
+                    In Admin, go to <span class="step-code">System > Extensions > Integrations > Add New Integration</span>.
+                </li>
+                <li class="relative pl-6">
+                    <span class="absolute left-0 top-0">2.</span>
+                    Configure Name, Callback URL (if needed), and Resource Access (least privilege recommended).
+                </li>
+                <li class="relative pl-6">
+                    <span class="absolute left-0 top-0">3.</span>
+                    Save & Activate, then copy the Access Token. Use <span class="step-code">Authorization: Bearer &lt;token&gt;</span> for REST.
+                </li>
+            </ol>
+            <div class="bg-white border-4 border-yellow-500 p-3 mt-3">
+                <div class="flex items-start gap-2">
+                    <svg class="w-4 h-4 text-orange-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                    </svg>
+                    <div>
+                        <p class="font-semibold text-charcoal text-sm mb-1">Important</p>
+                        <p class="text-charcoal/80 text-xs leading-relaxed">For GraphQL, authenticate as a customer using a customer token (<span class="step-code">Bearer &lt;customer_token&gt;</span>) or use guest access where allowed. Do not use admin or integration tokens with GraphQL.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Which token to use -->
+    <div class="bg-white border-4 border-yellow-500 p-6 mt-6">
+        <p class="font-bold text-charcoal mb-3">Which token to use</p>
+        <ul class="space-y-2 text-gray-700">
+            <li class="relative pl-8 hexagon-bullet"><strong>Admin/Integration token (REST):</strong> Back-office operations (catalog create/update, order export, shipments, invoices).</li>
+            <li class="relative pl-8 hexagon-bullet"><strong>Customer token (GraphQL/REST):</strong> Storefront customer operations (cart, checkout, account).</li>
+            <li class="relative pl-8 hexagon-bullet"><strong>Guest (GraphQL):</strong> Public catalog/search queries where allowed.</li>
+        </ul>
+    </div>
+</section>
+
+<!-- Base URLs -->
+<section class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <h3 class="text-xl font-bold text-charcoal mb-4">Base URLs</h3>
+
+    <div class="space-y-4">
+        <div class="bg-gray-50 p-4">
+            <h4 class="font-semibold text-charcoal mb-2">REST base path</h4>
+            <p class="text-sm text-gray-700 mb-2"><span class="step-code">https://yourdomain/rest/&lt;store_code&gt;/V1/</span></p>
+            <p class="text-sm text-gray-700 mb-2"><strong>Example:</strong> <span class="step-code">https://yourdomain/rest/default/V1/products</span></p>
+            <p class="text-sm text-gray-700"><strong>REST store scope:</strong> You can call <span class="step-code">/rest/V1/...</span> (no store code) for default scope, or <span class="step-code">/rest/&lt;store_code&gt;/V1/...</span> to target a specific store view. Use the store that matches the catalog/pricing context you intend to read/write.</p>
+        </div>
+
+        <div class="bg-gray-50 p-4">
+            <h4 class="font-semibold text-charcoal mb-2">GraphQL endpoint</h4>
+            <p class="text-sm text-gray-700 mb-2"><span class="step-code">POST https://yourdomain/graphql</span></p>
+            <p class="text-sm text-gray-700">To target a specific store view, set header <span class="step-code">Store: &lt;store_code&gt;</span>. Optionally set <span class="step-code">Content-Currency: &lt;currency_code&gt;</span> for price rendering.</p>
+        </div>
+    </div>
+</section>
+
+<!-- Choosing REST vs GraphQL -->
+<section class="border-t-4 border-orange-500 bg-white shadow-sm p-8 mb-6">
+    <h3 class="text-xl font-bold text-charcoal mb-4">Choosing REST vs GraphQL</h3>
+
+    <ul class="space-y-3 mb-6">
+        <li class="relative pl-8 text-gray-700 hexagon-bullet">Choose GraphQL for storefront reads and cart/checkout flows where you need only specific fields and can leverage CDN caching on cacheable queries.</li>
+        <li class="relative pl-8 text-gray-700 hexagon-bullet">Choose REST (or Async/Bulk REST) for back-office writes and exports (catalog updates, order/fulfillment, price/inventory).</li>
+        <li class="relative pl-8 text-gray-700 hexagon-bullet">For 100+ items or time-sensitive jobs, use Async/Bulk REST to avoid timeouts and improve throughput.</li>
+    </ul>
+
+    <div class="bg-white border-4 border-yellow-500 p-6">
+        <p class="font-bold text-charcoal mb-3">Decision checklist</p>
+        <ul class="space-y-2 text-gray-700">
+            <li class="relative pl-8 hexagon-bullet">Need CDN-cached storefront pages and minimal payloads? Use GraphQL.</li>
+            <li class="relative pl-8 hexagon-bullet">Performing bulk catalog or inventory updates under a deadline? Use Async/Bulk REST.</li>
+            <li class="relative pl-8 hexagon-bullet">Integrating with ERP/3PL that expects RESTful endpoints and pagination? Use REST with filters and paging.</li>
+        </ul>
+    </div>
+</section>
+
+<!-- ============================================== -->
+<!-- SECTION: Common Merchant Workflows -->
+<!-- ============================================== -->
+<h2 class="text-3xl font-bold text-charcoal mb-6">Common merchant workflows (examples)</h2>
+
+<p class="text-gray-700 mb-6">Each example includes prerequisites, required headers, a purpose, and a cURL you can run.</p>
+
+<!-- Get products (REST) -->
+<section class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <h3 class="text-xl font-bold text-charcoal mb-4">Get products (REST)</h3>
+
+    <p class="text-gray-700 mb-2"><strong>Purpose:</strong> Page through products for export to PIM or audit</p>
+    <p class="text-gray-700 mb-2"><strong>Prerequisites:</strong> Admin or Integration token (REST)</p>
+    <p class="text-gray-700 mb-2"><strong>Endpoint:</strong> <span class="step-code">GET /rest/default/V1/products?searchCriteria[currentPage]=1&searchCriteria[pageSize]=10</span></p>
+    <p class="text-gray-700 mb-4"><strong>Headers:</strong> <span class="step-code">Content-Type: application/json</span>, <span class="step-code">Authorization: Bearer &lt;admin_or_integration_token&gt;</span></p>
+
+    <p class="font-semibold text-charcoal mb-2">cURL:</p>
+    <div class="bg-gray-900 text-gray-100 p-4 mb-4 text-xs font-mono overflow-x-auto">
+<pre>curl -X GET "https://yourdomain/rest/default/V1/products?searchCriteria[currentPage]=1&searchCriteria[pageSize]=10" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer &lt;admin_or_integration_token&gt;"</pre>
+    </div>
+
+    <p class="text-gray-700 mb-2"><strong>Verify:</strong> Check Admin > Catalog > Products for matching SKUs; or call <span class="step-code">GET /V1/products/&lt;sku&gt;</span></p>
+    <p class="text-gray-700"><strong>Business process:</strong> Product export to PIM or reporting tools</p>
+</section>
+
+<!-- Update inventory (MSI, Bulk REST) -->
+<section class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <h3 class="text-xl font-bold text-charcoal mb-4">Update inventory (MSI, Bulk REST)</h3>
+
+    <p class="text-gray-700 mb-2"><strong>Purpose:</strong> Update on-hand qty for default source from WMS feed</p>
+    <p class="text-gray-700 mb-2"><strong>Prerequisites:</strong> Admin or Integration token (REST); MSI enabled</p>
+    <p class="text-gray-700 mb-2"><strong>Endpoint:</strong> <span class="step-code">POST /rest/default/async/bulk/V1/inventory/source-items</span></p>
+    <p class="text-gray-700 mb-4"><strong>Headers:</strong> <span class="step-code">Content-Type: application/json</span>, <span class="step-code">Authorization: Bearer &lt;admin_or_integration_token&gt;</span></p>
+
+    <p class="font-semibold text-charcoal mb-2">Body:</p>
+    <div class="bg-gray-900 text-gray-100 p-4 mb-4 text-xs font-mono overflow-x-auto">
+<pre>[
+  {"sku":"SKU1","source_code":"default","quantity":10,"status":1},
+  {"sku":"SKU2","source_code":"default","quantity":5,"status":1}
+]</pre>
+    </div>
+
+    <p class="font-semibold text-charcoal mb-2">cURL:</p>
+    <div class="bg-gray-900 text-gray-100 p-4 mb-4 text-xs font-mono overflow-x-auto">
+<pre>curl -X POST "https://yourdomain/rest/default/async/bulk/V1/inventory/source-items" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer &lt;admin_or_integration_token&gt;" \
+  -d '[{"sku":"SKU1","source_code":"default","quantity":10,"status":1},{"sku":"SKU2","source_code":"default","quantity":5,"status":1}]'</pre>
+    </div>
+
+    <p class="text-gray-700 mb-2"><strong>Response:</strong> HTTP 202 with a bulk_uuid to track status</p>
+    <p class="text-gray-700 mb-4"><strong>Verify:</strong> Check <span class="step-code">Admin > Catalog > Products > [SKU] > Sources</span>; or <span class="step-code">GET /V1/inventory/source-items?searchCriteria[filter_groups][0][filters][0][field]=sku&searchCriteria[filter_groups][0][filters][0][value]=SKU1&searchCriteria[filter_groups][0][filters][0][condition_type]=eq</span></p>
+    <p class="text-gray-700 mb-2"><strong>Business process:</strong> Inventory sync from WMS or 3PL</p>
+
+    <div class="bg-white border-4 border-yellow-500 p-4 mt-4">
+        <div class="flex items-start gap-3">
+            <svg class="w-5 h-5 text-orange-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+            </svg>
+            <div>
+                <p class="font-semibold text-charcoal mb-1">Note</p>
+                <p class="text-charcoal/80 text-sm leading-relaxed">When Inventory Management (MSI) is enabled (default in 2.4.x), do not use legacy endpoints like <span class="step-code">/V1/products/:sku/stockItems</span>. Use the Inventory API (<span class="step-code">/V1/inventory/source-items</span>) to update quantities and status.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Create shipment (REST) -->
+<section class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <h3 class="text-xl font-bold text-charcoal mb-4">Create shipment (REST)</h3>
+
+    <p class="text-gray-700 mb-2"><strong>Purpose:</strong> Mark an order as shipped and add tracking from ERP/fulfillment</p>
+    <p class="text-gray-700 mb-2"><strong>Prerequisites:</strong> Admin or Integration token (REST); order must be invoiced or invoice upon shipment according to your flow</p>
+    <p class="text-gray-700 mb-2"><strong>Endpoint:</strong> <span class="step-code">POST /rest/default/V1/order/{orderId}/ship</span></p>
+    <p class="text-gray-700 mb-4"><strong>Headers:</strong> <span class="step-code">Content-Type: application/json</span>, <span class="step-code">Authorization: Bearer &lt;admin_or_integration_token&gt;</span></p>
+
+    <p class="font-semibold text-charcoal mb-2">Body (example):</p>
+    <div class="bg-gray-900 text-gray-100 p-4 mb-4 text-xs font-mono overflow-x-auto">
+<pre>{
+  "items": [
+    {"order_item_id": 12345, "qty": 1}
+  ],
+  "notify": true,
+  "appendComment": true,
+  "comment": {"comment": "Shipped", "is_visible_on_front": 0},
+  "tracks": [
+    {"track_number": "1Z999...", "title": "UPS", "carrier_code": "ups"}
+  ]
+}</pre>
+    </div>
+
+    <p class="font-semibold text-charcoal mb-2">cURL:</p>
+    <div class="bg-gray-900 text-gray-100 p-4 mb-4 text-xs font-mono overflow-x-auto">
+<pre>curl -X POST "https://yourdomain/rest/default/V1/order/100000123/ship" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer &lt;admin_or_integration_token&gt;" \
+  -d '{"items":[{"order_item_id":12345,"qty":1}],"notify":true,"appendComment":true,"comment":{"comment":"Shipped","is_visible_on_front":0},"tracks":[{"track_number":"1Z999...","title":"UPS","carrier_code":"ups"}]}'</pre>
+    </div>
+
+    <p class="text-gray-700 mb-2"><strong>Note:</strong> Find order_item_id via <span class="step-code">GET /V1/orders/{orderId}</span>.</p>
+    <p class="text-gray-700 mb-2"><strong>Verify:</strong> <span class="step-code">Admin > Sales > Shipments</span> shows the new shipment; <span class="step-code">GET /V1/shipment/shipments?searchCriteria[filter_groups][0][filters][0][field]=order_id&searchCriteria[filter_groups][0][filters][0][value]={orderId}</span></p>
+    <p class="text-gray-700"><strong>Business process:</strong> Shipment creation from ERP or 3PL webhook</p>
+</section>
+
+<!-- GraphQL product query -->
+<section class="border-t-4 border-orange-500 bg-white shadow-sm p-8 mb-6">
+    <h3 class="text-xl font-bold text-charcoal mb-4">GraphQL product query</h3>
+
+    <p class="text-gray-700 mb-2"><strong>Purpose:</strong> Storefront product search with minimal fields for performance and caching</p>
+    <p class="text-gray-700 mb-2"><strong>Prerequisites:</strong> Guest access (for public catalog) or Customer token if required by your store config</p>
+    <p class="text-gray-700 mb-2"><strong>Endpoint:</strong> <span class="step-code">POST /graphql</span></p>
+    <p class="text-gray-700 mb-4"><strong>Headers:</strong> <span class="step-code">Content-Type: application/json</span>, <span class="step-code">Store: &lt;store_code&gt;</span> (and <span class="step-code">Authorization: Bearer &lt;customer_token&gt;</span> if needed)</p>
+
+    <p class="font-semibold text-charcoal mb-2">Body:</p>
+    <div class="bg-gray-900 text-gray-100 p-4 mb-4 text-xs font-mono overflow-x-auto">
+<pre>{
+  "query": "{ products(search: \"shirt\") { items { sku name price_range { minimum_price { regular_price { value currency } } } } } }"
+}</pre>
+    </div>
+
+    <p class="font-semibold text-charcoal mb-2">cURL (guest):</p>
+    <div class="bg-gray-900 text-gray-100 p-4 mb-4 text-xs font-mono overflow-x-auto">
+<pre>curl -X POST "https://yourdomain/graphql" \
+  -H "Content-Type: application/json" \
+  -H "Store: default" \
+  -d '{"query":"{ products(search: \"shirt\"){ items { sku name price_range { minimum_price { regular_price { value currency } } } } } }"}'</pre>
+    </div>
+
+    <p class="text-gray-700 mb-2"><strong>Verify:</strong> Compare pricing/currency with storefront; adjust <span class="step-code">Content-Currency</span> header if needed</p>
+    <p class="text-gray-700"><strong>Business process:</strong> Storefront catalog/search rendering or PWA data fetch</p>
+</section>
+
+<!-- ============================================== -->
+<!-- SECTION: Bulk and Async APIs -->
+<!-- ============================================== -->
+<h2 class="text-3xl font-bold text-charcoal mb-6">Bulk and Async APIs</h2>
+
+<section class="bg-white mb-8 p-8 border-t-4 border-yellow-500 shadow-sm">
+    <p class="text-gray-700 leading-relaxed mb-4">
+        Use async/bulk endpoints for high-volume updates to reduce request time and server load.
+    </p>
+
+    <p class="font-semibold text-charcoal mb-3">Definitions:</p>
+    <ul class="space-y-2 mb-6">
+        <li class="relative pl-8 text-gray-700 hexagon-bullet"><strong>Async endpoints:</strong> Queue a single request and return HTTP 202 (Accepted). Use when a single large payload must be queued.</li>
+        <li class="relative pl-8 text-gray-700 hexagon-bullet"><strong>Bulk endpoints:</strong> Accept an array of operations to process asynchronously. Use when sending many discrete operations.</li>
+    </ul>
+
+    <p class="font-semibold text-charcoal mb-2">Example:</p>
+    <p class="text-gray-700 mb-4"><span class="step-code">POST https://yourdomain/rest/default/async/bulk/V1/products</span> to create or update multiple products in one request.</p>
+
+    <p class="font-semibold text-charcoal mb-3">Responses and tracking:</p>
+    <ul class="space-y-2 mb-4">
+        <li class="relative pl-8 text-gray-700 hexagon-bullet">Async/bulk responses include bulk_uuid.</li>
+        <li class="relative pl-8 text-gray-700 hexagon-bullet">Track progress with:
+            <ul class="space-y-1 mt-2 ml-8">
+                <li class="relative pl-6 text-gray-700 hexagon-bullet"><span class="step-code">GET /rest/&lt;store_code&gt;/V1/bulk/{bulk_uuid}</span></li>
+                <li class="relative pl-6 text-gray-700 hexagon-bullet"><span class="step-code">GET /rest/&lt;store_code&gt;/V1/bulk/{bulk_uuid}/status</span></li>
+            </ul>
+        </li>
+    </ul>
+
+    <p class="font-semibold text-charcoal mb-2">Example async response:</p>
+    <div class="bg-gray-900 text-gray-100 p-4 mb-4 text-xs font-mono overflow-x-auto">
+<pre>{"bulk_uuid":"e6d1c8c7-5a2b-4f9a-9b30-9f2a1d8b8e01","request_items":[{"id":1,"status":202}],"errors":false}</pre>
+    </div>
+
+    <p class="text-gray-700">After completion, verify updates with follow-up GET calls and/or Admin grids.</p>
+</section>
+
+<!-- ============================================== -->
+<!-- SECTION: Error Handling and Verification -->
+<!-- ============================================== -->
+<h2 class="text-3xl font-bold text-charcoal mb-6">Error handling and verification</h2>
+
+<section class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <p class="font-semibold text-charcoal mb-3">Common HTTP status codes:</p>
+    <ul class="space-y-2 mb-6">
+        <li class="relative pl-8 text-gray-700 hexagon-bullet"><strong>200/201:</strong> Success</li>
+        <li class="relative pl-8 text-gray-700 hexagon-bullet"><strong>202:</strong> Accepted (async/bulk queued)</li>
+        <li class="relative pl-8 text-gray-700 hexagon-bullet"><strong>400/422:</strong> Validation error</li>
+        <li class="relative pl-8 text-gray-700 hexagon-bullet"><strong>401:</strong> Unauthorized (invalid token)</li>
+        <li class="relative pl-8 text-gray-700 hexagon-bullet"><strong>404:</strong> Not found</li>
+        <li class="relative pl-8 text-gray-700 hexagon-bullet"><strong>500:</strong> Server error</li>
+    </ul>
+
+    <p class="text-gray-700 mb-4">REST error responses typically include a message and parameters. Log the full response for troubleshooting.</p>
+
+    <p class="font-semibold text-charcoal mb-2">Example REST error:</p>
+    <div class="bg-gray-900 text-gray-100 p-4 mb-4 text-xs font-mono overflow-x-auto">
+<pre>{"message":"Validation Failed","errors":[{"message":"Field \"sku\" is required"}],"parameters":{"fieldName":"sku"}}</pre>
+    </div>
+
+    <p class="text-gray-700 mb-4"><strong>Action:</strong> Log message and parameters; correct payload; retry.</p>
+
+    <p class="font-semibold text-charcoal mb-3">Verify updates by:</p>
+    <ul class="space-y-2">
+        <li class="relative pl-8 text-gray-700 hexagon-bullet">Checking the Admin grid, and/or</li>
+        <li class="relative pl-8 text-gray-700 hexagon-bullet">Calling GET endpoints (for example, <span class="step-code">GET /V1/products/:sku</span>) or equivalent GraphQL queries to confirm changes.</li>
+    </ul>
+</section>
+
+<!-- ============================================== -->
+<!-- SECTION: Security Best Practices -->
+<!-- ============================================== -->
+<h2 class="text-3xl font-bold text-charcoal mb-6">Security best practices</h2>
+
+<section class="bg-white mb-8 p-8 border-t-4 border-orange-500 shadow-sm">
+    <ul class="space-y-3">
+        <li class="relative pl-8 text-gray-700 hexagon-bullet">Use Integrations with least-privilege Resource Access for third-party systems.</li>
+        <li class="relative pl-8 text-gray-700 hexagon-bullet">Create a dedicated API role that grants only required resources (for example, Catalog > Inventory for stock updates) and assign it to the Integration.</li>
+        <li class="relative pl-8 text-gray-700 hexagon-bullet">Rotate tokens regularly and revoke unused integrations (<span class="step-code">System > Extensions > Integrations</span>).</li>
+        <li class="relative pl-8 text-gray-700 hexagon-bullet">Use HTTPS only; never expose tokens in client-side code.</li>
+        <li class="relative pl-8 text-gray-700 hexagon-bullet">Restrict API access by IP where possible (at CDN, firewall, or web server).</li>
+    </ul>
+</section>
+
+<!-- ============================================== -->
+<!-- SECTION: Performance Considerations -->
+<!-- ============================================== -->
+<h2 class="text-3xl font-bold text-charcoal mb-6">Performance considerations</h2>
+
+<section class="bg-white mb-8 p-8 border-t-4 border-yellow-500 shadow-sm">
+    <ul class="space-y-3">
+        <li class="relative pl-8 text-gray-700 hexagon-bullet">Batch writes using Async/Bulk where available. Batching reduces peak load risk during promos and protects page speed.</li>
+        <li class="relative pl-8 text-gray-700 hexagon-bullet">Keep payloads minimal; send only changed fields.</li>
+        <li class="relative pl-8 text-gray-700 hexagon-bullet">Schedule large updates during off-peak hours to avoid contention with customer traffic.</li>
+        <li class="relative pl-8 text-gray-700 hexagon-bullet">Ensure indexers and caches are healthy to avoid slow write/read paths.</li>
+        <li class="relative pl-8 text-gray-700 hexagon-bullet"><strong>GraphQL:</strong> Use persisted queries and keep selections minimal to improve cache hit rates at CDN. Reuse fragments and avoid over-fetching.</li>
+        <li class="relative pl-8 text-gray-700 hexagon-bullet"><strong>REST:</strong> Always use filters and pagination; avoid unfiltered GETs on large catalogs.</li>
+    </ul>
+</section>
+
+<style>
+/* Hexagon bullet marker for lists */
+.hexagon-bullet::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.5em;
+    width: 9px;
+    height: 9px;
+    background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 2L21 7V17L12 22L3 17V7L12 2Z' stroke='%23F26423' stroke-width='2.5' stroke-linejoin='miter'/%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+/* Step code styling for inline code paths */
+.step-code {
+    background: #2C2C2C;
+    color: #F1BC1B;
+    padding: 0.25rem 0.5rem;
+    font-family: 'Courier New', monospace;
+    font-size: 0.875rem;
+}
+</style>
