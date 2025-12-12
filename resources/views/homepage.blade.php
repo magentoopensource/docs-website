@@ -2,10 +2,46 @@
 
 @section('content')
     {{-- Hero Section - Commerce begins with Community --}}
-    <section class="bg-white flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 pt-12 sm:pt-16 lg:pt-24 pb-12 sm:pb-16 gap-12">
+    {{-- Break out of parent max-width container for full-viewport-width white background --}}
+    <style>
+        /* Full-width container breakout technique */
+        .hero-full-width {
+            width: 100vw;
+            position: relative;
+            left: 50%;
+            right: 50%;
+            margin-left: -50vw;
+            margin-right: -50vw;
+        }
+
+        .hexagon-hero {
+            width: 100vw;
+            height: 320px;
+            display: block;
+            overflow: hidden;
+            background-color: white;
+            position: relative;
+        }
+        .hexagon-hero svg {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            height: 100%;
+            width: auto;
+            min-width: 100vw;
+        }
+        @media screen and (min-width: 1280px) {
+            .hexagon-hero {
+                height: 680px;
+                margin-bottom: 6rem;
+            }
+        }
+    </style>
+
+    <section class="hero-full-width bg-white flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 pt-12 sm:pt-16 lg:pt-24 pb-0 gap-12">
         {{-- Main Hero Content --}}
-        <div class="flex flex-col items-start justify-start text-charcoal">
-            <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-inter-tight leading-none text-center sm:text-left font-bold mb-8">
+        <div class="flex flex-col items-center justify-center text-charcoal max-w-7xl xl:max-w-8xl mx-auto w-full">
+            <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-inter-tight leading-none text-center font-bold mb-8">
                 Commerce begins with Community.
             </h1>
             <p class="text-lg sm:text-xl font-inter-tight font-medium leading-relaxed text-center max-w-3xl mx-auto px-4">
@@ -13,29 +49,8 @@
             </p>
         </div>
 
-        {{-- Full-width Hexagon Hero --}}
-        <style>
-            .hexagon-hero {
-                width: 100vw;
-                height: auto;
-                display: flex;
-                overflow: hidden;
-                justify-content: center;
-            }
-            .hexagon-hero svg {
-                height: 320px;
-                width: auto;
-                flex-shrink: 0;
-            }
-            @media screen and (min-width: 1280px) {
-                .hexagon-hero svg {
-                    height: 680px;
-                    width: auto;
-                    flex-shrink: 0;
-                }
-            }
-        </style>
-        <div class="hexagon-hero">
+        {{-- Full-width Hexagon Hero with proper white background --}}
+        <div class="hexagon-hero w-full">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 15234.51 679.39" aria-hidden="true">
                 <defs>
                     <style>
@@ -85,7 +100,7 @@
     </section>
 
     {{-- Search Section with Search Content --}}
-    <section class="relative flex flex-col items-center justify-start px-4 sm:px-6 lg:px-8 py-16 sm:py-24" aria-label="Documentation search">
+    <section class="hero-full-width relative flex flex-col items-center justify-start px-4 sm:px-6 lg:px-8 py-16 sm:py-24 bg-off-white" aria-label="Documentation search">
         {{-- Search Content --}}
         <div class="flex flex-col items-center justify-start gap-6 sm:gap-8 md:gap-12 relative w-full ">
             {{-- Search Header --}}
@@ -101,7 +116,7 @@
             {{-- Search Bar --}}
             <div class="w-full max-w-2xl">
                 <button
-                    class="flex items-center justify-between w-full px-4 sm:px-6 py-3 sm:py-4 border-2 border-gray-200 rounded-lg hover:border-orange hover:bg-off-white transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange focus:ring-offset-2"
+                    class="flex items-center justify-between w-full px-4 sm:px-6 py-3 sm:py-4 bg-white border-2 border-gray-300 hover:border-orange hover:shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange focus:ring-offset-2"
                     id="homepage-search"
                     aria-label="Search the documentation"
                 >
@@ -119,10 +134,10 @@
     {{-- Categories Grid Section --}}
     <section class="flex flex-col items-center justify-start gap-8 sm:gap-12 py-12 sm:py-16">
         <div class="max-w-7xl xl:max-w-8xl mx-auto w-full px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 w-full">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 w-full">
             @foreach($categories as $category)
                 {{-- Category Card --}}
-                <div class="bg-white flex flex-col gap-6 items-start justify-start p-6 sm:p-8 rounded-lg border-2 border-gray-200 border-t-4 border-t-yellow shadow-sm hover:shadow-lg hover:border-t-orange hover:-translate-y-1 transition-all duration-200 focus-within:ring-2 focus-within:ring-orange focus-within:ring-offset-2">
+                <div class="bg-white flex flex-col gap-6 items-start justify-start p-6 sm:p-8 border-2 border-gray-200 border-t-4 border-t-yellow shadow-sm hover:shadow-lg hover:border-t-orange hover:-translate-y-1 transition-all duration-200 focus-within:ring-2 focus-within:ring-orange focus-within:ring-offset-2 h-full">
                     <div class="flex items-center justify-start gap-6 w-full">
                         <h3 class="text-3xl font-inter-tight font-bold leading-tight text-charcoal">
                             {{ $category['name'] }}
@@ -137,9 +152,9 @@
                     @endif
 
                     {{-- Article Links --}}
-                    <div class="flex flex-col gap-2 items-start justify-start w-full">
+                    <div class="flex flex-col gap-2 items-start justify-start w-full flex-grow">
                         @foreach($category['articles'] as $article)
-                            <a href="/merchant/{{ $article['path'] }}" class="flex items-center gap-3 p-3 -mx-3 w-full hover:bg-off-white transition-colors duration-150 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange focus:ring-inset">
+                            <a href="/merchant/{{ $article['path'] }}" class="flex items-center gap-3 p-3 -mx-3 w-full hover:bg-off-white transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-orange focus:ring-inset no-underline">
                                 <svg class="w-5 h-5 flex-shrink-0 text-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                                 </svg>
@@ -150,7 +165,7 @@
                         @endforeach
                     </div>
 
-                    <a href="/merchant/{{ $category['slug'] }}" class="text-base font-inter-tight leading-relaxed text-red underline decoration-solid hover:text-orange transition-colors focus:outline-none focus:ring-2 focus:ring-orange focus:ring-offset-2 rounded">See all in this section</a>
+                    <a href="/merchant/{{ $category['slug'] }}" class="text-base font-inter-tight leading-relaxed text-red no-underline hover:text-orange transition-colors focus:outline-none focus:ring-2 focus:ring-orange focus:ring-offset-2 rounded mt-auto">See all in this section</a>
                 </div>
             @endforeach
             </div>
