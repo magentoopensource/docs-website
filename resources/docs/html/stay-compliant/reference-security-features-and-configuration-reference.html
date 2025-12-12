@@ -1,0 +1,844 @@
+
+<h1 class="text-4xl font-bold text-charcoal mb-6">Security Features and Configuration Reference</h1>
+
+<div class="flex flex-wrap items-center gap-3 mb-8">
+    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-orange-50 text-orange-700">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        30-60 minutes
+    </span>
+    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-yellow-50 text-brown">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+        </svg>
+        Intermediate
+    </span>
+    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-orange-50 text-orange-700">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+        </svg>
+        Reference
+    </span>
+</div>
+
+<!-- ============================================== -->
+<!-- SECTION: Overview (Featured Boxout Style) -->
+<!-- ============================================== -->
+<section class="bg-white mb-8 p-8 border-t-4 border-yellow-500 shadow-sm">
+    <h2 class="text-2xl font-bold text-charcoal mb-4 mt-0">Overview</h2>
+    <p class="text-lg text-gray-700 leading-relaxed mb-6">
+        This reference catalogs Magento 2 security features and configuration options that merchants can use to harden Admin access, protect storefront interactions, and control permissions. Applying the correct settings enforces least-privilege permissions, reduces fraud and account takeover risk, and increases customer trust - improving conversion and lifetime value.
+    </p>
+    <p class="text-gray-700 leading-relaxed mb-4">
+        <strong>Scope:</strong> Applies to Adobe Commerce and Magento Open Source 2.4.x unless noted. Two-Factor Authentication is mandatory in 2.4+. Admin Action Logs are available in Adobe Commerce only.
+    </p>
+</section>
+
+<!-- ============================================== -->
+<!-- SECTION: Edition/Version Differences -->
+<!-- ============================================== -->
+<section class="bg-white border-4 border-yellow-500 p-6 mb-8">
+    <div class="flex gap-4 items-start">
+        <div class="flex-shrink-0 w-8 h-8">
+            <svg class="w-full h-full text-orange-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+        </div>
+        <div class="flex-1">
+            <p class="font-bold text-charcoal mb-3">Edition/Version differences</p>
+            <ul class="space-y-2 text-gray-700">
+                <li class="relative pl-8 hexagon-bullet">2FA is required for Admin users in 2.4+.</li>
+                <li class="relative pl-8 hexagon-bullet">Admin Action Logs are available in Adobe Commerce only.</li>
+                <li class="relative pl-8 hexagon-bullet">Google reCAPTCHA v3 Invisible is supported on storefront forms only (not Admin).</li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================== -->
+<!-- SECTION: Measure Impact -->
+<!-- ============================================== -->
+<section class="mb-10">
+    <h2 class="text-2xl font-bold text-charcoal mb-6">Measure impact</h2>
+    <p class="text-gray-700 leading-relaxed">
+        Track failed Admin logins, customer account takeover incidents, bot checkout attempts, chargebacks tied to card testing, and reCAPTCHA challenge/score distributions. Reduced fraud chargebacks and support tickets, fewer compromised accounts, and lower infrastructure costs from bot traffic improve margin and conversion.
+    </p>
+</section>
+
+<!-- ============================================== -->
+<!-- SECTION: How to Use This Reference -->
+<!-- ============================================== -->
+<section class="bg-white border-t-4 border-yellow-500 shadow-sm p-8 mb-8">
+    <h2 class="text-2xl font-bold text-charcoal mb-4 mt-0">How to use this reference</h2>
+    <p class="text-gray-700 leading-relaxed">
+        For each security area, follow the Admin path provided, apply the recommended values, and complete the Verify steps to ensure the control works as expected.
+    </p>
+</section>
+
+<!-- ============================================== -->
+<!-- SECTION: Before You Begin -->
+<!-- ============================================== -->
+<section class="mb-10">
+    <h2 class="text-2xl font-bold text-charcoal mb-6">Before you begin</h2>
+    <ul class="space-y-3">
+        <li class="relative pl-8 text-gray-700 leading-relaxed hexagon-bullet">Ensure you have at least two Admin users with full permissions.</li>
+        <li class="relative pl-8 text-gray-700 leading-relaxed hexagon-bullet">Communicate upcoming changes to all Admin users and schedule work during low traffic.</li>
+        <li class="relative pl-8 text-gray-700 leading-relaxed hexagon-bullet">Keep SSH/CLI access available to reset 2FA or unlock users if necessary.</li>
+        <li class="relative pl-8 text-gray-700 leading-relaxed hexagon-bullet">Test changes in a staging environment. For reCAPTCHA, use test keys/sandbox mode where applicable.</li>
+    </ul>
+
+    <!-- Rollback Note -->
+    <div class="bg-white border-4 border-yellow-500 p-4 mt-6">
+        <div class="flex items-start gap-3">
+            <svg class="w-5 h-5 text-orange-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+            </svg>
+            <div>
+                <p class="font-semibold text-charcoal mb-1">Rollback</p>
+                <p class="text-charcoal/80 text-sm leading-relaxed">If you are locked out after Admin URL changes, retrieve the current Admin URI with <span class="step-code">bin/magento info:adminuri</span> or update <span class="step-code">app/etc/env.php</span> (<span class="step-code">'backend' => ['frontName' => '...']</span>), then run <span class="step-code">bin/magento cache:flush</span>.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================== -->
+<!-- SECTION: Quick Wins Checklist -->
+<!-- ============================================== -->
+<section class="bg-white mb-8 p-8 border-t-4 border-orange-500 shadow-sm">
+    <h2 class="text-2xl font-bold text-charcoal mb-4 mt-0">Quick Wins Checklist (30-60 minutes)</h2>
+    <ul class="space-y-3">
+        <li class="relative pl-8 text-gray-700 leading-relaxed hexagon-bullet">Change the Admin URL and ensure Add Secret Key to URLs is set to Yes (<span class="step-code">Stores > Settings > Configuration > Advanced > Admin > Security</span>) to reduce automated admin credential stuffing risk.</li>
+        <li class="relative pl-8 text-gray-700 leading-relaxed hexagon-bullet">Enable 2FA for all Admin users (blocks the vast majority of account takeover attempts).</li>
+        <li class="relative pl-8 text-gray-700 leading-relaxed hexagon-bullet">Turn on Google reCAPTCHA for login/forgot password/checkout (reduces bot signups and card testing).</li>
+        <li class="relative pl-8 text-gray-700 leading-relaxed hexagon-bullet">Set Admin lockout and session timeout (limits brute force and unattended sessions).</li>
+        <li class="relative pl-8 text-gray-700 leading-relaxed hexagon-bullet">Enforce a customer password policy (reduces account takeover).</li>
+    </ul>
+</section>
+
+<!-- ============================================== -->
+<!-- SECTION: Configuration Quick Navigation -->
+<!-- ============================================== -->
+<section class="mb-10">
+    <h2 class="text-2xl font-bold text-charcoal mb-6">Configuration</h2>
+    <p class="text-gray-700 mb-4">Quick navigation:</p>
+    <div class="bg-white shadow-sm p-6">
+        <ul class="grid md:grid-cols-2 gap-2">
+            <li><a href="#admin-access-hardening" class="text-orange-500 hover:underline">Admin access hardening</a></li>
+            <li><a href="#two-factor-authentication-2fa" class="text-orange-500 hover:underline">Two-Factor Authentication (2FA)</a></li>
+            <li><a href="#google-recaptcha" class="text-orange-500 hover:underline">Google reCAPTCHA</a></li>
+            <li><a href="#magento-captcha-fallback" class="text-orange-500 hover:underline">Magento CAPTCHA (fallback)</a></li>
+            <li><a href="#customer-password-policy" class="text-orange-500 hover:underline">Customer password policy</a></li>
+            <li><a href="#roles-and-permissions-least-privilege" class="text-orange-500 hover:underline">Roles and permissions (least privilege)</a></li>
+            <li><a href="#admin-action-logs-adobe-commerce-only" class="text-orange-500 hover:underline">Admin Action Logs (Adobe Commerce only)</a></li>
+            <li><a href="#session-and-cookie-security" class="text-orange-500 hover:underline">Session and cookie security</a></li>
+            <li><a href="#network-and-transport" class="text-orange-500 hover:underline">Network and transport</a></li>
+            <li><a href="#verification-checklist" class="text-orange-500 hover:underline">Verification checklist</a></li>
+        </ul>
+    </div>
+</section>
+
+<!-- ============================================== -->
+<!-- SECTION: Admin Access Hardening -->
+<!-- ============================================== -->
+<section class="mb-10" id="admin-access-hardening">
+    <h2 class="text-2xl font-bold text-charcoal mb-6">Admin access hardening</h2>
+
+    <!-- Authentication & Session Controls -->
+    <div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+        <h3 class="text-xl font-bold text-charcoal mb-4">Authentication & Session Controls</h3>
+        <p class="text-gray-700 mb-2"><strong>Path:</strong> <span class="step-code">Stores > Settings > Configuration > Advanced > Admin > Security</span></p>
+        <p class="text-gray-700 mb-4"><strong>Purpose:</strong> Strengthen Admin authentication and session controls.</p>
+
+        <p class="font-semibold text-charcoal mb-3">Recommended settings:</p>
+        <div class="bg-white shadow-sm overflow-hidden mb-6">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="bg-gray-100">
+                        <th class="text-left px-6 py-3 font-semibold text-gray-900 border-b border-gray-200">Setting</th>
+                        <th class="text-left px-6 py-3 font-semibold text-gray-900 border-b border-gray-200">Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-3 text-charcoal border-b border-gray-100">Add Secret Key to URLs</td>
+                        <td class="px-6 py-3 text-gray-700 border-b border-gray-100">Yes</td>
+                    </tr>
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-3 text-charcoal border-b border-gray-100">Admin Account Sharing</td>
+                        <td class="px-6 py-3 text-gray-700 border-b border-gray-100">No</td>
+                    </tr>
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-3 text-charcoal border-b border-gray-100">Password Reset Protection Type</td>
+                        <td class="px-6 py-3 text-gray-700 border-b border-gray-100">By IP and Email</td>
+                    </tr>
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-3 text-charcoal border-b border-gray-100">Max Login Failures to Lockout Account</td>
+                        <td class="px-6 py-3 text-gray-700 border-b border-gray-100">5 (adjust per risk tolerance)</td>
+                    </tr>
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-3 text-charcoal border-b border-gray-100">Lockout Time (minutes)</td>
+                        <td class="px-6 py-3 text-gray-700 border-b border-gray-100">30</td>
+                    </tr>
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-3 text-charcoal border-b border-gray-100">Session Lifetime (seconds)</td>
+                        <td class="px-6 py-3 text-gray-700 border-b border-gray-100">900 (recommended)</td>
+                    </tr>
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-3 text-charcoal border-b border-gray-100">Password Lifetime (days)</td>
+                        <td class="px-6 py-3 text-gray-700 border-b border-gray-100">90 (or per company policy)</td>
+                    </tr>
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-3 text-charcoal border-b border-gray-100">Max Number of Password Reset Requests</td>
+                        <td class="px-6 py-3 text-gray-700 border-b border-gray-100">3</td>
+                    </tr>
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-3 text-charcoal">Min Time Between Password Reset Requests (minutes)</td>
+                        <td class="px-6 py-3 text-gray-700">10</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Note about VPN/rotating IPs -->
+        <div class="bg-white border-4 border-yellow-500 p-4 mb-6">
+            <div class="flex items-start gap-3">
+                <svg class="w-5 h-5 text-orange-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                </svg>
+                <div>
+                    <p class="font-semibold text-charcoal mb-1">Note</p>
+                    <p class="text-charcoal/80 text-sm leading-relaxed">If your admins work behind rotating IPs/VPNs, consider By Email to avoid blocked resets, and document a fallback CLI recovery process.</p>
+                </div>
+            </div>
+        </div>
+
+        <p class="font-semibold text-charcoal mb-3">Steps:</p>
+        <ol class="space-y-3 list-none pl-0 mb-6">
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">1.</span>
+                Navigate to the path above.
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">2.</span>
+                Set each value as recommended; click Save Config.
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">3.</span>
+                Flush caches if prompted.
+            </li>
+        </ol>
+
+        <p class="font-semibold text-charcoal mb-3">Verify:</p>
+        <ul class="space-y-2">
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Attempt multiple failed Admin logins to confirm lockout after the set threshold and that the user-facing lockout message is displayed.</li>
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Log in and remain idle to confirm session expiration aligns with the configured lifetime.</li>
+        </ul>
+
+        <p class="text-gray-500 text-sm mt-4">Edition/Version: Applies to Adobe Commerce and Magento Open Source 2.4.x.</p>
+    </div>
+
+    <!-- Admin URL/Path -->
+    <div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+        <h3 class="text-xl font-bold text-charcoal mb-4">Admin URL/Path</h3>
+        <p class="text-gray-700 mb-2"><strong>Path:</strong> <span class="step-code">Stores > Settings > Configuration > Advanced > Admin > Admin Base URL</span></p>
+        <p class="text-gray-700 mb-4"><strong>Purpose:</strong> Reduce automated discovery of the Admin and add entropy to the login surface.</p>
+
+        <p class="font-semibold text-charcoal mb-3">Recommended:</p>
+        <ul class="space-y-2 mb-6">
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Use Custom Admin URL: Yes (set a unique subdomain or path under your domain)</li>
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Use Custom Admin Path: Yes (set a non-default path)</li>
+        </ul>
+
+        <div class="bg-white border-4 border-yellow-500 p-4 mb-6">
+            <div class="flex items-start gap-3">
+                <svg class="w-5 h-5 text-orange-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                </svg>
+                <div>
+                    <p class="font-semibold text-charcoal mb-1">Note</p>
+                    <p class="text-charcoal/80 text-sm leading-relaxed">Depending on web server/CDN rules, the old Admin URL may 302 redirect to the new path. This is expected when correctly configured.</p>
+                </div>
+            </div>
+        </div>
+
+        <p class="font-semibold text-charcoal mb-3">Recovery:</p>
+        <p class="text-gray-700 mb-6">If you cannot access Admin after the change, run <span class="step-code">bin/magento info:adminuri</span> or update <span class="step-code">app/etc/env.php</span> (<span class="step-code">'backend' => ['frontName' => 'your_path']</span>) on the server to recover. Clear caches after updating.</p>
+
+        <p class="font-semibold text-charcoal mb-3">Steps:</p>
+        <ol class="space-y-3 list-none pl-0 mb-6">
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">1.</span>
+                Enable and set the custom URL/path; Save Config.
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">2.</span>
+                Log out, then access the Admin using the new URL.
+            </li>
+        </ol>
+
+        <p class="font-semibold text-charcoal mb-3">Verify:</p>
+        <ul class="space-y-2">
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Confirm the old Admin URL no longer resolves to the login page.</li>
+        </ul>
+
+        <p class="text-gray-500 text-sm mt-4">Edition/Version: Applies to Adobe Commerce and Magento Open Source 2.4.x.</p>
+    </div>
+</section>
+
+<!-- ============================================== -->
+<!-- SECTION: Two-Factor Authentication (2FA) -->
+<!-- ============================================== -->
+<section class="mb-10" id="two-factor-authentication-2fa">
+    <h2 class="text-2xl font-bold text-charcoal mb-6">Two-Factor Authentication (2FA)</h2>
+
+    <div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8">
+        <p class="text-gray-700 mb-2"><strong>Path:</strong> <span class="step-code">Stores > Settings > Configuration > Security > 2FA</span></p>
+        <p class="text-gray-700 mb-4"><strong>Purpose:</strong> Require a second factor for Admin logins to block credential-only attacks.</p>
+
+        <div class="bg-white border-4 border-yellow-500 p-4 mb-6">
+            <div class="flex items-start gap-3">
+                <svg class="w-5 h-5 text-orange-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                </svg>
+                <div>
+                    <p class="font-semibold text-charcoal mb-1">Notes</p>
+                    <p class="text-charcoal/80 text-sm leading-relaxed">2FA is required in 2.4+ for Admin users. Ensure at least one provider is enabled and document recovery procedures.</p>
+                </div>
+            </div>
+        </div>
+
+        <p class="font-semibold text-charcoal mb-3">Recovery:</p>
+        <p class="text-gray-700 mb-6">If a user loses 2FA access, an Admin with appropriate permissions can reset 2FA enrollment for that user via CLI or by temporarily disabling the provider per the official 2FA documentation. Maintain at least two super admin users with recovery capability.</p>
+
+        <p class="font-semibold text-charcoal mb-3">Steps:</p>
+        <ol class="space-y-3 list-none pl-0 mb-6">
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">1.</span>
+                Enable at least one provider (for example, Google Authenticator, WebAuthn).
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">2.</span>
+                Save Config, then log out.
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">3.</span>
+                Log in and register the 2FA device when prompted.
+            </li>
+        </ol>
+
+        <p class="font-semibold text-charcoal mb-3">Verify:</p>
+        <ul class="space-y-2">
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Confirm that Admin login prompts for the second factor and that recovery codes or backup methods work as expected.</li>
+        </ul>
+
+        <p class="text-gray-500 text-sm mt-4">Edition/Version: Applies to Adobe Commerce and Magento Open Source 2.4+.</p>
+    </div>
+</section>
+
+<!-- ============================================== -->
+<!-- SECTION: Google reCAPTCHA -->
+<!-- ============================================== -->
+<section class="mb-10" id="google-recaptcha">
+    <h2 class="text-2xl font-bold text-charcoal mb-6">Google reCAPTCHA</h2>
+
+    <p class="text-gray-700 mb-4"><strong>Purpose:</strong> Mitigate automated bot activity on Admin and storefront forms while balancing friction vs conversion.</p>
+
+    <!-- Choosing a type -->
+    <div class="bg-white border-4 border-yellow-500 p-6 mb-6">
+        <p class="font-bold text-charcoal mb-3">Choosing a type:</p>
+        <ul class="space-y-2 text-gray-700">
+            <li class="relative pl-8 hexagon-bullet">Use v3 Invisible for checkout and high-conversion storefront forms to minimize friction; increase the v3 score threshold temporarily during active abuse.</li>
+            <li class="relative pl-8 hexagon-bullet">Use v2 ("I'm not a robot") or v2 Invisible on forms under attack (for example, login) when you need stronger, challenge-based protection.</li>
+            <li class="relative pl-8 hexagon-bullet">Admin Panel supports only v2 types. reCAPTCHA v3 Invisible is not supported for Admin forms in Magento 2.4.x.</li>
+        </ul>
+    </div>
+
+    <!-- v2 "I'm not a robot" -->
+    <div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+        <h3 class="text-xl font-bold text-charcoal mb-4">Google reCAPTCHA v2 ("I'm not a robot")</h3>
+        <p class="text-gray-700 mb-2"><strong>Path:</strong> <span class="step-code">Stores > Settings > Configuration > Security > Google reCAPTCHA v2 ("I'm not a robot")</span></p>
+
+        <p class="font-semibold text-charcoal mt-4 mb-2">Supported forms:</p>
+        <ul class="space-y-1 mb-4">
+            <li class="relative pl-8 text-gray-700 hexagon-bullet"><strong>Admin:</strong> Login, Forgot Password</li>
+            <li class="relative pl-8 text-gray-700 hexagon-bullet"><strong>Storefront:</strong> Create Account, Login, Forgot Password, Contact Us, and other supported forms</li>
+        </ul>
+
+        <p class="font-semibold text-charcoal mb-2">Recommended:</p>
+        <ul class="space-y-1 mb-4">
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Enable for Admin Login and Forgot Password.</li>
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Enable for storefront forms that see abuse and where a visible challenge is acceptable.</li>
+        </ul>
+
+        <p class="font-semibold text-charcoal mb-3">Steps:</p>
+        <ol class="space-y-3 list-none pl-0 mb-4">
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">1.</span>
+                In Google reCAPTCHA, create v2 (checkbox) site and secret keys for your exact domain(s)/subdomains.
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">2.</span>
+                Enter keys, select desired forms, and Save Config.
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">3.</span>
+                If Content Security Policy (CSP) is enabled, allow google.com, gstatic.com, and recaptcha.net for script/frame/connect sources to prevent blocking.
+            </li>
+        </ol>
+
+        <p class="font-semibold text-charcoal mb-3">Verify:</p>
+        <ul class="space-y-2">
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Submit Admin/storefront login to confirm the checkbox challenge appears and functions.</li>
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Review reCAPTCHA dashboard for challenge and pass/fail metrics.</li>
+        </ul>
+
+        <p class="text-gray-500 text-sm mt-4">Edition/Version: Applies to Adobe Commerce and Magento Open Source 2.4.x.</p>
+    </div>
+
+    <!-- v2 Invisible -->
+    <div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+        <h3 class="text-xl font-bold text-charcoal mb-4">Google reCAPTCHA v2 Invisible</h3>
+        <p class="text-gray-700 mb-2"><strong>Path:</strong> <span class="step-code">Stores > Settings > Configuration > Security > Google reCAPTCHA v2 Invisible</span></p>
+
+        <p class="font-semibold text-charcoal mt-4 mb-2">Supported forms:</p>
+        <ul class="space-y-1 mb-4">
+            <li class="relative pl-8 text-gray-700 hexagon-bullet"><strong>Admin:</strong> Login, Forgot Password</li>
+            <li class="relative pl-8 text-gray-700 hexagon-bullet"><strong>Storefront:</strong> Create Account, Login, Forgot Password, Contact Us, and other supported forms</li>
+        </ul>
+
+        <p class="font-semibold text-charcoal mb-2">Recommended:</p>
+        <ul class="space-y-1 mb-4">
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Use for Admin forms to reduce friction while maintaining protection.</li>
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Use on storefront login/registration when you want fewer visible challenges.</li>
+        </ul>
+
+        <p class="font-semibold text-charcoal mb-3">Steps:</p>
+        <ol class="space-y-3 list-none pl-0 mb-4">
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">1.</span>
+                In Google reCAPTCHA, create v2 Invisible site and secret keys for your exact domain(s)/subdomains.
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">2.</span>
+                Enter keys, enable for target forms, and Save Config.
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">3.</span>
+                If CSP is enabled, allow *.google.com, *.gstatic.com, and *.recaptcha.net in script-src, frame-src, and connect-src.
+            </li>
+        </ol>
+
+        <p class="font-semibold text-charcoal mb-3">Verify:</p>
+        <ul class="space-y-2">
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Confirm the invisible challenge triggers and allows legitimate submissions while blocking bots.</li>
+        </ul>
+
+        <p class="text-gray-500 text-sm mt-4">Edition/Version: Applies to Adobe Commerce and Magento Open Source 2.4.x.</p>
+    </div>
+
+    <!-- v3 Invisible -->
+    <div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8">
+        <h3 class="text-xl font-bold text-charcoal mb-4">Google reCAPTCHA v3 Invisible</h3>
+        <p class="text-gray-700 mb-2"><strong>Path:</strong> <span class="step-code">Stores > Settings > Configuration > Security > Google reCAPTCHA v3 Invisible</span></p>
+
+        <p class="font-semibold text-charcoal mt-4 mb-2">Supported forms:</p>
+        <ul class="space-y-1 mb-4">
+            <li class="relative pl-8 text-gray-700 hexagon-bullet"><strong>Storefront only:</strong> Create Account, Login, Forgot Password, Contact Us, checkout steps (for example, Place Order)</li>
+        </ul>
+
+        <p class="font-semibold text-charcoal mb-2">Recommended:</p>
+        <ul class="space-y-1 mb-4">
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Use for checkout and other high-conversion storefront flows to minimize friction.</li>
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Start Score Threshold at 0.5-0.7; monitor and adjust by +/-0.1 based on false positives/negatives.</li>
+        </ul>
+
+        <p class="font-semibold text-charcoal mb-3">Steps:</p>
+        <ol class="space-y-3 list-none pl-0 mb-4">
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">1.</span>
+                In Google reCAPTCHA, create v3 site and secret keys for your exact domain(s)/subdomains.
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">2.</span>
+                Enter keys, enable the desired forms, set the Score Threshold, and Save Config.
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">3.</span>
+                If CSP is enabled, allow *.google.com, *.gstatic.com, and *.recaptcha.net in script-src, frame-src, and connect-src.
+            </li>
+        </ol>
+
+        <p class="font-semibold text-charcoal mb-3">Verify:</p>
+        <ul class="space-y-2">
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Submit storefront login/registration/checkout and confirm v3 triggers.</li>
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Review reCAPTCHA dashboard for score distributions and challenges; adjust threshold accordingly.</li>
+        </ul>
+
+        <p class="text-gray-500 text-sm mt-4">Edition/Version: Applies to Adobe Commerce and Magento Open Source 2.4.x. Not supported for Admin forms.</p>
+    </div>
+</section>
+
+<!-- ============================================== -->
+<!-- SECTION: Magento CAPTCHA (fallback) -->
+<!-- ============================================== -->
+<section class="mb-10" id="magento-captcha-fallback">
+    <h2 class="text-2xl font-bold text-charcoal mb-6">Magento CAPTCHA (fallback)</h2>
+
+    <div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8">
+        <p class="text-gray-700 mb-2"><strong>Path:</strong> <span class="step-code">Stores > Settings > Configuration > Customers > Customer Configuration > CAPTCHA</span></p>
+        <p class="text-gray-700 mb-4"><strong>Purpose:</strong> Provide a basic challenge mechanism when Google reCAPTCHA is not used or as a fallback.</p>
+
+        <!-- Warning Callout -->
+        <div class="bg-yellow-500 border-4 border-amber-600 p-4 mb-6">
+            <div class="flex items-start gap-3">
+                <svg class="w-5 h-5 text-amber-700 mt-0.5 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M12 2L1 21h22L12 2zm0 3.99L19.53 19H4.47L12 5.99zM11 16h2v2h-2v-2zm0-6h2v4h-2v-4z"/>
+                </svg>
+                <p class="text-brown text-sm leading-relaxed"><strong>Warning:</strong> Do not enable Magento CAPTCHA and Google reCAPTCHA on the same form. Use only one protection mechanism per form to avoid conflicts.</p>
+            </div>
+        </div>
+
+        <p class="font-semibold text-charcoal mb-2">Recommended:</p>
+        <ul class="space-y-1 mb-4">
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Use only if Google reCAPTCHA is not available for specific forms.</li>
+        </ul>
+
+        <p class="font-semibold text-charcoal mb-3">Steps:</p>
+        <ol class="space-y-3 list-none pl-0 mb-4">
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">1.</span>
+                Enable for applicable forms; set Difficulty and Number of Symbols; Save Config.
+            </li>
+        </ol>
+
+        <p class="font-semibold text-charcoal mb-3">Verify:</p>
+        <ul class="space-y-2">
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Confirm the CAPTCHA appears and blocks automated submissions.</li>
+        </ul>
+
+        <p class="text-gray-500 text-sm mt-4">Edition/Version: Applies to Adobe Commerce and Magento Open Source 2.4.x.</p>
+    </div>
+</section>
+
+<!-- ============================================== -->
+<!-- SECTION: Customer password policy -->
+<!-- ============================================== -->
+<section class="mb-10" id="customer-password-policy">
+    <h2 class="text-2xl font-bold text-charcoal mb-6">Customer password policy</h2>
+
+    <div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8">
+        <p class="text-gray-700 mb-2"><strong>Path:</strong> <span class="step-code">Stores > Settings > Configuration > Customers > Customer Configuration > Password Options</span></p>
+        <p class="text-gray-700 mb-4"><strong>Purpose:</strong> Improve customer account resilience against brute force and credential stuffing.</p>
+
+        <p class="font-semibold text-charcoal mb-3">Recommended:</p>
+        <ul class="space-y-2 mb-6">
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Minimum Password Length: 12 (recommended for compliance; use 8+ at minimum if business constraints apply)</li>
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Required Character Classes Number: 3 or 4 (letters, digits, special characters, different case)</li>
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Forgot Email Sender and templates configured and tested; verify email deliverability (SPF/DKIM/DMARC) to avoid password reset abandonment</li>
+        </ul>
+
+        <p class="font-semibold text-charcoal mb-3">Steps:</p>
+        <ol class="space-y-3 list-none pl-0 mb-4">
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">1.</span>
+                Set the options; Save Config.
+            </li>
+        </ol>
+
+        <p class="font-semibold text-charcoal mb-3">Verify:</p>
+        <ul class="space-y-2">
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Attempt to set weak passwords to ensure enforcement; test Forgot Password flow and email delivery.</li>
+        </ul>
+
+        <p class="text-gray-500 text-sm mt-4">Edition/Version: Applies to Adobe Commerce and Magento Open Source 2.4.x.</p>
+    </div>
+</section>
+
+<!-- ============================================== -->
+<!-- SECTION: Roles and permissions (least privilege) -->
+<!-- ============================================== -->
+<section class="mb-10" id="roles-and-permissions-least-privilege">
+    <h2 class="text-2xl font-bold text-charcoal mb-6">Roles and permissions (least privilege)</h2>
+
+    <div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8">
+        <p class="text-gray-700 mb-2"><strong>Path:</strong> <span class="step-code">System > Permissions > User Roles</span></p>
+        <p class="text-gray-700 mb-4"><strong>Purpose:</strong> Limit access to only what each job function requires.</p>
+
+        <p class="font-semibold text-charcoal mb-3">Steps:</p>
+        <ol class="space-y-3 list-none pl-0 mb-6">
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">1.</span>
+                Go to <span class="step-code">System > Permissions > User Roles > Add New Role</span>.
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">2.</span>
+                Name the role and Save.
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">3.</span>
+                Open the role, grant only required Resources, then Save Role.
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">4.</span>
+                Go to <span class="step-code">System > Permissions > All Users</span>, edit each user, and assign the new role.
+            </li>
+        </ol>
+
+        <p class="font-semibold text-charcoal mb-3">Business rationale:</p>
+        <ul class="space-y-2 mb-6">
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Limit catalog pricing rights to specific roles to prevent costly pricing errors.</li>
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Restrict refund creation to senior support to reduce fraud exposure.</li>
+        </ul>
+
+        <p class="font-semibold text-charcoal mb-3">Example role templates:</p>
+        <ul class="space-y-2 mb-6">
+            <li class="relative pl-8 text-gray-700 hexagon-bullet"><strong>Customer Support:</strong> View/Edit Customers, View Orders, Create Credit Memos; no Catalog price changes.</li>
+            <li class="relative pl-8 text-gray-700 hexagon-bullet"><strong>Content Editor:</strong> CMS Pages/Blocks, Media Storage; no Sales or System config access.</li>
+        </ul>
+
+        <p class="font-semibold text-charcoal mb-3">Verify:</p>
+        <ul class="space-y-2">
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Log in as a user with each role and confirm only intended menus/resources are accessible.</li>
+        </ul>
+
+        <p class="text-gray-500 text-sm mt-4">Edition/Version: Applies to Adobe Commerce and Magento Open Source 2.4.x.</p>
+    </div>
+</section>
+
+<!-- ============================================== -->
+<!-- SECTION: Admin Action Logs (Adobe Commerce only) -->
+<!-- ============================================== -->
+<section class="mb-10" id="admin-action-logs-adobe-commerce-only">
+    <h2 class="text-2xl font-bold text-charcoal mb-6">Admin Action Logs (Adobe Commerce only)</h2>
+
+    <div class="border-t-4 border-orange-500 bg-white shadow-sm p-8">
+        <p class="text-gray-700 mb-2"><strong>Path:</strong> <span class="step-code">Stores > Settings > Configuration > Advanced > Admin > Admin Actions Logging</span></p>
+        <p class="text-gray-700 mb-4"><strong>Purpose:</strong> Track administrative actions for accountability and troubleshooting.</p>
+
+        <p class="font-semibold text-charcoal mb-3">Steps:</p>
+        <ol class="space-y-3 list-none pl-0 mb-6">
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">1.</span>
+                Enable Admin Actions Logging; Save Config.
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">2.</span>
+                Path to view: <span class="step-code">System > Actions Logs > Report</span>
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">3.</span>
+                Retention and archiving (Commerce only): Define retention and archive/export cadence under <span class="step-code">System > Actions Logs > Archive</span> to meet audit requirements (for example, 90-180 days retention with monthly archive/export).
+            </li>
+        </ol>
+
+        <p class="font-semibold text-charcoal mb-3">Verify:</p>
+        <ul class="space-y-2">
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Perform an Admin change (for example, update a CMS page) and confirm an entry appears in the report.</li>
+        </ul>
+
+        <p class="text-gray-500 text-sm mt-4">Edition: Adobe Commerce only.</p>
+    </div>
+</section>
+
+<!-- ============================================== -->
+<!-- SECTION: Session and cookie security -->
+<!-- ============================================== -->
+<section class="mb-10" id="session-and-cookie-security">
+    <h2 class="text-2xl font-bold text-charcoal mb-6">Session and cookie security</h2>
+
+    <div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8">
+        <p class="text-gray-700 mb-2"><strong>Path:</strong> <span class="step-code">Stores > Settings > Configuration > General > Web > Default Cookie Settings</span></p>
+        <p class="text-gray-700 mb-4"><strong>Purpose:</strong> Ensure cookies follow secure best practices to protect sessions.</p>
+
+        <p class="font-semibold text-charcoal mb-3">Recommended (Cookie Settings):</p>
+        <div class="bg-white shadow-sm overflow-hidden mb-6">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="bg-gray-100">
+                        <th class="text-left px-6 py-3 font-semibold text-gray-900 border-b border-gray-200">Setting</th>
+                        <th class="text-left px-6 py-3 font-semibold text-gray-900 border-b border-gray-200">Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-3 text-charcoal border-b border-gray-100">Use HTTP Only</td>
+                        <td class="px-6 py-3 text-gray-700 border-b border-gray-100">Yes</td>
+                    </tr>
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-3 text-charcoal border-b border-gray-100">Cookie Lifetime</td>
+                        <td class="px-6 py-3 text-gray-700 border-b border-gray-100">3600-7200 seconds</td>
+                    </tr>
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-3 text-charcoal border-b border-gray-100">Cookie SameSite</td>
+                        <td class="px-6 py-3 text-gray-700 border-b border-gray-100">Lax (or None + Secure if required by third-party embeds)</td>
+                    </tr>
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-3 text-charcoal">Cookie Restriction Mode</td>
+                        <td class="px-6 py-3 text-gray-700">Enable as required for consent management</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <p class="font-semibold text-charcoal mb-3">Recommended (Base URLs - Secure):</p>
+        <p class="text-gray-700 mb-2"><strong>Path:</strong> <span class="step-code">Stores > Settings > Configuration > General > Web > Base URLs (Secure)</span></p>
+        <ul class="space-y-2 mb-6">
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Use Secure URLs on Storefront: Yes</li>
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Use Secure URLs in Admin: Yes</li>
+        </ul>
+
+        <p class="font-semibold text-charcoal mb-3">Recommended (URL Options):</p>
+        <p class="text-gray-700 mb-2"><strong>Path:</strong> <span class="step-code">Stores > Settings > Configuration > General > Web > URL Options</span></p>
+        <ul class="space-y-2 mb-6">
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Use SID on Frontend: No (prevents session IDs from appearing in URLs)</li>
+        </ul>
+
+        <p class="font-semibold text-charcoal mb-3">Recommended (Session Storage):</p>
+        <p class="text-gray-700 mb-2"><strong>Path:</strong> <span class="step-code">Stores > Settings > Configuration > Advanced > System > Session Storage Management</span></p>
+        <ul class="space-y-2 mb-6">
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Use secure, centralized session storage (for example, Redis or memcached) with authentication enabled.</li>
+        </ul>
+
+        <p class="font-semibold text-charcoal mb-3">Verify:</p>
+        <ul class="space-y-2">
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">In browser dev tools, confirm cookies are Secure and HttpOnly, and SameSite is set as configured.</li>
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Confirm all storefront and Admin pages load via HTTPS.</li>
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Ensure URLs do not include SID parameters; confirm sessions persist correctly with configured storage.</li>
+        </ul>
+
+        <p class="text-gray-500 text-sm mt-4">Edition/Version: Applies to Adobe Commerce and Magento Open Source 2.4.x.</p>
+    </div>
+</section>
+
+<!-- ============================================== -->
+<!-- SECTION: Network and transport -->
+<!-- ============================================== -->
+<section class="mb-10" id="network-and-transport">
+    <h2 class="text-2xl font-bold text-charcoal mb-6">Network and transport</h2>
+
+    <div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8">
+        <p class="text-gray-700 mb-4"><strong>Purpose:</strong> Reduce exposure of sensitive endpoints and mitigate abuse.</p>
+
+        <p class="font-semibold text-charcoal mb-3">Recommendations:</p>
+        <ul class="space-y-2 mb-6">
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Restrict Admin access by IP using your CDN/WAF or web server.</li>
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">For Adobe Commerce on cloud infrastructure, use project/environment access controls.</li>
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Enable and tune a WAF to block common attacks (for example, SQLi, XSS) and credential stuffing.</li>
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Apply rate limiting for API routes (REST/GraphQL) at your CDN/WAF. Throttle token generation endpoints and guest checkout abuse patterns. Ensure WAF policies include rules for /rest/* and /graphql with sensible per-IP thresholds.</li>
+        </ul>
+
+        <p class="font-semibold text-charcoal mb-3">Examples:</p>
+        <ul class="space-y-2 mb-6">
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Rate-limit POST /graphql to 30 requests/minute/IP</li>
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Restrict /admin* to office VPN IPs</li>
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Block known credential-stuffing user agents with bot management</li>
+        </ul>
+
+        <p class="font-semibold text-charcoal mb-3">Business impact:</p>
+        <p class="text-gray-700 mb-6">Bot management can reduce bot traffic by 30-70% on targeted stores; review WAF dashboards weekly to tune rules for conversion-safe blocking.</p>
+
+        <p class="font-semibold text-charcoal mb-3">Verify:</p>
+        <ul class="space-y-2">
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Confirm blocked IPs cannot reach the Admin URL.</li>
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Review WAF logs and dashboards for attempted threats and false positives; validate API rate limits are enforced without harming legitimate traffic.</li>
+        </ul>
+
+        <p class="text-gray-500 text-sm mt-4">Edition/Version: Applies to Adobe Commerce and Magento Open Source 2.4.x.</p>
+    </div>
+</section>
+
+<!-- ============================================== -->
+<!-- SECTION: Verification Checklist -->
+<!-- ============================================== -->
+<h2 class="text-3xl font-bold text-charcoal mb-6" id="verification-checklist">Verification checklist</h2>
+<p class="text-gray-700 mb-6">After each configuration change:</p>
+
+<!-- Verification Checklist -->
+<ul class="list-none my-8 pl-0 space-y-5">
+    <!-- Checklist Item 1 -->
+    <li class="bg-white p-7 shadow-sm">
+        <div class="flex items-center justify-between mb-5">
+            <strong class="text-lg font-bold text-charcoal">Login & Session Testing</strong>
+        </div>
+        <ul class="grid gap-3 m-0 p-0 list-none">
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">&#10003;</span>
+                Log out and log back in to confirm expected prompts (for example, 2FA enrollment) and session behavior
+            </li>
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">&#10003;</span>
+                Intentionally fail Admin login to confirm lockout behavior and the user-facing lockout message
+            </li>
+        </ul>
+    </li>
+
+    <!-- Checklist Item 2 -->
+    <li class="bg-white p-7 shadow-sm">
+        <div class="flex items-center justify-between mb-5">
+            <strong class="text-lg font-bold text-charcoal">reCAPTCHA Testing</strong>
+        </div>
+        <ul class="grid gap-3 m-0 p-0 list-none">
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">&#10003;</span>
+                Submit storefront forms to confirm reCAPTCHA triggers appropriately
+            </li>
+        </ul>
+    </li>
+
+    <!-- Checklist Item 3 -->
+    <li class="bg-white p-7 shadow-sm">
+        <div class="flex items-center justify-between mb-5">
+            <strong class="text-lg font-bold text-charcoal">Ongoing Monitoring</strong>
+        </div>
+        <ul class="grid gap-3 m-0 p-0 list-none">
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">&#10003;</span>
+                Monitor failed logins, reCAPTCHA scores, and WAF events to fine-tune settings
+            </li>
+        </ul>
+    </li>
+
+    <!-- Checklist Item 4 -->
+    <li class="bg-white p-7 shadow-sm">
+        <div class="flex items-center justify-between mb-5">
+            <strong class="text-lg font-bold text-charcoal">14-day tuning plan</strong>
+        </div>
+        <ul class="grid gap-3 m-0 p-0 list-none">
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">&#10003;</span>
+                Review reCAPTCHA score distributions, WAF false positives, and Admin lockout rates weekly
+            </li>
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">&#10003;</span>
+                Adjust thresholds and rules to minimize false positives during promotions/high-traffic events to protect conversion
+            </li>
+        </ul>
+    </li>
+</ul>
+
+<style>
+/* Hexagon bullet marker for lists */
+.hexagon-bullet::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.5em;
+    width: 9px;
+    height: 9px;
+    background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 2L21 7V17L12 22L3 17V7L12 2Z' stroke='%23F26423' stroke-width='2.5' stroke-linejoin='miter'/%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+/* Step code styling for inline code paths */
+.step-code {
+    background: #2C2C2C;
+    color: #F1BC1B;
+    padding: 0.25rem 0.5rem;
+    font-family: 'Courier New', monospace;
+    font-size: 0.875rem;
+}
+</style>
