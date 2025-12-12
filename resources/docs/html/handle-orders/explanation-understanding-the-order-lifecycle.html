@@ -1,0 +1,581 @@
+
+<h1 class="text-4xl font-bold text-charcoal mb-6">Understanding the Order Lifecycle</h1>
+
+<div class="flex flex-wrap items-center gap-3 mb-8">
+    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-orange-50 text-orange-700">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        25-30 minutes
+    </span>
+    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-yellow-50 text-brown">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+        </svg>
+        Intermediate to Advanced
+    </span>
+    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-orange-50 text-orange-700">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+        </svg>
+        Explanation
+    </span>
+</div>
+
+<section class="bg-white mb-8 p-8 border-t-4 border-yellow-500 shadow-sm">
+    <h2 class="text-2xl font-bold text-charcoal mb-4 mt-0">Introduction</h2>
+    <p class="text-lg text-gray-700 leading-relaxed mb-6">
+        This guide explains each stage of an order in Magento—from cart and payment, through invoicing and shipment, to refunds—so you can speed fulfillment, reduce errors, and improve cash flow.
+    </p>
+    <p class="text-gray-700 leading-relaxed mb-6">
+        In Magento, an order is marked Complete when all items are invoiced and shipped.
+    </p>
+    <p class="text-gray-700 leading-relaxed mb-4">
+        <strong class="text-charcoal">Exceptions:</strong>
+    </p>
+    <ul class="space-y-2 mb-6">
+        <li class="relative pl-8 text-gray-700 leading-relaxed hexagon-bullet">Orders with only non-shippable items (virtual, downloadable, and virtual/combined e-gift cards) complete after invoicing because no shipment is required. Note: Gift Card product type (physical, virtual, combined) is available in Adobe Commerce only.</li>
+        <li class="relative pl-8 text-gray-700 leading-relaxed hexagon-bullet">Physical gift cards are shippable and require a shipment.</li>
+        <li class="relative pl-8 text-gray-700 leading-relaxed hexagon-bullet">Mixed carts complete when all shippable items are shipped and all items are invoiced.</li>
+    </ul>
+    <p class="text-gray-700 leading-relaxed">
+        <strong>Scope &amp; Version Notes (2.4.x):</strong> Applies to Magento Open Source and Adobe Commerce 2.4.x. Inventory Management (MSI) is included by default; reservations are used. Adobe Commerce B2B approval workflows are out of scope.
+    </p>
+</section>
+
+<section class="mb-10">
+    <h2 class="text-2xl font-bold text-charcoal mb-6">Prerequisites</h2>
+    <ul class="space-y-3">
+        <li class="relative pl-8 text-gray-700 leading-relaxed hexagon-bullet">Admin access with permissions to view and manage Orders, Invoices, Shipments, and Credit Memos.<br>Admin path: <span class="step-code">System &gt; Permissions &gt; User Roles</span>.</li>
+        <li class="relative pl-8 text-gray-700 leading-relaxed hexagon-bullet">At least one active payment method configured.<br>Admin path: <span class="step-code">Stores &gt; Configuration &gt; Sales &gt; Payment Methods</span>.</li>
+        <li class="relative pl-8 text-gray-700 leading-relaxed hexagon-bullet">At least one shipping method configured and Shipping Origin set.<br>Admin paths: <span class="step-code">Stores &gt; Configuration &gt; Sales &gt; Delivery Methods</span>; <span class="step-code">Stores &gt; Configuration &gt; Sales &gt; Shipping Settings &gt; Origin</span>.</li>
+        <li class="relative pl-8 text-gray-700 leading-relaxed hexagon-bullet">For asynchronous gateways (for example, PayPal), ensure the webhook/IPN endpoint is publicly reachable over HTTPS (no maintenance mode, correct base URL/domain, and firewall/IP allowlists updated so gateway systems can connect).</li>
+        <li class="relative pl-8 text-gray-700 leading-relaxed hexagon-bullet">Ensure Magento cron is configured and running for your environment (required for sales emails, some payment updates, and grid/index refresh). Verify via CLI: <span class="step-code">bin/magento cron:run</span> and check var/log for errors. Adobe Commerce: <span class="step-code">System &gt; Support &gt; System Reports</span> can help validate environment health.</li>
+    </ul>
+
+    <div class="bg-white border-4 border-yellow-500 p-6 mt-6">
+        <div class="flex gap-4 items-start">
+            <div class="flex-shrink-0 w-8 h-8">
+                <svg class="w-full h-full text-orange-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+            </div>
+            <div class="flex-1">
+                <p class="font-bold text-charcoal mb-2">Cron verification</p>
+                <ul class="space-y-2 text-gray-700 text-sm">
+                    <li class="relative pl-8 hexagon-bullet">Ensure Magento cron is installed: run <span class="step-code">bin/magento cron:install</span> (once per environment).</li>
+                    <li class="relative pl-8 hexagon-bullet">Check system crontab: run <span class="step-code">crontab -l</span> (look for Magento cron jobs).</li>
+                    <li class="relative pl-8 hexagon-bullet">Verify last runs: check var/log/magento.cron.log (if enabled) and var/log/system.log for cron activity.</li>
+                    <li class="relative pl-8 hexagon-bullet">On Adobe Commerce: <span class="step-code">System &gt; Support &gt; System Reports</span> to review cron status.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="mb-10">
+    <h2 class="text-2xl font-bold text-charcoal mb-6">Key Concepts</h2>
+    <p class="text-gray-700 leading-relaxed mb-6">
+        Understanding these core terms and how they interact is fundamental to managing the order lifecycle effectively.
+    </p>
+
+    <div class="space-y-4">
+        <div class="bg-white border-l-4 border-yellow-500 p-6 shadow-sm">
+            <p class="font-bold text-charcoal mb-2">Quote vs Order</p>
+            <p class="text-gray-700 leading-relaxed">A shopping cart becomes a quote in Magento. When the customer submits checkout, the quote converts to an order record.<br>Admin path: <span class="step-code">Sales &gt; Orders</span>.</p>
+        </div>
+
+        <div class="bg-white border-l-4 border-yellow-500 p-6 shadow-sm">
+            <p class="font-bold text-charcoal mb-2">Order State vs Status</p>
+            <p class="text-gray-700 leading-relaxed mb-4">
+                <strong>Definition:</strong> State is the system-controlled stage; Status is the merchant-facing label mapped to a state.<br>
+                Admin path: <span class="step-code">Stores &gt; Settings &gt; Order Status</span>.
+            </p>
+            <p class="text-gray-700 leading-relaxed mb-3"><strong>Default mapping (typical):</strong></p>
+            <ul class="space-y-2 text-gray-700 text-sm">
+                <li class="relative pl-8 hexagon-bullet"><span class="step-code">new</span> → Pending</li>
+                <li class="relative pl-8 hexagon-bullet"><span class="step-code">pending_payment</span> → Pending Payment</li>
+                <li class="relative pl-8 hexagon-bullet"><span class="step-code">processing</span> → Processing</li>
+                <li class="relative pl-8 hexagon-bullet"><span class="step-code">holded</span> → On Hold</li>
+                <li class="relative pl-8 hexagon-bullet"><span class="step-code">payment_review</span> → Payment Review (gateway-specific; for example, PayPal can assign the 'Suspected Fraud' status under this state)</li>
+                <li class="relative pl-8 hexagon-bullet"><span class="step-code">complete</span> → Complete</li>
+                <li class="relative pl-8 hexagon-bullet"><span class="step-code">closed</span> → Closed</li>
+                <li class="relative pl-8 hexagon-bullet"><span class="step-code">canceled</span> → Canceled</li>
+            </ul>
+            <p class="text-gray-700 leading-relaxed mt-4 text-sm">
+                <strong>Notes:</strong> Magento controls the order state (system workflow). You control the order status (labels and communication) mapped to each state. Status-to-state mappings can be customized (<span class="step-code">Stores &gt; Settings &gt; Order Status</span>). Gateways may assign different default statuses within the same state (for example, 'Suspected Fraud' under payment_review).
+            </p>
+        </div>
+
+        <div class="bg-white border-l-4 border-yellow-500 p-6 shadow-sm">
+            <p class="font-bold text-charcoal mb-2">Invoice</p>
+            <p class="text-gray-700 leading-relaxed mb-3">The record that items have been billed. When created with an online capture (supported gateways), funds are captured; with offline methods, the invoice records payment received without contacting the gateway.</p>
+            <p class="text-gray-700 leading-relaxed text-sm">On the Invoice page, if your payment method supports it, set Capture to "Capture Online" to capture funds via the gateway, or "Capture Offline" to record payment received outside Magento. If the Capture option is not shown, the payment method controls capture behavior.<br>Admin path: <span class="step-code">Sales &gt; Orders &gt; open order &gt; Invoice</span>.</p>
+        </div>
+
+        <div class="bg-white border-l-4 border-yellow-500 p-6 shadow-sm">
+            <p class="font-bold text-charcoal mb-2">Shipment</p>
+            <p class="text-gray-700 leading-relaxed">The record that items were shipped. In MSI, shipment allocates from specific Sources.<br>Admin path: <span class="step-code">Sales &gt; Orders &gt; open order &gt; Ship</span>.<br>Configuration: <span class="step-code">Stores &gt; Configuration &gt; Catalog &gt; Inventory &gt; Source Selection Algorithm</span>.</p>
+        </div>
+
+        <div class="bg-white border-l-4 border-yellow-500 p-6 shadow-sm">
+            <p class="font-bold text-charcoal mb-2">Credit Memo</p>
+            <p class="text-gray-700 leading-relaxed">The record of refunds/returns.<br>Admin path: <span class="step-code">Sales &gt; Orders &gt; open order &gt; Invoices tab &gt; open invoice &gt; Credit Memo</span>.</p>
+        </div>
+
+        <div class="bg-white border-l-4 border-orange-500 p-6 shadow-sm">
+            <p class="font-bold text-charcoal mb-2">Payment Actions: Authorize vs Authorize &amp; Capture</p>
+            <p class="text-gray-700 leading-relaxed mb-3">This determines when funds are captured and whether invoices are auto-created.<br>Admin path: <span class="step-code">Stores &gt; Configuration &gt; Sales &gt; Payment Methods</span>.</p>
+            <p class="text-gray-700 leading-relaxed text-sm">
+                <strong>Operational tip:</strong> Most gateways expire authorizations in 7–30 days. If the authorization expires before you invoice, request a new payment (re-authorize) or contact the customer. Consider using vault/tokenization to simplify re-capture where supported.
+            </p>
+        </div>
+
+        <div class="bg-white border-l-4 border-yellow-500 p-6 shadow-sm">
+            <p class="font-bold text-charcoal mb-2">Hold/Unhold and Cancel</p>
+            <p class="text-gray-700 leading-relaxed">Hold pauses further actions; Unhold resumes. Cancel voids an order that has no invoices/shipments.<br>Admin path: <span class="step-code">Sales &gt; Orders &gt; open order &gt; Actions (Hold/Unhold/Cancel)</span>.</p>
+        </div>
+
+        <div class="bg-white border-l-4 border-yellow-500 p-6 shadow-sm">
+            <p class="font-bold text-charcoal mb-2">MSI Reservations (2.3+)</p>
+            <p class="text-gray-700 leading-relaxed">When the order is placed, Magento creates reservations that reduce Salable Qty. On shipment, cancellation, or credit memo with Return to Stock, compensating reservations adjust Salable Qty accordingly.</p>
+        </div>
+    </div>
+</section>
+
+<section class="mb-10">
+    <h2 class="text-2xl font-bold text-charcoal mb-6">How It Works</h2>
+    <p class="text-lg text-gray-700 leading-relaxed mb-6">
+        <strong>At a glance:</strong> Cart → Order (state: new; status: Pending) → Payment authorized and/or captured (state can become processing; an invoice may be auto-created if captured) → Shipment(s) → Completion (state: complete; status: Complete).
+    </p>
+
+    <div class="bg-white border-4 border-yellow-500 p-6 mb-6">
+        <div class="flex gap-4 items-start">
+            <div class="flex-shrink-0 w-8 h-8">
+                <svg class="w-full h-full text-orange-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+            </div>
+            <div class="flex-1">
+                <p class="font-bold text-charcoal mb-2">Note</p>
+                <p class="text-gray-700 leading-relaxed text-sm">Some payment methods set the order to Processing on successful authorization even if an invoice is not created automatically. Default core behavior: Processing is most commonly set when an invoice and/or shipment is created. Some gateways may set Processing immediately after authorization—check your gateway's documentation.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white border-t-4 border-yellow-500 shadow-sm p-8 mb-6">
+        <h3 class="text-xl font-bold text-charcoal mb-4">1) Cart and Checkout → Order Created</h3>
+        <ul class="space-y-2 text-gray-700">
+            <li class="relative pl-8 hexagon-bullet">The customer checks out. Magento converts the quote to an order (state: new; status: typically Pending).</li>
+            <li class="relative pl-8 hexagon-bullet">If the payment gateway processes asynchronously, the status may move to Pending Payment or Payment Review until the gateway confirms.</li>
+        </ul>
+    </div>
+
+    <div class="bg-white border-t-4 border-yellow-500 shadow-sm p-8 mb-6">
+        <h3 class="text-xl font-bold text-charcoal mb-4">2) Payment Authorization / Capture</h3>
+        <ul class="space-y-3 text-gray-700 mb-6">
+            <li class="relative pl-8 hexagon-bullet"><strong class="text-charcoal">Authorize &amp; Capture:</strong> If the gateway captures immediately, Magento auto-creates an invoice and sets the order to Processing.</li>
+            <li class="relative pl-8 hexagon-bullet"><strong class="text-charcoal">Authorize Only:</strong> Funds are authorized, but no invoice is created. Depending on the payment method, the order may move to Processing on successful authorization or remain in New/Pending Payment until you invoice.</li>
+            <li class="relative pl-8 hexagon-bullet"><strong class="text-charcoal">Partial invoices:</strong> On the Invoice page, adjust Qty per line to invoice only what you are ready to capture/ship. Remaining items can be invoiced later.</li>
+        </ul>
+        <div class="bg-orange-50 border-l-4 border-orange-500 p-4 mb-4">
+            <p class="font-semibold text-charcoal mb-2">Caution</p>
+            <p class="text-gray-700 text-sm leading-relaxed">
+                Multiple partial invoices (captures) are supported only if your payment gateway allows multiple captures against a single authorization. Confirm gateway capabilities and settings; otherwise, use a single invoice or re-authorize for the remaining amount.
+            </p>
+        </div>
+    </div>
+
+    <div class="bg-white border-4 border-yellow-500 p-6 mb-6">
+        <p class="font-bold text-charcoal mb-3">State cheat sheet</p>
+        <ul class="space-y-2 text-gray-700 text-sm">
+            <li class="relative pl-8 hexagon-bullet"><strong>New:</strong> Order just placed.</li>
+            <li class="relative pl-8 hexagon-bullet"><strong>Pending Payment:</strong> Awaiting gateway confirmation or offline payment.</li>
+            <li class="relative pl-8 hexagon-bullet"><strong>Processing:</strong> At least one invoice and/or shipment exists.</li>
+            <li class="relative pl-8 hexagon-bullet"><strong>Complete:</strong> All items invoiced and all shippable items shipped.</li>
+            <li class="relative pl-8 hexagon-bullet"><strong>Closed:</strong> All invoiced amounts fully refunded.</li>
+            <li class="relative pl-8 hexagon-bullet"><strong>Canceled:</strong> No invoices/shipments; order voided.</li>
+        </ul>
+    </div>
+
+    <div class="bg-white border-t-4 border-yellow-500 shadow-sm p-8 mb-6">
+        <h3 class="text-xl font-bold text-charcoal mb-4">3) Fulfillment (Shipment)</h3>
+        <ul class="space-y-3 text-gray-700">
+            <li class="relative pl-8 hexagon-bullet">Magento allows you to create a shipment even if no invoice exists. <strong>Best practice:</strong> invoice (capture payment) before shipping to ensure items are paid.</li>
+            <li class="relative pl-8 hexagon-bullet">Partial shipments are supported. In MSI, select quantities per Source during shipment.</li>
+            <li class="relative pl-8 hexagon-bullet">On the Ship page, click Add Tracking Number to record carrier and tracking. Check Email Copy of Shipment to notify the customer.</li>
+            <li class="relative pl-8 hexagon-bullet">Shipment emails: Ensure <span class="step-code">Stores &gt; Configuration &gt; Sales &gt; Sales Emails &gt; Shipment</span> is enabled. On the Ship page, select Email Copy of Shipment to send immediately. Verify under the order's Comments History that the shipment email was queued/sent.</li>
+        </ul>
+    </div>
+
+    <div class="bg-white border-t-4 border-yellow-500 shadow-sm p-8 mb-6">
+        <h3 class="text-xl font-bold text-charcoal mb-4">4) Order Completion</h3>
+        <p class="text-gray-700 leading-relaxed">When all items on the order are invoiced and shipped, Magento sets the order state to complete (status: Complete).</p>
+    </div>
+
+    <div class="bg-white border-t-4 border-orange-500 shadow-sm p-8 mb-6">
+        <h3 class="text-xl font-bold text-charcoal mb-4">5) Refunds/Returns (Credit Memo)</h3>
+        <ul class="space-y-3 text-gray-700 mb-4">
+            <li class="relative pl-8 hexagon-bullet">To refund, go to <span class="step-code">Sales &gt; Orders &gt; open order &gt; Invoices tab &gt; open invoice &gt; Credit Memo</span>.</li>
+            <li class="relative pl-8 hexagon-bullet">Use Refund for online refunds (supported gateways) or Refund Offline if your gateway doesn't support online refunds. Orders move to the Closed state when the total invoiced amount has been fully refunded (no remaining balance). Partial refunds keep the order in its prior state (Processing or Complete).</li>
+            <li class="relative pl-8 hexagon-bullet"><strong>Partial refunds:</strong> On the Credit Memo page, set Qty to refund per item and optionally enter Adjustment Refund (to add an additional amount) or Adjustment Fee (to deduct fees). Use Return to Stock per item if you are restocking.</li>
+            <li class="relative pl-8 hexagon-bullet"><strong>Shipping/tax refunds:</strong> Select Refund Shipping if you are refunding shipping charges; tax is calculated automatically based on refunded items and shipping selection. Choose Refund (online) to send the refund to the gateway, or Refund Offline to record it after processing the refund in your payment provider's portal.</li>
+            <li class="relative pl-8 hexagon-bullet"><strong>Verification:</strong> After submitting an online refund, check the order's Comments History and the Transactions tab for a successful refund transaction ID. If missing, confirm with your PSP.</li>
+        </ul>
+    </div>
+
+    <div class="bg-white border-t-4 border-charcoal shadow-sm p-8 mb-6">
+        <h3 class="text-xl font-bold text-charcoal mb-4">6) Holds and Cancellations</h3>
+        <ul class="space-y-3 text-gray-700">
+            <li class="relative pl-8 hexagon-bullet">Hold an order to prevent changes (Action: Hold). Unhold to resume processing.</li>
+            <li class="relative pl-8 hexagon-bullet">Cancel is available only if no invoices/shipments exist (typically in Pending/Pending Payment). Cancel releases MSI reservations.</li>
+            <li class="relative pl-8 hexagon-bullet"><strong>Partial cancellation:</strong> If some items are already invoiced or shipped, you cannot cancel those items. Click Actions &gt; Cancel to cancel all remaining uninvoiced/unshipped quantities. Magento automatically cancels only the cancelable quantities. There is no per-line cancel quantity input in the default Admin; for already invoiced items, issue a credit memo instead.</li>
+        </ul>
+    </div>
+
+    <h3 class="text-2xl font-bold text-charcoal mb-6 mt-10">Flow Summaries</h3>
+
+    <div class="bg-white border-t-4 border-yellow-500 shadow-sm p-8 mb-6">
+        <h4 class="text-lg font-bold text-charcoal mb-4">Flow A: Authorize &amp; Capture</h4>
+        <p class="text-gray-700 leading-relaxed mb-3">
+            Order placed (New) → Gateway captures → Invoice auto-created → State: Processing → Ship one or more shipments → State: Complete after all items shipped and invoiced.
+        </p>
+        <p class="text-gray-700 leading-relaxed mb-3">
+            <strong>Who acts next:</strong> Warehouse creates Shipment(s); Finance monitors for refunds if needed.
+        </p>
+        <p class="text-gray-700 leading-relaxed">
+            <strong>Verify:</strong> <span class="step-code">Sales &gt; Invoices</span> shows invoice; <span class="step-code">Sales &gt; Transactions</span> shows capture; <span class="step-code">Sales &gt; Shipments</span> shows shipment(s).
+        </p>
+    </div>
+
+    <div class="bg-white border-t-4 border-orange-500 shadow-sm p-8 mb-6">
+        <h4 class="text-lg font-bold text-charcoal mb-4">Flow B: Authorize Only</h4>
+        <p class="text-gray-700 leading-relaxed mb-3">
+            Order placed (New/Pending Payment or Processing depending on gateway) → Manual Invoice to capture funds → State: Processing → Ship → State: Complete after all items shipped and invoiced.
+        </p>
+        <p class="text-gray-700 leading-relaxed mb-3">
+            <strong>Who acts next:</strong> Finance creates Invoice (capture) when ready; Warehouse ships after invoice.
+        </p>
+        <p class="text-gray-700 leading-relaxed">
+            <strong>Verify:</strong> <span class="step-code">Sales &gt; Transactions</span> shows authorization then capture on invoicing; <span class="step-code">Sales &gt; Invoices/Shipments</span> reflect documents.
+        </p>
+    </div>
+
+    <div class="bg-white border-4 border-yellow-500 p-6 mb-6">
+        <p class="font-bold text-charcoal mb-3">Verification after each step</p>
+        <ul class="space-y-2 text-gray-700 text-sm">
+            <li class="relative pl-8 hexagon-bullet"><strong>Order state/status:</strong> Check the header of the order view.</li>
+            <li class="relative pl-8 hexagon-bullet"><strong>Documents:</strong> Use the Invoices, Shipments, and Credit Memos tabs and the <span class="step-code">Sales &gt; Invoices</span> / <span class="step-code">Sales &gt; Shipments</span> grids (filter by Order #) to confirm creation, totals, and timestamps.</li>
+            <li class="relative pl-8 hexagon-bullet"><strong>Payments:</strong> Review <span class="step-code">Sales &gt; Transactions</span> for authorization/capture/refund IDs and cross-check the transaction status in your payment provider's portal.</li>
+        </ul>
+    </div>
+
+    <h3 class="text-2xl font-bold text-charcoal mb-6 mt-10">Edge Cases</h3>
+    <ul class="space-y-3 text-gray-700">
+        <li class="relative pl-8 hexagon-bullet"><strong class="text-charcoal">Virtual/Downloadable/Virtual or Combined Gift Cards only:</strong> No shipment is created. Physical Gift Cards require a shipment.</li>
+        <li class="relative pl-8 hexagon-bullet"><strong class="text-charcoal">Mixed carts:</strong> Shippable items must be shipped; non-shippable items require only invoicing. The order completes when all shippable items are shipped and all items are invoiced.</li>
+        <li class="relative pl-8 hexagon-bullet"><strong class="text-charcoal">Multi-address checkout:</strong> Each address produces a separate order with its own invoices, shipments, and refunds.</li>
+        <li class="relative pl-8 hexagon-bullet"><strong class="text-charcoal">Payment Review:</strong> For methods like PayPal, orders may enter the payment_review state. From the order view, use Accept Payment or Deny Payment (if available) after verifying risk checks in your gateway.</li>
+    </ul>
+</section>
+
+<section class="mb-10">
+    <h2 class="text-2xl font-bold text-charcoal mb-6">Benefits and Advantages</h2>
+    <ul class="space-y-3 mb-8">
+        <li class="relative pl-8 text-gray-700 leading-relaxed hexagon-bullet"><strong class="text-charcoal">Faster cash flow:</strong> For low-risk, in-stock SKUs, configure Authorize &amp; Capture to auto-invoice on order placement and reduce DSO.</li>
+        <li class="relative pl-8 text-gray-700 leading-relaxed hexagon-bullet"><strong class="text-charcoal">Lower fulfillment errors:</strong> Require invoice before shipment so only paid items are picked and packed.</li>
+        <li class="relative pl-8 text-gray-700 leading-relaxed hexagon-bullet"><strong class="text-charcoal">Reduced cancellations and oversells:</strong> MSI reservations hold stock at order time; cancel/credit promptly releases or compensates stock.</li>
+        <li class="relative pl-8 text-gray-700 leading-relaxed hexagon-bullet"><strong class="text-charcoal">Better customer communication:</strong> Enable sales emails for Order, Invoice, Shipment, and Credit Memo to set expectations and reduce support volume.</li>
+    </ul>
+
+    <div class="bg-white border-4 border-yellow-500 p-6">
+        <div class="flex gap-4 items-start">
+            <div class="flex-shrink-0 w-8 h-8">
+                <svg class="w-full h-full text-orange-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                </svg>
+            </div>
+            <div class="flex-1">
+                <p class="font-bold text-charcoal mb-3">Operational focus: Create saved views</p>
+                <p class="text-gray-700 leading-relaxed mb-4">
+                    Create saved views in <span class="step-code">Sales &gt; Orders</span> to drive daily triage:
+                </p>
+                <ul class="space-y-2 text-gray-700 text-sm">
+                    <li class="relative pl-8 hexagon-bullet"><strong>Processing queue:</strong> Filter Status = Processing; add columns Payment Method and Shipments; sort by Purchase Date ascending. Save the view: click Filters, apply filters, open the Views dropdown, click Save View, name it (for example, "Processing"), then click the star to set it as default.</li>
+                    <li class="relative pl-8 hexagon-bullet"><strong>Pending Payment queue:</strong> Filter Status = Pending Payment; add column Payment Method; optionally filter by Payment Method for specific gateways. Save as "Pending Payment".</li>
+                    <li class="relative pl-8 hexagon-bullet"><strong>Payment Review queue:</strong> Filter Status = Payment Review; add column Risk (if surfaced via gateway status in comments) and Payment Method. Save as "Payment Review".</li>
+                </ul>
+                <p class="text-gray-700 leading-relaxed mt-4 text-sm">
+                    Implementing these queues reduces time-to-action and helps prevent aged authorizations.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="mb-10">
+    <h2 class="text-2xl font-bold text-charcoal mb-6">Common Challenges and Considerations</h2>
+
+    <h3 class="text-xl font-bold text-charcoal mb-4">Troubleshooting</h3>
+
+    <div class="bg-white border-l-4 border-orange-500 p-6 shadow-sm mb-4">
+        <p class="font-bold text-charcoal mb-3">Payments</p>
+        <ul class="space-y-3 text-gray-700 text-sm">
+            <li class="relative pl-8 hexagon-bullet"><strong class="text-charcoal">Orders stuck in Pending Payment:</strong> Check gateway webhooks/IPN and payment method config (<span class="step-code">Stores &gt; Configuration &gt; Sales &gt; Payment Methods</span>). Confirm currency configuration under <span class="step-code">Stores &gt; Configuration &gt; General &gt; Currency Setup</span> (Base, Default, Display) and verify <span class="step-code">Stores &gt; Currency &gt; Currency Rates</span> are up to date. Also check the order's Comments History and Transactions tab for gateway callback notes or missing transaction IDs before reviewing logs. Review var/log/system.log and var/log/exception.log. If your gateway creates its own log, check var/log for files that include the gateway name (for example, "adyen_*.log", "braintree_*.log"), or consult the gateway's documentation. If sandboxing, verify callback URL and credentials. Also check <span class="step-code">Sales &gt; Transactions</span> for the order's authorization/capture records. Ensure cron is running; stalled crons can delay email sending and certain asynchronous operations.</li>
+            <li class="relative pl-8 hexagon-bullet"><strong class="text-charcoal">Double capture risk:</strong> If your gateway auto-invoices, do not also manually invoice. Confirm each payment method's Payment Action and any auto-invoice behavior.</li>
+            <li class="relative pl-8 hexagon-bullet"><strong class="text-charcoal">Void vs Refund:</strong> If payment is only authorized (not captured), use Void (if supported by your payment method). The Void action appears on the Order or Invoice view depending on the integration. If already captured (invoiced), issue a Credit Memo (Refund) instead.</li>
+            <li class="relative pl-8 hexagon-bullet"><strong class="text-charcoal">Sandbox webhook/IPN testing:</strong> Ensure your callback URL is publicly reachable (use a tunneling tool if needed), confirm the exact endpoint configured in the gateway, and verify successful callbacks in gateway logs and Magento order comments/history.</li>
+        </ul>
+    </div>
+
+    <div class="bg-white border-l-4 border-orange-500 p-6 shadow-sm mb-4">
+        <p class="font-bold text-charcoal mb-3">Shipping / Inventory (MSI)</p>
+        <ul class="space-y-3 text-gray-700 text-sm">
+            <li class="relative pl-8 hexagon-bullet"><strong class="text-charcoal">Cannot Ship:</strong> Magento allows shipment before invoicing. If the Ship action/button is missing, ensure the order contains shippable items (not virtual/downloadable only), verify MSI source availability for the items, and confirm user permissions.</li>
+            <li class="relative pl-8 hexagon-bullet"><strong class="text-charcoal">Partial shipment with backorders:</strong> Allow backorders (<span class="step-code">Stores &gt; Configuration &gt; Catalog &gt; Inventory &gt; Product Stock Options &gt; Backorders</span>). Ship available quantity now, remainder later.</li>
+            <li class="relative pl-8 hexagon-bullet"><strong class="text-charcoal">Per-product backorders and salable quantity checks:</strong> <span class="step-code">Catalog &gt; Products &gt; open product &gt; Advanced Inventory</span> (or Sources) &gt; enable Backorders for that SKU if needed. Check salable quantity in <span class="step-code">Catalog &gt; Products</span> grid (Salable Quantity column) and ensure sufficient source quantity is assigned for the shipping source.</li>
+        </ul>
+    </div>
+
+    <div class="bg-white border-l-4 border-orange-500 p-6 shadow-sm mb-4">
+        <p class="font-bold text-charcoal mb-3">Refunds</p>
+        <p class="text-gray-700 text-sm"><strong>Refund button missing:</strong> Your gateway may not support online refunds. Use Refund Offline and process the refund in your PSP dashboard.</p>
+    </div>
+
+    <div class="bg-white border-l-4 border-orange-500 p-6 shadow-sm mb-4">
+        <p class="font-bold text-charcoal mb-3">Permissions</p>
+        <p class="text-gray-700 text-sm"><strong>Action buttons missing:</strong> Check <span class="step-code">System &gt; Permissions &gt; User Roles</span> to ensure the role has Sales &gt; Operations (Orders, Invoices, Shipments, Credit Memos) privileges.</p>
+    </div>
+
+    <h3 class="text-xl font-bold text-charcoal mb-4 mt-8">Preventive Controls</h3>
+    <ul class="space-y-3 text-gray-700">
+        <li class="relative pl-8 hexagon-bullet">Choose the right Payment Action per payment method based on the risk profile of the products you plan to accept with that method (for example, use a method set to Authorize Only for high-fraud or long lead-time items, and a method set to Authorize &amp; Capture for low-risk, in-stock items). If you need different actions by product group, use separate payment methods or websites/store views.</li>
+        <li class="relative pl-8 hexagon-bullet">Document each gateway's capture/void/refund behavior to avoid double captures; train staff on when to invoice vs ship.</li>
+        <li class="relative pl-8 hexagon-bullet">Monitor webhook/IPN health: set alerts on failed callbacks, keep gateway IP allowlists current, and ensure your base URL and HTTPS configuration are correct.</li>
+        <li class="relative pl-8 hexagon-bullet">Keep currency rates updated: <span class="step-code">Stores &gt; Currency &gt; Currency Rates</span>, and optionally configure scheduled imports under <span class="step-code">Stores &gt; Configuration &gt; General &gt; Currency Setup &gt; Scheduled Import Settings</span>.</li>
+        <li class="relative pl-8 hexagon-bullet">Test order flows regularly in a staging/sandbox environment before deploying changes to payment, shipping, or inventory configurations.</li>
+        <li class="relative pl-8 hexagon-bullet">Set a daily report for orders in Pending Payment &gt; 1 hour (<span class="step-code">Sales &gt; Orders</span> grid filter + export), and alert if count exceeds baseline. Review your gateway dashboard for failed callbacks within the same period.</li>
+        <li class="relative pl-8 hexagon-bullet">Adobe Commerce: Use RMA for returns authorization and tracking (<span class="step-code">Stores &gt; Settings &gt; Configuration &gt; Sales &gt; RMA</span>). Credit Memo processes the refund; RMA manages the return workflow.</li>
+    </ul>
+</section>
+
+<section class="mb-10">
+    <h2 class="text-2xl font-bold text-charcoal mb-6">Use Cases and Scenarios</h2>
+
+    <div class="space-y-6">
+        <div class="bg-white border-t-4 border-yellow-500 shadow-sm p-6">
+            <h3 class="text-lg font-bold text-charcoal mb-3">Low-risk, in-stock consumer goods</h3>
+            <p class="text-gray-700 leading-relaxed mb-4">
+                Use Authorize &amp; Capture to auto-invoice on placement, auto-send invoice email, and pick/pack the same day.
+            </p>
+            <p class="font-semibold text-charcoal mb-2 text-sm">Checklist:</p>
+            <ul class="space-y-2 text-gray-700 text-sm">
+                <li class="relative pl-8 hexagon-bullet">Payment Action = Authorize &amp; Capture</li>
+                <li class="relative pl-8 hexagon-bullet">Sales Emails (Order/Invoice/Shipment) = Enabled</li>
+                <li class="relative pl-8 hexagon-bullet">Picking policy = pick only items with an invoice</li>
+                <li class="relative pl-8 hexagon-bullet">Monitor queue = Processing</li>
+            </ul>
+        </div>
+
+        <div class="bg-white border-t-4 border-orange-500 shadow-sm p-6">
+            <h3 class="text-lg font-bold text-charcoal mb-3">Preorders or make-to-order</h3>
+            <p class="text-gray-700 leading-relaxed mb-4">
+                Use Authorize Only at checkout; capture (create invoice) when the item is ready to ship. Mind authorization hold durations (often 7–30 days) to avoid expired authorizations.
+            </p>
+            <p class="font-semibold text-charcoal mb-2 text-sm">Checklist:</p>
+            <ul class="space-y-2 text-gray-700 text-sm">
+                <li class="relative pl-8 hexagon-bullet">Payment Action = Authorize Only</li>
+                <li class="relative pl-8 hexagon-bullet">Sales Emails (Order) = Enabled, (Invoice) = Enabled for capture moment</li>
+                <li class="relative pl-8 hexagon-bullet">Set reminder to capture before auth expiry</li>
+                <li class="relative pl-8 hexagon-bullet">Picking policy = ship only after invoice</li>
+            </ul>
+        </div>
+
+        <div class="bg-white border-t-4 border-charcoal shadow-sm p-6">
+            <h3 class="text-lg font-bold text-charcoal mb-3">High-fraud categories</h3>
+            <p class="text-gray-700 leading-relaxed mb-4">
+                Enable 3D Secure/AVS at the gateway, set Payment Action to Authorize Only, use Payment Review or manual review, then invoice only approved orders.
+            </p>
+            <p class="font-semibold text-charcoal mb-2 text-sm">Checklist:</p>
+            <ul class="space-y-2 text-gray-700 text-sm">
+                <li class="relative pl-8 hexagon-bullet">Payment Action = Authorize Only</li>
+                <li class="relative pl-8 hexagon-bullet">Gateway risk tools = On (3DS/AVS/CVV)</li>
+                <li class="relative pl-8 hexagon-bullet">Sales Emails = hold Shipment email until shipped</li>
+                <li class="relative pl-8 hexagon-bullet">Queue = Payment Review for manual action</li>
+                <li class="relative pl-8 hexagon-bullet">Void unauthorized/denied payments when appropriate</li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<section class="mb-10">
+    <h2 class="text-2xl font-bold text-charcoal mb-6">Alternatives and Comparisons</h2>
+
+    <div class="bg-white shadow-sm overflow-hidden mb-6">
+        <table class="w-full text-sm">
+            <thead>
+                <tr class="bg-gray-100">
+                    <th class="text-left px-6 py-4 font-semibold text-gray-900 border-b border-gray-200 w-1/4">Approach</th>
+                    <th class="text-left px-6 py-4 font-semibold text-gray-900 border-b border-gray-200">Pros</th>
+                    <th class="text-left px-6 py-4 font-semibold text-gray-900 border-b border-gray-200">Cons</th>
+                    <th class="text-left px-6 py-4 font-semibold text-gray-900 border-b border-gray-200">Best for</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="px-6 py-4 font-medium text-charcoal border-b border-gray-100">Authorize &amp; Capture</td>
+                    <td class="px-6 py-4 text-gray-700 border-b border-gray-100">Faster cash flow, fewer manual steps, auto-invoice.</td>
+                    <td class="px-6 py-4 text-gray-700 border-b border-gray-100">If items later go out of stock or change, you may need refunds.</td>
+                    <td class="px-6 py-4 text-gray-700 border-b border-gray-100">In-stock, low-fraud SKUs and fast-moving catalogs.</td>
+                </tr>
+                <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="px-6 py-4 font-medium text-charcoal border-b border-gray-100">Authorize Only</td>
+                    <td class="px-6 py-4 text-gray-700 border-b border-gray-100">Control over capture timing, easier order changes/cancellation before capture.</td>
+                    <td class="px-6 py-4 text-gray-700 border-b border-gray-100">Authorization may expire; slower cash flow.</td>
+                    <td class="px-6 py-4 text-gray-700 border-b border-gray-100">Preorders, backorders, custom builds, or high-fraud categories.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="bg-white shadow-sm overflow-hidden mb-6">
+        <table class="w-full text-sm">
+            <thead>
+                <tr class="bg-gray-100">
+                    <th class="text-left px-6 py-4 font-semibold text-gray-900 border-b border-gray-200 w-1/3">Decision Factor</th>
+                    <th class="text-left px-6 py-4 font-semibold text-gray-900 border-b border-gray-200">Recommendation</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="px-6 py-4 font-medium text-charcoal border-b border-gray-100">Manual vs Auto Invoicing</td>
+                    <td class="px-6 py-4 text-gray-700 border-b border-gray-100">Use auto when the gateway reliably captures at order placement. Use manual to align capture with allocation/picking and to avoid double capture.</td>
+                </tr>
+                <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="px-6 py-4 font-medium text-charcoal border-b border-gray-100">Single-source vs Multi-source (MSI)</td>
+                    <td class="px-6 py-4 text-gray-700 border-b border-gray-100">Single-source is simpler but less flexible for multi-location fulfillment. Multi-source improves allocation by location and reduces split shipments; requires Source Selection at shipment.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="bg-white border-4 border-yellow-500 p-6">
+        <p class="font-bold text-charcoal mb-3">Decision guide</p>
+        <ul class="space-y-2 text-gray-700 text-sm">
+            <li class="relative pl-8 hexagon-bullet">Is the item in stock and low fraud risk? Use Authorize &amp; Capture to accelerate cash collection.</li>
+            <li class="relative pl-8 hexagon-bullet">Is lead time uncertain (preorder/backorder/custom)? Use Authorize Only and capture when ready to ship; monitor auth expiry.</li>
+            <li class="relative pl-8 hexagon-bullet">Is fraud risk high or review needed? Use Authorize Only with Payment Review; capture only after approval.</li>
+            <li class="relative pl-8 hexagon-bullet">Do you need to avoid split shipments or coordinate allocation? Favor manual invoicing aligned to picking/packing.</li>
+        </ul>
+    </div>
+</section>
+
+<section class="mb-10">
+    <h2 class="text-2xl font-bold text-charcoal mb-6">Business Impact</h2>
+
+    <div class="bg-white border-t-4 border-yellow-500 shadow-sm p-8 mb-6">
+        <h3 class="text-xl font-bold text-charcoal mb-4">For Merchants</h3>
+        <p class="text-gray-700 leading-relaxed mb-4"><strong>KPIs:</strong> Days Sales Outstanding (DSO), Authorization-to-Capture Conversion Rate, Refund Rate, Chargeback Rate.</p>
+        <p class="text-gray-700 leading-relaxed mb-4"><strong>Targets:</strong> Auth→Capture &gt; 98% for in-stock items; Avg time New→Processing &lt; 15 min (synchronous) or &lt; 2h (asynchronous). Refund Rate &lt; 3% for shipped orders. Chargeback Rate &lt; 0.5%.</p>
+        <p class="text-gray-700 leading-relaxed"><strong>Map states to SLAs:</strong> For example, orders should move from Pending/Pending Payment to Processing within X minutes when payments are synchronous.</p>
+    </div>
+
+    <div class="bg-white border-t-4 border-orange-500 shadow-sm p-8 mb-6">
+        <h3 class="text-xl font-bold text-charcoal mb-4">For Customers</h3>
+        <p class="text-gray-700 leading-relaxed mb-4"><strong>KPIs:</strong> Time to Ship from Processing, On-time Delivery %, Proactive Email Notifications Sent.</p>
+        <p class="text-gray-700 leading-relaxed">Clear status emails reduce WISMO ("where is my order?") contacts and improve satisfaction.</p>
+    </div>
+
+    <div class="bg-white border-t-4 border-charcoal shadow-sm p-8">
+        <h3 class="text-xl font-bold text-charcoal mb-4">For Operations</h3>
+        <p class="text-gray-700 leading-relaxed mb-4"><strong>KPIs:</strong> Pick/Pack SLA from Processing, Partial Shipment Frequency, Orders stuck &gt;24h in Pending Payment.</p>
+        <p class="text-gray-700 leading-relaxed">Use state/status dashboards to prioritize Processing orders for fulfillment.</p>
+    </div>
+</section>
+
+<section class="mb-10">
+    <h2 class="text-2xl font-bold text-charcoal mb-6">Common Misconceptions</h2>
+    <div class="space-y-4">
+        <div class="bg-white border-l-4 border-orange-500 p-6 shadow-sm">
+            <p class="font-bold text-charcoal mb-2">"Processing means shipped"</p>
+            <p class="text-gray-700 leading-relaxed">Processing indicates the order is being worked: it typically means at least one invoice and/or shipment exists. Best practice is to invoice before shipping, but Magento can enter Processing if a shipment is created first.</p>
+        </div>
+        <div class="bg-white border-l-4 border-orange-500 p-6 shadow-sm">
+            <p class="font-bold text-charcoal mb-2">"Complete means delivered"</p>
+            <p class="text-gray-700 leading-relaxed">Complete means Magento recorded all items as invoiced and shipped; delivery happens after shipment with the carrier.</p>
+        </div>
+        <div class="bg-white border-l-4 border-orange-500 p-6 shadow-sm">
+            <p class="font-bold text-charcoal mb-2">"You can cancel any order"</p>
+            <p class="text-gray-700 leading-relaxed">After invoicing/shipping, use a credit memo; Cancel is only for orders with no invoices/shipments.</p>
+        </div>
+        <div class="bg-white border-l-4 border-orange-500 p-6 shadow-sm">
+            <p class="font-bold text-charcoal mb-2">"Credit memo always returns stock"</p>
+            <p class="text-gray-700 leading-relaxed">Stock increases only if you select Return to Stock for the refunded items.</p>
+        </div>
+    </div>
+</section>
+
+<section class="mb-10">
+    <h2 class="text-2xl font-bold text-charcoal mb-6">Implementation Considerations</h2>
+
+    <div class="bg-white border-4 border-yellow-500 p-4 mb-6">
+        <div class="flex items-start gap-3">
+            <svg class="w-5 h-5 text-orange-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+            </svg>
+            <div>
+                <p class="font-semibold text-charcoal mb-1">Configuration Paths</p>
+                <p class="text-charcoal/80 text-sm leading-relaxed">All configuration settings mentioned below are accessible from the Magento Admin panel.</p>
+            </div>
+        </div>
+    </div>
+
+    <ul class="space-y-3 text-gray-700">
+        <li class="relative pl-8 hexagon-bullet"><strong class="text-charcoal">Payment Action:</strong> <span class="step-code">Stores &gt; Configuration &gt; Sales &gt; Payment Methods &gt; select your method &gt; Payment Action</span> (Authorize Only vs Authorize &amp; Capture).</li>
+        <li class="relative pl-8 hexagon-bullet"><strong class="text-charcoal">Sales Emails:</strong> <span class="step-code">Stores &gt; Configuration &gt; Sales &gt; Sales Emails</span> (Order, Invoice, Shipment, Credit Memo notifications).</li>
+        <li class="relative pl-8 hexagon-bullet"><strong class="text-charcoal">Order Status Management:</strong> <span class="step-code">Stores &gt; Settings &gt; Order Status</span> (create custom statuses and assign to states).</li>
+        <li class="relative pl-8 hexagon-bullet"><strong class="text-charcoal">Inventory and Backorders:</strong> <span class="step-code">Stores &gt; Configuration &gt; Catalog &gt; Inventory &gt; Product Stock Options</span> (Backorders, Out-of-Stock Threshold). Per-product overrides under <span class="step-code">Catalog &gt; Products</span>.</li>
+        <li class="relative pl-8 hexagon-bullet"><strong class="text-charcoal">MSI Sources and Stocks (2.3+):</strong> Configure Sources and Stocks under <span class="step-code">Stores &gt; Inventory</span>. At shipment, select source quantities.</li>
+        <li class="relative pl-8 hexagon-bullet"><strong class="text-charcoal">Source Selection Algorithm (MSI):</strong> <span class="step-code">Stores &gt; Configuration &gt; Catalog &gt; Inventory &gt; Source Selection Algorithm</span> — choose how sources are suggested during shipment (for example, Priority, Distance Priority if configured).</li>
+        <li class="relative pl-8 hexagon-bullet"><strong class="text-charcoal">Permissions:</strong> <span class="step-code">System &gt; Permissions &gt; User Roles</span> (control who can invoice, ship, and issue credit memos).</li>
+    </ul>
+</section>
+
+<section class="mb-10">
+    <h2 class="text-2xl font-bold text-charcoal mb-6">Related Concepts</h2>
+    <div class="bg-white border-t-4 border-yellow-500 shadow-sm p-6">
+        <ul class="grid md:grid-cols-2 gap-3">
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Orders (Admin)</li>
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Invoices (Admin)</li>
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Shipments (Admin)</li>
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Credit Memos (Admin)</li>
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Order Status and State</li>
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Inventory Management (MSI) Basics</li>
+            <li class="relative pl-8 text-gray-700 hexagon-bullet">Payment Methods configuration</li>
+        </ul>
+    </div>
+</section>
+
+<style>
+/* Hexagon bullet marker for lists */
+.hexagon-bullet::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.5em;
+    width: 9px;
+    height: 9px;
+    background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 2L21 7V17L12 22L3 17V7L12 2Z' stroke='%23F26423' stroke-width='2.5' stroke-linejoin='miter'/%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+/* Step code styling for inline code paths */
+.step-code {
+    background: #2C2C2C;
+    color: #F1BC1B;
+    padding: 0.25rem 0.5rem;
+    font-family: 'Courier New', monospace;
+    font-size: 0.875rem;
+}
+</style>
