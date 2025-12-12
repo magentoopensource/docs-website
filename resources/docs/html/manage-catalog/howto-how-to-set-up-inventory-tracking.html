@@ -1,0 +1,671 @@
+
+<h1 class="text-4xl font-bold text-charcoal mb-6">How to Set Up Inventory Tracking</h1>
+
+<div class="flex flex-wrap items-center gap-3 mb-8">
+    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-orange-50 text-orange-700">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        6 minutes
+    </span>
+    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-yellow-50 text-brown">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+        </svg>
+        Intermediate
+    </span>
+    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-orange-50 text-orange-700">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.99 1.99 0 013 12V7a4 4 0 014-4z"/>
+        </svg>
+        How-To
+    </span>
+</div>
+
+<section class="bg-white mb-8 p-8 border-t-4 border-yellow-500 shadow-sm">
+    <h2 class="text-2xl font-bold text-charcoal mb-4 mt-0">Overview</h2>
+    <p class="text-lg text-gray-700 leading-relaxed mb-6">
+        Set up reliable inventory tracking in Magento 2 to prevent overselling, reduce out-of-stock disappointments, and automate low-stock visibility. This how-to helps a Growing Merchant configure stock levels, low stock alerts, and backorders to improve conversion and customer trust.
+    </p>
+    <div class="bg-gray-50 border-l-4 border-yellow-500 p-6">
+        <h3 class="text-lg font-bold text-charcoal mb-3">Benefits of Proper Inventory Tracking</h3>
+        <ul class="space-y-2 pl-6">
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Prevent overselling and customer disappointment with accurate stock visibility</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Automate low-stock alerts to maintain optimal inventory levels</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Capture additional sales with backorder policies when appropriate</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Improve customer trust with urgency messaging and stock alerts</li>
+        </ul>
+    </div>
+</section>
+
+<section class="bg-white mb-8 p-8 border-t-4 border-yellow-500 shadow-sm">
+    <h2 class="text-2xl font-bold text-charcoal mb-6 mt-0">Prerequisites</h2>
+    <p class="text-gray-700 mb-6">Before you begin, make sure you have:</p>
+    <div class="grid md:grid-cols-2 gap-4">
+        <div class="relative bg-gradient-to-br from-orange-50 to-white border border-orange-500/30 p-5">
+            <div class="flex items-start gap-4">
+                <div class="w-10 h-10 bg-orange-500 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-charcoal mb-1">Admin Panel Access</h4>
+                    <p class="text-sm text-charcoal/70">Access to Magento Admin Panel</p>
+                </div>
+            </div>
+        </div>
+        <div class="relative bg-gradient-to-br from-yellow-50 to-white border border-yellow-500/30 p-5">
+            <div class="flex items-start gap-4">
+                <div class="w-10 h-10 bg-yellow-500 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                    </svg>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-charcoal mb-1">Product Catalog Setup</h4>
+                    <p class="text-sm text-charcoal/70">Existing product catalog configured</p>
+                </div>
+            </div>
+        </div>
+        <div class="relative bg-gradient-to-br from-orange-50 to-white border border-orange-500/30 p-5">
+            <div class="flex items-start gap-4">
+                <div class="w-10 h-10 bg-orange-500 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-charcoal mb-1">Server Cron Enabled</h4>
+                    <p class="text-sm text-charcoal/70">Required for alerts, reservations/indexers, and emails</p>
+                </div>
+            </div>
+        </div>
+        <div class="relative bg-gradient-to-br from-yellow-50 to-white border border-yellow-500/30 p-5">
+            <div class="flex items-start gap-4">
+                <div class="w-10 h-10 bg-yellow-500 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-charcoal mb-1">Admin Permissions</h4>
+                    <p class="text-sm text-charcoal/70">Permissions for Stores › Configuration, Inventory, Sales › Orders, and Reports</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="bg-white mb-8 p-8 border-t-4 border-yellow-500 shadow-sm">
+    <h2 class="text-2xl font-bold text-charcoal mb-4 mt-0">What You'll Accomplish</h2>
+    <p class="text-gray-700 mb-4">By following this guide, you will:</p>
+    <ul class="space-y-3 pl-6">
+        <li class="relative hexagon-bullet pl-6 text-gray-700">Set up inventory tracking across your catalog using Magento's inventory (MSI) features</li>
+        <li class="relative hexagon-bullet pl-6 text-gray-700">Improve store performance and customer experience with low-stock alerts and backorder policies</li>
+    </ul>
+</section>
+
+<h2 class="text-3xl font-bold text-charcoal mb-8">Step-by-Step Instructions</h2>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">0</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Choose your inventory scope (single vs. multi-source)</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <p class="text-gray-700 leading-relaxed mb-4">
+            If you have one stock location, use the Default Source and Default Stock. If you have multiple locations, you'll need to configure additional sources and stocks.
+        </p>
+        <p class="text-gray-700 leading-relaxed mb-4">
+            <strong>Single location:</strong> Use the Default Source and Default Stock that come preconfigured with Magento.
+        </p>
+        <p class="text-gray-700 leading-relaxed mb-4">
+            <strong>Multiple locations:</strong>
+        </p>
+        <ol class="space-y-3 list-none pl-0 mb-4">
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">1.</span>
+                Go to <span class="step-code">Stores › Inventory › Sources</span> to add each location (name, code, contact, pickup, and address)
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">2.</span>
+                Go to <span class="step-code">Stores › Inventory › Stocks</span> to create/adjust a Stock that aggregates the sources your website uses
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">3.</span>
+                Open the Sales Channels tab and assign the appropriate Website(s)
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">4.</span>
+                Save the Stock to enable sales from that stock on the website
+            </li>
+        </ol>
+        <div class="bg-white border-4 border-yellow-500 p-4 flex gap-3 items-start">
+            <svg class="w-5 h-5 text-orange-500 flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+            <p class="text-charcoal text-sm"><strong>Note on scope:</strong> In this context, "scope" refers to your inventory model—single location vs. multiple locations—not the Magento configuration scope.</p>
+        </div>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">1</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Enable stock visibility and urgency messaging</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <div class="bg-yellow-50 border-4 border-yellow-500 p-4 mb-4 flex gap-3 items-start">
+            <svg class="w-6 h-6 text-orange-500 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7zm2.85 11.1l-.85.6V16h-4v-2.3l-.85-.6A4.997 4.997 0 017 9c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.63-.8 3.16-2.15 4.1z"/>
+            </svg>
+            <div>
+                <p class="font-bold text-charcoal mb-1">Note on scope and cache</p>
+                <p class="text-charcoal text-sm">Use the scope switcher (upper-left) to select the target Website before making changes. After saving, if prompted, go to System › Cache Management and refresh the Configuration and Page Cache.</p>
+            </div>
+        </div>
+        <p class="text-gray-700 leading-relaxed mb-4">
+            Go to <span class="step-code">Stores › Configuration › Catalog › Inventory › Stock Options</span>:
+        </p>
+        <ul class="space-y-3 pl-6 mb-4">
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Set <strong>Display Out of Stock Products = Yes</strong> (recommended for SEO and back-in-stock alerts)</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Set <strong>Only X left Threshold</strong> = a small number (e.g., 5) to show urgency on product pages</li>
+        </ul>
+        <div class="bg-orange-50 border-4 border-orange-500 p-4 flex gap-3 items-start">
+            <svg class="w-6 h-6 text-orange-500 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2L1 21h22L12 2zm0 3.99L19.53 19H4.47L12 5.99zM11 16h2v2h-2v-2zm0-6h2v4h-2v-4z"/>
+            </svg>
+            <div>
+                <p class="font-bold text-charcoal mb-1">Business Tip</p>
+                <p class="text-charcoal text-sm">Keeping out-of-stock product pages live preserves indexed URLs and captures demand via stock alerts. Urgency messaging on low-inventory SKUs can lift product page conversion rates when inventory is tight.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">2</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Define global product stock controls</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <p class="text-gray-700 leading-relaxed mb-4">
+            Go to <span class="step-code">Stores › Configuration › Catalog › Inventory › Product Stock Options</span> and set:
+        </p>
+        <ul class="space-y-3 pl-6 mb-4">
+            <li class="relative hexagon-bullet pl-6 text-gray-700"><strong>Manage Stock = Yes</strong></li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700"><strong>Backorders</strong> = No Backorders (or Allow Qty Below 0 / Allow Qty Below 0 and Notify Customer)</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700"><strong>Out-of-Stock Threshold = 0</strong> (use a negative number like -5 to allow five backorders)</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700"><strong>Minimum Qty Allowed in Shopping Cart / Maximum Qty Allowed in Shopping Cart</strong> = per your business rules</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700"><strong>Notify for Quantity Below</strong> = your low-stock trigger (e.g., 10)</li>
+        </ul>
+        <p class="text-gray-700 leading-relaxed mb-4">
+            Click <strong>Save Config</strong>.
+        </p>
+        <div class="bg-orange-50 border-4 border-orange-500 p-4 flex gap-3 items-start">
+            <svg class="w-6 h-6 text-orange-500 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2L1 21h22L12 2zm0 3.99L19.53 19H4.47L12 5.99zM11 16h2v2h-2v-2zm0-6h2v4h-2v-4z"/>
+            </svg>
+            <div>
+                <p class="font-bold text-charcoal mb-1">Revenue Guidance</p>
+                <p class="text-charcoal text-sm">Use backorders when supplier lead times are predictable and margins cover potential cancellations or expedited shipping. Appropriate backorders can capture otherwise lost sales; poor use can increase cancellations and support costs.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">3</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Configure customer back-in-stock alerts</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <div class="bg-yellow-50 border-4 border-yellow-500 p-4 mb-4 flex gap-3 items-start">
+            <svg class="w-6 h-6 text-orange-500 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7zm2.85 11.1l-.85.6V16h-4v-2.3l-.85-.6A4.997 4.997 0 017 9c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.63-.8 3.16-2.15 4.1z"/>
+            </svg>
+            <div>
+                <p class="font-bold text-charcoal mb-1">Note on scope and cache</p>
+                <p class="text-charcoal text-sm">Product Alerts are configured per Website. Use the scope switcher (upper-left) to select the intended Website before changing settings. After saving, refresh caches if prompted.</p>
+            </div>
+        </div>
+        <p class="text-gray-700 leading-relaxed mb-4">
+            Go to <span class="step-code">Stores › Configuration › Catalog › Catalog › Product Alerts</span>:
+        </p>
+        <ul class="space-y-3 pl-6 mb-4">
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Set <strong>Allow Alert When Product Comes Back in Stock = Yes</strong></li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Choose Default Sender and Email Templates</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Ensure cron is running to send alerts</li>
+        </ul>
+        <div class="bg-white border-4 border-yellow-500 p-4 mb-4 flex gap-3 items-start">
+            <svg class="w-5 h-5 text-orange-500 flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+            <p class="text-charcoal text-sm"><strong>Scope and eligibility:</strong> Product Alerts are website-scoped. By default, only registered customers can subscribe to stock alerts.</p>
+        </div>
+        <div class="bg-orange-50 border-4 border-orange-500 p-4 mb-4 flex gap-3 items-start">
+            <svg class="w-6 h-6 text-orange-500 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2L1 21h22L12 2zm0 3.99L19.53 19H4.47L12 5.99zM11 16h2v2h-2v-2zm0-6h2v4h-2v-4z"/>
+            </svg>
+            <div>
+                <p class="font-bold text-charcoal mb-1">KPI Tip</p>
+                <p class="text-charcoal text-sm">Track subscribers per SKU, open/click rates, conversion rate from alert emails, and time-to-restock to quantify recovered revenue and inform purchasing.</p>
+            </div>
+        </div>
+        <p class="font-semibold text-charcoal mb-2">Verification:</p>
+        <ol class="space-y-2 list-none pl-0">
+            <li class="relative pl-10 text-gray-700">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">1.</span>
+                From the storefront, log in as a customer and click "Notify me when this product is in stock" for SKU HDB-001
+            </li>
+            <li class="relative pl-10 text-gray-700">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">2.</span>
+                Set the product to In Stock with Qty › 0
+            </li>
+            <li class="relative pl-10 text-gray-700">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">3.</span>
+                Run cron or wait for cron to process product alerts
+            </li>
+            <li class="relative pl-10 text-gray-700">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">4.</span>
+                Confirm the back-in-stock email is received
+            </li>
+        </ol>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">4</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Assign sources and quantities to a product</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <p class="text-gray-700 leading-relaxed mb-4">
+            Go to <span class="step-code">Catalog › Products</span>, edit SKU HDB-001:
+        </p>
+        <ol class="space-y-3 list-none pl-0">
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">1.</span>
+                In the product, open the <strong>Sources</strong> section
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">2.</span>
+                Click <strong>Assign Sources</strong>, select your source(s)
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">3.</span>
+                Set <strong>Status = In Stock</strong>
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">4.</span>
+                Set <strong>Qty</strong> (e.g., 150)
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">5.</span>
+                Click <strong>Save</strong>
+            </li>
+        </ol>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">5</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Adjust per-product Advanced Inventory (optional overrides)</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <p class="text-gray-700 leading-relaxed mb-4">
+            On the same product, open <strong>Advanced Inventory</strong>. If needed, uncheck <strong>Use Config Settings</strong> to override:
+        </p>
+        <ul class="space-y-3 pl-6">
+            <li class="relative hexagon-bullet pl-6 text-gray-700"><strong>Backorders</strong> (e.g., allow for prelaunch SKUs)</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700"><strong>Notify for Quantity Below</strong> (e.g., set 25 for high-velocity items)</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700"><strong>Out-of-Stock Threshold</strong> (e.g., -5 if you allow five backorders)</li>
+        </ul>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">6</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Set low-stock alert threshold for operational monitoring</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <p class="text-gray-700 leading-relaxed mb-4">
+            Using either global <strong>Notify for Quantity Below</strong> or product-level overrides, confirm thresholds reflect your reorder points.
+        </p>
+        <div class="bg-orange-50 border-4 border-orange-500 p-4 mb-4 flex gap-3 items-start">
+            <svg class="w-6 h-6 text-orange-500 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2L1 21h22L12 2zm0 3.99L19.53 19H4.47L12 5.99zM11 16h2v2h-2v-2zm0-6h2v4h-2v-4z"/>
+            </svg>
+            <div>
+                <p class="font-bold text-charcoal mb-1">Replenishment Guidance</p>
+                <p class="text-charcoal text-sm mb-2">Set Notify for Quantity Below to your Reorder Point = (average daily sales × supplier lead time in days) + safety stock. This reduces stockouts and rush shipping costs.</p>
+            </div>
+        </div>
+        <p class="font-semibold text-charcoal mb-2">Admin notifications:</p>
+        <p class="text-gray-700 leading-relaxed">
+            To receive low-stock emails, go to <span class="step-code">Stores › Configuration › Catalog › Inventory</span> and configure the Low Stock Email settings (enable sending, set recipient email, sender, and template). These emails are sent by cron; ensure server cron is enabled.
+        </p>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">7</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Validate salable quantity with a test order</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <ol class="space-y-4 list-none pl-0 mb-4">
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">1.</span>
+                From the storefront, purchase 2 units of HDB-001
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">2.</span>
+                After placing the order, go to <span class="step-code">Catalog › Products</span>
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">3.</span>
+                Click <strong>Columns</strong> and enable <strong>Salable Quantity</strong>
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">4.</span>
+                Find SKU HDB-001 and confirm <strong>Salable Quantity</strong> decreased by 2
+            </li>
+        </ol>
+        <div class="bg-white border-4 border-yellow-500 p-4 flex gap-3 items-start">
+            <svg class="w-5 h-5 text-orange-500 flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+            <p class="text-charcoal text-sm"><strong>Note:</strong> In MSI, placing an order creates a reservation that reduces Salable Quantity immediately. Source Quantity (per warehouse) decreases when the order is shipped. If indexers are on schedule, allow cron to process; alternatively, reindex for immediate verification.</p>
+        </div>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">8</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Trigger and confirm low-stock status</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <p class="text-gray-700 leading-relaxed mb-4">
+            Lower the product qty to cross below the threshold (e.g., set qty from 12 to 9 when Notify for Quantity Below = 10) or place enough test orders to reach it.
+        </p>
+        <ol class="space-y-3 list-none pl-0">
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">1.</span>
+                Go to <span class="step-code">Reports › Products › Low Stock</span>
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">2.</span>
+                Verify HDB-001 appears
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">3.</span>
+                If emails are supported and configured, check the inbox
+            </li>
+        </ol>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">9</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Test backorder behavior (if enabled)</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <p class="text-gray-700 leading-relaxed mb-4">
+            Set the product qty to 0 while Backorders are allowed globally or on the product.
+        </p>
+        <ol class="space-y-3 list-none pl-0">
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">1.</span>
+                From the storefront, add HDB-001 to the cart and proceed to checkout
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">2.</span>
+                With backorders enabled, confirm the notice appears on the product page and/or in the cart
+            </li>
+            <li class="relative pl-10">
+                <span class="absolute left-0 top-0 font-semibold text-charcoal">3.</span>
+                Example notice: "We don't have as many as you requested, so we'll backorder the remaining items"
+            </li>
+        </ol>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">10</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Finalize operational settings</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <ul class="space-y-3 pl-6 mb-4">
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Ensure <strong>Display Out of Stock Products</strong> remains as intended</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Confirm daily/weekly review cadence for <span class="step-code">Reports › Low Stock</span></li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Document reorder points per category/SKU</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Train staff to go to <span class="step-code">Sales › Orders › View Order › Credit Memo</span>, check <strong>Return to Stock</strong> for each item being refunded, and submit the credit memo</li>
+        </ul>
+        <div class="bg-orange-50 border-4 border-orange-500 p-4 flex gap-3 items-start">
+            <svg class="w-6 h-6 text-orange-500 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2L1 21h22L12 2zm0 3.99L19.53 19H4.47L12 5.99zM11 16h2v2h-2v-2zm0-6h2v4h-2v-4z"/>
+            </svg>
+            <div>
+                <p class="font-bold text-charcoal mb-1">Operating Rhythm</p>
+                <p class="text-charcoal text-sm">Assign a daily check of Reports › Products › Low Stock to an inventory coordinator and a weekly review of SKUs with high alert subscribers to inform buy-plans.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h2 class="text-3xl font-bold text-charcoal mb-6">Verification</h2>
+<p class="text-gray-700 mb-6">To confirm everything is working correctly:</p>
+
+<ul class="list-none my-8 pl-0 space-y-5">
+    <li class="bg-white p-7 shadow-sm">
+        <div class="flex items-center justify-between mb-5">
+            <strong class="text-lg font-bold text-charcoal">Inventory Tracking</strong>
+        </div>
+        <ul class="grid gap-3 m-0 p-0 list-none">
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                Catalog › Products grid shows expected Salable Quantity for HDB-001 after a test order
+            </li>
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                Reports › Products › Low Stock includes HDB-001 after crossing the threshold
+            </li>
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                A test backorder can be placed and the backorder notice appears
+            </li>
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                A test stock alert email is received by the customer (if enabled)
+            </li>
+        </ul>
+    </li>
+</ul>
+
+<h2 class="text-3xl font-bold text-charcoal mb-6">Common Issues and Solutions</h2>
+
+<div class="space-y-4 my-8">
+    <div class="bg-white shadow-md overflow-hidden border-t-4 border-orange-500">
+        <button class="w-full p-5 text-left cursor-pointer grid grid-cols-[1fr_auto] gap-4 items-center hover:bg-orange-50 transition-colors" onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('svg').classList.toggle('rotate-180')">
+            <div>
+                <h3 class="text-xl font-bold text-charcoal mb-1">Salable Qty not decreasing after order</h3>
+                <p class="text-charcoal/60 text-sm">Reservations not being created or indexers not running</p>
+            </div>
+            <svg class="w-8 h-8 text-charcoal/50 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+        </button>
+        <div class="hidden border-t border-orange-500/30">
+            <div class="p-6">
+                <h4 class="font-bold text-charcoal mb-3">Solution</h4>
+                <ul class="list-none p-0 space-y-2">
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-orange-500 rounded-full"></span>
+                        Ensure cron is running and reservations are enabled
+                    </li>
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-orange-500 rounded-full"></span>
+                        Reindex at System › Tools › Index Management (Inventory indexers)
+                    </li>
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-orange-500 rounded-full"></span>
+                        Verify the order is not canceled
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white shadow-md overflow-hidden border-t-4 border-orange-500">
+        <button class="w-full p-5 text-left cursor-pointer grid grid-cols-[1fr_auto] gap-4 items-center hover:bg-orange-50 transition-colors" onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('svg').classList.toggle('rotate-180')">
+            <div>
+                <h3 class="text-xl font-bold text-charcoal mb-1">Low Stock report empty</h3>
+                <p class="text-charcoal/60 text-sm">Configuration or stock assignment issue</p>
+            </div>
+            <svg class="w-8 h-8 text-charcoal/50 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+        </button>
+        <div class="hidden border-t border-orange-500/30">
+            <div class="p-6">
+                <h4 class="font-bold text-charcoal mb-3">Solution</h4>
+                <ul class="list-none p-0 space-y-2">
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-orange-500 rounded-full"></span>
+                        Verify Notify for Quantity Below › 0
+                    </li>
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-orange-500 rounded-full"></span>
+                        Reindex inventory indexers
+                    </li>
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-orange-500 rounded-full"></span>
+                        Confirm the Stock is assigned to the Website in Stores › Inventory › Stocks › Sales Channels
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white shadow-md overflow-hidden border-t-4 border-yellow-500">
+        <button class="w-full p-5 text-left cursor-pointer grid grid-cols-[1fr_auto] gap-4 items-center hover:bg-yellow-50 transition-colors" onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('svg').classList.toggle('rotate-180')">
+            <div>
+                <h3 class="text-xl font-bold text-charcoal mb-1">Back-in-stock alert not sent</h3>
+                <p class="text-charcoal/60 text-sm">Product Alerts not enabled or cron not running</p>
+            </div>
+            <svg class="w-8 h-8 text-charcoal/50 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+        </button>
+        <div class="hidden border-t border-yellow-500/30">
+            <div class="p-6">
+                <h4 class="font-bold text-charcoal mb-3">Solution</h4>
+                <ul class="list-none p-0 space-y-2">
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-yellow-500 rounded-full"></span>
+                        Confirm Product Alerts are enabled at the correct website scope
+                    </li>
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-yellow-500 rounded-full"></span>
+                        Ensure cron is running
+                    </li>
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-yellow-500 rounded-full"></span>
+                        Verify the customer is subscribed and the product returned to In Stock with Qty › 0
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white shadow-md overflow-hidden border-t-4 border-yellow-500">
+        <button class="w-full p-5 text-left cursor-pointer grid grid-cols-[1fr_auto] gap-4 items-center hover:bg-yellow-50 transition-colors" onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('svg').classList.toggle('rotate-180')">
+            <div>
+                <h3 class="text-xl font-bold text-charcoal mb-1">Cannot add to cart when backorders enabled</h3>
+                <p class="text-charcoal/60 text-sm">Product-level Advanced Inventory override conflict</p>
+            </div>
+            <svg class="w-8 h-8 text-charcoal/50 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+        </button>
+        <div class="hidden border-t border-yellow-500/30">
+            <div class="p-6">
+                <h4 class="font-bold text-charcoal mb-3">Solution</h4>
+                <ul class="list-none p-0 space-y-2">
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-yellow-500 rounded-full"></span>
+                        Check product-level Advanced Inventory overrides
+                    </li>
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-yellow-500 rounded-full"></span>
+                        Ensure Out-of-Stock Threshold is negative if you plan to allow N backorders
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white shadow-md overflow-hidden border-t-4 border-charcoal">
+        <button class="w-full p-5 text-left cursor-pointer grid grid-cols-[1fr_auto] gap-4 items-center hover:bg-off-white transition-colors" onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('svg').classList.toggle('rotate-180')">
+            <div>
+                <h3 class="text-xl font-bold text-charcoal mb-1">Out-of-stock items not visible on storefront</h3>
+                <p class="text-charcoal/60 text-sm">Configuration or cache issue</p>
+            </div>
+            <svg class="w-8 h-8 text-charcoal/50 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+        </button>
+        <div class="hidden border-t border-charcoal/20">
+            <div class="p-6">
+                <h4 class="font-bold text-charcoal mb-3">Solution</h4>
+                <ul class="list-none p-0 space-y-2">
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-charcoal rounded-full"></span>
+                        Ensure Display Out of Stock Products = Yes at the website scope
+                    </li>
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-charcoal rounded-full"></span>
+                        Clear caches under System › Cache Management
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Hexagon bullet marker for lists */
+.hexagon-bullet::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.5em;
+    width: 9px;
+    height: 9px;
+    background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 2L21 7V17L12 22L3 17V7L12 2Z' stroke='%23F26423' stroke-width='2.5' stroke-linejoin='miter'/%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+/* Step code styling for inline code paths */
+.step-code {
+    background: #2C2C2C;
+    color: #F1BC1B;
+    padding: 0.25rem 0.5rem;
+    font-family: 'Courier New', monospace;
+    font-size: 0.875rem;
+}
+</style>
