@@ -33,7 +33,7 @@
                 $colorIndex = 0;
             @endphp
             @foreach($categories as $category)
-            <div class="bg-white dark:bg-gray-800 flex flex-col gap-6 p-6 rounded-lg border-2 border-gray-200 dark:border-gray-700 border-t-4 border-t-{{ $borderColors[$colorIndex % count($borderColors)] === 'border-yellow' ? 'yellow' : 'orange' }} shadow-sm hover:shadow-lg hover:border-t-orange hover:-translate-y-1 transition-all duration-200 focus-within:ring-2 focus-within:ring-orange focus-within:ring-offset-2">
+            <div class="bg-white dark:bg-gray-800 flex flex-col gap-6 p-6 border-2 border-gray-200 dark:border-gray-700 border-t-4 border-t-{{ $borderColors[$colorIndex % count($borderColors)] === 'border-yellow' ? 'yellow' : 'orange' }} shadow-sm hover:shadow-lg hover:border-t-orange hover:-translate-y-1 transition-all duration-200 focus-within:ring-2 focus-within:ring-orange focus-within:ring-offset-2">
                 {{-- Icon --}}
                 <div class="flex items-start justify-start w-full">
                     <div class="w-8 h-8 flex-shrink-0">
