@@ -1,0 +1,680 @@
+
+<h1 class="text-4xl font-bold text-charcoal mb-6">How to Improve Site Loading Speed</h1>
+
+<div class="flex flex-wrap items-center gap-3 mb-8">
+    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-orange-50 text-orange-700">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        6 minutes
+    </span>
+    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-yellow-50 text-brown">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+        </svg>
+        Intermediate
+    </span>
+    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-orange-50 text-orange-700">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.99 1.99 0 013 12V7a4 4 0 014-4z"/>
+        </svg>
+        How-To
+    </span>
+</div>
+
+<section class="bg-white mb-8 p-8 border-t-4 border-yellow-500 shadow-sm">
+    <h2 class="text-2xl font-bold text-charcoal mb-4 mt-0">Overview</h2>
+
+    <div class="bg-gray-50 border-l-4 border-yellow-500 p-6 mb-6">
+        <h3 class="text-lg font-bold text-charcoal mb-3">Why Site Speed Matters</h3>
+        <ul class="space-y-2 pl-6">
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Lower bounce rates and increase conversion by 1-3% per 0.5s improvement</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Improve Core Web Vitals (LCP, INP, CLS) for better SEO rankings</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Reduce ad cost-per-click with better Quality Score</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Offload 50-80% of origin traffic with CDN and Full Page Cache</li>
+            <li class="relative hexagon-bullet pl-6 text-gray-700">Lower infrastructure costs and improve customer experience</li>
+        </ul>
+    </div>
+
+    <p class="text-lg text-gray-700 leading-relaxed mb-6">
+        Improve conversion and SEO by reducing your Magento 2 storefront loading times. Faster pages lower bounce rate, increase add-to-cart and checkout completion, and reduce infrastructure costs. This how-to shows a growing merchant how to optimize images, caching, and frontend assets using Magento Admin, with optional advanced steps for developers/CDN.
+    </p>
+    <p class="text-gray-700 leading-relaxed mb-4">
+        Improving Core Web Vitals such as LCP and INP can raise conversion rates and lower ad cost-per-click via better Quality Score. As a benchmark, many merchants see a 1-3% conversion uplift per ~0.5s LCP improvement on mobile. Using a CDN with Full Page Cache (FPC) often offloads 50-80% of origin traffic, reducing hosting costs.
+    </p>
+</section>
+
+<section class="bg-white mb-8 p-8 border-t-4 border-yellow-500 shadow-sm">
+    <h2 class="text-2xl font-bold text-charcoal mb-6 mt-0">Prerequisites</h2>
+    <p class="text-gray-700 mb-6">Before you begin, make sure you have:</p>
+    <div class="grid md:grid-cols-2 gap-4">
+        <div class="relative bg-gradient-to-br from-orange-50 to-white border border-orange-500/30 p-5">
+            <div class="flex items-start gap-4">
+                <div class="w-10 h-10 bg-orange-500 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-charcoal mb-1">Magento Admin Access</h4>
+                    <p class="text-sm text-charcoal/70">Access to Magento Admin Panel</p>
+                </div>
+            </div>
+        </div>
+        <div class="relative bg-gradient-to-br from-yellow-50 to-white border border-yellow-500/30 p-5">
+            <div class="flex items-start gap-4">
+                <div class="w-10 h-10 bg-yellow-500 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-charcoal mb-1">Staging Environment</h4>
+                    <p class="text-sm text-charcoal/70">Staging environment to test changes</p>
+                </div>
+            </div>
+        </div>
+        <div class="relative bg-gradient-to-br from-orange-50 to-white border border-orange-500/30 p-5">
+            <div class="flex items-start gap-4">
+                <div class="w-10 h-10 bg-orange-500 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-charcoal mb-1">Backup Plan</h4>
+                    <p class="text-sm text-charcoal/70">Maintenance window and backup/restore plan</p>
+                </div>
+            </div>
+        </div>
+        <div class="relative bg-gradient-to-br from-yellow-50 to-white border border-yellow-500/30 p-5">
+            <div class="flex items-start gap-4">
+                <div class="w-10 h-10 bg-yellow-500 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-charcoal mb-1">Advanced Setup (Optional)</h4>
+                    <p class="text-sm text-charcoal/70">CDN account, DNS control, Varnish server, and SSH access for advanced optimizations</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="bg-white mb-8 p-8 border-t-4 border-yellow-500 shadow-sm">
+    <h2 class="text-2xl font-bold text-charcoal mb-4 mt-0">What You'll Accomplish</h2>
+    <p class="text-gray-700 mb-4">By following this guide, you will:</p>
+    <ul class="space-y-3 pl-6">
+        <li class="relative hexagon-bullet pl-6 text-gray-700">Improve site loading speed with Magento 2 best practices</li>
+        <li class="relative hexagon-bullet pl-6 text-gray-700">Improve your store's performance and customer experience</li>
+    </ul>
+</section>
+
+<h2 class="text-3xl font-bold text-charcoal mb-8">Step-by-Step Instructions</h2>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">0</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Measure your baseline performance</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <div class="bg-orange-50 border-4 border-orange-500 p-4 mb-4 flex gap-3 items-start">
+            <svg class="w-6 h-6 text-orange-500 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2L1 21h22L12 2zm0 3.99L19.53 19H4.47L12 5.99zM11 16h2v2h-2v-2zm0-6h2v4h-2v-4z"/>
+            </svg>
+            <div>
+                <p class="font-bold text-charcoal mb-1">Priority: Quick Win</p>
+                <p class="text-charcoal text-sm">This step establishes your baseline metrics for measuring improvement</p>
+            </div>
+        </div>
+        <p class="text-gray-700 leading-relaxed mb-4">
+            Open Google PageSpeed Insights and test your Home, a busy Category, and a high-traffic Product page (mobile). Record LCP, INP, CLS, TTFB, and overall score. Note that INP replaced FID in 2024. For consistency, run PageSpeed Insights for mobile. In Chrome DevTools, emulate a mid-tier mobile device and Fast 3G/Slow 4G network conditions.
+        </p>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">1</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Enable and refresh Magento caches</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <div class="bg-orange-50 border-4 border-orange-500 p-4 mb-4 flex gap-3 items-start">
+            <svg class="w-6 h-6 text-orange-500 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2L1 21h22L12 2zm0 3.99L19.53 19H4.47L12 5.99zM11 16h2v2h-2v-2zm0-6h2v4h-2v-4z"/>
+            </svg>
+            <div>
+                <p class="font-bold text-charcoal mb-1">Priority: Quick Win</p>
+                <p class="text-charcoal text-sm">Immediate impact with no code changes required</p>
+            </div>
+        </div>
+        <p class="text-gray-700 leading-relaxed mb-4">
+            Go to <span class="step-code">System › Tools › Cache Management</span>. Click <strong>Select All</strong>. From the Actions dropdown, choose <strong>Enable</strong> and submit. Then click <strong>Flush Magento Cache</strong>. Also click <strong>Flush Catalog Images Cache</strong> to reset resized images.
+        </p>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">2</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Configure Full Page Cache (FPC)</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <div class="bg-yellow-500 border-4 border-amber-600 p-4 mb-4 flex gap-3 items-start">
+            <svg class="w-6 h-6 text-amber-700 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2L1 21h22L12 2zm0 3.99L19.53 19H4.47L12 5.99zM11 16h2v2h-2v-2zm0-6h2v4h-2v-4z"/>
+            </svg>
+            <div>
+                <p class="font-bold text-brown mb-1">Priority: Developer/Advanced</p>
+                <p class="text-brown text-sm">Requires developer assistance for Varnish configuration</p>
+            </div>
+        </div>
+        <p class="text-gray-700 leading-relaxed mb-4">
+            Go to <span class="step-code">Stores › Configuration › Advanced › System › Full Page Cache</span>. Set <strong>Caching Application</strong> to <strong>Built-in Application</strong> if you do not have Varnish.
+        </p>
+        <p class="text-gray-700 leading-relaxed mb-4">
+            If you already have Varnish available, select <strong>Varnish Cache</strong>, choose the correct Varnish version (6.x), set TTL (keep default 86400 unless advised otherwise), and Save Config. Click <strong>Export VCL</strong> for your version, provide the VCL to your developer to upload to the Varnish server, and reload the Varnish service. Verify that your store domain is routed through Varnish.
+        </p>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">3</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Minify CSS and JavaScript (HTTP/2-friendly)</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <div class="bg-orange-50 border-4 border-orange-500 p-4 mb-4 flex gap-3 items-start">
+            <svg class="w-6 h-6 text-orange-500 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2L1 21h22L12 2zm0 3.99L19.53 19H4.47L12 5.99zM11 16h2v2h-2v-2zm0-6h2v4h-2v-4z"/>
+            </svg>
+            <div>
+                <p class="font-bold text-charcoal mb-1">Priority: Quick Win (Admin)</p>
+                <p class="text-charcoal text-sm">Developer required in Production mode</p>
+            </div>
+        </div>
+        <p class="text-gray-700 leading-relaxed mb-4">
+            Go to <span class="step-code">Stores › Configuration › Advanced › Developer</span>. Under <strong>CSS Settings</strong>, set <strong>Minify CSS Files = Yes</strong> and <strong>Merge CSS Files = No</strong>. Under <strong>JavaScript Settings</strong>, set <strong>Minify JavaScript Files = Yes</strong>, <strong>Enable JavaScript Bundling = No</strong>, <strong>Merge JavaScript Files = No</strong>, and <strong>Move JS code to the bottom of the page = No</strong> (recommended default). If you enable Yes for Move JS code to the bottom, thoroughly test checkout, cart, and dynamic widgets on a staging site first. Under <strong>Template Settings</strong>, set <strong>Minify HTML = Yes</strong>. Save Config and Flush Cache.
+        </p>
+        <div class="bg-white border-4 border-yellow-500 p-4 mb-4 flex gap-3 items-start">
+            <svg class="w-5 h-5 text-orange-500 flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+            <div class="text-charcoal text-sm">
+                <p class="font-bold mb-2">Production Mode Fields Locked?</p>
+                <p class="mb-2">In Production mode, these fields may be locked or hidden. Have your developer change them via CLI or config.php and deploy. If fields are unavailable, ask your developer to run:</p>
+            </div>
+        </div>
+        <pre class="bg-charcoal text-yellow-500 p-4 overflow-x-auto mb-4 text-sm font-mono">bin/magento config:set dev/css/minify_files 1
+bin/magento config:set dev/js/minify_files 1
+bin/magento config:set dev/js/enable_js_bundling 0
+bin/magento config:set dev/js/merge_files 0
+bin/magento config:set dev/css/merge_css_files 0
+bin/magento config:set dev/template/minify_html 1
+# Optional (recommended default): keep scripts at top to avoid breakage
+# bin/magento config:set dev/js/move_script_to_bottom 0
+bin/magento cache:flush</pre>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">4</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Offload static and media files to a CDN (recommended)</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <div class="bg-yellow-500 border-4 border-amber-600 p-4 mb-4 flex gap-3 items-start">
+            <svg class="w-6 h-6 text-amber-700 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2L1 21h22L12 2zm0 3.99L19.53 19H4.47L12 5.99zM11 16h2v2h-2v-2zm0-6h2v4h-2v-4z"/>
+            </svg>
+            <div>
+                <p class="font-bold text-brown mb-1">Priority: Developer/Advanced</p>
+                <p class="text-brown text-sm">Requires CDN setup and configuration expertise</p>
+            </div>
+        </div>
+        <p class="text-gray-700 leading-relaxed mb-4">
+            Ensure your CDN is set up to pull from your origin. In Magento Admin, go to <span class="step-code">Stores › Configuration › General › Web</span>. Expand <strong>Base URLs</strong> and <strong>Base URLs (Secure)</strong>. Set <strong>Base URL for Static View Files</strong> and <strong>Base URL for User Media Files</strong> to your CDN URLs (HTTPS, trailing slash). In the same page, set <strong>Use Secure URLs on Storefront = Yes</strong> and <strong>Use Secure URLs in Admin = Yes</strong>. Ensure your CDN serves HTTPS. Configure CORS headers on the CDN for fonts and static assets (for example, <code class="step-code">Access-Control-Allow-Origin: *</code> or your domain). Save Config and Flush Cache. Then purge the CDN cache for <code class="step-code">/static</code> and <code class="step-code">/media</code>.
+        </p>
+        <div class="bg-gray-50 border-l-4 border-orange-500 p-4 mb-4">
+            <p class="font-semibold text-charcoal mb-2">Business Impact</p>
+            <p class="text-gray-700 text-sm">A CDN typically cuts global asset latency by 50-80% and offloads the majority of static traffic from your server, improving SEO and lowering origin costs.</p>
+        </div>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">5</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Identify and replace heavy images</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <div class="bg-orange-50 border-4 border-orange-500 p-4 mb-4 flex gap-3 items-start">
+            <svg class="w-6 h-6 text-orange-500 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2L1 21h22L12 2zm0 3.99L19.53 19H4.47L12 5.99zM11 16h2v2h-2v-2zm0-6h2v4h-2v-4z"/>
+            </svg>
+            <div>
+                <p class="font-bold text-charcoal mb-1">Priority: Quick Win</p>
+                <p class="text-charcoal text-sm">High impact on page load with minimal technical complexity</p>
+            </div>
+        </div>
+        <p class="text-gray-700 leading-relaxed mb-4">
+            Go to <span class="step-code">Content › Media › Media Gallery</span>. Sort by file size and open the largest items used on Home/Category/Product pages. For each, download and compress using an optimizer (target WebP or high-quality JPEG). Maintain correct dimensions for display (avoid oversized originals). When replacing an image used in CMS content, keep the same file path and filename to avoid broken links. Consider using an image CDN or automation (for example, automatically serve WebP/AVIF and resize by device) to reduce manual effort. Replace the file in Media Gallery (or update CMS blocks/banners) and Save. After replacing a batch, <strong>Flush Catalog Images Cache</strong>.
+        </p>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">6</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Verify lazy loading and responsive images</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <div class="bg-orange-50 border-4 border-orange-500 p-4 mb-4 flex gap-3 items-start">
+            <svg class="w-6 h-6 text-orange-500 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2L1 21h22L12 2zm0 3.99L19.53 19H4.47L12 5.99zM11 16h2v2h-2v-2zm0-6h2v4h-2v-4z"/>
+            </svg>
+            <div>
+                <p class="font-bold text-charcoal mb-1">Priority: Quick Win</p>
+                <p class="text-charcoal text-sm">Verification step to ensure best practices are in place</p>
+            </div>
+        </div>
+        <p class="text-gray-700 leading-relaxed mb-4">
+            Open a Category page in your browser and View Source or use DevTools Elements panel. Check that product and content images include <code class="step-code">loading="lazy"</code> and responsive attributes (<code class="step-code">srcset</code>/<code class="step-code">sizes</code>). If missing, consult your theme vendor or developer to enable native lazy loading and responsive images. Avoid custom code that disables lazy loading.
+        </p>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">7</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Reduce third-party scripts and pixel tags</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <div class="bg-orange-50 border-4 border-orange-500 p-4 mb-4 flex gap-3 items-start">
+            <svg class="w-6 h-6 text-orange-500 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2L1 21h22L12 2zm0 3.99L19.53 19H4.47L12 5.99zM11 16h2v2h-2v-2zm0-6h2v4h-2v-4z"/>
+            </svg>
+            <div>
+                <p class="font-bold text-charcoal mb-1">Priority: Quick Win</p>
+                <p class="text-charcoal text-sm">Often yields 200-500ms LCP improvement</p>
+            </div>
+        </div>
+        <p class="text-gray-700 leading-relaxed mb-4">
+            Go to <span class="step-code">Content › Design › Configuration</span>, edit your active theme scope. Under <strong>HTML Head</strong>, open the <strong>Scripts and Style Sheets</strong> field and review the contents. Remove unused widgets, legacy trackers, and synchronous script tags. Move remaining marketing tags into Google Tag Manager where possible and ensure they load asynchronously/deferred.
+        </p>
+        <div class="bg-gray-50 border-l-4 border-orange-500 p-4 mb-4">
+            <p class="font-semibold text-charcoal mb-2">Business Impact</p>
+            <p class="text-gray-700 text-sm">Every blocking script delays LCP/INP and can reduce add-to-cart and checkout completion rates. Consolidating tags and deferring non-critical scripts often improves LCP by 200-500ms.</p>
+        </div>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">8</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Ensure static files are signed for safe long caching</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <div class="bg-orange-50 border-4 border-orange-500 p-4 mb-4 flex gap-3 items-start">
+            <svg class="w-6 h-6 text-orange-500 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2L1 21h22L12 2zm0 3.99L19.53 19H4.47L12 5.99zM11 16h2v2h-2v-2zm0-6h2v4h-2v-4z"/>
+            </svg>
+            <div>
+                <p class="font-bold text-charcoal mb-1">Priority: Quick Win (Admin)</p>
+                <p class="text-charcoal text-sm">Developer required in Production mode</p>
+            </div>
+        </div>
+        <p class="text-gray-700 leading-relaxed mb-4">
+            Go to <span class="step-code">Stores › Configuration › Advanced › Developer › Static Files Settings</span>. Set <strong>Sign Static Files = Yes</strong>. Save Config and Flush Cache. This enables cache-busting query parameters so browsers/CDNs can cache assets longer without risking stale files after deployments.
+        </p>
+        <div class="bg-white border-4 border-yellow-500 p-4 mb-4 flex gap-3 items-start">
+            <svg class="w-5 h-5 text-orange-500 flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+            <div class="text-charcoal text-sm">
+                <p class="font-bold mb-2">Production Mode Fields Locked?</p>
+                <p class="mb-2">In Production mode, these fields may be read-only or hidden. Ask your developer to set these values via CLI or config.php and deploy:</p>
+            </div>
+        </div>
+        <pre class="bg-charcoal text-yellow-500 p-4 overflow-x-auto mb-4 text-sm font-mono">bin/magento config:set dev/static/sign 1
+bin/magento cache:flush</pre>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">9</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Confirm indexers and finish with a cache refresh</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <div class="bg-orange-50 border-4 border-orange-500 p-4 mb-4 flex gap-3 items-start">
+            <svg class="w-6 h-6 text-orange-500 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2L1 21h22L12 2zm0 3.99L19.53 19H4.47L12 5.99zM11 16h2v2h-2v-2zm0-6h2v4h-2v-4z"/>
+            </svg>
+            <div>
+                <p class="font-bold text-charcoal mb-1">Priority: Quick Win</p>
+                <p class="text-charcoal text-sm">Ensures all optimizations take effect</p>
+            </div>
+        </div>
+        <p class="text-gray-700 leading-relaxed mb-4">
+            Go to <span class="step-code">System › Tools › Index Management</span>. Ensure all critical indexers are in <strong>Update by Schedule</strong> (recommended) and statuses are not <strong>Reindex Required</strong>. If any are required, select them and choose <strong>Reindex Data</strong>. Then return to <span class="step-code">System › Tools › Cache Management</span> and <strong>Flush Magento Cache</strong>.
+        </p>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">10</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Optional (developer): Switch to Production mode and deploy assets</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <div class="bg-yellow-500 border-4 border-amber-600 p-4 mb-4 flex gap-3 items-start">
+            <svg class="w-6 h-6 text-amber-700 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2L1 21h22L12 2zm0 3.99L19.53 19H4.47L12 5.99zM11 16h2v2h-2v-2zm0-6h2v4h-2v-4z"/>
+            </svg>
+            <div>
+                <p class="font-bold text-brown mb-1">Priority: Developer/Advanced</p>
+                <p class="text-brown text-sm">Requires SSH access and CLI expertise</p>
+            </div>
+        </div>
+        <p class="text-gray-700 leading-relaxed mb-4">
+            Ask your developer to set Production mode and deploy static content for active locales and themes. This ensures pre-compiled templates and minified assets are served efficiently.
+        </p>
+        <h4 class="font-semibold text-charcoal mb-3">Developer CLI on the server:</h4>
+        <pre class="bg-charcoal text-yellow-500 p-4 overflow-x-auto mb-4 text-sm font-mono">bin/magento maintenance:enable
+bin/magento deploy:mode:set production
+bin/magento setup:di:compile
+bin/magento setup:static-content:deploy -f en_US [add other locales] --jobs=4
+bin/magento cache:flush
+bin/magento maintenance:disable
+# Verify
+bin/magento deploy:mode:show</pre>
+    </div>
+</div>
+
+<div class="border-t-4 border-yellow-500 bg-white shadow-sm p-8 mb-6">
+    <div class="flex items-center gap-4 mb-6">
+        <div class="w-10 h-10 bg-yellow-500 text-charcoal font-extrabold text-lg flex items-center justify-center flex-shrink-0">11</div>
+        <h3 class="text-2xl font-bold text-charcoal m-0">Re-measure and compare results</h3>
+    </div>
+    <div class="text-gray-700 leading-relaxed">
+        <div class="bg-orange-50 border-4 border-orange-500 p-4 mb-4 flex gap-3 items-start">
+            <svg class="w-6 h-6 text-orange-500 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2L1 21h22L12 2zm0 3.99L19.53 19H4.47L12 5.99zM11 16h2v2h-2v-2zm0-6h2v4h-2v-4z"/>
+            </svg>
+            <div>
+                <p class="font-bold text-charcoal mb-1">Priority: Quick Win</p>
+                <p class="text-charcoal text-sm">Validate improvements and identify next steps</p>
+            </div>
+        </div>
+        <p class="text-gray-700 leading-relaxed mb-4">
+            Repeat PageSpeed Insights tests for the same Home, Category, and Product URLs (mobile). Also perform a repeat-load test in your browser: load a category page twice and observe the second TTFB. Record improvements. <strong>Targets (mobile):</strong> LCP ≤ 2.5s, INP ≤ 200ms, CLS ≤ 0.1. If targets are not met, prioritize images, third-party scripts, and FPC/Varnish configuration and iterate.
+        </p>
+    </div>
+</div>
+
+<h2 class="text-3xl font-bold text-charcoal mb-6">Verification</h2>
+<p class="text-gray-700 mb-6">Use this checklist to confirm everything is working correctly:</p>
+
+<ul class="list-none my-8 pl-0 space-y-5">
+    <li class="bg-white p-7 shadow-sm">
+        <div class="flex items-center justify-between mb-5">
+            <strong class="text-lg font-bold text-charcoal">Admin Configuration</strong>
+        </div>
+        <ul class="grid gap-3 m-0 p-0 list-none">
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                Navigate to the admin panel and verify changes are visible
+            </li>
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                Check that all configurations are saved correctly
+            </li>
+        </ul>
+    </li>
+
+    <li class="bg-white p-7 shadow-sm">
+        <div class="flex items-center justify-between mb-5">
+            <strong class="text-lg font-bold text-charcoal">Network & Asset Delivery</strong>
+        </div>
+        <ul class="grid gap-3 m-0 p-0 list-none">
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                Use browser DevTools › Network to confirm HTTP/2 or HTTP/3 and Content-Encoding: br or gzip for static assets
+            </li>
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                Confirm static assets load from your CDN domain and include a version/signing query parameter
+            </li>
+        </ul>
+    </li>
+
+    <li class="bg-white p-7 shadow-sm">
+        <div class="flex items-center justify-between mb-5">
+            <strong class="text-lg font-bold text-charcoal">Caching Verification</strong>
+        </div>
+        <ul class="grid gap-3 m-0 p-0 list-none">
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                Check a category page response headers for X-Magento-Cache-Debug: HIT (logged-out) and an Age header increasing (if Varnish/CDN in front)
+            </li>
+        </ul>
+    </li>
+
+    <li class="bg-white p-7 shadow-sm">
+        <div class="flex items-center justify-between mb-5">
+            <strong class="text-lg font-bold text-charcoal">Performance Metrics</strong>
+        </div>
+        <ul class="grid gap-3 m-0 p-0 list-none">
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                Run Lighthouse or PageSpeed Insights again and compare LCP/INP/CLS
+            </li>
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                Test the functionality from a customer perspective
+            </li>
+        </ul>
+    </li>
+
+    <li class="bg-white p-7 shadow-sm">
+        <div class="flex items-center justify-between mb-5">
+            <strong class="text-lg font-bold text-charcoal">Security & Compliance</strong>
+        </div>
+        <ul class="grid gap-3 m-0 p-0 list-none">
+            <li class="flex items-start gap-3 p-3 pl-10 bg-gray-50 hover:bg-orange-50 transition-colors relative">
+                <span class="absolute left-3 top-3 w-5 h-5 border-2 border-yellow-500 flex items-center justify-center text-yellow-500 font-bold text-sm">✓</span>
+                Validate no mixed-content warnings appear in the console
+            </li>
+        </ul>
+    </li>
+</ul>
+
+<h2 class="text-3xl font-bold text-charcoal mb-6">Common Issues and Solutions</h2>
+
+<div class="space-y-4 my-8">
+    <div class="bg-white shadow-md overflow-hidden border-t-4 border-orange-500">
+        <button class="w-full p-5 text-left cursor-pointer grid grid-cols-[1fr_auto] gap-4 items-center hover:bg-orange-50 transition-colors" onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('svg').classList.toggle('rotate-180')">
+            <div>
+                <h3 class="text-xl font-bold text-charcoal mb-1">X-Magento-Cache-Debug shows MISS</h3>
+                <p class="text-charcoal/60 text-sm">Full Page Cache not working as expected</p>
+            </div>
+            <svg class="w-8 h-8 text-charcoal/50 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+        </button>
+        <div class="hidden border-t border-orange-500/30">
+            <div class="p-6">
+                <h4 class="font-bold text-charcoal mb-3">Solution</h4>
+                <ul class="list-none p-0 space-y-2">
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-orange-500 rounded-full"></span>
+                        Ensure FPC is enabled in Stores › Configuration › Advanced › System › Full Page Cache
+                    </li>
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-orange-500 rounded-full"></span>
+                        Verify the Varnish VCL is applied if using Varnish Cache
+                    </li>
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-orange-500 rounded-full"></span>
+                        Avoid cache-busting cookies on the storefront (check for development/debug cookies)
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white shadow-md overflow-hidden border-t-4 border-orange-500">
+        <button class="w-full p-5 text-left cursor-pointer grid grid-cols-[1fr_auto] gap-4 items-center hover:bg-orange-50 transition-colors" onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('svg').classList.toggle('rotate-180')">
+            <div>
+                <h3 class="text-xl font-bold text-charcoal mb-1">Mixed content warnings after setting CDN</h3>
+                <p class="text-charcoal/60 text-sm">Browser showing insecure content warnings</p>
+            </div>
+            <svg class="w-8 h-8 text-charcoal/50 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+        </button>
+        <div class="hidden border-t border-orange-500/30">
+            <div class="p-6">
+                <h4 class="font-bold text-charcoal mb-3">Solution</h4>
+                <ul class="list-none p-0 space-y-2">
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-orange-500 rounded-full"></span>
+                        Enable Use Secure URLs on Storefront and Use Secure URLs in Admin
+                    </li>
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-orange-500 rounded-full"></span>
+                        Update hard-coded http:// links in CMS content to use https://
+                    </li>
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-orange-500 rounded-full"></span>
+                        Flush cache after making HTTPS changes
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white shadow-md overflow-hidden border-t-4 border-yellow-500">
+        <button class="w-full p-5 text-left cursor-pointer grid grid-cols-[1fr_auto] gap-4 items-center hover:bg-yellow-50 transition-colors" onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('svg').classList.toggle('rotate-180')">
+            <div>
+                <h3 class="text-xl font-bold text-charcoal mb-1">JS errors after moving JS to bottom</h3>
+                <p class="text-charcoal/60 text-sm">Checkout or cart functionality broken after script optimization</p>
+            </div>
+            <svg class="w-8 h-8 text-charcoal/50 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+        </button>
+        <div class="hidden border-t border-yellow-500/30">
+            <div class="p-6">
+                <h4 class="font-bold text-charcoal mb-3">Solution</h4>
+                <ul class="list-none p-0 space-y-2">
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-yellow-500 rounded-full"></span>
+                        Revert the "Move JS code to the bottom of the page" setting to No (recommended default)
+                    </li>
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-yellow-500 rounded-full"></span>
+                        Or defer only non-critical scripts individually using async/defer attributes
+                    </li>
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-yellow-500 rounded-full"></span>
+                        Always test on staging before enabling in production
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white shadow-md overflow-hidden border-t-4 border-yellow-500">
+        <button class="w-full p-5 text-left cursor-pointer grid grid-cols-[1fr_auto] gap-4 items-center hover:bg-yellow-50 transition-colors" onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('svg').classList.toggle('rotate-180')">
+            <div>
+                <h3 class="text-xl font-bold text-charcoal mb-1">Fonts blocked from CDN</h3>
+                <p class="text-charcoal/60 text-sm">CORS errors preventing font loading from CDN</p>
+            </div>
+            <svg class="w-8 h-8 text-charcoal/50 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+        </button>
+        <div class="hidden border-t border-yellow-500/30">
+            <div class="p-6">
+                <h4 class="font-bold text-charcoal mb-3">Solution</h4>
+                <ul class="list-none p-0 space-y-2">
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-yellow-500 rounded-full"></span>
+                        Add Access-Control-Allow-Origin header on CDN for font MIME types (woff, woff2, ttf, eot)
+                    </li>
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-yellow-500 rounded-full"></span>
+                        Configure CORS headers to allow your domain: Access-Control-Allow-Origin: https://yourdomain.com or use * for all origins
+                    </li>
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-yellow-500 rounded-full"></span>
+                        Purge CDN cache after updating CORS configuration
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white shadow-md overflow-hidden border-t-4 border-charcoal">
+        <button class="w-full p-5 text-left cursor-pointer grid grid-cols-[1fr_auto] gap-4 items-center hover:bg-off-white transition-colors" onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('svg').classList.toggle('rotate-180')">
+            <div>
+                <h3 class="text-xl font-bold text-charcoal mb-1">Page speed regressions for logged-in users</h3>
+                <p class="text-charcoal/60 text-sm">Slower performance for authenticated customers</p>
+            </div>
+            <svg class="w-8 h-8 text-charcoal/50 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+        </button>
+        <div class="hidden border-t border-charcoal/20">
+            <div class="p-6">
+                <h4 class="font-bold text-charcoal mb-3">Solution</h4>
+                <ul class="list-none p-0 space-y-2">
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-charcoal rounded-full"></span>
+                        Ensure private content and hole-punching are working correctly
+                    </li>
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-charcoal rounded-full"></span>
+                        Avoid making dynamic blocks cacheable (this can cause stale data for logged-in users)
+                    </li>
+                    <li class="relative pl-7 py-1 text-charcoal">
+                        <span class="absolute left-1.5 top-3.5 w-2 h-2 bg-charcoal rounded-full"></span>
+                        Verify Varnish/FPC configuration properly handles customer sections
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Hexagon bullet marker for lists */
+.hexagon-bullet::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.5em;
+    width: 9px;
+    height: 9px;
+    background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 2L21 7V17L12 22L3 17V7L12 2Z' stroke='%23F26423' stroke-width='2.5' stroke-linejoin='miter'/%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+/* Step code styling for inline code paths */
+.step-code {
+    background: #2C2C2C;
+    color: #F1BC1B;
+    padding: 0.25rem 0.5rem;
+    font-family: 'Courier New', monospace;
+    font-size: 0.875rem;
+}
+</style>
