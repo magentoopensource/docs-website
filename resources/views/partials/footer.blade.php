@@ -55,10 +55,10 @@
                 <span class="ml-3 text-xl font-inter-tight font-bold text-charcoal">Merchant Documentation</span> </a>
         </div>
 
-        <div class="mt-6 grid grid-cols-12 md:gap-x-8 gap-y-12 sm:mt-12">
+        <div class="grid grid-cols-12 md:gap-x-8 gap-y-12 lg:mt-12">
             <div class="col-span-12 lg:col-span-4">
-                <p class="max-w-sm text-xs font-inter-tight text-charcoal sm:text-sm">Your comprehensive guide to managing and growing your Magento 2 store. From setting up your first product to advanced marketing strategies, we provide clear, actionable documentation for merchants of all experience levels.</p>
-                <ul class="mt-6 flex items-center space-x-3">
+                <p class="hidden lg:block text-xs font-inter-tight text-charcoal sm:text-sm">Your comprehensive guide to managing and growing your Magento 2 store. From setting up your first product to advanced marketing strategies, we provide clear, actionable documentation for merchants of all experience levels.</p>
+                <ul class="mt-6 hidden lg:flex items-center space-x-3">
                     <li class="pl-0">
                         <a href="https://github.com/magento/magento2" class="p-2 md:p-0">
                             <img class="w-6 h-6" src="/img/social/github.min.svg" alt="GitHub" width="24" height="24" loading="lazy">
