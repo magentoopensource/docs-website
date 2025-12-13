@@ -30,7 +30,7 @@
     $config = $difficultyConfig[$difficulty] ?? $difficultyConfig['beginner'];
 @endphp
 
-<div class="bg-white flex flex-col gap-6 p-6 rounded-lg border-2 border-gray-200 border-t-4 border-t-yellow shadow-sm hover:shadow-lg hover:border-t-orange hover:-translate-y-1 transition-all duration-200 focus-within:ring-2 focus-within:ring-orange focus-within:ring-offset-2">
+<div class="bg-white flex flex-col gap-6 p-6 border-2 border-gray-200 border-t-4 border-t-yellow shadow-sm hover:shadow-lg hover:border-t-orange hover:-translate-y-1 transition-all duration-200">
     {{-- Header with Icon and Difficulty Badge --}}
     <div class="flex items-center justify-between w-full">
         <div class="w-8 h-8 flex-shrink-0">
@@ -65,7 +65,7 @@
             @endif
         </div>
         
-        <div class="{{ $config['bg'] }} {{ $config['text'] }} flex items-center justify-center px-2 py-1.5 rounded text-xs font-bold font-inter-tight leading-snug">
+        <div class="{{ $config['bg'] }} {{ $config['text'] }} flex items-center justify-center px-2 py-1.5 text-xs font-bold font-inter-tight leading-snug">
             {{ $config['label'] }}
         </div>
     </div>
@@ -84,7 +84,7 @@
         </p>
         
         <div class="flex items-center justify-between w-full">
-            <a href="{{ $link }}" class="text-base font-inter-tight leading-relaxed text-red underline decoration-solid hover:text-orange transition-colors focus:outline-none focus:ring-2 focus:ring-orange focus:ring-offset-2 rounded">
+            <a href="{{ $link }}" class="text-base font-inter-tight leading-relaxed text-gray-700 no-underline hover:text-orange transition-colors focus:outline-none">
                 Read more
             </a>
             
