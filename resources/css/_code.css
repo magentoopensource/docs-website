@@ -96,6 +96,7 @@
      * Inline code styling - AAA accessible
      * Uses a subtle light background with high contrast dark text
      * Contrast ratio: 12.63:1 (#374151 on #F3F4F6)
+     * Mobile: allow wrapping to prevent horizontal overflow
      */
     .docs_main :not(pre) > code,
     .step-content :not(pre) > code,
@@ -105,7 +106,19 @@
         background: #F3F4F6;
         color: #374151;
         border: 1px solid #D1D5DB;
-        white-space: nowrap;
+        white-space: normal;
+        word-break: break-word;
+    }
+
+    /* Prevent wrapping on larger screens where there's room */
+    @media (min-width: 640px) {
+        .docs_main :not(pre) > code,
+        .step-content :not(pre) > code,
+        .step-code,
+        code.step-code {
+            white-space: nowrap;
+            word-break: normal;
+        }
     }
 
     /* Step code in dark contexts - no border radius */

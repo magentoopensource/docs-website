@@ -9,6 +9,13 @@
     padding-bottom: 2rem;
 }
 
+/* Mobile: Add bottom padding for floating menu button */
+@media (max-width: 1023px) {
+    .docs-layout-grid {
+        padding-bottom: 5rem; /* Space for floating button */
+    }
+}
+
 @media (min-width: 1024px) {
     .docs-layout-grid {
         grid-template-columns: 16rem 1fr;
@@ -60,6 +67,10 @@
     /* Light gray background matching Figma design */
     @apply bg-off-white;
 
+    /* Mobile: Ensure content doesn't overflow viewport */
+    max-width: 100%;
+    overflow-x: hidden;
+
     /* Enhanced anchor styling for KB pages */
     a[name] {
         @apply relative block invisible -top-[45px] sm:-top-[30px];
@@ -89,10 +100,17 @@
 
     /* Enhanced code blocks - Coordinated with _code.css */
     pre {
-        @apply text-gray-100 rounded-lg overflow-x-auto shadow-lg max-w-full;
+        @apply text-gray-100 rounded-lg overflow-x-auto shadow-lg;
         /* Background color is set by Torchlight inline styles on code element */
         /* Mobile-first padding */
         @apply p-4 mb-6;
+        /* Mobile: constrain width to prevent overflow */
+        max-width: calc(100vw - 2rem);
+        box-sizing: border-box;
+
+        @screen sm {
+            max-width: 100%;
+        }
 
         @screen md {
             @apply p-6 mb-8;
@@ -378,9 +396,27 @@
 /**
  * Breadcrumb Navigation
  * Positioned under logo in main body
+ * Mobile: horizontal scroll instead of wrap
  */
 .docs-breadcrumb {
     @apply flex items-center gap-2 text-sm mb-6;
+    /* Mobile: horizontal scroll */
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
+}
+
+.docs-breadcrumb::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
+}
+
+@media (min-width: 640px) {
+    .docs-breadcrumb {
+        overflow-x: visible;
+        white-space: normal;
+    }
 }
 
 .docs-breadcrumb a {
