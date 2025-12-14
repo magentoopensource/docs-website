@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DocsController;
 use App\Http\Controllers\TeamController;
+use App\Http\Controllers\WebhookController;
 
 // Apply rate limiting to all routes to prevent abuse
 // 120 requests per minute per IP (reasonable for a documentation site)
@@ -21,3 +22,8 @@ Route::middleware('throttle:120,1')->group(function () {
 
     Route::get("team", [TeamController::class, "index"])->name("team");
 });
+
+// GitHub webhook for docs sync (excluded from throttling)
+Route::post('/webhook/sync-docs', [WebhookController::class, 'syncDocs'])
+    ->middleware('throttle:10,1')
+    ->name('webhook.sync-docs');
