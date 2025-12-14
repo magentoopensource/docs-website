@@ -4,7 +4,7 @@
         {{-- Magento Logo --}}
         <div class="flex items-center">
             <a href="/" class="inline-flex items-center">
-                <svg class="w-logo-sm sm:w-logo-md md:w-logo-lg h-auto" viewBox="0 0 270 35" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <svg class="w-36 sm:w-logo-sm md:w-logo-md lg:w-logo-lg h-auto" viewBox="0 0 270 35" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <g clip-path="url(#clip0_2008_219)">
                         <path d="M0 4.06492H29.6763V31.8882C29.6763 32.502 29.1713 33 28.5487 33H1.12762C0.505079 33 0 32.502 0 31.8882V4.06492Z" fill="#34323A"/>
                         <path d="M1.26857 0H28.4078C29.1066 0 29.6763 0.561678 29.6763 1.25075V4.06492H0V1.25075C0 0.561678 0.569682 0 1.26857 0Z" fill="#C9C9C9"/>
@@ -47,7 +47,7 @@
         {{-- Mobile burger menu button (visible on mobile only) --}}
         <button
             data-mobile-menu-toggle
-            class="lg:hidden flex items-center justify-center w-10 h-10 text-charcoal hover:text-orange transition-colors focus:outline-none focus:ring-2 focus:ring-orange focus:ring-offset-2 rounded-md"
+            class="lg:hidden flex items-center justify-center w-12 h-12 sm:w-11 sm:h-11 md:w-10 md:h-10 text-charcoal hover:text-orange active:bg-off-white transition-all focus:outline-none focus:ring-2 focus:ring-orange focus:ring-offset-2 rounded-md"
             aria-label="Toggle navigation menu"
             aria-expanded="false"
         >
@@ -93,7 +93,7 @@
 <div
     data-mobile-menu-panel
     aria-hidden="true"
-    class="hidden fixed top-0 right-0 h-full w-80 max-w-[85%] bg-white shadow-2xl z-50 lg:hidden overflow-y-auto transform translate-x-full transition-transform duration-300 ease-out"
+    class="hidden fixed top-0 right-0 h-full w-64 max-w-[90%] sm:w-72 sm:max-w-[85%] md:w-80 md:max-w-[85%] bg-white shadow-2xl z-50 lg:hidden overflow-y-auto transform translate-x-full transition-transform duration-300 ease-out"
 >
     <div class="flex flex-col h-full">
         {{-- Mobile Menu Header --}}

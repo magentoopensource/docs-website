@@ -38,10 +38,10 @@
         }
     </style>
 
-    <section class="hero-full-width bg-white flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 pt-12 sm:pt-16 lg:pt-24 pb-0 gap-12">
+    <section class="hero-full-width bg-white flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 pt-6 sm:pt-12 md:pt-16 lg:pt-24 pb-0 gap-6 sm:gap-8 md:gap-12">
         {{-- Main Hero Content --}}
         <div class="flex flex-col items-center justify-center text-charcoal max-w-7xl xl:max-w-8xl mx-auto w-full">
-            <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-inter-tight leading-none text-center font-bold mb-8">
+            <h1 class="text-4xl sm:text-5xl md:text-5xl lg:text-6xl font-inter-tight leading-tight text-center font-bold mb-6 sm:mb-8 px-2">
                 Commerce begins with Community.
             </h1>
             <p class="text-lg sm:text-xl font-inter-tight font-medium leading-relaxed text-center max-w-3xl mx-auto px-4">

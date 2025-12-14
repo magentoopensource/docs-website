@@ -105,17 +105,17 @@
 </div>
 
 {{-- Mobile Navigation Toggle (for smaller screens) --}}
-<div class="lg:hidden fixed bottom-4 right-4 z-50">
+<div class="lg:hidden fixed bottom-6 right-4 z-50">
     <button
         data-mobile-menu-toggle
         aria-label="Toggle navigation menu"
         aria-expanded="false"
-        class="flex items-center gap-2 px-4 py-3 bg-orange-600 text-white shadow-lg hover:bg-orange-700 transition-colors focus:outline-none focus:ring-2 focus:ring-orange focus:ring-offset-2"
+        class="flex items-center gap-1.5 sm:gap-2 px-3 py-2.5 sm:px-4 sm:py-3 bg-orange-600 text-white shadow-lg hover:bg-orange-700 active:bg-orange-800 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange focus:ring-offset-2 rounded-md active:scale-95 transform"
     >
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+        <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
         </svg>
-        <span class="text-sm font-medium">Menu</span>
+        <span class="text-xs sm:text-sm font-medium">Menu</span>
     </button>
 </div>
 
