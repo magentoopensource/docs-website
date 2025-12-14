@@ -72,19 +72,19 @@
     
     {{-- Title --}}
     <div class="flex items-center justify-start w-full">
-        <h3 class="text-3xl font-inter-tight font-bold mt-0 leading-tight text-charcoal">
+        <h3 class="text-2xl font-inter-tight font-bold mt-0 leading-tight text-charcoal">
             {{ $title }}
         </h3>
     </div>
     
     {{-- Description and Actions --}}
     <div class="flex flex-col gap-6 items-start justify-start w-full">
-        <p class="text-base font-inter-tight font-medium leading-relaxed text-charcoal">
+        <p class="text-base font-inter-tight font-normal leading-relaxed text-charcoal">
             {{ $description }}
         </p>
-        
+
         <div class="flex items-center justify-between w-full">
-            <a href="{{ $link }}" class="text-base font-inter-tight leading-relaxed text-gray-700 no-underline hover:text-orange transition-colors focus:outline-none">
+            <a href="{{ $link }}" class="text-base font-inter-tight leading-relaxed text-red no-underline hover:text-orange transition-colors focus:outline-none">
                 Read more
             </a>
             

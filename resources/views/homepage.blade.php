@@ -140,7 +140,7 @@
                 {{-- Category Card --}}
                 <div class="bg-white flex flex-col gap-6 items-start justify-start p-6 sm:p-8 border-2 border-gray-200 border-t-4 border-t-yellow shadow-sm hover:shadow-lg hover:border-t-orange hover:-translate-y-1 transition-all duration-200 focus-within:ring-2 focus-within:ring-orange focus-within:ring-offset-2 h-full">
                     <div class="flex items-center justify-start gap-6 w-full">
-                        <h3 class="text-3xl font-inter-tight font-bold leading-tight text-charcoal">
+                        <h3 class="text-2xl font-inter-tight font-bold leading-tight text-charcoal">
                             {{ $category['name'] }}
                         </h3>
                     </div>
@@ -159,7 +159,7 @@
                                 <svg class="w-5 h-5 flex-shrink-0 text-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                                 </svg>
-                                <span class="flex-1 text-base font-inter-tight font-medium leading-normal text-charcoal">
+                                <span class="flex-1 text-base font-inter-tight font-normal leading-normal text-charcoal">
                                     {{ $article['title'] }}
                                 </span>
                             </a>

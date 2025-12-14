@@ -45,7 +45,7 @@
 
                 {{-- Title --}}
                 <div class="flex items-center justify-start w-full">
-                    <h3 class="text-3xl font-inter-tight font-bold leading-tight text-charcoal dark:text-white">
+                    <h3 class="text-2xl font-inter-tight font-bold leading-tight text-charcoal dark:text-white">
                         {{ $category['name'] }}
                     </h3>
                 </div>
