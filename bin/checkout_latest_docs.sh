@@ -15,16 +15,33 @@ fi
 
 echo "Using base path: $BASE_PATH"
 
+# Marker file to track if we've done the post-rewrite clone
+MARKER_FILE="$BASE_PATH/resources/docs/.history-rewrite-fixed"
+
 for v in "${DOCS_VERSIONS[@]}"; do
-    if [ -d "$BASE_PATH/resources/docs/$v" ]; then
-        echo "Pulling latest documentation updates for $v..."
-        (cd "$BASE_PATH/resources/docs/$v" && git fetch --force origin "$v" && git reset --hard "origin/$v")
+    DOCS_DIR="$BASE_PATH/resources/docs/$v"
+
+    # If marker doesn't exist and docs dir exists, force fresh clone
+    if [ ! -f "$MARKER_FILE" ] && [ -d "$DOCS_DIR" ]; then
+        echo "First run after history rewrite - forcing fresh clone for $v..."
+        rm -rf "$DOCS_DIR"
+    fi
+
+    if [ -d "$DOCS_DIR" ]; then
+        echo "Updating documentation for $v..."
+        cd "$DOCS_DIR"
+        git fetch --force origin "$v"
+        git reset --hard "origin/$v"
+        echo "Successfully updated $v"
     else
         echo "Cloning $v..."
         mkdir -p "$BASE_PATH/resources/docs"
-        git clone --single-branch --branch "$v" https://github.com/magentoopensource/docs.git "$BASE_PATH/resources/docs/$v"
-    fi;
+        git clone --single-branch --branch "$v" https://github.com/magentoopensource/docs.git "$DOCS_DIR"
+    fi
 done
+
+# Create marker file after successful sync
+touch "$MARKER_FILE"
 
 # Only clear cache if not in Deployer context (Deployer handles this separately)
 if [ -z "$DEPLOYER_ROOT" ]; then
