@@ -18,7 +18,7 @@ echo "Using base path: $BASE_PATH"
 for v in "${DOCS_VERSIONS[@]}"; do
     if [ -d "$BASE_PATH/resources/docs/$v" ]; then
         echo "Pulling latest documentation updates for $v..."
-        (cd "$BASE_PATH/resources/docs/$v" && git pull)
+        (cd "$BASE_PATH/resources/docs/$v" && git fetch --force origin "$v" && git reset --hard "origin/$v")
     else
         echo "Cloning $v..."
         mkdir -p "$BASE_PATH/resources/docs"
