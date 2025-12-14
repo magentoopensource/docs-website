@@ -56,12 +56,17 @@ class WebhookController extends Controller
             // Pull latest docs
             $docsPath = resource_path('docs/main');
 
-            $fetchProcess = new Process(['git', 'fetch', 'origin', 'main'], $docsPath);
+            // Force fetch to handle rewritten history
+            $fetchProcess = new Process(['git', 'fetch', '--force', 'origin', 'main'], $docsPath);
             $fetchProcess->run();
 
             if (!$fetchProcess->isSuccessful()) {
                 throw new \RuntimeException('Git fetch failed: ' . $fetchProcess->getErrorOutput());
             }
+
+            // Clean any local changes and reset to remote
+            $cleanProcess = new Process(['git', 'clean', '-fd'], $docsPath);
+            $cleanProcess->run();
 
             $resetProcess = new Process(['git', 'reset', '--hard', 'origin/main'], $docsPath);
             $resetProcess->run();
@@ -69,6 +74,11 @@ class WebhookController extends Controller
             if (!$resetProcess->isSuccessful()) {
                 throw new \RuntimeException('Git reset failed: ' . $resetProcess->getErrorOutput());
             }
+
+            // Get current commit for logging
+            $commitProcess = new Process(['git', 'rev-parse', '--short', 'HEAD'], $docsPath);
+            $commitProcess->run();
+            $currentCommit = trim($commitProcess->getOutput());
 
             // Clear Laravel caches
             Artisan::call('cache:clear');
@@ -81,11 +91,12 @@ class WebhookController extends Controller
             Artisan::call('route:cache');
             Artisan::call('view:cache');
 
-            Log::info('Docs sync completed successfully');
+            Log::info('Docs sync completed successfully', ['commit' => $currentCommit]);
 
             return response()->json([
                 'success' => true,
                 'message' => 'Documentation synced successfully',
+                'commit' => $currentCommit,
             ]);
 
         } catch (\Exception $e) {
