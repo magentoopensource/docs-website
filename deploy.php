@@ -102,6 +102,30 @@ task('deploy:sync-docs', function () {
     run('cd {{release_path}} && DEPLOYER_ROOT={{deploy_path}} bash bin/checkout_latest_docs.sh');
 });
 
+desc('Ensure webhook secret is configured');
+task('deploy:configure-webhook', function () {
+    $secret = getenv('GITHUB_WEBHOOK_SECRET');
+    if (empty($secret)) {
+        writeln('⚠️  GITHUB_WEBHOOK_SECRET not set in environment, skipping...');
+        return;
+    }
+
+    $sharedEnv = '{{deploy_path}}/shared/.env';
+
+    // Check if secret already exists in .env
+    $hasSecret = test("grep -q '^GITHUB_WEBHOOK_SECRET=' $sharedEnv");
+
+    if ($hasSecret) {
+        // Update existing value
+        run("sed -i 's/^GITHUB_WEBHOOK_SECRET=.*/GITHUB_WEBHOOK_SECRET=$secret/' $sharedEnv");
+        writeln('✅ Updated GITHUB_WEBHOOK_SECRET in .env');
+    } else {
+        // Append new value
+        run("echo 'GITHUB_WEBHOOK_SECRET=$secret' >> $sharedEnv");
+        writeln('✅ Added GITHUB_WEBHOOK_SECRET to .env');
+    }
+});
+
 desc('Clear and optimize Laravel caches');
 task('deploy:optimize', function () {
     cd('{{release_path}}');
@@ -164,7 +188,8 @@ after('deploy:vendors', 'deploy:npm-install');
 after('deploy:npm-install', 'deploy:build-assets');
 after('deploy:build-assets', 'deploy:verify-assets');
 after('deploy:symlink', 'deploy:sync-docs');
-after('deploy:sync-docs', 'deploy:clear-opcache');  // Clear OPcache BEFORE rebuilding caches
+after('deploy:sync-docs', 'deploy:configure-webhook');  // Set webhook secret if provided
+after('deploy:configure-webhook', 'deploy:clear-opcache');  // Clear OPcache BEFORE rebuilding caches
 after('deploy:clear-opcache', 'deploy:optimize');   // Rebuild Laravel caches with fresh PHP
 after('deploy:optimize', 'deploy:health-check');
 
