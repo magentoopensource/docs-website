@@ -145,5 +145,20 @@
                 <span class="absolute left-0 top-0 h-full w-1 bg-orange scale-y-0 group-hover:scale-y-100 transition-transform duration-200 origin-center"></span>
             </a>
         </nav>
+
+        {{-- Mobile Search --}}
+        <div class="px-6 py-4 mt-auto border-t border-gray-200">
+            <button
+                id="mobile-header-search"
+                class="w-full flex items-center gap-3 px-4 py-3 bg-off-white hover:bg-gray-100 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-orange focus:ring-offset-2"
+                aria-label="Search the documentation"
+            >
+                <svg class="w-5 h-5 text-orange flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+                <span class="text-gray-500 font-inter-tight text-base">Search documentation...</span>
+                <kbd class="hidden sm:inline-flex ml-auto px-2 py-1 text-xs font-mono bg-white border border-gray-300 text-gray-400">⌘K</kbd>
+            </button>
+        </div>
     </div>
 </div>

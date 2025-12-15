@@ -66,6 +66,15 @@ function initDocSearch() {
         });
     }
 
+    // Handle mobile header search button
+    const mobileHeaderSearchBtn = document.getElementById('mobile-header-search');
+    if (mobileHeaderSearchBtn) {
+        mobileHeaderSearchBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            triggerSearch();
+        });
+    }
+
     // Add keyboard shortcut (CMD+K on Mac, CTRL+K on Windows/Linux)
     document.addEventListener('keydown', (e) => {
         if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
