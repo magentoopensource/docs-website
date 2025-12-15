@@ -4,7 +4,7 @@
         {{-- Magento Logo --}}
         <div class="flex items-center">
             <a href="/" class="inline-flex items-center">
-                <svg class="w-36 sm:w-logo-sm md:w-logo-md lg:w-logo-lg h-auto" viewBox="0 0 270 35" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <svg class="w-48 sm:w-logo-sm md:w-logo-md lg:w-logo-lg h-auto" viewBox="0 0 270 35" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <g clip-path="url(#clip0_2008_219)">
                         <path d="M0 4.06492H29.6763V31.8882C29.6763 32.502 29.1713 33 28.5487 33H1.12762C0.505079 33 0 32.502 0 31.8882V4.06492Z" fill="#34323A"/>
                         <path d="M1.26857 0H28.4078C29.1066 0 29.6763 0.561678 29.6763 1.25075V4.06492H0V1.25075C0 0.561678 0.569682 0 1.26857 0Z" fill="#C9C9C9"/>
@@ -85,7 +85,7 @@
 {{-- Mobile Menu Overlay --}}
 <div
     data-mobile-menu-overlay
-    class="hidden fixed inset-0 bg-charcoal/50 z-40 lg:hidden transition-opacity duration-200"
+    class="hidden fixed inset-0 bg-charcoal/80 z-40 lg:hidden transition-opacity duration-200"
     aria-hidden="true"
 ></div>
 
@@ -93,15 +93,15 @@
 <div
     data-mobile-menu-panel
     aria-hidden="true"
-    class="hidden fixed top-0 right-0 h-full w-64 max-w-[90%] sm:w-72 sm:max-w-[85%] md:w-80 md:max-w-[85%] bg-white shadow-2xl z-50 lg:hidden overflow-y-auto transform translate-x-full transition-transform duration-300 ease-out"
+    class="hidden fixed top-0 right-0 h-full w-[26rem] max-w-[90%] bg-white shadow-2xl z-50 lg:hidden overflow-y-auto transform translate-x-full transition-transform duration-300 ease-out border-t-4 border-yellow"
 >
     <div class="flex flex-col h-full">
         {{-- Mobile Menu Header --}}
-        <div class="flex items-center justify-between p-6 border-b border-gray-light">
-            <h2 class="text-lg font-bold text-charcoal">Menu</h2>
+        <div class="flex items-center justify-between px-6 py-5 border-b border-gray-200 bg-gradient-to-br from-off-white to-white">
+            <h2 class="text-xl font-bold text-charcoal m-0 font-inter-tight">Menu</h2>
             <button
                 data-mobile-menu-close
-                class="flex items-center justify-center w-8 h-8 text-charcoal hover:text-orange transition-colors"
+                class="flex items-center justify-center w-10 h-10 text-charcoal hover:text-orange hover:bg-off-white rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange focus:ring-offset-2"
                 aria-label="Close navigation menu"
             >
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -111,35 +111,39 @@
         </div>
 
         {{-- Mobile Navigation Links --}}
-        <nav class="flex flex-col py-4">
-            <a href="/merchant/getting-started" class="px-6 py-4 font-inter-tight text-base text-charcoal hover:bg-off-white hover:text-orange transition-colors border-b border-gray-light">
-                Getting Started
+        <nav class="flex flex-col py-2" role="navigation" aria-label="Main navigation">
+            <a href="/merchant/getting-started" class="group relative px-6 py-4 font-inter-tight text-base font-medium text-charcoal hover:bg-gradient-to-r hover:from-off-white hover:to-white hover:text-orange transition-all duration-200 border-b border-gray-100 no-underline focus:outline-none focus:ring-2 focus:ring-inset focus:ring-orange active:bg-yellow/10">
+                <span class="relative z-10">Getting Started</span>
+                <span class="absolute left-0 top-0 h-full w-1 bg-orange scale-y-0 group-hover:scale-y-100 transition-transform duration-200 origin-center"></span>
             </a>
-            <a href="/merchant/start-selling" class="px-6 py-4 font-inter-tight text-base text-charcoal hover:bg-off-white hover:text-orange transition-colors border-b border-gray-light">
-                Start Selling
+            <a href="/merchant/start-selling" class="group relative px-6 py-4 font-inter-tight text-base font-medium text-charcoal hover:bg-gradient-to-r hover:from-off-white hover:to-white hover:text-orange transition-all duration-200 border-b border-gray-100 no-underline focus:outline-none focus:ring-2 focus:ring-inset focus:ring-orange active:bg-yellow/10">
+                <span class="relative z-10">Start Selling</span>
+                <span class="absolute left-0 top-0 h-full w-1 bg-orange scale-y-0 group-hover:scale-y-100 transition-transform duration-200 origin-center"></span>
             </a>
-            <a href="/merchant/manage-catalog" class="px-6 py-4 font-inter-tight text-base text-charcoal hover:bg-off-white hover:text-orange transition-colors border-b border-gray-light">
-                Manage Catalog
+            <a href="/merchant/manage-catalog" class="group relative px-6 py-4 font-inter-tight text-base font-medium text-charcoal hover:bg-gradient-to-r hover:from-off-white hover:to-white hover:text-orange transition-all duration-200 border-b border-gray-100 no-underline focus:outline-none focus:ring-2 focus:ring-inset focus:ring-orange active:bg-yellow/10">
+                <span class="relative z-10">Manage Catalog</span>
+                <span class="absolute left-0 top-0 h-full w-1 bg-orange scale-y-0 group-hover:scale-y-100 transition-transform duration-200 origin-center"></span>
             </a>
-            <a href="/merchant/handle-orders" class="px-6 py-4 font-inter-tight text-base text-charcoal hover:bg-off-white hover:text-orange transition-colors border-b border-gray-light">
-                Handle Orders
+            <a href="/merchant/handle-orders" class="group relative px-6 py-4 font-inter-tight text-base font-medium text-charcoal hover:bg-gradient-to-r hover:from-off-white hover:to-white hover:text-orange transition-all duration-200 border-b border-gray-100 no-underline focus:outline-none focus:ring-2 focus:ring-inset focus:ring-orange active:bg-yellow/10">
+                <span class="relative z-10">Handle Orders</span>
+                <span class="absolute left-0 top-0 h-full w-1 bg-orange scale-y-0 group-hover:scale-y-100 transition-transform duration-200 origin-center"></span>
             </a>
-            <a href="/merchant" class="px-6 py-4 font-inter-tight text-base text-charcoal hover:bg-off-white hover:text-orange transition-colors border-b border-gray-light">
-                More
+            <a href="/merchant/grow-store" class="group relative px-6 py-4 font-inter-tight text-base font-medium text-charcoal hover:bg-gradient-to-r hover:from-off-white hover:to-white hover:text-orange transition-all duration-200 border-b border-gray-100 no-underline focus:outline-none focus:ring-2 focus:ring-inset focus:ring-orange active:bg-yellow/10">
+                <span class="relative z-10">Grow Store</span>
+                <span class="absolute left-0 top-0 h-full w-1 bg-orange scale-y-0 group-hover:scale-y-100 transition-transform duration-200 origin-center"></span>
+            </a>
+            <a href="/merchant/reports-and-analytics" class="group relative px-6 py-4 font-inter-tight text-base font-medium text-charcoal hover:bg-gradient-to-r hover:from-off-white hover:to-white hover:text-orange transition-all duration-200 border-b border-gray-100 no-underline focus:outline-none focus:ring-2 focus:ring-inset focus:ring-orange active:bg-yellow/10">
+                <span class="relative z-10">Reports &amp; Analytics</span>
+                <span class="absolute left-0 top-0 h-full w-1 bg-orange scale-y-0 group-hover:scale-y-100 transition-transform duration-200 origin-center"></span>
+            </a>
+            <a href="/merchant/stay-compliant" class="group relative px-6 py-4 font-inter-tight text-base font-medium text-charcoal hover:bg-gradient-to-r hover:from-off-white hover:to-white hover:text-orange transition-all duration-200 border-b border-gray-100 no-underline focus:outline-none focus:ring-2 focus:ring-inset focus:ring-orange active:bg-yellow/10">
+                <span class="relative z-10">Stay Compliant</span>
+                <span class="absolute left-0 top-0 h-full w-1 bg-orange scale-y-0 group-hover:scale-y-100 transition-transform duration-200 origin-center"></span>
+            </a>
+            <a href="/merchant/support-and-resources" class="group relative px-6 py-4 font-inter-tight text-base font-medium text-charcoal hover:bg-gradient-to-r hover:from-off-white hover:to-white hover:text-orange transition-all duration-200 no-underline focus:outline-none focus:ring-2 focus:ring-inset focus:ring-orange active:bg-yellow/10">
+                <span class="relative z-10">Support &amp; Resources</span>
+                <span class="absolute left-0 top-0 h-full w-1 bg-orange scale-y-0 group-hover:scale-y-100 transition-transform duration-200 origin-center"></span>
             </a>
         </nav>
-
-        {{-- Mobile Search Button --}}
-        <div class="px-6 py-4 mt-auto border-t border-gray-light">
-            <button
-                id="mobile-menu-search"
-                class="w-full flex items-center justify-between px-4 py-3 bg-off-white hover:bg-gray-light transition-colors rounded-lg"
-            >
-                <span class="font-inter-tight text-sm text-charcoal">Search the documentation</span>
-                <svg class="w-5 h-5" viewBox="0 0 19 19" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M8 16C9.77498 15.9996 11.4988 15.4054 12.897 14.312L17.293 18.708L18.707 17.294L14.311 12.898C15.405 11.4997 15.9996 9.77544 16 8C16 3.589 12.411 0 8 0C3.589 0 0 3.589 0 8C0 12.411 3.589 16 8 16ZM8 2C11.309 2 14 4.691 14 8C14 11.309 11.309 14 8 14C4.691 14 2 11.309 2 8C2 4.691 4.691 2 8 2Z" fill="#F26423"/>
-                </svg>
-            </button>
-        </div>
     </div>
 </div>
