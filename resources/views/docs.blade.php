@@ -104,8 +104,8 @@
     </div>
 </div>
 
-{{-- Mobile Navigation Toggle (for smaller screens) --}}
-<div class="lg:hidden fixed bottom-6 right-4 z-50">
+{{-- Mobile Navigation Toggle - HIDDEN: now using header hamburger menu instead --}}
+{{-- <div class="lg:hidden fixed bottom-6 right-4 z-50">
     <button
         data-mobile-menu-toggle
         aria-label="Toggle navigation menu"
@@ -117,7 +117,7 @@
         </svg>
         <span class="text-xs sm:text-sm font-medium">Menu</span>
     </button>
-</div>
+</div> --}}
 
 {{-- Mobile Navigation Overlay --}}
 <div
