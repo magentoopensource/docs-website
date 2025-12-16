@@ -115,13 +115,13 @@
             </div>
 
             {{-- Search Bar --}}
-            <div class="w-full max-w-2xl">
+            <div class="w-full max-w-4xl">
                 <button
-                    class="flex items-center justify-between w-full px-4 sm:px-6 py-3 sm:py-4 bg-white border-2 border-gray-300 hover:border-orange hover:shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange focus:ring-offset-2"
+                    class="flex items-center justify-between w-full py-4 bg-transparent border-b-4 border-b-charcoal hover:border-b-orange transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange focus:ring-offset-2"
                     id="homepage-search"
                     aria-label="Search the documentation"
                 >
-                    <span class="text-base sm:text-lg font-inter-tight font-normal text-gray-600">
+                    <span class="text-base sm:text-lg font-inter-tight font-normal text-gray-500">
                         Search the documentation
                     </span>
                     <svg class="w-5 h-5 flex-shrink-0 text-orange" width="19" height="19" viewBox="0 0 19 19" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -138,28 +138,22 @@
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 w-full">
             @foreach($categories as $category)
                 {{-- Category Card --}}
-                <div class="bg-white flex flex-col gap-6 items-start justify-start p-6 sm:p-8 border-2 border-gray-200 border-t-4 border-t-yellow shadow-sm hover:shadow-lg hover:border-t-orange hover:-translate-y-1 transition-all duration-200 focus-within:ring-2 focus-within:ring-orange focus-within:ring-offset-2 h-full">
-                    <div class="flex items-center justify-start gap-6 w-full">
-                        <h3 class="text-2xl font-inter-tight font-bold leading-tight text-charcoal">
-                            {{ $category['name'] }}
-                        </h3>
-                    </div>
+                <div class="bg-white flex flex-col gap-4 items-start justify-start pt-4 px-6 pb-6 sm:px-8 sm:pb-8 border-2 border-gray-200 border-t-4 border-t-yellow shadow-sm hover:shadow-lg hover:border-t-orange hover:-translate-y-1 transition-all duration-200 focus-within:ring-2 focus-within:ring-orange focus-within:ring-offset-2 h-full">
+                    <h2 class="text-2xl sm:text-2xl md:text-3xl font-inter-tight font-bold leading-tight text-charcoal mt-6">
+                        {{ $category['name'] }}
+                    </h2>
                     @if($category['description'])
-                        <div class="flex flex-col items-start justify-start gap-4 w-full">
-                            <p class="text-base font-inter-tight font-normal leading-relaxed text-charcoal">
-                                {{ $category['description'] }}
-                            </p>
-                        </div>
+                        <p class="text-base font-inter-tight font-normal leading-relaxed text-charcoal">
+                            {{ $category['description'] }}
+                        </p>
                     @endif
 
                     {{-- Article Links --}}
-                    <div class="flex flex-col gap-2 items-start justify-start w-full flex-grow">
+                    <div class="flex flex-col gap-0 items-start justify-start w-full flex-grow">
                         @foreach($category['articles'] as $article)
-                            <a href="/merchant/{{ $article['path'] }}" class="flex items-center gap-3 p-3 -mx-3 w-full hover:bg-off-white transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-orange focus:ring-inset no-underline">
-                                <svg class="w-5 h-5 flex-shrink-0 text-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                                </svg>
-                                <span class="flex-1 text-base font-inter-tight font-normal leading-normal text-charcoal">
+                            <a href="/merchant/{{ $article['path'] }}" class="flex items-center gap-3 px-4 pt-4 pb-6 border-t-4 border-t-gray-200 w-full hover:bg-off-white hover:border-t-yellow transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-orange focus:ring-inset no-underline group">
+                                <img src="/img/icons/{{ $article['icon'] ?? 'document' }}.svg" alt="" class="w-5 h-5 flex-shrink-0" aria-hidden="true">
+                                <span class="flex-1 text-base font-inter-tight font-semibold leading-snug text-charcoal">
                                     {{ $article['title'] }}
                                 </span>
                             </a>

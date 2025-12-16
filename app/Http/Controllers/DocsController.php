@@ -27,7 +27,13 @@ class DocsController extends Controller
         $categories = $this->navigationParser->getCategories()
             ->map(function ($category) {
                 // Limit each category to max 4 articles
-                $category['articles'] = array_slice($category['articles'], 0, 4);
+                $articles = array_slice($category['articles'], 0, 4);
+
+                // Add icons to each article
+                $category['articles'] = array_map(function ($article) {
+                    $article['icon'] = $this->getArticleIcon($article['path']);
+                    return $article;
+                }, $articles);
 
                 // Add metadata (description, color, etc.)
                 $metadata = $this->getCategoryMetadata($category['slug']);
@@ -269,6 +275,104 @@ class DocsController extends Controller
                 '<svg class="w-8 h-8 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>',
             "description" => "",
         ];
+    }
+
+    /**
+     * Get the icon filename for an article based on its path/title keywords.
+     */
+    protected function getArticleIcon(string $path): string
+    {
+        $pathLower = strtolower($path);
+
+        // Keywords to icon mapping
+        $iconMappings = [
+            // Products & Catalog
+            'product' => 'simple-products',
+            'first-product' => 'simple-products',
+            'inventory' => 'inventory',
+            'image' => 'product-images',
+            'import' => 'import-products',
+            'export' => 'import-products',
+            'categor' => 'categories',
+            'variant' => 'variants',
+
+            // Payments & Shipping
+            'payment' => 'credit-card',
+            'credit' => 'credit-card',
+            'shipping' => 'shipping-rates',
+            'fulfillment' => 'free-shipping',
+
+            // Orders
+            'order-lifecycle' => 'lifecycle',
+            'order-management' => 'orders',
+            'invoice' => 'invoice',
+            'refund' => 'refunds',
+            'edit-order' => 'edit-orders',
+            'label' => 'label-management',
+
+            // Growth & Marketing
+            'customer' => 'customers',
+            'segment' => 'customers',
+            'metric' => 'analytics',
+            'analytics' => 'analytics',
+            'cross-sell' => 'upsell',
+            'upsell' => 'upsell',
+            'google-analytics' => 'analytics',
+            'sales-performance' => 'reports',
+            'marketplace' => 'marketplace',
+            'price-rule' => 'discount',
+            'promotion' => 'discount',
+            'discount' => 'discount',
+
+            // UX & Design
+            'loading-speed' => 'speed',
+            'performance' => 'speed',
+            'checkout' => 'checkout',
+            'conversion' => 'checkout',
+            'search-and-navigation' => 'navigation',
+            'site-search' => 'search-seo',
+            'accessible' => 'accessibility',
+            'design' => 'design',
+            'frontend' => 'design',
+
+            // Security & Compliance
+            'security' => 'security',
+            'threat' => 'security',
+            'legal' => 'document',
+            'compliance' => 'security',
+            'gdpr' => 'security',
+            'pci' => 'credit-card',
+
+            // Operations & Integration
+            'report' => 'reports',
+            'financial' => 'reports',
+            'workflow' => 'automation',
+            'automate' => 'automation',
+            'erp' => 'integration',
+            'integrat' => 'integration',
+            'multiple-store' => 'stores',
+            'operation' => 'setup',
+            'api' => 'api',
+            'graphql' => 'api',
+            'rest' => 'api',
+            'config' => 'setup',
+
+            // Getting Started
+            'store-setup' => 'setup',
+            'domain' => 'setup',
+            'email' => 'setup',
+            'ssl' => 'security',
+        ];
+
+        // Check each mapping
+        foreach ($iconMappings as $keyword => $icon) {
+            if (str_contains($pathLower, $keyword)) {
+                return $icon;
+            }
+        }
+
+        // Default icon
+        return 'document';
     }
 
     /**
