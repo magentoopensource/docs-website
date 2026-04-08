@@ -1,0 +1,1631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Docker Development Environment Setup for Magento 2 — Magento 2 Developer Documentation</title>
+    <meta name="description" content="Complete guide to building a production-ready Docker-based Magento 2.4.7+ development environment with PHP 8.2, MySQL 8, Elasticsearch, Redis, Xdebug, and Mailhog">
+
+    <!-- Google Fonts: Inter Tight only. Courier New used for code. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Highlight.js: syntax highlighting for code blocks -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/php.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/ini.min.js"></script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        charcoal: {
+                            DEFAULT: '#2c2c2c', 50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6',
+                            300: '#6B6B6B', 400: '#474747', 500: '#2c2c2c', 600: '#262626',
+                            700: '#202020', 800: '#1c1c1c', 900: '#191919', 950: '#121212'
+                        },
+                        orange: {
+                            DEFAULT: '#D4551A', 50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad',
+                            300: '#f9ae78', 400: '#f58242', 500: '#f26423', 600: '#e34613',
+                            700: '#bc3312', 800: '#962a16', 900: '#792515', 950: '#411009'
+                        },
+                        yellow: {
+                            DEFAULT: '#B8860B', 50: '#fffdeb', 100: '#fdf9c8', 200: '#fbf38c',
+                            300: '#f8e651', 400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a',
+                            700: '#b1670c', 800: '#8f5111', 900: '#764311', 950: '#442204'
+                        },
+                        'off-white': '#FAFAFA',
+                    },
+                    fontFamily: {
+                        sans: ['Inter Tight', 'system-ui', '-apple-system', 'sans-serif'],
+                        mono: ['Courier New', 'Courier', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* ── Force light mode ── */
+        :root { color-scheme: light only; }
+
+        [x-cloak] { display: none !important; }
+
+        /* ── Scroll offset for sticky header ── */
+        .prose h2, .prose h3 { scroll-margin-top: 5rem; }
+
+        /* ── Code blocks: Bauhaus charcoal bg, no border-radius, highlight.js override ── */
+        .prose pre {
+            background-color: #2C2C2C !important;
+            border-radius: 0 !important;
+            padding: 1.25rem;
+            overflow-x: auto;
+            font-size: 0.875rem;
+            line-height: 1.7;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 1.5rem 0;
+        }
+        .prose pre code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            background: transparent !important;
+            padding: 0;
+                    color: #abb2bf;
+        }
+        /* Override highlight.js theme background to match Bauhaus charcoal */
+        .hljs {
+            background: #2C2C2C !important;
+            color: #abb2bf !important;
+            border-radius: 0 !important;
+        }
+
+        /* ── Inline code: charcoal bg, yellow text, no border-radius ── */
+        .prose code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.85em;
+        }
+        .prose :not(pre) > code {
+            background-color: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2em 0.45em;
+            border-radius: 0;
+        }
+
+        /* ── Step-code: same charcoal/yellow style for UI path chips ── */
+        .step-code {
+            background: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2rem 0.5rem;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            border-radius: 0;
+        }
+
+        /* ── Tables: no border-radius, charcoal header ── */
+        .prose table { width: 100%; border-collapse: collapse; }
+        .prose th {
+            background-color: #2C2C2C;
+            color: #ffffff;
+            font-weight: 600;
+            text-align: left;
+            padding: 0.75rem 1rem;
+            border-bottom: 2px solid #2C2C2C;
+            border-radius: 0;
+        }
+        .prose td { padding: 0.75rem 1rem; border-bottom: 1px solid #e5e5e5; }
+        .prose tr:hover { background-color: #fafafa; }
+
+        /* ── Blockquote: Bauhaus style — border-4 yellow, square, no left-only border ── */
+        .prose blockquote {
+            border: 4px solid #F1BC1B;
+            background-color: #ffffff;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+            border-radius: 0;
+        }
+        .prose blockquote p { margin: 0; }
+
+        /* ── Lists: hexagon bullets ── */
+        .prose ul { list-style: none; padding-left: 0; }
+        .prose ul li {
+            position: relative;
+            padding-left: 1.75rem;
+            margin-bottom: 0.4rem;
+            line-height: 1.7;
+        }
+        .prose ul li::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0.45em;
+            width: 10px;
+            height: 10px;
+            background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 2L21 7V17L12 22L3 17V7L12 2Z' stroke='%23F26423' stroke-width='2.5' stroke-linejoin='miter'/%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+        .prose ol { list-style-type: decimal; padding-left: 1.5rem; }
+        .prose li { margin-bottom: 0.4rem; }
+
+        /* ── Headings ── */
+        .prose h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            padding-top: 1.5rem;
+            border-top: 4px solid #F1BC1B;
+            color: #2C2C2C;
+        }
+        .prose h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+            color: #2C2C2C;
+        }
+        .prose h4 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #2C2C2C;
+        }
+        .prose p { margin-bottom: 1rem; line-height: 1.75; }
+        .prose a { color: #D4551A; text-decoration: none; }
+        .prose a:hover { color: #e34613; text-decoration: underline; }
+        .prose hr { border: none; border-top: 1px solid #e5e5e5; margin: 2rem 0; }
+
+        /* ── Callout boxes: Bauhaus — border-4 yellow, white bg, icon + title ── */
+        .callout-box {
+            background-color: #ffffff;
+            border: 4px solid #F1BC1B;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+        }
+        .callout-warning {
+            border-color: #D4551A;
+        }
+        .callout-important {
+            border-color: #2C2C2C;
+        }
+        .callout-box .callout-inner {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+        .callout-box .callout-title {
+            font-weight: 600;
+            color: #2C2C2C;
+            margin-bottom: 0.25rem;
+        }
+        .callout-box .callout-body {
+            font-size: 0.875rem;
+            line-height: 1.6;
+            color: rgba(44,44,44,0.85);
+        }
+
+        
+    
+        /* Code block copy button */
+        .code-wrapper {
+            position: relative;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            font-family: 'Inter Tight', system-ui, sans-serif;
+            background: rgba(255,255,255,0.1);
+            color: #abb2bf;
+            border: 1px solid rgba(255,255,255,0.15);
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.15s ease, background 0.15s ease;
+            z-index: 10;
+            line-height: 1.4;
+            border-radius: 4px;
+            user-select: none;
+        }
+        .code-wrapper:hover .copy-btn {
+            opacity: 1;
+        }
+        .copy-btn:hover,
+        .copy-btn:focus {
+            background: rgba(255,255,255,0.2);
+            color: #ffffff;
+            outline: 2px solid #D4551A;
+            outline-offset: 1px;
+        }
+        .copy-btn.copied {
+            color: #98c379;
+            background: rgba(152, 195, 121, 0.15);
+            opacity: 1;
+        }
+    
+        /* Right-hand TOC sidebar */
+        .toc-sidebar {
+            width: 14rem;
+            flex-shrink: 0;
+        }
+        .toc-sidebar a {
+            display: block;
+            padding: 0.375rem 0;
+            font-size: 0.8125rem;
+            line-height: 1.4;
+            color: #6b7280;
+            text-decoration: none;
+            transition: color 0.15s ease;
+            border-left: 2px solid transparent;
+            padding-left: 0.75rem;
+        }
+        .toc-sidebar a:hover {
+            color: #111827;
+        }
+        .toc-sidebar a.toc-active {
+            color: #ea580c;
+            border-left-color: #ea580c;
+            font-weight: 500;
+        }
+        .toc-sidebar a.toc-h3 {
+            padding-left: 1.5rem;
+            font-size: 0.75rem;
+        }
+        .toc-sidebar .toc-back-to-top {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e5e7eb;
+        }
+        .toc-sidebar .toc-back-to-top a {
+            border-left: none;
+            padding-left: 0;
+            font-weight: 500;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .toc-sidebar .toc-back-to-top a:hover {
+            color: #ea580c;
+        }
+    </style>
+</head>
+
+<body class="font-sans bg-off-white text-charcoal">
+
+    <!-- Shared header — single source of truth -->
+    <script src="includes/header.js"></script>
+
+    <!-- Breadcrumb — orange › separators -->
+    <div class="bg-white border-b border-gray-100">
+        <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <div class="flex items-center gap-2 text-sm flex-wrap">
+                <a href="index.html" class="text-orange hover:text-orange-600 transition-colors no-underline">Home</a> <span class="text-orange font-medium">›</span> <a href="index.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">Guides</a> <span class="text-orange font-medium">›</span> <a href="tutorials.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">Tutorials</a> <span class="text-orange font-medium">›</span> <span class="text-charcoal font-medium">Docker Development Environment Setup for Magento 2</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="flex gap-8">
+
+            <!-- Left Sidebar (desktop) -->
+            <aside class="hidden lg:block w-64 flex-shrink-0">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4">Tutorials</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="guide-tutorial-custom-payment-method.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Custom Payment Method Developmen...</a></li>
+<li class="pl-0"><a href="guide-tutorial-custom-shipping-method.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Custom Shipping Method Developme...</a></li>
+<li class="pl-0"><a href="guide-tutorial-declarative-schema-data-patches.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Declarative Schema & Data Patche...</a></li>
+<li class="pl-0"><a href="guide-tutorial-docker-development-environment.html" class="block px-3 py-2 text-sm text-orange font-semibold bg-orange-50 border-l-4 border-orange pl-2 transition-colors no-underline">Docker Development Environment S...</a></li>
+<li class="pl-0"><a href="guide-tutorial-plugin-system-deep-dive.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Plugin System Deep Dive: Masteri...</a></li>
+<li class="pl-0"><a href="guide-tutorial-product-types.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Product Types Development</a></li>
+</ul>
+<h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4 mt-8">Guide Sections</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="tutorials.html" class="block px-3 py-2 text-sm text-orange font-semibold bg-orange-50 border-l-4 border-orange pl-2 transition-colors no-underline">Tutorials</a></li>
+<li class="pl-0"><a href="how-to-guides.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">How-To Guides</a></li>
+<li class="pl-0"><a href="architecture.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Architecture</a></li>
+<li class="pl-0"><a href="references.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">References</a></li>
+</ul>
+                </div>
+            </aside>
+
+            <!-- Article — square corners, border-t-4 orange accent -->
+            <main id="main-content" class="flex-1 min-w-0">
+                <article class="bg-white shadow-sm border border-gray-100 border-t-4 border-t-orange p-8 md:p-12">
+                    <!-- Title block -->
+                    <div class="mb-8">
+                        <span class="inline-block px-3 py-1.5 text-xs font-medium bg-orange-50 text-orange-700 border border-orange-200">Tutorial</span>
+                        <h1 class="text-3xl md:text-4xl font-extrabold text-charcoal mt-3 mb-3">Docker Development Environment Setup for Magento 2</h1>
+                        <p class="text-charcoal-300 text-lg mb-4">Complete guide to building a production-ready Docker-based Magento 2.4.7+ development environment with PHP 8.2, MySQL 8, Elasticsearch, Redis, Xdebug, and Mailhog</p>
+                        <!-- Meta pills -->
+                        <div class="flex flex-wrap gap-2"><span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-yellow-50 text-yellow-800"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>Intermediate</span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-orange-50 text-orange-700"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>90 minutes</span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-charcoal text-white">Magento 2.4.7+</span></div>
+                    </div>
+
+                    <hr class="border-0 border-t border-gray-100 mb-8">
+
+                    <!-- Content -->
+                    <div class="prose max-w-none">
+                        <h1 id="docker-development-environment-setup-for-magento-2">Docker Development Environment Setup for Magento 2</h1>
+<h2 id="learning-objectives">Learning Objectives</h2>
+<p>By completing this tutorial, you will:</p>
+<ul>
+<li>Build a complete Docker-based Magento 2.4.7+ development environment</li>
+<li>Configure PHP 8.2, MySQL 8, Elasticsearch 8, Redis 7, and supporting services</li>
+<li>Set up Xdebug 3.x for debugging in VS Code and PHPStorm</li>
+<li>Install Magento with sample data for realistic testing</li>
+<li>Understand Docker networking, volumes, and service orchestration</li>
+<li>Troubleshoot common Docker/Magento development issues</li>
+<li>Optimize container performance for local development</li>
+</ul>
+<h2 id="introduction">Introduction</h2>
+<p>A proper local development environment is foundational to productive Magento 2 work. Docker provides consistency across team members, eliminates "works on my machine" problems, and closely mirrors production infrastructure. This guide builds a complete, production-grade development stack that balances performance with ease of use.</p>
+<h3 id="why-docker-for-magento-2">Why Docker for Magento 2?</h3>
+<ul>
+<li><strong>Consistency</strong>: Identical environment across all developers and CI/CD</li>
+<li><strong>Isolation</strong>: Multiple Magento projects without port/version conflicts</li>
+<li><strong>Speed</strong>: Faster than VMs; leverages host resources efficiently</li>
+<li><strong>Reproducibility</strong>: Infrastructure as code (docker-compose.yml)</li>
+<li><strong>Production parity</strong>: Match PHP, MySQL, Elasticsearch versions exactly</li>
+</ul>
+<h3 id="architecture-overview">Architecture Overview</h3>
+<p>The environment consists of seven services:</p>
+<ol>
+<li><strong>nginx</strong>: Web server (port 80/443)</li>
+<li><strong>php-fpm</strong>: PHP 8.2 with Xdebug, Composer, required extensions</li>
+<li><strong>mysql</strong>: MySQL 8.0 database</li>
+<li><strong>elasticsearch</strong>: Elasticsearch 8.x for catalog search</li>
+<li><strong>redis</strong>: Redis 7 for cache and session storage</li>
+<li><strong>mailhog</strong>: Email capture for testing (SMTP on 1025, UI on 8025)</li>
+<li><strong>rabbitmq</strong>: Message queue for asynchronous operations (optional but recommended)</li>
+</ol>
+<h2 id="step-1-project-structure-setup">Step 1: Project Structure Setup</h2>
+<p>Create the project directory structure:</p>
+<pre><code class="language-bash">mkdir -p ~/magento2-docker/{nginx,docker}
+cd ~/magento2-docker
+</code></pre>
+<p>Directory layout:</p>
+<pre><code>magento2-docker/
+├── docker-compose.yml
+├── .env
+├── nginx/
+│   └── default.conf
+├── docker/
+│   ├── php/
+│   │   ├── Dockerfile
+│   │   └── php.ini
+│   └── mysql/
+│       └── my.cnf
+└── src/                    # Magento codebase goes here
+</code></pre>
+<h2 id="step-2-docker-compose-configuration">Step 2: Docker Compose Configuration</h2>
+<p>Create <code>docker-compose.yml</code>:</p>
+<pre><code class="language-yaml">version: '3.9'
+
+services:
+  nginx:
+    image: nginx:1.25-alpine
+    container_name: magento2_nginx
+    ports:
+      - &quot;80:80&quot;
+      - &quot;443:443&quot;
+    volumes:
+      - ./src:/var/www/html:delegated
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - php-fpm
+    networks:
+      - magento
+
+  php-fpm:
+    build:
+      context: ./docker/php
+      dockerfile: Dockerfile
+    container_name: magento2_php
+    volumes:
+      - ./src:/var/www/html:delegated
+      - ./docker/php/php.ini:/usr/local/etc/php/conf.d/custom.ini:ro
+      - ~/.composer:/var/www/.composer:delegated
+    environment:
+      PHP_IDE_CONFIG: &quot;serverName=magento2.local&quot;
+      XDEBUG_CONFIG: &quot;client_host=host.docker.internal&quot;
+      COMPOSER_MEMORY_LIMIT: -1
+    networks:
+      - magento
+    extra_hosts:
+      - &quot;host.docker.internal:host-gateway&quot;
+
+  mysql:
+    image: mysql:8.0
+    container_name: magento2_mysql
+    command: --default-authentication-plugin=mysql_native_password
+    ports:
+      - &quot;3306:3306&quot;
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: magento2
+      MYSQL_USER: magento2
+      MYSQL_PASSWORD: magento2
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./docker/mysql/my.cnf:/etc/mysql/conf.d/custom.cnf:ro
+    networks:
+      - magento
+
+  elasticsearch:
+    image: elasticsearch:8.11.0
+    container_name: magento2_elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - &quot;ES_JAVA_OPTS=-Xms1g -Xmx1g&quot;
+    ports:
+      - &quot;9200:9200&quot;
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      - magento
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+
+  redis:
+    image: redis:7.2-alpine
+    container_name: magento2_redis
+    ports:
+      - &quot;6379:6379&quot;
+    volumes:
+      - redis_data:/data
+    networks:
+      - magento
+
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: magento2_mailhog
+    ports:
+      - &quot;1025:1025&quot;
+      - &quot;8025:8025&quot;
+    networks:
+      - magento
+
+  rabbitmq:
+    image: rabbitmq:3.12-management-alpine
+    container_name: magento2_rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: magento2
+      RABBITMQ_DEFAULT_PASS: magento2
+    ports:
+      - &quot;5672:5672&quot;
+      - &quot;15672:15672&quot;
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - magento
+
+networks:
+  magento:
+    driver: bridge
+
+volumes:
+  mysql_data:
+  elasticsearch_data:
+  redis_data:
+  rabbitmq_data:
+</code></pre>
+<h2 id="step-3-php-fpm-docker-image">Step 3: PHP-FPM Docker Image</h2>
+<p>Create <code>docker/php/Dockerfile</code>:</p>
+<pre><code class="language-dockerfile">FROM php:8.2-fpm
+
+# Install system dependencies
+RUN apt-get update &amp;&amp; apt-get install -y \
+    git \
+    curl \
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
+    libzip-dev \
+    libicu-dev \
+    libxslt1-dev \
+    libfreetype6-dev \
+    libjpeg62-turbo-dev \
+    libwebp-dev \
+    libsodium-dev \
+    mariadb-client \
+    vim \
+    unzip \
+    &amp;&amp; rm -rf /var/lib/apt/lists/*
+
+# Install PHP extensions required by Magento 2.4.7
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
+    &amp;&amp; docker-php-ext-install -j$(nproc) \
+    bcmath \
+    gd \
+    intl \
+    mbstring \
+    mysqli \
+    pdo_mysql \
+    soap \
+    xsl \
+    zip \
+    sockets \
+    opcache \
+    sodium
+
+# Install Xdebug 3.x for PHP 8.2
+RUN pecl install xdebug-3.3.1 &amp;&amp; docker-php-ext-enable xdebug
+
+# Configure Xdebug for remote debugging
+RUN echo &quot;zend_extension=xdebug.so&quot; &gt;&gt; /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+    &amp;&amp; echo &quot;xdebug.mode=develop,debug&quot; &gt;&gt; /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+    &amp;&amp; echo &quot;xdebug.client_host=host.docker.internal&quot; &gt;&gt; /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+    &amp;&amp; echo &quot;xdebug.client_port=9003&quot; &gt;&gt; /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+    &amp;&amp; echo &quot;xdebug.start_with_request=yes&quot; &gt;&gt; /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+    &amp;&amp; echo &quot;xdebug.log=/tmp/xdebug.log&quot; &gt;&gt; /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+    &amp;&amp; echo &quot;xdebug.idekey=PHPSTORM&quot; &gt;&gt; /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+
+# Install Composer 2.x
+COPY --from=composer:2.6 /usr/bin/composer /usr/bin/composer
+
+# Set working directory
+WORKDIR /var/www/html
+
+# Create www-data user with UID 1000 (match host user)
+RUN usermod -u 1000 www-data &amp;&amp; groupmod -g 1000 www-data
+
+# Switch to www-data for Composer operations
+USER www-data
+</code></pre>
+<p>Create <code>docker/php/php.ini</code>:</p>
+<pre><code class="language-ini">; Memory limits
+memory_limit = 4G
+max_execution_time = 1800
+max_input_time = 1800
+
+; Upload limits
+upload_max_filesize = 64M
+post_max_size = 64M
+
+; OPcache settings for development
+opcache.enable = 1
+opcache.enable_cli = 1
+opcache.memory_consumption = 256
+opcache.interned_strings_buffer = 16
+opcache.max_accelerated_files = 100000
+opcache.validate_timestamps = 1
+opcache.revalidate_freq = 0
+opcache.fast_shutdown = 1
+
+; Error reporting
+display_errors = On
+display_startup_errors = On
+error_reporting = E_ALL
+
+; Session settings
+session.save_handler = redis
+session.save_path = &quot;tcp://redis:6379?database=0&quot;
+
+; Realpath cache (performance)
+realpath_cache_size = 10M
+realpath_cache_ttl = 7200
+
+; Timezone
+date.timezone = UTC
+</code></pre>
+<h2 id="step-4-nginx-configuration">Step 4: Nginx Configuration</h2>
+<p>Create <code>nginx/default.conf</code>:</p>
+<pre><code class="language-nginx">upstream fastcgi_backend {
+    server php-fpm:9000;
+}
+
+server {
+    listen 80;
+    server_name magento2.local;
+
+    set $MAGE_ROOT /var/www/html;
+    set $MAGE_MODE developer;
+
+    root $MAGE_ROOT/pub;
+
+    index index.php;
+    autoindex off;
+    charset UTF-8;
+    error_page 404 403 = /errors/404.php;
+
+    # Deny access to sensitive files
+    location ~* ^/(?:\.git|\.htaccess|\.user\.ini|\.php_cs|\.php_cs\.dist|auth\.json|composer\.json|composer\.lock|magento_version|php\.ini\.sample) {
+        deny all;
+    }
+
+    # PHP entry point for setup application
+    location ~* ^/setup($|/) {
+        root $MAGE_ROOT;
+        location ~ ^/setup/index.php {
+            fastcgi_pass fastcgi_backend;
+            fastcgi_param PHP_FLAG &quot;session.auto_start=off \n suhosin.session.cryptua=off&quot;;
+            fastcgi_param PHP_VALUE &quot;memory_limit=756M \n max_execution_time=600&quot;;
+            fastcgi_read_timeout 600s;
+            fastcgi_connect_timeout 600s;
+            fastcgi_index index.php;
+            fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+            include fastcgi_params;
+        }
+
+        location ~ ^/setup/(?!pub/). {
+            deny all;
+        }
+
+        location ~ ^/setup/pub/ {
+            add_header X-Frame-Options &quot;SAMEORIGIN&quot;;
+        }
+    }
+
+    # PHP entry point for update application
+    location ~* ^/update($|/) {
+        root $MAGE_ROOT;
+
+        location ~ ^/update/index.php {
+            fastcgi_split_path_info ^(/update/index.php)(/.+)$;
+            fastcgi_pass fastcgi_backend;
+            fastcgi_index index.php;
+            fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+            fastcgi_param PATH_INFO $fastcgi_path_info;
+            include fastcgi_params;
+        }
+
+        location ~ ^/update/(?!pub/). {
+            deny all;
+        }
+
+        location ~ ^/update/pub/ {
+            add_header X-Frame-Options &quot;SAMEORIGIN&quot;;
+        }
+    }
+
+    location / {
+        try_files $uri $uri/ /index.php$is_args$args;
+    }
+
+    location /pub/ {
+        location ~ ^/pub/media/(downloadable|customer|import|custom_options|theme_customization/.*\.xml) {
+            deny all;
+        }
+        alias $MAGE_ROOT/pub/;
+        add_header X-Frame-Options &quot;SAMEORIGIN&quot;;
+    }
+
+    location /static/ {
+        expires max;
+
+        location ~ ^/static/version\d*/ {
+            rewrite ^/static/version\d*/(.*)$ /static/$1 last;
+        }
+
+        location ~* \.(ico|jpg|jpeg|png|gif|svg|svgz|webp|avif|avifs|js|css|eot|ttf|otf|woff|woff2|html|json|webmanifest)$ {
+            add_header Cache-Control &quot;public&quot;;
+            add_header X-Frame-Options &quot;SAMEORIGIN&quot;;
+            expires +1y;
+
+            if (!-f $request_filename) {
+                rewrite ^/static/(version\d*/)?(.*)$ /static.php?resource=$2 last;
+            }
+        }
+
+        location ~* \.(zip|gz|gzip|bz2|csv|xml)$ {
+            add_header Cache-Control &quot;no-store&quot;;
+            add_header X-Frame-Options &quot;SAMEORIGIN&quot;;
+            expires off;
+
+            if (!-f $request_filename) {
+                rewrite ^/static/(version\d*/)?(.*)$ /static.php?resource=$2 last;
+            }
+        }
+
+        if (!-f $request_filename) {
+            rewrite ^/static/(version\d*/)?(.*)$ /static.php?resource=$2 last;
+        }
+
+        add_header X-Frame-Options &quot;SAMEORIGIN&quot;;
+    }
+
+    location /media/ {
+        try_files $uri $uri/ /get.php$is_args$args;
+
+        location ~ ^/media/theme_customization/.*\.xml {
+            deny all;
+        }
+
+        location ~* \.(ico|jpg|jpeg|png|gif|svg|svgz|webp|avif|avifs|js|css|eot|ttf|otf|woff|woff2)$ {
+            add_header Cache-Control &quot;public&quot;;
+            add_header X-Frame-Options &quot;SAMEORIGIN&quot;;
+            expires +1y;
+            try_files $uri $uri/ /get.php$is_args$args;
+        }
+
+        location ~* \.(zip|gz|gzip|bz2|csv|xml)$ {
+            add_header Cache-Control &quot;no-store&quot;;
+            add_header X-Frame-Options &quot;SAMEORIGIN&quot;;
+            expires off;
+            try_files $uri $uri/ /get.php$is_args$args;
+        }
+
+        add_header X-Frame-Options &quot;SAMEORIGIN&quot;;
+    }
+
+    location /media/customer/ {
+        deny all;
+    }
+
+    location /media/downloadable/ {
+        deny all;
+    }
+
+    location /media/import/ {
+        deny all;
+    }
+
+    location /media/custom_options/ {
+        deny all;
+    }
+
+    location /errors/ {
+        location ~* \.xml$ {
+            deny all;
+        }
+    }
+
+    # PHP entry point for main application
+    location ~ ^/(index|get|static|errors/report|errors/404|errors/503|health_check)\.php$ {
+        try_files $uri =404;
+        fastcgi_pass fastcgi_backend;
+        fastcgi_buffers 16 16k;
+        fastcgi_buffer_size 32k;
+
+        fastcgi_param PHP_FLAG &quot;session.auto_start=off \n suhosin.session.cryptua=off&quot;;
+        fastcgi_param PHP_VALUE &quot;memory_limit=756M \n max_execution_time=18000&quot;;
+        fastcgi_read_timeout 600s;
+        fastcgi_connect_timeout 600s;
+
+        fastcgi_index index.php;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        include fastcgi_params;
+    }
+
+    # Deny everything else in .php
+    location ~* \.php$ {
+        deny all;
+    }
+
+    gzip on;
+    gzip_disable &quot;msie6&quot;;
+
+    gzip_comp_level 6;
+    gzip_min_length 1100;
+    gzip_buffers 16 8k;
+    gzip_proxied any;
+    gzip_types
+        text/plain
+        text/css
+        text/js
+        text/xml
+        text/javascript
+        application/javascript
+        application/x-javascript
+        application/json
+        application/xml
+        application/xml+rss
+        image/svg+xml;
+    gzip_vary on;
+}
+</code></pre>
+<h2 id="step-5-mysql-configuration">Step 5: MySQL Configuration</h2>
+<p>Create <code>docker/mysql/my.cnf</code>:</p>
+<pre><code class="language-ini">[mysqld]
+# InnoDB Settings
+innodb_buffer_pool_size = 2G
+innodb_log_file_size = 512M
+innodb_flush_log_at_trx_commit = 2
+innodb_flush_method = O_DIRECT
+innodb_file_per_table = 1
+
+# General Settings
+max_allowed_packet = 64M
+max_connections = 500
+table_open_cache = 4000
+table_definition_cache = 4000
+tmp_table_size = 256M
+max_heap_table_size = 256M
+
+# Query Cache (disabled in MySQL 8)
+query_cache_size = 0
+query_cache_type = 0
+
+# Logging
+slow_query_log = 1
+slow_query_log_file = /var/log/mysql/slow.log
+long_query_time = 2
+
+# Character Set
+character_set_server = utf8mb4
+collation_server = utf8mb4_unicode_ci
+
+# Binary Logging (can disable for dev)
+skip-log-bin
+</code></pre>
+<h2 id="step-6-start-docker-environment">Step 6: Start Docker Environment</h2>
+<p>Build and start all services:</p>
+<pre><code class="language-bash">docker-compose up -d --build
+</code></pre>
+<p>Verify all containers are running:</p>
+<pre><code class="language-bash">docker-compose ps
+</code></pre>
+<p>Expected output: All services should show "Up" status.</p>
+<p>Check service logs:</p>
+<pre><code class="language-bash">docker-compose logs -f php-fpm
+docker-compose logs -f nginx
+docker-compose logs -f elasticsearch
+</code></pre>
+<h2 id="step-7-install-magento-247">Step 7: Install Magento 2.4.7</h2>
+<p>Enter the PHP container:</p>
+<pre><code class="language-bash">docker exec -it magento2_php bash
+</code></pre>
+<p>Create Magento authentication file (inside container):</p>
+<pre><code class="language-bash">cd /var/www/html
+composer create-project --repository-url=https://repo.magento.com/ magento/project-community-edition=2.4.7 .
+</code></pre>
+<p>Enter your Magento authentication keys when prompted:
+- Username: Your public key
+- Password: Your private key</p>
+<p>Install Magento:</p>
+<pre><code class="language-bash">bin/magento setup:install \
+    --base-url=http://magento2.local/ \
+    --db-host=mysql \
+    --db-name=magento2 \
+    --db-user=magento2 \
+    --db-password=magento2 \
+    --admin-firstname=Admin \
+    --admin-lastname=User \
+    --admin-email=admin@example.com \
+    --admin-user=admin \
+    --admin-password=Admin123! \
+    --language=en_US \
+    --currency=USD \
+    --timezone=America/Chicago \
+    --use-rewrites=1 \
+    --search-engine=elasticsearch8 \
+    --elasticsearch-host=elasticsearch \
+    --elasticsearch-port=9200 \
+    --elasticsearch-index-prefix=magento2 \
+    --session-save=redis \
+    --session-save-redis-host=redis \
+    --session-save-redis-port=6379 \
+    --session-save-redis-db=2 \
+    --cache-backend=redis \
+    --cache-backend-redis-server=redis \
+    --cache-backend-redis-port=6379 \
+    --cache-backend-redis-db=0 \
+    --page-cache=redis \
+    --page-cache-redis-server=redis \
+    --page-cache-redis-port=6379 \
+    --page-cache-redis-db=1 \
+    --amqp-host=rabbitmq \
+    --amqp-port=5672 \
+    --amqp-user=magento2 \
+    --amqp-password=magento2 \
+    --consumers-wait-for-messages=0
+</code></pre>
+<p>Configure developer mode:</p>
+<pre><code class="language-bash">bin/magento deploy:mode:set developer
+bin/magento module:disable Magento_AdminAdobeImsTwoFactorAuth Magento_TwoFactorAuth
+bin/magento cache:flush
+</code></pre>
+<h2 id="step-8-install-sample-data-optional">Step 8: Install Sample Data (Optional)</h2>
+<p>Inside the PHP container:</p>
+<pre><code class="language-bash">bin/magento sampledata:deploy
+bin/magento setup:upgrade
+bin/magento indexer:reindex
+bin/magento cache:flush
+</code></pre>
+<p>Sample data installation takes 10-15 minutes.</p>
+<h2 id="step-9-configure-host-file">Step 9: Configure Host File</h2>
+<p>Add to <code>/etc/hosts</code> (Linux/Mac) or <code>C:\Windows\System32\drivers\etc\hosts</code> (Windows):</p>
+<pre><code>127.0.0.1 magento2.local
+</code></pre>
+<h2 id="step-10-xdebug-configuration">Step 10: Xdebug Configuration</h2>
+<h3 id="vs-code-setup">VS Code Setup</h3>
+<p>Create <code>.vscode/launch.json</code> in project root:</p>
+<pre><code class="language-json">{
+    &quot;version&quot;: &quot;0.2.0&quot;,
+    &quot;configurations&quot;: [
+        {
+            &quot;name&quot;: &quot;Listen for Xdebug&quot;,
+            &quot;type&quot;: &quot;php&quot;,
+            &quot;request&quot;: &quot;launch&quot;,
+            &quot;port&quot;: 9003,
+            &quot;pathMappings&quot;: {
+                &quot;/var/www/html&quot;: &quot;${workspaceFolder}/src&quot;
+            },
+            &quot;log&quot;: true,
+            &quot;xdebugSettings&quot;: {
+                &quot;max_data&quot;: 65535,
+                &quot;show_hidden&quot;: 1,
+                &quot;max_children&quot;: 100,
+                &quot;max_depth&quot;: 5
+            }
+        }
+    ]
+}
+</code></pre>
+<p>Install PHP Debug extension (xdebug.php-debug) in VS Code.</p>
+<p>Set breakpoint in <code>src/pub/index.php</code>, start debugging (F5), refresh browser.</p>
+<h3 id="phpstorm-setup">PHPStorm Setup</h3>
+<ol>
+<li>Go to Settings &gt; PHP &gt; Servers</li>
+<li>Add new server:</li>
+<li>Name: <code>magento2.local</code></li>
+<li>Host: <code>magento2.local</code></li>
+<li>Port: <code>80</code></li>
+<li>Debugger: Xdebug</li>
+<li>Use path mappings: Check</li>
+<li>
+<p>Map <code>&lt;Project root&gt;/src</code> to <code>/var/www/html</code></p>
+</li>
+<li>
+<p>Go to Run &gt; Start Listening for PHP Debug Connections</p>
+</li>
+<li>Install Xdebug helper browser extension</li>
+<li>Set breakpoint, enable debugging, refresh page</li>
+</ol>
+<h2 id="step-11-verify-installation">Step 11: Verify Installation</h2>
+<p>Access frontend: http://magento2.local</p>
+<p>Access admin: http://magento2.local/admin</p>
+<ul>
+<li>Username: <code>admin</code></li>
+<li>Password: <code>Admin123!</code></li>
+</ul>
+<p>View Mailhog UI: http://localhost:8025</p>
+<p>View RabbitMQ UI: http://localhost:15672 (magento2/magento2)</p>
+<p>Test Elasticsearch:</p>
+<pre><code class="language-bash">curl http://localhost:9200/_cat/indices?v
+</code></pre>
+<h2 id="common-troubleshooting">Common Troubleshooting</h2>
+<h3 id="permission-issues">Permission Issues</h3>
+<p>Container cannot write to directories:</p>
+<pre><code class="language-bash"># On host machine
+cd ~/magento2-docker
+sudo chown -R 1000:1000 src/
+chmod -R 775 src/var src/generated src/pub/static src/pub/media
+</code></pre>
+<h3 id="memory-issues">Memory Issues</h3>
+<p>"Allowed memory size exhausted" errors:</p>
+<ol>
+<li>Increase PHP memory in <code>docker/php/php.ini</code>: <code>memory_limit = 4G</code></li>
+<li>Increase Docker Desktop memory allocation (Settings &gt; Resources &gt; Memory: 8GB+)</li>
+<li>Restart containers: <code>docker-compose restart php-fpm</code></li>
+</ol>
+<h3 id="elasticsearch-fails-to-start">Elasticsearch Fails to Start</h3>
+<p>Increase virtual memory on host:</p>
+<pre><code class="language-bash"># Linux
+sudo sysctl -w vm.max_map_count=262144
+echo &quot;vm.max_map_count=262144&quot; | sudo tee -a /etc/sysctl.conf
+
+# Mac/Windows (Docker Desktop settings)
+# Resources &gt; Advanced &gt; VM max_map_count: 262144
+</code></pre>
+<h3 id="xdebug-not-connecting">Xdebug Not Connecting</h3>
+<ol>
+<li>Verify Xdebug is loaded:</li>
+</ol>
+<pre><code class="language-bash">docker exec -it magento2_php php -v
+# Should show &quot;with Xdebug v3.3.1&quot;
+</code></pre>
+<ol>
+<li>Check Xdebug log:</li>
+</ol>
+<pre><code class="language-bash">docker exec -it magento2_php cat /tmp/xdebug.log
+</code></pre>
+<ol>
+<li>
+<p>Verify IDE is listening on port 9003</p>
+</li>
+<li>
+<p>On Windows/Mac, confirm <code>host.docker.internal</code> resolves:</p>
+</li>
+</ol>
+<pre><code class="language-bash">docker exec -it magento2_php ping host.docker.internal
+</code></pre>
+<h3 id="slow-performance-on-mac">Slow Performance on Mac</h3>
+<p>Use Docker Desktop 4.x+ with VirtioFS:</p>
+<ol>
+<li>Settings &gt; General &gt; Enable VirtioFS</li>
+<li>Restart Docker Desktop</li>
+</ol>
+<p>Alternative: Use <code>:cached</code> or <code>:delegated</code> volume flags (already in compose file)</p>
+<h3 id="static-content-not-loading">Static Content Not Loading</h3>
+<p>Deploy static content:</p>
+<pre><code class="language-bash">docker exec -it magento2_php bin/magento setup:static-content:deploy -f
+</code></pre>
+<p>Check permissions:</p>
+<pre><code class="language-bash">docker exec -it magento2_php ls -la pub/static
+# Should be owned by www-data (UID 1000)
+</code></pre>
+<h3 id="database-connection-refused">Database Connection Refused</h3>
+<p>Verify MySQL is running and accepting connections:</p>
+<pre><code class="language-bash">docker exec -it magento2_mysql mysql -umagento2 -pmagento2 -e &quot;SHOW DATABASES;&quot;
+</code></pre>
+<p>Check <code>app/etc/env.php</code> database configuration matches <code>docker-compose.yml</code>.</p>
+<h3 id="composer-authentication-failed">Composer Authentication Failed</h3>
+<p>Store credentials permanently:</p>
+<pre><code class="language-bash">docker exec -it magento2_php composer config --global http-basic.repo.magento.com &lt;public_key&gt; &lt;private_key&gt;
+</code></pre>
+<h2 id="security-considerations">Security Considerations</h2>
+<h3 id="development-vs-production">Development vs Production</h3>
+<p>This setup is for <strong>local development only</strong>. For production:</p>
+<ol>
+<li>Remove Xdebug (significant performance impact)</li>
+<li>Enable OPcache with <code>validate_timestamps = 0</code></li>
+<li>Use environment-specific secrets (never commit credentials)</li>
+<li>Enable TLS/SSL with valid certificates</li>
+<li>Harden Nginx (rate limiting, ModSecurity, etc.)</li>
+<li>Use production-grade MySQL configuration (enable binary logs, replication)</li>
+<li>Implement backup strategies for data volumes</li>
+</ol>
+<h3 id="secrets-management">Secrets Management</h3>
+<p>Never commit:
+- <code>auth.json</code> (Magento keys)
+- <code>app/etc/env.php</code> (database credentials)
+- <code>.env</code> files with secrets</p>
+<p>Use <code>.gitignore</code>:</p>
+<pre><code>src/auth.json
+src/app/etc/env.php
+src/var/
+src/generated/
+src/pub/static/
+.env
+</code></pre>
+<h3 id="container-security">Container Security</h3>
+<ul>
+<li>Run containers as non-root users (PHP container uses www-data UID 1000)</li>
+<li>Keep base images updated: <code>docker-compose pull &amp;&amp; docker-compose up -d</code></li>
+<li>Scan images for vulnerabilities: <code>docker scan magento2_php</code></li>
+<li>Limit container capabilities and resources in production</li>
+</ul>
+<h2 id="performance-optimization">Performance Optimization</h2>
+<h3 id="host-resource-allocation">Host Resource Allocation</h3>
+<p>Minimum recommended for Docker Desktop:</p>
+<ul>
+<li>Memory: 8GB (16GB preferred)</li>
+<li>CPUs: 4 cores (8 preferred)</li>
+<li>Disk: 100GB available space (SSD strongly recommended)</li>
+</ul>
+<h3 id="file-sync-optimization">File Sync Optimization</h3>
+<p>On Mac/Windows, use Mutagen or docker-sync for faster file sync:</p>
+<pre><code class="language-bash"># Install Mutagen
+brew install mutagen-io/mutagen/mutagen
+
+# Create mutagen.yml
+mutagen:
+  sync:
+    defaults:
+      mode: &quot;two-way-resolved&quot;
+      ignore:
+        vcs: true
+        paths:
+          - &quot;var/&quot;
+          - &quot;generated/&quot;
+          - &quot;pub/static/&quot;
+</code></pre>
+<h3 id="opcache-tuning">OPcache Tuning</h3>
+<p>For development, <code>validate_timestamps = 1</code> (auto-reload on change).</p>
+<p>For production, set <code>validate_timestamps = 0</code> and deploy with:</p>
+<pre><code class="language-bash">docker exec -it magento2_php service php8.2-fpm reload
+</code></pre>
+<h3 id="redis-configuration">Redis Configuration</h3>
+<p>Split Redis into three databases for optimal cache isolation:</p>
+<ul>
+<li>DB 0: Default cache (app/etc/env.php <code>cache/frontend/default</code>)</li>
+<li>DB 1: Page cache (app/etc/env.php <code>cache/frontend/page_cache</code>)</li>
+<li>DB 2: Session storage (app/etc/env.php <code>session</code>)</li>
+</ul>
+<p>Already configured in Step 7 installation command.</p>
+<h3 id="mysql-query-performance">MySQL Query Performance</h3>
+<p>Enable slow query log (already in my.cnf) and analyze:</p>
+<pre><code class="language-bash">docker exec -it magento2_mysql mysql -uroot -proot -e &quot;SELECT * FROM mysql.slow_log ORDER BY query_time DESC LIMIT 10;&quot;
+</code></pre>
+<h2 id="additional-development-tools">Additional Development Tools</h2>
+<h3 id="debugging-tools">Debugging Tools</h3>
+<p><strong>Mailhog</strong>: Capture all outbound emails</p>
+<pre><code class="language-bash"># Configure Magento to use Mailhog (already in docker-compose.yml)
+# Access UI: http://localhost:8025
+</code></pre>
+<p><strong>Redis Commander</strong>: GUI for Redis inspection</p>
+<p>Add to <code>docker-compose.yml</code>:</p>
+<pre><code class="language-yaml">  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: magento2_redis_commander
+    environment:
+      REDIS_HOSTS: local:redis:6379
+    ports:
+      - &quot;8081:8081&quot;
+    networks:
+      - magento
+</code></pre>
+<p><strong>Portainer</strong>: Docker container management UI</p>
+<pre><code class="language-bash">docker run -d -p 9000:9000 --name portainer --restart always -v /var/run/docker.sock:/var/run/docker.sock portainer/portainer-ce
+</code></pre>
+<p>Access: http://localhost:9000</p>
+<h3 id="cli-aliases">CLI Aliases</h3>
+<p>Add to <code>~/.bashrc</code> or <code>~/.zshrc</code>:</p>
+<pre><code class="language-bash">alias m2='docker exec -it magento2_php bin/magento'
+alias m2bash='docker exec -it magento2_php bash'
+alias m2composer='docker exec -it magento2_php composer'
+alias m2mysql='docker exec -it magento2_mysql mysql -umagento2 -pmagento2 magento2'
+</code></pre>
+<p>Usage:</p>
+<pre><code class="language-bash">m2 cache:flush
+m2composer require vendor/package
+m2mysql -e &quot;SELECT * FROM core_config_data WHERE path LIKE '%base_url%';&quot;
+</code></pre>
+<h2 id="maintenance-tasks">Maintenance Tasks</h2>
+<h3 id="start-environment">Start Environment</h3>
+<pre><code class="language-bash">cd ~/magento2-docker
+docker-compose up -d
+</code></pre>
+<h3 id="stop-environment">Stop Environment</h3>
+<pre><code class="language-bash">docker-compose down
+</code></pre>
+<h3 id="remove-everything-including-volumes">Remove Everything (including volumes)</h3>
+<pre><code class="language-bash">docker-compose down -v
+</code></pre>
+<p>WARNING: This deletes the database and all data.</p>
+<h3 id="view-container-logs">View Container Logs</h3>
+<pre><code class="language-bash">docker-compose logs -f php-fpm nginx mysql
+</code></pre>
+<h3 id="update-dependencies">Update Dependencies</h3>
+<pre><code class="language-bash">docker exec -it magento2_php composer update --with-all-dependencies
+docker exec -it magento2_php bin/magento setup:upgrade
+docker exec -it magento2_php bin/magento cache:flush
+</code></pre>
+<h3 id="rebuild-containers">Rebuild Containers</h3>
+<p>After changing Dockerfile or docker-compose.yml:</p>
+<pre><code class="language-bash">docker-compose down
+docker-compose build --no-cache
+docker-compose up -d
+</code></pre>
+<h2 id="related-resources">Related Resources</h2>
+<h3 id="official-documentation">Official Documentation</h3>
+<ul>
+<li><a href="https://experienceleague.adobe.com/docs/commerce-operations/installation-guide/overview.html">Magento 2.4.7 Installation Guide</a></li>
+<li><a href="https://experienceleague.adobe.com/docs/commerce-operations/installation-guide/system-requirements.html">Magento System Requirements</a></li>
+<li><a href="https://docs.docker.com/">Docker Official Documentation</a></li>
+<li><a href="https://xdebug.org/docs/">Xdebug 3 Documentation</a></li>
+</ul>
+<h3 id="community-resources">Community Resources</h3>
+<ul>
+<li><a href="https://developer.adobe.com/commerce/docs/">Magento DevDocs</a></li>
+<li><a href="https://magento.stackexchange.com/">Magento Stack Exchange</a></li>
+<li><a href="https://hub.docker.com/_/php">Docker Hub - PHP Images</a></li>
+<li><a href="https://github.com/markshust/docker-magento">markshust/docker-magento</a> - Popular alternative setup</li>
+</ul>
+<h3 id="further-learning">Further Learning</h3>
+<ul>
+<li><a href="https://experienceleague.adobe.com/docs/commerce-operations/performance-best-practices/overview.html">Magento 2 Performance Best Practices</a></li>
+<li><a href="https://experienceleague.adobe.com/docs/commerce-operations/configuration-guide/cache/redis/redis-session.html">Redis Configuration</a></li>
+<li><a href="https://experienceleague.adobe.com/docs/commerce-operations/configuration-guide/search/overview-search.html">Elasticsearch Configuration</a></li>
+</ul>
+<hr />
+<h2 id="assumptions">Assumptions</h2>
+<ul>
+<li>Target: Adobe Commerce / Magento Open Source 2.4.7</li>
+<li>PHP: 8.2</li>
+<li>MySQL: 8.0</li>
+<li>Elasticsearch: 8.11</li>
+<li>Host: Linux/Mac/Windows with Docker Desktop 20.10+</li>
+<li>Environment: Local development (not cloud, not production)</li>
+<li>Scope: Single store, single website</li>
+</ul>
+<h2 id="why-this-approach">Why This Approach</h2>
+<ul>
+<li><strong>Docker Compose</strong>: Standardized orchestration; easier than raw Docker commands</li>
+<li><strong>Separate containers</strong>: Each service isolated; easy to upgrade/replace individual components</li>
+<li><strong>Named volumes</strong>: Persist data across container restarts; faster than bind mounts</li>
+<li><strong>Delegated volumes</strong>: Optimize file sync performance on Mac/Windows (<code>:delegated</code> flag)</li>
+<li><strong>Xdebug 3.x</strong>: Latest version; improved performance over Xdebug 2.x</li>
+<li><strong>Redis split</strong>: Three databases for cache/session isolation reduces key collision</li>
+<li><strong>OPcache enabled</strong>: Balances dev (validate_timestamps=1) and performance</li>
+<li><strong>Mailhog</strong>: Zero-config email testing; no SMTP relay needed</li>
+<li><strong>RabbitMQ</strong>: Asynchronous processing (cron, indexing) offloaded from web requests</li>
+</ul>
+<p>Alternatives considered:
+- <strong>Vagrant</strong>: Slower, heavier than Docker; deprecated by most teams
+- <strong>MAMP/WAMP</strong>: Not portable; version management difficult
+- <strong>Native PHP</strong>: Environment conflicts; hard to match production versions
+- <strong>Kubernetes</strong>: Overkill for local dev; use for staging/prod only</p>
+<h2 id="security-impact">Security Impact</h2>
+<h3 id="development-environment-risks">Development Environment Risks</h3>
+<ul>
+<li><strong>Xdebug enabled</strong>: Remote code execution if exposed publicly (mitigated: only bind to localhost)</li>
+<li><strong>Default credentials</strong>: MySQL root/root, admin Admin123! (acceptable for local dev; never use in production)</li>
+<li><strong>No TLS</strong>: HTTP only (acceptable for local; production requires HTTPS)</li>
+<li><strong>Docker socket exposure</strong>: Running as root in containers (mitigated: www-data UID 1000 for PHP)</li>
+</ul>
+<h3 id="mitigations">Mitigations</h3>
+<ul>
+<li>Bind services to localhost only (ports not exposed to network)</li>
+<li>Use firewall rules to block external access to Docker ports</li>
+<li>Never commit <code>auth.json</code> or <code>env.php</code> to version control</li>
+<li>Regularly update base images: <code>docker-compose pull</code></li>
+</ul>
+<h3 id="authenticationauthorization">Authentication/Authorization</h3>
+<ul>
+<li>Admin panel uses Magento ACL (Access Control List)</li>
+<li>API authentication via OAuth/token (configure in <code>app/etc/env.php</code>)</li>
+<li>Two-factor authentication disabled for dev (enabled in production)</li>
+</ul>
+<h3 id="csrfform-keys">CSRF/Form Keys</h3>
+<ul>
+<li>Magento automatically generates form keys for admin/frontend forms</li>
+<li>Ensure <code>formkey</code> is rendered in custom forms: <code>&lt;?= $block-&gt;getBlockHtml('formkey') ?&gt;</code></li>
+</ul>
+<h3 id="xss-escaping">XSS Escaping</h3>
+<ul>
+<li>Use <code>escapeHtml()</code>, <code>escapeUrl()</code>, <code>escapeJs()</code> in templates</li>
+<li>Never use <code>{variable|raw}</code> in templates without sanitization</li>
+<li>Content Security Policy (CSP) enforcement in Magento 2.4+</li>
+</ul>
+<h3 id="piigdpr">PII/GDPR</h3>
+<ul>
+<li>Sample data includes fake customer PII (safe for dev)</li>
+<li>Production: Implement data export/deletion per GDPR requirements</li>
+<li>Never use production database dumps in local dev without anonymization</li>
+</ul>
+<h3 id="secrets-management_1">Secrets Management</h3>
+<ul>
+<li>Store Magento keys in <code>~/.composer/auth.json</code> (not in project)</li>
+<li>Use <code>.env</code> for environment-specific secrets (add to <code>.gitignore</code>)</li>
+<li>Production: Use Vault, AWS Secrets Manager, or Azure Key Vault</li>
+</ul>
+<h2 id="performance-impact">Performance Impact</h2>
+<h3 id="full-page-cache-fpc">Full Page Cache (FPC)</h3>
+<ul>
+<li>Redis page cache (DB 1) pre-configured in installation command</li>
+<li>Developer mode disables FPC; enable in production mode</li>
+<li>Varnish not included (optional; add varnish service for production-like testing)</li>
+</ul>
+<h3 id="database-load">Database Load</h3>
+<ul>
+<li>MySQL 8.0 optimized for InnoDB (2GB buffer pool)</li>
+<li>Indexers run on-save in developer mode (switch to schedule for production)</li>
+<li>Slow query log captures queries &gt;2s (analyze regularly)</li>
+</ul>
+<h3 id="core-web-vitals-cwv">Core Web Vitals (CWV)</h3>
+<p>Not applicable to local dev (no CDN, no real network latency).</p>
+<p>For production:
+- Use CDN for static assets
+- Enable HTTP/2 (nginx 1.25 supports it; add TLS config)
+- Lazy-load images, defer non-critical JS
+- Measure with Lighthouse: <code>npx lighthouse http://magento2.local</code></p>
+<h3 id="cacheability">Cacheability</h3>
+<ul>
+<li>Full page cache: Redis (page_cache)</li>
+<li>Block cache: Redis (default cache)</li>
+<li>Layout cache: Redis (default cache)</li>
+<li>Config cache: Redis (default cache)</li>
+</ul>
+<p>Verify cache hits:</p>
+<pre><code class="language-bash">docker exec -it magento2_redis redis-cli INFO stats | grep hits
+</code></pre>
+<h3 id="resource-usage">Resource Usage</h3>
+<ul>
+<li>Idle: ~4GB RAM, 10% CPU</li>
+<li>Under load (reindex, compile): ~8GB RAM, 80% CPU</li>
+<li>Elasticsearch: ~1GB RAM (ES_JAVA_OPTS="-Xms1g -Xmx1g")</li>
+<li>MySQL: ~2GB RAM (innodb_buffer_pool_size=2G)</li>
+</ul>
+<h2 id="backward-compatibility">Backward Compatibility</h2>
+<h3 id="magento-versions">Magento Versions</h3>
+<ul>
+<li>Works with Magento 2.4.6 - 2.4.8 (minor PHP/Elasticsearch version adjustments)</li>
+<li>For Magento 2.4.5 and below: Use Elasticsearch 7.x instead of 8.x</li>
+<li>For Magento 2.4.7+: PHP 8.2 or 8.3 required</li>
+</ul>
+<h3 id="php-versions">PHP Versions</h3>
+<ul>
+<li>PHP 8.2: Current setup</li>
+<li>PHP 8.3: Change <code>FROM php:8.3-fpm</code> in Dockerfile; test extensions compatibility</li>
+<li>PHP 8.1: Downgrade to <code>FROM php:8.1-fpm</code>; Magento 2.4.7 supports 8.1-8.3</li>
+</ul>
+<h3 id="migration-path">Migration Path</h3>
+<p>From existing local environment:</p>
+<ol>
+<li>Export database: <code>mysqldump magento2 &gt; magento2.sql</code></li>
+<li>Copy codebase to <code>src/</code></li>
+<li>Start Docker environment</li>
+<li>Import database: <code>docker exec -i magento2_mysql mysql -umagento2 -pmagento2 magento2 &lt; magento2.sql</code></li>
+<li>Update <code>app/etc/env.php</code> with Docker service hostnames (mysql, redis, elasticsearch)</li>
+<li>Run <code>bin/magento setup:upgrade &amp;&amp; bin/magento cache:flush</code></li>
+</ol>
+<h2 id="tests-to-add">Tests to Add</h2>
+<h3 id="environment-verification-tests">Environment Verification Tests</h3>
+<p>After setup, verify:</p>
+<ol>
+<li><strong>Service availability</strong>: <code>curl http://magento2.local</code> returns 200</li>
+<li><strong>Admin login</strong>: Login to http://magento2.local/admin succeeds</li>
+<li><strong>Elasticsearch</strong>: <code>curl http://localhost:9200/_cat/health</code> returns green/yellow</li>
+<li><strong>Redis</strong>: <code>docker exec -it magento2_redis redis-cli PING</code> returns PONG</li>
+<li><strong>Xdebug</strong>: Set breakpoint, trigger request, verify IDE breaks</li>
+<li><strong>Mailhog</strong>: Trigger password reset email, verify in Mailhog UI</li>
+<li><strong>RabbitMQ</strong>: <code>bin/magento queue:consumers:list</code> shows consumers</li>
+</ol>
+<h3 id="automated-health-checks">Automated Health Checks</h3>
+<p>Add to <code>docker-compose.yml</code>:</p>
+<pre><code class="language-yaml">  nginx:
+    healthcheck:
+      test: [&quot;CMD&quot;, &quot;curl&quot;, &quot;-f&quot;, &quot;http://localhost/health_check.php&quot;]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+</code></pre>
+<h3 id="unit-tests">Unit Tests</h3>
+<p>Run Magento unit tests:</p>
+<pre><code class="language-bash">docker exec -it magento2_php vendor/bin/phpunit -c dev/tests/unit/phpunit.xml.dist
+</code></pre>
+<h3 id="integration-tests">Integration Tests</h3>
+<p>Configure and run integration tests:</p>
+<pre><code class="language-bash">docker exec -it magento2_php cp dev/tests/integration/etc/install-config-mysql.php.dist dev/tests/integration/etc/install-config-mysql.php
+# Edit install-config-mysql.php with Docker service hostnames
+docker exec -it magento2_php vendor/bin/phpunit -c dev/tests/integration/phpunit.xml.dist
+</code></pre>
+<h2 id="documentation-to-update">Documentation to Update</h2>
+<h3 id="project-readme">Project README</h3>
+<p>Add section:</p>
+<pre><code class="language-markdown">## Development Environment
+
+This project uses Docker for local development. See this guide for complete setup instructions.
+
+Quick start:
+1. Clone repo
+2. `docker-compose up -d`
+3. `docker exec -it magento2_php bin/magento setup:install ...`
+4. Access http://magento2.local
+</code></pre>
+<h3 id="troubleshooting-guide">Troubleshooting Guide</h3>
+<p>Create <code>TROUBLESHOOTING.md</code> with:
+- Common error messages and solutions
+- Log file locations
+- Debug commands
+- Performance tuning tips</p>
+<h3 id="team-onboarding">Team Onboarding</h3>
+<p>Add to <code>CONTRIBUTING.md</code>:
+- Required tools (Docker Desktop version)
+- Magento authentication key setup
+- First-time setup checklist
+- Git workflow (branches, commits, PRs)</p>
+<h3 id="screenshots-to-capture">Screenshots to Capture</h3>
+<p>For documentation:
+1. Docker Desktop dashboard showing all containers running
+2. VS Code debugging session with breakpoint hit
+3. PHPStorm debugging session with variables inspector
+4. Magento admin panel dashboard
+5. Mailhog UI with captured emails
+6. RabbitMQ management UI showing queues
+7. Successful <code>docker-compose ps</code> output
+8. Elasticsearch health check response</p>
+<h2 id="related-documentation">Related Documentation</h2>
+<h3 id="related-guides">Related Guides</h3>
+<ul>
+<li><a href="../how-to/cicd-deployment.md">CI/CD Deployment Pipelines for Magento 2</a></li>
+<li><a href="../how-to/testing-strategies.md">Comprehensive Testing Strategies for Magento 2</a></li>
+</ul>
+                    </div>
+                </article>
+            </main>
+            <!-- Right Sidebar: On This Page (desktop) -->
+            <aside class="toc-sidebar hidden xl:block" aria-label="On this page">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-semibold text-gray-900 uppercase tracking-wider mb-4 mt-0">On this page</h3>
+                    <nav id="toc-nav" class="space-y-0" aria-label="Table of contents"></nav>
+                    <div class="toc-back-to-top">
+                        <a href="#">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+                            </svg>
+                            Back to top
+                        </a>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- ================================================================
+         FOOTER — matches module-catalog.html multi-column layout exactly
+         ================================================================ -->
+    <footer class="relative pt-12 bg-white border-t border-charcoal mt-16">
+        <div class="max-w-screen-2xl mx-auto w-full px-4 sm:px-6 lg:px-8">
+            <div>
+                <a href="index.html" class="inline-flex items-center no-underline">
+                    <svg width="30" height="33" viewBox="0 0 30 33" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Magento Association logo" role="img">
+                        <path d="M0 4.06492H29.6763V31.8882C29.6763 32.502 29.1713 33 28.5487 33H1.12762C0.505079 33 0 32.502 0 31.8882V4.06492Z" fill="#34323A"/>
+                        <path d="M1.26857 0H28.4078C29.1066 0 29.6763 0.561678 29.6763 1.25075V4.06492H0V1.25075C0 0.561678 0.569682 0 1.26857 0Z" fill="#C9C9C9"/>
+                        <path d="M2.37269 3.0458C2.94031 3.0458 3.40046 2.59211 3.40046 2.03246C3.40046 1.47281 2.94031 1.01913 2.37269 1.01913C1.80506 1.01913 1.34491 1.47281 1.34491 2.03246C1.34491 2.59211 1.80506 3.0458 2.37269 3.0458Z" fill="#848484"/>
+                        <path d="M5.28571 3.0458C5.85334 3.0458 6.31349 2.59211 6.31349 2.03246C6.31349 1.47281 5.85334 1.01913 5.28571 1.01913C4.71809 1.01913 4.25793 1.47281 4.25793 2.03246C4.25793 2.59211 4.71809 3.0458 5.28571 3.0458Z" fill="#848484"/>
+                        <path d="M14.7883 7.46973L4.90405 13.0923V24.349L7.54104 25.8487V14.5978L14.7883 10.4692L22.0415 14.5978V25.8487L24.6785 24.349V13.0923L14.7883 7.46973Z" fill="#F1BC1B"/>
+                        <path d="M16.0862 26.2367L14.7883 26.9779L13.4492 26.2135V14.233L10.178 16.0975V27.3485L13.4492 29.213L14.7883 29.9773L16.0862 29.2362L19.4045 27.3485V16.0975L16.0862 14.2098V26.2367Z" fill="#F1BC1B"/>
+                    </svg>
+                    <span class="ml-3 text-xl font-bold text-charcoal">Developer Documentation</span>
+                </a>
+            </div>
+
+            <div class="grid grid-cols-12 md:gap-x-8 gap-y-12 lg:mt-12">
+                <div class="col-span-12 lg:col-span-4">
+                    <p class="hidden lg:block text-xs text-charcoal sm:text-sm">Comprehensive developer documentation for Magento 2.4.7+ — tutorials, architecture deep dives, module references, and production-ready patterns built by the community, for the community.</p>
+                    <ul class="mt-6 hidden lg:flex items-center gap-3">
+                        <li class="pl-0">
+                            <a href="https://github.com/magento/magento2" class="p-2 md:p-0" aria-label="GitHub">
+                                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                                </svg>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Guides</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="tutorials.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Tutorials</a></li>
+                            <li class="pl-0"><a href="how-to-guides.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">How-To Guides</a></li>
+                            <li class="pl-0"><a href="architecture.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Architecture</a></li>
+                            <li class="pl-0"><a href="learning-paths.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Learning Paths</a></li>
+                            <li class="pl-0"><a href="references.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">References</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Modules</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="module-catalog.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Catalog</a></li>
+                            <li class="pl-0"><a href="module-checkout.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Checkout</a></li>
+                            <li class="pl-0"><a href="module-sales.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Sales</a></li>
+                            <li class="pl-0"><a href="module-customer.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Customer</a></li>
+                            <li class="pl-0"><a href="module-quote.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Quote</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Community</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Magento Community</a></li>
+                            <li class="pl-0"><a href="https://magento.stackexchange.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Stack Exchange</a></li>
+                            <li class="pl-0"><a href="https://marketplace.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Marketplace</a></li>
+                            <li class="pl-0"><a href="https://github.com/magento/magento2" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">GitHub</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Support</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://github.com/magento/magento2/issues" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Report Issues</a></li>
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Community Resources</a></li>
+                            <li class="pl-0"><a href="https://developer.adobe.com/commerce/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Adobe Commerce Docs</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-12 border-t pt-6 pb-16 border-charcoal">
+                <p class="text-xs text-charcoal">
+                    &copy; 2026 Magento 2 Developer Documentation. Magento&reg; is a registered trademark of Adobe Inc.
+                </p>
+                <p class="mt-6 text-xs text-charcoal">
+                    This documentation provides guidance for Magento 2 developers and extension builders. For merchant documentation, visit the <a href="index.html" class="text-orange hover:text-orange-600 transition-colors">merchant documentation</a>.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Initialize highlight.js -->
+    <script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('pre code').forEach(function (el) {
+        hljs.highlightElement(el);
+    });
+    document.querySelectorAll('pre').forEach(function (pre) {
+        if (pre.parentNode.classList && pre.parentNode.classList.contains('code-wrapper')) return;
+        var wrapper = document.createElement('div');
+        wrapper.className = 'code-wrapper';
+        pre.parentNode.insertBefore(wrapper, pre);
+        wrapper.appendChild(pre);
+        var btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.setAttribute('type', 'button');
+        btn.setAttribute('aria-label', 'Copy code to clipboard');
+        btn.setAttribute('title', 'Copy');
+        btn.textContent = 'Copy';
+        wrapper.appendChild(btn);
+        btn.addEventListener('click', function () {
+            var code = pre.querySelector('code');
+            var text = code ? (code.innerText || code.textContent) : (pre.innerText || pre.textContent);
+            navigator.clipboard.writeText(text).then(function () {
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            }).catch(function () {
+                var range = document.createRange();
+                range.selectNode(code || pre);
+                window.getSelection().removeAllRanges();
+                window.getSelection().addRange(range);
+                document.execCommand('copy');
+                window.getSelection().removeAllRanges();
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            });
+        });
+    });
+});
+</script>
+
+
+<script>
+(function() {
+    var nav = document.getElementById('toc-nav');
+    if (!nav) return;
+    var article = document.getElementById('main-content');
+    if (!article) return;
+    var headings = article.querySelectorAll('h2[id], h3[id]');
+    if (headings.length < 3) {
+        // Hide the entire TOC sidebar if fewer than 3 headings
+        var sidebar = nav.closest('.toc-sidebar');
+        if (sidebar) sidebar.style.display = 'none';
+        return;
+    }
+    var ids = [];
+    headings.forEach(function(h) {
+        var a = document.createElement('a');
+        a.href = '#' + h.id;
+        a.textContent = h.textContent.replace(/^#+\s*/, '').replace(/\s+/g, ' ').trim();
+        if (h.tagName === 'H3') a.classList.add('toc-h3');
+        nav.appendChild(a);
+        ids.push(h.id);
+    });
+    // Scroll-spy with IntersectionObserver
+    var links = nav.querySelectorAll('a');
+    var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                links.forEach(function(l) { l.classList.remove('toc-active'); });
+                var active = nav.querySelector('a[href="#' + entry.target.id + '"]');
+                if (active) active.classList.add('toc-active');
+            }
+        });
+    }, { rootMargin: '-80px 0px -70% 0px', threshold: 0 });
+    headings.forEach(function(h) { observer.observe(h); });
+})();
+</script>
+</body>
+</html>

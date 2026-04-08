@@ -1,0 +1,2100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom Shipping Method Development: Building Flexible Shipping Solutions — Magento 2 Developer Documentation</title>
+    <meta name="description" content="Complete guide to developing custom shipping methods in Magento 2: carrier model implementation, rate calculation logic, tracking integration, multi-warehouse support, shipping restrictions, and testing strategies">
+
+    <!-- Google Fonts: Inter Tight only. Courier New used for code. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Highlight.js: syntax highlighting for code blocks -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/php.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/ini.min.js"></script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        charcoal: {
+                            DEFAULT: '#2c2c2c', 50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6',
+                            300: '#6B6B6B', 400: '#474747', 500: '#2c2c2c', 600: '#262626',
+                            700: '#202020', 800: '#1c1c1c', 900: '#191919', 950: '#121212'
+                        },
+                        orange: {
+                            DEFAULT: '#D4551A', 50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad',
+                            300: '#f9ae78', 400: '#f58242', 500: '#f26423', 600: '#e34613',
+                            700: '#bc3312', 800: '#962a16', 900: '#792515', 950: '#411009'
+                        },
+                        yellow: {
+                            DEFAULT: '#B8860B', 50: '#fffdeb', 100: '#fdf9c8', 200: '#fbf38c',
+                            300: '#f8e651', 400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a',
+                            700: '#b1670c', 800: '#8f5111', 900: '#764311', 950: '#442204'
+                        },
+                        'off-white': '#FAFAFA',
+                    },
+                    fontFamily: {
+                        sans: ['Inter Tight', 'system-ui', '-apple-system', 'sans-serif'],
+                        mono: ['Courier New', 'Courier', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* ── Force light mode ── */
+        :root { color-scheme: light only; }
+
+        [x-cloak] { display: none !important; }
+
+        /* ── Scroll offset for sticky header ── */
+        .prose h2, .prose h3 { scroll-margin-top: 5rem; }
+
+        /* ── Code blocks: Bauhaus charcoal bg, no border-radius, highlight.js override ── */
+        .prose pre {
+            background-color: #2C2C2C !important;
+            border-radius: 0 !important;
+            padding: 1.25rem;
+            overflow-x: auto;
+            font-size: 0.875rem;
+            line-height: 1.7;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 1.5rem 0;
+        }
+        .prose pre code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            background: transparent !important;
+            padding: 0;
+                    color: #abb2bf;
+        }
+        /* Override highlight.js theme background to match Bauhaus charcoal */
+        .hljs {
+            background: #2C2C2C !important;
+            color: #abb2bf !important;
+            border-radius: 0 !important;
+        }
+
+        /* ── Inline code: charcoal bg, yellow text, no border-radius ── */
+        .prose code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.85em;
+        }
+        .prose :not(pre) > code {
+            background-color: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2em 0.45em;
+            border-radius: 0;
+        }
+
+        /* ── Step-code: same charcoal/yellow style for UI path chips ── */
+        .step-code {
+            background: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2rem 0.5rem;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            border-radius: 0;
+        }
+
+        /* ── Tables: no border-radius, charcoal header ── */
+        .prose table { width: 100%; border-collapse: collapse; }
+        .prose th {
+            background-color: #2C2C2C;
+            color: #ffffff;
+            font-weight: 600;
+            text-align: left;
+            padding: 0.75rem 1rem;
+            border-bottom: 2px solid #2C2C2C;
+            border-radius: 0;
+        }
+        .prose td { padding: 0.75rem 1rem; border-bottom: 1px solid #e5e5e5; }
+        .prose tr:hover { background-color: #fafafa; }
+
+        /* ── Blockquote: Bauhaus style — border-4 yellow, square, no left-only border ── */
+        .prose blockquote {
+            border: 4px solid #F1BC1B;
+            background-color: #ffffff;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+            border-radius: 0;
+        }
+        .prose blockquote p { margin: 0; }
+
+        /* ── Lists: hexagon bullets ── */
+        .prose ul { list-style: none; padding-left: 0; }
+        .prose ul li {
+            position: relative;
+            padding-left: 1.75rem;
+            margin-bottom: 0.4rem;
+            line-height: 1.7;
+        }
+        .prose ul li::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0.45em;
+            width: 10px;
+            height: 10px;
+            background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 2L21 7V17L12 22L3 17V7L12 2Z' stroke='%23F26423' stroke-width='2.5' stroke-linejoin='miter'/%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+        .prose ol { list-style-type: decimal; padding-left: 1.5rem; }
+        .prose li { margin-bottom: 0.4rem; }
+
+        /* ── Headings ── */
+        .prose h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            padding-top: 1.5rem;
+            border-top: 4px solid #F1BC1B;
+            color: #2C2C2C;
+        }
+        .prose h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+            color: #2C2C2C;
+        }
+        .prose h4 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #2C2C2C;
+        }
+        .prose p { margin-bottom: 1rem; line-height: 1.75; }
+        .prose a { color: #D4551A; text-decoration: none; }
+        .prose a:hover { color: #e34613; text-decoration: underline; }
+        .prose hr { border: none; border-top: 1px solid #e5e5e5; margin: 2rem 0; }
+
+        /* ── Callout boxes: Bauhaus — border-4 yellow, white bg, icon + title ── */
+        .callout-box {
+            background-color: #ffffff;
+            border: 4px solid #F1BC1B;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+        }
+        .callout-warning {
+            border-color: #D4551A;
+        }
+        .callout-important {
+            border-color: #2C2C2C;
+        }
+        .callout-box .callout-inner {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+        .callout-box .callout-title {
+            font-weight: 600;
+            color: #2C2C2C;
+            margin-bottom: 0.25rem;
+        }
+        .callout-box .callout-body {
+            font-size: 0.875rem;
+            line-height: 1.6;
+            color: rgba(44,44,44,0.85);
+        }
+
+        
+    
+        /* Code block copy button */
+        .code-wrapper {
+            position: relative;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            font-family: 'Inter Tight', system-ui, sans-serif;
+            background: rgba(255,255,255,0.1);
+            color: #abb2bf;
+            border: 1px solid rgba(255,255,255,0.15);
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.15s ease, background 0.15s ease;
+            z-index: 10;
+            line-height: 1.4;
+            border-radius: 4px;
+            user-select: none;
+        }
+        .code-wrapper:hover .copy-btn {
+            opacity: 1;
+        }
+        .copy-btn:hover,
+        .copy-btn:focus {
+            background: rgba(255,255,255,0.2);
+            color: #ffffff;
+            outline: 2px solid #D4551A;
+            outline-offset: 1px;
+        }
+        .copy-btn.copied {
+            color: #98c379;
+            background: rgba(152, 195, 121, 0.15);
+            opacity: 1;
+        }
+    
+        /* Right-hand TOC sidebar */
+        .toc-sidebar {
+            width: 14rem;
+            flex-shrink: 0;
+        }
+        .toc-sidebar a {
+            display: block;
+            padding: 0.375rem 0;
+            font-size: 0.8125rem;
+            line-height: 1.4;
+            color: #6b7280;
+            text-decoration: none;
+            transition: color 0.15s ease;
+            border-left: 2px solid transparent;
+            padding-left: 0.75rem;
+        }
+        .toc-sidebar a:hover {
+            color: #111827;
+        }
+        .toc-sidebar a.toc-active {
+            color: #ea580c;
+            border-left-color: #ea580c;
+            font-weight: 500;
+        }
+        .toc-sidebar a.toc-h3 {
+            padding-left: 1.5rem;
+            font-size: 0.75rem;
+        }
+        .toc-sidebar .toc-back-to-top {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e5e7eb;
+        }
+        .toc-sidebar .toc-back-to-top a {
+            border-left: none;
+            padding-left: 0;
+            font-weight: 500;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .toc-sidebar .toc-back-to-top a:hover {
+            color: #ea580c;
+        }
+    </style>
+</head>
+
+<body class="font-sans bg-off-white text-charcoal">
+
+    <!-- Shared header — single source of truth -->
+    <script src="includes/header.js"></script>
+
+    <!-- Breadcrumb — orange › separators -->
+    <div class="bg-white border-b border-gray-100">
+        <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <div class="flex items-center gap-2 text-sm flex-wrap">
+                <a href="index.html" class="text-orange hover:text-orange-600 transition-colors no-underline">Home</a> <span class="text-orange font-medium">›</span> <a href="index.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">Guides</a> <span class="text-orange font-medium">›</span> <a href="tutorials.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">Tutorials</a> <span class="text-orange font-medium">›</span> <span class="text-charcoal font-medium">Custom Shipping Method Development: Building Flexible Shipping Solutions</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="flex gap-8">
+
+            <!-- Left Sidebar (desktop) -->
+            <aside class="hidden lg:block w-64 flex-shrink-0">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4">Tutorials</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="guide-tutorial-custom-payment-method.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Custom Payment Method Developmen...</a></li>
+<li class="pl-0"><a href="guide-tutorial-custom-shipping-method.html" class="block px-3 py-2 text-sm text-orange font-semibold bg-orange-50 border-l-4 border-orange pl-2 transition-colors no-underline">Custom Shipping Method Developme...</a></li>
+<li class="pl-0"><a href="guide-tutorial-declarative-schema-data-patches.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Declarative Schema & Data Patche...</a></li>
+<li class="pl-0"><a href="guide-tutorial-docker-development-environment.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Docker Development Environment S...</a></li>
+<li class="pl-0"><a href="guide-tutorial-plugin-system-deep-dive.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Plugin System Deep Dive: Masteri...</a></li>
+<li class="pl-0"><a href="guide-tutorial-product-types.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Product Types Development</a></li>
+</ul>
+<h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4 mt-8">Guide Sections</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="tutorials.html" class="block px-3 py-2 text-sm text-orange font-semibold bg-orange-50 border-l-4 border-orange pl-2 transition-colors no-underline">Tutorials</a></li>
+<li class="pl-0"><a href="how-to-guides.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">How-To Guides</a></li>
+<li class="pl-0"><a href="architecture.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Architecture</a></li>
+<li class="pl-0"><a href="references.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">References</a></li>
+</ul>
+                </div>
+            </aside>
+
+            <!-- Article — square corners, border-t-4 orange accent -->
+            <main id="main-content" class="flex-1 min-w-0">
+                <article class="bg-white shadow-sm border border-gray-100 border-t-4 border-t-orange p-8 md:p-12">
+                    <!-- Title block -->
+                    <div class="mb-8">
+                        <span class="inline-block px-3 py-1.5 text-xs font-medium bg-orange-50 text-orange-700 border border-orange-200">Tutorial</span>
+                        <h1 class="text-3xl md:text-4xl font-extrabold text-charcoal mt-3 mb-3">Custom Shipping Method Development: Building Flexible Shipping Solutions</h1>
+                        <p class="text-charcoal-300 text-lg mb-4">Complete guide to developing custom shipping methods in Magento 2: carrier model implementation, rate calculation logic, tracking integration, multi-warehouse support, shipping restrictions, and testing strategies</p>
+                        <!-- Meta pills -->
+                        <div class="flex flex-wrap gap-2"><span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-yellow-50 text-yellow-800"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>Advanced</span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-orange-50 text-orange-700"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>75 minutes</span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-charcoal text-white">Magento 2.4.7+</span></div>
+                    </div>
+
+                    <hr class="border-0 border-t border-gray-100 mb-8">
+
+                    <!-- Content -->
+                    <div class="prose max-w-none">
+                        <h1 id="custom-shipping-method-development-building-flexible-shipping-solutions">Custom Shipping Method Development: Building Flexible Shipping Solutions</h1>
+<h2 id="learning-objectives">Learning Objectives</h2>
+<p>By completing this tutorial, you will:</p>
+<ul>
+<li>Understand Magento 2's shipping carrier architecture and rate request flow</li>
+<li>Implement custom carrier models with flexible rate calculation logic</li>
+<li>Integrate third-party shipping APIs for real-time rate quotes</li>
+<li>Build tracking number integration for shipment visibility</li>
+<li>Implement multi-warehouse and origin-based shipping calculations</li>
+<li>Handle shipping restrictions (weight, dimensions, destinations)</li>
+<li>Optimize shipping method performance and caching strategies</li>
+<li>Write comprehensive tests for shipping methods</li>
+<li>Deploy shipping methods to production with proper configuration</li>
+</ul>
+<h2 id="introduction">Introduction</h2>
+<p>Shipping methods are critical components of e-commerce functionality. Magento 2's shipping architecture provides a flexible framework for implementing both simple table-based rates and complex API-driven shipping calculations.</p>
+<h3 id="shipping-architecture-overview">Shipping Architecture Overview</h3>
+<p><strong>Core components:</strong>
+1. <strong>Carrier Model</strong>: Implements rate calculation and tracking logic
+2. <strong>Rate Request</strong>: Contains cart/quote data for rate calculation
+3. <strong>Rate Result</strong>: Collection of shipping rates returned to customer
+4. <strong>Tracking</strong>: Links tracking numbers to shipments
+5. <strong>Configuration</strong>: Admin settings for carrier setup</p>
+<p><strong>Shipping flow:</strong></p>
+<pre><code>Cart → Rate Request → Carrier::collectRates() → Rate Calculation → Rate Result → Customer Selection → Order → Shipment → Tracking
+</code></pre>
+<h3 id="when-to-build-a-custom-shipping-method">When to Build a Custom Shipping Method</h3>
+<p><strong>Use cases for custom shipping methods:</strong>
+- Integration with regional/local carriers not supported by Magento
+- Complex business rules (volume discounts, customer groups, product attributes)
+- Multi-warehouse shipping with proximity-based rate calculation
+- Custom handling fees, insurance, signature requirements
+- Specialized freight or white-glove delivery services
+- In-store pickup with location selection</p>
+<p><strong>Alternatives to consider:</strong>
+- <strong>Table Rates</strong>: Use Magento's built-in table rate method for simple weight/price-based rates
+- <strong>Third-party extensions</strong>: Evaluate marketplace extensions before building custom
+- <strong>Shipping aggregators</strong>: Use services like ShipStation, Shippo for multi-carrier support</p>
+<h2 id="carrier-model-structure">Carrier Model Structure</h2>
+<h3 id="module-structure">Module Structure</h3>
+<pre><code>Vendor/Shipping/
+├── registration.php
+├── composer.json
+├── etc/
+│   ├── module.xml
+│   ├── config.xml                    # Default carrier configuration
+│   ├── adminhtml/
+│   │   └── system.xml                # Admin configuration fields
+│   └── di.xml                        # Service contracts, preferences
+├── Model/
+│   ├── Carrier/
+│   │   └── CustomCarrier.php         # Main carrier implementation
+│   ├── Config/
+│   │   └── Source/
+│   │       ├── Method.php            # Shipping method options
+│   │       └── PackageSize.php       # Package size options
+│   ├── RateCalculator.php            # Rate calculation service
+│   ├── TrackingAdapter.php           # Tracking API adapter
+│   └── ResourceModel/
+│       └── Rate/
+│           ├── Collection.php        # Rate table collection
+│           └── Rate.php              # Rate table resource
+├── Observer/
+│   └── RestrictShippingObserver.php  # Shipping method restrictions
+├── Plugin/
+│   └── AddShippingInformationExtend.php  # Extend shipping info
+└── view/
+    ├── frontend/
+    │   ├── layout/
+    │   │   └── checkout_cart_index.xml
+    │   └── templates/
+    │       └── carrier/
+    │           └── additional_info.phtml
+    └── adminhtml/
+        └── templates/
+            └── system/
+                └── config/
+                    └── rate_table.phtml
+</code></pre>
+<h3 id="module-registration-and-dependencies">Module Registration and Dependencies</h3>
+<p><strong>registration.php</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+use Magento\Framework\Component\ComponentRegistrar;
+
+ComponentRegistrar::register(
+    ComponentRegistrar::MODULE,
+    'Vendor_Shipping',
+    __DIR__
+);
+</code></pre>
+<p><strong>composer.json</strong></p>
+<pre><code class="language-json">{
+    &quot;name&quot;: &quot;vendor/magento2-custom-shipping&quot;,
+    &quot;description&quot;: &quot;Custom shipping carrier for Magento 2&quot;,
+    &quot;type&quot;: &quot;magento2-module&quot;,
+    &quot;version&quot;: &quot;1.0.0&quot;,
+    &quot;license&quot;: &quot;proprietary&quot;,
+    &quot;require&quot;: {
+        &quot;php&quot;: &quot;~8.2.0||~8.3.0&quot;,
+        &quot;magento/framework&quot;: &quot;^103.0&quot;,
+        &quot;magento/module-shipping&quot;: &quot;^100.4&quot;,
+        &quot;magento/module-quote&quot;: &quot;^101.2&quot;,
+        &quot;magento/module-sales&quot;: &quot;^103.0&quot;,
+        &quot;magento/module-catalog&quot;: &quot;^104.0&quot;,
+        &quot;magento/module-store&quot;: &quot;^101.1&quot;,
+        &quot;guzzlehttp/guzzle&quot;: &quot;^7.5&quot;
+    },
+    &quot;autoload&quot;: {
+        &quot;files&quot;: [
+            &quot;registration.php&quot;
+        ],
+        &quot;psr-4&quot;: {
+            &quot;Vendor\\Shipping\\&quot;: &quot;&quot;
+        }
+    }
+}
+</code></pre>
+<p><strong>etc/module.xml</strong></p>
+<pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;config xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+        xsi:noNamespaceSchemaLocation=&quot;urn:magento:framework:Module/etc/module.xsd&quot;&gt;
+    &lt;module name=&quot;Vendor_Shipping&quot;&gt;
+        &lt;sequence&gt;
+            &lt;module name=&quot;Magento_Shipping&quot;/&gt;
+            &lt;module name=&quot;Magento_Quote&quot;/&gt;
+            &lt;module name=&quot;Magento_Sales&quot;/&gt;
+            &lt;module name=&quot;Magento_Catalog&quot;/&gt;
+        &lt;/sequence&gt;
+    &lt;/module&gt;
+&lt;/config&gt;
+</code></pre>
+<h3 id="carrier-configuration">Carrier Configuration</h3>
+<p><strong>etc/config.xml</strong></p>
+<pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;config xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+        xsi:noNamespaceSchemaLocation=&quot;urn:magento:module:Magento_Store:etc/config.xsd&quot;&gt;
+    &lt;default&gt;
+        &lt;carriers&gt;
+            &lt;customcarrier&gt;
+                &lt;active&gt;0&lt;/active&gt;
+                &lt;model&gt;Vendor\Shipping\Model\Carrier\CustomCarrier&lt;/model&gt;
+                &lt;name&gt;Custom Carrier&lt;/name&gt;
+                &lt;title&gt;Custom Shipping&lt;/title&gt;
+                &lt;type&gt;I&lt;/type&gt;&lt;!-- I = Individual, O = Online --&gt;
+                &lt;sallowspecific&gt;0&lt;/sallowspecific&gt;
+                &lt;specificerrmsg&gt;This shipping method is not available. Please contact us for alternative options.&lt;/specificerrmsg&gt;
+                &lt;sort_order&gt;10&lt;/sort_order&gt;
+
+                &lt;!-- Rate calculation settings --&gt;
+                &lt;base_rate&gt;5.00&lt;/base_rate&gt;
+                &lt;per_item_rate&gt;2.00&lt;/per_item_rate&gt;
+                &lt;per_weight_rate&gt;1.50&lt;/per_weight_rate&gt;
+                &lt;handling_type&gt;F&lt;/handling_type&gt;&lt;!-- F = Fixed, P = Percent --&gt;
+                &lt;handling_fee&gt;0&lt;/handling_fee&gt;
+
+                &lt;!-- API settings --&gt;
+                &lt;api_endpoint&gt;https://api.carrier.com/v1&lt;/api_endpoint&gt;
+                &lt;api_key backend_model=&quot;Magento\Config\Model\Config\Backend\Encrypted&quot;/&gt;
+
+                &lt;!-- Restrictions --&gt;
+                &lt;max_package_weight&gt;50&lt;/max_package_weight&gt;
+                &lt;free_shipping_threshold&gt;100&lt;/free_shipping_threshold&gt;
+
+                &lt;!-- Delivery time --&gt;
+                &lt;estimated_delivery_days&gt;3-5&lt;/estimated_delivery_days&gt;
+            &lt;/customcarrier&gt;
+        &lt;/carriers&gt;
+    &lt;/default&gt;
+&lt;/config&gt;
+</code></pre>
+<p><strong>Configuration fields explained:</strong></p>
+<ul>
+<li><code>model</code>: Carrier class implementing <code>\Magento\Shipping\Model\Carrier\CarrierInterface</code></li>
+<li><code>type</code>: <code>I</code> (individual rates) or <code>O</code> (online API rates)</li>
+<li><code>sallowspecific</code>: Allow shipping to specific countries only</li>
+<li><code>handling_type</code>: <code>F</code> (fixed fee) or <code>P</code> (percentage)</li>
+<li><code>free_shipping_threshold</code>: Order subtotal for free shipping</li>
+</ul>
+<h3 id="admin-configuration">Admin Configuration</h3>
+<p><strong>etc/adminhtml/system.xml</strong></p>
+<pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;config xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+        xsi:noNamespaceSchemaLocation=&quot;urn:magento:module:Magento_Config:etc/system_file.xsd&quot;&gt;
+    &lt;system&gt;
+        &lt;section id=&quot;carriers&quot;&gt;
+            &lt;group id=&quot;customcarrier&quot; translate=&quot;label&quot; type=&quot;text&quot; sortOrder=&quot;100&quot; showInDefault=&quot;1&quot; showInWebsite=&quot;1&quot; showInStore=&quot;1&quot;&gt;
+                &lt;label&gt;Custom Carrier&lt;/label&gt;
+
+                &lt;field id=&quot;active&quot; translate=&quot;label&quot; type=&quot;select&quot; sortOrder=&quot;10&quot; showInDefault=&quot;1&quot; showInWebsite=&quot;1&quot; showInStore=&quot;0&quot;&gt;
+                    &lt;label&gt;Enabled&lt;/label&gt;
+                    &lt;source_model&gt;Magento\Config\Model\Config\Source\Yesno&lt;/source_model&gt;
+                &lt;/field&gt;
+
+                &lt;field id=&quot;title&quot; translate=&quot;label&quot; type=&quot;text&quot; sortOrder=&quot;20&quot; showInDefault=&quot;1&quot; showInWebsite=&quot;1&quot; showInStore=&quot;1&quot;&gt;
+                    &lt;label&gt;Title&lt;/label&gt;
+                &lt;/field&gt;
+
+                &lt;field id=&quot;name&quot; translate=&quot;label&quot; type=&quot;text&quot; sortOrder=&quot;30&quot; showInDefault=&quot;1&quot; showInWebsite=&quot;1&quot; showInStore=&quot;1&quot;&gt;
+                    &lt;label&gt;Method Name&lt;/label&gt;
+                &lt;/field&gt;
+
+                &lt;!-- Rate Calculation --&gt;
+                &lt;field id=&quot;rate_calculation_mode&quot; translate=&quot;label&quot; type=&quot;select&quot; sortOrder=&quot;40&quot; showInDefault=&quot;1&quot; showInWebsite=&quot;1&quot; showInStore=&quot;0&quot;&gt;
+                    &lt;label&gt;Rate Calculation Mode&lt;/label&gt;
+                    &lt;source_model&gt;Vendor\Shipping\Model\Config\Source\CalculationMode&lt;/source_model&gt;
+                    &lt;comment&gt;Choose between fixed rates, API-based rates, or custom table rates&lt;/comment&gt;
+                &lt;/field&gt;
+
+                &lt;field id=&quot;base_rate&quot; translate=&quot;label&quot; type=&quot;text&quot; sortOrder=&quot;50&quot; showInDefault=&quot;1&quot; showInWebsite=&quot;1&quot; showInStore=&quot;0&quot;&gt;
+                    &lt;label&gt;Base Rate&lt;/label&gt;
+                    &lt;validate&gt;validate-number validate-zero-or-greater&lt;/validate&gt;
+                    &lt;depends&gt;
+                        &lt;field id=&quot;rate_calculation_mode&quot;&gt;fixed&lt;/field&gt;
+                    &lt;/depends&gt;
+                &lt;/field&gt;
+
+                &lt;field id=&quot;per_item_rate&quot; translate=&quot;label&quot; type=&quot;text&quot; sortOrder=&quot;60&quot; showInDefault=&quot;1&quot; showInWebsite=&quot;1&quot; showInStore=&quot;0&quot;&gt;
+                    &lt;label&gt;Rate Per Item&lt;/label&gt;
+                    &lt;validate&gt;validate-number validate-zero-or-greater&lt;/validate&gt;
+                    &lt;depends&gt;
+                        &lt;field id=&quot;rate_calculation_mode&quot;&gt;fixed&lt;/field&gt;
+                    &lt;/depends&gt;
+                &lt;/field&gt;
+
+                &lt;field id=&quot;per_weight_rate&quot; translate=&quot;label&quot; type=&quot;text&quot; sortOrder=&quot;70&quot; showInDefault=&quot;1&quot; showInWebsite=&quot;1&quot; showInStore=&quot;0&quot;&gt;
+                    &lt;label&gt;Rate Per Weight Unit (lbs)&lt;/label&gt;
+                    &lt;validate&gt;validate-number validate-zero-or-greater&lt;/validate&gt;
+                    &lt;depends&gt;
+                        &lt;field id=&quot;rate_calculation_mode&quot;&gt;fixed&lt;/field&gt;
+                    &lt;/depends&gt;
+                &lt;/field&gt;
+
+                &lt;field id=&quot;handling_type&quot; translate=&quot;label&quot; type=&quot;select&quot; sortOrder=&quot;80&quot; showInDefault=&quot;1&quot; showInWebsite=&quot;1&quot; showInStore=&quot;0&quot;&gt;
+                    &lt;label&gt;Handling Fee Type&lt;/label&gt;
+                    &lt;source_model&gt;Magento\Shipping\Model\Source\HandlingType&lt;/source_model&gt;
+                &lt;/field&gt;
+
+                &lt;field id=&quot;handling_fee&quot; translate=&quot;label&quot; type=&quot;text&quot; sortOrder=&quot;90&quot; showInDefault=&quot;1&quot; showInWebsite=&quot;1&quot; showInStore=&quot;0&quot;&gt;
+                    &lt;label&gt;Handling Fee&lt;/label&gt;
+                    &lt;validate&gt;validate-number validate-zero-or-greater&lt;/validate&gt;
+                &lt;/field&gt;
+
+                &lt;!-- API Configuration --&gt;
+                &lt;field id=&quot;api_endpoint&quot; translate=&quot;label&quot; type=&quot;select&quot; sortOrder=&quot;100&quot; showInDefault=&quot;1&quot; showInWebsite=&quot;1&quot; showInStore=&quot;0&quot;&gt;
+                    &lt;label&gt;API Endpoint&lt;/label&gt;
+                    &lt;source_model&gt;Vendor\Shipping\Model\Config\Source\Environment&lt;/source_model&gt;
+                    &lt;depends&gt;
+                        &lt;field id=&quot;rate_calculation_mode&quot;&gt;api&lt;/field&gt;
+                    &lt;/depends&gt;
+                &lt;/field&gt;
+
+                &lt;field id=&quot;api_key&quot; translate=&quot;label&quot; type=&quot;obscure&quot; sortOrder=&quot;110&quot; showInDefault=&quot;1&quot; showInWebsite=&quot;1&quot; showInStore=&quot;0&quot;&gt;
+                    &lt;label&gt;API Key&lt;/label&gt;
+                    &lt;backend_model&gt;Magento\Config\Model\Config\Backend\Encrypted&lt;/backend_model&gt;
+                    &lt;depends&gt;
+                        &lt;field id=&quot;rate_calculation_mode&quot;&gt;api&lt;/field&gt;
+                    &lt;/depends&gt;
+                &lt;/field&gt;
+
+                &lt;!-- Restrictions --&gt;
+                &lt;field id=&quot;max_package_weight&quot; translate=&quot;label&quot; type=&quot;text&quot; sortOrder=&quot;120&quot; showInDefault=&quot;1&quot; showInWebsite=&quot;1&quot; showInStore=&quot;0&quot;&gt;
+                    &lt;label&gt;Maximum Package Weight (lbs)&lt;/label&gt;
+                    &lt;validate&gt;validate-number validate-greater-than-zero&lt;/validate&gt;
+                    &lt;comment&gt;Orders exceeding this weight will not show this shipping method&lt;/comment&gt;
+                &lt;/field&gt;
+
+                &lt;field id=&quot;free_shipping_threshold&quot; translate=&quot;label&quot; type=&quot;text&quot; sortOrder=&quot;130&quot; showInDefault=&quot;1&quot; showInWebsite=&quot;1&quot; showInStore=&quot;0&quot;&gt;
+                    &lt;label&gt;Free Shipping Threshold&lt;/label&gt;
+                    &lt;validate&gt;validate-number validate-zero-or-greater&lt;/validate&gt;
+                    &lt;comment&gt;Order subtotal above which shipping is free (0 to disable)&lt;/comment&gt;
+                &lt;/field&gt;
+
+                &lt;field id=&quot;estimated_delivery_days&quot; translate=&quot;label&quot; type=&quot;text&quot; sortOrder=&quot;140&quot; showInDefault=&quot;1&quot; showInWebsite=&quot;1&quot; showInStore=&quot;1&quot;&gt;
+                    &lt;label&gt;Estimated Delivery Time&lt;/label&gt;
+                    &lt;comment&gt;Display estimated delivery time to customers (e.g., &quot;3-5 business days&quot;)&lt;/comment&gt;
+                &lt;/field&gt;
+
+                &lt;!-- Applicable Countries --&gt;
+                &lt;field id=&quot;sallowspecific&quot; translate=&quot;label&quot; type=&quot;select&quot; sortOrder=&quot;150&quot; showInDefault=&quot;1&quot; showInWebsite=&quot;1&quot; showInStore=&quot;0&quot;&gt;
+                    &lt;label&gt;Ship to Applicable Countries&lt;/label&gt;
+                    &lt;frontend_class&gt;shipping-applicable-country&lt;/frontend_class&gt;
+                    &lt;source_model&gt;Magento\Shipping\Model\Config\Source\Allspecificcountries&lt;/source_model&gt;
+                &lt;/field&gt;
+
+                &lt;field id=&quot;specificcountry&quot; translate=&quot;label&quot; type=&quot;multiselect&quot; sortOrder=&quot;160&quot; showInDefault=&quot;1&quot; showInWebsite=&quot;1&quot; showInStore=&quot;0&quot;&gt;
+                    &lt;label&gt;Ship to Specific Countries&lt;/label&gt;
+                    &lt;source_model&gt;Magento\Directory\Model\Config\Source\Country&lt;/source_model&gt;
+                    &lt;can_be_empty&gt;1&lt;/can_be_empty&gt;
+                    &lt;depends&gt;
+                        &lt;field id=&quot;sallowspecific&quot;&gt;1&lt;/field&gt;
+                    &lt;/depends&gt;
+                &lt;/field&gt;
+
+                &lt;field id=&quot;showmethod&quot; translate=&quot;label&quot; type=&quot;select&quot; sortOrder=&quot;170&quot; showInDefault=&quot;1&quot; showInWebsite=&quot;1&quot; showInStore=&quot;0&quot;&gt;
+                    &lt;label&gt;Show Method if Not Applicable&lt;/label&gt;
+                    &lt;source_model&gt;Magento\Config\Model\Config\Source\Yesno&lt;/source_model&gt;
+                &lt;/field&gt;
+
+                &lt;field id=&quot;specificerrmsg&quot; translate=&quot;label&quot; type=&quot;textarea&quot; sortOrder=&quot;180&quot; showInDefault=&quot;1&quot; showInWebsite=&quot;1&quot; showInStore=&quot;1&quot;&gt;
+                    &lt;label&gt;Error Message&lt;/label&gt;
+                    &lt;comment&gt;Displayed when shipping method is not available&lt;/comment&gt;
+                &lt;/field&gt;
+
+                &lt;field id=&quot;sort_order&quot; translate=&quot;label&quot; type=&quot;text&quot; sortOrder=&quot;190&quot; showInDefault=&quot;1&quot; showInWebsite=&quot;1&quot; showInStore=&quot;0&quot;&gt;
+                    &lt;label&gt;Sort Order&lt;/label&gt;
+                &lt;/field&gt;
+
+            &lt;/group&gt;
+        &lt;/section&gt;
+    &lt;/system&gt;
+&lt;/config&gt;
+</code></pre>
+<h2 id="carrier-model-implementation">Carrier Model Implementation</h2>
+<p>The carrier model is the heart of the shipping method, implementing rate collection and tracking functionality.</p>
+<p><strong>Model/Carrier/CustomCarrier.php</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Shipping\Model\Carrier;
+
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\DataObject;
+use Magento\Quote\Model\Quote\Address\RateRequest;
+use Magento\Quote\Model\Quote\Address\RateResult\ErrorFactory;
+use Magento\Quote\Model\Quote\Address\RateResult\Method;
+use Magento\Quote\Model\Quote\Address\RateResult\MethodFactory;
+use Magento\Shipping\Model\Carrier\AbstractCarrier;
+use Magento\Shipping\Model\Carrier\CarrierInterface;
+use Magento\Shipping\Model\Rate\Result;
+use Magento\Shipping\Model\Rate\ResultFactory;
+use Magento\Shipping\Model\Tracking\Result as TrackingResult;
+use Magento\Shipping\Model\Tracking\Result\StatusFactory;
+use Psr\Log\LoggerInterface;
+
+/**
+ * Custom shipping carrier
+ */
+class CustomCarrier extends AbstractCarrier implements CarrierInterface
+{
+    protected $_code = 'customcarrier';
+
+    protected $_isFixed = true; // Set false for real-time API rates
+
+    public function __construct(
+        ScopeConfigInterface $scopeConfig,
+        ErrorFactory $rateErrorFactory,
+        LoggerInterface $logger,
+        private readonly ResultFactory $rateResultFactory,
+        private readonly MethodFactory $rateMethodFactory,
+        private readonly StatusFactory $trackStatusFactory,
+        array $data = []
+    ) {
+        parent::__construct($scopeConfig, $rateErrorFactory, $logger, $data);
+    }
+
+    /**
+     * Collect shipping rates
+     *
+     * @param RateRequest $request
+     * @return Result|bool
+     */
+    public function collectRates(RateRequest $request)
+    {
+        if (!$this-&gt;isActive()) {
+            return false;
+        }
+
+        // Check if shipping to this destination is allowed
+        if (!$this-&gt;isDestinationAllowed($request)) {
+            return $this-&gt;getErrorMessage();
+        }
+
+        // Check weight restrictions
+        if (!$this-&gt;isWeightAllowed($request)) {
+            return $this-&gt;getErrorMessage();
+        }
+
+        /** @var Result $result */
+        $result = $this-&gt;rateResultFactory-&gt;create();
+
+        // Calculate shipping rate
+        $shippingPrice = $this-&gt;calculateShippingPrice($request);
+
+        if ($shippingPrice !== false) {
+            $method = $this-&gt;createRateMethod($shippingPrice);
+            $result-&gt;append($method);
+        } else {
+            return $this-&gt;getErrorMessage();
+        }
+
+        return $result;
+    }
+
+    /**
+     * Check if carrier is active
+     */
+    private function isActive(): bool
+    {
+        return $this-&gt;getConfigFlag('active');
+    }
+
+    /**
+     * Check if destination country is allowed
+     */
+    private function isDestinationAllowed(RateRequest $request): bool
+    {
+        $allowedCountries = $this-&gt;getConfigData('specificcountry');
+
+        if ($this-&gt;getConfigData('sallowspecific') &amp;&amp; $allowedCountries) {
+            $allowedCountries = explode(',', $allowedCountries);
+            return in_array($request-&gt;getDestCountryId(), $allowedCountries, true);
+        }
+
+        return true;
+    }
+
+    /**
+     * Check if package weight is within limits
+     */
+    private function isWeightAllowed(RateRequest $request): bool
+    {
+        $maxWeight = (float) $this-&gt;getConfigData('max_package_weight');
+
+        if ($maxWeight &gt; 0 &amp;&amp; $request-&gt;getPackageWeight() &gt; $maxWeight) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Calculate shipping price based on configuration
+     */
+    private function calculateShippingPrice(RateRequest $request): float|false
+    {
+        $calculationMode = $this-&gt;getConfigData('rate_calculation_mode') ?: 'fixed';
+
+        return match ($calculationMode) {
+            'fixed' =&gt; $this-&gt;calculateFixedRate($request),
+            'api' =&gt; $this-&gt;calculateApiRate($request),
+            'table' =&gt; $this-&gt;calculateTableRate($request),
+            default =&gt; false,
+        };
+    }
+
+    /**
+     * Calculate fixed rate based on weight and item count
+     */
+    private function calculateFixedRate(RateRequest $request): float
+    {
+        $baseRate = (float) $this-&gt;getConfigData('base_rate');
+        $perItemRate = (float) $this-&gt;getConfigData('per_item_rate');
+        $perWeightRate = (float) $this-&gt;getConfigData('per_weight_rate');
+
+        $itemCount = 0;
+        if ($request-&gt;getAllItems()) {
+            foreach ($request-&gt;getAllItems() as $item) {
+                if ($item-&gt;getProduct()-&gt;isVirtual() || $item-&gt;getParentItem()) {
+                    continue;
+                }
+                $itemCount += $item-&gt;getQty();
+            }
+        }
+
+        $price = $baseRate
+            + ($perItemRate * $itemCount)
+            + ($perWeightRate * $request-&gt;getPackageWeight());
+
+        // Apply handling fee
+        $price = $this-&gt;applyHandlingFee($price);
+
+        // Check for free shipping threshold
+        $freeShippingThreshold = (float) $this-&gt;getConfigData('free_shipping_threshold');
+        if ($freeShippingThreshold &gt; 0 &amp;&amp; $request-&gt;getPackageValue() &gt;= $freeShippingThreshold) {
+            return 0.00;
+        }
+
+        return max(0.00, $price);
+    }
+
+    /**
+     * Calculate rate using external API
+     */
+    private function calculateApiRate(RateRequest $request): float|false
+    {
+        try {
+            // This would call your carrier's API
+            // Example: return $this-&gt;apiAdapter-&gt;getRates($request);
+            return 10.00; // Placeholder
+        } catch (\Exception $e) {
+            $this-&gt;_logger-&gt;error('Shipping API error: ' . $e-&gt;getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Calculate rate from custom table
+     */
+    private function calculateTableRate(RateRequest $request): float|false
+    {
+        // This would query custom rate table
+        // Example: return $this-&gt;rateRepository-&gt;getRateForRequest($request);
+        return 15.00; // Placeholder
+    }
+
+    /**
+     * Apply handling fee to shipping price
+     */
+    private function applyHandlingFee(float $price): float
+    {
+        $handlingFee = (float) $this-&gt;getConfigData('handling_fee');
+
+        if ($handlingFee &lt;= 0) {
+            return $price;
+        }
+
+        $handlingType = $this-&gt;getConfigData('handling_type');
+
+        if ($handlingType === 'P') {
+            // Percentage
+            return $price + ($price * ($handlingFee / 100));
+        }
+
+        // Fixed
+        return $price + $handlingFee;
+    }
+
+    /**
+     * Create rate method object
+     */
+    private function createRateMethod(float $price): Method
+    {
+        /** @var Method $method */
+        $method = $this-&gt;rateMethodFactory-&gt;create();
+
+        $method-&gt;setCarrier($this-&gt;_code);
+        $method-&gt;setCarrierTitle($this-&gt;getConfigData('title'));
+
+        $method-&gt;setMethod($this-&gt;_code);
+        $method-&gt;setMethodTitle($this-&gt;getConfigData('name'));
+
+        $method-&gt;setPrice($price);
+        $method-&gt;setCost($price);
+
+        // Add estimated delivery time
+        $deliveryTime = $this-&gt;getConfigData('estimated_delivery_days');
+        if ($deliveryTime) {
+            $method-&gt;setMethodDescription('Estimated delivery: ' . $deliveryTime);
+        }
+
+        return $method;
+    }
+
+    /**
+     * Get error message when shipping is not available
+     */
+    private function getErrorMessage()
+    {
+        if (!$this-&gt;getConfigFlag('showmethod')) {
+            return false;
+        }
+
+        $error = $this-&gt;_rateErrorFactory-&gt;create();
+        $error-&gt;setCarrier($this-&gt;_code);
+        $error-&gt;setCarrierTitle($this-&gt;getConfigData('title'));
+        $error-&gt;setErrorMessage(
+            $this-&gt;getConfigData('specificerrmsg') ?: __('This shipping method is not available.')
+        );
+
+        return $error;
+    }
+
+    /**
+     * Get allowed shipping methods
+     *
+     * @return array
+     */
+    public function getAllowedMethods(): array
+    {
+        return [
+            $this-&gt;_code =&gt; $this-&gt;getConfigData('name')
+        ];
+    }
+
+    /**
+     * Check if carrier has shipping tracking capability
+     *
+     * @return bool
+     */
+    public function isTrackingAvailable(): bool
+    {
+        return true;
+    }
+
+    /**
+     * Get tracking information
+     *
+     * @param string $tracking
+     * @return TrackingResult|string
+     */
+    public function getTrackingInfo($tracking)
+    {
+        $result = $this-&gt;trackStatusFactory-&gt;create();
+
+        $result-&gt;setCarrier($this-&gt;_code);
+        $result-&gt;setCarrierTitle($this-&gt;getConfigData('title'));
+        $result-&gt;setTracking($tracking);
+
+        // In production, fetch from carrier API
+        // Example: $trackingData = $this-&gt;trackingAdapter-&gt;getTrackingInfo($tracking);
+
+        // Mock tracking data
+        $result-&gt;setTrackSummary('Package is in transit');
+        $result-&gt;setUrl('https://tracking.carrier.com?tracking=' . $tracking);
+
+        return $result;
+    }
+}
+</code></pre>
+<h2 id="rate-calculation-service">Rate Calculation Service</h2>
+<p>For complex rate calculations, extract the logic into a dedicated service.</p>
+<p><strong>Model/RateCalculator.php</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Shipping\Model;
+
+use Magento\Catalog\Api\ProductRepositoryInterface;
+use Magento\Customer\Api\CustomerRepositoryInterface;
+use Magento\Customer\Api\GroupManagementInterface;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Quote\Model\Quote\Address\RateRequest;
+use Magento\Store\Model\ScopeInterface;
+
+/**
+ * Advanced shipping rate calculator
+ */
+class RateCalculator
+{
+    private const CONFIG_PATH_VOLUME_DISCOUNT = 'carriers/customcarrier/volume_discount_enabled';
+    private const CONFIG_PATH_CUSTOMER_GROUP_RATES = 'carriers/customcarrier/customer_group_rates';
+
+    public function __construct(
+        private readonly ScopeConfigInterface $scopeConfig,
+        private readonly ProductRepositoryInterface $productRepository,
+        private readonly CustomerRepositoryInterface $customerRepository,
+        private readonly GroupManagementInterface $groupManagement
+    ) {}
+
+    /**
+     * Calculate rate with advanced rules
+     */
+    public function calculateRate(RateRequest $request): float
+    {
+        $baseRate = $this-&gt;calculateBaseRate($request);
+
+        // Apply customer group discount
+        $baseRate = $this-&gt;applyCustomerGroupDiscount($baseRate, $request);
+
+        // Apply volume discount
+        $baseRate = $this-&gt;applyVolumeDiscount($baseRate, $request);
+
+        // Apply product attribute-based surcharges
+        $baseRate = $this-&gt;applyProductSurcharges($baseRate, $request);
+
+        // Apply destination-based adjustments
+        $baseRate = $this-&gt;applyDestinationAdjustments($baseRate, $request);
+
+        return max(0.00, $baseRate);
+    }
+
+    /**
+     * Calculate base rate from weight and distance
+     */
+    private function calculateBaseRate(RateRequest $request): float
+    {
+        $weight = $request-&gt;getPackageWeight();
+        $value = $request-&gt;getPackageValue();
+
+        // Weight-based tier pricing
+        $rate = match (true) {
+            $weight &lt;= 5 =&gt; 5.00,
+            $weight &lt;= 10 =&gt; 8.00,
+            $weight &lt;= 20 =&gt; 12.00,
+            $weight &lt;= 50 =&gt; 20.00,
+            default =&gt; 30.00,
+        };
+
+        // Add insurance for high-value orders
+        if ($value &gt; 500) {
+            $rate += ($value - 500) * 0.01; // 1% of value over $500
+        }
+
+        return $rate;
+    }
+
+    /**
+     * Apply customer group-based discount
+     */
+    private function applyCustomerGroupDiscount(float $rate, RateRequest $request): float
+    {
+        $customerId = $request-&gt;getData('customer_id');
+
+        if (!$customerId) {
+            return $rate;
+        }
+
+        try {
+            $customer = $this-&gt;customerRepository-&gt;getById($customerId);
+            $groupId = $customer-&gt;getGroupId();
+
+            // Fetch customer group discount from config
+            $groupRates = $this-&gt;getCustomerGroupRates();
+
+            if (isset($groupRates[$groupId])) {
+                $discountPercent = (float) $groupRates[$groupId];
+                $rate = $rate * (1 - ($discountPercent / 100));
+            }
+        } catch (\Exception $e) {
+            // Customer not found or group not configured, no discount
+        }
+
+        return $rate;
+    }
+
+    /**
+     * Apply volume discount based on item count or subtotal
+     */
+    private function applyVolumeDiscount(float $rate, RateRequest $request): float
+    {
+        if (!$this-&gt;isVolumeDiscountEnabled()) {
+            return $rate;
+        }
+
+        $itemCount = 0;
+        if ($request-&gt;getAllItems()) {
+            foreach ($request-&gt;getAllItems() as $item) {
+                if (!$item-&gt;getProduct()-&gt;isVirtual() &amp;&amp; !$item-&gt;getParentItem()) {
+                    $itemCount += $item-&gt;getQty();
+                }
+            }
+        }
+
+        // Volume discount tiers
+        $discount = match (true) {
+            $itemCount &gt;= 20 =&gt; 0.25, // 25% off
+            $itemCount &gt;= 10 =&gt; 0.15, // 15% off
+            $itemCount &gt;= 5 =&gt; 0.10,  // 10% off
+            default =&gt; 0,
+        };
+
+        return $rate * (1 - $discount);
+    }
+
+    /**
+     * Apply surcharges based on product attributes
+     */
+    private function applyProductSurcharges(float $rate, RateRequest $request): float
+    {
+        $surcharge = 0;
+
+        if ($request-&gt;getAllItems()) {
+            foreach ($request-&gt;getAllItems() as $item) {
+                if ($item-&gt;getProduct()-&gt;isVirtual() || $item-&gt;getParentItem()) {
+                    continue;
+                }
+
+                // Check for fragile items
+                if ($item-&gt;getProduct()-&gt;getData('is_fragile')) {
+                    $surcharge += 3.00 * $item-&gt;getQty();
+                }
+
+                // Check for oversized items
+                if ($item-&gt;getProduct()-&gt;getData('is_oversized')) {
+                    $surcharge += 10.00 * $item-&gt;getQty();
+                }
+
+                // Check for hazmat
+                if ($item-&gt;getProduct()-&gt;getData('requires_hazmat_shipping')) {
+                    $surcharge += 25.00;
+                    break; // Hazmat fee applies per shipment, not per item
+                }
+            }
+        }
+
+        return $rate + $surcharge;
+    }
+
+    /**
+     * Apply destination-based adjustments (remote areas, express zones)
+     */
+    private function applyDestinationAdjustments(float $rate, RateRequest $request): float
+    {
+        $destCountry = $request-&gt;getDestCountryId();
+        $destPostcode = $request-&gt;getDestPostcode();
+
+        // Remote area surcharge
+        if ($this-&gt;isRemoteArea($destCountry, $destPostcode)) {
+            $rate += 15.00;
+        }
+
+        // International shipping
+        if ($destCountry !== 'US') {
+            $rate *= 1.5; // 50% surcharge for international
+        }
+
+        return $rate;
+    }
+
+    /**
+     * Check if destination is in remote area
+     */
+    private function isRemoteArea(string $country, string $postcode): bool
+    {
+        // This would typically query a database or API
+        // For US, check against remote zip code ranges
+
+        $remoteZipRanges = [
+            ['99500', '99999'], // Alaska
+            ['96701', '96898'], // Hawaii
+        ];
+
+        foreach ($remoteZipRanges as [$min, $max]) {
+            if ($postcode &gt;= $min &amp;&amp; $postcode &lt;= $max) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if volume discount is enabled
+     */
+    private function isVolumeDiscountEnabled(): bool
+    {
+        return (bool) $this-&gt;scopeConfig-&gt;getValue(
+            self::CONFIG_PATH_VOLUME_DISCOUNT,
+            ScopeInterface::SCOPE_STORE
+        );
+    }
+
+    /**
+     * Get customer group rates from config
+     */
+    private function getCustomerGroupRates(): array
+    {
+        $config = $this-&gt;scopeConfig-&gt;getValue(
+            self::CONFIG_PATH_CUSTOMER_GROUP_RATES,
+            ScopeInterface::SCOPE_STORE
+        );
+
+        if (!$config) {
+            return [];
+        }
+
+        // Parse serialized config: [{&quot;group_id&quot;: &quot;1&quot;, &quot;discount&quot;: &quot;10&quot;}, ...]
+        $rates = json_decode($config, true);
+
+        if (!is_array($rates)) {
+            return [];
+        }
+
+        $result = [];
+        foreach ($rates as $rate) {
+            if (isset($rate['group_id'], $rate['discount'])) {
+                $result[(int) $rate['group_id']] = (float) $rate['discount'];
+            }
+        }
+
+        return $result;
+    }
+}
+</code></pre>
+<p><strong>Register in di.xml:</strong></p>
+<pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;config xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+        xsi:noNamespaceSchemaLocation=&quot;urn:magento:framework:ObjectManager/etc/config.xsd&quot;&gt;
+
+    &lt;!-- Inject RateCalculator into Carrier --&gt;
+    &lt;type name=&quot;Vendor\Shipping\Model\Carrier\CustomCarrier&quot;&gt;
+        &lt;arguments&gt;
+            &lt;argument name=&quot;rateCalculator&quot; xsi:type=&quot;object&quot;&gt;Vendor\Shipping\Model\RateCalculator&lt;/argument&gt;
+        &lt;/arguments&gt;
+    &lt;/type&gt;
+
+&lt;/config&gt;
+</code></pre>
+<h2 id="tracking-integration">Tracking Integration</h2>
+<p>Tracking integration allows customers to see shipment status in their account and admin to track shipments.</p>
+<p><strong>Model/TrackingAdapter.php</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Shipping\Model;
+
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Shipping\Model\Tracking\Result\Status;
+use Magento\Shipping\Model\Tracking\Result\StatusFactory;
+use Magento\Store\Model\ScopeInterface;
+use Psr\Log\LoggerInterface;
+
+/**
+ * Tracking API adapter
+ */
+class TrackingAdapter
+{
+    private const CONFIG_PATH_API_ENDPOINT = 'carriers/customcarrier/api_endpoint';
+    private const CONFIG_PATH_API_KEY = 'carriers/customcarrier/api_key';
+
+    public function __construct(
+        private readonly ScopeConfigInterface $scopeConfig,
+        private readonly StatusFactory $statusFactory,
+        private readonly Client $httpClient,
+        private readonly LoggerInterface $logger
+    ) {}
+
+    /**
+     * Get tracking information from carrier API
+     *
+     * @param string $trackingNumber
+     * @return Status
+     */
+    public function getTrackingInfo(string $trackingNumber): Status
+    {
+        /** @var Status $status */
+        $status = $this-&gt;statusFactory-&gt;create();
+
+        try {
+            $trackingData = $this-&gt;fetchTrackingData($trackingNumber);
+
+            $status-&gt;setTracking($trackingNumber);
+            $status-&gt;setCarrier('customcarrier');
+            $status-&gt;setCarrierTitle($this-&gt;getCarrierTitle());
+            $status-&gt;setUrl($trackingData['tracking_url'] ?? null);
+
+            // Set tracking summary
+            $summary = $this-&gt;formatTrackingSummary($trackingData);
+            $status-&gt;setTrackSummary($summary);
+
+            // Set detailed tracking events
+            if (isset($trackingData['events'])) {
+                $progressDetail = $this-&gt;formatTrackingEvents($trackingData['events']);
+                $status-&gt;setProgressDetail($progressDetail);
+            }
+
+            // Set delivery information
+            if (isset($trackingData['delivered_at'])) {
+                $status-&gt;setDeliveryDate($trackingData['delivered_at']);
+                $status-&gt;setDeliveryTime($trackingData['delivered_at']);
+                $status-&gt;setSignedBy($trackingData['signed_by'] ?? 'N/A');
+            }
+
+        } catch (\Exception $e) {
+            $this-&gt;logger-&gt;error('Tracking API error: ' . $e-&gt;getMessage(), [
+                'tracking_number' =&gt; $trackingNumber,
+            ]);
+
+            $status-&gt;setTracking($trackingNumber);
+            $status-&gt;setCarrier('customcarrier');
+            $status-&gt;setCarrierTitle($this-&gt;getCarrierTitle());
+            $status-&gt;setTrackSummary('Tracking information is currently unavailable. Please try again later.');
+        }
+
+        return $status;
+    }
+
+    /**
+     * Fetch tracking data from carrier API
+     */
+    private function fetchTrackingData(string $trackingNumber): array
+    {
+        $apiEndpoint = $this-&gt;scopeConfig-&gt;getValue(
+            self::CONFIG_PATH_API_ENDPOINT,
+            ScopeInterface::SCOPE_STORE
+        );
+
+        $apiKey = $this-&gt;scopeConfig-&gt;getValue(
+            self::CONFIG_PATH_API_KEY,
+            ScopeInterface::SCOPE_STORE
+        );
+
+        try {
+            $response = $this-&gt;httpClient-&gt;get(
+                $apiEndpoint . '/tracking/' . $trackingNumber,
+                [
+                    'headers' =&gt; [
+                        'Authorization' =&gt; 'Bearer ' . $apiKey,
+                        'Content-Type' =&gt; 'application/json',
+                    ],
+                    'timeout' =&gt; 10,
+                ]
+            );
+
+            $body = (string) $response-&gt;getBody();
+            $data = json_decode($body, true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new \RuntimeException('Invalid JSON response from tracking API');
+            }
+
+            return $data;
+
+        } catch (GuzzleException $e) {
+            throw new \RuntimeException('Failed to fetch tracking data: ' . $e-&gt;getMessage());
+        }
+    }
+
+    /**
+     * Format tracking summary text
+     */
+    private function formatTrackingSummary(array $trackingData): string
+    {
+        $status = $trackingData['status'] ?? 'unknown';
+
+        return match ($status) {
+            'in_transit' =&gt; 'Package is in transit to destination',
+            'out_for_delivery' =&gt; 'Package is out for delivery',
+            'delivered' =&gt; 'Package has been delivered',
+            'exception' =&gt; 'Delivery exception: ' . ($trackingData['exception_message'] ?? 'Unknown issue'),
+            'returned' =&gt; 'Package has been returned to sender',
+            default =&gt; 'Tracking status unknown',
+        };
+    }
+
+    /**
+     * Format tracking events for progress detail
+     */
+    private function formatTrackingEvents(array $events): array
+    {
+        $progressDetail = [];
+
+        foreach ($events as $event) {
+            $progressDetail[] = [
+                'activity' =&gt; $event['description'] ?? '',
+                'deliverydate' =&gt; $event['date'] ?? '',
+                'deliverytime' =&gt; $event['time'] ?? '',
+                'deliverylocation' =&gt; $event['location'] ?? '',
+            ];
+        }
+
+        return $progressDetail;
+    }
+
+    /**
+     * Get carrier title from config
+     */
+    private function getCarrierTitle(): string
+    {
+        return (string) $this-&gt;scopeConfig-&gt;getValue(
+            'carriers/customcarrier/title',
+            ScopeInterface::SCOPE_STORE
+        );
+    }
+}
+</code></pre>
+<p><strong>Update carrier to use tracking adapter:</strong></p>
+<pre><code class="language-php">// In CustomCarrier.php constructor, inject TrackingAdapter:
+public function __construct(
+    // ... other dependencies
+    private readonly TrackingAdapter $trackingAdapter,
+    // ...
+) {
+    parent::__construct($scopeConfig, $rateErrorFactory, $logger, $data);
+}
+
+// Update getTrackingInfo method:
+public function getTrackingInfo($tracking)
+{
+    return $this-&gt;trackingAdapter-&gt;getTrackingInfo($tracking);
+}
+</code></pre>
+<h2 id="multi-warehouse-shipping">Multi-Warehouse Shipping</h2>
+<p>For businesses with multiple fulfillment centers, calculate shipping from the optimal warehouse.</p>
+<p><strong>Model/WarehouseSelector.php</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Shipping\Model;
+
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\InventoryApi\Api\GetSourcesAssignedToStockOrderedByPriorityInterface;
+use Magento\InventoryApi\Api\SourceRepositoryInterface;
+use Magento\Quote\Model\Quote\Address\RateRequest;
+use Magento\Store\Model\StoreManagerInterface;
+
+/**
+ * Select optimal warehouse for shipping calculation
+ */
+class WarehouseSelector
+{
+    public function __construct(
+        private readonly StoreManagerInterface $storeManager,
+        private readonly GetSourcesAssignedToStockOrderedByPriorityInterface $getSourcesAssignedToStock,
+        private readonly SourceRepositoryInterface $sourceRepository,
+        private readonly DistanceCalculator $distanceCalculator
+    ) {}
+
+    /**
+     * Select best warehouse based on inventory and proximity
+     *
+     * @param RateRequest $request
+     * @return array|null Warehouse data with origin address
+     */
+    public function selectWarehouse(RateRequest $request): ?array
+    {
+        $availableWarehouses = $this-&gt;getAvailableWarehouses($request);
+
+        if (empty($availableWarehouses)) {
+            return null;
+        }
+
+        // If only one warehouse, return it
+        if (count($availableWarehouses) === 1) {
+            return reset($availableWarehouses);
+        }
+
+        // Calculate distance from each warehouse to destination
+        $destinationLat = $request-&gt;getData('dest_latitude');
+        $destinationLng = $request-&gt;getData('dest_longitude');
+
+        if (!$destinationLat || !$destinationLng) {
+            // Fallback: use first warehouse if geocoding unavailable
+            return reset($availableWarehouses);
+        }
+
+        $closest = null;
+        $closestDistance = PHP_FLOAT_MAX;
+
+        foreach ($availableWarehouses as $warehouse) {
+            $distance = $this-&gt;distanceCalculator-&gt;calculate(
+                $warehouse['latitude'],
+                $warehouse['longitude'],
+                $destinationLat,
+                $destinationLng
+            );
+
+            if ($distance &lt; $closestDistance) {
+                $closestDistance = $distance;
+                $closest = $warehouse;
+            }
+        }
+
+        return $closest;
+    }
+
+    /**
+     * Get warehouses that have inventory for requested items
+     */
+    private function getAvailableWarehouses(RateRequest $request): array
+    {
+        // Get stock for current store
+        try {
+            $store = $this-&gt;storeManager-&gt;getStore();
+            $stockId = (int) $store-&gt;getWebsite()-&gt;getCode(); // Simplified
+        } catch (NoSuchEntityException $e) {
+            return [];
+        }
+
+        // Get sources (warehouses) assigned to this stock
+        $sources = $this-&gt;getSourcesAssignedToStock-&gt;execute($stockId);
+
+        $warehouses = [];
+
+        foreach ($sources as $source) {
+            if (!$source-&gt;isEnabled()) {
+                continue;
+            }
+
+            // Check if source has inventory for requested items
+            if (!$this-&gt;sourceHasInventory($source-&gt;getSourceCode(), $request)) {
+                continue;
+            }
+
+            try {
+                $sourceData = $this-&gt;sourceRepository-&gt;get($source-&gt;getSourceCode());
+
+                $warehouses[] = [
+                    'source_code' =&gt; $sourceData-&gt;getSourceCode(),
+                    'name' =&gt; $sourceData-&gt;getName(),
+                    'country' =&gt; $sourceData-&gt;getCountryId(),
+                    'region' =&gt; $sourceData-&gt;getRegion(),
+                    'postcode' =&gt; $sourceData-&gt;getPostcode(),
+                    'city' =&gt; $sourceData-&gt;getCity(),
+                    'street' =&gt; $sourceData-&gt;getStreet(),
+                    'latitude' =&gt; $sourceData-&gt;getLatitude(),
+                    'longitude' =&gt; $sourceData-&gt;getLongitude(),
+                ];
+            } catch (NoSuchEntityException $e) {
+                continue;
+            }
+        }
+
+        return $warehouses;
+    }
+
+    /**
+     * Check if source has inventory for all requested items
+     */
+    private function sourceHasInventory(string $sourceCode, RateRequest $request): bool
+    {
+        // This would check MSI inventory levels
+        // Simplified for example
+        return true;
+    }
+}
+</code></pre>
+<p><strong>Model/DistanceCalculator.php</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Shipping\Model;
+
+/**
+ * Calculate distance between two geographic coordinates
+ */
+class DistanceCalculator
+{
+    private const EARTH_RADIUS_MILES = 3959;
+    private const EARTH_RADIUS_KM = 6371;
+
+    /**
+     * Calculate distance using Haversine formula
+     *
+     * @param float $lat1 Origin latitude
+     * @param float $lng1 Origin longitude
+     * @param float $lat2 Destination latitude
+     * @param float $lng2 Destination longitude
+     * @param string $unit 'mi' for miles, 'km' for kilometers
+     * @return float Distance in specified unit
+     */
+    public function calculate(
+        float $lat1,
+        float $lng1,
+        float $lat2,
+        float $lng2,
+        string $unit = 'mi'
+    ): float {
+        $latDelta = deg2rad($lat2 - $lat1);
+        $lngDelta = deg2rad($lng2 - $lng1);
+
+        $a = sin($latDelta / 2) * sin($latDelta / 2) +
+            cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
+            sin($lngDelta / 2) * sin($lngDelta / 2);
+
+        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+
+        $radius = $unit === 'km' ? self::EARTH_RADIUS_KM : self::EARTH_RADIUS_MILES;
+
+        return $radius * $c;
+    }
+}
+</code></pre>
+<h2 id="shipping-restrictions">Shipping Restrictions</h2>
+<p>Implement observers and validators to restrict shipping methods based on business rules.</p>
+<p><strong>Observer/RestrictShippingObserver.php</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Shipping\Observer;
+
+use Magento\Framework\Event\Observer;
+use Magento\Framework\Event\ObserverInterface;
+use Magento\Quote\Model\Quote;
+
+/**
+ * Restrict shipping methods based on custom rules
+ */
+class RestrictShippingObserver implements ObserverInterface
+{
+    /**
+     * @param Observer $observer
+     * @return void
+     */
+    public function execute(Observer $observer): void
+    {
+        /** @var \Magento\Shipping\Model\Rate\Result $result */
+        $result = $observer-&gt;getEvent()-&gt;getResult();
+
+        /** @var Quote $quote */
+        $quote = $observer-&gt;getEvent()-&gt;getRequest()-&gt;getData('quote');
+
+        if (!$quote) {
+            return;
+        }
+
+        // Restrict based on product attributes
+        if ($this-&gt;quoteContainsRestrictedProducts($quote)) {
+            $this-&gt;removeCustomCarrier($result);
+        }
+
+        // Restrict based on customer group
+        if ($this-&gt;isRestrictedCustomerGroup($quote)) {
+            $this-&gt;removeCustomCarrier($result);
+        }
+
+        // Restrict based on order value
+        if ($this-&gt;isBelowMinimumOrderValue($quote)) {
+            $this-&gt;removeCustomCarrier($result);
+        }
+    }
+
+    /**
+     * Check if quote contains products with shipping restrictions
+     */
+    private function quoteContainsRestrictedProducts(Quote $quote): bool
+    {
+        foreach ($quote-&gt;getAllVisibleItems() as $item) {
+            if ($item-&gt;getProduct()-&gt;getData('no_custom_shipping')) {
+                return true;
+            }
+
+            // Check for dangerous goods
+            if ($item-&gt;getProduct()-&gt;getData('is_dangerous_goods')) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if customer group is restricted
+     */
+    private function isRestrictedCustomerGroup(Quote $quote): bool
+    {
+        $restrictedGroups = [3]; // Example: Wholesale group
+
+        return in_array($quote-&gt;getCustomerGroupId(), $restrictedGroups, true);
+    }
+
+    /**
+     * Check if order value is below minimum
+     */
+    private function isBelowMinimumOrderValue(Quote $quote): bool
+    {
+        $minimumOrderValue = 50.00;
+
+        return $quote-&gt;getSubtotal() &lt; $minimumOrderValue;
+    }
+
+    /**
+     * Remove custom carrier from result
+     */
+    private function removeCustomCarrier(\Magento\Shipping\Model\Rate\Result $result): void
+    {
+        $rates = $result-&gt;getAllRates();
+
+        foreach ($rates as $key =&gt; $rate) {
+            if ($rate-&gt;getCarrier() === 'customcarrier') {
+                unset($rates[$key]);
+            }
+        }
+
+        $result-&gt;reset();
+        foreach ($rates as $rate) {
+            $result-&gt;append($rate);
+        }
+    }
+}
+</code></pre>
+<p><strong>Register observer in events.xml:</strong></p>
+<p>Note: There is no <code>shipping_collect_rates_after</code> event in core Magento. To restrict shipping methods, use a plugin on <code>Magento\Shipping\Model\Shipping::collectRates</code> instead.</p>
+<pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;config xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+        xsi:noNamespaceSchemaLocation=&quot;urn:magento:di:etc/di.xsd&quot;&gt;
+    &lt;type name=&quot;Magento\Shipping\Model\Shipping&quot;&gt;
+        &lt;plugin name=&quot;vendor_shipping_restrict&quot;
+                type=&quot;Vendor\Shipping\Plugin\RestrictShippingPlugin&quot;/&gt;
+    &lt;/type&gt;
+&lt;/config&gt;
+</code></pre>
+<h2 id="testing-shipping-methods">Testing Shipping Methods</h2>
+<p><strong>Test/Unit/Model/Carrier/CustomCarrierTest.php</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Shipping\Test\Unit\Model\Carrier;
+
+use Magento\Quote\Model\Quote\Address\RateRequest;
+use Magento\Quote\Model\Quote\Address\RateResult\MethodFactory;
+use Magento\Shipping\Model\Rate\ResultFactory;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
+use Vendor\Shipping\Model\Carrier\CustomCarrier;
+
+class CustomCarrierTest extends TestCase
+{
+    private CustomCarrier $carrier;
+    private ResultFactory|MockObject $rateResultFactory;
+    private MethodFactory|MockObject $rateMethodFactory;
+
+    protected function setUp(): void
+    {
+        $this-&gt;rateResultFactory = $this-&gt;createMock(ResultFactory::class);
+        $this-&gt;rateMethodFactory = $this-&gt;createMock(MethodFactory::class);
+
+        // Create carrier with mocked dependencies
+        // (Full constructor omitted for brevity)
+    }
+
+    public function testCollectRatesReturnsMethodForValidRequest(): void
+    {
+        $request = $this-&gt;createMock(RateRequest::class);
+        $request-&gt;method('getDestCountryId')-&gt;willReturn('US');
+        $request-&gt;method('getPackageWeight')-&gt;willReturn(10.0);
+        $request-&gt;method('getPackageValue')-&gt;willReturn(50.00);
+
+        $result = $this-&gt;carrier-&gt;collectRates($request);
+
+        $this-&gt;assertInstanceOf(\Magento\Shipping\Model\Rate\Result::class, $result);
+        $this-&gt;assertNotEmpty($result-&gt;getAllRates());
+    }
+
+    public function testCollectRatesReturnsFalseWhenInactive(): void
+    {
+        // Mock carrier as inactive
+        $request = $this-&gt;createMock(RateRequest::class);
+
+        $result = $this-&gt;carrier-&gt;collectRates($request);
+
+        $this-&gt;assertFalse($result);
+    }
+
+    public function testCollectRatesReturnsErrorWhenWeightExceedsLimit(): void
+    {
+        $request = $this-&gt;createMock(RateRequest::class);
+        $request-&gt;method('getPackageWeight')-&gt;willReturn(100.0); // Over limit
+
+        $result = $this-&gt;carrier-&gt;collectRates($request);
+
+        $this-&gt;assertInstanceOf(\Magento\Quote\Model\Quote\Address\RateResult\Error::class, $result);
+    }
+
+    public function testFreeShippingAppliedAboveThreshold(): void
+    {
+        $request = $this-&gt;createMock(RateRequest::class);
+        $request-&gt;method('getPackageValue')-&gt;willReturn(150.00); // Above $100 threshold
+
+        $result = $this-&gt;carrier-&gt;collectRates($request);
+        $rates = $result-&gt;getAllRates();
+
+        $this-&gt;assertEquals(0.00, $rates[0]-&gt;getPrice());
+    }
+}
+</code></pre>
+<hr />
+<h2 id="assumptions">Assumptions</h2>
+<ul>
+<li><strong>Target versions</strong>: Magento 2.4.7+, PHP 8.2+</li>
+<li><strong>Deployment</strong>: Single store or multi-store with shared shipping configuration</li>
+<li><strong>Multi-warehouse</strong>: Uses Magento MSI (Multi-Source Inventory)</li>
+<li><strong>API integration</strong>: Carrier provides REST API with rate and tracking endpoints</li>
+</ul>
+<h2 id="why-this-approach">Why This Approach</h2>
+<p><strong>AbstractCarrier inheritance</strong>: Provides standard configuration, logging, and error handling</p>
+<p><strong>RateCalculator service</strong>: Separates complex business logic from carrier for testability</p>
+<p><strong>TrackingAdapter</strong>: Abstracts API client for easy testing and API version changes</p>
+<p><strong>WarehouseSelector</strong>: Implements proximity-based warehouse selection for optimal shipping costs</p>
+<p><strong>Observer pattern</strong>: Enables flexible restriction rules without modifying carrier</p>
+<h2 id="security-impact">Security Impact</h2>
+<p><strong>API credentials</strong>: Encrypted in database, never exposed in frontend</p>
+<p><strong>Input validation</strong>: All rate request data validated (weight, destinations, values)</p>
+<p><strong>Rate manipulation prevention</strong>: Rates calculated server-side, never trusted from client</p>
+<p><strong>Authorization</strong>: Shipping configuration requires admin access with <code>Magento_Shipping::carriers</code> ACL</p>
+<h2 id="performance-impact">Performance Impact</h2>
+<p><strong>Cacheability:</strong>
+- Shipping rates are <strong>not cached</strong> (cart-specific, dynamic)
+- Carrier configuration <strong>is cached</strong> (config cache type)
+- API responses can be cached short-term (60-300 seconds) via custom cache</p>
+<p><strong>Database impact:</strong>
+- Rate requests query: quote items, product attributes, inventory levels
+- Properly indexed tables ensure fast lookups
+- For high traffic, consider Redis for rate caching</p>
+<p><strong>API latency:</strong>
+- External carrier APIs: 500-3000ms per rate request
+- Mitigation: Request rates in parallel for multiple carriers
+- Timeout shipping API calls at 10 seconds to prevent checkout delays</p>
+<p><strong>Core Web Vitals impact:</strong>
+- Shipping rates load during checkout step (does not impact homepage/category)
+- Use AJAX to fetch rates asynchronously after address entry
+- Display loading indicator during rate calculation</p>
+<h2 id="backward-compatibility">Backward Compatibility</h2>
+<p><strong>API stability:</strong>
+- <code>CarrierInterface</code> is stable across Magento 2.4.x
+- <code>RateRequest</code> structure is stable
+- Configuration XML structure is stable</p>
+<p><strong>Database schema:</strong>
+- No custom tables required for basic shipping (uses core tables)
+- Custom rate tables use declarative schema for safe upgrades</p>
+<p><strong>Upgrade path:</strong>
+- Magento 2.4.7 → 2.4.8: No breaking changes
+- Magento 2.4.x → 2.5.0: Monitor deprecation notices in shipping interfaces</p>
+<h2 id="tests-to-add">Tests to Add</h2>
+<p><strong>Unit tests:</strong>
+- Rate calculation logic (fixed, API, table)
+- Handling fee calculation (fixed, percentage)
+- Weight/destination restrictions
+- Free shipping threshold
+- Error message generation</p>
+<p><strong>Integration tests:</strong>
+- Carrier availability in checkout
+- Rate request with real quote
+- Tracking information retrieval
+- Multi-warehouse selection</p>
+<p><strong>Functional tests (MFTF):</strong>
+- Complete checkout with custom shipping method
+- Admin shipment creation with tracking
+- Shipping restrictions (weight, country)
+- Free shipping threshold</p>
+<h2 id="documentation-to-update">Documentation to Update</h2>
+<p><strong>Merchant documentation:</strong>
+- <code>README.md</code>: Installation, configuration
+- <code>CONFIGURATION.md</code>: Rate calculation modes, restrictions
+- <code>TROUBLESHOOTING.md</code>: Common issues (rates not showing, tracking not working)</p>
+<p><strong>Developer documentation:</strong>
+- <code>ARCHITECTURE.md</code>: Carrier architecture, extension points
+- <code>API.md</code>: Carrier API integration guide
+- <code>TESTING.md</code>: How to test shipping methods</p>
+<p><strong>Admin user guide:</strong>
+- How to configure shipping method
+- How to create shipments with tracking
+- Troubleshooting missing rates</p>
+<h2 id="related-documentation">Related Documentation</h2>
+<h3 id="related-guides">Related Guides</h3>
+<ul>
+<li><a href="custom-payment-method.md">Custom Payment Method Development: Building Secure Payment Integrations</a></li>
+<li><a href="../explanations/service-contracts-repositories.md">Service Contracts vs Repositories in Magento 2</a></li>
+<li><a href="../how-to/testing-strategies.md">Comprehensive Testing Strategies for Magento 2</a></li>
+</ul>
+<h3 id="related-module-documentation">Related Module Documentation</h3>
+<ul>
+<li><a href="../../modules/checkout/README.md">Magento_Checkout Overview</a></li>
+<li><a href="../../modules/sales/README.md">Magento_Sales Overview</a></li>
+<li><a href="../../modules/quote/README.md">Magento_Quote Overview</a></li>
+</ul>
+                    </div>
+                </article>
+            </main>
+            <!-- Right Sidebar: On This Page (desktop) -->
+            <aside class="toc-sidebar hidden xl:block" aria-label="On this page">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-semibold text-gray-900 uppercase tracking-wider mb-4 mt-0">On this page</h3>
+                    <nav id="toc-nav" class="space-y-0" aria-label="Table of contents"></nav>
+                    <div class="toc-back-to-top">
+                        <a href="#">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+                            </svg>
+                            Back to top
+                        </a>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- ================================================================
+         FOOTER — matches module-catalog.html multi-column layout exactly
+         ================================================================ -->
+    <footer class="relative pt-12 bg-white border-t border-charcoal mt-16">
+        <div class="max-w-screen-2xl mx-auto w-full px-4 sm:px-6 lg:px-8">
+            <div>
+                <a href="index.html" class="inline-flex items-center no-underline">
+                    <svg width="30" height="33" viewBox="0 0 30 33" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Magento Association logo" role="img">
+                        <path d="M0 4.06492H29.6763V31.8882C29.6763 32.502 29.1713 33 28.5487 33H1.12762C0.505079 33 0 32.502 0 31.8882V4.06492Z" fill="#34323A"/>
+                        <path d="M1.26857 0H28.4078C29.1066 0 29.6763 0.561678 29.6763 1.25075V4.06492H0V1.25075C0 0.561678 0.569682 0 1.26857 0Z" fill="#C9C9C9"/>
+                        <path d="M2.37269 3.0458C2.94031 3.0458 3.40046 2.59211 3.40046 2.03246C3.40046 1.47281 2.94031 1.01913 2.37269 1.01913C1.80506 1.01913 1.34491 1.47281 1.34491 2.03246C1.34491 2.59211 1.80506 3.0458 2.37269 3.0458Z" fill="#848484"/>
+                        <path d="M5.28571 3.0458C5.85334 3.0458 6.31349 2.59211 6.31349 2.03246C6.31349 1.47281 5.85334 1.01913 5.28571 1.01913C4.71809 1.01913 4.25793 1.47281 4.25793 2.03246C4.25793 2.59211 4.71809 3.0458 5.28571 3.0458Z" fill="#848484"/>
+                        <path d="M14.7883 7.46973L4.90405 13.0923V24.349L7.54104 25.8487V14.5978L14.7883 10.4692L22.0415 14.5978V25.8487L24.6785 24.349V13.0923L14.7883 7.46973Z" fill="#F1BC1B"/>
+                        <path d="M16.0862 26.2367L14.7883 26.9779L13.4492 26.2135V14.233L10.178 16.0975V27.3485L13.4492 29.213L14.7883 29.9773L16.0862 29.2362L19.4045 27.3485V16.0975L16.0862 14.2098V26.2367Z" fill="#F1BC1B"/>
+                    </svg>
+                    <span class="ml-3 text-xl font-bold text-charcoal">Developer Documentation</span>
+                </a>
+            </div>
+
+            <div class="grid grid-cols-12 md:gap-x-8 gap-y-12 lg:mt-12">
+                <div class="col-span-12 lg:col-span-4">
+                    <p class="hidden lg:block text-xs text-charcoal sm:text-sm">Comprehensive developer documentation for Magento 2.4.7+ — tutorials, architecture deep dives, module references, and production-ready patterns built by the community, for the community.</p>
+                    <ul class="mt-6 hidden lg:flex items-center gap-3">
+                        <li class="pl-0">
+                            <a href="https://github.com/magento/magento2" class="p-2 md:p-0" aria-label="GitHub">
+                                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                                </svg>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Guides</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="tutorials.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Tutorials</a></li>
+                            <li class="pl-0"><a href="how-to-guides.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">How-To Guides</a></li>
+                            <li class="pl-0"><a href="architecture.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Architecture</a></li>
+                            <li class="pl-0"><a href="learning-paths.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Learning Paths</a></li>
+                            <li class="pl-0"><a href="references.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">References</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Modules</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="module-catalog.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Catalog</a></li>
+                            <li class="pl-0"><a href="module-checkout.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Checkout</a></li>
+                            <li class="pl-0"><a href="module-sales.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Sales</a></li>
+                            <li class="pl-0"><a href="module-customer.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Customer</a></li>
+                            <li class="pl-0"><a href="module-quote.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Quote</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Community</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Magento Community</a></li>
+                            <li class="pl-0"><a href="https://magento.stackexchange.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Stack Exchange</a></li>
+                            <li class="pl-0"><a href="https://marketplace.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Marketplace</a></li>
+                            <li class="pl-0"><a href="https://github.com/magento/magento2" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">GitHub</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Support</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://github.com/magento/magento2/issues" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Report Issues</a></li>
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Community Resources</a></li>
+                            <li class="pl-0"><a href="https://developer.adobe.com/commerce/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Adobe Commerce Docs</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-12 border-t pt-6 pb-16 border-charcoal">
+                <p class="text-xs text-charcoal">
+                    &copy; 2026 Magento 2 Developer Documentation. Magento&reg; is a registered trademark of Adobe Inc.
+                </p>
+                <p class="mt-6 text-xs text-charcoal">
+                    This documentation provides guidance for Magento 2 developers and extension builders. For merchant documentation, visit the <a href="index.html" class="text-orange hover:text-orange-600 transition-colors">merchant documentation</a>.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Initialize highlight.js -->
+    <script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('pre code').forEach(function (el) {
+        hljs.highlightElement(el);
+    });
+    document.querySelectorAll('pre').forEach(function (pre) {
+        if (pre.parentNode.classList && pre.parentNode.classList.contains('code-wrapper')) return;
+        var wrapper = document.createElement('div');
+        wrapper.className = 'code-wrapper';
+        pre.parentNode.insertBefore(wrapper, pre);
+        wrapper.appendChild(pre);
+        var btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.setAttribute('type', 'button');
+        btn.setAttribute('aria-label', 'Copy code to clipboard');
+        btn.setAttribute('title', 'Copy');
+        btn.textContent = 'Copy';
+        wrapper.appendChild(btn);
+        btn.addEventListener('click', function () {
+            var code = pre.querySelector('code');
+            var text = code ? (code.innerText || code.textContent) : (pre.innerText || pre.textContent);
+            navigator.clipboard.writeText(text).then(function () {
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            }).catch(function () {
+                var range = document.createRange();
+                range.selectNode(code || pre);
+                window.getSelection().removeAllRanges();
+                window.getSelection().addRange(range);
+                document.execCommand('copy');
+                window.getSelection().removeAllRanges();
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            });
+        });
+    });
+});
+</script>
+
+
+<script>
+(function() {
+    var nav = document.getElementById('toc-nav');
+    if (!nav) return;
+    var article = document.getElementById('main-content');
+    if (!article) return;
+    var headings = article.querySelectorAll('h2[id], h3[id]');
+    if (headings.length < 3) {
+        // Hide the entire TOC sidebar if fewer than 3 headings
+        var sidebar = nav.closest('.toc-sidebar');
+        if (sidebar) sidebar.style.display = 'none';
+        return;
+    }
+    var ids = [];
+    headings.forEach(function(h) {
+        var a = document.createElement('a');
+        a.href = '#' + h.id;
+        a.textContent = h.textContent.replace(/^#+\s*/, '').replace(/\s+/g, ' ').trim();
+        if (h.tagName === 'H3') a.classList.add('toc-h3');
+        nav.appendChild(a);
+        ids.push(h.id);
+    });
+    // Scroll-spy with IntersectionObserver
+    var links = nav.querySelectorAll('a');
+    var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                links.forEach(function(l) { l.classList.remove('toc-active'); });
+                var active = nav.querySelector('a[href="#' + entry.target.id + '"]');
+                if (active) active.classList.add('toc-active');
+            }
+        });
+    }, { rootMargin: '-80px 0px -70% 0px', threshold: 0 });
+    headings.forEach(function(h) { observer.observe(h); });
+})();
+</script>
+</body>
+</html>

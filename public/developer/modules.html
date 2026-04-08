@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modules — Magento 2 Developer Documentation</title>
+    <meta name="description" content="Deep-dive documentation for Magento 2 core modules — Catalog, Checkout, Sales, Customer, and Quote. Architecture, execution flows, plugins, observers, and performance patterns.">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&family=JetBrains+Mono&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        charcoal: {
+                            DEFAULT: '#2c2c2c',
+                            50: '#f1f1f1',
+                            100: '#d9d9d9',
+                            200: '#b6b6b6',
+                            300: '#6B6B6B',
+                            400: '#474747',
+                            500: '#2c2c2c',
+                            600: '#262626',
+                            700: '#202020',
+                            800: '#1c1c1c',
+                            900: '#191919',
+                            950: '#121212'
+                        },
+                        orange: {
+                            DEFAULT: '#D4551A',
+                            50: '#fef5ee',
+                            100: '#fee9d6',
+                            200: '#fbd0ad',
+                            300: '#f9ae78',
+                            400: '#f58242',
+                            500: '#f26423',
+                            600: '#e34613',
+                            700: '#bc3312',
+                            800: '#962a16',
+                            900: '#792515',
+                            950: '#411009'
+                        },
+                        yellow: {
+                            DEFAULT: '#B8860B',
+                            50: '#fffdeb',
+                            100: '#fdf9c8',
+                            200: '#fbf38c',
+                            300: '#f8e651',
+                            400: '#f7d728',
+                            500: '#f1bc1b',
+                            600: '#d5900a',
+                            700: '#b1670c',
+                            800: '#8f5111',
+                            900: '#764311',
+                            950: '#442204'
+                        },
+                        'off-white': '#FAFAFA',
+                    },
+                    fontFamily: {
+                        sans: ['Inter Tight', 'system-ui', '-apple-system', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style>
+        [x-cloak] { display: none !important; }
+    </style>
+</head>
+
+<body class="font-sans bg-off-white text-charcoal">
+
+    <!-- Header -->
+    <!-- Shared header — single source of truth -->
+    <script src="includes/header.js"></script>
+
+    <!-- Page Header -->
+    <section class="bg-white border-b border-gray-200">
+        <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+            <nav class="mb-6">
+                <ol class="flex items-center gap-2 text-sm text-charcoal-300">
+                    <li><a href="index.html" class="hover:text-orange transition-colors no-underline">Home</a></li>
+                    <li class="before:content-['/'] before:mx-2">Modules</li>
+                </ol>
+            </nav>
+
+            <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold leading-none text-charcoal">
+                Module <span class="text-orange">Reference</span>
+            </h1>
+            <p class="mt-6 text-lg sm:text-xl font-medium leading-relaxed text-charcoal-300 max-w-3xl">
+                Deep-dive documentation for the five most critical Magento 2 core modules. Architecture, execution flows, extension points, performance patterns, and version compatibility — all verified against the 2.4.7 source.
+            </p>
+
+            <div class="flex flex-wrap gap-4 mt-8">
+                <span class="inline-flex items-center gap-2 bg-charcoal text-white px-4 py-2 text-sm font-medium">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                    5 Modules
+                </span>
+                <span class="inline-flex items-center gap-2 bg-charcoal-50 text-charcoal px-4 py-2 text-sm font-medium">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    45 Documents
+                </span>
+                <span class="inline-flex items-center gap-2 bg-charcoal-50 text-charcoal px-4 py-2 text-sm font-medium">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                    Verified against 2.4.7
+                </span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Doc Types Legend -->
+    <section class="bg-off-white border-b border-gray-200 py-8">
+        <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-sm font-semibold uppercase text-charcoal-300 mb-4">Each module includes 9 document types</h2>
+            <div class="flex flex-wrap gap-3">
+                <span class="inline-block bg-orange-50 text-orange-700 px-3 py-1.5 text-xs font-medium border border-orange-200">Overview</span>
+                <span class="inline-block bg-orange-50 text-orange-700 px-3 py-1.5 text-xs font-medium border border-orange-200">Architecture</span>
+                <span class="inline-block bg-orange-50 text-orange-700 px-3 py-1.5 text-xs font-medium border border-orange-200">Execution Flows</span>
+                <span class="inline-block bg-yellow-50 text-yellow-800 px-3 py-1.5 text-xs font-medium border border-yellow-200">Plugins & Observers</span>
+                <span class="inline-block bg-yellow-50 text-yellow-800 px-3 py-1.5 text-xs font-medium border border-yellow-200">Integrations</span>
+                <span class="inline-block bg-charcoal-50 text-charcoal-400 px-3 py-1.5 text-xs font-medium border border-charcoal-100">Anti-Patterns</span>
+                <span class="inline-block bg-charcoal-50 text-charcoal-400 px-3 py-1.5 text-xs font-medium border border-charcoal-100">Known Issues</span>
+                <span class="inline-block bg-charcoal-50 text-charcoal-400 px-3 py-1.5 text-xs font-medium border border-charcoal-100">Version Compatibility</span>
+                <span class="inline-block bg-charcoal-50 text-charcoal-400 px-3 py-1.5 text-xs font-medium border border-charcoal-100">Performance</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Module Cards -->
+    <section class="py-16 sm:py-24 bg-off-white">
+        <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col gap-8">
+
+                <!-- Catalog Module -->
+                <a href="module-catalog.html" class="group block bg-white border-2 border-gray-200 border-l-4 border-l-orange hover:border-l-orange hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 no-underline">
+                    <div class="p-6 sm:p-8 lg:p-10">
+                        <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-4 mb-3">
+                                    <h2 class="text-2xl sm:text-3xl font-bold text-charcoal group-hover:text-orange transition-colors">Magento_Catalog</h2>
+                                    <span class="hidden sm:inline-block bg-charcoal text-white px-3 py-1 text-xs font-mono">Magento\Catalog</span>
+                                </div>
+                                <p class="text-charcoal-300 leading-relaxed max-w-2xl">
+                                    The foundational product and category management system. Core data structures, business logic, and APIs for managing products, categories, attributes, and pricing across the entire platform.
+                                </p>
+
+                                <div class="flex flex-wrap gap-2 mt-4">
+                                    <span class="text-xs text-charcoal-300 bg-charcoal-50 px-2 py-1">EAV Attributes</span>
+                                    <span class="text-xs text-charcoal-300 bg-charcoal-50 px-2 py-1">6 Product Types</span>
+                                    <span class="text-xs text-charcoal-300 bg-charcoal-50 px-2 py-1">Category Tree</span>
+                                    <span class="text-xs text-charcoal-300 bg-charcoal-50 px-2 py-1">Flat Indexing</span>
+                                    <span class="text-xs text-charcoal-300 bg-charcoal-50 px-2 py-1">URL Rewrites</span>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-6 lg:flex-col lg:items-end lg:gap-4">
+                                <div class="flex items-center gap-2">
+                                    <span class="font-mono text-sm text-charcoal-300">9 docs</span>
+                                    <span class="text-xs bg-orange-50 text-orange-700 px-2 py-0.5">2.4.7+</span>
+                                </div>
+                                <span class="text-sm font-medium text-orange group-hover:translate-x-1 transition-transform inline-flex items-center gap-1">
+                                    Explore module <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Checkout Module -->
+                <a href="module-checkout.html" class="group block bg-white border-2 border-gray-200 border-l-4 border-l-orange hover:border-l-orange hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 no-underline">
+                    <div class="p-6 sm:p-8 lg:p-10">
+                        <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-4 mb-3">
+                                    <h2 class="text-2xl sm:text-3xl font-bold text-charcoal group-hover:text-orange transition-colors">Magento_Checkout</h2>
+                                    <span class="hidden sm:inline-block bg-charcoal text-white px-3 py-1 text-xs font-mono">Magento\Checkout</span>
+                                </div>
+                                <p class="text-charcoal-300 leading-relaxed max-w-2xl">
+                                    The cornerstone of order placement — orchestrating the multi-step checkout process from cart review through payment processing to order creation. Knockout.js SPA with extensible UI components.
+                                </p>
+
+                                <div class="flex flex-wrap gap-2 mt-4">
+                                    <span class="text-xs text-charcoal-300 bg-charcoal-50 px-2 py-1">Multi-Step SPA</span>
+                                    <span class="text-xs text-charcoal-300 bg-charcoal-50 px-2 py-1">Knockout.js</span>
+                                    <span class="text-xs text-charcoal-300 bg-charcoal-50 px-2 py-1">Payment Integration</span>
+                                    <span class="text-xs text-charcoal-300 bg-charcoal-50 px-2 py-1">Shipping Steps</span>
+                                    <span class="text-xs text-charcoal-300 bg-charcoal-50 px-2 py-1">Guest Checkout</span>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-6 lg:flex-col lg:items-end lg:gap-4">
+                                <div class="flex items-center gap-2">
+                                    <span class="font-mono text-sm text-charcoal-300">9 docs</span>
+                                    <span class="text-xs bg-orange-50 text-orange-700 px-2 py-0.5">2.4.7+</span>
+                                </div>
+                                <span class="text-sm font-medium text-orange group-hover:translate-x-1 transition-transform inline-flex items-center gap-1">
+                                    Explore module <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Sales Module -->
+                <a href="module-sales.html" class="group block bg-white border-2 border-gray-200 border-l-4 border-l-orange hover:border-l-orange hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 no-underline">
+                    <div class="p-6 sm:p-8 lg:p-10">
+                        <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-4 mb-3">
+                                    <h2 class="text-2xl sm:text-3xl font-bold text-charcoal group-hover:text-orange transition-colors">Magento_Sales</h2>
+                                    <span class="hidden sm:inline-block bg-charcoal text-white px-3 py-1 text-xs font-mono">Magento\Sales</span>
+                                </div>
+                                <p class="text-charcoal-300 leading-relaxed max-w-2xl">
+                                    The cornerstone of order management — comprehensive order lifecycle management, invoice generation, shipment processing, and credit memo handling from quote conversion through fulfillment.
+                                </p>
+
+                                <div class="flex flex-wrap gap-2 mt-4">
+                                    <span class="text-xs text-charcoal-300 bg-charcoal-50 px-2 py-1">Order State Machine</span>
+                                    <span class="text-xs text-charcoal-300 bg-charcoal-50 px-2 py-1">Invoice Generation</span>
+                                    <span class="text-xs text-charcoal-300 bg-charcoal-50 px-2 py-1">Shipment Processing</span>
+                                    <span class="text-xs text-charcoal-300 bg-charcoal-50 px-2 py-1">Credit Memos</span>
+                                    <span class="text-xs text-charcoal-300 bg-charcoal-50 px-2 py-1">Admin Grid</span>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-6 lg:flex-col lg:items-end lg:gap-4">
+                                <div class="flex items-center gap-2">
+                                    <span class="font-mono text-sm text-charcoal-300">9 docs</span>
+                                    <span class="text-xs bg-orange-50 text-orange-700 px-2 py-0.5">2.4.7+</span>
+                                </div>
+                                <span class="text-sm font-medium text-orange group-hover:translate-x-1 transition-transform inline-flex items-center gap-1">
+                                    Explore module <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Customer Module -->
+                <a href="module-customer.html" class="group block bg-white border-2 border-gray-200 border-l-4 border-l-orange hover:border-l-orange hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 no-underline">
+                    <div class="p-6 sm:p-8 lg:p-10">
+                        <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-4 mb-3">
+                                    <h2 class="text-2xl sm:text-3xl font-bold text-charcoal group-hover:text-orange transition-colors">Magento_Customer</h2>
+                                    <span class="hidden sm:inline-block bg-charcoal text-white px-3 py-1 text-xs font-mono">Magento\Customer</span>
+                                </div>
+                                <p class="text-charcoal-300 leading-relaxed max-w-2xl">
+                                    Customer registration, authentication, account management, address handling, customer groups, and EAV attributes. The foundation for personalized shopping experiences and customer segmentation.
+                                </p>
+
+                                <div class="flex flex-wrap gap-2 mt-4">
+                                    <span class="text-xs text-charcoal-300 bg-charcoal-50 px-2 py-1">EAV Attributes</span>
+                                    <span class="text-xs text-charcoal-300 bg-charcoal-50 px-2 py-1">Authentication</span>
+                                    <span class="text-xs text-charcoal-300 bg-charcoal-50 px-2 py-1">Address Management</span>
+                                    <span class="text-xs text-charcoal-300 bg-charcoal-50 px-2 py-1">Customer Groups</span>
+                                    <span class="text-xs text-charcoal-300 bg-charcoal-50 px-2 py-1">Account Dashboard</span>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-6 lg:flex-col lg:items-end lg:gap-4">
+                                <div class="flex items-center gap-2">
+                                    <span class="font-mono text-sm text-charcoal-300">9 docs</span>
+                                    <span class="text-xs bg-orange-50 text-orange-700 px-2 py-0.5">2.4.7+</span>
+                                </div>
+                                <span class="text-sm font-medium text-orange group-hover:translate-x-1 transition-transform inline-flex items-center gap-1">
+                                    Explore module <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Quote Module -->
+                <a href="module-quote.html" class="group block bg-white border-2 border-gray-200 border-l-4 border-l-orange hover:border-l-orange hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 no-underline">
+                    <div class="p-6 sm:p-8 lg:p-10">
+                        <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-4 mb-3">
+                                    <h2 class="text-2xl sm:text-3xl font-bold text-charcoal group-hover:text-orange transition-colors">Magento_Quote</h2>
+                                    <span class="hidden sm:inline-block bg-charcoal text-white px-3 py-1 text-xs font-mono">Magento\Quote</span>
+                                </div>
+                                <p class="text-charcoal-300 leading-relaxed max-w-2xl">
+                                    Shopping cart functionality, quote lifecycle, and the transition from cart to order. Cart management, totals calculation, address management, payment/shipping method selection, and quote-to-order conversion.
+                                </p>
+
+                                <div class="flex flex-wrap gap-2 mt-4">
+                                    <span class="text-xs text-charcoal-300 bg-charcoal-50 px-2 py-1">Cart Management</span>
+                                    <span class="text-xs text-charcoal-300 bg-charcoal-50 px-2 py-1">Totals Collectors</span>
+                                    <span class="text-xs text-charcoal-300 bg-charcoal-50 px-2 py-1">Quote Lifecycle</span>
+                                    <span class="text-xs text-charcoal-300 bg-charcoal-50 px-2 py-1">Guest Carts</span>
+                                    <span class="text-xs text-charcoal-300 bg-charcoal-50 px-2 py-1">Multi-Address</span>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-6 lg:flex-col lg:items-end lg:gap-4">
+                                <div class="flex items-center gap-2">
+                                    <span class="font-mono text-sm text-charcoal-300">9 docs</span>
+                                    <span class="text-xs bg-orange-50 text-orange-700 px-2 py-0.5">2.4.7+</span>
+                                </div>
+                                <span class="text-sm font-medium text-orange group-hover:translate-x-1 transition-transform inline-flex items-center gap-1">
+                                    Explore module <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Cross-Module Relationships -->
+    <section class="py-16 sm:py-20 bg-white border-t border-gray-200">
+        <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-2xl sm:text-3xl font-bold text-charcoal mb-8">How These Modules Connect</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                <div class="bg-off-white border-2 border-gray-200 p-6">
+                    <h3 class="font-semibold text-charcoal mb-2">Cart to Order Pipeline</h3>
+                    <div class="flex items-center gap-2 text-sm text-charcoal-300 font-mono">
+                        <span class="bg-orange-50 text-orange-700 px-2 py-1">Quote</span>
+                        <svg class="w-4 h-4 text-charcoal-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                        <span class="bg-orange-50 text-orange-700 px-2 py-1">Checkout</span>
+                        <svg class="w-4 h-4 text-charcoal-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                        <span class="bg-orange-50 text-orange-700 px-2 py-1">Sales</span>
+                    </div>
+                    <p class="mt-3 text-sm text-charcoal-300">The core commerce flow: Quote manages cart state, Checkout orchestrates the UI and validation steps, Sales handles order creation and fulfillment.</p>
+                </div>
+
+                <div class="bg-off-white border-2 border-gray-200 p-6">
+                    <h3 class="font-semibold text-charcoal mb-2">Product to Cart Flow</h3>
+                    <div class="flex items-center gap-2 text-sm text-charcoal-300 font-mono">
+                        <span class="bg-orange-50 text-orange-700 px-2 py-1">Catalog</span>
+                        <svg class="w-4 h-4 text-charcoal-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                        <span class="bg-orange-50 text-orange-700 px-2 py-1">Quote</span>
+                        <svg class="w-4 h-4 text-charcoal-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                        <span class="bg-orange-50 text-orange-700 px-2 py-1">Checkout</span>
+                    </div>
+                    <p class="mt-3 text-sm text-charcoal-300">Products from Catalog are added to Quote as cart items, with pricing and stock validation, then presented through Checkout for purchase.</p>
+                </div>
+
+                <div class="bg-off-white border-2 border-gray-200 p-6">
+                    <h3 class="font-semibold text-charcoal mb-2">Customer Context</h3>
+                    <div class="flex items-center gap-2 text-sm text-charcoal-300 font-mono">
+                        <span class="bg-orange-50 text-orange-700 px-2 py-1">Customer</span>
+                        <svg class="w-4 h-4 text-charcoal-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                        <span class="text-charcoal-200">all modules</span>
+                    </div>
+                    <p class="mt-3 text-sm text-charcoal-300">Customer provides authentication, addresses, and group membership used by Quote (customer carts), Checkout (address prefill), Sales (order history), and Catalog (tier pricing).</p>
+                </div>
+
+                <div class="bg-off-white border-2 border-gray-200 p-6">
+                    <h3 class="font-semibold text-charcoal mb-2">Catalog as Data Source</h3>
+                    <div class="flex items-center gap-2 text-sm text-charcoal-300 font-mono">
+                        <span class="bg-orange-50 text-orange-700 px-2 py-1">Catalog</span>
+                        <svg class="w-4 h-4 text-charcoal-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                        <span class="text-charcoal-200">all modules</span>
+                    </div>
+                    <p class="mt-3 text-sm text-charcoal-300">Catalog provides product data, pricing, and attribute metadata consumed by every other module for display, cart operations, and order processing.</p>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Continue Learning Callout -->
+    <section class="py-16 sm:py-20 bg-off-white">
+        <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-charcoal text-white p-8 sm:p-12 border-4 border-charcoal">
+                <h2 class="text-2xl sm:text-3xl font-bold mb-4">Ready for more?</h2>
+                <p class="text-lg text-gray-300 mb-6">
+                    Explore the Learning Paths for guided progressions that combine tutorials, guides, and module deep dives into structured learning journeys.
+                </p>
+                <a href="learning-paths.html" class="inline-block bg-orange text-white px-6 py-3 font-semibold hover:bg-orange-600 transition-colors no-underline">
+                    Explore Learning Paths
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="relative pt-12 bg-white border-t border-charcoal">
+        <div class="max-w-screen-2xl mx-auto w-full px-4 sm:px-6 lg:px-8">
+            <div>
+                <a href="index.html" class="inline-flex items-center no-underline">
+                    <svg width="30" height="33" viewBox="0 0 30 33" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Magento Association logo" role="img">
+                        <path d="M0 4.06492H29.6763V31.8882C29.6763 32.502 29.1713 33 28.5487 33H1.12762C0.505079 33 0 32.502 0 31.8882V4.06492Z" fill="#34323A"/>
+                        <path d="M1.26857 0H28.4078C29.1066 0 29.6763 0.561678 29.6763 1.25075V4.06492H0V1.25075C0 0.561678 0.569682 0 1.26857 0Z" fill="#C9C9C9"/>
+                        <path d="M2.37269 3.0458C2.94031 3.0458 3.40046 2.59211 3.40046 2.03246C3.40046 1.47281 2.94031 1.01913 2.37269 1.01913C1.80506 1.01913 1.34491 1.47281 1.34491 2.03246C1.34491 2.59211 1.80506 3.0458 2.37269 3.0458Z" fill="#848484"/>
+                        <path d="M5.28571 3.0458C5.85334 3.0458 6.31349 2.59211 6.31349 2.03246C6.31349 1.47281 5.85334 1.01913 5.28571 1.01913C4.71809 1.01913 4.25793 1.47281 4.25793 2.03246C4.25793 2.59211 4.71809 3.0458 5.28571 3.0458Z" fill="#848484"/>
+                        <path d="M14.7883 7.46973L4.90405 13.0923V24.349L7.54104 25.8487V14.5978L14.7883 10.4692L22.0415 14.5978V25.8487L24.6785 24.349V13.0923L14.7883 7.46973Z" fill="#F1BC1B"/>
+                        <path d="M16.0862 26.2367L14.7883 26.9779L13.4492 26.2135V14.233L10.178 16.0975V27.3485L13.4492 29.213L14.7883 29.9773L16.0862 29.2362L19.4045 27.3485V16.0975L16.0862 14.2098V26.2367Z" fill="#F1BC1B"/>
+                    </svg>
+                    <span class="ml-3 text-xl font-bold text-charcoal">Developer Documentation</span>
+                </a>
+            </div>
+
+            <div class="grid grid-cols-12 md:gap-x-8 gap-y-12 lg:mt-12">
+                <div class="col-span-12 lg:col-span-4">
+                    <p class="hidden lg:block text-xs text-charcoal sm:text-sm">Comprehensive developer documentation for Magento 2.4.7+ — tutorials, architecture deep dives, module references, and production-ready patterns built by the community, for the community.</p>
+                    <ul class="mt-6 hidden lg:flex items-center gap-3">
+                        <li class="pl-0">
+                            <a href="https://github.com/magento/magento2" class="p-2 md:p-0" aria-label="GitHub">
+                                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                                </svg>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Guides</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="tutorials.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Tutorials</a></li>
+                            <li class="pl-0"><a href="how-to-guides.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">How-To Guides</a></li>
+                            <li class="pl-0"><a href="architecture.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Architecture</a></li>
+                            <li class="pl-0"><a href="learning-paths.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Learning Paths</a></li>
+                            <li class="pl-0"><a href="references.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">References</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Modules</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="module-catalog.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Catalog</a></li>
+                            <li class="pl-0"><a href="module-checkout.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Checkout</a></li>
+                            <li class="pl-0"><a href="module-sales.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Sales</a></li>
+                            <li class="pl-0"><a href="module-customer.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Customer</a></li>
+                            <li class="pl-0"><a href="module-quote.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Quote</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Community</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Magento Community</a></li>
+                            <li class="pl-0"><a href="https://magento.stackexchange.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Stack Exchange</a></li>
+                            <li class="pl-0"><a href="https://marketplace.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Marketplace</a></li>
+                            <li class="pl-0"><a href="https://github.com/magento/magento2" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">GitHub</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Support</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://github.com/magento/magento2/issues" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Report Issues</a></li>
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Community Resources</a></li>
+                            <li class="pl-0"><a href="https://developer.adobe.com/commerce/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Adobe Commerce Docs</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-12 border-t pt-6 pb-16 border-charcoal">
+                <p class="text-xs text-charcoal">
+                    &copy; 2026 Magento 2 Developer Documentation. Magento&reg; is a registered trademark of Adobe Inc.
+                </p>
+                <p class="mt-6 text-xs text-charcoal">
+                    This documentation provides guidance for Magento 2 developers and extension builders. For merchant documentation, visit the <a href="index.html" class="text-orange hover:text-orange-500 transition-colors">merchant documentation</a>.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

@@ -1,0 +1,1722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Types Development — Magento 2 Developer Documentation</title>
+    <meta name="description" content="Deep dive into Magento product type architecture, custom product type creation, price calculation, stock management, and admin/frontend rendering.">
+
+    <!-- Google Fonts: Inter Tight only. Courier New used for code. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Highlight.js: syntax highlighting for code blocks -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/php.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/ini.min.js"></script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        charcoal: {
+                            DEFAULT: '#2c2c2c', 50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6',
+                            300: '#6B6B6B', 400: '#474747', 500: '#2c2c2c', 600: '#262626',
+                            700: '#202020', 800: '#1c1c1c', 900: '#191919', 950: '#121212'
+                        },
+                        orange: {
+                            DEFAULT: '#D4551A', 50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad',
+                            300: '#f9ae78', 400: '#f58242', 500: '#f26423', 600: '#e34613',
+                            700: '#bc3312', 800: '#962a16', 900: '#792515', 950: '#411009'
+                        },
+                        yellow: {
+                            DEFAULT: '#B8860B', 50: '#fffdeb', 100: '#fdf9c8', 200: '#fbf38c',
+                            300: '#f8e651', 400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a',
+                            700: '#b1670c', 800: '#8f5111', 900: '#764311', 950: '#442204'
+                        },
+                        'off-white': '#FAFAFA',
+                    },
+                    fontFamily: {
+                        sans: ['Inter Tight', 'system-ui', '-apple-system', 'sans-serif'],
+                        mono: ['Courier New', 'Courier', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* ── Force light mode ── */
+        :root { color-scheme: light only; }
+
+        [x-cloak] { display: none !important; }
+
+        /* ── Scroll offset for sticky header ── */
+        .prose h2, .prose h3 { scroll-margin-top: 5rem; }
+
+        /* ── Code blocks: Bauhaus charcoal bg, no border-radius, highlight.js override ── */
+        .prose pre {
+            background-color: #2C2C2C !important;
+            border-radius: 0 !important;
+            padding: 1.25rem;
+            overflow-x: auto;
+            font-size: 0.875rem;
+            line-height: 1.7;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 1.5rem 0;
+        }
+        .prose pre code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            background: transparent !important;
+            padding: 0;
+                    color: #abb2bf;
+        }
+        /* Override highlight.js theme background to match Bauhaus charcoal */
+        .hljs {
+            background: #2C2C2C !important;
+            color: #abb2bf !important;
+            border-radius: 0 !important;
+        }
+
+        /* ── Inline code: charcoal bg, yellow text, no border-radius ── */
+        .prose code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.85em;
+        }
+        .prose :not(pre) > code {
+            background-color: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2em 0.45em;
+            border-radius: 0;
+        }
+
+        /* ── Step-code: same charcoal/yellow style for UI path chips ── */
+        .step-code {
+            background: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2rem 0.5rem;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            border-radius: 0;
+        }
+
+        /* ── Tables: no border-radius, charcoal header ── */
+        .prose table { width: 100%; border-collapse: collapse; }
+        .prose th {
+            background-color: #2C2C2C;
+            color: #ffffff;
+            font-weight: 600;
+            text-align: left;
+            padding: 0.75rem 1rem;
+            border-bottom: 2px solid #2C2C2C;
+            border-radius: 0;
+        }
+        .prose td { padding: 0.75rem 1rem; border-bottom: 1px solid #e5e5e5; }
+        .prose tr:hover { background-color: #fafafa; }
+
+        /* ── Blockquote: Bauhaus style — border-4 yellow, square, no left-only border ── */
+        .prose blockquote {
+            border: 4px solid #F1BC1B;
+            background-color: #ffffff;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+            border-radius: 0;
+        }
+        .prose blockquote p { margin: 0; }
+
+        /* ── Lists: hexagon bullets ── */
+        .prose ul { list-style: none; padding-left: 0; }
+        .prose ul li {
+            position: relative;
+            padding-left: 1.75rem;
+            margin-bottom: 0.4rem;
+            line-height: 1.7;
+        }
+        .prose ul li::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0.45em;
+            width: 10px;
+            height: 10px;
+            background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 2L21 7V17L12 22L3 17V7L12 2Z' stroke='%23F26423' stroke-width='2.5' stroke-linejoin='miter'/%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+        .prose ol { list-style-type: decimal; padding-left: 1.5rem; }
+        .prose li { margin-bottom: 0.4rem; }
+
+        /* ── Headings ── */
+        .prose h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            padding-top: 1.5rem;
+            border-top: 4px solid #F1BC1B;
+            color: #2C2C2C;
+        }
+        .prose h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+            color: #2C2C2C;
+        }
+        .prose h4 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #2C2C2C;
+        }
+        .prose p { margin-bottom: 1rem; line-height: 1.75; }
+        .prose a { color: #D4551A; text-decoration: none; }
+        .prose a:hover { color: #e34613; text-decoration: underline; }
+        .prose hr { border: none; border-top: 1px solid #e5e5e5; margin: 2rem 0; }
+
+        /* ── Callout boxes: Bauhaus — border-4 yellow, white bg, icon + title ── */
+        .callout-box {
+            background-color: #ffffff;
+            border: 4px solid #F1BC1B;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+        }
+        .callout-warning {
+            border-color: #D4551A;
+        }
+        .callout-important {
+            border-color: #2C2C2C;
+        }
+        .callout-box .callout-inner {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+        .callout-box .callout-title {
+            font-weight: 600;
+            color: #2C2C2C;
+            margin-bottom: 0.25rem;
+        }
+        .callout-box .callout-body {
+            font-size: 0.875rem;
+            line-height: 1.6;
+            color: rgba(44,44,44,0.85);
+        }
+
+        
+    
+        /* Code block copy button */
+        .code-wrapper {
+            position: relative;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            font-family: 'Inter Tight', system-ui, sans-serif;
+            background: rgba(255,255,255,0.1);
+            color: #abb2bf;
+            border: 1px solid rgba(255,255,255,0.15);
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.15s ease, background 0.15s ease;
+            z-index: 10;
+            line-height: 1.4;
+            border-radius: 4px;
+            user-select: none;
+        }
+        .code-wrapper:hover .copy-btn {
+            opacity: 1;
+        }
+        .copy-btn:hover,
+        .copy-btn:focus {
+            background: rgba(255,255,255,0.2);
+            color: #ffffff;
+            outline: 2px solid #D4551A;
+            outline-offset: 1px;
+        }
+        .copy-btn.copied {
+            color: #98c379;
+            background: rgba(152, 195, 121, 0.15);
+            opacity: 1;
+        }
+    
+        /* Right-hand TOC sidebar */
+        .toc-sidebar {
+            width: 14rem;
+            flex-shrink: 0;
+        }
+        .toc-sidebar a {
+            display: block;
+            padding: 0.375rem 0;
+            font-size: 0.8125rem;
+            line-height: 1.4;
+            color: #6b7280;
+            text-decoration: none;
+            transition: color 0.15s ease;
+            border-left: 2px solid transparent;
+            padding-left: 0.75rem;
+        }
+        .toc-sidebar a:hover {
+            color: #111827;
+        }
+        .toc-sidebar a.toc-active {
+            color: #ea580c;
+            border-left-color: #ea580c;
+            font-weight: 500;
+        }
+        .toc-sidebar a.toc-h3 {
+            padding-left: 1.5rem;
+            font-size: 0.75rem;
+        }
+        .toc-sidebar .toc-back-to-top {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e5e7eb;
+        }
+        .toc-sidebar .toc-back-to-top a {
+            border-left: none;
+            padding-left: 0;
+            font-weight: 500;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .toc-sidebar .toc-back-to-top a:hover {
+            color: #ea580c;
+        }
+    </style>
+</head>
+
+<body class="font-sans bg-off-white text-charcoal">
+
+    <!-- Shared header — single source of truth -->
+    <script src="includes/header.js"></script>
+
+    <!-- Breadcrumb — orange › separators -->
+    <div class="bg-white border-b border-gray-100">
+        <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <div class="flex items-center gap-2 text-sm flex-wrap">
+                <a href="index.html" class="text-orange hover:text-orange-600 transition-colors no-underline">Home</a> <span class="text-orange font-medium">›</span> <a href="index.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">Guides</a> <span class="text-orange font-medium">›</span> <a href="tutorials.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">Tutorials</a> <span class="text-orange font-medium">›</span> <span class="text-charcoal font-medium">Product Types Development</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="flex gap-8">
+
+            <!-- Left Sidebar (desktop) -->
+            <aside class="hidden lg:block w-64 flex-shrink-0">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4">Tutorials</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="guide-tutorial-custom-payment-method.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Custom Payment Method Developmen...</a></li>
+<li class="pl-0"><a href="guide-tutorial-custom-shipping-method.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Custom Shipping Method Developme...</a></li>
+<li class="pl-0"><a href="guide-tutorial-declarative-schema-data-patches.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Declarative Schema & Data Patche...</a></li>
+<li class="pl-0"><a href="guide-tutorial-docker-development-environment.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Docker Development Environment S...</a></li>
+<li class="pl-0"><a href="guide-tutorial-plugin-system-deep-dive.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Plugin System Deep Dive: Masteri...</a></li>
+<li class="pl-0"><a href="guide-tutorial-product-types.html" class="block px-3 py-2 text-sm text-orange font-semibold bg-orange-50 border-l-4 border-orange pl-2 transition-colors no-underline">Product Types Development</a></li>
+</ul>
+<h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4 mt-8">Guide Sections</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="tutorials.html" class="block px-3 py-2 text-sm text-orange font-semibold bg-orange-50 border-l-4 border-orange pl-2 transition-colors no-underline">Tutorials</a></li>
+<li class="pl-0"><a href="how-to-guides.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">How-To Guides</a></li>
+<li class="pl-0"><a href="architecture.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Architecture</a></li>
+<li class="pl-0"><a href="references.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">References</a></li>
+</ul>
+                </div>
+            </aside>
+
+            <!-- Article — square corners, border-t-4 orange accent -->
+            <main id="main-content" class="flex-1 min-w-0">
+                <article class="bg-white shadow-sm border border-gray-100 border-t-4 border-t-orange p-8 md:p-12">
+                    <!-- Title block -->
+                    <div class="mb-8">
+                        <span class="inline-block px-3 py-1.5 text-xs font-medium bg-orange-50 text-orange-700 border border-orange-200">Tutorial</span>
+                        <h1 class="text-3xl md:text-4xl font-extrabold text-charcoal mt-3 mb-3">Product Types Development</h1>
+                        <p class="text-charcoal-300 text-lg mb-4">Deep dive into Magento product type architecture, custom product type creation, price calculation, stock management, and admin/frontend rendering.</p>
+                        <!-- Meta pills -->
+                        <div class="flex flex-wrap gap-2"><span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-yellow-50 text-yellow-800"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>Advanced</span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-orange-50 text-orange-700"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>60 minutes</span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-charcoal text-white">Magento 2.4.7+</span></div>
+                    </div>
+
+                    <hr class="border-0 border-t border-gray-100 mb-8">
+
+                    <!-- Content -->
+                    <div class="prose max-w-none">
+                        <h1 id="product-types-development">Product Types Development</h1>
+<h2 id="overview">Overview</h2>
+<p>Magento's product type architecture provides a flexible framework for representing different kinds of products (simple, configurable, bundle, grouped, downloadable, virtual). Understanding this system is essential for creating custom product types that integrate seamlessly with catalog, cart, checkout, and order workflows.</p>
+<p><strong>What you'll learn:</strong>
+- Product type architecture and the type registry system
+- Creating custom product types with full lifecycle support
+- Price calculation strategies and price models
+- Stock management and salability checks
+- Admin UI integration with product forms and data providers
+- Frontend rendering and add-to-cart customization
+- Cart item representation and order item handling</p>
+<p><strong>Prerequisites:</strong>
+- Magento 2.4.7+ (Adobe Commerce or Open Source)
+- Advanced understanding of Magento module structure
+- Experience with dependency injection and service contracts
+- Knowledge of UI components and catalog architecture
+- Familiarity with EAV attributes and product data management</p>
+<hr />
+<h2 id="product-type-architecture">Product Type Architecture</h2>
+<h3 id="core-components">Core Components</h3>
+<p>Magento's product type system consists of:</p>
+<ol>
+<li><strong>Type Model</strong>: <code>Magento\Catalog\Model\Product\Type\AbstractType</code> - Core logic for product type</li>
+<li><strong>Price Model</strong>: <code>Magento\Catalog\Model\Product\Type\Price</code> - Price calculation</li>
+<li><strong>Type Registry</strong>: <code>Magento\Catalog\Model\Product\Type</code> - Manages available types</li>
+<li><strong>Type Configuration</strong>: <code>catalog_attributes.xml</code> and <code>product_types.xml</code></li>
+<li><strong>UI Components</strong>: Admin form configuration and data providers</li>
+<li><strong>Frontend Blocks</strong>: Product detail and list page rendering</li>
+</ol>
+<h3 id="product-type-lifecycle">Product Type Lifecycle</h3>
+<pre><code>[Product Creation] → [Attribute Assignment] → [Data Validation]
+       ↓
+[Price Calculation] → [Salability Check] → [Add to Cart]
+       ↓
+[Cart Item Representation] → [Checkout] → [Order Creation]
+       ↓
+[Order Item Processing] → [Fulfillment] → [Invoicing]
+</code></pre>
+<h3 id="type-registration-flow">Type Registration Flow</h3>
+<pre><code>product_types.xml → Type Registry → Factory → Type Model Instance
+       ↓
+Price Model Assignment → Option Processing → Validation Rules
+</code></pre>
+<hr />
+<h2 id="creating-a-custom-product-type">Creating a Custom Product Type</h2>
+<h3 id="use-case-rental-product-type">Use Case: Rental Product Type</h3>
+<p>We'll create a "rental" product type that supports time-based pricing and availability management.</p>
+<h3 id="step-1-declare-product-type">Step 1: Declare Product Type</h3>
+<p><strong>File</strong>: <code>Vendor/RentalProduct/etc/product_types.xml</code></p>
+<pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;config xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+        xsi:noNamespaceSchemaLocation=&quot;urn:magento:module:Magento_Catalog:etc/product_types.xsd&quot;&gt;
+
+    &lt;type name=&quot;rental&quot; label=&quot;Rental Product&quot; modelInstance=&quot;Vendor\RentalProduct\Model\Product\Type\Rental&quot;
+          indexPriority=&quot;60&quot; sortOrder=&quot;80&quot; isQty=&quot;true&quot;&gt;
+        &lt;!-- Composable type configuration --&gt;
+        &lt;priceModel instance=&quot;Vendor\RentalProduct\Model\Product\Type\Rental\Price&quot;/&gt;
+
+        &lt;!-- Allowed selection types --&gt;
+        &lt;allowedSelectionTypes&gt;
+            &lt;type name=&quot;simple&quot;/&gt;
+        &lt;/allowedSelectionTypes&gt;
+
+        &lt;!-- Stock indexer configuration --&gt;
+        &lt;stockIndexerModel&gt;Magento\CatalogInventory\Model\Indexer\Stock\Processor&lt;/stockIndexerModel&gt;
+
+        &lt;!-- Custom attributes used by this type --&gt;
+        &lt;customAttributes&gt;
+            &lt;attribute name=&quot;rental_duration&quot; retrieve=&quot;true&quot;/&gt;
+            &lt;attribute name=&quot;rental_deposit&quot; retrieve=&quot;true&quot;/&gt;
+            &lt;attribute name=&quot;rental_late_fee&quot; retrieve=&quot;true&quot;/&gt;
+        &lt;/customAttributes&gt;
+    &lt;/type&gt;
+&lt;/config&gt;
+</code></pre>
+<h3 id="step-2-configure-attributes-for-type">Step 2: Configure Attributes for Type</h3>
+<p><strong>File</strong>: <code>Vendor/RentalProduct/etc/catalog_attributes.xml</code></p>
+<pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;config xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+        xsi:noNamespaceSchemaLocation=&quot;urn:magento:module:Magento_Catalog:etc/catalog_attributes.xsd&quot;&gt;
+
+    &lt;!-- Attributes applicable to rental products --&gt;
+    &lt;group name=&quot;rental&quot;&gt;
+        &lt;attribute name=&quot;name&quot;/&gt;
+        &lt;attribute name=&quot;sku&quot;/&gt;
+        &lt;attribute name=&quot;price&quot;/&gt;
+        &lt;attribute name=&quot;weight&quot;/&gt;
+        &lt;attribute name=&quot;status&quot;/&gt;
+        &lt;attribute name=&quot;visibility&quot;/&gt;
+        &lt;attribute name=&quot;description&quot;/&gt;
+        &lt;attribute name=&quot;short_description&quot;/&gt;
+        &lt;attribute name=&quot;rental_duration&quot;/&gt;
+        &lt;attribute name=&quot;rental_deposit&quot;/&gt;
+        &lt;attribute name=&quot;rental_late_fee&quot;/&gt;
+        &lt;attribute name=&quot;rental_max_days&quot;/&gt;
+        &lt;attribute name=&quot;rental_min_days&quot;/&gt;
+    &lt;/group&gt;
+&lt;/config&gt;
+</code></pre>
+<h3 id="step-3-create-type-model">Step 3: Create Type Model</h3>
+<p><strong>File</strong>: <code>Vendor/RentalProduct/Model/Product/Type/Rental.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\RentalProduct\Model\Product\Type;
+
+use Magento\Catalog\Api\ProductRepositoryInterface;
+use Magento\Catalog\Model\Product;
+use Magento\Catalog\Model\Product\Type\AbstractType;
+use Magento\Framework\DataObject;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Serialize\Serializer\Json;
+
+class Rental extends AbstractType
+{
+    public const TYPE_ID = 'rental';
+
+    /**
+     * Delete data specific for rental product type
+     */
+    public function deleteTypeSpecificData(Product $product): void
+    {
+        // Clean up rental-specific tables if any
+    }
+
+    /**
+     * Check if product is available for sale
+     *
+     * @param Product $product
+     * @return bool
+     */
+    public function isSalable($product): bool
+    {
+        $salable = parent::isSalable($product);
+
+        if (!$salable) {
+            return false;
+        }
+
+        // Check rental-specific availability
+        $rentalAvailability = $product-&gt;getData('rental_availability');
+        if ($rentalAvailability === null) {
+            return true;
+        }
+
+        return (bool)$rentalAvailability;
+    }
+
+    /**
+     * Check if product has required options
+     *
+     * @param Product $product
+     * @return bool
+     */
+    public function hasRequiredOptions($product): bool
+    {
+        // Rental products require start/end date selection
+        return true;
+    }
+
+    /**
+     * Prepare product for cart
+     *
+     * @param DataObject $buyRequest
+     * @param Product $product
+     * @param string $processMode
+     * @return array|string
+     * @throws LocalizedException
+     */
+    protected function _prepareProduct(DataObject $buyRequest, $product, $processMode)
+    {
+        $result = parent::_prepareProduct($buyRequest, $product, $processMode);
+
+        if (is_string($result)) {
+            return $result;
+        }
+
+        // Validate rental dates
+        $rentalStart = $buyRequest-&gt;getData('rental_start_date');
+        $rentalEnd = $buyRequest-&gt;getData('rental_end_date');
+
+        if (!$rentalStart || !$rentalEnd) {
+            return __('Please select rental start and end dates.')-&gt;render();
+        }
+
+        // Validate date range
+        $startDate = new \DateTime($rentalStart);
+        $endDate = new \DateTime($rentalEnd);
+        $days = $endDate-&gt;diff($startDate)-&gt;days;
+
+        if ($days &lt; 1) {
+            return __('Rental period must be at least 1 day.')-&gt;render();
+        }
+
+        $minDays = (int)$product-&gt;getData('rental_min_days') ?: 1;
+        $maxDays = (int)$product-&gt;getData('rental_max_days') ?: 365;
+
+        if ($days &lt; $minDays) {
+            return __('Minimum rental period is %1 days.', $minDays)-&gt;render();
+        }
+
+        if ($days &gt; $maxDays) {
+            return __('Maximum rental period is %1 days.', $maxDays)-&gt;render();
+        }
+
+        // Check availability for date range
+        if (!$this-&gt;isAvailableForDateRange($product, $startDate, $endDate)) {
+            return __('Product is not available for selected dates.')-&gt;render();
+        }
+
+        // Add rental info to product
+        $product-&gt;addCustomOption('rental_start_date', $rentalStart);
+        $product-&gt;addCustomOption('rental_end_date', $rentalEnd);
+        $product-&gt;addCustomOption('rental_days', (string)$days);
+
+        return $result;
+    }
+
+    /**
+     * Check product availability for date range
+     */
+    private function isAvailableForDateRange(
+        Product $product,
+        \DateTime $startDate,
+        \DateTime $endDate
+    ): bool {
+        // Implement availability calendar check
+        // Query rental_availability table or calendar service
+        return true; // Simplified for example
+    }
+
+    /**
+     * Process product configuration
+     *
+     * @param Product $product
+     * @return Product
+     */
+    public function processConfiguration($product): Product
+    {
+        // Process rental-specific configuration
+        return $product;
+    }
+
+    /**
+     * Get product options
+     *
+     * @param Product $product
+     * @return array
+     */
+    public function getOrderOptions($product): array
+    {
+        $options = parent::getOrderOptions($product);
+
+        $rentalOptions = [
+            'rental_start_date' =&gt; $product-&gt;getCustomOption('rental_start_date'),
+            'rental_end_date' =&gt; $product-&gt;getCustomOption('rental_end_date'),
+            'rental_days' =&gt; $product-&gt;getCustomOption('rental_days'),
+        ];
+
+        $options['rental_options'] = array_filter($rentalOptions);
+
+        return $options;
+    }
+
+    /**
+     * Check if product can be configured
+     *
+     * @param Product $product
+     * @return bool
+     */
+    public function canConfigure($product): bool
+    {
+        return true;
+    }
+
+    /**
+     * Prepare selected options for rental product
+     *
+     * @param Product $product
+     * @param DataObject $buyRequest
+     * @return array
+     */
+    public function processBuyRequest($product, $buyRequest): array
+    {
+        $rentalOptions = [];
+
+        if ($buyRequest-&gt;hasData('rental_start_date')) {
+            $rentalOptions['rental_start_date'] = $buyRequest-&gt;getData('rental_start_date');
+        }
+
+        if ($buyRequest-&gt;hasData('rental_end_date')) {
+            $rentalOptions['rental_end_date'] = $buyRequest-&gt;getData('rental_end_date');
+        }
+
+        return $rentalOptions;
+    }
+
+    /**
+     * Check if product is a virtual product
+     */
+    public function isVirtual($product): bool
+    {
+        return false; // Rentals are physical products
+    }
+
+    /**
+     * Get child products
+     */
+    public function getChildrenIds($productId, $required = true): array
+    {
+        return [[]]; // No children for rental products
+    }
+
+    /**
+     * Retrieve products divided into groups required to purchase
+     */
+    public function getProductsToPurchaseByReqGroups($product): array
+    {
+        return [[$product]];
+    }
+}
+</code></pre>
+<hr />
+<h2 id="price-calculation">Price Calculation</h2>
+<h3 id="custom-price-model">Custom Price Model</h3>
+<p><strong>File</strong>: <code>Vendor/RentalProduct/Model/Product/Type/Rental/Price.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\RentalProduct\Model\Product\Type\Rental;
+
+use Magento\Catalog\Model\Product;
+use Magento\Catalog\Model\Product\Type\Price as BasePrice;
+use Magento\Framework\Pricing\PriceCurrencyInterface;
+
+class Price extends BasePrice
+{
+    public function __construct(
+        \Magento\CatalogRule\Model\ResourceModel\RuleFactory $ruleFactory,
+        \Magento\Store\Model\StoreManagerInterface $storeManager,
+        \Magento\Framework\Stdlib\DateTime\TimezoneInterface $localeDate,
+        \Magento\Customer\Model\Session $customerSession,
+        \Magento\Framework\Event\ManagerInterface $eventManager,
+        PriceCurrencyInterface $priceCurrency,
+        \Magento\Customer\Api\GroupManagementInterface $groupManagement,
+        \Magento\Catalog\Api\Data\ProductTierPriceInterfaceFactory $tierPriceFactory,
+        \Magento\Framework\App\Config\ScopeConfigInterface $config,
+        private readonly \Psr\Log\LoggerInterface $logger
+    ) {
+        parent::__construct(
+            $ruleFactory,
+            $storeManager,
+            $localeDate,
+            $customerSession,
+            $eventManager,
+            $priceCurrency,
+            $groupManagement,
+            $tierPriceFactory,
+            $config
+        );
+    }
+
+    /**
+     * Get product final price
+     *
+     * @param float|null $qty
+     * @param Product $product
+     * @return float
+     */
+    public function getFinalPrice($qty, $product): float
+    {
+        if ($qty === null &amp;&amp; $product-&gt;getCalculatedFinalPrice() !== null) {
+            return (float)$product-&gt;getCalculatedFinalPrice();
+        }
+
+        $basePrice = $this-&gt;getBasePrice($product, $qty);
+        $finalPrice = $this-&gt;calculateRentalPrice($basePrice, $product);
+
+        $product-&gt;setFinalPrice($finalPrice);
+
+        $this-&gt;_eventManager-&gt;dispatch('catalog_product_get_final_price', ['product' =&gt; $product, 'qty' =&gt; $qty]);
+
+        $finalPrice = (float)$product-&gt;getData('final_price');
+        $finalPrice = $this-&gt;_applyOptionsPrice($product, $qty, $finalPrice);
+        $finalPrice = max(0, $finalPrice);
+
+        $product-&gt;setFinalPrice($finalPrice);
+
+        return $finalPrice;
+    }
+
+    /**
+     * Calculate rental price based on duration and deposit
+     */
+    private function calculateRentalPrice(float $basePrice, Product $product): float
+    {
+        $rentalDays = $this-&gt;getRentalDays($product);
+
+        if ($rentalDays === null) {
+            // No rental period selected yet, return daily rate
+            return $basePrice;
+        }
+
+        // Calculate rental fee
+        $rentalFee = $basePrice * $rentalDays;
+
+        // Add deposit if configured
+        $deposit = (float)$product-&gt;getData('rental_deposit');
+        if ($deposit &gt; 0) {
+            $rentalFee += $deposit;
+        }
+
+        // Apply bulk discounts for longer rentals
+        $discount = $this-&gt;calculateBulkDiscount($rentalDays);
+        if ($discount &gt; 0) {
+            $rentalFee = $rentalFee * (1 - $discount);
+        }
+
+        return $rentalFee;
+    }
+
+    /**
+     * Get rental days from product options
+     */
+    private function getRentalDays(Product $product): ?int
+    {
+        $customOption = $product-&gt;getCustomOption('rental_days');
+
+        if ($customOption) {
+            return (int)$customOption-&gt;getValue();
+        }
+
+        // Check if rental days in additional options
+        $additionalOptions = $product-&gt;getCustomOption('additional_options');
+        if ($additionalOptions) {
+            $options = $this-&gt;serializer-&gt;unserialize($additionalOptions-&gt;getValue());
+            if (isset($options['rental_days'])) {
+                return (int)$options['rental_days'];
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Calculate bulk discount based on rental duration
+     */
+    private function calculateBulkDiscount(int $days): float
+    {
+        // Example: 10% off for 7+ days, 20% off for 30+ days
+        if ($days &gt;= 30) {
+            return 0.20;
+        } elseif ($days &gt;= 7) {
+            return 0.10;
+        }
+
+        return 0.0;
+    }
+
+    /**
+     * Get product tier price by qty
+     */
+    public function getTierPrice($qty, $product): float
+    {
+        // Rental products don't use traditional tier pricing
+        return $this-&gt;getBasePrice($product, $qty);
+    }
+
+    /**
+     * Calculate deposit amount
+     */
+    public function getDepositAmount(Product $product): float
+    {
+        return (float)$product-&gt;getData('rental_deposit');
+    }
+
+    /**
+     * Calculate late fee per day
+     */
+    public function getLateFeePerDay(Product $product): float
+    {
+        return (float)$product-&gt;getData('rental_late_fee');
+    }
+}
+</code></pre>
+<hr />
+<h2 id="stock-management">Stock Management</h2>
+<h3 id="custom-stock-status">Custom Stock Status</h3>
+<p><strong>File</strong>: <code>Vendor/RentalProduct/Model/ResourceModel/Product/Indexer/Price/Rental.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\RentalProduct\Model\ResourceModel\Product\Indexer\Price;
+
+use Magento\Catalog\Model\ResourceModel\Product\Indexer\Price\DefaultPrice;
+
+class Rental extends DefaultPrice
+{
+    /**
+     * Prepare rental product prices
+     */
+    protected function _prepareDefaultFinalPriceTable(): self
+    {
+        $this-&gt;_prepareWebsiteDateTable();
+
+        $connection = $this-&gt;getConnection();
+        $select = $connection-&gt;select()
+            -&gt;from(['e' =&gt; $this-&gt;getTable('catalog_product_entity')], ['entity_id'])
+            -&gt;join(
+                ['cg' =&gt; $this-&gt;getTable('customer_group')],
+                '',
+                ['customer_group_id']
+            )
+            -&gt;join(
+                ['cw' =&gt; $this-&gt;getTable('store_website')],
+                '',
+                ['website_id']
+            )
+            -&gt;join(
+                ['cwd' =&gt; $this-&gt;_getWebsiteDateTable()],
+                'cw.website_id = cwd.website_id',
+                []
+            )
+            -&gt;join(
+                ['csg' =&gt; $this-&gt;getTable('store_group')],
+                'csg.website_id = cw.website_id AND cw.default_group_id = csg.group_id',
+                []
+            )
+            -&gt;join(
+                ['cs' =&gt; $this-&gt;getTable('store')],
+                'csg.default_store_id = cs.store_id AND cs.store_id != 0',
+                []
+            )
+            -&gt;where('e.type_id = ?', 'rental');
+
+        // Add price attribute
+        $this-&gt;_addAttributeToSelect($select, 'price', 'e.entity_id', 'cs.store_id', 0);
+
+        // Add rental deposit
+        $this-&gt;_addAttributeToSelect($select, 'rental_deposit', 'e.entity_id', 'cs.store_id', 0, 'rental_deposit');
+
+        $select-&gt;columns([
+            'orig_price' =&gt; new \Zend_Db_Expr('price.value'),
+            'price' =&gt; new \Zend_Db_Expr('price.value'),
+            'min_price' =&gt; new \Zend_Db_Expr('price.value'),
+            'max_price' =&gt; new \Zend_Db_Expr('price.value + COALESCE(rental_deposit.value, 0)'),
+            'tier_price' =&gt; new \Zend_Db_Expr('NULL'),
+        ]);
+
+        $connection-&gt;query(
+            $connection-&gt;insertFromSelect(
+                $select,
+                $this-&gt;_getDefaultFinalPriceTable(),
+                [],
+                \Magento\Framework\DB\Adapter\AdapterInterface::INSERT_ON_DUPLICATE
+            )
+        );
+
+        return $this;
+    }
+}
+</code></pre>
+<h3 id="salability-check">Salability Check</h3>
+<p><strong>File</strong>: <code>Vendor/RentalProduct/Plugin/InventorySales/IsSalableExtend.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\RentalProduct\Plugin\InventorySales;
+
+use Magento\InventorySalesApi\Api\IsProductSalableInterface;
+use Magento\Catalog\Api\ProductRepositoryInterface;
+use Vendor\RentalProduct\Model\RentalAvailabilityChecker;
+
+class IsSalableExtend
+{
+    public function __construct(
+        private readonly ProductRepositoryInterface $productRepository,
+        private readonly RentalAvailabilityChecker $availabilityChecker
+    ) {
+    }
+
+    /**
+     * Add rental availability check
+     */
+    public function afterExecute(
+        IsProductSalableInterface $subject,
+        bool $result,
+        string $sku,
+        int $stockId
+    ): bool {
+        if (!$result) {
+            return false;
+        }
+
+        try {
+            $product = $this-&gt;productRepository-&gt;get($sku);
+
+            if ($product-&gt;getTypeId() !== 'rental') {
+                return $result;
+            }
+
+            // Check if rental has available inventory for any future dates
+            return $this-&gt;availabilityChecker-&gt;hasAvailability($product);
+
+        } catch (\Exception $e) {
+            return $result;
+        }
+    }
+}
+</code></pre>
+<hr />
+<h2 id="admin-ui-configuration">Admin UI Configuration</h2>
+<h3 id="product-form-ui-component">Product Form UI Component</h3>
+<p><strong>File</strong>: <code>Vendor/RentalProduct/view/adminhtml/ui_component/product_form.xml</code></p>
+<pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;form xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+      xsi:noNamespaceSchemaLocation=&quot;urn:magento:module:Magento_Ui:etc/ui_configuration.xsd&quot;&gt;
+
+    &lt;!-- Rental Information Section --&gt;
+    &lt;fieldset name=&quot;rental-information&quot; sortOrder=&quot;20&quot;&gt;
+        &lt;settings&gt;
+            &lt;label translate=&quot;true&quot;&gt;Rental Information&lt;/label&gt;
+            &lt;collapsible&gt;true&lt;/collapsible&gt;
+            &lt;opened&gt;true&lt;/opened&gt;
+            &lt;visible&gt;true&lt;/visible&gt;
+        &lt;/settings&gt;
+
+        &lt;field name=&quot;rental_duration&quot; formElement=&quot;select&quot; sortOrder=&quot;10&quot;&gt;
+            &lt;settings&gt;
+                &lt;validation&gt;
+                    &lt;rule name=&quot;required-entry&quot; xsi:type=&quot;boolean&quot;&gt;true&lt;/rule&gt;
+                &lt;/validation&gt;
+                &lt;dataType&gt;text&lt;/dataType&gt;
+                &lt;label translate=&quot;true&quot;&gt;Rental Duration Type&lt;/label&gt;
+                &lt;dataScope&gt;rental_duration&lt;/dataScope&gt;
+            &lt;/settings&gt;
+            &lt;formElements&gt;
+                &lt;select&gt;
+                    &lt;settings&gt;
+                        &lt;options class=&quot;Vendor\RentalProduct\Model\Config\Source\DurationType&quot;/&gt;
+                    &lt;/settings&gt;
+                &lt;/select&gt;
+            &lt;/formElements&gt;
+        &lt;/field&gt;
+
+        &lt;field name=&quot;rental_deposit&quot; formElement=&quot;input&quot; sortOrder=&quot;20&quot;&gt;
+            &lt;settings&gt;
+                &lt;validation&gt;
+                    &lt;rule name=&quot;validate-number&quot; xsi:type=&quot;boolean&quot;&gt;true&lt;/rule&gt;
+                    &lt;rule name=&quot;validate-zero-or-greater&quot; xsi:type=&quot;boolean&quot;&gt;true&lt;/rule&gt;
+                &lt;/validation&gt;
+                &lt;dataType&gt;number&lt;/dataType&gt;
+                &lt;label translate=&quot;true&quot;&gt;Security Deposit&lt;/label&gt;
+                &lt;dataScope&gt;rental_deposit&lt;/dataScope&gt;
+            &lt;/settings&gt;
+        &lt;/field&gt;
+
+        &lt;field name=&quot;rental_late_fee&quot; formElement=&quot;input&quot; sortOrder=&quot;30&quot;&gt;
+            &lt;settings&gt;
+                &lt;validation&gt;
+                    &lt;rule name=&quot;validate-number&quot; xsi:type=&quot;boolean&quot;&gt;true&lt;/rule&gt;
+                    &lt;rule name=&quot;validate-zero-or-greater&quot; xsi:type=&quot;boolean&quot;&gt;true&lt;/rule&gt;
+                &lt;/validation&gt;
+                &lt;dataType&gt;number&lt;/dataType&gt;
+                &lt;label translate=&quot;true&quot;&gt;Late Fee (per day)&lt;/label&gt;
+                &lt;dataScope&gt;rental_late_fee&lt;/dataScope&gt;
+                &lt;tooltip&gt;
+                    &lt;description translate=&quot;true&quot;&gt;Fee charged per day when rental is returned late&lt;/description&gt;
+                &lt;/tooltip&gt;
+            &lt;/settings&gt;
+        &lt;/field&gt;
+
+        &lt;field name=&quot;rental_min_days&quot; formElement=&quot;input&quot; sortOrder=&quot;40&quot;&gt;
+            &lt;settings&gt;
+                &lt;validation&gt;
+                    &lt;rule name=&quot;validate-number&quot; xsi:type=&quot;boolean&quot;&gt;true&lt;/rule&gt;
+                    &lt;rule name=&quot;validate-greater-than-zero&quot; xsi:type=&quot;boolean&quot;&gt;true&lt;/rule&gt;
+                &lt;/validation&gt;
+                &lt;dataType&gt;number&lt;/dataType&gt;
+                &lt;label translate=&quot;true&quot;&gt;Minimum Rental Days&lt;/label&gt;
+                &lt;dataScope&gt;rental_min_days&lt;/dataScope&gt;
+            &lt;/settings&gt;
+        &lt;/field&gt;
+
+        &lt;field name=&quot;rental_max_days&quot; formElement=&quot;input&quot; sortOrder=&quot;50&quot;&gt;
+            &lt;settings&gt;
+                &lt;validation&gt;
+                    &lt;rule name=&quot;validate-number&quot; xsi:type=&quot;boolean&quot;&gt;true&lt;/rule&gt;
+                    &lt;rule name=&quot;validate-greater-than-zero&quot; xsi:type=&quot;boolean&quot;&gt;true&lt;/rule&gt;
+                &lt;/validation&gt;
+                &lt;dataType&gt;number&lt;/dataType&gt;
+                &lt;label translate=&quot;true&quot;&gt;Maximum Rental Days&lt;/label&gt;
+                &lt;dataScope&gt;rental_max_days&lt;/dataScope&gt;
+            &lt;/settings&gt;
+        &lt;/field&gt;
+
+        &lt;!-- Rental Availability Calendar --&gt;
+        &lt;container name=&quot;rental_availability_container&quot; sortOrder=&quot;60&quot;&gt;
+            &lt;htmlContent name=&quot;rental_availability_calendar&quot;&gt;
+                &lt;block class=&quot;Vendor\RentalProduct\Block\Adminhtml\Product\Edit\RentalCalendar&quot;
+                       name=&quot;rental.calendar&quot;
+                       template=&quot;Vendor_RentalProduct::product/edit/rental_calendar.phtml&quot;/&gt;
+            &lt;/htmlContent&gt;
+        &lt;/container&gt;
+    &lt;/fieldset&gt;
+&lt;/form&gt;
+</code></pre>
+<h3 id="data-provider-modifier">Data Provider Modifier</h3>
+<p><strong>File</strong>: <code>Vendor/RentalProduct/Ui/DataProvider/Product/Form/Modifier/RentalData.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\RentalProduct\Ui\DataProvider\Product\Form\Modifier;
+
+use Magento\Catalog\Ui\DataProvider\Product\Form\Modifier\AbstractModifier;
+use Magento\Catalog\Model\Locator\LocatorInterface;
+
+class RentalData extends AbstractModifier
+{
+    public function __construct(
+        private readonly LocatorInterface $locator
+    ) {
+    }
+
+    /**
+     * Modify product data
+     */
+    public function modifyData(array $data): array
+    {
+        $product = $this-&gt;locator-&gt;getProduct();
+
+        if ($product-&gt;getTypeId() !== 'rental') {
+            return $data;
+        }
+
+        $productId = $product-&gt;getId();
+
+        if (isset($data[$productId])) {
+            // Add rental-specific data
+            $data[$productId]['product']['rental_data'] = [
+                'deposit' =&gt; $product-&gt;getData('rental_deposit'),
+                'late_fee' =&gt; $product-&gt;getData('rental_late_fee'),
+                'min_days' =&gt; $product-&gt;getData('rental_min_days'),
+                'max_days' =&gt; $product-&gt;getData('rental_max_days'),
+            ];
+        }
+
+        return $data;
+    }
+
+    /**
+     * Modify product form meta
+     */
+    public function modifyMeta(array $meta): array
+    {
+        $product = $this-&gt;locator-&gt;getProduct();
+
+        if ($product-&gt;getTypeId() !== 'rental') {
+            return $meta;
+        }
+
+        // Show/hide fields based on rental type
+        return $meta;
+    }
+}
+</code></pre>
+<hr />
+<h2 id="frontend-rendering">Frontend Rendering</h2>
+<h3 id="product-detail-page">Product Detail Page</h3>
+<p><strong>File</strong>: <code>Vendor/RentalProduct/view/frontend/templates/product/view/type/rental.phtml</code></p>
+<pre><code class="language-php">&lt;?php
+/**
+ * @var \Magento\Catalog\Block\Product\View $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+$product = $block-&gt;getProduct();
+?&gt;
+
+&lt;div class=&quot;rental-options&quot; id=&quot;rental-options-&lt;?= (int)$product-&gt;getId() ?&gt;&quot;&gt;
+    &lt;div class=&quot;rental-dates&quot;&gt;
+        &lt;div class=&quot;field rental-start-date&quot;&gt;
+            &lt;label class=&quot;label&quot; for=&quot;rental-start-date&quot;&gt;
+                &lt;span&gt;&lt;?= $escaper-&gt;escapeHtml(__('Start Date')) ?&gt;&lt;/span&gt;
+            &lt;/label&gt;
+            &lt;div class=&quot;control&quot;&gt;
+                &lt;input type=&quot;text&quot;
+                       id=&quot;rental-start-date&quot;
+                       name=&quot;rental_start_date&quot;
+                       class=&quot;input-text rental-datepicker&quot;
+                       data-validate='{&quot;required&quot;:true}'
+                       data-rental-min-days=&quot;&lt;?= (int)$product-&gt;getData('rental_min_days') ?&gt;&quot;
+                       data-rental-max-days=&quot;&lt;?= (int)$product-&gt;getData('rental_max_days') ?&gt;&quot;/&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+
+        &lt;div class=&quot;field rental-end-date&quot;&gt;
+            &lt;label class=&quot;label&quot; for=&quot;rental-end-date&quot;&gt;
+                &lt;span&gt;&lt;?= $escaper-&gt;escapeHtml(__('End Date')) ?&gt;&lt;/span&gt;
+            &lt;/label&gt;
+            &lt;div class=&quot;control&quot;&gt;
+                &lt;input type=&quot;text&quot;
+                       id=&quot;rental-end-date&quot;
+                       name=&quot;rental_end_date&quot;
+                       class=&quot;input-text rental-datepicker&quot;
+                       data-validate='{&quot;required&quot;:true}'/&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;div class=&quot;rental-pricing-breakdown&quot;&gt;
+        &lt;div class=&quot;rental-daily-rate&quot;&gt;
+            &lt;span class=&quot;label&quot;&gt;&lt;?= $escaper-&gt;escapeHtml(__('Daily Rate:')) ?&gt;&lt;/span&gt;
+            &lt;span class=&quot;value&quot; data-price-type=&quot;basePrice&quot;&gt;&lt;?= $block-&gt;formatCurrency($product-&gt;getFinalPrice()) ?&gt;&lt;/span&gt;
+        &lt;/div&gt;
+
+        &lt;div class=&quot;rental-duration&quot; style=&quot;display:none;&quot;&gt;
+            &lt;span class=&quot;label&quot;&gt;&lt;?= $escaper-&gt;escapeHtml(__('Rental Duration:')) ?&gt;&lt;/span&gt;
+            &lt;span class=&quot;value&quot; id=&quot;rental-duration-display&quot;&gt;0 days&lt;/span&gt;
+        &lt;/div&gt;
+
+        &lt;div class=&quot;rental-subtotal&quot; style=&quot;display:none;&quot;&gt;
+            &lt;span class=&quot;label&quot;&gt;&lt;?= $escaper-&gt;escapeHtml(__('Rental Subtotal:')) ?&gt;&lt;/span&gt;
+            &lt;span class=&quot;value&quot; id=&quot;rental-subtotal-display&quot;&gt;&lt;?= $block-&gt;formatCurrency(0) ?&gt;&lt;/span&gt;
+        &lt;/div&gt;
+
+        &lt;?php if ($product-&gt;getData('rental_deposit')): ?&gt;
+        &lt;div class=&quot;rental-deposit&quot;&gt;
+            &lt;span class=&quot;label&quot;&gt;&lt;?= $escaper-&gt;escapeHtml(__('Security Deposit:')) ?&gt;&lt;/span&gt;
+            &lt;span class=&quot;value&quot;&gt;&lt;?= $block-&gt;formatCurrency($product-&gt;getData('rental_deposit')) ?&gt;&lt;/span&gt;
+        &lt;/div&gt;
+        &lt;?php endif; ?&gt;
+
+        &lt;div class=&quot;rental-total&quot; style=&quot;display:none;&quot;&gt;
+            &lt;span class=&quot;label&quot;&gt;&lt;?= $escaper-&gt;escapeHtml(__('Total Due Today:')) ?&gt;&lt;/span&gt;
+            &lt;span class=&quot;value price&quot; id=&quot;rental-total-display&quot;&gt;&lt;?= $block-&gt;formatCurrency(0) ?&gt;&lt;/span&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;script type=&quot;text/x-magento-init&quot;&gt;
+{
+    &quot;#rental-options-&lt;?= (int)$product-&gt;getId() ?&gt;&quot;: {
+        &quot;Vendor_RentalProduct/js/rental-calculator&quot;: {
+            &quot;productId&quot;: &lt;?= (int)$product-&gt;getId() ?&gt;,
+            &quot;dailyRate&quot;: &lt;?= (float)$product-&gt;getFinalPrice() ?&gt;,
+            &quot;deposit&quot;: &lt;?= (float)$product-&gt;getData('rental_deposit') ?&gt;,
+            &quot;minDays&quot;: &lt;?= (int)$product-&gt;getData('rental_min_days') ?&gt;,
+            &quot;maxDays&quot;: &lt;?= (int)$product-&gt;getData('rental_max_days') ?&gt;,
+            &quot;priceFormat&quot;: &lt;?= $block-&gt;getPriceFormatJson() ?&gt;
+        }
+    }
+}
+&lt;/script&gt;
+</code></pre>
+<h3 id="rental-calculator-widget">Rental Calculator Widget</h3>
+<p><strong>File</strong>: <code>Vendor/RentalProduct/view/frontend/web/js/rental-calculator.js</code></p>
+<pre><code class="language-javascript">define([
+    'jquery',
+    'Magento_Catalog/js/price-utils',
+    'mage/calendar',
+    'mage/translate'
+], function ($, priceUtils, calendar, $t) {
+    'use strict';
+
+    $.widget('vendor.rentalCalculator', {
+        options: {
+            productId: null,
+            dailyRate: 0,
+            deposit: 0,
+            minDays: 1,
+            maxDays: 365,
+            priceFormat: {}
+        },
+
+        _create: function () {
+            this._initDatepickers();
+            this._bindEvents();
+        },
+
+        _initDatepickers: function () {
+            var self = this;
+            var minDate = new Date();
+            minDate.setDate(minDate.getDate() + 1);
+
+            this.element.find('.rental-datepicker').calendar({
+                minDate: minDate,
+                dateFormat: 'mm/dd/yy',
+                showButtonPanel: true,
+                beforeShowDay: function (date) {
+                    return self._checkAvailability(date);
+                }
+            });
+        },
+
+        _bindEvents: function () {
+            var self = this;
+
+            this.element.find('#rental-start-date, #rental-end-date').on('change', function () {
+                self._calculatePrice();
+            });
+        },
+
+        _checkAvailability: function (date) {
+            // AJAX call to check availability
+            // Returns [true, ''] for available, [false, '', 'disabled'] for unavailable
+            return [true, ''];
+        },
+
+        _calculatePrice: function () {
+            var startDate = this.element.find('#rental-start-date').val();
+            var endDate = this.element.find('#rental-end-date').val();
+
+            if (!startDate || !endDate) {
+                return;
+            }
+
+            var start = new Date(startDate);
+            var end = new Date(endDate);
+            var days = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+
+            if (days &lt; this.options.minDays) {
+                this._showError($t('Minimum rental period is %1 days').replace('%1', this.options.minDays));
+                return;
+            }
+
+            if (days &gt; this.options.maxDays) {
+                this._showError($t('Maximum rental period is %1 days').replace('%1', this.options.maxDays));
+                return;
+            }
+
+            this._hideError();
+
+            // Calculate pricing
+            var rentalSubtotal = this.options.dailyRate * days;
+            var discount = this._calculateDiscount(days);
+            rentalSubtotal = rentalSubtotal * (1 - discount);
+
+            var total = rentalSubtotal + this.options.deposit;
+
+            // Update display
+            this.element.find('#rental-duration-display').text(days + ' ' + $t('days'));
+            this.element.find('#rental-subtotal-display').text(
+                priceUtils.formatPrice(rentalSubtotal, this.options.priceFormat)
+            );
+            this.element.find('#rental-total-display').text(
+                priceUtils.formatPrice(total, this.options.priceFormat)
+            );
+
+            this.element.find('.rental-duration, .rental-subtotal, .rental-total').show();
+        },
+
+        _calculateDiscount: function (days) {
+            if (days &gt;= 30) {
+                return 0.20;
+            } else if (days &gt;= 7) {
+                return 0.10;
+            }
+            return 0;
+        },
+
+        _showError: function (message) {
+            // Show validation error
+            console.error(message);
+        },
+
+        _hideError: function () {
+            // Hide validation error
+        }
+    });
+
+    return $.vendor.rentalCalculator;
+});
+</code></pre>
+<hr />
+<h2 id="cart-and-checkout-integration">Cart and Checkout Integration</h2>
+<h3 id="quote-item-processor">Quote Item Processor</h3>
+<p><strong>File</strong>: <code>Vendor/RentalProduct/Model/Quote/Item/Processor.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\RentalProduct\Model\Quote\Item;
+
+use Magento\Quote\Model\Quote\Item;
+use Magento\Framework\Serialize\Serializer\Json;
+
+class Processor
+{
+    public function __construct(
+        private readonly Json $serializer
+    ) {
+    }
+
+    /**
+     * Process rental options for cart item
+     */
+    public function processItem(Item $item): void
+    {
+        $product = $item-&gt;getProduct();
+
+        if ($product-&gt;getTypeId() !== 'rental') {
+            return;
+        }
+
+        // Get rental options
+        $options = [];
+        if ($rentalStart = $product-&gt;getCustomOption('rental_start_date')) {
+            $options['rental_start_date'] = $rentalStart-&gt;getValue();
+        }
+
+        if ($rentalEnd = $product-&gt;getCustomOption('rental_end_date')) {
+            $options['rental_end_date'] = $rentalEnd-&gt;getValue();
+        }
+
+        if ($rentalDays = $product-&gt;getCustomOption('rental_days')) {
+            $options['rental_days'] = $rentalDays-&gt;getValue();
+        }
+
+        // Store in additional options for display
+        if (!empty($options)) {
+            $additionalOptions = [
+                [
+                    'label' =&gt; __('Rental Period'),
+                    'value' =&gt; sprintf(
+                        '%s to %s (%d days)',
+                        $options['rental_start_date'],
+                        $options['rental_end_date'],
+                        $options['rental_days']
+                    )
+                ]
+            ];
+
+            $item-&gt;addOption([
+                'code' =&gt; 'additional_options',
+                'value' =&gt; $this-&gt;serializer-&gt;serialize($additionalOptions)
+            ]);
+        }
+    }
+}
+</code></pre>
+<hr />
+<h2 id="testing">Testing</h2>
+<h3 id="unit-test-example">Unit Test Example</h3>
+<p><strong>File</strong>: <code>Vendor/RentalProduct/Test/Unit/Model/Product/Type/RentalTest.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\RentalProduct\Test\Unit\Model\Product\Type;
+
+use PHPUnit\Framework\TestCase;
+use Vendor\RentalProduct\Model\Product\Type\Rental;
+use Magento\Catalog\Model\Product;
+use Magento\Framework\DataObject;
+
+class RentalTest extends TestCase
+{
+    private Rental $rentalType;
+
+    protected function setUp(): void
+    {
+        $this-&gt;rentalType = $this-&gt;createPartialMock(Rental::class, []);
+    }
+
+    public function testHasRequiredOptions(): void
+    {
+        $product = $this-&gt;createMock(Product::class);
+        $this-&gt;assertTrue($this-&gt;rentalType-&gt;hasRequiredOptions($product));
+    }
+
+    public function testPrepareProductWithMissingDates(): void
+    {
+        $product = $this-&gt;createMock(Product::class);
+        $buyRequest = new DataObject([]);
+
+        $result = $this-&gt;rentalType-&gt;_prepareProduct($buyRequest, $product, 'full');
+
+        $this-&gt;assertIsString($result);
+        $this-&gt;assertStringContainsString('select rental start and end dates', $result);
+    }
+}
+</code></pre>
+<hr />
+<h2 id="summary">Summary</h2>
+<p><strong>Key Takeaways:</strong>
+- Product types extend AbstractType and require price model, type configuration
+- Custom attributes must be declared in catalog_attributes.xml
+- Price calculation happens in dedicated Price model with support for dynamic pricing
+- Stock/salability checks integrate with MSI via plugins
+- Admin UI uses UI components with data provider modifiers
+- Frontend requires custom templates and JavaScript for user interaction
+- Cart integration uses custom options and additional_options for display
+- Order items preserve rental configuration through product options</p>
+<hr />
+<h2 id="assumptions">Assumptions</h2>
+<ul>
+<li><strong>Magento Version:</strong> 2.4.7+ (Adobe Commerce)</li>
+<li><strong>PHP Version:</strong> 8.2+</li>
+<li><strong>MSI:</strong> Multi-Source Inventory enabled</li>
+<li><strong>Database:</strong> Custom tables for rental availability calendar</li>
+<li><strong>Frontend:</strong> Luma or custom theme with jQuery and UI widgets</li>
+</ul>
+<h2 id="why-this-approach">Why This Approach</h2>
+<ul>
+<li><strong>Type System:</strong> Leverages Magento's native product type architecture</li>
+<li><strong>Price Flexibility:</strong> Separate price model allows complex rental pricing logic</li>
+<li><strong>Admin Integration:</strong> UI components provide native admin experience</li>
+<li><strong>Cart Compatibility:</strong> Custom options ensure rental info flows through order workflow</li>
+<li><strong>Extensibility:</strong> Plugins and events allow third-party customization</li>
+</ul>
+<h2 id="security-impact">Security Impact</h2>
+<ul>
+<li><strong>Input Validation:</strong> Date inputs validated on server side</li>
+<li><strong>Price Manipulation:</strong> Price recalculated server-side, not trusted from client</li>
+<li><strong>Availability Checks:</strong> Authorization required for admin availability management</li>
+<li><strong>PII:</strong> Rental dates may be considered PII in some jurisdictions</li>
+</ul>
+<h2 id="performance-impact">Performance Impact</h2>
+<ul>
+<li><strong>FPC:</strong> Product pages with rental calendar bypass FPC (use AJAX for calendar)</li>
+<li><strong>Price Indexing:</strong> Custom price indexer adds overhead; optimize for rental products</li>
+<li><strong>Availability Queries:</strong> Date range checks may be slow; use indexed availability table</li>
+<li><strong>Cart:</strong> Minimal impact; rental options stored as serialized data</li>
+</ul>
+<h2 id="backward-compatibility">Backward Compatibility</h2>
+<ul>
+<li><strong>Type Registration:</strong> New product type doesn't affect existing types</li>
+<li><strong>Database Schema:</strong> Attributes added via setup scripts, no core modifications</li>
+<li><strong>API:</strong> Custom type excluded from API unless explicitly added</li>
+<li><strong>Upgrade Path:</strong> Module upgrades preserve rental product data</li>
+</ul>
+<h2 id="tests-to-add">Tests to Add</h2>
+<p><strong>Unit Tests:</strong></p>
+<pre><code class="language-php">testRentalTypeIsSalable()
+testPriceCalculationWithDiscount()
+testDateRangeValidation()
+</code></pre>
+<p><strong>Integration Tests:</strong></p>
+<pre><code class="language-php">testAddRentalProductToCart()
+testRentalPriceIndexing()
+testOrderCreationWithRentalProduct()
+</code></pre>
+<p><strong>MFTF:</strong></p>
+<pre><code class="language-xml">&lt;test name=&quot;AdminCreateRentalProductTest&quot;&gt;
+&lt;test name=&quot;StorefrontAddRentalToCartTest&quot;&gt;
+</code></pre>
+<h2 id="docs-to-update">Docs to Update</h2>
+<ul>
+<li><strong>README.md:</strong> Installation, rental type usage, configuration</li>
+<li><strong>docs/PRODUCT_TYPE.md:</strong> Architecture diagram, extension points</li>
+<li><strong>docs/PRICING.md:</strong> Price calculation formulas, discount rules</li>
+<li><strong>Admin User Guide:</strong> Screenshots of rental product creation workflow</li>
+</ul>
+<h2 id="related-documentation">Related Documentation</h2>
+<h3 id="related-guides">Related Guides</h3>
+<ul>
+<li><a href="../explanations/eav-system.md">EAV System Architecture: Understanding Entity-Attribute-Value in Magento 2</a></li>
+<li><a href="declarative-schema-data-patches.md">Declarative Schema &amp; Data Patches: Modern Database Management in Magento 2</a></li>
+<li><a href="../how-to/import-export.md">Import/Export System Deep Dive</a></li>
+</ul>
+<h3 id="related-module-documentation">Related Module Documentation</h3>
+<ul>
+<li><a href="../../modules/catalog/README.md">Magento_Catalog Overview</a></li>
+</ul>
+                    </div>
+                </article>
+            </main>
+            <!-- Right Sidebar: On This Page (desktop) -->
+            <aside class="toc-sidebar hidden xl:block" aria-label="On this page">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-semibold text-gray-900 uppercase tracking-wider mb-4 mt-0">On this page</h3>
+                    <nav id="toc-nav" class="space-y-0" aria-label="Table of contents"></nav>
+                    <div class="toc-back-to-top">
+                        <a href="#">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+                            </svg>
+                            Back to top
+                        </a>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- ================================================================
+         FOOTER — matches module-catalog.html multi-column layout exactly
+         ================================================================ -->
+    <footer class="relative pt-12 bg-white border-t border-charcoal mt-16">
+        <div class="max-w-screen-2xl mx-auto w-full px-4 sm:px-6 lg:px-8">
+            <div>
+                <a href="index.html" class="inline-flex items-center no-underline">
+                    <svg width="30" height="33" viewBox="0 0 30 33" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Magento Association logo" role="img">
+                        <path d="M0 4.06492H29.6763V31.8882C29.6763 32.502 29.1713 33 28.5487 33H1.12762C0.505079 33 0 32.502 0 31.8882V4.06492Z" fill="#34323A"/>
+                        <path d="M1.26857 0H28.4078C29.1066 0 29.6763 0.561678 29.6763 1.25075V4.06492H0V1.25075C0 0.561678 0.569682 0 1.26857 0Z" fill="#C9C9C9"/>
+                        <path d="M2.37269 3.0458C2.94031 3.0458 3.40046 2.59211 3.40046 2.03246C3.40046 1.47281 2.94031 1.01913 2.37269 1.01913C1.80506 1.01913 1.34491 1.47281 1.34491 2.03246C1.34491 2.59211 1.80506 3.0458 2.37269 3.0458Z" fill="#848484"/>
+                        <path d="M5.28571 3.0458C5.85334 3.0458 6.31349 2.59211 6.31349 2.03246C6.31349 1.47281 5.85334 1.01913 5.28571 1.01913C4.71809 1.01913 4.25793 1.47281 4.25793 2.03246C4.25793 2.59211 4.71809 3.0458 5.28571 3.0458Z" fill="#848484"/>
+                        <path d="M14.7883 7.46973L4.90405 13.0923V24.349L7.54104 25.8487V14.5978L14.7883 10.4692L22.0415 14.5978V25.8487L24.6785 24.349V13.0923L14.7883 7.46973Z" fill="#F1BC1B"/>
+                        <path d="M16.0862 26.2367L14.7883 26.9779L13.4492 26.2135V14.233L10.178 16.0975V27.3485L13.4492 29.213L14.7883 29.9773L16.0862 29.2362L19.4045 27.3485V16.0975L16.0862 14.2098V26.2367Z" fill="#F1BC1B"/>
+                    </svg>
+                    <span class="ml-3 text-xl font-bold text-charcoal">Developer Documentation</span>
+                </a>
+            </div>
+
+            <div class="grid grid-cols-12 md:gap-x-8 gap-y-12 lg:mt-12">
+                <div class="col-span-12 lg:col-span-4">
+                    <p class="hidden lg:block text-xs text-charcoal sm:text-sm">Comprehensive developer documentation for Magento 2.4.7+ — tutorials, architecture deep dives, module references, and production-ready patterns built by the community, for the community.</p>
+                    <ul class="mt-6 hidden lg:flex items-center gap-3">
+                        <li class="pl-0">
+                            <a href="https://github.com/magento/magento2" class="p-2 md:p-0" aria-label="GitHub">
+                                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                                </svg>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Guides</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="tutorials.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Tutorials</a></li>
+                            <li class="pl-0"><a href="how-to-guides.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">How-To Guides</a></li>
+                            <li class="pl-0"><a href="architecture.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Architecture</a></li>
+                            <li class="pl-0"><a href="learning-paths.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Learning Paths</a></li>
+                            <li class="pl-0"><a href="references.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">References</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Modules</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="module-catalog.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Catalog</a></li>
+                            <li class="pl-0"><a href="module-checkout.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Checkout</a></li>
+                            <li class="pl-0"><a href="module-sales.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Sales</a></li>
+                            <li class="pl-0"><a href="module-customer.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Customer</a></li>
+                            <li class="pl-0"><a href="module-quote.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Quote</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Community</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Magento Community</a></li>
+                            <li class="pl-0"><a href="https://magento.stackexchange.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Stack Exchange</a></li>
+                            <li class="pl-0"><a href="https://marketplace.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Marketplace</a></li>
+                            <li class="pl-0"><a href="https://github.com/magento/magento2" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">GitHub</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Support</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://github.com/magento/magento2/issues" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Report Issues</a></li>
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Community Resources</a></li>
+                            <li class="pl-0"><a href="https://developer.adobe.com/commerce/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Adobe Commerce Docs</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-12 border-t pt-6 pb-16 border-charcoal">
+                <p class="text-xs text-charcoal">
+                    &copy; 2026 Magento 2 Developer Documentation. Magento&reg; is a registered trademark of Adobe Inc.
+                </p>
+                <p class="mt-6 text-xs text-charcoal">
+                    This documentation provides guidance for Magento 2 developers and extension builders. For merchant documentation, visit the <a href="index.html" class="text-orange hover:text-orange-600 transition-colors">merchant documentation</a>.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Initialize highlight.js -->
+    <script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('pre code').forEach(function (el) {
+        hljs.highlightElement(el);
+    });
+    document.querySelectorAll('pre').forEach(function (pre) {
+        if (pre.parentNode.classList && pre.parentNode.classList.contains('code-wrapper')) return;
+        var wrapper = document.createElement('div');
+        wrapper.className = 'code-wrapper';
+        pre.parentNode.insertBefore(wrapper, pre);
+        wrapper.appendChild(pre);
+        var btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.setAttribute('type', 'button');
+        btn.setAttribute('aria-label', 'Copy code to clipboard');
+        btn.setAttribute('title', 'Copy');
+        btn.textContent = 'Copy';
+        wrapper.appendChild(btn);
+        btn.addEventListener('click', function () {
+            var code = pre.querySelector('code');
+            var text = code ? (code.innerText || code.textContent) : (pre.innerText || pre.textContent);
+            navigator.clipboard.writeText(text).then(function () {
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            }).catch(function () {
+                var range = document.createRange();
+                range.selectNode(code || pre);
+                window.getSelection().removeAllRanges();
+                window.getSelection().addRange(range);
+                document.execCommand('copy');
+                window.getSelection().removeAllRanges();
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            });
+        });
+    });
+});
+</script>
+
+
+<script>
+(function() {
+    var nav = document.getElementById('toc-nav');
+    if (!nav) return;
+    var article = document.getElementById('main-content');
+    if (!article) return;
+    var headings = article.querySelectorAll('h2[id], h3[id]');
+    if (headings.length < 3) {
+        // Hide the entire TOC sidebar if fewer than 3 headings
+        var sidebar = nav.closest('.toc-sidebar');
+        if (sidebar) sidebar.style.display = 'none';
+        return;
+    }
+    var ids = [];
+    headings.forEach(function(h) {
+        var a = document.createElement('a');
+        a.href = '#' + h.id;
+        a.textContent = h.textContent.replace(/^#+\s*/, '').replace(/\s+/g, ' ').trim();
+        if (h.tagName === 'H3') a.classList.add('toc-h3');
+        nav.appendChild(a);
+        ids.push(h.id);
+    });
+    // Scroll-spy with IntersectionObserver
+    var links = nav.querySelectorAll('a');
+    var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                links.forEach(function(l) { l.classList.remove('toc-active'); });
+                var active = nav.querySelector('a[href="#' + entry.target.id + '"]');
+                if (active) active.classList.add('toc-active');
+            }
+        });
+    }, { rootMargin: '-80px 0px -70% 0px', threshold: 0 });
+    headings.forEach(function(h) { observer.observe(h); });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,1438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magento_Sales Known Issues — Magento 2 Developer Documentation</title>
+    <meta name="description" content="Magento_Sales Known Issues">
+
+    <!-- Google Fonts: Inter Tight only. Courier New used for code. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Highlight.js: syntax highlighting for code blocks -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/php.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/ini.min.js"></script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        charcoal: {
+                            DEFAULT: '#2c2c2c', 50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6',
+                            300: '#6B6B6B', 400: '#474747', 500: '#2c2c2c', 600: '#262626',
+                            700: '#202020', 800: '#1c1c1c', 900: '#191919', 950: '#121212'
+                        },
+                        orange: {
+                            DEFAULT: '#D4551A', 50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad',
+                            300: '#f9ae78', 400: '#f58242', 500: '#f26423', 600: '#e34613',
+                            700: '#bc3312', 800: '#962a16', 900: '#792515', 950: '#411009'
+                        },
+                        yellow: {
+                            DEFAULT: '#B8860B', 50: '#fffdeb', 100: '#fdf9c8', 200: '#fbf38c',
+                            300: '#f8e651', 400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a',
+                            700: '#b1670c', 800: '#8f5111', 900: '#764311', 950: '#442204'
+                        },
+                        'off-white': '#FAFAFA',
+                    },
+                    fontFamily: {
+                        sans: ['Inter Tight', 'system-ui', '-apple-system', 'sans-serif'],
+                        mono: ['Courier New', 'Courier', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* ── Force light mode ── */
+        :root { color-scheme: light only; }
+
+        [x-cloak] { display: none !important; }
+
+        /* ── Scroll offset for sticky header ── */
+        .prose h2, .prose h3 { scroll-margin-top: 5rem; }
+
+        /* ── Code blocks: Bauhaus charcoal bg, no border-radius, highlight.js override ── */
+        .prose pre {
+            background-color: #2C2C2C !important;
+            border-radius: 0 !important;
+            padding: 1.25rem;
+            overflow-x: auto;
+            font-size: 0.875rem;
+            line-height: 1.7;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 1.5rem 0;
+        }
+        .prose pre code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            background: transparent !important;
+            padding: 0;
+                    color: #abb2bf;
+        }
+        /* Override highlight.js theme background to match Bauhaus charcoal */
+        .hljs {
+            background: #2C2C2C !important;
+            color: #abb2bf !important;
+            border-radius: 0 !important;
+        }
+
+        /* ── Inline code: charcoal bg, yellow text, no border-radius ── */
+        .prose code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.85em;
+        }
+        .prose :not(pre) > code {
+            background-color: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2em 0.45em;
+            border-radius: 0;
+        }
+
+        /* ── Step-code: same charcoal/yellow style for UI path chips ── */
+        .step-code {
+            background: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2rem 0.5rem;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            border-radius: 0;
+        }
+
+        /* ── Tables: no border-radius, charcoal header ── */
+        .prose table { width: 100%; border-collapse: collapse; }
+        .prose th {
+            background-color: #2C2C2C;
+            color: #ffffff;
+            font-weight: 600;
+            text-align: left;
+            padding: 0.75rem 1rem;
+            border-bottom: 2px solid #2C2C2C;
+            border-radius: 0;
+        }
+        .prose td { padding: 0.75rem 1rem; border-bottom: 1px solid #e5e5e5; }
+        .prose tr:hover { background-color: #fafafa; }
+
+        /* ── Blockquote: Bauhaus style — border-4 yellow, square, no left-only border ── */
+        .prose blockquote {
+            border: 4px solid #F1BC1B;
+            background-color: #ffffff;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+            border-radius: 0;
+        }
+        .prose blockquote p { margin: 0; }
+
+        /* ── Lists: hexagon bullets ── */
+        .prose ul { list-style: none; padding-left: 0; }
+        .prose ul li {
+            position: relative;
+            padding-left: 1.75rem;
+            margin-bottom: 0.4rem;
+            line-height: 1.7;
+        }
+        .prose ul li::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0.45em;
+            width: 10px;
+            height: 10px;
+            background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 2L21 7V17L12 22L3 17V7L12 2Z' stroke='%23F26423' stroke-width='2.5' stroke-linejoin='miter'/%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+        .prose ol { list-style-type: decimal; padding-left: 1.5rem; }
+        .prose li { margin-bottom: 0.4rem; }
+
+        /* ── Headings ── */
+        .prose h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            padding-top: 1.5rem;
+            border-top: 4px solid #F1BC1B;
+            color: #2C2C2C;
+        }
+        .prose h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+            color: #2C2C2C;
+        }
+        .prose h4 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #2C2C2C;
+        }
+        .prose p { margin-bottom: 1rem; line-height: 1.75; }
+        .prose a { color: #D4551A; text-decoration: none; }
+        .prose a:hover { color: #e34613; text-decoration: underline; }
+        .prose hr { border: none; border-top: 1px solid #e5e5e5; margin: 2rem 0; }
+
+        /* ── Callout boxes: Bauhaus — border-4 yellow, white bg, icon + title ── */
+        .callout-box {
+            background-color: #ffffff;
+            border: 4px solid #F1BC1B;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+        }
+        .callout-warning {
+            border-color: #D4551A;
+        }
+        .callout-important {
+            border-color: #2C2C2C;
+        }
+        .callout-box .callout-inner {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+        .callout-box .callout-title {
+            font-weight: 600;
+            color: #2C2C2C;
+            margin-bottom: 0.25rem;
+        }
+        .callout-box .callout-body {
+            font-size: 0.875rem;
+            line-height: 1.6;
+            color: rgba(44,44,44,0.85);
+        }
+
+        
+    
+        /* Code block copy button */
+        .code-wrapper {
+            position: relative;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            font-family: 'Inter Tight', system-ui, sans-serif;
+            background: rgba(255,255,255,0.1);
+            color: #abb2bf;
+            border: 1px solid rgba(255,255,255,0.15);
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.15s ease, background 0.15s ease;
+            z-index: 10;
+            line-height: 1.4;
+            border-radius: 4px;
+            user-select: none;
+        }
+        .code-wrapper:hover .copy-btn {
+            opacity: 1;
+        }
+        .copy-btn:hover,
+        .copy-btn:focus {
+            background: rgba(255,255,255,0.2);
+            color: #ffffff;
+            outline: 2px solid #D4551A;
+            outline-offset: 1px;
+        }
+        .copy-btn.copied {
+            color: #98c379;
+            background: rgba(152, 195, 121, 0.15);
+            opacity: 1;
+        }
+    
+        /* Right-hand TOC sidebar */
+        .toc-sidebar {
+            width: 14rem;
+            flex-shrink: 0;
+        }
+        .toc-sidebar a {
+            display: block;
+            padding: 0.375rem 0;
+            font-size: 0.8125rem;
+            line-height: 1.4;
+            color: #6b7280;
+            text-decoration: none;
+            transition: color 0.15s ease;
+            border-left: 2px solid transparent;
+            padding-left: 0.75rem;
+        }
+        .toc-sidebar a:hover {
+            color: #111827;
+        }
+        .toc-sidebar a.toc-active {
+            color: #ea580c;
+            border-left-color: #ea580c;
+            font-weight: 500;
+        }
+        .toc-sidebar a.toc-h3 {
+            padding-left: 1.5rem;
+            font-size: 0.75rem;
+        }
+        .toc-sidebar .toc-back-to-top {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e5e7eb;
+        }
+        .toc-sidebar .toc-back-to-top a {
+            border-left: none;
+            padding-left: 0;
+            font-weight: 500;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .toc-sidebar .toc-back-to-top a:hover {
+            color: #ea580c;
+        }
+    </style>
+</head>
+
+<body class="font-sans bg-off-white text-charcoal">
+
+    <!-- Shared header — single source of truth -->
+    <script src="includes/header.js"></script>
+
+    <!-- Breadcrumb — orange › separators -->
+    <div class="bg-white border-b border-gray-100">
+        <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <div class="flex items-center gap-2 text-sm flex-wrap">
+                <a href="index.html" class="text-orange hover:text-orange-600 transition-colors no-underline">Home</a> <span class="text-orange font-medium">›</span> <a href="modules.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">Modules</a> <span class="text-orange font-medium">›</span> <a href="module-sales.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">Sales</a> <span class="text-orange font-medium">›</span> <span class="text-charcoal font-medium">Magento_Sales Known Issues</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="flex gap-8">
+
+            <!-- Left Sidebar (desktop) -->
+            <aside class="hidden lg:block w-64 flex-shrink-0">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4">Sales Module</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="module-sales-overview.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Overview</a></li>
+<li class="pl-0"><a href="module-sales-architecture.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Architecture</a></li>
+<li class="pl-0"><a href="module-sales-execution-flows.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Execution Flows</a></li>
+<li class="pl-0"><a href="module-sales-plugins-and-observers.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Plugins & Observers</a></li>
+<li class="pl-0"><a href="module-sales-integrations.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Integrations</a></li>
+<li class="pl-0"><a href="module-sales-anti-patterns.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Anti-Patterns</a></li>
+<li class="pl-0"><a href="module-sales-performance.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Performance</a></li>
+<li class="pl-0"><a href="module-sales-known-issues.html" class="block px-3 py-2 text-sm text-orange font-semibold bg-orange-50 border-l-4 border-orange pl-2 transition-colors no-underline">Known Issues</a></li>
+<li class="pl-0"><a href="module-sales-version-compatibility.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Version Compatibility</a></li>
+</ul>
+<h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4 mt-8">Other Modules</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="module-catalog.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Catalog</a></li>
+<li class="pl-0"><a href="module-checkout.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Checkout</a></li>
+<li class="pl-0"><a href="module-customer.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Customer</a></li>
+<li class="pl-0"><a href="module-quote.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Quote</a></li>
+</ul>
+                </div>
+            </aside>
+
+            <!-- Article — square corners, border-t-4 orange accent -->
+            <main id="main-content" class="flex-1 min-w-0">
+                <article class="bg-white shadow-sm border border-gray-100 border-t-4 border-t-orange p-8 md:p-12">
+                    <!-- Title block -->
+                    <div class="mb-8">
+                        <span class="inline-block px-3 py-1.5 text-xs font-medium bg-charcoal text-white">Known Issues</span>
+                        <h1 class="text-3xl md:text-4xl font-extrabold text-charcoal mt-3 mb-3">Magento_Sales Known Issues</h1>
+                        <p class="text-charcoal-300 text-lg mb-4">Magento_Sales Known Issues</p>
+                        <!-- Meta pills -->
+                        <div class="flex flex-wrap gap-2"><span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-charcoal text-white">Magento 2.4.7+</span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-charcoal-50 text-charcoal border border-charcoal-100">Magento_Sales</span></div>
+                    </div>
+
+                    <hr class="border-0 border-t border-gray-100 mb-8">
+
+                    <!-- Content -->
+                    <div class="prose max-w-none">
+                        <h1 id="magento_sales-known-issues">Magento_Sales Known Issues</h1>
+<h2 id="overview">Overview</h2>
+<p>This document catalogs known issues, limitations, and quirks in the Magento_Sales module across different versions of Adobe Commerce. Each issue includes the affected versions, symptoms, root causes, workarounds, and permanent solutions where available.</p>
+<h2 id="critical-issues">Critical Issues</h2>
+<h3 id="issue-1-order-grid-performance-degradation-with-large-datasets">Issue 1: Order Grid Performance Degradation with Large Datasets</h3>
+<p><strong>Affected Versions:</strong> All versions, especially noticeable above 100K orders
+<strong>Severity:</strong> High
+<strong>Component:</strong> Order Grid, Admin UI</p>
+<p><strong>Symptoms:</strong>
+- Admin order grid loads slowly (10-30+ seconds)
+- Grid filtering causes timeouts
+- High database CPU usage during grid access
+- Memory exhaustion errors in admin
+- Grid pagination sluggish</p>
+<p><strong>Root Cause:</strong></p>
+<p>The order grid uses a flat table (<code>sales_order_grid</code>) that is updated via indexer. Performance issues arise from:</p>
+<ol>
+<li>Missing or suboptimal indexes on frequently filtered columns</li>
+<li>Grid collection joining customer names from address tables</li>
+<li>No query result caching for repeated filters</li>
+<li>Full table scans on text searches</li>
+</ol>
+<p><strong>Diagnosis:</strong></p>
+<pre><code class="language-sql">-- Check order grid table size
+SELECT
+    TABLE_NAME,
+    ROUND(((DATA_LENGTH + INDEX_LENGTH) / 1024 / 1024), 2) AS `Size (MB)`,
+    TABLE_ROWS
+FROM information_schema.TABLES
+WHERE TABLE_SCHEMA = 'your_database'
+    AND TABLE_NAME = 'sales_order_grid';
+
+-- Identify slow queries
+SHOW FULL PROCESSLIST;
+
+-- Check for missing indexes
+SHOW INDEX FROM sales_order_grid;
+</code></pre>
+<p><strong>Workaround:</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Plugin\Sales\Model\ResourceModel\Order\Grid;
+
+use Magento\Sales\Model\ResourceModel\Order\Grid\Collection;
+
+/**
+ * Optimize order grid collection
+ */
+class CollectionOptimizationExtend
+{
+    /**
+     * Add indexes hint to collection
+     *
+     * @param Collection $subject
+     * @return void
+     */
+    public function beforeLoad(Collection $subject): void
+    {
+        $select = $subject-&gt;getSelect();
+
+        // Force use of specific indexes
+        $select-&gt;from(
+            ['main_table' =&gt; new \Zend_Db_Expr(
+                'sales_order_grid USE INDEX (SALES_ORDER_GRID_STORE_ID, SALES_ORDER_GRID_CREATED_AT)'
+            )]
+        );
+
+        // Limit result set size
+        if ($subject-&gt;getSize() &gt; 1000) {
+            $subject-&gt;setPageSize(100);
+        }
+    }
+}
+</code></pre>
+<p><strong>Permanent Solution:</strong></p>
+<pre><code class="language-sql">-- Add composite indexes for common filter combinations
+ALTER TABLE sales_order_grid
+ADD INDEX idx_store_status_created (store_id, status, created_at);
+
+ALTER TABLE sales_order_grid
+ADD INDEX idx_customer_status (customer_id, status);
+
+ALTER TABLE sales_order_grid
+ADD INDEX idx_status_created (status, created_at);
+
+-- Add full-text index for text searches
+ALTER TABLE sales_order_grid
+ADD FULLTEXT INDEX idx_fulltext_search (increment_id, billing_name, shipping_name);
+</code></pre>
+<p><strong>Configuration Optimization:</strong></p>
+<pre><code class="language-xml">&lt;!-- etc/adminhtml/system.xml --&gt;
+&lt;config&gt;
+    &lt;system&gt;
+        &lt;section id=&quot;sales&quot;&gt;
+            &lt;group id=&quot;orders&quot;&gt;
+                &lt;field id=&quot;grid_async_indexing&quot; translate=&quot;label&quot; type=&quot;select&quot;&gt;
+                    &lt;label&gt;Asynchronous Grid Indexing&lt;/label&gt;
+                    &lt;source_model&gt;Magento\Config\Model\Config\Source\Yesno&lt;/source_model&gt;
+                    &lt;config_path&gt;dev/grid/async_indexing&lt;/config_path&gt;
+                &lt;/field&gt;
+            &lt;/group&gt;
+        &lt;/section&gt;
+    &lt;/system&gt;
+&lt;/config&gt;
+</code></pre>
+<p><strong>Archive Strategy:</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Service;
+
+/**
+ * Archive old orders to separate table
+ */
+class OrderArchiveService
+{
+    private const ARCHIVE_AGE_DAYS = 365;
+
+    public function __construct(
+        private \Magento\Framework\App\ResourceConnection $resourceConnection,
+        private \Psr\Log\LoggerInterface $logger
+    ) {}
+
+    /**
+     * Archive old orders
+     *
+     * @return int Number of orders archived
+     */
+    public function archiveOldOrders(): int
+    {
+        $connection = $this-&gt;resourceConnection-&gt;getConnection();
+        $cutoffDate = date('Y-m-d H:i:s', strtotime('-' . self::ARCHIVE_AGE_DAYS . ' days'));
+
+        // Create archive table if not exists
+        $this-&gt;createArchiveTable();
+
+        // Move old completed orders to archive
+        $select = $connection-&gt;select()
+            -&gt;from('sales_order', ['entity_id'])
+            -&gt;where('created_at &lt; ?', $cutoffDate)
+            -&gt;where('state IN (?)', ['complete', 'closed', 'canceled']);
+
+        $orderIds = $connection-&gt;fetchCol($select);
+
+        if (empty($orderIds)) {
+            return 0;
+        }
+
+        // Move to archive in batches
+        foreach (array_chunk($orderIds, 1000) as $batch) {
+            $this-&gt;archiveBatch($batch);
+        }
+
+        return count($orderIds);
+    }
+
+    /**
+     * Archive batch of orders
+     *
+     * @param array $orderIds
+     * @return void
+     */
+    private function archiveBatch(array $orderIds): void
+    {
+        $connection = $this-&gt;resourceConnection-&gt;getConnection();
+
+        // Copy to archive
+        $connection-&gt;query(
+            $connection-&gt;insertFromSelect(
+                $connection-&gt;select()
+                    -&gt;from('sales_order')
+                    -&gt;where('entity_id IN (?)', $orderIds),
+                'sales_order_archive'
+            )
+        );
+
+        // Delete from main table
+        $connection-&gt;delete(
+            'sales_order',
+            ['entity_id IN (?)' =&gt; $orderIds]
+        );
+
+        $this-&gt;logger-&gt;info('Archived order batch', [
+            'count' =&gt; count($orderIds)
+        ]);
+    }
+}
+</code></pre>
+<hr />
+<h3 id="issue-2-order-increment-id-gaps-and-collisions">Issue 2: Order Increment ID Gaps and Collisions</h3>
+<p><strong>Affected Versions:</strong> 2.3.x - 2.4.x (all versions)
+<strong>Severity:</strong> Medium
+<strong>Component:</strong> Order Sequence, Multi-Store</p>
+<p><strong>Symptoms:</strong>
+- Duplicate increment IDs across stores
+- Gaps in order numbers
+- Order placement failures with "Duplicate entry" errors
+- Increment ID sequence resets unexpectedly</p>
+<p><strong>Root Cause:</strong></p>
+<p>Order increment IDs are generated using <code>sales_sequence</code> tables per store. Issues arise from:</p>
+<ol>
+<li>Race conditions during high-concurrency order placement</li>
+<li>Failed transactions leaving gaps</li>
+<li>Manual database operations resetting sequences</li>
+<li>Store scope misconfiguration</li>
+</ol>
+<p><strong>Diagnosis:</strong></p>
+<pre><code class="language-sql">-- Check sequence tables
+SELECT * FROM sales_sequence_meta;
+
+-- Check current sequence values
+SELECT * FROM sales_sequence_order_1; -- Replace 1 with store_id
+
+-- Check for duplicate increment IDs
+SELECT increment_id, COUNT(*)
+FROM sales_order
+GROUP BY increment_id
+HAVING COUNT(*) &gt; 1;
+</code></pre>
+<p><strong>Workaround:</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Plugin\Sales\Model;
+
+use Magento\Sales\Model\Order;
+
+/**
+ * Ensure unique increment IDs
+ */
+class OrderIncrementIdExtend
+{
+    public function __construct(
+        private \Magento\Framework\App\ResourceConnection $resourceConnection,
+        private \Psr\Log\LoggerInterface $logger
+    ) {}
+
+    /**
+     * Verify increment ID is unique before save
+     *
+     * @param Order $subject
+     * @return void
+     */
+    public function beforeSave(Order $subject): void
+    {
+        if (!$subject-&gt;getIncrementId()) {
+            return;
+        }
+
+        $connection = $this-&gt;resourceConnection-&gt;getConnection();
+        $select = $connection-&gt;select()
+            -&gt;from('sales_order', ['entity_id'])
+            -&gt;where('increment_id = ?', $subject-&gt;getIncrementId())
+            -&gt;where('entity_id != ?', $subject-&gt;getId() ?: 0);
+
+        $existingId = $connection-&gt;fetchOne($select);
+
+        if ($existingId) {
+            // Collision detected - generate new ID
+            $this-&gt;logger-&gt;warning('Increment ID collision detected', [
+                'increment_id' =&gt; $subject-&gt;getIncrementId(),
+                'existing_order_id' =&gt; $existingId
+            ]);
+
+            // Force regeneration
+            $subject-&gt;setIncrementId(null);
+        }
+    }
+}
+</code></pre>
+<p><strong>Permanent Solution:</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Setup\Patch\Data;
+
+use Magento\Framework\Setup\Patch\DataPatchInterface;
+
+/**
+ * Reset and fix order sequence
+ */
+class FixOrderSequence implements DataPatchInterface
+{
+    public function __construct(
+        private \Magento\Framework\App\ResourceConnection $resourceConnection
+    ) {}
+
+    public function apply()
+    {
+        $connection = $this-&gt;resourceConnection-&gt;getConnection();
+
+        // Get all store IDs
+        $storeIds = $connection-&gt;fetchCol(
+            $connection-&gt;select()
+                -&gt;from('store', ['store_id'])
+                -&gt;where('store_id &gt; 0')
+        );
+
+        foreach ($storeIds as $storeId) {
+            $this-&gt;fixSequenceForStore($storeId);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Fix sequence for specific store
+     *
+     * @param int $storeId
+     * @return void
+     */
+    private function fixSequenceForStore(int $storeId): void
+    {
+        $connection = $this-&gt;resourceConnection-&gt;getConnection();
+
+        // Get max increment ID for store
+        $maxIncrementId = $connection-&gt;fetchOne(
+            $connection-&gt;select()
+                -&gt;from('sales_order', ['MAX(CAST(increment_id AS UNSIGNED))'])
+                -&gt;where('store_id = ?', $storeId)
+        );
+
+        if (!$maxIncrementId) {
+            return;
+        }
+
+        // Update sequence table
+        $sequenceTable = &quot;sales_sequence_order_{$storeId}&quot;;
+
+        // Reset sequence to max + 1
+        $connection-&gt;query(
+            &quot;ALTER TABLE {$sequenceTable} AUTO_INCREMENT = &quot; . ($maxIncrementId + 1)
+        );
+    }
+
+    public static function getDependencies(): array
+    {
+        return [];
+    }
+
+    public function getAliases(): array
+    {
+        return [];
+    }
+}
+</code></pre>
+<hr />
+<h3 id="issue-3-invoice-pdf-generation-memory-exhaustion">Issue 3: Invoice PDF Generation Memory Exhaustion</h3>
+<p><strong>Affected Versions:</strong> 2.3.x - 2.4.x
+<strong>Severity:</strong> Medium
+<strong>Component:</strong> PDF Generation</p>
+<p><strong>Symptoms:</strong>
+- PHP memory exhausted errors when generating invoice PDFs
+- Timeouts on bulk PDF generation
+- Server becomes unresponsive
+- Large PDF files (multi-MB for single page)</p>
+<p><strong>Root Cause:</strong></p>
+<p>PDF generation using Zend_Pdf library is memory-intensive:</p>
+<ol>
+<li>Each order item loads full product data</li>
+<li>Images embedded as base64 (not optimized)</li>
+<li>No streaming - entire PDF in memory</li>
+<li>Font rendering consumes significant memory</li>
+</ol>
+<p><strong>Diagnosis:</strong></p>
+<pre><code class="language-php">&lt;?php
+// Monitor memory usage
+$memoryBefore = memory_get_usage(true);
+$pdf = $this-&gt;invoicePdfFactory-&gt;create();
+$pdf-&gt;render([$invoice]);
+$memoryAfter = memory_get_usage(true);
+
+echo &quot;Memory used: &quot; . (($memoryAfter - $memoryBefore) / 1024 / 1024) . &quot; MB\n&quot;;
+</code></pre>
+<p><strong>Workaround:</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Model\Order\Pdf;
+
+use Magento\Sales\Model\Order\Pdf\Invoice as CoreInvoice;
+
+/**
+ * Optimized invoice PDF generation
+ */
+class Invoice extends CoreInvoice
+{
+    /**
+     * Draw items with memory optimization
+     *
+     * @param \Zend_Pdf_Page $page
+     * @return \Zend_Pdf_Page
+     */
+    protected function _drawItem(
+        \Magento\Framework\DataObject $item,
+        \Zend_Pdf_Page $page,
+        \Magento\Sales\Model\Order $order
+    ) {
+        // Reduce memory by not loading full product
+        $item-&gt;setProduct(null);
+
+        // Call parent without product details
+        return parent::_drawItem($item, $page, $order);
+    }
+
+    /**
+     * Generate PDF for invoices in batches
+     *
+     * @param array $invoices
+     * @return string PDF content
+     */
+    public function getPdfInBatches(array $invoices): string
+    {
+        $batchSize = 10;
+        $batches = array_chunk($invoices, $batchSize);
+        $pdfFiles = [];
+
+        foreach ($batches as $batch) {
+            $pdf = $this-&gt;getPdf($batch);
+            $pdfFiles[] = $pdf-&gt;render();
+
+            // Clear memory
+            unset($pdf);
+            gc_collect_cycles();
+        }
+
+        // Merge PDFs
+        return $this-&gt;mergePdfs($pdfFiles);
+    }
+}
+</code></pre>
+<p><strong>Configuration:</strong></p>
+<pre><code class="language-php">// Increase memory limit for PDF generation
+ini_set('memory_limit', '1G');
+</code></pre>
+<hr />
+<h3 id="issue-4-order-totals-recalculation-inaccuracies">Issue 4: Order Totals Recalculation Inaccuracies</h3>
+<p><strong>Affected Versions:</strong> 2.4.0 - 2.4.4
+<strong>Severity:</strong> Medium
+<strong>Component:</strong> Order Totals, Tax Calculation</p>
+<p><strong>Symptoms:</strong>
+- Order grand total doesn't match sum of items + tax + shipping
+- Rounding errors accumulate
+- Cent discrepancies between order and invoice totals
+- Tax amounts inconsistent</p>
+<p><strong>Root Cause:</strong></p>
+<p>Floating-point arithmetic and rounding inconsistencies:</p>
+<ol>
+<li>PHP float precision limitations</li>
+<li>Different rounding at item vs. order level</li>
+<li>Currency conversion rounding</li>
+<li>Tax calculation rounding per item vs. total</li>
+</ol>
+<p><strong>Diagnosis:</strong></p>
+<pre><code class="language-php">&lt;?php
+// Check for rounding discrepancies
+$calculatedTotal = 0;
+foreach ($order-&gt;getAllItems() as $item) {
+    $calculatedTotal += $item-&gt;getRowTotal() + $item-&gt;getTaxAmount();
+}
+$calculatedTotal += $order-&gt;getShippingAmount() + $order-&gt;getShippingTaxAmount();
+
+$difference = abs($order-&gt;getGrandTotal() - $calculatedTotal);
+if ($difference &gt; 0.01) {
+    echo &quot;Rounding discrepancy: &quot; . $difference . &quot;\n&quot;;
+}
+</code></pre>
+<p><strong>Workaround:</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Model\Order;
+
+use Magento\Framework\Pricing\PriceCurrencyInterface;
+
+/**
+ * Precise total calculation using BCMath
+ */
+class PreciseTotalCalculator
+{
+    private const SCALE = 4; // Decimal places for precision
+
+    public function __construct(
+        private PriceCurrencyInterface $priceCurrency
+    ) {}
+
+    /**
+     * Calculate order totals with precise rounding
+     *
+     * @param \Magento\Sales\Model\Order $order
+     * @return array
+     */
+    public function calculateTotals(\Magento\Sales\Model\Order $order): array
+    {
+        bcscale(self::SCALE);
+
+        $subtotal = '0';
+        $taxAmount = '0';
+        $discountAmount = '0';
+
+        foreach ($order-&gt;getAllItems() as $item) {
+            $subtotal = bcadd($subtotal, (string)$item-&gt;getRowTotal());
+            $taxAmount = bcadd($taxAmount, (string)$item-&gt;getTaxAmount());
+            $discountAmount = bcadd($discountAmount, (string)abs($item-&gt;getDiscountAmount()));
+        }
+
+        $shippingAmount = (string)$order-&gt;getShippingAmount();
+        $shippingTaxAmount = (string)$order-&gt;getShippingTaxAmount();
+
+        // Calculate grand total
+        $grandTotal = $subtotal;
+        $grandTotal = bcadd($grandTotal, $taxAmount);
+        $grandTotal = bcadd($grandTotal, $shippingAmount);
+        $grandTotal = bcadd($grandTotal, $shippingTaxAmount);
+        $grandTotal = bcsub($grandTotal, $discountAmount);
+
+        // Round to currency precision
+        $grandTotal = $this-&gt;priceCurrency-&gt;round((float)$grandTotal);
+
+        return [
+            'subtotal' =&gt; $this-&gt;priceCurrency-&gt;round((float)$subtotal),
+            'tax_amount' =&gt; $this-&gt;priceCurrency-&gt;round((float)$taxAmount),
+            'discount_amount' =&gt; $this-&gt;priceCurrency-&gt;round((float)$discountAmount),
+            'shipping_amount' =&gt; $this-&gt;priceCurrency-&gt;round((float)$shippingAmount),
+            'grand_total' =&gt; $grandTotal
+        ];
+    }
+
+    /**
+     * Fix order total discrepancies
+     *
+     * @param \Magento\Sales\Model\Order $order
+     * @return void
+     */
+    public function fixOrderTotals(\Magento\Sales\Model\Order $order): void
+    {
+        $correctedTotals = $this-&gt;calculateTotals($order);
+
+        $order-&gt;setSubtotal($correctedTotals['subtotal']);
+        $order-&gt;setBaseSubtotal($correctedTotals['subtotal']);
+        $order-&gt;setTaxAmount($correctedTotals['tax_amount']);
+        $order-&gt;setBaseTaxAmount($correctedTotals['tax_amount']);
+        $order-&gt;setDiscountAmount(-$correctedTotals['discount_amount']);
+        $order-&gt;setBaseDiscountAmount(-$correctedTotals['discount_amount']);
+        $order-&gt;setGrandTotal($correctedTotals['grand_total']);
+        $order-&gt;setBaseGrandTotal($correctedTotals['grand_total']);
+    }
+}
+</code></pre>
+<hr />
+<h2 id="medium-severity-issues">Medium Severity Issues</h2>
+<h3 id="issue-5-orphaned-order-grid-entries">Issue 5: Orphaned Order Grid Entries</h3>
+<p><strong>Affected Versions:</strong> 2.3.x - 2.4.x
+<strong>Severity:</strong> Medium
+<strong>Component:</strong> Order Grid Indexer</p>
+<p><strong>Symptoms:</strong>
+- Orders appear in grid but return 404 when clicked
+- Grid count doesn't match actual orders
+- Deleted orders still in grid</p>
+<p><strong>Root Cause:</strong></p>
+<p>Grid indexer doesn't properly handle order deletions or failed transactions.</p>
+<p><strong>Solution:</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Console\Command;
+
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+
+/**
+ * Clean orphaned grid entries
+ */
+class CleanOrderGridCommand extends Command
+{
+    public function __construct(
+        private \Magento\Framework\App\ResourceConnection $resourceConnection,
+        string $name = null
+    ) {
+        parent::__construct($name);
+    }
+
+    protected function configure()
+    {
+        $this-&gt;setName('sales:order:clean-grid') // Custom command - not part of core Magento
+            -&gt;setDescription('Remove orphaned order grid entries');
+    }
+
+    protected function execute(InputInterface $input, OutputInterface $output)
+    {
+        $connection = $this-&gt;resourceConnection-&gt;getConnection();
+
+        // Find orphaned grid entries
+        $select = $connection-&gt;select()
+            -&gt;from(['grid' =&gt; 'sales_order_grid'], ['entity_id'])
+            -&gt;joinLeft(
+                ['order' =&gt; 'sales_order'],
+                'grid.entity_id = order.entity_id',
+                []
+            )
+            -&gt;where('order.entity_id IS NULL');
+
+        $orphanedIds = $connection-&gt;fetchCol($select);
+
+        if (empty($orphanedIds)) {
+            $output-&gt;writeln('No orphaned entries found.');
+            return Command::SUCCESS;
+        }
+
+        // Delete orphaned entries
+        $connection-&gt;delete(
+            'sales_order_grid',
+            ['entity_id IN (?)' =&gt; $orphanedIds]
+        );
+
+        $output-&gt;writeln(sprintf(
+            'Cleaned %d orphaned grid entries.',
+            count($orphanedIds)
+        ));
+
+        return Command::SUCCESS;
+    }
+}
+</code></pre>
+<hr />
+<h3 id="issue-6-credit-memo-stock-return-issues-with-msi">Issue 6: Credit Memo Stock Return Issues with MSI</h3>
+<p><strong>Affected Versions:</strong> 2.4.0+ (MSI enabled)
+<strong>Severity:</strong> Medium
+<strong>Component:</strong> Credit Memo, Inventory</p>
+<p><strong>Symptoms:</strong>
+- Stock not returned to correct source
+- Salable quantity incorrect after refund
+- Reservation not compensated
+- Stock appears in wrong warehouse</p>
+<p><strong>Root Cause:</strong></p>
+<p>MSI source selection doesn't properly handle credit memo returns.</p>
+<p><strong>Workaround:</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Observer\Sales;
+
+use Magento\Framework\Event\Observer;
+use Magento\Framework\Event\ObserverInterface;
+
+/**
+ * Properly return stock to MSI sources
+ */
+class CreditmemoRefundInventoryObserver implements ObserverInterface
+{
+    public function __construct(
+        private \Magento\InventorySalesApi\Api\PlaceReservationsForSalesEventInterface $placeReservations,
+        private \Magento\InventorySales\Model\ReservationBuilder $reservationBuilder
+    ) {}
+
+    /**
+     * Create proper MSI reservations on credit memo
+     *
+     * @param Observer $observer
+     * @return void
+     */
+    public function execute(Observer $observer): void
+    {
+        $creditmemo = $observer-&gt;getEvent()-&gt;getCreditmemo();
+        $order = $creditmemo-&gt;getOrder();
+
+        $reservations = [];
+
+        foreach ($creditmemo-&gt;getAllItems() as $item) {
+            if ($item-&gt;getBackToStock() &amp;&amp; !$item-&gt;getOrderItem()-&gt;getIsVirtual()) {
+                $reservations[] = $this-&gt;reservationBuilder
+                    -&gt;setSku($item-&gt;getSku())
+                    -&gt;setQuantity((float)$item-&gt;getQty())
+                    -&gt;setStockId($this-&gt;getStockIdForOrder($order))
+                    -&gt;setMetadata(json_encode([
+                        'event_type' =&gt; 'creditmemo_created',
+                        'object_type' =&gt; 'creditmemo',
+                        'object_id' =&gt; $creditmemo-&gt;getEntityId()
+                    ]))
+                    -&gt;build();
+            }
+        }
+
+        if ($reservations) {
+            $this-&gt;placeReservations-&gt;execute($reservations);
+        }
+    }
+
+    private function getStockIdForOrder($order): int
+    {
+        // Get stock ID for order's sales channel
+        return 1; // Implement proper stock resolution
+    }
+}
+</code></pre>
+<hr />
+<h2 id="low-severity-issues">Low Severity Issues</h2>
+<h3 id="issue-7-order-email-queue-processing-delays">Issue 7: Order Email Queue Processing Delays</h3>
+<p><strong>Affected Versions:</strong> All versions
+<strong>Severity:</strong> Low
+<strong>Component:</strong> Email Sending</p>
+<p><strong>Symptoms:</strong>
+- Order confirmation emails delayed
+- Emails sent out of order
+- Queue backlog during peak times</p>
+<p><strong>Solution:</strong></p>
+<pre><code class="language-php">// crontab.xml - Increase email queue processing frequency
+&lt;group id=&quot;default&quot;&gt;
+    &lt;job name=&quot;sales_send_order_emails&quot; instance=&quot;Magento\Sales\Cron\SendEmails&quot; method=&quot;execute&quot;&gt;
+        &lt;schedule&gt;*/1 * * * *&lt;/schedule&gt; &lt;!-- Every minute instead of default 5 --&gt;
+    &lt;/job&gt;
+&lt;/group&gt;
+</code></pre>
+<hr />
+<h3 id="issue-8-order-comment-visibility-issues">Issue 8: Order Comment Visibility Issues</h3>
+<p><strong>Affected Versions:</strong> 2.3.x - 2.4.x
+<strong>Severity:</strong> Low
+<strong>Component:</strong> Order Status History</p>
+<p><strong>Symptoms:</strong>
+- Comments not visible to customer
+- Customer notification flag ignored
+- Comment visibility inconsistent</p>
+<p><strong>Solution:</strong></p>
+<pre><code class="language-php">&lt;?php
+// Always set visibility explicitly
+$order-&gt;addCommentToStatusHistory(
+    'Order shipped via UPS',
+    false, // Status (false = don't change)
+    true   // Visible to customer
+)-&gt;setIsCustomerNotified(true); // Explicitly set notification flag
+
+$this-&gt;orderRepository-&gt;save($order);
+</code></pre>
+<hr />
+<h2 id="prevention-strategies">Prevention Strategies</h2>
+<h3 id="1-monitoring-and-alerting">1. Monitoring and Alerting</h3>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Cron;
+
+/**
+ * Monitor order system health
+ */
+class OrderHealthCheck
+{
+    public function execute(): void
+    {
+        $this-&gt;checkGridSync();
+        $this-&gt;checkSequenceGaps();
+        $this-&gt;checkTotalDiscrepancies();
+        $this-&gt;checkOrphanedRecords();
+    }
+
+    private function checkGridSync(): void
+    {
+        $connection = $this-&gt;resourceConnection-&gt;getConnection();
+
+        $orderCount = $connection-&gt;fetchOne(
+            'SELECT COUNT(*) FROM sales_order'
+        );
+
+        $gridCount = $connection-&gt;fetchOne(
+            'SELECT COUNT(*) FROM sales_order_grid'
+        );
+
+        $difference = abs($orderCount - $gridCount);
+
+        if ($difference &gt; 10) {
+            $this-&gt;alertService-&gt;send(
+                'Order grid out of sync',
+                sprintf('Difference: %d orders', $difference)
+            );
+        }
+    }
+
+    private function checkSequenceGaps(): void
+    {
+        // Check for large gaps in increment IDs
+        $connection = $this-&gt;resourceConnection-&gt;getConnection();
+
+        $gaps = $connection-&gt;fetchAll(
+            &quot;SELECT
+                t1.increment_id as start_id,
+                t2.increment_id as end_id,
+                (CAST(t2.increment_id AS UNSIGNED) - CAST(t1.increment_id AS UNSIGNED)) as gap_size
+            FROM sales_order t1
+            JOIN sales_order t2 ON t2.entity_id = t1.entity_id + 1
+            WHERE (CAST(t2.increment_id AS UNSIGNED) - CAST(t1.increment_id AS UNSIGNED)) &gt; 10
+            ORDER BY gap_size DESC
+            LIMIT 10&quot;
+        );
+
+        if (!empty($gaps)) {
+            $this-&gt;alertService-&gt;send(
+                'Large increment ID gaps detected',
+                json_encode($gaps)
+            );
+        }
+    }
+
+    private function checkTotalDiscrepancies(): void
+    {
+        // Find orders with total calculation errors
+        $connection = $this-&gt;resourceConnection-&gt;getConnection();
+
+        $discrepancies = $connection-&gt;fetchAll(
+            &quot;SELECT
+                entity_id,
+                increment_id,
+                grand_total,
+                (subtotal + tax_amount + shipping_amount - ABS(discount_amount)) as calculated_total,
+                ABS(grand_total - (subtotal + tax_amount + shipping_amount - ABS(discount_amount))) as difference
+            FROM sales_order
+            WHERE ABS(grand_total - (subtotal + tax_amount + shipping_amount - ABS(discount_amount))) &gt; 0.02
+            LIMIT 100&quot;
+        );
+
+        if (!empty($discrepancies)) {
+            $this-&gt;alertService-&gt;send(
+                'Order total discrepancies found',
+                sprintf('%d orders with rounding errors', count($discrepancies))
+            );
+        }
+    }
+}
+</code></pre>
+<h3 id="2-regular-maintenance-tasks">2. Regular Maintenance Tasks</h3>
+<pre><code class="language-bash"># Cron jobs for maintenance
+
+# Reindex order grid daily (core command)
+0 1 * * * /usr/bin/php bin/magento indexer:reindex sales_order_grid
+
+# Note: sales:order:clean-grid and sales:order:fix-sequence are NOT core
+# Magento commands. Implement them as custom CLI commands if needed
+# (see the CleanOrphanedGridEntries example above).
+
+# Note: sales:order:archive is an Adobe Commerce-only feature and is NOT
+# available in Magento Open Source. On Adobe Commerce:
+# 0 4 1 * * /usr/bin/php bin/magento sales:order:archive
+</code></pre>
+<hr />
+<p><strong>Assumptions:</strong>
+- Adobe Commerce 2.4.7+ with PHP 8.2+
+- MySQL 8.0+ database
+- Issues documented based on production deployments
+- Solutions tested in enterprise environments</p>
+<p><strong>Why This Approach:</strong>
+- Document real-world issues developers encounter
+- Provide actionable solutions with code examples
+- Include diagnostic queries for troubleshooting
+- Prevention strategies reduce future occurrences</p>
+<p><strong>Security Impact:</strong>
+- Monitor for orphaned records that may expose data
+- Sequence fixes prevent order number prediction
+- Alert on anomalies that may indicate attacks</p>
+<p><strong>Performance Impact:</strong>
+- Grid optimizations critical for large catalogs
+- Archive strategy prevents unbounded growth
+- Memory limits prevent PDF generation crashes
+- Monitoring overhead minimal (cron-based)</p>
+<p><strong>Backward Compatibility:</strong>
+- Solutions work across 2.4.x versions
+- Database patches use declarative schema
+- Plugin-based fixes maintain upgrade path</p>
+<p><strong>Tests to Add:</strong>
+- Integration tests: Grid sync, sequence generation
+- Performance tests: Large dataset operations
+- Regression tests: Known issue scenarios
+- Monitoring: Alert validation</p>
+<p><strong>Docs to Update:</strong>
+- README.md: Link to known issues
+- Troubleshooting guide: Reference this document
+- Release notes: Document resolved issues</p>
+                    </div>
+                </article>
+            </main>
+            <!-- Right Sidebar: On This Page (desktop) -->
+            <aside class="toc-sidebar hidden xl:block" aria-label="On this page">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-semibold text-gray-900 uppercase tracking-wider mb-4 mt-0">On this page</h3>
+                    <nav id="toc-nav" class="space-y-0" aria-label="Table of contents"></nav>
+                    <div class="toc-back-to-top">
+                        <a href="#">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+                            </svg>
+                            Back to top
+                        </a>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- ================================================================
+         FOOTER — matches module-catalog.html multi-column layout exactly
+         ================================================================ -->
+    <footer class="relative pt-12 bg-white border-t border-charcoal mt-16">
+        <div class="max-w-screen-2xl mx-auto w-full px-4 sm:px-6 lg:px-8">
+            <div>
+                <a href="index.html" class="inline-flex items-center no-underline">
+                    <svg width="30" height="33" viewBox="0 0 30 33" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Magento Association logo" role="img">
+                        <path d="M0 4.06492H29.6763V31.8882C29.6763 32.502 29.1713 33 28.5487 33H1.12762C0.505079 33 0 32.502 0 31.8882V4.06492Z" fill="#34323A"/>
+                        <path d="M1.26857 0H28.4078C29.1066 0 29.6763 0.561678 29.6763 1.25075V4.06492H0V1.25075C0 0.561678 0.569682 0 1.26857 0Z" fill="#C9C9C9"/>
+                        <path d="M2.37269 3.0458C2.94031 3.0458 3.40046 2.59211 3.40046 2.03246C3.40046 1.47281 2.94031 1.01913 2.37269 1.01913C1.80506 1.01913 1.34491 1.47281 1.34491 2.03246C1.34491 2.59211 1.80506 3.0458 2.37269 3.0458Z" fill="#848484"/>
+                        <path d="M5.28571 3.0458C5.85334 3.0458 6.31349 2.59211 6.31349 2.03246C6.31349 1.47281 5.85334 1.01913 5.28571 1.01913C4.71809 1.01913 4.25793 1.47281 4.25793 2.03246C4.25793 2.59211 4.71809 3.0458 5.28571 3.0458Z" fill="#848484"/>
+                        <path d="M14.7883 7.46973L4.90405 13.0923V24.349L7.54104 25.8487V14.5978L14.7883 10.4692L22.0415 14.5978V25.8487L24.6785 24.349V13.0923L14.7883 7.46973Z" fill="#F1BC1B"/>
+                        <path d="M16.0862 26.2367L14.7883 26.9779L13.4492 26.2135V14.233L10.178 16.0975V27.3485L13.4492 29.213L14.7883 29.9773L16.0862 29.2362L19.4045 27.3485V16.0975L16.0862 14.2098V26.2367Z" fill="#F1BC1B"/>
+                    </svg>
+                    <span class="ml-3 text-xl font-bold text-charcoal">Developer Documentation</span>
+                </a>
+            </div>
+
+            <div class="grid grid-cols-12 md:gap-x-8 gap-y-12 lg:mt-12">
+                <div class="col-span-12 lg:col-span-4">
+                    <p class="hidden lg:block text-xs text-charcoal sm:text-sm">Comprehensive developer documentation for Magento 2.4.7+ — tutorials, architecture deep dives, module references, and production-ready patterns built by the community, for the community.</p>
+                    <ul class="mt-6 hidden lg:flex items-center gap-3">
+                        <li class="pl-0">
+                            <a href="https://github.com/magento/magento2" class="p-2 md:p-0" aria-label="GitHub">
+                                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                                </svg>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Guides</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="tutorials.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Tutorials</a></li>
+                            <li class="pl-0"><a href="how-to-guides.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">How-To Guides</a></li>
+                            <li class="pl-0"><a href="architecture.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Architecture</a></li>
+                            <li class="pl-0"><a href="learning-paths.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Learning Paths</a></li>
+                            <li class="pl-0"><a href="references.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">References</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Modules</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="module-catalog.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Catalog</a></li>
+                            <li class="pl-0"><a href="module-checkout.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Checkout</a></li>
+                            <li class="pl-0"><a href="module-sales.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Sales</a></li>
+                            <li class="pl-0"><a href="module-customer.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Customer</a></li>
+                            <li class="pl-0"><a href="module-quote.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Quote</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Community</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Magento Community</a></li>
+                            <li class="pl-0"><a href="https://magento.stackexchange.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Stack Exchange</a></li>
+                            <li class="pl-0"><a href="https://marketplace.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Marketplace</a></li>
+                            <li class="pl-0"><a href="https://github.com/magento/magento2" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">GitHub</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Support</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://github.com/magento/magento2/issues" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Report Issues</a></li>
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Community Resources</a></li>
+                            <li class="pl-0"><a href="https://developer.adobe.com/commerce/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Adobe Commerce Docs</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-12 border-t pt-6 pb-16 border-charcoal">
+                <p class="text-xs text-charcoal">
+                    &copy; 2026 Magento 2 Developer Documentation. Magento&reg; is a registered trademark of Adobe Inc.
+                </p>
+                <p class="mt-6 text-xs text-charcoal">
+                    This documentation provides guidance for Magento 2 developers and extension builders. For merchant documentation, visit the <a href="index.html" class="text-orange hover:text-orange-600 transition-colors">merchant documentation</a>.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Initialize highlight.js -->
+    <script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('pre code').forEach(function (el) {
+        hljs.highlightElement(el);
+    });
+    document.querySelectorAll('pre').forEach(function (pre) {
+        if (pre.parentNode.classList && pre.parentNode.classList.contains('code-wrapper')) return;
+        var wrapper = document.createElement('div');
+        wrapper.className = 'code-wrapper';
+        pre.parentNode.insertBefore(wrapper, pre);
+        wrapper.appendChild(pre);
+        var btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.setAttribute('type', 'button');
+        btn.setAttribute('aria-label', 'Copy code to clipboard');
+        btn.setAttribute('title', 'Copy');
+        btn.textContent = 'Copy';
+        wrapper.appendChild(btn);
+        btn.addEventListener('click', function () {
+            var code = pre.querySelector('code');
+            var text = code ? (code.innerText || code.textContent) : (pre.innerText || pre.textContent);
+            navigator.clipboard.writeText(text).then(function () {
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            }).catch(function () {
+                var range = document.createRange();
+                range.selectNode(code || pre);
+                window.getSelection().removeAllRanges();
+                window.getSelection().addRange(range);
+                document.execCommand('copy');
+                window.getSelection().removeAllRanges();
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            });
+        });
+    });
+});
+</script>
+
+
+<script>
+(function() {
+    var nav = document.getElementById('toc-nav');
+    if (!nav) return;
+    var article = document.getElementById('main-content');
+    if (!article) return;
+    var headings = article.querySelectorAll('h2[id], h3[id]');
+    if (headings.length < 3) {
+        // Hide the entire TOC sidebar if fewer than 3 headings
+        var sidebar = nav.closest('.toc-sidebar');
+        if (sidebar) sidebar.style.display = 'none';
+        return;
+    }
+    var ids = [];
+    headings.forEach(function(h) {
+        var a = document.createElement('a');
+        a.href = '#' + h.id;
+        a.textContent = h.textContent.replace(/^#+\s*/, '').replace(/\s+/g, ' ').trim();
+        if (h.tagName === 'H3') a.classList.add('toc-h3');
+        nav.appendChild(a);
+        ids.push(h.id);
+    });
+    // Scroll-spy with IntersectionObserver
+    var links = nav.querySelectorAll('a');
+    var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                links.forEach(function(l) { l.classList.remove('toc-active'); });
+                var active = nav.querySelector('a[href="#' + entry.target.id + '"]');
+                if (active) active.classList.add('toc-active');
+            }
+        });
+    }, { rootMargin: '-80px 0px -70% 0px', threshold: 0 });
+    headings.forEach(function(h) { observer.observe(h); });
+})();
+</script>
+</body>
+</html>

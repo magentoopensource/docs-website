@@ -1,0 +1,1255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magento_Sales Overview — Magento 2 Developer Documentation</title>
+    <meta name="description" content="Magento_Sales Overview">
+
+    <!-- Google Fonts: Inter Tight only. Courier New used for code. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Highlight.js: syntax highlighting for code blocks -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/php.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/ini.min.js"></script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        charcoal: {
+                            DEFAULT: '#2c2c2c', 50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6',
+                            300: '#6B6B6B', 400: '#474747', 500: '#2c2c2c', 600: '#262626',
+                            700: '#202020', 800: '#1c1c1c', 900: '#191919', 950: '#121212'
+                        },
+                        orange: {
+                            DEFAULT: '#D4551A', 50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad',
+                            300: '#f9ae78', 400: '#f58242', 500: '#f26423', 600: '#e34613',
+                            700: '#bc3312', 800: '#962a16', 900: '#792515', 950: '#411009'
+                        },
+                        yellow: {
+                            DEFAULT: '#B8860B', 50: '#fffdeb', 100: '#fdf9c8', 200: '#fbf38c',
+                            300: '#f8e651', 400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a',
+                            700: '#b1670c', 800: '#8f5111', 900: '#764311', 950: '#442204'
+                        },
+                        'off-white': '#FAFAFA',
+                    },
+                    fontFamily: {
+                        sans: ['Inter Tight', 'system-ui', '-apple-system', 'sans-serif'],
+                        mono: ['Courier New', 'Courier', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* ── Force light mode ── */
+        :root { color-scheme: light only; }
+
+        [x-cloak] { display: none !important; }
+
+        /* ── Scroll offset for sticky header ── */
+        .prose h2, .prose h3 { scroll-margin-top: 5rem; }
+
+        /* ── Code blocks: Bauhaus charcoal bg, no border-radius, highlight.js override ── */
+        .prose pre {
+            background-color: #2C2C2C !important;
+            border-radius: 0 !important;
+            padding: 1.25rem;
+            overflow-x: auto;
+            font-size: 0.875rem;
+            line-height: 1.7;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 1.5rem 0;
+        }
+        .prose pre code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            background: transparent !important;
+            padding: 0;
+                    color: #abb2bf;
+        }
+        /* Override highlight.js theme background to match Bauhaus charcoal */
+        .hljs {
+            background: #2C2C2C !important;
+            color: #abb2bf !important;
+            border-radius: 0 !important;
+        }
+
+        /* ── Inline code: charcoal bg, yellow text, no border-radius ── */
+        .prose code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.85em;
+        }
+        .prose :not(pre) > code {
+            background-color: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2em 0.45em;
+            border-radius: 0;
+        }
+
+        /* ── Step-code: same charcoal/yellow style for UI path chips ── */
+        .step-code {
+            background: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2rem 0.5rem;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            border-radius: 0;
+        }
+
+        /* ── Tables: no border-radius, charcoal header ── */
+        .prose table { width: 100%; border-collapse: collapse; }
+        .prose th {
+            background-color: #2C2C2C;
+            color: #ffffff;
+            font-weight: 600;
+            text-align: left;
+            padding: 0.75rem 1rem;
+            border-bottom: 2px solid #2C2C2C;
+            border-radius: 0;
+        }
+        .prose td { padding: 0.75rem 1rem; border-bottom: 1px solid #e5e5e5; }
+        .prose tr:hover { background-color: #fafafa; }
+
+        /* ── Blockquote: Bauhaus style — border-4 yellow, square, no left-only border ── */
+        .prose blockquote {
+            border: 4px solid #F1BC1B;
+            background-color: #ffffff;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+            border-radius: 0;
+        }
+        .prose blockquote p { margin: 0; }
+
+        /* ── Lists: hexagon bullets ── */
+        .prose ul { list-style: none; padding-left: 0; }
+        .prose ul li {
+            position: relative;
+            padding-left: 1.75rem;
+            margin-bottom: 0.4rem;
+            line-height: 1.7;
+        }
+        .prose ul li::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0.45em;
+            width: 10px;
+            height: 10px;
+            background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 2L21 7V17L12 22L3 17V7L12 2Z' stroke='%23F26423' stroke-width='2.5' stroke-linejoin='miter'/%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+        .prose ol { list-style-type: decimal; padding-left: 1.5rem; }
+        .prose li { margin-bottom: 0.4rem; }
+
+        /* ── Headings ── */
+        .prose h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            padding-top: 1.5rem;
+            border-top: 4px solid #F1BC1B;
+            color: #2C2C2C;
+        }
+        .prose h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+            color: #2C2C2C;
+        }
+        .prose h4 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #2C2C2C;
+        }
+        .prose p { margin-bottom: 1rem; line-height: 1.75; }
+        .prose a { color: #D4551A; text-decoration: none; }
+        .prose a:hover { color: #e34613; text-decoration: underline; }
+        .prose hr { border: none; border-top: 1px solid #e5e5e5; margin: 2rem 0; }
+
+        /* ── Callout boxes: Bauhaus — border-4 yellow, white bg, icon + title ── */
+        .callout-box {
+            background-color: #ffffff;
+            border: 4px solid #F1BC1B;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+        }
+        .callout-warning {
+            border-color: #D4551A;
+        }
+        .callout-important {
+            border-color: #2C2C2C;
+        }
+        .callout-box .callout-inner {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+        .callout-box .callout-title {
+            font-weight: 600;
+            color: #2C2C2C;
+            margin-bottom: 0.25rem;
+        }
+        .callout-box .callout-body {
+            font-size: 0.875rem;
+            line-height: 1.6;
+            color: rgba(44,44,44,0.85);
+        }
+
+        
+    
+        /* Code block copy button */
+        .code-wrapper {
+            position: relative;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            font-family: 'Inter Tight', system-ui, sans-serif;
+            background: rgba(255,255,255,0.1);
+            color: #abb2bf;
+            border: 1px solid rgba(255,255,255,0.15);
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.15s ease, background 0.15s ease;
+            z-index: 10;
+            line-height: 1.4;
+            border-radius: 4px;
+            user-select: none;
+        }
+        .code-wrapper:hover .copy-btn {
+            opacity: 1;
+        }
+        .copy-btn:hover,
+        .copy-btn:focus {
+            background: rgba(255,255,255,0.2);
+            color: #ffffff;
+            outline: 2px solid #D4551A;
+            outline-offset: 1px;
+        }
+        .copy-btn.copied {
+            color: #98c379;
+            background: rgba(152, 195, 121, 0.15);
+            opacity: 1;
+        }
+    
+        /* Right-hand TOC sidebar */
+        .toc-sidebar {
+            width: 14rem;
+            flex-shrink: 0;
+        }
+        .toc-sidebar a {
+            display: block;
+            padding: 0.375rem 0;
+            font-size: 0.8125rem;
+            line-height: 1.4;
+            color: #6b7280;
+            text-decoration: none;
+            transition: color 0.15s ease;
+            border-left: 2px solid transparent;
+            padding-left: 0.75rem;
+        }
+        .toc-sidebar a:hover {
+            color: #111827;
+        }
+        .toc-sidebar a.toc-active {
+            color: #ea580c;
+            border-left-color: #ea580c;
+            font-weight: 500;
+        }
+        .toc-sidebar a.toc-h3 {
+            padding-left: 1.5rem;
+            font-size: 0.75rem;
+        }
+        .toc-sidebar .toc-back-to-top {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e5e7eb;
+        }
+        .toc-sidebar .toc-back-to-top a {
+            border-left: none;
+            padding-left: 0;
+            font-weight: 500;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .toc-sidebar .toc-back-to-top a:hover {
+            color: #ea580c;
+        }
+    </style>
+</head>
+
+<body class="font-sans bg-off-white text-charcoal">
+
+    <!-- Shared header — single source of truth -->
+    <script src="includes/header.js"></script>
+
+    <!-- Breadcrumb — orange › separators -->
+    <div class="bg-white border-b border-gray-100">
+        <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <div class="flex items-center gap-2 text-sm flex-wrap">
+                <a href="index.html" class="text-orange hover:text-orange-600 transition-colors no-underline">Home</a> <span class="text-orange font-medium">›</span> <a href="modules.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">Modules</a> <span class="text-orange font-medium">›</span> <a href="module-sales.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">Sales</a> <span class="text-orange font-medium">›</span> <span class="text-charcoal font-medium">Magento_Sales Overview</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="flex gap-8">
+
+            <!-- Left Sidebar (desktop) -->
+            <aside class="hidden lg:block w-64 flex-shrink-0">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4">Sales Module</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="module-sales-overview.html" class="block px-3 py-2 text-sm text-orange font-semibold bg-orange-50 border-l-4 border-orange pl-2 transition-colors no-underline">Overview</a></li>
+<li class="pl-0"><a href="module-sales-architecture.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Architecture</a></li>
+<li class="pl-0"><a href="module-sales-execution-flows.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Execution Flows</a></li>
+<li class="pl-0"><a href="module-sales-plugins-and-observers.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Plugins & Observers</a></li>
+<li class="pl-0"><a href="module-sales-integrations.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Integrations</a></li>
+<li class="pl-0"><a href="module-sales-anti-patterns.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Anti-Patterns</a></li>
+<li class="pl-0"><a href="module-sales-performance.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Performance</a></li>
+<li class="pl-0"><a href="module-sales-known-issues.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Known Issues</a></li>
+<li class="pl-0"><a href="module-sales-version-compatibility.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Version Compatibility</a></li>
+</ul>
+<h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4 mt-8">Other Modules</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="module-catalog.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Catalog</a></li>
+<li class="pl-0"><a href="module-checkout.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Checkout</a></li>
+<li class="pl-0"><a href="module-customer.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Customer</a></li>
+<li class="pl-0"><a href="module-quote.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Quote</a></li>
+</ul>
+                </div>
+            </aside>
+
+            <!-- Article — square corners, border-t-4 orange accent -->
+            <main id="main-content" class="flex-1 min-w-0">
+                <article class="bg-white shadow-sm border border-gray-100 border-t-4 border-t-orange p-8 md:p-12">
+                    <!-- Title block -->
+                    <div class="mb-8">
+                        <span class="inline-block px-3 py-1.5 text-xs font-medium bg-charcoal-50 text-charcoal border border-charcoal-100">Overview</span>
+                        <h1 class="text-3xl md:text-4xl font-extrabold text-charcoal mt-3 mb-3">Magento_Sales Overview</h1>
+                        <p class="text-charcoal-300 text-lg mb-4">Magento_Sales Overview</p>
+                        <!-- Meta pills -->
+                        <div class="flex flex-wrap gap-2"><span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-charcoal text-white">Magento 2.4.7+</span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-charcoal-50 text-charcoal border border-charcoal-100">Magento_Sales</span></div>
+                    </div>
+
+                    <hr class="border-0 border-t border-gray-100 mb-8">
+
+                    <!-- Content -->
+                    <div class="prose max-w-none">
+                        <h1 id="magento_sales-module">Magento_Sales Module</h1>
+<h2 id="overview">Overview</h2>
+<p>The Magento_Sales module is the cornerstone of Adobe Commerce's order management system, providing comprehensive functionality for order lifecycle management, invoice generation, shipment processing, and credit memo handling. This module implements the complete sales workflow from quote conversion through order fulfillment and post-sales operations.</p>
+<p><strong>Module Namespace:</strong> <code>Magento\Sales</code>
+<strong>Area Coverage:</strong> global, adminhtml, frontend, webapi_rest, webapi_soap, crontab
+<strong>Primary Dependencies:</strong> Magento_Store, Magento_Customer, Magento_Catalog, Magento_Payment, Magento_Tax, Magento_Quote</p>
+<h2 id="core-responsibilities">Core Responsibilities</h2>
+<h3 id="order-management">Order Management</h3>
+<p>The Sales module manages the complete order entity lifecycle:</p>
+<ul>
+<li><strong>Order Creation</strong>: Converts quotes to orders with all associated data (items, addresses, payment, shipping)</li>
+<li><strong>Order State Machine</strong>: Manages order states (new, processing, complete, closed, canceled, holded) and statuses (pending, pending_payment, processing, complete, closed, canceled, holded, payment_review, fraud)</li>
+<li><strong>Order Grid</strong>: Provides admin interface for order search, filtering, and bulk operations</li>
+<li><strong>Order History</strong>: Maintains comprehensive order history with comments, status changes, and notification tracking</li>
+</ul>
+<h3 id="invoice-management">Invoice Management</h3>
+<p>Invoice generation and management capabilities:</p>
+<ul>
+<li><strong>Invoice Creation</strong>: Generates invoices for full or partial order amounts</li>
+<li><strong>Invoice States</strong>: Manages invoice lifecycle (open, paid, canceled)</li>
+<li><strong>Payment Capture</strong>: Coordinates with payment gateways for fund capture</li>
+<li><strong>Invoice Numbering</strong>: Maintains sequential invoice increment IDs per store</li>
+</ul>
+<h3 id="shipment-processing">Shipment Processing</h3>
+<p>Complete shipment lifecycle management:</p>
+<ul>
+<li><strong>Shipment Creation</strong>: Generates shipments for full or partial order quantities</li>
+<li><strong>Tracking Information</strong>: Stores carrier tracking numbers and provides customer notifications</li>
+<li><strong>Package Management</strong>: Supports multi-package shipments with individual tracking</li>
+<li><strong>Shipment Comments</strong>: Maintains shipment history and notes</li>
+</ul>
+<h3 id="credit-memo-refund-processing">Credit Memo (Refund) Processing</h3>
+<p>Handles returns and refunds:</p>
+<ul>
+<li><strong>Credit Memo Creation</strong>: Processes full or partial refunds with item-level control</li>
+<li><strong>Refund Methods</strong>: Supports online refunds (payment gateway) and offline refunds</li>
+<li><strong>Inventory Restocking</strong>: Coordinates with inventory module for stock restoration</li>
+<li><strong>Adjustment Fees</strong>: Handles adjustment fees and shipping refunds</li>
+</ul>
+<h2 id="entity-hierarchy">Entity Hierarchy</h2>
+<pre><code>Order (sales_order)
+├── Order Items (sales_order_item)
+│   └── Item Options (serialized configuration)
+├── Order Addresses (sales_order_address)
+│   └── Billing Address
+│   └── Shipping Address
+├── Order Payment (sales_order_payment)
+│   └── Payment Transactions (sales_payment_transaction)
+├── Order Status History (sales_order_status_history)
+├── Invoices (sales_invoice)
+│   ├── Invoice Items (sales_invoice_item)
+│   └── Invoice Comments (sales_invoice_comment)
+├── Shipments (sales_shipment)
+│   ├── Shipment Items (sales_shipment_item)
+│   ├── Shipment Tracks (sales_shipment_track)
+│   └── Shipment Comments (sales_shipment_comment)
+└── Credit Memos (sales_creditmemo)
+    ├── Credit Memo Items (sales_creditmemo_item)
+    └── Credit Memo Comments (sales_creditmemo_comment)
+</code></pre>
+<h2 id="key-service-contracts">Key Service Contracts</h2>
+<h3 id="order-management-service-contracts">Order Management Service Contracts</h3>
+<pre><code class="language-php">&lt;?php
+namespace Magento\Sales\Api;
+
+use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Framework\Exception\NoSuchEntityException;
+
+/**
+ * Order repository interface for CRUD operations
+ */
+interface OrderRepositoryInterface
+{
+    /**
+     * Load order by entity ID
+     *
+     * @param int $id
+     * @return OrderInterface
+     * @throws NoSuchEntityException
+     */
+    public function get($id);
+
+    /**
+     * Find orders by search criteria
+     *
+     * @param \Magento\Framework\Api\SearchCriteriaInterface $searchCriteria
+     * @return \Magento\Sales\Api\Data\OrderSearchResultInterface
+     */
+    public function getList(\Magento\Framework\Api\SearchCriteriaInterface $searchCriteria);
+
+    /**
+     * Save order
+     *
+     * @param OrderInterface $entity
+     * @return OrderInterface
+     */
+    public function save(OrderInterface $entity);
+
+    /**
+     * Delete order
+     *
+     * @param OrderInterface $entity
+     * @return bool
+     */
+    public function delete(OrderInterface $entity);
+}
+</code></pre>
+<h3 id="order-management-interface">Order Management Interface</h3>
+<pre><code class="language-php">&lt;?php
+namespace Magento\Sales\Api;
+
+/**
+ * High-level order management operations
+ */
+interface OrderManagementInterface
+{
+    /**
+     * Actual 2.4.7 signatures — no PHP return types, only @return docblocks
+     */
+
+    /** @return \Magento\Sales\Api\Data\OrderInterface */
+    public function cancel($id);
+
+    /** @return \Magento\Sales\Api\Data\OrderStatusHistorySearchResultInterface */
+    public function getCommentsList($id);
+
+    /** @return bool */
+    public function addComment($id, \Magento\Sales\Api\Data\OrderStatusHistoryInterface $statusHistory);
+
+    /** @return bool */
+    public function notify($id);
+
+    /** @return string */
+    public function getStatus($id);
+
+    /** @return bool */
+    public function hold($id);
+
+    /** @return bool */
+    public function unHold($id);
+
+    /** @return \Magento\Sales\Api\Data\OrderInterface */
+    public function place(\Magento\Sales\Api\Data\OrderInterface $order);
+}
+</code></pre>
+<h3 id="invoice-service-contract">Invoice Service Contract</h3>
+<pre><code class="language-php">&lt;?php
+namespace Magento\Sales\Api;
+
+/**
+ * Invoice management service
+ */
+interface InvoiceManagementInterface
+{
+    /**
+     * Actual 2.4.7 signatures — no PHP return types
+     */
+
+    /** @return string */
+    public function setCapture($id);
+
+    /** @return \Magento\Sales\Api\Data\InvoiceCommentSearchResultInterface */
+    public function getCommentsList($id);
+
+    /** @return bool */
+    public function notify($id);
+
+    /** @return bool */
+    public function setVoid($id);
+}
+</code></pre>
+<h3 id="shipment-management">Shipment Management</h3>
+<pre><code class="language-php">&lt;?php
+namespace Magento\Sales\Api;
+
+/**
+ * Shipment management service
+ */
+interface ShipmentManagementInterface
+{
+    /**
+     * Actual 2.4.7 signatures — no PHP return types
+     */
+
+    /** @return string */
+    public function getLabel($id);
+
+    /** @return \Magento\Sales\Api\Data\ShipmentCommentSearchResultInterface */
+    public function getCommentsList($id);
+
+    /** @return bool */
+    public function notify($id);
+}
+</code></pre>
+<h2 id="configuration-structure">Configuration Structure</h2>
+<h3 id="module-configuration-etcmodulexml">Module Configuration (etc/module.xml)</h3>
+<pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;config xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+        xsi:noNamespaceSchemaLocation=&quot;urn:magento:framework:Module/etc/module.xsd&quot;&gt;
+    &lt;module name=&quot;Magento_Sales&quot;&gt;
+        &lt;sequence&gt;
+            &lt;module name=&quot;Magento_Rule&quot;/&gt;
+            &lt;module name=&quot;Magento_Catalog&quot;/&gt;
+            &lt;module name=&quot;Magento_Customer&quot;/&gt;
+            &lt;module name=&quot;Magento_Payment&quot;/&gt;
+            &lt;module name=&quot;Magento_SalesSequence&quot;/&gt;
+        &lt;/sequence&gt;
+    &lt;/module&gt;
+&lt;/config&gt;
+</code></pre>
+<h3 id="admin-routes-etcadminhtmlroutesxml">Admin Routes (etc/adminhtml/routes.xml)</h3>
+<pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;config xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+        xsi:noNamespaceSchemaLocation=&quot;urn:magento:framework:App/etc/routes.xsd&quot;&gt;
+    &lt;router id=&quot;admin&quot;&gt;
+        &lt;route id=&quot;sales&quot; frontName=&quot;sales&quot;&gt;
+            &lt;module name=&quot;Magento_Sales&quot;/&gt;
+        &lt;/route&gt;
+    &lt;/router&gt;
+&lt;/config&gt;
+</code></pre>
+<h3 id="web-api-configuration-etcwebapixml">Web API Configuration (etc/webapi.xml)</h3>
+<pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;routes xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+        xsi:noNamespaceSchemaLocation=&quot;urn:magento:module:Magento_Webapi:etc/webapi.xsd&quot;&gt;
+
+    &lt;!-- Order Repository --&gt;
+    &lt;route url=&quot;/V1/orders/:id&quot; method=&quot;GET&quot;&gt;
+        &lt;service class=&quot;Magento\Sales\Api\OrderRepositoryInterface&quot; method=&quot;get&quot;/&gt;
+        &lt;resources&gt;
+            &lt;resource ref=&quot;Magento_Sales::actions_view&quot;/&gt;
+        &lt;/resources&gt;
+    &lt;/route&gt;
+
+    &lt;route url=&quot;/V1/orders&quot; method=&quot;GET&quot;&gt;
+        &lt;service class=&quot;Magento\Sales\Api\OrderRepositoryInterface&quot; method=&quot;getList&quot;/&gt;
+        &lt;resources&gt;
+            &lt;resource ref=&quot;Magento_Sales::actions_view&quot;/&gt;
+        &lt;/resources&gt;
+    &lt;/route&gt;
+
+    &lt;!-- Order Management --&gt;
+    &lt;route url=&quot;/V1/orders/:id/cancel&quot; method=&quot;POST&quot;&gt;
+        &lt;service class=&quot;Magento\Sales\Api\OrderManagementInterface&quot; method=&quot;cancel&quot;/&gt;
+        &lt;resources&gt;
+            &lt;resource ref=&quot;Magento_Sales::cancel&quot;/&gt;
+        &lt;/resources&gt;
+    &lt;/route&gt;
+
+    &lt;route url=&quot;/V1/orders/:id/hold&quot; method=&quot;POST&quot;&gt;
+        &lt;service class=&quot;Magento\Sales\Api\OrderManagementInterface&quot; method=&quot;hold&quot;/&gt;
+        &lt;resources&gt;
+            &lt;resource ref=&quot;Magento_Sales::hold&quot;/&gt;
+        &lt;/resources&gt;
+    &lt;/route&gt;
+
+    &lt;!-- Invoice Management --&gt;
+    &lt;route url=&quot;/V1/invoices/:id/capture&quot; method=&quot;POST&quot;&gt;
+        &lt;service class=&quot;Magento\Sales\Api\InvoiceManagementInterface&quot; method=&quot;setCapture&quot;/&gt;
+        &lt;resources&gt;
+            &lt;resource ref=&quot;Magento_Sales::sales_invoice&quot;/&gt;
+        &lt;/resources&gt;
+    &lt;/route&gt;
+
+    &lt;!-- Shipment Management --&gt;
+    &lt;route url=&quot;/V1/shipment/:id/label&quot; method=&quot;GET&quot;&gt;
+        &lt;service class=&quot;Magento\Sales\Api\ShipmentManagementInterface&quot; method=&quot;getLabel&quot;/&gt;
+        &lt;resources&gt;
+            &lt;resource ref=&quot;Magento_Sales::sales_shipment&quot;/&gt;
+        &lt;/resources&gt;
+    &lt;/route&gt;
+&lt;/routes&gt;
+</code></pre>
+<h2 id="database-schema-overview">Database Schema Overview</h2>
+<h3 id="core-tables">Core Tables</h3>
+<p><strong>sales_order</strong>: Main order entity with customer info, totals, state/status
+- Primary columns: entity_id, increment_id, state, status, customer_id, grand_total, base_grand_total, store_id, created_at, updated_at</p>
+<p><strong>sales_order_item</strong>: Order line items with product information
+- Primary columns: item_id, order_id, product_id, sku, name, qty_ordered, qty_invoiced, qty_shipped, qty_refunded, price, base_price, tax_amount, discount_amount</p>
+<p><strong>sales_order_address</strong>: Billing and shipping addresses
+- Primary columns: entity_id, parent_id (order_id), address_type (billing/shipping), firstname, lastname, street, city, region, postcode, country_id</p>
+<p><strong>sales_order_payment</strong>: Payment information and transactions
+- Primary columns: entity_id, parent_id (order_id), method, amount_ordered, amount_paid, base_amount_ordered, base_amount_paid</p>
+<p><strong>sales_invoice</strong>: Invoice records linked to orders
+- Primary columns: entity_id, order_id, increment_id, state, grand_total, base_grand_total, created_at</p>
+<p><strong>sales_shipment</strong>: Shipment records with tracking
+- Primary columns: entity_id, order_id, increment_id, total_qty, created_at</p>
+<p><strong>sales_creditmemo</strong>: Credit memo (refund) records
+- Primary columns: entity_id, order_id, increment_id, state, grand_total, base_grand_total, adjustment_positive, adjustment_negative</p>
+<p><strong>sales_order_status</strong>: Order status definitions
+- Primary columns: status, label</p>
+<p><strong>sales_order_status_state</strong>: Maps statuses to states
+- Primary columns: status, state, is_default, visible_on_front</p>
+<h2 id="extension-points">Extension Points</h2>
+<h3 id="plugins-interceptors">Plugins (Interceptors)</h3>
+<p>Common plugin targets for order customization:</p>
+<pre><code class="language-php">&lt;?php
+namespace Vendor\Module\Plugin\Sales\Model\Service;
+
+use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Model\Service\OrderService;
+
+/**
+ * Plugin for order placement customization
+ */
+class OrderServiceExtend
+{
+    /**
+     * Before order placement - validate custom business rules
+     *
+     * @param OrderService $subject
+     * @param OrderInterface $order
+     * @return array
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
+    public function beforePlace(
+        OrderService $subject,
+        OrderInterface $order
+    ): array {
+        // Custom validation logic
+        if (!$this-&gt;validateCustomRules($order)) {
+            throw new \Magento\Framework\Exception\LocalizedException(
+                __('Order does not meet custom business rules.')
+            );
+        }
+
+        return [$order];
+    }
+
+    /**
+     * After order placement - execute post-order logic
+     *
+     * @param OrderService $subject
+     * @param OrderInterface $result
+     * @return OrderInterface
+     */
+    public function afterPlace(
+        OrderService $subject,
+        OrderInterface $result
+    ): OrderInterface {
+        // Execute custom post-order logic
+        $this-&gt;executeCustomPostOrderLogic($result);
+
+        return $result;
+    }
+
+    private function validateCustomRules(OrderInterface $order): bool
+    {
+        // Implementation
+        return true;
+    }
+
+    private function executeCustomPostOrderLogic(OrderInterface $order): void
+    {
+        // Implementation
+    }
+}
+</code></pre>
+<h3 id="event-observers">Event Observers</h3>
+<p>Critical sales events for customization:</p>
+<pre><code class="language-php">&lt;?php
+namespace Vendor\Module\Observer;
+
+use Magento\Framework\Event\Observer;
+use Magento\Framework\Event\ObserverInterface;
+use Magento\Sales\Model\Order;
+
+/**
+ * Observer for sales_order_place_after event
+ */
+class OrderPlaceAfterObserver implements ObserverInterface
+{
+    /**
+     * Execute after order is placed
+     *
+     * @param Observer $observer
+     * @return void
+     */
+    public function execute(Observer $observer): void
+    {
+        /** @var Order $order */
+        $order = $observer-&gt;getEvent()-&gt;getOrder();
+
+        // Custom post-order processing
+        $this-&gt;processOrderPlacement($order);
+    }
+
+    private function processOrderPlacement(Order $order): void
+    {
+        // Custom implementation
+        // - Send to ERP system
+        // - Trigger warehouse notification
+        // - Update external inventory
+        // - Create shipping labels
+    }
+}
+</code></pre>
+<p>Key sales events:
+- <code>sales_order_place_before</code>: Before order is placed
+- <code>sales_order_place_after</code>: After order is placed
+- <code>sales_order_save_before</code>: Before order save
+- <code>sales_order_save_after</code>: After order save
+- <code>sales_order_invoice_save_after</code>: After invoice save
+- <code>sales_order_shipment_save_after</code>: After shipment save
+- <code>sales_order_creditmemo_save_after</code>: After credit memo save
+- <code>sales_order_payment_place_start</code>: Before payment is placed
+- <code>sales_order_payment_place_end</code>: After payment is placed</p>
+<h2 id="command-line-tools">Command-Line Tools</h2>
+<h3 id="order-management-commands">Order Management Commands</h3>
+<div class="callout-box"><div class="callout-inner"><svg class="w-5 h-5 text-orange flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg><div><p class="callout-title">Note</p><div class="callout-body"><p> Magento Open Source does not include CLI commands for viewing,
+invoicing, shipping, or canceling individual orders. These operations are
+performed through the Admin Panel (Sales &gt; Orders) or via the REST/GraphQL API.</p></div></div></div></div>
+<pre><code class="language-bash"># Reindex order grid
+bin/magento indexer:reindex sales_order_grid
+
+# Example: View order via REST API
+# curl -X GET https://your-store.test/rest/V1/orders/123 -H &quot;Authorization: Bearer {token}&quot;
+
+# Example: Cancel order via REST API
+# curl -X POST https://your-store.test/rest/V1/orders/123/cancel -H &quot;Authorization: Bearer {token}&quot;
+</code></pre>
+<h2 id="performance-considerations">Performance Considerations</h2>
+<h3 id="order-grid-indexing">Order Grid Indexing</h3>
+<p>The order grid uses a flat table (<code>sales_order_grid</code>) for performance:</p>
+<pre><code class="language-bash"># Reindex order grid
+bin/magento indexer:reindex sales_order_grid
+
+# Enable real-time grid updates
+bin/magento config:set dev/grid/async_indexing 0
+</code></pre>
+<h3 id="query-optimization">Query Optimization</h3>
+<p>Use service contracts with search criteria for efficient queries:</p>
+<pre><code class="language-php">&lt;?php
+use Magento\Framework\Api\SearchCriteriaBuilder;
+use Magento\Sales\Api\OrderRepositoryInterface;
+
+class OrderService
+{
+    public function __construct(
+        private OrderRepositoryInterface $orderRepository,
+        private SearchCriteriaBuilder $searchCriteriaBuilder
+    ) {}
+
+    /**
+     * Get orders efficiently with filters
+     */
+    public function getRecentOrders(int $customerId, int $limit = 10): array
+    {
+        $searchCriteria = $this-&gt;searchCriteriaBuilder
+            -&gt;addFilter('customer_id', $customerId, 'eq')
+            -&gt;addFilter('created_at', date('Y-m-d', strtotime('-30 days')), 'gteq')
+            -&gt;setPageSize($limit)
+            -&gt;addSortOrder('created_at', 'DESC')
+            -&gt;create();
+
+        return $this-&gt;orderRepository-&gt;getList($searchCriteria)-&gt;getItems();
+    }
+}
+</code></pre>
+<h2 id="security-considerations">Security Considerations</h2>
+<h3 id="acl-access-control-lists">ACL (Access Control Lists)</h3>
+<p>Always protect admin operations with ACL:</p>
+<pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;config xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+        xsi:noNamespaceSchemaLocation=&quot;urn:magento:framework:Acl/etc/acl.xsd&quot;&gt;
+    &lt;acl&gt;
+        &lt;resources&gt;
+            &lt;resource id=&quot;Magento_Backend::admin&quot;&gt;
+                &lt;resource id=&quot;Magento_Sales::sales&quot; title=&quot;Sales&quot; sortOrder=&quot;10&quot;&gt;
+                    &lt;resource id=&quot;Magento_Sales::sales_operation&quot; title=&quot;Operations&quot;&gt;
+                        &lt;resource id=&quot;Magento_Sales::sales_order&quot; title=&quot;Orders&quot;/&gt;
+                        &lt;resource id=&quot;Magento_Sales::create&quot; title=&quot;Create&quot;/&gt;
+                        &lt;resource id=&quot;Magento_Sales::actions&quot; title=&quot;Actions&quot;&gt;
+                            &lt;resource id=&quot;Magento_Sales::cancel&quot; title=&quot;Cancel&quot;/&gt;
+                            &lt;resource id=&quot;Magento_Sales::hold&quot; title=&quot;Hold&quot;/&gt;
+                            &lt;resource id=&quot;Magento_Sales::unhold&quot; title=&quot;Unhold&quot;/&gt;
+                        &lt;/resource&gt;
+                    &lt;/resource&gt;
+                &lt;/resource&gt;
+            &lt;/resource&gt;
+        &lt;/resources&gt;
+    &lt;/acl&gt;
+&lt;/config&gt;
+</code></pre>
+<h3 id="pii-data-handling">PII Data Handling</h3>
+<p>Orders contain sensitive customer data. Always:
+- Use secure connections for API access
+- Implement proper authentication and authorization
+- Mask sensitive data in logs
+- Follow GDPR/CCPA requirements for data export and deletion</p>
+<h2 id="module-dependencies">Module Dependencies</h2>
+<p><strong>Required Dependencies:</strong>
+- Magento_Store: Store context and multi-store support
+- Magento_Customer: Customer entity and authentication
+- Magento_Catalog: Product information for order items
+- Magento_Quote: Quote to order conversion
+- Magento_Payment: Payment processing
+- Magento_Tax: Tax calculation for orders</p>
+<p><strong>Optional Dependencies (via soft dependencies):</strong>
+- Magento_Shipping: Shipping methods and rates
+- Magento_Inventory: Inventory management integration
+- Magento_GiftMessage: Gift message functionality
+- Magento_Bundle: Bundle product order items
+- Magento_Downloadable: Downloadable product links</p>
+<h2 id="testing-strategies">Testing Strategies</h2>
+<h3 id="unit-testing-example">Unit Testing Example</h3>
+<pre><code class="language-php">&lt;?php
+namespace Vendor\Module\Test\Unit\Model;
+
+use PHPUnit\Framework\TestCase;
+use Magento\Sales\Model\Order;
+use Vendor\Module\Model\OrderValidator;
+
+class OrderValidatorTest extends TestCase
+{
+    private OrderValidator $validator;
+
+    protected function setUp(): void
+    {
+        $this-&gt;validator = new OrderValidator();
+    }
+
+    public function testValidateOrderAmount(): void
+    {
+        $order = $this-&gt;createMock(Order::class);
+        $order-&gt;method('getGrandTotal')-&gt;willReturn(100.00);
+
+        $result = $this-&gt;validator-&gt;validateMinimumAmount($order, 50.00);
+
+        $this-&gt;assertTrue($result);
+    }
+
+    public function testInvalidOrderAmount(): void
+    {
+        $order = $this-&gt;createMock(Order::class);
+        $order-&gt;method('getGrandTotal')-&gt;willReturn(25.00);
+
+        $result = $this-&gt;validator-&gt;validateMinimumAmount($order, 50.00);
+
+        $this-&gt;assertFalse($result);
+    }
+}
+</code></pre>
+<h3 id="integration-testing">Integration Testing</h3>
+<pre><code class="language-php">&lt;?php
+namespace Vendor\Module\Test\Integration\Model;
+
+use Magento\TestFramework\Helper\Bootstrap;
+use PHPUnit\Framework\TestCase;
+use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Sales\Model\Order;
+
+class OrderRepositoryTest extends TestCase
+{
+    private OrderRepositoryInterface $orderRepository;
+
+    protected function setUp(): void
+    {
+        $this-&gt;orderRepository = Bootstrap::getObjectManager()
+            -&gt;get(OrderRepositoryInterface::class);
+    }
+
+    /**
+     * @magentoDataFixture Magento/Sales/_files/order.php
+     */
+    public function testGetOrder(): void
+    {
+        $order = $this-&gt;orderRepository-&gt;get(1);
+
+        $this-&gt;assertInstanceOf(Order::class, $order);
+        $this-&gt;assertEquals(Order::STATE_PROCESSING, $order-&gt;getState());
+    }
+}
+</code></pre>
+<h2 id="common-development-patterns">Common Development Patterns</h2>
+<h3 id="custom-order-status">Custom Order Status</h3>
+<pre><code class="language-php">&lt;?php
+namespace Vendor\Module\Setup\Patch\Data;
+
+use Magento\Framework\Setup\Patch\DataPatchInterface;
+use Magento\Sales\Model\Order\StatusFactory;
+use Magento\Sales\Model\ResourceModel\Order\Status as StatusResource;
+
+class AddCustomOrderStatus implements DataPatchInterface
+{
+    public function __construct(
+        private StatusFactory $statusFactory,
+        private StatusResource $statusResource
+    ) {}
+
+    public function apply()
+    {
+        $status = $this-&gt;statusFactory-&gt;create();
+        $status-&gt;setData([
+            'status' =&gt; 'custom_pending_approval',
+            'label' =&gt; 'Pending Approval'
+        ]);
+
+        $this-&gt;statusResource-&gt;save($status);
+
+        $status-&gt;assignState(
+            \Magento\Sales\Model\Order::STATE_NEW,
+            false,
+            true
+        );
+
+        return $this;
+    }
+
+    public static function getDependencies(): array
+    {
+        return [];
+    }
+
+    public function getAliases(): array
+    {
+        return [];
+    }
+}
+</code></pre>
+<h2 id="resources-and-documentation">Resources and Documentation</h2>
+<ul>
+<li><strong>Official DevDocs</strong>: https://developer.adobe.com/commerce/php/module-reference/module-sales/</li>
+<li><strong>Service Contracts</strong>: Review <code>Magento\Sales\Api</code> namespace interfaces</li>
+<li><strong>Database Schema</strong>: Review <code>Setup/InstallSchema.php</code> and data patches</li>
+<li><strong>Admin UI</strong>: Located in <code>view/adminhtml/</code> directory</li>
+<li><strong>REST API</strong>: <code>/rest/V1/orders</code>, <code>/rest/V1/invoices</code>, <code>/rest/V1/shipments</code></li>
+</ul>
+<h2 id="module-file-structure">Module File Structure</h2>
+<pre><code>Magento/Sales/
+├── Api/                          # Service contract interfaces
+│   ├── Data/                     # Data transfer objects
+│   ├── OrderRepositoryInterface.php
+│   ├── InvoiceRepositoryInterface.php
+│   ├── ShipmentRepositoryInterface.php
+│   └── CreditmemoRepositoryInterface.php
+├── Block/                        # View blocks
+│   ├── Adminhtml/                # Admin blocks
+│   └── Order/                    # Frontend order blocks
+├── Console/                      # CLI commands
+├── Controller/                   # HTTP controllers
+│   ├── Adminhtml/                # Admin controllers
+│   └── Order/                    # Frontend order controllers
+├── Cron/                         # Cron jobs
+├── etc/                          # Configuration files
+│   ├── adminhtml/                # Admin-specific config
+│   ├── frontend/                 # Frontend-specific config
+│   ├── di.xml                    # Dependency injection
+│   ├── module.xml                # Module declaration
+│   ├── webapi.xml                # Web API routes
+│   └── events.xml                # Event observers
+├── Helper/                       # Helper classes
+├── Model/                        # Business logic models
+│   ├── Order/                    # Order-related models
+│   ├── ResourceModel/            # Database layer
+│   └── Service/                  # Service implementations
+├── Observer/                     # Event observers
+├── Plugin/                       # Plugins (interceptors)
+├── Setup/                        # Installation/upgrade scripts
+│   └── Patch/                    # Declarative patches
+├── Test/                         # Unit and integration tests
+├── Ui/                           # UI components (grids, forms)
+└── view/                         # View layer
+    ├── adminhtml/                # Admin templates/layouts
+    │   ├── layout/
+    │   ├── templates/
+    │   └── ui_component/         # Admin grids
+    └── frontend/                 # Frontend templates/layouts
+        ├── layout/
+        └── templates/
+</code></pre>
+<hr />
+<p><strong>Last Updated</strong>: 2026-02-05
+<strong>Target Version</strong>: Adobe Commerce 2.4.7+
+<strong>Maintenance</strong>: This module is actively maintained by Adobe Commerce Core Team</p>
+<h2 id="related-guides">Related Guides</h2>
+<ul>
+<li><a href="../../guides/explanations/b2b-features.md">B2B Features Development</a></li>
+<li><a href="../../guides/explanations/indexer-system.md">Indexer System Deep Dive: Understanding Magento 2's Data Indexing Architecture</a></li>
+<li><a href="../../guides/explanations/message-queue-architecture.md">Message Queue Architecture in Magento 2</a></li>
+<li><a href="../../guides/explanations/service-contracts-repositories.md">Service Contracts vs Repositories in Magento 2</a></li>
+<li><a href="../../guides/how-to/admin-ui-components.md">Building Admin UI Components in Magento 2</a></li>
+<li><a href="../../guides/how-to/cron-jobs.md">Cron Jobs Implementation: Building Reliable Scheduled Tasks in Magento 2</a></li>
+<li><a href="../../guides/how-to/email-templates.md">Email Templates Customization</a></li>
+<li><a href="../../guides/how-to/erp-integration.md">ERP Integration Patterns for Magento 2</a></li>
+<li><a href="../../guides/how-to/testing-strategies.md">Comprehensive Testing Strategies for Magento 2</a></li>
+<li><a href="../../guides/references/cli-command-reference.md">CLI Command Reference: Complete bin/magento Guide</a></li>
+<li><a href="../../guides/references/upgrade-guide-247-248.md">Upgrade Guide: Adobe Commerce 2.4.6 to 2.4.7/2.4.8</a></li>
+<li><a href="../../guides/tutorials/custom-payment-method.md">Custom Payment Method Development: Building Secure Payment Integrations</a></li>
+<li><a href="../../guides/tutorials/custom-shipping-method.md">Custom Shipping Method Development: Building Flexible Shipping Solutions</a></li>
+<li><a href="../../guides/tutorials/declarative-schema-data-patches.md">Declarative Schema &amp; Data Patches: Modern Database Management in Magento 2</a></li>
+<li><a href="../../guides/tutorials/plugin-system-deep-dive.md">Plugin System Deep Dive: Mastering Magento 2 Interception</a></li>
+</ul>
+                    </div>
+                </article>
+            </main>
+            <!-- Right Sidebar: On This Page (desktop) -->
+            <aside class="toc-sidebar hidden xl:block" aria-label="On this page">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-semibold text-gray-900 uppercase tracking-wider mb-4 mt-0">On this page</h3>
+                    <nav id="toc-nav" class="space-y-0" aria-label="Table of contents"></nav>
+                    <div class="toc-back-to-top">
+                        <a href="#">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+                            </svg>
+                            Back to top
+                        </a>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- ================================================================
+         FOOTER — matches module-catalog.html multi-column layout exactly
+         ================================================================ -->
+    <footer class="relative pt-12 bg-white border-t border-charcoal mt-16">
+        <div class="max-w-screen-2xl mx-auto w-full px-4 sm:px-6 lg:px-8">
+            <div>
+                <a href="index.html" class="inline-flex items-center no-underline">
+                    <svg width="30" height="33" viewBox="0 0 30 33" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Magento Association logo" role="img">
+                        <path d="M0 4.06492H29.6763V31.8882C29.6763 32.502 29.1713 33 28.5487 33H1.12762C0.505079 33 0 32.502 0 31.8882V4.06492Z" fill="#34323A"/>
+                        <path d="M1.26857 0H28.4078C29.1066 0 29.6763 0.561678 29.6763 1.25075V4.06492H0V1.25075C0 0.561678 0.569682 0 1.26857 0Z" fill="#C9C9C9"/>
+                        <path d="M2.37269 3.0458C2.94031 3.0458 3.40046 2.59211 3.40046 2.03246C3.40046 1.47281 2.94031 1.01913 2.37269 1.01913C1.80506 1.01913 1.34491 1.47281 1.34491 2.03246C1.34491 2.59211 1.80506 3.0458 2.37269 3.0458Z" fill="#848484"/>
+                        <path d="M5.28571 3.0458C5.85334 3.0458 6.31349 2.59211 6.31349 2.03246C6.31349 1.47281 5.85334 1.01913 5.28571 1.01913C4.71809 1.01913 4.25793 1.47281 4.25793 2.03246C4.25793 2.59211 4.71809 3.0458 5.28571 3.0458Z" fill="#848484"/>
+                        <path d="M14.7883 7.46973L4.90405 13.0923V24.349L7.54104 25.8487V14.5978L14.7883 10.4692L22.0415 14.5978V25.8487L24.6785 24.349V13.0923L14.7883 7.46973Z" fill="#F1BC1B"/>
+                        <path d="M16.0862 26.2367L14.7883 26.9779L13.4492 26.2135V14.233L10.178 16.0975V27.3485L13.4492 29.213L14.7883 29.9773L16.0862 29.2362L19.4045 27.3485V16.0975L16.0862 14.2098V26.2367Z" fill="#F1BC1B"/>
+                    </svg>
+                    <span class="ml-3 text-xl font-bold text-charcoal">Developer Documentation</span>
+                </a>
+            </div>
+
+            <div class="grid grid-cols-12 md:gap-x-8 gap-y-12 lg:mt-12">
+                <div class="col-span-12 lg:col-span-4">
+                    <p class="hidden lg:block text-xs text-charcoal sm:text-sm">Comprehensive developer documentation for Magento 2.4.7+ — tutorials, architecture deep dives, module references, and production-ready patterns built by the community, for the community.</p>
+                    <ul class="mt-6 hidden lg:flex items-center gap-3">
+                        <li class="pl-0">
+                            <a href="https://github.com/magento/magento2" class="p-2 md:p-0" aria-label="GitHub">
+                                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                                </svg>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Guides</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="tutorials.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Tutorials</a></li>
+                            <li class="pl-0"><a href="how-to-guides.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">How-To Guides</a></li>
+                            <li class="pl-0"><a href="architecture.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Architecture</a></li>
+                            <li class="pl-0"><a href="learning-paths.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Learning Paths</a></li>
+                            <li class="pl-0"><a href="references.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">References</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Modules</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="module-catalog.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Catalog</a></li>
+                            <li class="pl-0"><a href="module-checkout.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Checkout</a></li>
+                            <li class="pl-0"><a href="module-sales.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Sales</a></li>
+                            <li class="pl-0"><a href="module-customer.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Customer</a></li>
+                            <li class="pl-0"><a href="module-quote.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Quote</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Community</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Magento Community</a></li>
+                            <li class="pl-0"><a href="https://magento.stackexchange.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Stack Exchange</a></li>
+                            <li class="pl-0"><a href="https://marketplace.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Marketplace</a></li>
+                            <li class="pl-0"><a href="https://github.com/magento/magento2" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">GitHub</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Support</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://github.com/magento/magento2/issues" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Report Issues</a></li>
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Community Resources</a></li>
+                            <li class="pl-0"><a href="https://developer.adobe.com/commerce/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Adobe Commerce Docs</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-12 border-t pt-6 pb-16 border-charcoal">
+                <p class="text-xs text-charcoal">
+                    &copy; 2026 Magento 2 Developer Documentation. Magento&reg; is a registered trademark of Adobe Inc.
+                </p>
+                <p class="mt-6 text-xs text-charcoal">
+                    This documentation provides guidance for Magento 2 developers and extension builders. For merchant documentation, visit the <a href="index.html" class="text-orange hover:text-orange-600 transition-colors">merchant documentation</a>.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Initialize highlight.js -->
+    <script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('pre code').forEach(function (el) {
+        hljs.highlightElement(el);
+    });
+    document.querySelectorAll('pre').forEach(function (pre) {
+        if (pre.parentNode.classList && pre.parentNode.classList.contains('code-wrapper')) return;
+        var wrapper = document.createElement('div');
+        wrapper.className = 'code-wrapper';
+        pre.parentNode.insertBefore(wrapper, pre);
+        wrapper.appendChild(pre);
+        var btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.setAttribute('type', 'button');
+        btn.setAttribute('aria-label', 'Copy code to clipboard');
+        btn.setAttribute('title', 'Copy');
+        btn.textContent = 'Copy';
+        wrapper.appendChild(btn);
+        btn.addEventListener('click', function () {
+            var code = pre.querySelector('code');
+            var text = code ? (code.innerText || code.textContent) : (pre.innerText || pre.textContent);
+            navigator.clipboard.writeText(text).then(function () {
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            }).catch(function () {
+                var range = document.createRange();
+                range.selectNode(code || pre);
+                window.getSelection().removeAllRanges();
+                window.getSelection().addRange(range);
+                document.execCommand('copy');
+                window.getSelection().removeAllRanges();
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            });
+        });
+    });
+});
+</script>
+
+
+<script>
+(function() {
+    var nav = document.getElementById('toc-nav');
+    if (!nav) return;
+    var article = document.getElementById('main-content');
+    if (!article) return;
+    var headings = article.querySelectorAll('h2[id], h3[id]');
+    if (headings.length < 3) {
+        // Hide the entire TOC sidebar if fewer than 3 headings
+        var sidebar = nav.closest('.toc-sidebar');
+        if (sidebar) sidebar.style.display = 'none';
+        return;
+    }
+    var ids = [];
+    headings.forEach(function(h) {
+        var a = document.createElement('a');
+        a.href = '#' + h.id;
+        a.textContent = h.textContent.replace(/^#+\s*/, '').replace(/\s+/g, ' ').trim();
+        if (h.tagName === 'H3') a.classList.add('toc-h3');
+        nav.appendChild(a);
+        ids.push(h.id);
+    });
+    // Scroll-spy with IntersectionObserver
+    var links = nav.querySelectorAll('a');
+    var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                links.forEach(function(l) { l.classList.remove('toc-active'); });
+                var active = nav.querySelector('a[href="#' + entry.target.id + '"]');
+                if (active) active.classList.add('toc-active');
+            }
+        });
+    }, { rootMargin: '-80px 0px -70% 0px', threshold: 0 });
+    headings.forEach(function(h) { observer.observe(h); });
+})();
+</script>
+</body>
+</html>

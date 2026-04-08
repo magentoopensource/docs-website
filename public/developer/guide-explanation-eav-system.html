@@ -1,0 +1,1668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EAV System Architecture: Understanding Entity-Attribute-Value in Magento 2 — Magento 2 Developer Documentation</title>
+    <meta name="description" content="Comprehensive explanation of Magento 2's EAV system: table structure, creating custom EAV entities and attributes, attribute sets and groups, flat tables for performance, when to use EAV vs flat tables, and optimization strategies">
+
+    <!-- Google Fonts: Inter Tight only. Courier New used for code. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Highlight.js: syntax highlighting for code blocks -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/php.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/ini.min.js"></script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        charcoal: {
+                            DEFAULT: '#2c2c2c', 50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6',
+                            300: '#6B6B6B', 400: '#474747', 500: '#2c2c2c', 600: '#262626',
+                            700: '#202020', 800: '#1c1c1c', 900: '#191919', 950: '#121212'
+                        },
+                        orange: {
+                            DEFAULT: '#D4551A', 50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad',
+                            300: '#f9ae78', 400: '#f58242', 500: '#f26423', 600: '#e34613',
+                            700: '#bc3312', 800: '#962a16', 900: '#792515', 950: '#411009'
+                        },
+                        yellow: {
+                            DEFAULT: '#B8860B', 50: '#fffdeb', 100: '#fdf9c8', 200: '#fbf38c',
+                            300: '#f8e651', 400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a',
+                            700: '#b1670c', 800: '#8f5111', 900: '#764311', 950: '#442204'
+                        },
+                        'off-white': '#FAFAFA',
+                    },
+                    fontFamily: {
+                        sans: ['Inter Tight', 'system-ui', '-apple-system', 'sans-serif'],
+                        mono: ['Courier New', 'Courier', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* ── Force light mode ── */
+        :root { color-scheme: light only; }
+
+        [x-cloak] { display: none !important; }
+
+        /* ── Scroll offset for sticky header ── */
+        .prose h2, .prose h3 { scroll-margin-top: 5rem; }
+
+        /* ── Code blocks: Bauhaus charcoal bg, no border-radius, highlight.js override ── */
+        .prose pre {
+            background-color: #2C2C2C !important;
+            border-radius: 0 !important;
+            padding: 1.25rem;
+            overflow-x: auto;
+            font-size: 0.875rem;
+            line-height: 1.7;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 1.5rem 0;
+        }
+        .prose pre code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            background: transparent !important;
+            padding: 0;
+                    color: #abb2bf;
+        }
+        /* Override highlight.js theme background to match Bauhaus charcoal */
+        .hljs {
+            background: #2C2C2C !important;
+            color: #abb2bf !important;
+            border-radius: 0 !important;
+        }
+
+        /* ── Inline code: charcoal bg, yellow text, no border-radius ── */
+        .prose code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.85em;
+        }
+        .prose :not(pre) > code {
+            background-color: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2em 0.45em;
+            border-radius: 0;
+        }
+
+        /* ── Step-code: same charcoal/yellow style for UI path chips ── */
+        .step-code {
+            background: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2rem 0.5rem;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            border-radius: 0;
+        }
+
+        /* ── Tables: no border-radius, charcoal header ── */
+        .prose table { width: 100%; border-collapse: collapse; }
+        .prose th {
+            background-color: #2C2C2C;
+            color: #ffffff;
+            font-weight: 600;
+            text-align: left;
+            padding: 0.75rem 1rem;
+            border-bottom: 2px solid #2C2C2C;
+            border-radius: 0;
+        }
+        .prose td { padding: 0.75rem 1rem; border-bottom: 1px solid #e5e5e5; }
+        .prose tr:hover { background-color: #fafafa; }
+
+        /* ── Blockquote: Bauhaus style — border-4 yellow, square, no left-only border ── */
+        .prose blockquote {
+            border: 4px solid #F1BC1B;
+            background-color: #ffffff;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+            border-radius: 0;
+        }
+        .prose blockquote p { margin: 0; }
+
+        /* ── Lists: hexagon bullets ── */
+        .prose ul { list-style: none; padding-left: 0; }
+        .prose ul li {
+            position: relative;
+            padding-left: 1.75rem;
+            margin-bottom: 0.4rem;
+            line-height: 1.7;
+        }
+        .prose ul li::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0.45em;
+            width: 10px;
+            height: 10px;
+            background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 2L21 7V17L12 22L3 17V7L12 2Z' stroke='%23F26423' stroke-width='2.5' stroke-linejoin='miter'/%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+        .prose ol { list-style-type: decimal; padding-left: 1.5rem; }
+        .prose li { margin-bottom: 0.4rem; }
+
+        /* ── Headings ── */
+        .prose h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            padding-top: 1.5rem;
+            border-top: 4px solid #F1BC1B;
+            color: #2C2C2C;
+        }
+        .prose h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+            color: #2C2C2C;
+        }
+        .prose h4 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #2C2C2C;
+        }
+        .prose p { margin-bottom: 1rem; line-height: 1.75; }
+        .prose a { color: #D4551A; text-decoration: none; }
+        .prose a:hover { color: #e34613; text-decoration: underline; }
+        .prose hr { border: none; border-top: 1px solid #e5e5e5; margin: 2rem 0; }
+
+        /* ── Callout boxes: Bauhaus — border-4 yellow, white bg, icon + title ── */
+        .callout-box {
+            background-color: #ffffff;
+            border: 4px solid #F1BC1B;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+        }
+        .callout-warning {
+            border-color: #D4551A;
+        }
+        .callout-important {
+            border-color: #2C2C2C;
+        }
+        .callout-box .callout-inner {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+        .callout-box .callout-title {
+            font-weight: 600;
+            color: #2C2C2C;
+            margin-bottom: 0.25rem;
+        }
+        .callout-box .callout-body {
+            font-size: 0.875rem;
+            line-height: 1.6;
+            color: rgba(44,44,44,0.85);
+        }
+
+        
+    
+        /* Code block copy button */
+        .code-wrapper {
+            position: relative;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            font-family: 'Inter Tight', system-ui, sans-serif;
+            background: rgba(255,255,255,0.1);
+            color: #abb2bf;
+            border: 1px solid rgba(255,255,255,0.15);
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.15s ease, background 0.15s ease;
+            z-index: 10;
+            line-height: 1.4;
+            border-radius: 4px;
+            user-select: none;
+        }
+        .code-wrapper:hover .copy-btn {
+            opacity: 1;
+        }
+        .copy-btn:hover,
+        .copy-btn:focus {
+            background: rgba(255,255,255,0.2);
+            color: #ffffff;
+            outline: 2px solid #D4551A;
+            outline-offset: 1px;
+        }
+        .copy-btn.copied {
+            color: #98c379;
+            background: rgba(152, 195, 121, 0.15);
+            opacity: 1;
+        }
+    
+        /* Right-hand TOC sidebar */
+        .toc-sidebar {
+            width: 14rem;
+            flex-shrink: 0;
+        }
+        .toc-sidebar a {
+            display: block;
+            padding: 0.375rem 0;
+            font-size: 0.8125rem;
+            line-height: 1.4;
+            color: #6b7280;
+            text-decoration: none;
+            transition: color 0.15s ease;
+            border-left: 2px solid transparent;
+            padding-left: 0.75rem;
+        }
+        .toc-sidebar a:hover {
+            color: #111827;
+        }
+        .toc-sidebar a.toc-active {
+            color: #ea580c;
+            border-left-color: #ea580c;
+            font-weight: 500;
+        }
+        .toc-sidebar a.toc-h3 {
+            padding-left: 1.5rem;
+            font-size: 0.75rem;
+        }
+        .toc-sidebar .toc-back-to-top {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e5e7eb;
+        }
+        .toc-sidebar .toc-back-to-top a {
+            border-left: none;
+            padding-left: 0;
+            font-weight: 500;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .toc-sidebar .toc-back-to-top a:hover {
+            color: #ea580c;
+        }
+    </style>
+</head>
+
+<body class="font-sans bg-off-white text-charcoal">
+
+    <!-- Shared header — single source of truth -->
+    <script src="includes/header.js"></script>
+
+    <!-- Breadcrumb — orange › separators -->
+    <div class="bg-white border-b border-gray-100">
+        <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <div class="flex items-center gap-2 text-sm flex-wrap">
+                <a href="index.html" class="text-orange hover:text-orange-600 transition-colors no-underline">Home</a> <span class="text-orange font-medium">›</span> <a href="index.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">Guides</a> <span class="text-orange font-medium">›</span> <a href="architecture.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">Architecture</a> <span class="text-orange font-medium">›</span> <span class="text-charcoal font-medium">EAV System Architecture: Understanding Entity-Attribute-Value in Magento 2</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="flex gap-8">
+
+            <!-- Left Sidebar (desktop) -->
+            <aside class="hidden lg:block w-64 flex-shrink-0">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4">Architecture</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="guide-explanation-b2b-features.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">B2B Features Development</a></li>
+<li class="pl-0"><a href="guide-explanation-eav-system.html" class="block px-3 py-2 text-sm text-orange font-semibold bg-orange-50 border-l-4 border-orange pl-2 transition-colors no-underline">EAV System Architecture: Underst...</a></li>
+<li class="pl-0"><a href="guide-explanation-graphql-resolver-patterns.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">GraphQL Resolver Patterns in Mag...</a></li>
+<li class="pl-0"><a href="guide-explanation-indexer-system.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Indexer System Deep Dive: Unders...</a></li>
+<li class="pl-0"><a href="guide-explanation-message-queue-architecture.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Message Queue Architecture in Ma...</a></li>
+<li class="pl-0"><a href="guide-explanation-service-contracts-repositories.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Service Contracts vs Repositorie...</a></li>
+</ul>
+<h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4 mt-8">Guide Sections</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="tutorials.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Tutorials</a></li>
+<li class="pl-0"><a href="how-to-guides.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">How-To Guides</a></li>
+<li class="pl-0"><a href="architecture.html" class="block px-3 py-2 text-sm text-orange font-semibold bg-orange-50 border-l-4 border-orange pl-2 transition-colors no-underline">Architecture</a></li>
+<li class="pl-0"><a href="references.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">References</a></li>
+</ul>
+                </div>
+            </aside>
+
+            <!-- Article — square corners, border-t-4 orange accent -->
+            <main id="main-content" class="flex-1 min-w-0">
+                <article class="bg-white shadow-sm border border-gray-100 border-t-4 border-t-orange p-8 md:p-12">
+                    <!-- Title block -->
+                    <div class="mb-8">
+                        <span class="inline-block px-3 py-1.5 text-xs font-medium bg-charcoal-50 text-charcoal border border-charcoal-100">Explanation</span>
+                        <h1 class="text-3xl md:text-4xl font-extrabold text-charcoal mt-3 mb-3">EAV System Architecture: Understanding Entity-Attribute-Value in Magento 2</h1>
+                        <p class="text-charcoal-300 text-lg mb-4">Comprehensive explanation of Magento 2's EAV system: table structure, creating custom EAV entities and attributes, attribute sets and groups, flat tables for performance, when to use EAV vs flat tables, and optimization strategies</p>
+                        <!-- Meta pills -->
+                        <div class="flex flex-wrap gap-2"><span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-yellow-50 text-yellow-800"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>Advanced</span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-orange-50 text-orange-700"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>90 minutes</span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-charcoal text-white">Magento 2.4.7+</span></div>
+                    </div>
+
+                    <hr class="border-0 border-t border-gray-100 mb-8">
+
+                    <!-- Content -->
+                    <div class="prose max-w-none">
+                        <h1 id="eav-system-architecture-understanding-entity-attribute-value-in-magento-2">EAV System Architecture: Understanding Entity-Attribute-Value in Magento 2</h1>
+<h2 id="learning-objectives">Learning Objectives</h2>
+<p>By completing this guide, you will:</p>
+<ul>
+<li>Understand the EAV (Entity-Attribute-Value) pattern and why Magento uses it</li>
+<li>Master the EAV table structure and relationships</li>
+<li>Create custom EAV entities from scratch</li>
+<li>Implement custom product and customer attributes</li>
+<li>Work with attribute sets, groups, and options</li>
+<li>Understand flat table architecture and when to use it</li>
+<li>Optimize EAV queries for performance</li>
+<li>Choose between EAV and flat tables for custom entities</li>
+<li>Debug EAV-related performance issues</li>
+</ul>
+<h2 id="introduction">Introduction</h2>
+<p>The <strong>Entity-Attribute-Value (EAV)</strong> model is a database design pattern that enables flexible, dynamic schema by storing attributes as data rather than columns. Magento 2 uses EAV extensively for products, customers, categories, and orders, allowing merchants to add custom attributes without database schema changes.</p>
+<h3 id="why-eav-in-magento">Why EAV in Magento?</h3>
+<p><strong>Problem EAV solves:</strong>
+- E-commerce requires highly customizable entities (products with varying attributes)
+- Traditional relational model: Adding attribute = schema change (ALTER TABLE)
+- EAV model: Adding attribute = insert row in attribute table</p>
+<p><strong>Example scenario:</strong>
+- Clothing store: Products need <code>size</code>, <code>color</code>, <code>material</code>
+- Electronics store: Products need <code>warranty_period</code>, <code>voltage</code>, <code>battery_type</code>
+- Traditional DB: Single <code>catalog_product_entity</code> table with 100+ columns (many NULL)
+- EAV DB: Dynamic attributes stored in separate value tables</p>
+<h3 id="eav-trade-offs">EAV Trade-offs</h3>
+<p><strong>Advantages:</strong>
+- <strong>Schema flexibility</strong>: Add attributes without migrations
+- <strong>Sparse data efficiency</strong>: NULL values don't consume space
+- <strong>Multi-tenant friendly</strong>: Different stores/attribute sets share infrastructure
+- <strong>Admin UI integration</strong>: Attributes automatically appear in admin forms</p>
+<p><strong>Disadvantages:</strong>
+- <strong>Query complexity</strong>: Requires joins across multiple tables
+- <strong>Performance overhead</strong>: 10-20x slower than flat table queries
+- <strong>Index limitations</strong>: Cannot index attribute values directly
+- <strong>ORM abstraction</strong>: Hides complexity but adds overhead</p>
+<p><strong>When Magento uses EAV:</strong>
+- Products (<code>catalog_product</code>)
+- Categories (<code>catalog_category</code>)
+- Customers (<code>customer</code>)
+- Customer addresses (<code>customer_address</code>)</p>
+<p><strong>When Magento uses flat tables:</strong>
+- Orders (<code>sales_order</code>)
+- Invoices (<code>sales_invoice</code>)
+- Quotes (<code>quote</code>)
+- CMS pages (<code>cms_page</code>)</p>
+<h2 id="eav-table-structure">EAV Table Structure</h2>
+<h3 id="core-eav-tables">Core EAV Tables</h3>
+<p>Every EAV entity type has six table types:</p>
+<pre><code>1. Entity Table          : catalog_product_entity
+2. Attribute Table       : eav_attribute (shared across all EAV entities)
+3. Entity Type Table     : eav_entity_type (defines entity types)
+4. Attribute Set Table   : eav_attribute_set (groups attributes)
+5. Attribute Group Table : eav_attribute_group (organizes attributes in admin)
+6. Value Tables (typed)  : catalog_product_entity_int, _varchar, _text, _decimal, _datetime
+</code></pre>
+<h3 id="1-entity-table">1. Entity Table</h3>
+<p><strong>Structure (<code>catalog_product_entity</code>):</strong></p>
+<pre><code class="language-sql">CREATE TABLE `catalog_product_entity` (
+  `entity_id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `attribute_set_id` SMALLINT(5) UNSIGNED NOT NULL DEFAULT 0,
+  `type_id` VARCHAR(32) NOT NULL DEFAULT 'simple',
+  `sku` VARCHAR(64) DEFAULT NULL,
+  `has_options` SMALLINT(6) NOT NULL DEFAULT 0,
+  `required_options` SMALLINT(5) UNSIGNED NOT NULL DEFAULT 0,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`entity_id`),
+  UNIQUE KEY `CATALOG_PRODUCT_ENTITY_SKU` (`sku`),
+  KEY `CATALOG_PRODUCT_ENTITY_ATTRIBUTE_SET_ID` (`attribute_set_id`),
+  KEY `CATALOG_PRODUCT_ENTITY_TYPE_ID` (`type_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Catalog Product Table';
+</code></pre>
+<p><strong>Key fields:</strong>
+- <code>entity_id</code>: Primary key, referenced by all value tables
+- <code>attribute_set_id</code>: Groups product into template (e.g., "Default", "Clothing")
+- <code>type_id</code>: Product type (simple, configurable, bundle, grouped)
+- <code>sku</code>: Unique product identifier
+- Static attributes: <code>created_at</code>, <code>updated_at</code> stored directly (not in EAV)</p>
+<p><strong>Why static attributes?</strong>
+- Frequently queried fields stored in entity table for performance
+- Avoids joins for common operations (SKU lookup, type filtering)</p>
+<h3 id="2-attribute-table">2. Attribute Table</h3>
+<p><strong>Structure (<code>eav_attribute</code>):</strong></p>
+<pre><code class="language-sql">CREATE TABLE `eav_attribute` (
+  `attribute_id` SMALLINT(5) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `entity_type_id` SMALLINT(5) UNSIGNED NOT NULL DEFAULT 0,
+  `attribute_code` VARCHAR(255) NOT NULL,
+  `attribute_model` VARCHAR(255) DEFAULT NULL,
+  `backend_model` VARCHAR(255) DEFAULT NULL,
+  `backend_type` VARCHAR(8) NOT NULL DEFAULT 'static',
+  `backend_table` VARCHAR(255) DEFAULT NULL,
+  `frontend_model` VARCHAR(255) DEFAULT NULL,
+  `frontend_input` VARCHAR(50) DEFAULT NULL,
+  `frontend_label` VARCHAR(255) DEFAULT NULL,
+  `frontend_class` VARCHAR(255) DEFAULT NULL,
+  `source_model` VARCHAR(255) DEFAULT NULL,
+  `is_required` SMALLINT(5) UNSIGNED NOT NULL DEFAULT 0,
+  `is_user_defined` SMALLINT(5) UNSIGNED NOT NULL DEFAULT 0,
+  `default_value` TEXT DEFAULT NULL,
+  `is_unique` SMALLINT(5) UNSIGNED NOT NULL DEFAULT 0,
+  `note` VARCHAR(255) DEFAULT NULL,
+  PRIMARY KEY (`attribute_id`),
+  UNIQUE KEY `EAV_ATTRIBUTE_ENTITY_TYPE_ID_ATTRIBUTE_CODE` (`entity_type_id`,`attribute_code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Eav Attribute';
+</code></pre>
+<p><strong>Critical fields:</strong>
+- <code>attribute_code</code>: Unique identifier (e.g., <code>color</code>, <code>manufacturer</code>)
+- <code>backend_type</code>: Data type → determines value table (<code>int</code>, <code>varchar</code>, <code>text</code>, <code>decimal</code>, <code>datetime</code>)
+- <code>frontend_input</code>: Input type (text, select, multiselect, date, boolean, etc.)
+- <code>source_model</code>: Provides option values for select/multiselect
+- <code>is_required</code>: Validation flag
+- <code>is_user_defined</code>: Custom vs system attribute</p>
+<p><strong>Additional product-specific attributes (<code>catalog_eav_attribute</code>):</strong></p>
+<pre><code class="language-sql">CREATE TABLE `catalog_eav_attribute` (
+  `attribute_id` SMALLINT(5) UNSIGNED NOT NULL,
+  `is_global` SMALLINT(5) UNSIGNED NOT NULL DEFAULT 1,
+  `is_visible` SMALLINT(5) UNSIGNED NOT NULL DEFAULT 1,
+  `is_searchable` SMALLINT(5) UNSIGNED NOT NULL DEFAULT 0,
+  `is_filterable` SMALLINT(5) UNSIGNED NOT NULL DEFAULT 0,
+  `is_comparable` SMALLINT(5) UNSIGNED NOT NULL DEFAULT 0,
+  `is_visible_on_front` SMALLINT(5) UNSIGNED NOT NULL DEFAULT 0,
+  `is_html_allowed_on_front` SMALLINT(5) UNSIGNED NOT NULL DEFAULT 0,
+  `is_used_for_price_rules` SMALLINT(5) UNSIGNED NOT NULL DEFAULT 0,
+  `is_filterable_in_search` SMALLINT(5) UNSIGNED NOT NULL DEFAULT 0,
+  `used_in_product_listing` SMALLINT(5) UNSIGNED NOT NULL DEFAULT 0,
+  `used_for_sort_by` SMALLINT(5) UNSIGNED NOT NULL DEFAULT 0,
+  `apply_to` VARCHAR(255) DEFAULT NULL,
+  `is_visible_in_advanced_search` SMALLINT(5) UNSIGNED NOT NULL DEFAULT 0,
+  `position` INT(11) NOT NULL DEFAULT 0,
+  `is_wysiwyg_enabled` SMALLINT(5) UNSIGNED NOT NULL DEFAULT 0,
+  `is_used_for_promo_rules` SMALLINT(5) UNSIGNED NOT NULL DEFAULT 0,
+  `is_required_in_admin_store` SMALLINT(5) UNSIGNED NOT NULL DEFAULT 0,
+  `is_used_in_grid` SMALLINT(5) UNSIGNED NOT NULL DEFAULT 0,
+  `is_visible_in_grid` SMALLINT(5) UNSIGNED NOT NULL DEFAULT 0,
+  `is_filterable_in_grid` SMALLINT(5) UNSIGNED NOT NULL DEFAULT 0,
+  `search_weight` FLOAT NOT NULL DEFAULT 1,
+  PRIMARY KEY (`attribute_id`),
+  CONSTRAINT `FK_CATALOG_EAV_ATTRIBUTE` FOREIGN KEY (`attribute_id`) REFERENCES `eav_attribute` (`attribute_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+</code></pre>
+<p><strong>Scope flags:</strong>
+- <code>is_global</code>: Scope (0=store, 1=global, 2=website)
+- <code>is_searchable</code>: Index for fulltext search
+- <code>is_filterable</code>: Show in layered navigation
+- <code>used_in_product_listing</code>: Load on category pages</p>
+<h3 id="3-value-tables-typed">3. Value Tables (Typed)</h3>
+<p>Each backend type has a dedicated value table:</p>
+<p><strong>INT values (<code>catalog_product_entity_int</code>):</strong></p>
+<pre><code class="language-sql">CREATE TABLE `catalog_product_entity_int` (
+  `value_id` INT(11) NOT NULL AUTO_INCREMENT,
+  `attribute_id` SMALLINT(5) UNSIGNED NOT NULL DEFAULT 0,
+  `store_id` SMALLINT(5) UNSIGNED NOT NULL DEFAULT 0,
+  `entity_id` INT(10) UNSIGNED NOT NULL DEFAULT 0,
+  `value` INT(11) DEFAULT NULL,
+  PRIMARY KEY (`value_id`),
+  UNIQUE KEY `UNQ_CATALOG_PRODUCT_ENTITY_INT` (`entity_id`,`attribute_id`,`store_id`),
+  KEY `IDX_ATTRIBUTE_ID` (`attribute_id`),
+  KEY `IDX_STORE_ID` (`store_id`),
+  CONSTRAINT `FK_CATALOG_PRODUCT_ENTITY_INT_ENTITY` FOREIGN KEY (`entity_id`) REFERENCES `catalog_product_entity` (`entity_id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_CATALOG_PRODUCT_ENTITY_INT_ATTRIBUTE` FOREIGN KEY (`attribute_id`) REFERENCES `eav_attribute` (`attribute_id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_CATALOG_PRODUCT_ENTITY_INT_STORE` FOREIGN KEY (`store_id`) REFERENCES `store` (`store_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+</code></pre>
+<p><strong>Key design elements:</strong>
+- Composite unique key: <code>(entity_id, attribute_id, store_id)</code> prevents duplicates
+- <code>store_id</code>: Enables store-specific attribute values
+- Foreign keys: Cascade deletes maintain referential integrity</p>
+<p><strong>Value table types:</strong>
+- <code>_int</code>: Integers, boolean (0/1), select option IDs
+- <code>_varchar</code>: Short strings (&lt;255 chars), SKU references
+- <code>_text</code>: Long text, HTML content, JSON
+- <code>_decimal</code>: Prices, weights, dimensions
+- <code>_datetime</code>: Dates, timestamps</p>
+<h3 id="query-example-fetch-product-with-attributes">Query Example: Fetch Product with Attributes</h3>
+<p><strong>Without EAV awareness (incorrect):</strong></p>
+<pre><code class="language-php">// This ONLY gets static attributes (sku, created_at)
+$product = $productRepository-&gt;get('SKU123');
+echo $product-&gt;getName(); // NULL (not loaded)
+</code></pre>
+<p><strong>Correct approach:</strong></p>
+<pre><code class="language-php">// Load with specific attributes
+$product = $productRepository-&gt;get('SKU123', false, null, true);
+echo $product-&gt;getName(); // Loaded from catalog_product_entity_varchar
+
+// Or load via collection
+$collection = $productCollectionFactory-&gt;create();
+$collection-&gt;addAttributeToSelect(['name', 'price', 'description']);
+$collection-&gt;addFieldToFilter('sku', 'SKU123');
+$product = $collection-&gt;getFirstItem();
+</code></pre>
+<p><strong>Generated SQL (simplified):</strong></p>
+<pre><code class="language-sql">SELECT
+    e.entity_id,
+    e.sku,
+    name_attr.value AS name,
+    price_attr.value AS price
+FROM catalog_product_entity e
+LEFT JOIN catalog_product_entity_varchar name_attr
+    ON name_attr.entity_id = e.entity_id
+    AND name_attr.attribute_id = (SELECT attribute_id FROM eav_attribute WHERE attribute_code = 'name' AND entity_type_id = 4)
+    AND name_attr.store_id IN (0, 1) -- Global + current store
+LEFT JOIN catalog_product_entity_decimal price_attr
+    ON price_attr.entity_id = e.entity_id
+    AND price_attr.attribute_id = (SELECT attribute_id FROM eav_attribute WHERE attribute_code = 'price' AND entity_type_id = 4)
+    AND price_attr.store_id IN (0, 1)
+WHERE e.sku = 'SKU123';
+</code></pre>
+<p><strong>Performance note:</strong> Each attribute = 1 LEFT JOIN. Loading 20 attributes = 20 joins.</p>
+<h2 id="creating-custom-eav-attributes">Creating Custom EAV Attributes</h2>
+<h3 id="product-attribute-via-data-patch">Product Attribute via Data Patch</h3>
+<p><strong>Setup/Patch/Data/AddWarrantyPeriodAttribute.php</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Setup\Patch\Data;
+
+use Magento\Catalog\Model\Product;
+use Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface;
+use Magento\Eav\Setup\EavSetup;
+use Magento\Eav\Setup\EavSetupFactory;
+use Magento\Framework\Setup\ModuleDataSetupInterface;
+use Magento\Framework\Setup\Patch\DataPatchInterface;
+
+/**
+ * Add warranty_period product attribute
+ */
+class AddWarrantyPeriodAttribute implements DataPatchInterface
+{
+    public function __construct(
+        private readonly ModuleDataSetupInterface $moduleDataSetup,
+        private readonly EavSetupFactory $eavSetupFactory
+    ) {}
+
+    /**
+     * @inheritdoc
+     */
+    public function apply(): void
+    {
+        /** @var EavSetup $eavSetup */
+        $eavSetup = $this-&gt;eavSetupFactory-&gt;create(['setup' =&gt; $this-&gt;moduleDataSetup]);
+
+        $eavSetup-&gt;addAttribute(
+            Product::ENTITY,
+            'warranty_period',
+            [
+                // Basic Configuration
+                'type' =&gt; 'int',                          // Backend type: int, varchar, text, decimal, datetime
+                'label' =&gt; 'Warranty Period (Months)',    // Frontend label
+                'input' =&gt; 'text',                        // Input type: text, select, multiselect, date, boolean, textarea
+                'required' =&gt; false,                      // Is required in admin
+                'user_defined' =&gt; true,                   // Custom attribute (vs system)
+                'default' =&gt; 12,                          // Default value
+
+                // Scope
+                'global' =&gt; ScopedAttributeInterface::SCOPE_GLOBAL, // SCOPE_GLOBAL, SCOPE_WEBSITE, SCOPE_STORE
+
+                // Frontend Configuration
+                'visible' =&gt; true,                        // Visible in admin
+                'visible_on_front' =&gt; true,               // Show on product page
+                'used_in_product_listing' =&gt; true,        // Load in category pages
+                'searchable' =&gt; false,                    // Index for search
+                'filterable' =&gt; false,                    // Show in layered navigation
+                'filterable_in_search' =&gt; false,          // Show in search layered nav
+                'comparable' =&gt; true,                     // Show in product comparison
+                'used_for_sort_by' =&gt; false,              // Allow sorting by this attribute
+
+                // Backend Configuration
+                'backend' =&gt; '',                          // Backend model for processing
+                'frontend' =&gt; '',                         // Frontend model for rendering
+                'source' =&gt; '',                           // Source model for options
+                'frontend_class' =&gt; 'validate-number validate-zero-or-greater', // CSS validation classes
+
+                // Admin Configuration
+                'is_used_in_grid' =&gt; true,                // Show in admin product grid
+                'is_visible_in_grid' =&gt; false,            // Visible by default in grid
+                'is_filterable_in_grid' =&gt; true,          // Filterable in grid
+                'position' =&gt; 100,                        // Sort position in attribute group
+
+                // Advanced
+                'apply_to' =&gt; '',                         // Apply to product types: simple,configurable,bundle (empty = all)
+                'group' =&gt; 'Product Details',             // Attribute group name
+                'note' =&gt; 'Warranty period in months',    // Admin note
+            ]
+        );
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function getDependencies(): array
+    {
+        return [];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getAliases(): array
+    {
+        return [];
+    }
+}
+</code></pre>
+<p><strong>Apply patch:</strong></p>
+<pre><code class="language-bash">bin/magento setup:upgrade
+bin/magento cache:flush
+</code></pre>
+<h3 id="select-attribute-with-options">Select Attribute with Options</h3>
+<p><strong>Setup/Patch/Data/AddConditionAttribute.php</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Setup\Patch\Data;
+
+use Magento\Catalog\Model\Product;
+use Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface;
+use Magento\Eav\Setup\EavSetup;
+use Magento\Eav\Setup\EavSetupFactory;
+use Magento\Framework\Setup\ModuleDataSetupInterface;
+use Magento\Framework\Setup\Patch\DataPatchInterface;
+
+class AddConditionAttribute implements DataPatchInterface
+{
+    public function __construct(
+        private readonly ModuleDataSetupInterface $moduleDataSetup,
+        private readonly EavSetupFactory $eavSetupFactory
+    ) {}
+
+    public function apply(): void
+    {
+        /** @var EavSetup $eavSetup */
+        $eavSetup = $this-&gt;eavSetupFactory-&gt;create(['setup' =&gt; $this-&gt;moduleDataSetup]);
+
+        $eavSetup-&gt;addAttribute(
+            Product::ENTITY,
+            'product_condition',
+            [
+                'type' =&gt; 'int',
+                'label' =&gt; 'Product Condition',
+                'input' =&gt; 'select',
+                'source' =&gt; \Magento\Eav\Model\Entity\Attribute\Source\Table::class,
+                'required' =&gt; true,
+                'global' =&gt; ScopedAttributeInterface::SCOPE_GLOBAL,
+                'visible_on_front' =&gt; true,
+                'used_in_product_listing' =&gt; true,
+                'filterable' =&gt; true,
+                'user_defined' =&gt; true,
+                'option' =&gt; [
+                    'values' =&gt; [
+                        'New',
+                        'Refurbished',
+                        'Used - Like New',
+                        'Used - Good',
+                        'Used - Acceptable',
+                    ],
+                ],
+                'group' =&gt; 'Product Details',
+            ]
+        );
+    }
+
+    public static function getDependencies(): array
+    {
+        return [];
+    }
+
+    public function getAliases(): array
+    {
+        return [];
+    }
+}
+</code></pre>
+<p><strong>Option storage:</strong>
+- Options stored in <code>eav_attribute_option</code> table
+- Option labels in <code>eav_attribute_option_value</code> (multi-language)
+- Value table stores option ID (integer), not label text</p>
+<h3 id="customer-attribute">Customer Attribute</h3>
+<p><strong>Setup/Patch/Data/AddCustomerLoyaltyTierAttribute.php</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Setup\Patch\Data;
+
+use Magento\Customer\Model\Customer;
+use Magento\Customer\Setup\CustomerSetup;
+use Magento\Customer\Setup\CustomerSetupFactory;
+use Magento\Framework\Setup\ModuleDataSetupInterface;
+use Magento\Framework\Setup\Patch\DataPatchInterface;
+
+class AddCustomerLoyaltyTierAttribute implements DataPatchInterface
+{
+    public function __construct(
+        private readonly ModuleDataSetupInterface $moduleDataSetup,
+        private readonly CustomerSetupFactory $customerSetupFactory
+    ) {}
+
+    public function apply(): void
+    {
+        /** @var CustomerSetup $customerSetup */
+        $customerSetup = $this-&gt;customerSetupFactory-&gt;create(['setup' =&gt; $this-&gt;moduleDataSetup]);
+
+        $customerSetup-&gt;addAttribute(
+            Customer::ENTITY,
+            'loyalty_tier',
+            [
+                'type' =&gt; 'varchar',
+                'label' =&gt; 'Loyalty Tier',
+                'input' =&gt; 'select',
+                'source' =&gt; \Vendor\Module\Model\Customer\Attribute\Source\LoyaltyTier::class,
+                'required' =&gt; false,
+                'default' =&gt; 'bronze',
+                'visible' =&gt; true,
+                'user_defined' =&gt; true,
+                'system' =&gt; false,
+                'position' =&gt; 100,
+                'sort_order' =&gt; 100,
+            ]
+        );
+
+        // Make attribute visible in admin customer form
+        $attribute = $customerSetup-&gt;getEavConfig()-&gt;getAttribute(Customer::ENTITY, 'loyalty_tier');
+        $attribute-&gt;setData('used_in_forms', [
+            'adminhtml_customer',      // Admin customer edit
+            'customer_account_edit',   // Customer account edit
+            'customer_account_create', // Customer registration
+        ]);
+        $attribute-&gt;save();
+    }
+
+    public static function getDependencies(): array
+    {
+        return [];
+    }
+
+    public function getAliases(): array
+    {
+        return [];
+    }
+}
+</code></pre>
+<p><strong>Source model for options:</strong></p>
+<p><strong>Model/Customer/Attribute/Source/LoyaltyTier.php</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Model\Customer\Attribute\Source;
+
+use Magento\Eav\Model\Entity\Attribute\Source\AbstractSource;
+
+class LoyaltyTier extends AbstractSource
+{
+    private const TIER_BRONZE = 'bronze';
+    private const TIER_SILVER = 'silver';
+    private const TIER_GOLD = 'gold';
+    private const TIER_PLATINUM = 'platinum';
+
+    /**
+     * Get all options
+     *
+     * @return array
+     */
+    public function getAllOptions(): array
+    {
+        if ($this-&gt;_options === null) {
+            $this-&gt;_options = [
+                ['label' =&gt; __('Bronze'), 'value' =&gt; self::TIER_BRONZE],
+                ['label' =&gt; __('Silver'), 'value' =&gt; self::TIER_SILVER],
+                ['label' =&gt; __('Gold'), 'value' =&gt; self::TIER_GOLD],
+                ['label' =&gt; __('Platinum'), 'value' =&gt; self::TIER_PLATINUM],
+            ];
+        }
+
+        return $this-&gt;_options;
+    }
+}
+</code></pre>
+<h2 id="attribute-sets-and-groups">Attribute Sets and Groups</h2>
+<h3 id="attribute-sets">Attribute Sets</h3>
+<p><strong>Attribute sets</strong> are templates that define which attributes are available for a product type.</p>
+<p><strong>Example sets:</strong>
+- <strong>Default</strong>: General products (name, price, description, weight)
+- <strong>Clothing</strong>: Default + size, color, material, care_instructions
+- <strong>Electronics</strong>: Default + warranty_period, voltage, battery_type</p>
+<p><strong>Benefits:</strong>
+- Organize attributes by product category
+- Reduce admin form complexity (show only relevant attributes)
+- Enable different validation rules per product type</p>
+<p><strong>Database tables:</strong>
+- <code>eav_attribute_set</code>: Set metadata (name, entity_type_id)
+- <code>eav_entity_attribute</code>: Links attributes to sets</p>
+<h3 id="attribute-groups">Attribute Groups</h3>
+<p><strong>Attribute groups</strong> organize attributes within a set into tabs/sections in the admin form.</p>
+<p><strong>Example groups for "Clothing" set:</strong>
+- <strong>Product Details</strong>: name, price, sku
+- <strong>Content</strong>: description, short_description
+- <strong>Images</strong>: image, small_image, thumbnail
+- <strong>Clothing Attributes</strong>: size, color, material
+- <strong>Inventory</strong>: qty, stock_status</p>
+<p><strong>Database table:</strong> <code>eav_attribute_group</code></p>
+<h3 id="creating-attribute-set-programmatically">Creating Attribute Set Programmatically</h3>
+<p><strong>Setup/Patch/Data/CreateElectronicsAttributeSet.php</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Setup\Patch\Data;
+
+use Magento\Catalog\Model\Product;
+use Magento\Eav\Api\AttributeSetRepositoryInterface;
+use Magento\Eav\Api\Data\AttributeSetInterfaceFactory;
+use Magento\Eav\Model\Entity\Attribute\SetFactory as AttributeSetFactory;
+use Magento\Eav\Setup\EavSetup;
+use Magento\Eav\Setup\EavSetupFactory;
+use Magento\Framework\Setup\ModuleDataSetupInterface;
+use Magento\Framework\Setup\Patch\DataPatchInterface;
+
+class CreateElectronicsAttributeSet implements DataPatchInterface
+{
+    public function __construct(
+        private readonly ModuleDataSetupInterface $moduleDataSetup,
+        private readonly EavSetupFactory $eavSetupFactory,
+        private readonly AttributeSetFactory $attributeSetFactory,
+        private readonly AttributeSetInterfaceFactory $attributeSetInterfaceFactory,
+        private readonly AttributeSetRepositoryInterface $attributeSetRepository
+    ) {}
+
+    public function apply(): void
+    {
+        /** @var EavSetup $eavSetup */
+        $eavSetup = $this-&gt;eavSetupFactory-&gt;create(['setup' =&gt; $this-&gt;moduleDataSetup]);
+
+        $entityTypeId = $eavSetup-&gt;getEntityTypeId(Product::ENTITY);
+        $defaultSetId = $eavSetup-&gt;getDefaultAttributeSetId($entityTypeId);
+
+        // Create new attribute set based on Default set
+        /** @var \Magento\Eav\Model\Entity\Attribute\Set $attributeSet */
+        $attributeSet = $this-&gt;attributeSetFactory-&gt;create();
+        $attributeSet-&gt;setEntityTypeId($entityTypeId);
+        $attributeSet-&gt;setAttributeSetName('Electronics');
+        $attributeSet-&gt;validate();
+        $attributeSet-&gt;save();
+        $attributeSet-&gt;initFromSkeleton($defaultSetId);
+        $attributeSet-&gt;save();
+
+        $attributeSetId = $attributeSet-&gt;getId();
+
+        // Create custom attribute group
+        $eavSetup-&gt;addAttributeGroup(
+            Product::ENTITY,
+            $attributeSetId,
+            'Electronics Attributes',
+            100 // Sort order
+        );
+
+        // Add custom attributes to the set
+        $attributes = [
+            'warranty_period',
+            'voltage',
+            'battery_type',
+            'energy_rating',
+        ];
+
+        foreach ($attributes as $attributeCode) {
+            $eavSetup-&gt;addAttributeToSet(
+                Product::ENTITY,
+                $attributeSetId,
+                'Electronics Attributes', // Group name
+                $attributeCode
+            );
+        }
+    }
+
+    public static function getDependencies(): array
+    {
+        return [
+            AddWarrantyPeriodAttribute::class,
+            // Other attribute patches
+        ];
+    }
+
+    public function getAliases(): array
+    {
+        return [];
+    }
+}
+</code></pre>
+<h2 id="flat-tables-for-performance">Flat Tables for Performance</h2>
+<h3 id="what-are-flat-tables">What Are Flat Tables?</h3>
+<p><strong>Flat tables</strong> denormalize EAV data into single-table structures with one column per attribute.</p>
+<p><strong>Example: <code>catalog_product_flat_1</code> (store 1):</strong></p>
+<pre><code class="language-sql">CREATE TABLE `catalog_product_flat_1` (
+  `entity_id` INT(10) UNSIGNED NOT NULL,
+  `sku` VARCHAR(64) DEFAULT NULL,
+  `name` VARCHAR(255) DEFAULT NULL,
+  `price` DECIMAL(12,4) DEFAULT NULL,
+  `description` TEXT,
+  `short_description` TEXT,
+  `image` VARCHAR(255) DEFAULT NULL,
+  `weight` DECIMAL(12,4) DEFAULT NULL,
+  `color` INT(11) DEFAULT NULL,
+  `size` INT(11) DEFAULT NULL,
+  -- ... all other attributes
+  PRIMARY KEY (`entity_id`),
+  KEY `IDX_SKU` (`sku`),
+  KEY `IDX_NAME` (`name`),
+  KEY `IDX_PRICE` (`price`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+</code></pre>
+<p><strong>Query comparison:</strong></p>
+<p><strong>EAV query (20 joins):</strong></p>
+<pre><code class="language-sql">SELECT e.entity_id, name.value, price.value, color.value
+FROM catalog_product_entity e
+LEFT JOIN catalog_product_entity_varchar name ON ...
+LEFT JOIN catalog_product_entity_decimal price ON ...
+LEFT JOIN catalog_product_entity_int color ON ...
+WHERE e.entity_id = 123;
+-- Execution time: 50ms
+</code></pre>
+<p><strong>Flat query (0 joins):</strong></p>
+<pre><code class="language-sql">SELECT entity_id, name, price, color
+FROM catalog_product_flat_1
+WHERE entity_id = 123;
+-- Execution time: 2ms
+</code></pre>
+<p><strong>Performance gain:</strong> 25x faster for attribute-heavy queries.</p>
+<h3 id="enabling-product-flat-tables">Enabling Product Flat Tables</h3>
+<p><strong>Admin:</strong>
+Stores &gt; Configuration &gt; Catalog &gt; Catalog &gt; Storefront &gt; Use Flat Catalog Product = Yes</p>
+<p><strong>CLI:</strong></p>
+<pre><code class="language-bash">bin/magento config:set catalog/frontend/flat_catalog_product 1
+bin/magento indexer:reindex catalog_product_flat
+</code></pre>
+<p><strong>Indexer:</strong> Maintains flat tables from EAV source via <code>catalog_product_flat</code> indexer.</p>
+<h3 id="when-to-use-flat-tables">When to Use Flat Tables</h3>
+<p><strong>Use flat tables when:</strong>
+- High read volume (category pages, search results)
+- Many attributes loaded per product (20+)
+- Simple attribute types (no complex backend models)</p>
+<p><strong>Avoid flat tables when:</strong>
+- Few attributes loaded (&lt; 5)
+- Frequent attribute schema changes
+- Custom backend models (not compatible with flat indexing)</p>
+<p><strong>Magento 2.4+ note:</strong> Product flat tables are <strong>deprecated</strong> and may be removed in future versions. Use layered navigation indexes instead.</p>
+<h2 id="eav-vs-flat-tables-for-custom-entities">EAV vs Flat Tables for Custom Entities</h2>
+<h3 id="decision-matrix">Decision Matrix</h3>
+<div class="overflow-x-auto my-6 border border-gray-200"><table class="min-w-full">
+<thead>
+<tr>
+<th>Criteria</th>
+<th>Use EAV</th>
+<th>Use Flat Table</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Attributes</strong></td>
+<td>10+ dynamic attributes</td>
+<td>Fixed schema, &lt; 10 fields</td>
+</tr>
+<tr>
+<td><strong>Schema changes</strong></td>
+<td>Frequent (user-defined)</td>
+<td>Rare (developer-controlled)</td>
+</tr>
+<tr>
+<td><strong>Attribute types</strong></td>
+<td>Mixed (text, select, date)</td>
+<td>Mostly simple types</td>
+</tr>
+<tr>
+<td><strong>Query pattern</strong></td>
+<td>Load few attributes</td>
+<td>Load all fields</td>
+</tr>
+<tr>
+<td><strong>Performance priority</strong></td>
+<td>Flexibility &gt; speed</td>
+<td>Speed &gt; flexibility</td>
+</tr>
+<tr>
+<td><strong>Admin UI</strong></td>
+<td>Need attribute management</td>
+<td>Static form</td>
+</tr>
+<tr>
+<td><strong>Multi-store</strong></td>
+<td>Different attributes per store</td>
+<td>Same fields globally</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Examples:</strong></p>
+<p><strong>Use EAV:</strong>
+- Custom product types with user-defined attributes
+- Customer profiles with dynamic fields
+- Form builder with custom field types</p>
+<p><strong>Use flat table:</strong>
+- Order line items (fixed fields)
+- Shipment tracking (static schema)
+- Custom reports (performance-critical)</p>
+<h2 id="creating-custom-eav-entity">Creating Custom EAV Entity</h2>
+<p>Let's create a custom "Warranty Registration" entity with EAV architecture.</p>
+<h3 id="step-1-define-entity-type">Step 1: Define Entity Type</h3>
+<p><strong>Setup/Patch/Data/CreateWarrantyEntityType.php</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Setup\Patch\Data;
+
+use Magento\Eav\Model\Config;
+use Magento\Eav\Setup\EavSetup;
+use Magento\Eav\Setup\EavSetupFactory;
+use Magento\Framework\Setup\ModuleDataSetupInterface;
+use Magento\Framework\Setup\Patch\DataPatchInterface;
+
+class CreateWarrantyEntityType implements DataPatchInterface
+{
+    private const ENTITY_TYPE_CODE = 'warranty_registration';
+
+    public function __construct(
+        private readonly ModuleDataSetupInterface $moduleDataSetup,
+        private readonly EavSetupFactory $eavSetupFactory,
+        private readonly Config $eavConfig
+    ) {}
+
+    public function apply(): void
+    {
+        /** @var EavSetup $eavSetup */
+        $eavSetup = $this-&gt;eavSetupFactory-&gt;create(['setup' =&gt; $this-&gt;moduleDataSetup]);
+
+        // Create entity type
+        $eavSetup-&gt;addEntityType(
+            self::ENTITY_TYPE_CODE,
+            [
+                'entity_model' =&gt; \Vendor\Module\Model\ResourceModel\Warranty::class,
+                'table' =&gt; 'vendor_warranty_entity',
+                'increment_model' =&gt; null,
+                'increment_per_store' =&gt; false,
+                'attribute_model' =&gt; \Magento\Eav\Model\Entity\Attribute::class,
+                'entity_attribute_collection' =&gt; \Magento\Eav\Model\ResourceModel\Entity\Attribute\Collection::class,
+            ]
+        );
+
+        $entityTypeId = $eavSetup-&gt;getEntityTypeId(self::ENTITY_TYPE_CODE);
+
+        // Add attributes
+        $eavSetup-&gt;addAttribute(
+            self::ENTITY_TYPE_CODE,
+            'customer_name',
+            [
+                'type' =&gt; 'varchar',
+                'label' =&gt; 'Customer Name',
+                'input' =&gt; 'text',
+                'required' =&gt; true,
+                'user_defined' =&gt; false,
+            ]
+        );
+
+        $eavSetup-&gt;addAttribute(
+            self::ENTITY_TYPE_CODE,
+            'product_serial',
+            [
+                'type' =&gt; 'varchar',
+                'label' =&gt; 'Product Serial Number',
+                'input' =&gt; 'text',
+                'required' =&gt; true,
+                'user_defined' =&gt; false,
+            ]
+        );
+
+        $eavSetup-&gt;addAttribute(
+            self::ENTITY_TYPE_CODE,
+            'purchase_date',
+            [
+                'type' =&gt; 'datetime',
+                'label' =&gt; 'Purchase Date',
+                'input' =&gt; 'date',
+                'required' =&gt; true,
+                'user_defined' =&gt; false,
+            ]
+        );
+
+        $eavSetup-&gt;addAttribute(
+            self::ENTITY_TYPE_CODE,
+            'warranty_period',
+            [
+                'type' =&gt; 'int',
+                'label' =&gt; 'Warranty Period (Months)',
+                'input' =&gt; 'text',
+                'required' =&gt; true,
+                'default' =&gt; 12,
+                'user_defined' =&gt; false,
+            ]
+        );
+    }
+
+    public static function getDependencies(): array
+    {
+        return [];
+    }
+
+    public function getAliases(): array
+    {
+        return [];
+    }
+}
+</code></pre>
+<h3 id="step-2-create-database-schema">Step 2: Create Database Schema</h3>
+<p><strong>etc/db_schema.xml</strong></p>
+<pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;schema xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+        xsi:noNamespaceSchemaLocation=&quot;urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd&quot;&gt;
+
+    &lt;!-- Entity Table --&gt;
+    &lt;table name=&quot;vendor_warranty_entity&quot; resource=&quot;default&quot; engine=&quot;innodb&quot; comment=&quot;Warranty Registration Entity&quot;&gt;
+        &lt;column xsi:type=&quot;int&quot; name=&quot;entity_id&quot; unsigned=&quot;true&quot; nullable=&quot;false&quot; identity=&quot;true&quot; comment=&quot;Entity ID&quot;/&gt;
+        &lt;column xsi:type=&quot;int&quot; name=&quot;customer_id&quot; unsigned=&quot;true&quot; nullable=&quot;true&quot; comment=&quot;Customer ID&quot;/&gt;
+        &lt;column xsi:type=&quot;int&quot; name=&quot;product_id&quot; unsigned=&quot;true&quot; nullable=&quot;true&quot; comment=&quot;Product ID&quot;/&gt;
+        &lt;column xsi:type=&quot;timestamp&quot; name=&quot;created_at&quot; nullable=&quot;false&quot; default=&quot;CURRENT_TIMESTAMP&quot; comment=&quot;Created At&quot;/&gt;
+        &lt;column xsi:type=&quot;timestamp&quot; name=&quot;updated_at&quot; nullable=&quot;false&quot; default=&quot;CURRENT_TIMESTAMP&quot; on_update=&quot;true&quot; comment=&quot;Updated At&quot;/&gt;
+
+        &lt;constraint xsi:type=&quot;primary&quot; referenceId=&quot;PRIMARY&quot;&gt;
+            &lt;column name=&quot;entity_id&quot;/&gt;
+        &lt;/constraint&gt;
+
+        &lt;constraint xsi:type=&quot;foreign&quot; referenceId=&quot;FK_WARRANTY_CUSTOMER&quot;
+                    table=&quot;vendor_warranty_entity&quot; column=&quot;customer_id&quot;
+                    referenceTable=&quot;customer_entity&quot; referenceColumn=&quot;entity_id&quot;
+                    onDelete=&quot;CASCADE&quot;/&gt;
+
+        &lt;constraint xsi:type=&quot;foreign&quot; referenceId=&quot;FK_WARRANTY_PRODUCT&quot;
+                    table=&quot;vendor_warranty_entity&quot; column=&quot;product_id&quot;
+                    referenceTable=&quot;catalog_product_entity&quot; referenceColumn=&quot;entity_id&quot;
+                    onDelete=&quot;SET NULL&quot;/&gt;
+
+        &lt;index referenceId=&quot;IDX_CUSTOMER_ID&quot; indexType=&quot;btree&quot;&gt;
+            &lt;column name=&quot;customer_id&quot;/&gt;
+        &lt;/index&gt;
+    &lt;/table&gt;
+
+    &lt;!-- Value Tables --&gt;
+    &lt;table name=&quot;vendor_warranty_entity_datetime&quot; resource=&quot;default&quot; engine=&quot;innodb&quot; comment=&quot;Warranty Datetime Attributes&quot;&gt;
+        &lt;column xsi:type=&quot;int&quot; name=&quot;value_id&quot; unsigned=&quot;true&quot; nullable=&quot;false&quot; identity=&quot;true&quot; comment=&quot;Value ID&quot;/&gt;
+        &lt;column xsi:type=&quot;smallint&quot; name=&quot;attribute_id&quot; unsigned=&quot;true&quot; nullable=&quot;false&quot; comment=&quot;Attribute ID&quot;/&gt;
+        &lt;column xsi:type=&quot;int&quot; name=&quot;entity_id&quot; unsigned=&quot;true&quot; nullable=&quot;false&quot; comment=&quot;Entity ID&quot;/&gt;
+        &lt;column xsi:type=&quot;datetime&quot; name=&quot;value&quot; nullable=&quot;true&quot; comment=&quot;Value&quot;/&gt;
+
+        &lt;constraint xsi:type=&quot;primary&quot; referenceId=&quot;PRIMARY&quot;&gt;
+            &lt;column name=&quot;value_id&quot;/&gt;
+        &lt;/constraint&gt;
+
+        &lt;constraint xsi:type=&quot;unique&quot; referenceId=&quot;UNQ_ENTITY_ATTRIBUTE&quot;&gt;
+            &lt;column name=&quot;entity_id&quot;/&gt;
+            &lt;column name=&quot;attribute_id&quot;/&gt;
+        &lt;/constraint&gt;
+
+        &lt;constraint xsi:type=&quot;foreign&quot; referenceId=&quot;FK_WARRANTY_DATETIME_ENTITY&quot;
+                    table=&quot;vendor_warranty_entity_datetime&quot; column=&quot;entity_id&quot;
+                    referenceTable=&quot;vendor_warranty_entity&quot; referenceColumn=&quot;entity_id&quot;
+                    onDelete=&quot;CASCADE&quot;/&gt;
+
+        &lt;constraint xsi:type=&quot;foreign&quot; referenceId=&quot;FK_WARRANTY_DATETIME_ATTRIBUTE&quot;
+                    table=&quot;vendor_warranty_entity_datetime&quot; column=&quot;attribute_id&quot;
+                    referenceTable=&quot;eav_attribute&quot; referenceColumn=&quot;attribute_id&quot;
+                    onDelete=&quot;CASCADE&quot;/&gt;
+    &lt;/table&gt;
+
+    &lt;table name=&quot;vendor_warranty_entity_int&quot; resource=&quot;default&quot; engine=&quot;innodb&quot; comment=&quot;Warranty Int Attributes&quot;&gt;
+        &lt;column xsi:type=&quot;int&quot; name=&quot;value_id&quot; unsigned=&quot;true&quot; nullable=&quot;false&quot; identity=&quot;true&quot; comment=&quot;Value ID&quot;/&gt;
+        &lt;column xsi:type=&quot;smallint&quot; name=&quot;attribute_id&quot; unsigned=&quot;true&quot; nullable=&quot;false&quot; comment=&quot;Attribute ID&quot;/&gt;
+        &lt;column xsi:type=&quot;int&quot; name=&quot;entity_id&quot; unsigned=&quot;true&quot; nullable=&quot;false&quot; comment=&quot;Entity ID&quot;/&gt;
+        &lt;column xsi:type=&quot;int&quot; name=&quot;value&quot; nullable=&quot;true&quot; comment=&quot;Value&quot;/&gt;
+
+        &lt;constraint xsi:type=&quot;primary&quot; referenceId=&quot;PRIMARY&quot;&gt;
+            &lt;column name=&quot;value_id&quot;/&gt;
+        &lt;/constraint&gt;
+
+        &lt;constraint xsi:type=&quot;unique&quot; referenceId=&quot;UNQ_ENTITY_ATTRIBUTE&quot;&gt;
+            &lt;column name=&quot;entity_id&quot;/&gt;
+            &lt;column name=&quot;attribute_id&quot;/&gt;
+        &lt;/constraint&gt;
+
+        &lt;constraint xsi:type=&quot;foreign&quot; referenceId=&quot;FK_WARRANTY_INT_ENTITY&quot;
+                    table=&quot;vendor_warranty_entity_int&quot; column=&quot;entity_id&quot;
+                    referenceTable=&quot;vendor_warranty_entity&quot; referenceColumn=&quot;entity_id&quot;
+                    onDelete=&quot;CASCADE&quot;/&gt;
+
+        &lt;constraint xsi:type=&quot;foreign&quot; referenceId=&quot;FK_WARRANTY_INT_ATTRIBUTE&quot;
+                    table=&quot;vendor_warranty_entity_int&quot; column=&quot;attribute_id&quot;
+                    referenceTable=&quot;eav_attribute&quot; referenceColumn=&quot;attribute_id&quot;
+                    onDelete=&quot;CASCADE&quot;/&gt;
+    &lt;/table&gt;
+
+    &lt;table name=&quot;vendor_warranty_entity_varchar&quot; resource=&quot;default&quot; engine=&quot;innodb&quot; comment=&quot;Warranty Varchar Attributes&quot;&gt;
+        &lt;column xsi:type=&quot;int&quot; name=&quot;value_id&quot; unsigned=&quot;true&quot; nullable=&quot;false&quot; identity=&quot;true&quot; comment=&quot;Value ID&quot;/&gt;
+        &lt;column xsi:type=&quot;smallint&quot; name=&quot;attribute_id&quot; unsigned=&quot;true&quot; nullable=&quot;false&quot; comment=&quot;Attribute ID&quot;/&gt;
+        &lt;column xsi:type=&quot;int&quot; name=&quot;entity_id&quot; unsigned=&quot;true&quot; nullable=&quot;false&quot; comment=&quot;Entity ID&quot;/&gt;
+        &lt;column xsi:type=&quot;varchar&quot; name=&quot;value&quot; length=&quot;255&quot; nullable=&quot;true&quot; comment=&quot;Value&quot;/&gt;
+
+        &lt;constraint xsi:type=&quot;primary&quot; referenceId=&quot;PRIMARY&quot;&gt;
+            &lt;column name=&quot;value_id&quot;/&gt;
+        &lt;/constraint&gt;
+
+        &lt;constraint xsi:type=&quot;unique&quot; referenceId=&quot;UNQ_ENTITY_ATTRIBUTE&quot;&gt;
+            &lt;column name=&quot;entity_id&quot;/&gt;
+            &lt;column name=&quot;attribute_id&quot;/&gt;
+        &lt;/constraint&gt;
+
+        &lt;constraint xsi:type=&quot;foreign&quot; referenceId=&quot;FK_WARRANTY_VARCHAR_ENTITY&quot;
+                    table=&quot;vendor_warranty_entity_varchar&quot; column=&quot;entity_id&quot;
+                    referenceTable=&quot;vendor_warranty_entity&quot; referenceColumn=&quot;entity_id&quot;
+                    onDelete=&quot;CASCADE&quot;/&gt;
+
+        &lt;constraint xsi:type=&quot;foreign&quot; referenceId=&quot;FK_WARRANTY_VARCHAR_ATTRIBUTE&quot;
+                    table=&quot;vendor_warranty_entity_varchar&quot; column=&quot;attribute_id&quot;
+                    referenceTable=&quot;eav_attribute&quot; referenceColumn=&quot;attribute_id&quot;
+                    onDelete=&quot;CASCADE&quot;/&gt;
+    &lt;/table&gt;
+
+&lt;/schema&gt;
+</code></pre>
+<h3 id="step-3-create-model-and-resource-model">Step 3: Create Model and Resource Model</h3>
+<p><strong>Model/Warranty.php</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Model;
+
+use Magento\Framework\Model\AbstractModel;
+
+class Warranty extends AbstractModel
+{
+    protected function _construct(): void
+    {
+        $this-&gt;_init(\Vendor\Module\Model\ResourceModel\Warranty::class);
+    }
+}
+</code></pre>
+<p><strong>Model/ResourceModel/Warranty.php</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Model\ResourceModel;
+
+use Magento\Eav\Model\Entity\AbstractEntity;
+use Magento\Eav\Model\Entity\Context;
+
+class Warranty extends AbstractEntity
+{
+    public function __construct(
+        Context $context,
+        $data = []
+    ) {
+        parent::__construct($context, $data);
+    }
+
+    protected function _construct(): void
+    {
+        // No _init() call for EAV entities
+    }
+
+    public function getEntityType()
+    {
+        if (empty($this-&gt;_type)) {
+            $this-&gt;setType('warranty_registration');
+        }
+        return parent::getEntityType();
+    }
+}
+</code></pre>
+<h2 id="eav-performance-optimization">EAV Performance Optimization</h2>
+<h3 id="1-select-only-required-attributes">1. Select Only Required Attributes</h3>
+<p><strong>Bad (loads all attributes):</strong></p>
+<pre><code class="language-php">$collection = $productCollectionFactory-&gt;create();
+$collection-&gt;addAttributeToSelect('*'); // 50+ joins
+</code></pre>
+<p><strong>Good (loads specific attributes):</strong></p>
+<pre><code class="language-php">$collection = $productCollectionFactory-&gt;create();
+$collection-&gt;addAttributeToSelect(['name', 'price', 'image']); // 3 joins
+</code></pre>
+<p><strong>Performance impact:</strong> 10-50x faster query execution.</p>
+<h3 id="2-use-attribute-codes-instead-of-ids">2. Use Attribute Codes Instead of IDs</h3>
+<p><strong>Bad (requires attribute lookup):</strong></p>
+<pre><code class="language-php">$product-&gt;setData(73, 'New Product Name'); // Attribute ID 73
+</code></pre>
+<p><strong>Good (direct attribute code):</strong></p>
+<pre><code class="language-php">$product-&gt;setData('name', 'New Product Name');
+</code></pre>
+<h3 id="3-batch-load-attributes">3. Batch Load Attributes</h3>
+<p><strong>Bad (N+1 query problem):</strong></p>
+<pre><code class="language-php">foreach ($products as $product) {
+    echo $product-&gt;getName(); // Separate query for each product
+}
+</code></pre>
+<p><strong>Good (single query):</strong></p>
+<pre><code class="language-php">$collection-&gt;addAttributeToSelect('name'); // Loaded once for all products
+foreach ($collection as $product) {
+    echo $product-&gt;getName(); // Already loaded
+}
+</code></pre>
+<h3 id="4-use-flat-catalog-for-frontend">4. Use Flat Catalog for Frontend</h3>
+<p>Enable flat tables for frequently accessed entities (products, categories).</p>
+<h3 id="5-index-attribute-values">5. Index Attribute Values</h3>
+<p>For frequently filtered attributes, ensure they're marked as <code>filterable</code> to be indexed:</p>
+<pre><code class="language-php">$attribute-&gt;setData('is_filterable', 1);
+$attribute-&gt;save();
+</code></pre>
+<p>This creates entries in <code>catalog_product_index_eav</code> for fast filtering.</p>
+<h3 id="6-use-direct-sql-for-bulk-operations">6. Use Direct SQL for Bulk Operations</h3>
+<p><strong>Bad (ORM overhead):</strong></p>
+<pre><code class="language-php">foreach ($productIds as $id) {
+    $product = $productRepository-&gt;getById($id);
+    $product-&gt;setStatus(1);
+    $productRepository-&gt;save($product);
+}
+</code></pre>
+<p><strong>Good (direct SQL):</strong></p>
+<pre><code class="language-php">$connection-&gt;update(
+    'catalog_product_entity_int',
+    ['value' =&gt; 1],
+    [
+        'entity_id IN (?)' =&gt; $productIds,
+        'attribute_id = ?' =&gt; $statusAttributeId,
+    ]
+);
+</code></pre>
+<p><strong>Performance gain:</strong> 100-1000x faster for bulk updates.</p>
+<hr />
+<h2 id="assumptions">Assumptions</h2>
+<ul>
+<li><strong>Target versions</strong>: Magento 2.4.7+, PHP 8.2+, MySQL 8.0+</li>
+<li><strong>Deployment</strong>: Production environment with proper indexing</li>
+<li><strong>Catalog size</strong>: Examples assume medium catalogs (10k-50k products)</li>
+<li><strong>Infrastructure</strong>: Database optimization (indexes, query cache) in place</li>
+</ul>
+<h2 id="why-this-approach">Why This Approach</h2>
+<p><strong>EAV for flexibility</strong>: Enables dynamic schema without migrations, essential for multi-tenant SaaS</p>
+<p><strong>Data patches</strong>: Declarative, idempotent attribute creation (safe for re-runs)</p>
+<p><strong>Attribute sets</strong>: Organize attributes by product type, reduce admin complexity</p>
+<p><strong>Flat tables</strong>: Trade storage for query performance in read-heavy scenarios</p>
+<p><strong>Source models</strong>: Centralize option management, enable programmatic option generation</p>
+<h2 id="security-impact">Security Impact</h2>
+<p><strong>Authorization:</strong> Attribute management requires admin access with <code>Magento_Catalog::attributes</code> ACL</p>
+<p><strong>Data validation:</strong> Attribute values validated via frontend_class and backend_model</p>
+<p><strong>SQL injection:</strong> All EAV queries use parameter binding (safe)</p>
+<p><strong>XSS prevention:</strong> Attribute values escaped in frontend rendering</p>
+<h2 id="performance-impact">Performance Impact</h2>
+<p><strong>EAV query overhead:</strong>
+- Loading 1 attribute: ~5ms overhead
+- Loading 10 attributes: ~30ms overhead
+- Loading 50 attributes: ~200ms overhead</p>
+<p><strong>Flat table performance:</strong>
+- Category page with 50 products, 20 attributes: 2-5ms (flat) vs 200-500ms (EAV)</p>
+<p><strong>Index impact:</strong>
+- Attribute changes trigger product reindex
+- Large attribute updates can take 10-30 minutes for full reindex</p>
+<p><strong>Core Web Vitals:</strong>
+- Optimized EAV queries improve LCP on category/product pages
+- Flat catalog reduces TTFB by 50-80% on category pages</p>
+<h2 id="backward-compatibility">Backward Compatibility</h2>
+<p><strong>API stability:</strong>
+- EAV interfaces stable across Magento 2.4.x
+- Attribute management APIs stable
+- Product flat tables deprecated (may be removed in 2.5+)</p>
+<p><strong>Database schema:</strong>
+- EAV schema stable across versions
+- Attribute migrations via data patches (safe upgrades)</p>
+<p><strong>Upgrade path:</strong>
+- Magento 2.4.7 → 2.4.8: No breaking changes
+- Magento 2.4.x → 2.5.0: Monitor flat table deprecation</p>
+<h2 id="tests-to-add">Tests to Add</h2>
+<p><strong>Unit tests:</strong>
+- Attribute source model option generation
+- Attribute validation logic
+- EAV entity save/load operations</p>
+<p><strong>Integration tests:</strong>
+- Attribute creation via data patch
+- Attribute value persistence
+- Collection filtering by custom attributes
+- Attribute set assignment</p>
+<p><strong>Functional tests (MFTF):</strong>
+- Create product attribute in admin
+- Assign attribute to attribute set
+- Edit product with custom attribute
+- Filter products by custom attribute in admin grid</p>
+<h2 id="documentation-to-update">Documentation to Update</h2>
+<p><strong>Developer documentation:</strong>
+- <code>README.md</code>: EAV architecture overview
+- <code>ATTRIBUTES.md</code>: Custom attribute creation guide
+- <code>PERFORMANCE.md</code>: EAV optimization strategies
+- <code>MIGRATION.md</code>: Converting flat tables to EAV (or vice versa)</p>
+<p><strong>Admin user guide:</strong>
+- Creating product attributes
+- Managing attribute sets
+- Assigning attributes to products</p>
+<h2 id="related-documentation">Related Documentation</h2>
+<h3 id="related-guides">Related Guides</h3>
+<ul>
+<li><a href="../tutorials/declarative-schema-data-patches.md">Declarative Schema &amp; Data Patches: Modern Database Management in Magento 2</a></li>
+<li><a href="../tutorials/product-types.md">Product Types Development</a></li>
+<li><a href="indexer-system.md">Indexer System Deep Dive: Understanding Magento 2's Data Indexing Architecture</a></li>
+</ul>
+<h3 id="related-module-documentation">Related Module Documentation</h3>
+<ul>
+<li><a href="../../modules/catalog/README.md">Magento_Catalog Overview</a></li>
+<li><a href="../../modules/customer/README.md">Magento_Customer Overview</a></li>
+</ul>
+                    </div>
+                </article>
+            </main>
+            <!-- Right Sidebar: On This Page (desktop) -->
+            <aside class="toc-sidebar hidden xl:block" aria-label="On this page">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-semibold text-gray-900 uppercase tracking-wider mb-4 mt-0">On this page</h3>
+                    <nav id="toc-nav" class="space-y-0" aria-label="Table of contents"></nav>
+                    <div class="toc-back-to-top">
+                        <a href="#">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+                            </svg>
+                            Back to top
+                        </a>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- ================================================================
+         FOOTER — matches module-catalog.html multi-column layout exactly
+         ================================================================ -->
+    <footer class="relative pt-12 bg-white border-t border-charcoal mt-16">
+        <div class="max-w-screen-2xl mx-auto w-full px-4 sm:px-6 lg:px-8">
+            <div>
+                <a href="index.html" class="inline-flex items-center no-underline">
+                    <svg width="30" height="33" viewBox="0 0 30 33" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Magento Association logo" role="img">
+                        <path d="M0 4.06492H29.6763V31.8882C29.6763 32.502 29.1713 33 28.5487 33H1.12762C0.505079 33 0 32.502 0 31.8882V4.06492Z" fill="#34323A"/>
+                        <path d="M1.26857 0H28.4078C29.1066 0 29.6763 0.561678 29.6763 1.25075V4.06492H0V1.25075C0 0.561678 0.569682 0 1.26857 0Z" fill="#C9C9C9"/>
+                        <path d="M2.37269 3.0458C2.94031 3.0458 3.40046 2.59211 3.40046 2.03246C3.40046 1.47281 2.94031 1.01913 2.37269 1.01913C1.80506 1.01913 1.34491 1.47281 1.34491 2.03246C1.34491 2.59211 1.80506 3.0458 2.37269 3.0458Z" fill="#848484"/>
+                        <path d="M5.28571 3.0458C5.85334 3.0458 6.31349 2.59211 6.31349 2.03246C6.31349 1.47281 5.85334 1.01913 5.28571 1.01913C4.71809 1.01913 4.25793 1.47281 4.25793 2.03246C4.25793 2.59211 4.71809 3.0458 5.28571 3.0458Z" fill="#848484"/>
+                        <path d="M14.7883 7.46973L4.90405 13.0923V24.349L7.54104 25.8487V14.5978L14.7883 10.4692L22.0415 14.5978V25.8487L24.6785 24.349V13.0923L14.7883 7.46973Z" fill="#F1BC1B"/>
+                        <path d="M16.0862 26.2367L14.7883 26.9779L13.4492 26.2135V14.233L10.178 16.0975V27.3485L13.4492 29.213L14.7883 29.9773L16.0862 29.2362L19.4045 27.3485V16.0975L16.0862 14.2098V26.2367Z" fill="#F1BC1B"/>
+                    </svg>
+                    <span class="ml-3 text-xl font-bold text-charcoal">Developer Documentation</span>
+                </a>
+            </div>
+
+            <div class="grid grid-cols-12 md:gap-x-8 gap-y-12 lg:mt-12">
+                <div class="col-span-12 lg:col-span-4">
+                    <p class="hidden lg:block text-xs text-charcoal sm:text-sm">Comprehensive developer documentation for Magento 2.4.7+ — tutorials, architecture deep dives, module references, and production-ready patterns built by the community, for the community.</p>
+                    <ul class="mt-6 hidden lg:flex items-center gap-3">
+                        <li class="pl-0">
+                            <a href="https://github.com/magento/magento2" class="p-2 md:p-0" aria-label="GitHub">
+                                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                                </svg>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Guides</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="tutorials.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Tutorials</a></li>
+                            <li class="pl-0"><a href="how-to-guides.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">How-To Guides</a></li>
+                            <li class="pl-0"><a href="architecture.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Architecture</a></li>
+                            <li class="pl-0"><a href="learning-paths.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Learning Paths</a></li>
+                            <li class="pl-0"><a href="references.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">References</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Modules</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="module-catalog.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Catalog</a></li>
+                            <li class="pl-0"><a href="module-checkout.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Checkout</a></li>
+                            <li class="pl-0"><a href="module-sales.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Sales</a></li>
+                            <li class="pl-0"><a href="module-customer.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Customer</a></li>
+                            <li class="pl-0"><a href="module-quote.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Quote</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Community</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Magento Community</a></li>
+                            <li class="pl-0"><a href="https://magento.stackexchange.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Stack Exchange</a></li>
+                            <li class="pl-0"><a href="https://marketplace.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Marketplace</a></li>
+                            <li class="pl-0"><a href="https://github.com/magento/magento2" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">GitHub</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Support</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://github.com/magento/magento2/issues" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Report Issues</a></li>
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Community Resources</a></li>
+                            <li class="pl-0"><a href="https://developer.adobe.com/commerce/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Adobe Commerce Docs</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-12 border-t pt-6 pb-16 border-charcoal">
+                <p class="text-xs text-charcoal">
+                    &copy; 2026 Magento 2 Developer Documentation. Magento&reg; is a registered trademark of Adobe Inc.
+                </p>
+                <p class="mt-6 text-xs text-charcoal">
+                    This documentation provides guidance for Magento 2 developers and extension builders. For merchant documentation, visit the <a href="index.html" class="text-orange hover:text-orange-600 transition-colors">merchant documentation</a>.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Initialize highlight.js -->
+    <script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('pre code').forEach(function (el) {
+        hljs.highlightElement(el);
+    });
+    document.querySelectorAll('pre').forEach(function (pre) {
+        if (pre.parentNode.classList && pre.parentNode.classList.contains('code-wrapper')) return;
+        var wrapper = document.createElement('div');
+        wrapper.className = 'code-wrapper';
+        pre.parentNode.insertBefore(wrapper, pre);
+        wrapper.appendChild(pre);
+        var btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.setAttribute('type', 'button');
+        btn.setAttribute('aria-label', 'Copy code to clipboard');
+        btn.setAttribute('title', 'Copy');
+        btn.textContent = 'Copy';
+        wrapper.appendChild(btn);
+        btn.addEventListener('click', function () {
+            var code = pre.querySelector('code');
+            var text = code ? (code.innerText || code.textContent) : (pre.innerText || pre.textContent);
+            navigator.clipboard.writeText(text).then(function () {
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            }).catch(function () {
+                var range = document.createRange();
+                range.selectNode(code || pre);
+                window.getSelection().removeAllRanges();
+                window.getSelection().addRange(range);
+                document.execCommand('copy');
+                window.getSelection().removeAllRanges();
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            });
+        });
+    });
+});
+</script>
+
+
+<script>
+(function() {
+    var nav = document.getElementById('toc-nav');
+    if (!nav) return;
+    var article = document.getElementById('main-content');
+    if (!article) return;
+    var headings = article.querySelectorAll('h2[id], h3[id]');
+    if (headings.length < 3) {
+        // Hide the entire TOC sidebar if fewer than 3 headings
+        var sidebar = nav.closest('.toc-sidebar');
+        if (sidebar) sidebar.style.display = 'none';
+        return;
+    }
+    var ids = [];
+    headings.forEach(function(h) {
+        var a = document.createElement('a');
+        a.href = '#' + h.id;
+        a.textContent = h.textContent.replace(/^#+\s*/, '').replace(/\s+/g, ' ').trim();
+        if (h.tagName === 'H3') a.classList.add('toc-h3');
+        nav.appendChild(a);
+        ids.push(h.id);
+    });
+    // Scroll-spy with IntersectionObserver
+    var links = nav.querySelectorAll('a');
+    var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                links.forEach(function(l) { l.classList.remove('toc-active'); });
+                var active = nav.querySelector('a[href="#' + entry.target.id + '"]');
+                if (active) active.classList.add('toc-active');
+            }
+        });
+    }, { rootMargin: '-80px 0px -70% 0px', threshold: 0 });
+    headings.forEach(function(h) { observer.observe(h); });
+})();
+</script>
+</body>
+</html>

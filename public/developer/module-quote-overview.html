@@ -1,0 +1,1336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magento_Quote Overview — Magento 2 Developer Documentation</title>
+    <meta name="description" content="Magento_Quote Overview">
+
+    <!-- Google Fonts: Inter Tight only. Courier New used for code. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Highlight.js: syntax highlighting for code blocks -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/php.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/ini.min.js"></script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        charcoal: {
+                            DEFAULT: '#2c2c2c', 50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6',
+                            300: '#6B6B6B', 400: '#474747', 500: '#2c2c2c', 600: '#262626',
+                            700: '#202020', 800: '#1c1c1c', 900: '#191919', 950: '#121212'
+                        },
+                        orange: {
+                            DEFAULT: '#D4551A', 50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad',
+                            300: '#f9ae78', 400: '#f58242', 500: '#f26423', 600: '#e34613',
+                            700: '#bc3312', 800: '#962a16', 900: '#792515', 950: '#411009'
+                        },
+                        yellow: {
+                            DEFAULT: '#B8860B', 50: '#fffdeb', 100: '#fdf9c8', 200: '#fbf38c',
+                            300: '#f8e651', 400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a',
+                            700: '#b1670c', 800: '#8f5111', 900: '#764311', 950: '#442204'
+                        },
+                        'off-white': '#FAFAFA',
+                    },
+                    fontFamily: {
+                        sans: ['Inter Tight', 'system-ui', '-apple-system', 'sans-serif'],
+                        mono: ['Courier New', 'Courier', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* ── Force light mode ── */
+        :root { color-scheme: light only; }
+
+        [x-cloak] { display: none !important; }
+
+        /* ── Scroll offset for sticky header ── */
+        .prose h2, .prose h3 { scroll-margin-top: 5rem; }
+
+        /* ── Code blocks: Bauhaus charcoal bg, no border-radius, highlight.js override ── */
+        .prose pre {
+            background-color: #2C2C2C !important;
+            border-radius: 0 !important;
+            padding: 1.25rem;
+            overflow-x: auto;
+            font-size: 0.875rem;
+            line-height: 1.7;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 1.5rem 0;
+        }
+        .prose pre code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            background: transparent !important;
+            padding: 0;
+                    color: #abb2bf;
+        }
+        /* Override highlight.js theme background to match Bauhaus charcoal */
+        .hljs {
+            background: #2C2C2C !important;
+            color: #abb2bf !important;
+            border-radius: 0 !important;
+        }
+
+        /* ── Inline code: charcoal bg, yellow text, no border-radius ── */
+        .prose code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.85em;
+        }
+        .prose :not(pre) > code {
+            background-color: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2em 0.45em;
+            border-radius: 0;
+        }
+
+        /* ── Step-code: same charcoal/yellow style for UI path chips ── */
+        .step-code {
+            background: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2rem 0.5rem;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            border-radius: 0;
+        }
+
+        /* ── Tables: no border-radius, charcoal header ── */
+        .prose table { width: 100%; border-collapse: collapse; }
+        .prose th {
+            background-color: #2C2C2C;
+            color: #ffffff;
+            font-weight: 600;
+            text-align: left;
+            padding: 0.75rem 1rem;
+            border-bottom: 2px solid #2C2C2C;
+            border-radius: 0;
+        }
+        .prose td { padding: 0.75rem 1rem; border-bottom: 1px solid #e5e5e5; }
+        .prose tr:hover { background-color: #fafafa; }
+
+        /* ── Blockquote: Bauhaus style — border-4 yellow, square, no left-only border ── */
+        .prose blockquote {
+            border: 4px solid #F1BC1B;
+            background-color: #ffffff;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+            border-radius: 0;
+        }
+        .prose blockquote p { margin: 0; }
+
+        /* ── Lists: hexagon bullets ── */
+        .prose ul { list-style: none; padding-left: 0; }
+        .prose ul li {
+            position: relative;
+            padding-left: 1.75rem;
+            margin-bottom: 0.4rem;
+            line-height: 1.7;
+        }
+        .prose ul li::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0.45em;
+            width: 10px;
+            height: 10px;
+            background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 2L21 7V17L12 22L3 17V7L12 2Z' stroke='%23F26423' stroke-width='2.5' stroke-linejoin='miter'/%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+        .prose ol { list-style-type: decimal; padding-left: 1.5rem; }
+        .prose li { margin-bottom: 0.4rem; }
+
+        /* ── Headings ── */
+        .prose h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            padding-top: 1.5rem;
+            border-top: 4px solid #F1BC1B;
+            color: #2C2C2C;
+        }
+        .prose h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+            color: #2C2C2C;
+        }
+        .prose h4 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #2C2C2C;
+        }
+        .prose p { margin-bottom: 1rem; line-height: 1.75; }
+        .prose a { color: #D4551A; text-decoration: none; }
+        .prose a:hover { color: #e34613; text-decoration: underline; }
+        .prose hr { border: none; border-top: 1px solid #e5e5e5; margin: 2rem 0; }
+
+        /* ── Callout boxes: Bauhaus — border-4 yellow, white bg, icon + title ── */
+        .callout-box {
+            background-color: #ffffff;
+            border: 4px solid #F1BC1B;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+        }
+        .callout-warning {
+            border-color: #D4551A;
+        }
+        .callout-important {
+            border-color: #2C2C2C;
+        }
+        .callout-box .callout-inner {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+        .callout-box .callout-title {
+            font-weight: 600;
+            color: #2C2C2C;
+            margin-bottom: 0.25rem;
+        }
+        .callout-box .callout-body {
+            font-size: 0.875rem;
+            line-height: 1.6;
+            color: rgba(44,44,44,0.85);
+        }
+
+        
+    
+        /* Code block copy button */
+        .code-wrapper {
+            position: relative;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            font-family: 'Inter Tight', system-ui, sans-serif;
+            background: rgba(255,255,255,0.1);
+            color: #abb2bf;
+            border: 1px solid rgba(255,255,255,0.15);
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.15s ease, background 0.15s ease;
+            z-index: 10;
+            line-height: 1.4;
+            border-radius: 4px;
+            user-select: none;
+        }
+        .code-wrapper:hover .copy-btn {
+            opacity: 1;
+        }
+        .copy-btn:hover,
+        .copy-btn:focus {
+            background: rgba(255,255,255,0.2);
+            color: #ffffff;
+            outline: 2px solid #D4551A;
+            outline-offset: 1px;
+        }
+        .copy-btn.copied {
+            color: #98c379;
+            background: rgba(152, 195, 121, 0.15);
+            opacity: 1;
+        }
+    
+        /* Right-hand TOC sidebar */
+        .toc-sidebar {
+            width: 14rem;
+            flex-shrink: 0;
+        }
+        .toc-sidebar a {
+            display: block;
+            padding: 0.375rem 0;
+            font-size: 0.8125rem;
+            line-height: 1.4;
+            color: #6b7280;
+            text-decoration: none;
+            transition: color 0.15s ease;
+            border-left: 2px solid transparent;
+            padding-left: 0.75rem;
+        }
+        .toc-sidebar a:hover {
+            color: #111827;
+        }
+        .toc-sidebar a.toc-active {
+            color: #ea580c;
+            border-left-color: #ea580c;
+            font-weight: 500;
+        }
+        .toc-sidebar a.toc-h3 {
+            padding-left: 1.5rem;
+            font-size: 0.75rem;
+        }
+        .toc-sidebar .toc-back-to-top {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e5e7eb;
+        }
+        .toc-sidebar .toc-back-to-top a {
+            border-left: none;
+            padding-left: 0;
+            font-weight: 500;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .toc-sidebar .toc-back-to-top a:hover {
+            color: #ea580c;
+        }
+    </style>
+</head>
+
+<body class="font-sans bg-off-white text-charcoal">
+
+    <!-- Shared header — single source of truth -->
+    <script src="includes/header.js"></script>
+
+    <!-- Breadcrumb — orange › separators -->
+    <div class="bg-white border-b border-gray-100">
+        <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <div class="flex items-center gap-2 text-sm flex-wrap">
+                <a href="index.html" class="text-orange hover:text-orange-600 transition-colors no-underline">Home</a> <span class="text-orange font-medium">›</span> <a href="modules.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">Modules</a> <span class="text-orange font-medium">›</span> <a href="module-quote.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">Quote</a> <span class="text-orange font-medium">›</span> <span class="text-charcoal font-medium">Magento_Quote Overview</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="flex gap-8">
+
+            <!-- Left Sidebar (desktop) -->
+            <aside class="hidden lg:block w-64 flex-shrink-0">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4">Quote Module</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="module-quote-overview.html" class="block px-3 py-2 text-sm text-orange font-semibold bg-orange-50 border-l-4 border-orange pl-2 transition-colors no-underline">Overview</a></li>
+<li class="pl-0"><a href="module-quote-architecture.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Architecture</a></li>
+<li class="pl-0"><a href="module-quote-execution-flows.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Execution Flows</a></li>
+<li class="pl-0"><a href="module-quote-plugins-and-observers.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Plugins & Observers</a></li>
+<li class="pl-0"><a href="module-quote-integrations.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Integrations</a></li>
+<li class="pl-0"><a href="module-quote-anti-patterns.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Anti-Patterns</a></li>
+<li class="pl-0"><a href="module-quote-performance.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Performance</a></li>
+<li class="pl-0"><a href="module-quote-known-issues.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Known Issues</a></li>
+<li class="pl-0"><a href="module-quote-version-compatibility.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Version Compatibility</a></li>
+</ul>
+<h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4 mt-8">Other Modules</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="module-catalog.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Catalog</a></li>
+<li class="pl-0"><a href="module-checkout.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Checkout</a></li>
+<li class="pl-0"><a href="module-customer.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Customer</a></li>
+<li class="pl-0"><a href="module-sales.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Sales</a></li>
+</ul>
+                </div>
+            </aside>
+
+            <!-- Article — square corners, border-t-4 orange accent -->
+            <main id="main-content" class="flex-1 min-w-0">
+                <article class="bg-white shadow-sm border border-gray-100 border-t-4 border-t-orange p-8 md:p-12">
+                    <!-- Title block -->
+                    <div class="mb-8">
+                        <span class="inline-block px-3 py-1.5 text-xs font-medium bg-charcoal-50 text-charcoal border border-charcoal-100">Overview</span>
+                        <h1 class="text-3xl md:text-4xl font-extrabold text-charcoal mt-3 mb-3">Magento_Quote Overview</h1>
+                        <p class="text-charcoal-300 text-lg mb-4">Magento_Quote Overview</p>
+                        <!-- Meta pills -->
+                        <div class="flex flex-wrap gap-2"><span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-charcoal text-white">Magento 2.4.7+</span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-charcoal-50 text-charcoal border border-charcoal-100">Magento_Quote</span></div>
+                    </div>
+
+                    <hr class="border-0 border-t border-gray-100 mb-8">
+
+                    <!-- Content -->
+                    <div class="prose max-w-none">
+                        <h1 id="magento_quote-module">Magento_Quote Module</h1>
+<h2 id="overview">Overview</h2>
+<p>The <code>Magento_Quote</code> module is the foundational component of Adobe Commerce and Magento Open Source that manages shopping cart functionality, quote lifecycle, and the transition from cart to order. It provides the service contracts, data models, and business logic for cart operations, totals calculation, address management, payment/shipping method selection, and quote-to-order conversion.</p>
+<p><strong>Target Version:</strong> Magento 2.4.7+ | Adobe Commerce &amp; Open Source
+<strong>PHP Version:</strong> 8.2+
+<strong>Module Type:</strong> Core Commerce Module</p>
+<h2 id="module-purpose">Module Purpose</h2>
+<p>The Quote module serves as the central hub for pre-order business logic:</p>
+<ol>
+<li><strong>Cart Management</strong> - Create, retrieve, update, and delete quotes (shopping carts)</li>
+<li><strong>Item Management</strong> - Add products to cart, update quantities, remove items, configure options</li>
+<li><strong>Address Management</strong> - Handle billing/shipping addresses with validation</li>
+<li><strong>Totals Calculation</strong> - Orchestrate complex totals calculation through collectors</li>
+<li><strong>Quote Lifecycle</strong> - Manage quote states: active, merged, converted, expired</li>
+<li><strong>Checkout Preparation</strong> - Validate quote readiness for order placement</li>
+<li><strong>Quote-to-Order Conversion</strong> - Convert validated quotes into orders</li>
+<li><strong>Guest Cart Handling</strong> - Anonymous shopping with cart merging on login</li>
+<li><strong>Multi-address Checkout</strong> - Support shipping to multiple addresses</li>
+</ol>
+<h2 id="key-features">Key Features</h2>
+<h3 id="cart-operations">Cart Operations</h3>
+<ul>
+<li><strong>Add to Cart</strong> - Product addition with configurable/bundle/grouped/simple support</li>
+<li><strong>Update Cart</strong> - Quantity changes, option modifications, item removal</li>
+<li><strong>Cart Validation</strong> - Stock validation, price verification, product availability</li>
+<li><strong>Cart Merge</strong> - Merge guest cart into customer cart on login</li>
+<li><strong>Cart Persistence</strong> - Save inactive carts, restore abandoned carts</li>
+<li><strong>Mini Cart</strong> - Real-time cart summary with AJAX updates</li>
+</ul>
+<h3 id="totals-management">Totals Management</h3>
+<ul>
+<li><strong>Modular Collectors</strong> - Subtotal, tax, shipping, discount, grand total</li>
+<li><strong>Collector Priority</strong> - Ordered execution with dependency resolution</li>
+<li><strong>Address-level Totals</strong> - Separate totals for billing/shipping addresses</li>
+<li><strong>Custom Totals</strong> - Extension points for custom fees/adjustments</li>
+<li><strong>Totals Caching</strong> - Performance optimization for complex calculations</li>
+</ul>
+<h3 id="quote-addresses">Quote Addresses</h3>
+<ul>
+<li><strong>Address Validation</strong> - Required fields, format validation, region/country checks</li>
+<li><strong>Default Addresses</strong> - Customer default address integration</li>
+<li><strong>Address Estimation</strong> - Shipping cost estimation without full address</li>
+<li><strong>Multi-address Support</strong> - Different shipping addresses per item group</li>
+</ul>
+<h3 id="payment-and-shipping">Payment and Shipping</h3>
+<ul>
+<li><strong>Method Selection</strong> - Choose payment/shipping methods</li>
+<li><strong>Method Availability</strong> - Filter methods by cart contents, customer group, address</li>
+<li><strong>Method Validation</strong> - Verify method applicability before order placement</li>
+<li><strong>Additional Data</strong> - Store method-specific configuration (PO numbers, delivery instructions)</li>
+</ul>
+<h2 id="module-structure">Module Structure</h2>
+<pre><code>Magento/Quote/
+├── Api/                          # Service contracts
+│   ├── CartManagementInterface.php
+│   ├── CartRepositoryInterface.php
+│   ├── CartItemRepositoryInterface.php
+│   ├── CartTotalRepositoryInterface.php
+│   ├── GuestCartManagementInterface.php
+│   ├── PaymentMethodManagementInterface.php
+│   └── ShipmentEstimationInterface.php
+├── Model/
+│   ├── Quote.php                 # Core quote entity
+│   ├── Quote/
+│   │   ├── Address.php           # Quote address entity
+│   │   ├── Item.php              # Quote item entity
+│   │   ├── Payment.php           # Payment information
+│   │   ├── TotalsCollector.php   # Totals orchestrator
+│   │   ├── Address/
+│   │   │   ├── Total.php         # Address total model
+│   │   │   └── Total/Collector.php
+│   │   └── Item/
+│   │       ├── AbstractItem.php
+│   │       ├── Option.php        # Item options/configuration
+│   │       └── Processor.php     # Item processing logic
+│   ├── QuoteManagement.php       # Cart management implementation
+│   ├── QuoteRepository.php       # Quote persistence
+│   ├── GuestCart/                # Guest cart services
+│   │   ├── GuestCartManagement.php
+│   │   └── GuestCartRepository.php
+│   └── ResourceModel/
+│       ├── Quote.php             # Quote resource model
+│       └── Quote/
+│           ├── Collection.php
+│           ├── Address.php
+│           └── Item.php
+├── Observer/                     # Event observers
+│   ├── SubmitObserver.php        # Quote-to-order conversion
+│   ├── Frontend/
+│   │   └── QuoteLoadObserver.php # Load customer quote
+│   └── Backend/
+│       └── CustomerQuoteObserver.php
+└── Setup/
+    ├── Patch/
+    │   └── Data/                 # Data patches
+    └── db_schema.xml             # Declarative schema
+</code></pre>
+<h2 id="core-service-contracts">Core Service Contracts</h2>
+<h3 id="cartrepositoryinterface">CartRepositoryInterface</h3>
+<p>Primary interface for quote persistence operations.</p>
+<pre><code class="language-php">&lt;?php
+namespace Magento\Quote\Api;
+
+/**
+ * Cart repository interface (actual 2.4.7 signatures — no PHP return types)
+ *
+ * @api
+ * @since 100.0.2
+ */
+interface CartRepositoryInterface
+{
+    /**
+     * @param int $cartId
+     * @return \Magento\Quote\Api\Data\CartInterface
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     */
+    public function get($cartId);
+
+    /**
+     * @param \Magento\Framework\Api\SearchCriteriaInterface $searchCriteria
+     * @return \Magento\Quote\Api\Data\CartSearchResultsInterface
+     */
+    public function getList(\Magento\Framework\Api\SearchCriteriaInterface $searchCriteria);
+
+    /**
+     * @param int $customerId
+     * @param int[] $sharedStoreIds
+     * @return \Magento\Quote\Api\Data\CartInterface
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     */
+    public function getForCustomer($customerId, array $sharedStoreIds = []);
+
+    /**
+     * @param int $cartId
+     * @param int[] $sharedStoreIds
+     * @return \Magento\Quote\Api\Data\CartInterface
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     */
+    public function getActive($cartId, array $sharedStoreIds = []);
+
+    /**
+     * @param int $customerId
+     * @param int[] $sharedStoreIds
+     * @return \Magento\Quote\Api\Data\CartInterface
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     */
+    public function getActiveForCustomer($customerId, array $sharedStoreIds = []);
+
+    /**
+     * @param \Magento\Quote\Api\Data\CartInterface $quote
+     * @return void
+     */
+    public function save(\Magento\Quote\Api\Data\CartInterface $quote);
+
+    /**
+     * @param \Magento\Quote\Api\Data\CartInterface $quote
+     * @return void
+     */
+    public function delete(\Magento\Quote\Api\Data\CartInterface $quote);
+}
+</code></pre>
+<h3 id="cartmanagementinterface">CartManagementInterface</h3>
+<p>Manages cart lifecycle and operations.</p>
+<pre><code class="language-php">&lt;?php
+namespace Magento\Quote\Api;
+
+/**
+ * Cart management interface (actual 2.4.7 signatures — no PHP return types)
+ *
+ * @api
+ * @since 100.0.2
+ */
+interface CartManagementInterface
+{
+    /** @return int Cart ID */
+    public function createEmptyCart();
+
+    /** @return int Cart ID */
+    public function createEmptyCartForCustomer($customerId);
+
+    /** @return \Magento\Quote\Api\Data\CartInterface */
+    public function getCartForCustomer($customerId);
+
+    /** @return bool */
+    public function assignCustomer($cartId, $customerId, $storeId);
+
+    /** @return int Order ID */
+    public function placeOrder($cartId, \Magento\Quote\Api\Data\PaymentInterface $paymentMethod = null);
+}
+</code></pre>
+<h3 id="cartitemrepositoryinterface">CartItemRepositoryInterface</h3>
+<p>Manages items within the cart.</p>
+<pre><code class="language-php">&lt;?php
+namespace Magento\Quote\Api;
+
+/**
+ * Cart item repository interface (actual 2.4.7 signatures — no PHP return types)
+ *
+ * @api
+ * @since 100.0.2
+ */
+interface CartItemRepositoryInterface
+{
+    /** @return \Magento\Quote\Api\Data\CartItemInterface[] */
+    public function getList($cartId);
+
+    /** @return \Magento\Quote\Api\Data\CartItemInterface */
+    public function save(\Magento\Quote\Api\Data\CartItemInterface $cartItem);
+
+    /** @return bool */
+    public function deleteById($cartId, $itemId);
+}
+</code></pre>
+<h2 id="data-models">Data Models</h2>
+<h3 id="quote-cartinterface">Quote (CartInterface)</h3>
+<pre><code class="language-php">&lt;?php
+namespace Magento\Quote\Api\Data;
+
+/**
+ * Cart data interface (actual 2.4.7 — no PHP return types, only @return docblocks)
+ *
+ * @api
+ * @since 100.0.2
+ */
+interface CartInterface extends \Magento\Framework\Api\ExtensibleDataInterface
+{
+    // Identity
+    /** @return int|null */
+    public function getId();
+    /** @return $this */
+    public function setId($id);
+
+    // Customer association
+    /** @return int|null */
+    public function getCustomerId();
+    /** @return $this */
+    public function setCustomerId($customerId);
+    /** @return string|null */
+    public function getCustomerEmail();
+    /** @return $this */
+    public function setCustomerEmail($customerEmail);
+    /** @return bool|null */
+    public function getCustomerIsGuest();
+    /** @return $this */
+    public function setCustomerIsGuest($isGuest);
+
+    // Store context
+    /** @return int */
+    public function getStoreId();
+    /** @return $this */
+    public function setStoreId($storeId);
+
+    // Quote state
+    /** @return bool|null */
+    public function getIsActive();
+    /** @return $this */
+    public function setIsActive($isActive);
+    /** @return bool */
+    public function getIsVirtual();
+
+    // Items
+    /** @return \Magento\Quote\Api\Data\CartItemInterface[]|null */
+    public function getItems();
+    /** @return $this */
+    public function setItems(array $items);
+    /** @return int */
+    public function getItemsCount();
+    /** @return float */
+    public function getItemsQty();
+
+    // Totals
+    /** @return float|null */
+    public function getGrandTotal();
+    /** @return float|null */
+    public function getBaseGrandTotal();
+    /** @return float|null */
+    public function getSubtotal();
+    /** @return float|null */
+    public function getBaseSubtotal();
+
+    // Currency
+    /** @return string|null */
+    public function getBaseCurrencyCode();
+    /** @return string|null */
+    public function getQuoteCurrencyCode();
+    /** @return float|null */
+    public function getStoreToBaseRate();
+    /** @return float|null */
+    public function getStoreToQuoteRate();
+
+    // Addresses
+    /** @return \Magento\Quote\Api\Data\AddressInterface|null */
+    public function getBillingAddress();
+    /** @return $this */
+    public function setBillingAddress(\Magento\Quote\Api\Data\AddressInterface $billingAddress = null);
+
+    // Dates
+    /** @return string|null */
+    public function getCreatedAt();
+    /** @return string|null */
+    public function getUpdatedAt();
+
+    // Reserved order ID
+    /** @return string|null */
+    public function getReservedOrderId();
+    /** @return $this */
+    public function setReservedOrderId($reservedOrderId);
+}
+</code></pre>
+<h3 id="quote-item-cartiteminterface">Quote Item (CartItemInterface)</h3>
+<pre><code class="language-php">&lt;?php
+namespace Magento\Quote\Api\Data;
+
+/**
+ * Cart item data interface (actual 2.4.7 — no PHP return types)
+ *
+ * @api
+ * @since 100.0.2
+ */
+interface CartItemInterface extends \Magento\Framework\Api\ExtensibleDataInterface
+{
+    /** @return int|null */
+    public function getItemId();
+    /** @return $this */
+    public function setItemId($itemId);
+
+    /** @return string */
+    public function getSku();
+    /** @return $this */
+    public function setSku($sku);
+
+    /** @return string */
+    public function getQuoteId();
+    /** @return $this */
+    public function setQuoteId($quoteId);
+
+    /** @return string|null */
+    public function getProductType();
+    /** @return $this */
+    public function setProductType($productType);
+
+    /** @return float */
+    public function getQty();
+    /** @return $this */
+    public function setQty($qty);
+
+    /** @return float */
+    public function getPrice();
+    /** @return $this */
+    public function setPrice($price);
+
+    /** @return string|null */
+    public function getName();
+    /** @return $this */
+    public function setName($name);
+}
+</code></pre>
+<h2 id="common-use-cases">Common Use Cases</h2>
+<h3 id="add-product-to-cart">Add Product to Cart</h3>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Service;
+
+use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Quote\Api\CartManagementInterface;
+use Magento\Catalog\Api\ProductRepositoryInterface;
+use Magento\Framework\Exception\LocalizedException;
+
+class AddToCartService
+{
+    public function __construct(
+        private readonly CartRepositoryInterface $cartRepository,
+        private readonly CartManagementInterface $cartManagement,
+        private readonly ProductRepositoryInterface $productRepository
+    ) {}
+
+    /**
+     * Add product to customer cart
+     *
+     * @param int $customerId
+     * @param int $productId
+     * @param float $qty
+     * @param array $options
+     * @return int Item ID
+     * @throws LocalizedException
+     */
+    public function addToCart(
+        int $customerId,
+        int $productId,
+        float $qty,
+        array $options = []
+    ): int {
+        // Get or create cart
+        $quote = $this-&gt;cartManagement-&gt;getCartForCustomer($customerId);
+
+        // Load product
+        $product = $this-&gt;productRepository-&gt;getById($productId);
+
+        // Prepare buy request
+        $buyRequest = new \Magento\Framework\DataObject([
+            'qty' =&gt; $qty,
+            'product' =&gt; $productId,
+            'options' =&gt; $options
+        ]);
+
+        // Add product to quote
+        $item = $quote-&gt;addProduct($product, $buyRequest);
+
+        if (is_string($item)) {
+            throw new LocalizedException(__($item));
+        }
+
+        // Save quote and recalculate totals
+        $quote-&gt;collectTotals();
+        $this-&gt;cartRepository-&gt;save($quote);
+
+        return (int)$item-&gt;getId();
+    }
+}
+</code></pre>
+<h3 id="update-item-quantity">Update Item Quantity</h3>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Service;
+
+use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Quote\Api\CartItemRepositoryInterface;
+use Magento\Framework\Exception\LocalizedException;
+
+class UpdateCartService
+{
+    public function __construct(
+        private readonly CartRepositoryInterface $cartRepository,
+        private readonly CartItemRepositoryInterface $itemRepository
+    ) {}
+
+    /**
+     * Update item quantity
+     *
+     * @param int $cartId
+     * @param int $itemId
+     * @param float $qty
+     * @return void
+     * @throws LocalizedException
+     */
+    public function updateQuantity(int $cartId, int $itemId, float $qty): void
+    {
+        $quote = $this-&gt;cartRepository-&gt;get($cartId);
+        $item = $quote-&gt;getItemById($itemId);
+
+        if (!$item) {
+            throw new LocalizedException(__('Item not found in cart.'));
+        }
+
+        if ($qty &lt;= 0) {
+            $quote-&gt;removeItem($itemId);
+        } else {
+            $item-&gt;setQty($qty);
+        }
+
+        $quote-&gt;collectTotals();
+        $this-&gt;cartRepository-&gt;save($quote);
+    }
+}
+</code></pre>
+<h3 id="apply-coupon-code">Apply Coupon Code</h3>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Service;
+
+use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Quote\Api\CouponManagementInterface;
+use Magento\Framework\Exception\LocalizedException;
+
+class CouponService
+{
+    public function __construct(
+        private readonly CartRepositoryInterface $cartRepository,
+        private readonly CouponManagementInterface $couponManagement
+    ) {}
+
+    /**
+     * Apply coupon code to cart
+     *
+     * @param int $cartId
+     * @param string $couponCode
+     * @return bool
+     * @throws LocalizedException
+     */
+    public function applyCoupon(int $cartId, string $couponCode): bool
+    {
+        $this-&gt;couponManagement-&gt;set($cartId, $couponCode);
+
+        $quote = $this-&gt;cartRepository-&gt;get($cartId);
+        $quote-&gt;collectTotals();
+        $this-&gt;cartRepository-&gt;save($quote);
+
+        // Verify coupon was applied
+        if ($quote-&gt;getCouponCode() !== $couponCode) {
+            throw new LocalizedException(__('Coupon code &quot;%1&quot; is not valid.', $couponCode));
+        }
+
+        return true;
+    }
+}
+</code></pre>
+<h2 id="extension-points">Extension Points</h2>
+<h3 id="custom-totals-collector">Custom Totals Collector</h3>
+<p>Add custom fees or adjustments to cart totals.</p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Model\Quote\Address\Total;
+
+use Magento\Quote\Model\Quote;
+use Magento\Quote\Api\Data\ShippingAssignmentInterface;
+use Magento\Quote\Model\Quote\Address\Total;
+use Magento\Quote\Model\Quote\Address\Total\AbstractTotal;
+
+class CustomFee extends AbstractTotal
+{
+    /**
+     * Collect custom fee total
+     *
+     * @param Quote $quote
+     * @param ShippingAssignmentInterface $shippingAssignment
+     * @param Total $total
+     * @return $this
+     */
+    public function collect(
+        Quote $quote,
+        ShippingAssignmentInterface $shippingAssignment,
+        Total $total
+    ): self {
+        parent::collect($quote, $shippingAssignment, $total);
+
+        $address = $shippingAssignment-&gt;getShipping()-&gt;getAddress();
+
+        // Calculate custom fee (example: 5% of subtotal)
+        $subtotal = $total-&gt;getSubtotal();
+        $customFee = $subtotal * 0.05;
+
+        // Add to totals
+        $total-&gt;setTotalAmount('custom_fee', $customFee);
+        $total-&gt;setBaseTotalAmount('custom_fee', $customFee);
+        $total-&gt;setCustomFeeAmount($customFee);
+        $total-&gt;setBaseCustomFeeAmount($customFee);
+
+        return $this;
+    }
+
+    /**
+     * Fetch totals for display
+     *
+     * @param Quote $quote
+     * @param Total $total
+     * @return array
+     */
+    public function fetch(Quote $quote, Total $total): array
+    {
+        return [
+            'code' =&gt; 'custom_fee',
+            'title' =&gt; __('Custom Fee'),
+            'value' =&gt; $total-&gt;getCustomFeeAmount()
+        ];
+    }
+}
+</code></pre>
+<p>Register in <code>etc/sales.xml</code>:</p>
+<pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;config xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+        xsi:noNamespaceSchemaLocation=&quot;urn:magento:module:Magento_Sales:etc/sales.xsd&quot;&gt;
+    &lt;section name=&quot;quote&quot;&gt;
+        &lt;group name=&quot;totals&quot;&gt;
+            &lt;item name=&quot;custom_fee&quot; instance=&quot;Vendor\Module\Model\Quote\Address\Total\CustomFee&quot; sort_order=&quot;450&quot;/&gt;
+        &lt;/group&gt;
+    &lt;/section&gt;
+&lt;/config&gt;
+</code></pre>
+<h2 id="database-schema">Database Schema</h2>
+<h3 id="core-tables">Core Tables</h3>
+<ul>
+<li><strong><code>quote</code></strong> - Main quote entity (cart header)</li>
+<li><strong><code>quote_item</code></strong> - Items in cart</li>
+<li><strong><code>quote_address</code></strong> - Billing and shipping addresses</li>
+<li><strong><code>quote_address_item</code></strong> - Address-item associations (multi-address)</li>
+<li><strong><code>quote_item_option</code></strong> - Configurable/bundle product options</li>
+<li><strong><code>quote_payment</code></strong> - Payment method information</li>
+<li><strong><code>quote_shipping_rate</code></strong> - Available shipping rates</li>
+<li><strong><code>quote_id_mask</code></strong> - Guest cart masked IDs</li>
+</ul>
+<h3 id="key-relationships">Key Relationships</h3>
+<pre><code>quote (1) ----&lt; (many) quote_item
+quote (1) ----&lt; (many) quote_address
+quote (1) ---- (1) quote_payment
+quote_item (1) ----&lt; (many) quote_item_option
+quote_address (1) ----&lt; (many) quote_shipping_rate
+</code></pre>
+<h2 id="events">Events</h2>
+<h3 id="cart-events">Cart Events</h3>
+<ul>
+<li><strong><code>checkout_cart_add_product_complete</code></strong> - After product added to cart</li>
+<li><strong><code>checkout_cart_update_items_after</code></strong> - After cart items updated</li>
+<li><strong><code>checkout_cart_product_add_before</code></strong> - Before product added to cart</li>
+<li><strong><code>sales_quote_remove_item</code></strong> - When item removed from cart</li>
+<li><strong><code>sales_quote_collect_totals_before</code></strong> - Before totals collection</li>
+<li><strong><code>sales_quote_collect_totals_after</code></strong> - After totals collection</li>
+</ul>
+<h3 id="quote-events">Quote Events</h3>
+<ul>
+<li><strong><code>sales_quote_save_before</code></strong> - Before quote saved</li>
+<li><strong><code>sales_quote_save_after</code></strong> - After quote saved</li>
+<li><strong><code>sales_quote_load_after</code></strong> - After quote loaded</li>
+<li><strong><code>sales_quote_merge_before</code></strong> - Before merging quotes</li>
+<li><strong><code>sales_quote_merge_after</code></strong> - After merging quotes</li>
+</ul>
+<h2 id="configuration">Configuration</h2>
+<h3 id="system-configuration-paths">System Configuration Paths</h3>
+<pre><code class="language-php">// Shopping cart settings
+Stores &gt; Configuration &gt; Sales &gt; Checkout &gt; Shopping Cart
+
+// Quote lifetime (days)
+'checkout/cart/delete_quote_after'
+
+// Grouped product image
+'checkout/cart/grouped_product_image'
+
+// Configurable product image
+'checkout/cart/configurable_product_image'
+
+// Enable multi-address checkout
+'multishipping/options/checkout_multiple'
+
+// Number of allowed addresses
+'multishipping/options/checkout_multiple_maximum_qty'
+</code></pre>
+<h2 id="dependencies">Dependencies</h2>
+<h3 id="required-modules">Required Modules</h3>
+<ul>
+<li><code>Magento_Store</code> - Store and website context</li>
+<li><code>Magento_Customer</code> - Customer data and addresses</li>
+<li><code>Magento_Catalog</code> - Product information and pricing</li>
+<li><code>Magento_Sales</code> - Order conversion</li>
+<li><code>Magento_Tax</code> - Tax calculation</li>
+<li><code>Magento_Directory</code> - Country/region validation</li>
+</ul>
+<h3 id="optional-dependencies">Optional Dependencies</h3>
+<ul>
+<li><code>Magento_SalesRule</code> - Coupon and promotion support</li>
+<li><code>Magento_Checkout</code> - Checkout UI components</li>
+<li><code>Magento_Payment</code> - Payment method integration</li>
+<li><code>Magento_Shipping</code> - Shipping method integration</li>
+</ul>
+<h2 id="testing">Testing</h2>
+<h3 id="unit-test-example">Unit Test Example</h3>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Test\Unit\Service;
+
+use PHPUnit\Framework\TestCase;
+use Vendor\Module\Service\AddToCartService;
+use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Quote\Api\CartManagementInterface;
+use Magento\Catalog\Api\ProductRepositoryInterface;
+use Magento\Quote\Model\Quote;
+use Magento\Catalog\Model\Product;
+
+class AddToCartServiceTest extends TestCase
+{
+    private AddToCartService $service;
+    private CartRepositoryInterface $cartRepository;
+    private CartManagementInterface $cartManagement;
+    private ProductRepositoryInterface $productRepository;
+
+    protected function setUp(): void
+    {
+        $this-&gt;cartRepository = $this-&gt;createMock(CartRepositoryInterface::class);
+        $this-&gt;cartManagement = $this-&gt;createMock(CartManagementInterface::class);
+        $this-&gt;productRepository = $this-&gt;createMock(ProductRepositoryInterface::class);
+
+        $this-&gt;service = new AddToCartService(
+            $this-&gt;cartRepository,
+            $this-&gt;cartManagement,
+            $this-&gt;productRepository
+        );
+    }
+
+    public function testAddToCart(): void
+    {
+        $customerId = 1;
+        $productId = 123;
+        $qty = 2.0;
+
+        $quote = $this-&gt;createMock(Quote::class);
+        $product = $this-&gt;createMock(Product::class);
+        $item = $this-&gt;createMock(\Magento\Quote\Model\Quote\Item::class);
+
+        $this-&gt;cartManagement-&gt;expects($this-&gt;once())
+            -&gt;method('getCartForCustomer')
+            -&gt;with($customerId)
+            -&gt;willReturn($quote);
+
+        $this-&gt;productRepository-&gt;expects($this-&gt;once())
+            -&gt;method('getById')
+            -&gt;with($productId)
+            -&gt;willReturn($product);
+
+        $quote-&gt;expects($this-&gt;once())
+            -&gt;method('addProduct')
+            -&gt;willReturn($item);
+
+        $item-&gt;expects($this-&gt;once())
+            -&gt;method('getId')
+            -&gt;willReturn(456);
+
+        $quote-&gt;expects($this-&gt;once())-&gt;method('collectTotals');
+        $this-&gt;cartRepository-&gt;expects($this-&gt;once())-&gt;method('save')-&gt;with($quote);
+
+        $result = $this-&gt;service-&gt;addToCart($customerId, $productId, $qty);
+
+        $this-&gt;assertEquals(456, $result);
+    }
+}
+</code></pre>
+<h2 id="further-reading">Further Reading</h2>
+<ul>
+<li><strong>Architecture Documentation</strong> - <a href="./architecture.md">architecture.md</a></li>
+<li><strong>Execution Flows</strong> - <a href="./execution-flows.md">execution-flows.md</a></li>
+<li><strong>Plugin and Observer Guide</strong> - <a href="./plugins-and-observers.md">plugins-and-observers.md</a></li>
+<li><strong>Integration Guide</strong> - <a href="./integrations.md">integrations.md</a></li>
+<li><strong>Anti-Patterns</strong> - <a href="./anti-patterns.md">anti-patterns.md</a></li>
+<li><strong>Performance Guide</strong> - <a href="./performance.md">performance.md</a></li>
+</ul>
+<hr />
+<p><strong>Assumptions:</strong>
+- Magento 2.4.7+ with PHP 8.2+
+- Adobe Commerce or Open Source
+- Standard cart configuration (single-address checkout default)
+- Full Page Cache (FPC) enabled</p>
+<p><strong>Why This Approach:</strong>
+The Quote module uses service contracts extensively to maintain API stability and enable web API exposure. The totals collector pattern allows modular, extensible calculation logic. Repository pattern abstracts persistence concerns.</p>
+<p><strong>Security Impact:</strong>
+- All cart operations must verify customer ownership (customer ID matching)
+- Guest carts use masked IDs to prevent enumeration attacks
+- CSRF protection required on all cart modification forms
+- Price validation occurs server-side (never trust client prices)</p>
+<p><strong>Performance Impact:</strong>
+- Totals collection is expensive; cache quote totals when possible
+- Quote operations invalidate FPC for customer-specific sections
+- Use section data for mini cart updates (avoid full page reload)
+- Index quote items for fast cart retrieval</p>
+<p><strong>Backward Compatibility:</strong>
+Service contracts provide API stability across minor versions. Custom totals collectors and quote plugins are upgrade-safe. Direct model manipulation may break across versions.</p>
+<p><strong>Tests to Add:</strong>
+- Unit tests for service implementations
+- Integration tests for totals collectors
+- API functional tests for cart operations
+- MFTF tests for add-to-cart user flows</p>
+<p><strong>Docs to Update:</strong>
+- README.md (this file) - Keep use cases current
+- Developer documentation for custom totals
+- API documentation for REST/GraphQL endpoints</p>
+<h2 id="related-guides">Related Guides</h2>
+<ul>
+<li><a href="../../guides/explanations/b2b-features.md">B2B Features Development</a></li>
+<li><a href="../../guides/explanations/service-contracts-repositories.md">Service Contracts vs Repositories in Magento 2</a></li>
+<li><a href="../../guides/references/upgrade-guide-247-248.md">Upgrade Guide: Adobe Commerce 2.4.6 to 2.4.7/2.4.8</a></li>
+<li><a href="../../guides/tutorials/custom-payment-method.md">Custom Payment Method Development: Building Secure Payment Integrations</a></li>
+<li><a href="../../guides/tutorials/custom-shipping-method.md">Custom Shipping Method Development: Building Flexible Shipping Solutions</a></li>
+</ul>
+                    </div>
+                </article>
+            </main>
+            <!-- Right Sidebar: On This Page (desktop) -->
+            <aside class="toc-sidebar hidden xl:block" aria-label="On this page">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-semibold text-gray-900 uppercase tracking-wider mb-4 mt-0">On this page</h3>
+                    <nav id="toc-nav" class="space-y-0" aria-label="Table of contents"></nav>
+                    <div class="toc-back-to-top">
+                        <a href="#">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+                            </svg>
+                            Back to top
+                        </a>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- ================================================================
+         FOOTER — matches module-catalog.html multi-column layout exactly
+         ================================================================ -->
+    <footer class="relative pt-12 bg-white border-t border-charcoal mt-16">
+        <div class="max-w-screen-2xl mx-auto w-full px-4 sm:px-6 lg:px-8">
+            <div>
+                <a href="index.html" class="inline-flex items-center no-underline">
+                    <svg width="30" height="33" viewBox="0 0 30 33" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Magento Association logo" role="img">
+                        <path d="M0 4.06492H29.6763V31.8882C29.6763 32.502 29.1713 33 28.5487 33H1.12762C0.505079 33 0 32.502 0 31.8882V4.06492Z" fill="#34323A"/>
+                        <path d="M1.26857 0H28.4078C29.1066 0 29.6763 0.561678 29.6763 1.25075V4.06492H0V1.25075C0 0.561678 0.569682 0 1.26857 0Z" fill="#C9C9C9"/>
+                        <path d="M2.37269 3.0458C2.94031 3.0458 3.40046 2.59211 3.40046 2.03246C3.40046 1.47281 2.94031 1.01913 2.37269 1.01913C1.80506 1.01913 1.34491 1.47281 1.34491 2.03246C1.34491 2.59211 1.80506 3.0458 2.37269 3.0458Z" fill="#848484"/>
+                        <path d="M5.28571 3.0458C5.85334 3.0458 6.31349 2.59211 6.31349 2.03246C6.31349 1.47281 5.85334 1.01913 5.28571 1.01913C4.71809 1.01913 4.25793 1.47281 4.25793 2.03246C4.25793 2.59211 4.71809 3.0458 5.28571 3.0458Z" fill="#848484"/>
+                        <path d="M14.7883 7.46973L4.90405 13.0923V24.349L7.54104 25.8487V14.5978L14.7883 10.4692L22.0415 14.5978V25.8487L24.6785 24.349V13.0923L14.7883 7.46973Z" fill="#F1BC1B"/>
+                        <path d="M16.0862 26.2367L14.7883 26.9779L13.4492 26.2135V14.233L10.178 16.0975V27.3485L13.4492 29.213L14.7883 29.9773L16.0862 29.2362L19.4045 27.3485V16.0975L16.0862 14.2098V26.2367Z" fill="#F1BC1B"/>
+                    </svg>
+                    <span class="ml-3 text-xl font-bold text-charcoal">Developer Documentation</span>
+                </a>
+            </div>
+
+            <div class="grid grid-cols-12 md:gap-x-8 gap-y-12 lg:mt-12">
+                <div class="col-span-12 lg:col-span-4">
+                    <p class="hidden lg:block text-xs text-charcoal sm:text-sm">Comprehensive developer documentation for Magento 2.4.7+ — tutorials, architecture deep dives, module references, and production-ready patterns built by the community, for the community.</p>
+                    <ul class="mt-6 hidden lg:flex items-center gap-3">
+                        <li class="pl-0">
+                            <a href="https://github.com/magento/magento2" class="p-2 md:p-0" aria-label="GitHub">
+                                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                                </svg>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Guides</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="tutorials.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Tutorials</a></li>
+                            <li class="pl-0"><a href="how-to-guides.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">How-To Guides</a></li>
+                            <li class="pl-0"><a href="architecture.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Architecture</a></li>
+                            <li class="pl-0"><a href="learning-paths.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Learning Paths</a></li>
+                            <li class="pl-0"><a href="references.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">References</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Modules</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="module-catalog.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Catalog</a></li>
+                            <li class="pl-0"><a href="module-checkout.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Checkout</a></li>
+                            <li class="pl-0"><a href="module-sales.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Sales</a></li>
+                            <li class="pl-0"><a href="module-customer.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Customer</a></li>
+                            <li class="pl-0"><a href="module-quote.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Quote</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Community</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Magento Community</a></li>
+                            <li class="pl-0"><a href="https://magento.stackexchange.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Stack Exchange</a></li>
+                            <li class="pl-0"><a href="https://marketplace.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Marketplace</a></li>
+                            <li class="pl-0"><a href="https://github.com/magento/magento2" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">GitHub</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Support</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://github.com/magento/magento2/issues" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Report Issues</a></li>
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Community Resources</a></li>
+                            <li class="pl-0"><a href="https://developer.adobe.com/commerce/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Adobe Commerce Docs</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-12 border-t pt-6 pb-16 border-charcoal">
+                <p class="text-xs text-charcoal">
+                    &copy; 2026 Magento 2 Developer Documentation. Magento&reg; is a registered trademark of Adobe Inc.
+                </p>
+                <p class="mt-6 text-xs text-charcoal">
+                    This documentation provides guidance for Magento 2 developers and extension builders. For merchant documentation, visit the <a href="index.html" class="text-orange hover:text-orange-600 transition-colors">merchant documentation</a>.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Initialize highlight.js -->
+    <script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('pre code').forEach(function (el) {
+        hljs.highlightElement(el);
+    });
+    document.querySelectorAll('pre').forEach(function (pre) {
+        if (pre.parentNode.classList && pre.parentNode.classList.contains('code-wrapper')) return;
+        var wrapper = document.createElement('div');
+        wrapper.className = 'code-wrapper';
+        pre.parentNode.insertBefore(wrapper, pre);
+        wrapper.appendChild(pre);
+        var btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.setAttribute('type', 'button');
+        btn.setAttribute('aria-label', 'Copy code to clipboard');
+        btn.setAttribute('title', 'Copy');
+        btn.textContent = 'Copy';
+        wrapper.appendChild(btn);
+        btn.addEventListener('click', function () {
+            var code = pre.querySelector('code');
+            var text = code ? (code.innerText || code.textContent) : (pre.innerText || pre.textContent);
+            navigator.clipboard.writeText(text).then(function () {
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            }).catch(function () {
+                var range = document.createRange();
+                range.selectNode(code || pre);
+                window.getSelection().removeAllRanges();
+                window.getSelection().addRange(range);
+                document.execCommand('copy');
+                window.getSelection().removeAllRanges();
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            });
+        });
+    });
+});
+</script>
+
+
+<script>
+(function() {
+    var nav = document.getElementById('toc-nav');
+    if (!nav) return;
+    var article = document.getElementById('main-content');
+    if (!article) return;
+    var headings = article.querySelectorAll('h2[id], h3[id]');
+    if (headings.length < 3) {
+        // Hide the entire TOC sidebar if fewer than 3 headings
+        var sidebar = nav.closest('.toc-sidebar');
+        if (sidebar) sidebar.style.display = 'none';
+        return;
+    }
+    var ids = [];
+    headings.forEach(function(h) {
+        var a = document.createElement('a');
+        a.href = '#' + h.id;
+        a.textContent = h.textContent.replace(/^#+\s*/, '').replace(/\s+/g, ' ').trim();
+        if (h.tagName === 'H3') a.classList.add('toc-h3');
+        nav.appendChild(a);
+        ids.push(h.id);
+    });
+    // Scroll-spy with IntersectionObserver
+    var links = nav.querySelectorAll('a');
+    var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                links.forEach(function(l) { l.classList.remove('toc-active'); });
+                var active = nav.querySelector('a[href="#' + entry.target.id + '"]');
+                if (active) active.classList.add('toc-active');
+            }
+        });
+    }, { rootMargin: '-80px 0px -70% 0px', threshold: 0 });
+    headings.forEach(function(h) { observer.observe(h); });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,1194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magento_Customer Overview — Magento 2 Developer Documentation</title>
+    <meta name="description" content="Magento_Customer Overview">
+
+    <!-- Google Fonts: Inter Tight only. Courier New used for code. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Highlight.js: syntax highlighting for code blocks -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/php.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/ini.min.js"></script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        charcoal: {
+                            DEFAULT: '#2c2c2c', 50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6',
+                            300: '#6B6B6B', 400: '#474747', 500: '#2c2c2c', 600: '#262626',
+                            700: '#202020', 800: '#1c1c1c', 900: '#191919', 950: '#121212'
+                        },
+                        orange: {
+                            DEFAULT: '#D4551A', 50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad',
+                            300: '#f9ae78', 400: '#f58242', 500: '#f26423', 600: '#e34613',
+                            700: '#bc3312', 800: '#962a16', 900: '#792515', 950: '#411009'
+                        },
+                        yellow: {
+                            DEFAULT: '#B8860B', 50: '#fffdeb', 100: '#fdf9c8', 200: '#fbf38c',
+                            300: '#f8e651', 400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a',
+                            700: '#b1670c', 800: '#8f5111', 900: '#764311', 950: '#442204'
+                        },
+                        'off-white': '#FAFAFA',
+                    },
+                    fontFamily: {
+                        sans: ['Inter Tight', 'system-ui', '-apple-system', 'sans-serif'],
+                        mono: ['Courier New', 'Courier', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* ── Force light mode ── */
+        :root { color-scheme: light only; }
+
+        [x-cloak] { display: none !important; }
+
+        /* ── Scroll offset for sticky header ── */
+        .prose h2, .prose h3 { scroll-margin-top: 5rem; }
+
+        /* ── Code blocks: Bauhaus charcoal bg, no border-radius, highlight.js override ── */
+        .prose pre {
+            background-color: #2C2C2C !important;
+            border-radius: 0 !important;
+            padding: 1.25rem;
+            overflow-x: auto;
+            font-size: 0.875rem;
+            line-height: 1.7;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 1.5rem 0;
+        }
+        .prose pre code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            background: transparent !important;
+            padding: 0;
+                    color: #abb2bf;
+        }
+        /* Override highlight.js theme background to match Bauhaus charcoal */
+        .hljs {
+            background: #2C2C2C !important;
+            color: #abb2bf !important;
+            border-radius: 0 !important;
+        }
+
+        /* ── Inline code: charcoal bg, yellow text, no border-radius ── */
+        .prose code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.85em;
+        }
+        .prose :not(pre) > code {
+            background-color: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2em 0.45em;
+            border-radius: 0;
+        }
+
+        /* ── Step-code: same charcoal/yellow style for UI path chips ── */
+        .step-code {
+            background: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2rem 0.5rem;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            border-radius: 0;
+        }
+
+        /* ── Tables: no border-radius, charcoal header ── */
+        .prose table { width: 100%; border-collapse: collapse; }
+        .prose th {
+            background-color: #2C2C2C;
+            color: #ffffff;
+            font-weight: 600;
+            text-align: left;
+            padding: 0.75rem 1rem;
+            border-bottom: 2px solid #2C2C2C;
+            border-radius: 0;
+        }
+        .prose td { padding: 0.75rem 1rem; border-bottom: 1px solid #e5e5e5; }
+        .prose tr:hover { background-color: #fafafa; }
+
+        /* ── Blockquote: Bauhaus style — border-4 yellow, square, no left-only border ── */
+        .prose blockquote {
+            border: 4px solid #F1BC1B;
+            background-color: #ffffff;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+            border-radius: 0;
+        }
+        .prose blockquote p { margin: 0; }
+
+        /* ── Lists: hexagon bullets ── */
+        .prose ul { list-style: none; padding-left: 0; }
+        .prose ul li {
+            position: relative;
+            padding-left: 1.75rem;
+            margin-bottom: 0.4rem;
+            line-height: 1.7;
+        }
+        .prose ul li::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0.45em;
+            width: 10px;
+            height: 10px;
+            background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 2L21 7V17L12 22L3 17V7L12 2Z' stroke='%23F26423' stroke-width='2.5' stroke-linejoin='miter'/%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+        .prose ol { list-style-type: decimal; padding-left: 1.5rem; }
+        .prose li { margin-bottom: 0.4rem; }
+
+        /* ── Headings ── */
+        .prose h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            padding-top: 1.5rem;
+            border-top: 4px solid #F1BC1B;
+            color: #2C2C2C;
+        }
+        .prose h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+            color: #2C2C2C;
+        }
+        .prose h4 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #2C2C2C;
+        }
+        .prose p { margin-bottom: 1rem; line-height: 1.75; }
+        .prose a { color: #D4551A; text-decoration: none; }
+        .prose a:hover { color: #e34613; text-decoration: underline; }
+        .prose hr { border: none; border-top: 1px solid #e5e5e5; margin: 2rem 0; }
+
+        /* ── Callout boxes: Bauhaus — border-4 yellow, white bg, icon + title ── */
+        .callout-box {
+            background-color: #ffffff;
+            border: 4px solid #F1BC1B;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+        }
+        .callout-warning {
+            border-color: #D4551A;
+        }
+        .callout-important {
+            border-color: #2C2C2C;
+        }
+        .callout-box .callout-inner {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+        .callout-box .callout-title {
+            font-weight: 600;
+            color: #2C2C2C;
+            margin-bottom: 0.25rem;
+        }
+        .callout-box .callout-body {
+            font-size: 0.875rem;
+            line-height: 1.6;
+            color: rgba(44,44,44,0.85);
+        }
+
+        
+    
+        /* Code block copy button */
+        .code-wrapper {
+            position: relative;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            font-family: 'Inter Tight', system-ui, sans-serif;
+            background: rgba(255,255,255,0.1);
+            color: #abb2bf;
+            border: 1px solid rgba(255,255,255,0.15);
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.15s ease, background 0.15s ease;
+            z-index: 10;
+            line-height: 1.4;
+            border-radius: 4px;
+            user-select: none;
+        }
+        .code-wrapper:hover .copy-btn {
+            opacity: 1;
+        }
+        .copy-btn:hover,
+        .copy-btn:focus {
+            background: rgba(255,255,255,0.2);
+            color: #ffffff;
+            outline: 2px solid #D4551A;
+            outline-offset: 1px;
+        }
+        .copy-btn.copied {
+            color: #98c379;
+            background: rgba(152, 195, 121, 0.15);
+            opacity: 1;
+        }
+    
+        /* Right-hand TOC sidebar */
+        .toc-sidebar {
+            width: 14rem;
+            flex-shrink: 0;
+        }
+        .toc-sidebar a {
+            display: block;
+            padding: 0.375rem 0;
+            font-size: 0.8125rem;
+            line-height: 1.4;
+            color: #6b7280;
+            text-decoration: none;
+            transition: color 0.15s ease;
+            border-left: 2px solid transparent;
+            padding-left: 0.75rem;
+        }
+        .toc-sidebar a:hover {
+            color: #111827;
+        }
+        .toc-sidebar a.toc-active {
+            color: #ea580c;
+            border-left-color: #ea580c;
+            font-weight: 500;
+        }
+        .toc-sidebar a.toc-h3 {
+            padding-left: 1.5rem;
+            font-size: 0.75rem;
+        }
+        .toc-sidebar .toc-back-to-top {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e5e7eb;
+        }
+        .toc-sidebar .toc-back-to-top a {
+            border-left: none;
+            padding-left: 0;
+            font-weight: 500;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .toc-sidebar .toc-back-to-top a:hover {
+            color: #ea580c;
+        }
+    </style>
+</head>
+
+<body class="font-sans bg-off-white text-charcoal">
+
+    <!-- Shared header — single source of truth -->
+    <script src="includes/header.js"></script>
+
+    <!-- Breadcrumb — orange › separators -->
+    <div class="bg-white border-b border-gray-100">
+        <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <div class="flex items-center gap-2 text-sm flex-wrap">
+                <a href="index.html" class="text-orange hover:text-orange-600 transition-colors no-underline">Home</a> <span class="text-orange font-medium">›</span> <a href="modules.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">Modules</a> <span class="text-orange font-medium">›</span> <a href="module-customer.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">Customer</a> <span class="text-orange font-medium">›</span> <span class="text-charcoal font-medium">Magento_Customer Overview</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="flex gap-8">
+
+            <!-- Left Sidebar (desktop) -->
+            <aside class="hidden lg:block w-64 flex-shrink-0">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4">Customer Module</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="module-customer-overview.html" class="block px-3 py-2 text-sm text-orange font-semibold bg-orange-50 border-l-4 border-orange pl-2 transition-colors no-underline">Overview</a></li>
+<li class="pl-0"><a href="module-customer-architecture.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Architecture</a></li>
+<li class="pl-0"><a href="module-customer-execution-flows.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Execution Flows</a></li>
+<li class="pl-0"><a href="module-customer-plugins-and-observers.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Plugins & Observers</a></li>
+<li class="pl-0"><a href="module-customer-integrations.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Integrations</a></li>
+<li class="pl-0"><a href="module-customer-anti-patterns.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Anti-Patterns</a></li>
+<li class="pl-0"><a href="module-customer-performance.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Performance</a></li>
+<li class="pl-0"><a href="module-customer-known-issues.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Known Issues</a></li>
+<li class="pl-0"><a href="module-customer-version-compatibility.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Version Compatibility</a></li>
+</ul>
+<h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4 mt-8">Other Modules</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="module-catalog.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Catalog</a></li>
+<li class="pl-0"><a href="module-checkout.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Checkout</a></li>
+<li class="pl-0"><a href="module-quote.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Quote</a></li>
+<li class="pl-0"><a href="module-sales.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Sales</a></li>
+</ul>
+                </div>
+            </aside>
+
+            <!-- Article — square corners, border-t-4 orange accent -->
+            <main id="main-content" class="flex-1 min-w-0">
+                <article class="bg-white shadow-sm border border-gray-100 border-t-4 border-t-orange p-8 md:p-12">
+                    <!-- Title block -->
+                    <div class="mb-8">
+                        <span class="inline-block px-3 py-1.5 text-xs font-medium bg-charcoal-50 text-charcoal border border-charcoal-100">Overview</span>
+                        <h1 class="text-3xl md:text-4xl font-extrabold text-charcoal mt-3 mb-3">Magento_Customer Overview</h1>
+                        <p class="text-charcoal-300 text-lg mb-4">Magento_Customer Overview</p>
+                        <!-- Meta pills -->
+                        <div class="flex flex-wrap gap-2"><span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-charcoal text-white">Magento 2.4.7+</span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-charcoal-50 text-charcoal border border-charcoal-100">Magento_Customer</span></div>
+                    </div>
+
+                    <hr class="border-0 border-t border-gray-100 mb-8">
+
+                    <!-- Content -->
+                    <div class="prose max-w-none">
+                        <h1 id="magento_customer-module">Magento_Customer Module</h1>
+<h2 id="overview">Overview</h2>
+<p>The <strong>Magento_Customer</strong> module is one of the most critical core modules in Adobe Commerce and Magento Open Source, responsible for managing all customer-related functionality including registration, authentication, account management, address handling, customer groups, and customer attributes. This module implements a comprehensive EAV (Entity-Attribute-Value) system for flexible customer data storage and provides robust service contracts for integration with other modules.</p>
+<p>The Customer module serves as the foundation for personalized shopping experiences, order history tracking, customer segmentation, and multi-address checkout functionality. It integrates deeply with Quote, Sales, Wishlist, Newsletter, and virtually every customer-facing feature in the platform.</p>
+<p><strong>Module Location:</strong> <code>vendor/magento/module-customer</code> (Composer) or <code>app/code/Magento/Customer</code> (legacy)</p>
+<p><strong>Namespace:</strong> <code>Magento\Customer</code></p>
+<p><strong>Target Versions:</strong> Magento 2.4.7+ / Adobe Commerce 2.4.7+ with PHP 8.2+</p>
+<hr />
+<h2 id="key-features">Key Features</h2>
+<h3 id="1-customer-account-management">1. Customer Account Management</h3>
+<ul>
+<li><strong>Registration Flows:</strong> Standard registration, admin-created accounts, social login integration points</li>
+<li><strong>Authentication:</strong> Password-based login, token-based API authentication, two-factor authentication hooks</li>
+<li><strong>Profile Management:</strong> Personal information, email changes with verification, password resets</li>
+<li><strong>Account Dashboard:</strong> Centralized customer account interface with extensible sections</li>
+</ul>
+<h3 id="2-eav-attribute-system">2. EAV Attribute System</h3>
+<ul>
+<li><strong>Flexible Data Model:</strong> Custom customer attributes with type validation (text, date, dropdown, multiselect)</li>
+<li><strong>Frontend/Backend Forms:</strong> Automatic form generation from attribute metadata</li>
+<li><strong>Attribute Sets:</strong> Logical grouping for account creation and admin forms</li>
+<li><strong>Validation Rules:</strong> Built-in validators for email uniqueness, password strength, VAT numbers</li>
+</ul>
+<h3 id="3-address-management">3. Address Management</h3>
+<ul>
+<li><strong>Multiple Addresses:</strong> Customers can store unlimited addresses with default billing/shipping designation</li>
+<li><strong>Address Validation:</strong> Street line limits, postal code formats, region/country dependencies</li>
+<li><strong>VAT Validation:</strong> European VAT number validation with group assignment automation</li>
+<li><strong>Address Books:</strong> Frontend and admin interfaces for CRUD operations</li>
+</ul>
+<h3 id="4-customer-groups">4. Customer Groups</h3>
+<ul>
+<li><strong>Segmentation:</strong> Group-based pricing, tax classes, and catalog visibility</li>
+<li><strong>Automatic Assignment:</strong> VAT validation, custom plugin-based assignment logic</li>
+<li><strong>B2B Integration:</strong> Foundation for company accounts and shared catalogs in Adobe Commerce B2B</li>
+<li><strong>Default Groups:</strong> NOT LOGGED IN (0), General (1), Wholesale (2), Retailer (3)</li>
+</ul>
+<h3 id="5-session-management">5. Session Management</h3>
+<ul>
+<li><strong>Frontend Sessions:</strong> Customer login state persistence across requests</li>
+<li><strong>Admin Sessions:</strong> Separate session handling for backend customer impersonation</li>
+<li><strong>Session Regeneration:</strong> Security measures against session fixation attacks</li>
+<li><strong>Persistent Shopping Cart:</strong> Cross-device cart persistence when enabled</li>
+</ul>
+<h3 id="6-customer-grid-admin-interface">6. Customer Grid &amp; Admin Interface</h3>
+<ul>
+<li><strong>Searchable Grid:</strong> Advanced filtering by name, email, group, website, attributes</li>
+<li><strong>Inline Editing:</strong> Quick updates to customer information without full page loads</li>
+<li><strong>Mass Actions:</strong> Bulk operations for group assignment, newsletter subscription, account deletion</li>
+<li><strong>Custom Columns:</strong> Extend grid with custom attribute columns via UI components</li>
+</ul>
+<h3 id="7-api-service-contracts">7. API &amp; Service Contracts</h3>
+<ul>
+<li><strong>REST API:</strong> Full CRUD operations at <code>/V1/customers</code> and <code>/V1/customers/me</code></li>
+<li><strong>GraphQL:</strong> Query and mutation support for customer data and addresses</li>
+<li><strong>Service Contracts:</strong> <code>CustomerRepositoryInterface</code>, <code>AddressRepositoryInterface</code>, <code>AccountManagementInterface</code></li>
+<li><strong>Data Interfaces:</strong> Strongly typed DTOs for customer and address entities</li>
+</ul>
+<h3 id="8-email-communications">8. Email Communications</h3>
+<ul>
+<li><strong>Welcome Emails:</strong> Configurable templates for new account creation</li>
+<li><strong>Password Reset:</strong> Secure token-based reset flow with expiration</li>
+<li><strong>Email Change Confirmation:</strong> Verify new email addresses before updating</li>
+<li><strong>Admin Notifications:</strong> Optional alerts for new registrations</li>
+</ul>
+<h3 id="9-customer-attributes-custom-fields">9. Customer Attributes &amp; Custom Fields</h3>
+<ul>
+<li><strong>System Attributes:</strong> firstname, lastname, email, dob, gender, taxvat</li>
+<li><strong>Custom Attributes:</strong> Add unlimited attributes via admin or data patches</li>
+<li><strong>Form Rendering:</strong> Automatic integration into registration, account edit, and checkout forms</li>
+<li><strong>API Exposure:</strong> Custom attributes automatically available via REST/GraphQL</li>
+</ul>
+<h3 id="10-integration-points">10. Integration Points</h3>
+<ul>
+<li><strong>Quote Module:</strong> Customer data injection into cart and checkout</li>
+<li><strong>Sales Module:</strong> Order history, invoice/shipment tracking</li>
+<li><strong>Wishlist Module:</strong> Persistent wishlists tied to customer accounts</li>
+<li><strong>Newsletter Module:</strong> Subscription management from customer account</li>
+<li><strong>Review Module:</strong> Customer-authored product reviews</li>
+<li><strong>Tax Module:</strong> Customer group-based tax calculations</li>
+</ul>
+<hr />
+<h2 id="quick-start">Quick Start</h2>
+<h3 id="installation-setup">Installation &amp; Setup</h3>
+<p>The Customer module is installed by default with Magento. To verify installation:</p>
+<pre><code class="language-bash">bin/magento module:status Magento_Customer
+# Should show: &quot;Module is enabled&quot;
+
+bin/magento setup:upgrade
+bin/magento cache:flush
+</code></pre>
+<h3 id="configuration-paths">Configuration Paths</h3>
+<p>Key configuration can be found at <strong>Stores &gt; Configuration &gt; Customers</strong>:</p>
+<div class="overflow-x-auto my-6 border border-gray-200"><table class="min-w-full">
+<thead>
+<tr>
+<th>Section</th>
+<th>Path</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Customer Configuration</td>
+<td><code>customer/account_share/*</code></td>
+<td>Account sharing scope (global/per-website)</td>
+</tr>
+<tr>
+<td>Customer Configuration</td>
+<td><code>customer/create_account/*</code></td>
+<td>Registration settings, email confirmation</td>
+</tr>
+<tr>
+<td>Customer Configuration</td>
+<td><code>customer/password/*</code></td>
+<td>Password complexity rules</td>
+</tr>
+<tr>
+<td>Customer Configuration</td>
+<td><code>customer/address/*</code></td>
+<td>Address line counts, validation rules</td>
+</tr>
+<tr>
+<td>Customer Configuration</td>
+<td><code>customer/startup/*</code></td>
+<td>Redirect destinations after login</td>
+</tr>
+<tr>
+<td>Online Customers</td>
+<td><code>customer/online_customers/*</code></td>
+<td>Session tracking settings</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="basic-usage-examples">Basic Usage Examples</h3>
+<h4 id="1-create-a-customer-programmatically">1. Create a Customer Programmatically</h4>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Service;
+
+use Magento\Customer\Api\CustomerRepositoryInterface;
+use Magento\Customer\Api\Data\CustomerInterfaceFactory;
+use Magento\Framework\Encryption\EncryptorInterface;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Store\Model\StoreManagerInterface;
+
+class CustomerCreator
+{
+    public function __construct(
+        private readonly CustomerRepositoryInterface $customerRepository,
+        private readonly CustomerInterfaceFactory $customerFactory,
+        private readonly EncryptorInterface $encryptor,
+        private readonly StoreManagerInterface $storeManager
+    ) {}
+
+    /**
+     * Create a new customer account
+     *
+     * @param string $email
+     * @param string $firstname
+     * @param string $lastname
+     * @param string $password
+     * @return \Magento\Customer\Api\Data\CustomerInterface
+     * @throws LocalizedException
+     */
+    public function createCustomer(
+        string $email,
+        string $firstname,
+        string $lastname,
+        string $password
+    ): \Magento\Customer\Api\Data\CustomerInterface {
+        $customer = $this-&gt;customerFactory-&gt;create();
+        $customer-&gt;setEmail($email)
+            -&gt;setFirstname($firstname)
+            -&gt;setLastname($lastname)
+            -&gt;setWebsiteId((int)$this-&gt;storeManager-&gt;getWebsite()-&gt;getId())
+            -&gt;setStoreId((int)$this-&gt;storeManager-&gt;getStore()-&gt;getId())
+            -&gt;setGroupId(1); // General customer group
+
+        // Save customer (triggers email if configured)
+        $savedCustomer = $this-&gt;customerRepository-&gt;save(
+            $customer,
+            $this-&gt;encryptor-&gt;getHash($password, true)
+        );
+
+        return $savedCustomer;
+    }
+}
+</code></pre>
+<h4 id="2-retrieve-customer-by-email">2. Retrieve Customer by Email</h4>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Service;
+
+use Magento\Customer\Api\CustomerRepositoryInterface;
+use Magento\Framework\Exception\NoSuchEntityException;
+
+class CustomerRetriever
+{
+    public function __construct(
+        private readonly CustomerRepositoryInterface $customerRepository
+    ) {}
+
+    /**
+     * Get customer by email and website ID
+     *
+     * @param string $email
+     * @param int $websiteId
+     * @return \Magento\Customer\Api\Data\CustomerInterface|null
+     */
+    public function getCustomerByEmail(string $email, int $websiteId): ?\Magento\Customer\Api\Data\CustomerInterface
+    {
+        try {
+            return $this-&gt;customerRepository-&gt;get($email, $websiteId);
+        } catch (NoSuchEntityException) {
+            return null;
+        }
+    }
+}
+</code></pre>
+<h4 id="3-add-a-customer-address">3. Add a Customer Address</h4>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Service;
+
+use Magento\Customer\Api\AddressRepositoryInterface;
+use Magento\Customer\Api\Data\AddressInterfaceFactory;
+use Magento\Customer\Api\Data\RegionInterfaceFactory;
+
+class AddressManager
+{
+    public function __construct(
+        private readonly AddressRepositoryInterface $addressRepository,
+        private readonly AddressInterfaceFactory $addressFactory,
+        private readonly RegionInterfaceFactory $regionFactory
+    ) {}
+
+    /**
+     * Add a new address to customer
+     *
+     * @param int $customerId
+     * @param array $addressData
+     * @return \Magento\Customer\Api\Data\AddressInterface
+     */
+    public function addAddress(int $customerId, array $addressData): \Magento\Customer\Api\Data\AddressInterface
+    {
+        $address = $this-&gt;addressFactory-&gt;create();
+        $address-&gt;setCustomerId($customerId)
+            -&gt;setFirstname($addressData['firstname'])
+            -&gt;setLastname($addressData['lastname'])
+            -&gt;setStreet($addressData['street'])
+            -&gt;setCity($addressData['city'])
+            -&gt;setCountryId($addressData['country_id'])
+            -&gt;setPostcode($addressData['postcode'])
+            -&gt;setTelephone($addressData['telephone'])
+            -&gt;setIsDefaultBilling($addressData['default_billing'] ?? false)
+            -&gt;setIsDefaultShipping($addressData['default_shipping'] ?? false);
+
+        if (!empty($addressData['region_id'])) {
+            $region = $this-&gt;regionFactory-&gt;create();
+            $region-&gt;setRegionId((int)$addressData['region_id']);
+            $address-&gt;setRegion($region);
+        }
+
+        return $this-&gt;addressRepository-&gt;save($address);
+    }
+}
+</code></pre>
+<h4 id="4-check-if-customer-is-logged-in">4. Check if Customer is Logged In</h4>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\ViewModel;
+
+use Magento\Customer\Model\Session as CustomerSession;
+use Magento\Framework\View\Element\Block\ArgumentInterface;
+
+class CustomerInfo implements ArgumentInterface
+{
+    public function __construct(
+        private readonly CustomerSession $customerSession
+    ) {}
+
+    /**
+     * Check if customer is logged in
+     *
+     * @return bool
+     */
+    public function isLoggedIn(): bool
+    {
+        return $this-&gt;customerSession-&gt;isLoggedIn();
+    }
+
+    /**
+     * Get current customer ID
+     *
+     * @return int|null
+     */
+    public function getCustomerId(): ?int
+    {
+        return $this-&gt;customerSession-&gt;getCustomerId();
+    }
+
+    /**
+     * Get customer name
+     *
+     * @return string
+     */
+    public function getCustomerName(): string
+    {
+        $customer = $this-&gt;customerSession-&gt;getCustomer();
+        return $customer-&gt;getName();
+    }
+}
+</code></pre>
+<h4 id="5-create-a-custom-customer-attribute">5. Create a Custom Customer Attribute</h4>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Setup\Patch\Data;
+
+use Magento\Customer\Model\Customer;
+use Magento\Customer\Setup\CustomerSetupFactory;
+use Magento\Framework\Setup\ModuleDataSetupInterface;
+use Magento\Framework\Setup\Patch\DataPatchInterface;
+
+class AddLoyaltyNumberAttribute implements DataPatchInterface
+{
+    public function __construct(
+        private readonly ModuleDataSetupInterface $moduleDataSetup,
+        private readonly CustomerSetupFactory $customerSetupFactory
+    ) {}
+
+    public function apply(): self
+    {
+        $customerSetup = $this-&gt;customerSetupFactory-&gt;create(['setup' =&gt; $this-&gt;moduleDataSetup]);
+
+        $customerSetup-&gt;addAttribute(
+            Customer::ENTITY,
+            'loyalty_number',
+            [
+                'type' =&gt; 'varchar',
+                'label' =&gt; 'Loyalty Program Number',
+                'input' =&gt; 'text',
+                'required' =&gt; false,
+                'visible' =&gt; true,
+                'user_defined' =&gt; true,
+                'position' =&gt; 100,
+                'system' =&gt; false,
+                'is_used_in_grid' =&gt; true,
+                'is_visible_in_grid' =&gt; true,
+                'is_filterable_in_grid' =&gt; true,
+                'is_searchable_in_grid' =&gt; true,
+            ]
+        );
+
+        // Add to forms
+        $attribute = $customerSetup-&gt;getEavConfig()-&gt;getAttribute(Customer::ENTITY, 'loyalty_number');
+        $attribute-&gt;setData('used_in_forms', [
+            'adminhtml_customer',
+            'customer_account_edit',
+            'customer_account_create'
+        ]);
+        $attribute-&gt;save();
+
+        return $this;
+    }
+
+    public static function getDependencies(): array
+    {
+        return [];
+    }
+
+    public function getAliases(): array
+    {
+        return [];
+    }
+}
+</code></pre>
+<hr />
+<h2 id="module-dependencies">Module Dependencies</h2>
+<p>The Customer module depends on:</p>
+<ul>
+<li><strong>Magento_Store</strong> - Website/store scope for customer accounts</li>
+<li><strong>Magento_Eav</strong> - Attribute system foundation</li>
+<li><strong>Magento_Directory</strong> - Country/region data for addresses</li>
+<li><strong>Magento_Theme</strong> - Frontend layout and templates</li>
+<li><strong>Magento_Backend</strong> - Admin interface components</li>
+<li><strong>Magento_Authorization</strong> - ACL for admin permissions</li>
+</ul>
+<p>Modules that depend on Customer:</p>
+<ul>
+<li><strong>Magento_Quote</strong> - Cart customer association</li>
+<li><strong>Magento_Sales</strong> - Order customer linkage</li>
+<li><strong>Magento_Wishlist</strong> - Wishlist ownership</li>
+<li><strong>Magento_Newsletter</strong> - Subscription management</li>
+<li><strong>Magento_Review</strong> - Customer reviews</li>
+<li><strong>Magento_Tax</strong> - Customer group tax rates</li>
+<li><strong>Magento_Checkout</strong> - Customer checkout flows</li>
+<li><strong>Magento_CustomerImportExport</strong> - CSV import/export</li>
+</ul>
+<hr />
+<h2 id="directory-structure">Directory Structure</h2>
+<pre><code>Magento/Customer/
+├── Api/                           # Service contracts
+│   ├── AccountManagementInterface.php
+│   ├── AddressRepositoryInterface.php
+│   ├── CustomerRepositoryInterface.php
+│   ├── GroupManagementInterface.php
+│   └── Data/                      # Data interfaces (DTOs)
+│       ├── CustomerInterface.php
+│       └── AddressInterface.php
+├── Block/                         # Frontend/admin blocks
+│   ├── Account/
+│   ├── Address/
+│   └── Adminhtml/
+├── Controller/                    # Frontend controllers
+│   ├── Account/
+│   ├── Address/
+│   └── Adminhtml/                 # Admin controllers
+├── Model/                         # Business logic
+│   ├── Customer.php               # Customer entity model
+│   ├── Address.php                # Address entity model
+│   ├── AccountManagement.php      # Account operations
+│   ├── CustomerRegistry.php       # Entity cache
+│   ├── ResourceModel/             # Database operations
+│   └── Session.php                # Customer session
+├── Observer/                      # Event observers
+├── Plugin/                        # Interceptors
+├── Setup/                         # Installation/upgrade
+│   ├── Patch/
+│   └── InstallSchema.php
+├── Ui/                            # Admin UI components
+│   └── Component/
+├── ViewModel/                     # Frontend view models
+├── view/
+│   ├── frontend/                  # Frontend templates/layouts
+│   │   ├── layout/
+│   │   ├── templates/
+│   │   └── web/
+│   └── adminhtml/                 # Admin templates/layouts
+├── etc/
+│   ├── module.xml                 # Module declaration
+│   ├── di.xml                     # Dependency injection
+│   ├── acl.xml                    # Admin permissions
+│   ├── config.xml                 # Default configuration
+│   ├── extension_attributes.xml   # Extension attributes
+│   ├── webapi.xml                 # REST API routes
+│   └── frontend/
+│       ├── di.xml
+│       └── routes.xml             # Frontend routes
+└── Test/
+    ├── Unit/
+    ├── Integration/
+    └── Mftf/                      # Functional tests
+</code></pre>
+<hr />
+<h2 id="common-use-cases">Common Use Cases</h2>
+<h3 id="use-case-1-custom-registration-form-fields">Use Case 1: Custom Registration Form Fields</h3>
+<p>Add custom fields to the registration form by creating a custom attribute and adding it to the <code>customer_account_create</code> form.</p>
+<pre><code class="language-xml">&lt;!-- etc/extension_attributes.xml --&gt;
+&lt;config xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+        xsi:noNamespaceSchemaLocation=&quot;urn:magento:framework:Api/etc/extension_attributes.xsd&quot;&gt;
+    &lt;extension_attributes for=&quot;Magento\Customer\Api\Data\CustomerInterface&quot;&gt;
+        &lt;attribute code=&quot;company_role&quot; type=&quot;string&quot; /&gt;
+    &lt;/extension_attributes&gt;
+&lt;/config&gt;
+</code></pre>
+<h3 id="use-case-2-customize-customer-groups">Use Case 2: Customize Customer Groups</h3>
+<p>Create custom customer groups for segmentation, pricing rules, and catalog visibility.</p>
+<pre><code class="language-php">&lt;?php
+use Magento\Customer\Api\GroupRepositoryInterface;
+use Magento\Customer\Api\Data\GroupInterfaceFactory;
+use Magento\Tax\Model\ClassModel as TaxClass;
+
+$group = $groupFactory-&gt;create();
+$group-&gt;setCode('VIP')
+    -&gt;setTaxClassId(3) // Default retail tax class
+    -&gt;setTaxClassName('Retail Customer');
+
+$groupRepository-&gt;save($group);
+</code></pre>
+<h3 id="use-case-3-implement-custom-authentication">Use Case 3: Implement Custom Authentication</h3>
+<p>Extend the authentication system for SSO or OAuth integrations using plugins on <code>AccountManagementInterface::authenticate()</code>.</p>
+<h3 id="use-case-4-customer-data-import">Use Case 4: Customer Data Import</h3>
+<p>Use <code>CustomerRepositoryInterface</code> for bulk imports instead of direct model manipulation to trigger proper validation and events.</p>
+<h3 id="use-case-5-multi-website-customer-sharing">Use Case 5: Multi-Website Customer Sharing</h3>
+<p>Configure account sharing scope at <strong>Stores &gt; Configuration &gt; Customer Configuration &gt; Account Sharing Options</strong>:
+- <strong>Global:</strong> Customers shared across all websites
+- <strong>Per Website:</strong> Separate customer bases per website</p>
+<hr />
+<h2 id="testing-approach">Testing Approach</h2>
+<h3 id="unit-tests">Unit Tests</h3>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Test\Unit\Service;
+
+use PHPUnit\Framework\TestCase;
+use Vendor\Module\Service\CustomerCreator;
+
+class CustomerCreatorTest extends TestCase
+{
+    public function testCreateCustomer(): void
+    {
+        $customerRepository = $this-&gt;createMock(\Magento\Customer\Api\CustomerRepositoryInterface::class);
+        // ... mock setup and assertions
+    }
+}
+</code></pre>
+<h3 id="integration-tests">Integration Tests</h3>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Test\Integration\Service;
+
+use Magento\TestFramework\Helper\Bootstrap;
+use PHPUnit\Framework\TestCase;
+
+class CustomerCreatorTest extends TestCase
+{
+    /**
+     * @magentoDataFixture Magento/Customer/_files/customer.php
+     */
+    public function testCustomerExists(): void
+    {
+        $objectManager = Bootstrap::getObjectManager();
+        $repository = $objectManager-&gt;get(\Magento\Customer\Api\CustomerRepositoryInterface::class);
+        $customer = $repository-&gt;get('customer@example.com');
+        $this-&gt;assertNotNull($customer);
+    }
+}
+</code></pre>
+<hr />
+<h2 id="security-considerations">Security Considerations</h2>
+<ol>
+<li><strong>Password Handling:</strong> Always use <code>EncryptorInterface::getHash()</code> for password storage</li>
+<li><strong>Session Fixation:</strong> Call <code>$session-&gt;regenerateId()</code> after authentication</li>
+<li><strong>Email Validation:</strong> Use built-in validators to prevent injection attacks</li>
+<li><strong>CSRF Protection:</strong> All forms must include form keys via <code>\Magento\Framework\Data\Form\FormKey</code></li>
+<li><strong>XSS Prevention:</strong> Escape output with <code>$escaper-&gt;escapeHtml()</code> in templates</li>
+<li><strong>API Authentication:</strong> Use token-based auth for REST/GraphQL endpoints</li>
+<li><strong>PII Handling:</strong> Log customer data carefully; exclude PII from non-secure logs</li>
+</ol>
+<hr />
+<h2 id="performance-optimization">Performance Optimization</h2>
+<ol>
+<li><strong>Use CustomerRegistry:</strong> Avoid loading same customer multiple times in a request</li>
+<li><strong>Lazy Loading:</strong> Don't load customer session in non-customer contexts</li>
+<li><strong>Address Collections:</strong> Use <code>AddressRepositoryInterface::getList()</code> with search criteria</li>
+<li><strong>Customer Grid:</strong> Use collection filtering instead of post-load filtering</li>
+<li><strong>Session Storage:</strong> Use Redis for session backend in production</li>
+<li><strong>Full Page Cache:</strong> Customer-specific content must use private content blocks</li>
+<li><strong>Index Customer Grid:</strong> Ensure <code>customer_grid_flat</code> index is up to date</li>
+</ol>
+<hr />
+<h2 id="additional-resources">Additional Resources</h2>
+<ul>
+<li><strong>DevDocs:</strong> https://developer.adobe.com/commerce/php/module-reference/module-customer/</li>
+<li><strong>Service Contracts:</strong> See <code>ARCHITECTURE.md</code> for detailed interface documentation</li>
+<li><strong>Execution Flows:</strong> See <code>EXECUTION_FLOWS.md</code> for registration and authentication sequences</li>
+<li><strong>Integration Guide:</strong> See <code>INTEGRATIONS.md</code> for connecting with other modules</li>
+<li><strong>Anti-Patterns:</strong> See <code>ANTI_PATTERNS.md</code> for common mistakes and solutions</li>
+</ul>
+<hr />
+<h2 id="assumptions">Assumptions</h2>
+<ul>
+<li><strong>Target Platform:</strong> Adobe Commerce / Magento Open Source 2.4.7+</li>
+<li><strong>PHP Version:</strong> 8.2+</li>
+<li><strong>Environment:</strong> Production-ready code with proper error handling</li>
+<li><strong>Scope:</strong> Single and multi-website deployments</li>
+<li><strong>Authentication:</strong> Standard email/password authentication (extensible for OAuth/SSO)</li>
+</ul>
+<h2 id="why-this-approach">Why This Approach</h2>
+<p>The Customer module uses service contracts and EAV architecture to provide maximum flexibility while maintaining upgrade safety. Service contracts ensure API stability across versions, while the EAV system allows merchants to add custom fields without schema modifications. This design has proven robust across thousands of Magento installations.</p>
+<h2 id="security-impact">Security Impact</h2>
+<ul>
+<li><strong>Authentication:</strong> All password operations use secure hashing with salt</li>
+<li><strong>Authorization:</strong> Admin operations protected by ACL (Resource: <code>Magento_Customer::manage</code>)</li>
+<li><strong>CSRF:</strong> All forms include form key validation</li>
+<li><strong>XSS:</strong> Output escaping enforced in templates</li>
+<li><strong>PII:</strong> Customer data treated as sensitive; logging requires explicit exclusion of PII fields</li>
+</ul>
+<h2 id="performance-impact">Performance Impact</h2>
+<ul>
+<li><strong>FPC:</strong> Customer-specific content uses private content mechanism (no cache pollution)</li>
+<li><strong>Database:</strong> Customer grid indexed separately for admin performance</li>
+<li><strong>Sessions:</strong> Redis backend recommended for horizontal scaling</li>
+<li><strong>CWV:</strong> Customer JS widgets lazy-loaded; minimal blocking resources</li>
+</ul>
+<h2 id="backward-compatibility">Backward Compatibility</h2>
+<ul>
+<li><strong>API Stability:</strong> Service contract interfaces guaranteed stable within 2.4.x</li>
+<li><strong>Database:</strong> EAV schema additions backward compatible</li>
+<li><strong>Deprecations:</strong> Direct model usage deprecated in favor of repositories (2.3+)</li>
+<li><strong>Migration:</strong> No breaking changes expected in 2.4.7 to 2.4.8 upgrade</li>
+</ul>
+<h2 id="tests-to-add">Tests to Add</h2>
+<ul>
+<li><strong>Unit:</strong> Repository methods, validation logic, group assignment</li>
+<li><strong>Integration:</strong> Customer CRUD via service contracts, address management, attribute handling</li>
+<li><strong>MFTF:</strong> Registration flow, login flow, password reset, address CRUD</li>
+<li><strong>API:</strong> REST/GraphQL contract tests for customer and address endpoints</li>
+</ul>
+<h2 id="docs-to-update">Docs to Update</h2>
+<ul>
+<li><strong>README.md:</strong> This file for module overview</li>
+<li><strong>ARCHITECTURE.md:</strong> Service contracts and database schema</li>
+<li><strong>EXECUTION_FLOWS.md:</strong> Registration and authentication flows</li>
+<li><strong>CHANGELOG.md:</strong> Version-specific changes and deprecations</li>
+<li><strong>Admin Guide:</strong> Screenshots for customer configuration pages (Stores &gt; Configuration &gt; Customers)</li>
+</ul>
+<h2 id="related-guides">Related Guides</h2>
+<ul>
+<li><a href="../../guides/explanations/b2b-features.md">B2B Features Development</a></li>
+<li><a href="../../guides/explanations/eav-system.md">EAV System Architecture: Understanding Entity-Attribute-Value in Magento 2</a></li>
+<li><a href="../../guides/explanations/graphql-resolver-patterns.md">GraphQL Resolver Patterns in Magento 2</a></li>
+<li><a href="../../guides/explanations/service-contracts-repositories.md">Service Contracts vs Repositories in Magento 2</a></li>
+<li><a href="../../guides/how-to/admin-ui-components.md">Building Admin UI Components in Magento 2</a></li>
+<li><a href="../../guides/how-to/email-templates.md">Email Templates Customization</a></li>
+<li><a href="../../guides/how-to/erp-integration.md">ERP Integration Patterns for Magento 2</a></li>
+<li><a href="../../guides/how-to/import-export.md">Import/Export System Deep Dive</a></li>
+<li><a href="../../guides/how-to/multi-store-setup.md">Multi-Store Configuration Mastery</a></li>
+<li><a href="../../guides/how-to/security-checklist.md">Security Checklist for Custom Modules</a></li>
+<li><a href="../../guides/references/cli-command-reference.md">CLI Command Reference: Complete bin/magento Guide</a></li>
+<li><a href="../../guides/references/upgrade-guide-247-248.md">Upgrade Guide: Adobe Commerce 2.4.6 to 2.4.7/2.4.8</a></li>
+<li><a href="../../guides/tutorials/declarative-schema-data-patches.md">Declarative Schema &amp; Data Patches: Modern Database Management in Magento 2</a></li>
+<li><a href="../../guides/tutorials/plugin-system-deep-dive.md">Plugin System Deep Dive: Mastering Magento 2 Interception</a></li>
+</ul>
+                    </div>
+                </article>
+            </main>
+            <!-- Right Sidebar: On This Page (desktop) -->
+            <aside class="toc-sidebar hidden xl:block" aria-label="On this page">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-semibold text-gray-900 uppercase tracking-wider mb-4 mt-0">On this page</h3>
+                    <nav id="toc-nav" class="space-y-0" aria-label="Table of contents"></nav>
+                    <div class="toc-back-to-top">
+                        <a href="#">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+                            </svg>
+                            Back to top
+                        </a>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- ================================================================
+         FOOTER — matches module-catalog.html multi-column layout exactly
+         ================================================================ -->
+    <footer class="relative pt-12 bg-white border-t border-charcoal mt-16">
+        <div class="max-w-screen-2xl mx-auto w-full px-4 sm:px-6 lg:px-8">
+            <div>
+                <a href="index.html" class="inline-flex items-center no-underline">
+                    <svg width="30" height="33" viewBox="0 0 30 33" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Magento Association logo" role="img">
+                        <path d="M0 4.06492H29.6763V31.8882C29.6763 32.502 29.1713 33 28.5487 33H1.12762C0.505079 33 0 32.502 0 31.8882V4.06492Z" fill="#34323A"/>
+                        <path d="M1.26857 0H28.4078C29.1066 0 29.6763 0.561678 29.6763 1.25075V4.06492H0V1.25075C0 0.561678 0.569682 0 1.26857 0Z" fill="#C9C9C9"/>
+                        <path d="M2.37269 3.0458C2.94031 3.0458 3.40046 2.59211 3.40046 2.03246C3.40046 1.47281 2.94031 1.01913 2.37269 1.01913C1.80506 1.01913 1.34491 1.47281 1.34491 2.03246C1.34491 2.59211 1.80506 3.0458 2.37269 3.0458Z" fill="#848484"/>
+                        <path d="M5.28571 3.0458C5.85334 3.0458 6.31349 2.59211 6.31349 2.03246C6.31349 1.47281 5.85334 1.01913 5.28571 1.01913C4.71809 1.01913 4.25793 1.47281 4.25793 2.03246C4.25793 2.59211 4.71809 3.0458 5.28571 3.0458Z" fill="#848484"/>
+                        <path d="M14.7883 7.46973L4.90405 13.0923V24.349L7.54104 25.8487V14.5978L14.7883 10.4692L22.0415 14.5978V25.8487L24.6785 24.349V13.0923L14.7883 7.46973Z" fill="#F1BC1B"/>
+                        <path d="M16.0862 26.2367L14.7883 26.9779L13.4492 26.2135V14.233L10.178 16.0975V27.3485L13.4492 29.213L14.7883 29.9773L16.0862 29.2362L19.4045 27.3485V16.0975L16.0862 14.2098V26.2367Z" fill="#F1BC1B"/>
+                    </svg>
+                    <span class="ml-3 text-xl font-bold text-charcoal">Developer Documentation</span>
+                </a>
+            </div>
+
+            <div class="grid grid-cols-12 md:gap-x-8 gap-y-12 lg:mt-12">
+                <div class="col-span-12 lg:col-span-4">
+                    <p class="hidden lg:block text-xs text-charcoal sm:text-sm">Comprehensive developer documentation for Magento 2.4.7+ — tutorials, architecture deep dives, module references, and production-ready patterns built by the community, for the community.</p>
+                    <ul class="mt-6 hidden lg:flex items-center gap-3">
+                        <li class="pl-0">
+                            <a href="https://github.com/magento/magento2" class="p-2 md:p-0" aria-label="GitHub">
+                                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                                </svg>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Guides</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="tutorials.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Tutorials</a></li>
+                            <li class="pl-0"><a href="how-to-guides.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">How-To Guides</a></li>
+                            <li class="pl-0"><a href="architecture.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Architecture</a></li>
+                            <li class="pl-0"><a href="learning-paths.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Learning Paths</a></li>
+                            <li class="pl-0"><a href="references.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">References</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Modules</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="module-catalog.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Catalog</a></li>
+                            <li class="pl-0"><a href="module-checkout.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Checkout</a></li>
+                            <li class="pl-0"><a href="module-sales.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Sales</a></li>
+                            <li class="pl-0"><a href="module-customer.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Customer</a></li>
+                            <li class="pl-0"><a href="module-quote.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Quote</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Community</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Magento Community</a></li>
+                            <li class="pl-0"><a href="https://magento.stackexchange.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Stack Exchange</a></li>
+                            <li class="pl-0"><a href="https://marketplace.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Marketplace</a></li>
+                            <li class="pl-0"><a href="https://github.com/magento/magento2" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">GitHub</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Support</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://github.com/magento/magento2/issues" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Report Issues</a></li>
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Community Resources</a></li>
+                            <li class="pl-0"><a href="https://developer.adobe.com/commerce/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Adobe Commerce Docs</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-12 border-t pt-6 pb-16 border-charcoal">
+                <p class="text-xs text-charcoal">
+                    &copy; 2026 Magento 2 Developer Documentation. Magento&reg; is a registered trademark of Adobe Inc.
+                </p>
+                <p class="mt-6 text-xs text-charcoal">
+                    This documentation provides guidance for Magento 2 developers and extension builders. For merchant documentation, visit the <a href="index.html" class="text-orange hover:text-orange-600 transition-colors">merchant documentation</a>.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Initialize highlight.js -->
+    <script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('pre code').forEach(function (el) {
+        hljs.highlightElement(el);
+    });
+    document.querySelectorAll('pre').forEach(function (pre) {
+        if (pre.parentNode.classList && pre.parentNode.classList.contains('code-wrapper')) return;
+        var wrapper = document.createElement('div');
+        wrapper.className = 'code-wrapper';
+        pre.parentNode.insertBefore(wrapper, pre);
+        wrapper.appendChild(pre);
+        var btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.setAttribute('type', 'button');
+        btn.setAttribute('aria-label', 'Copy code to clipboard');
+        btn.setAttribute('title', 'Copy');
+        btn.textContent = 'Copy';
+        wrapper.appendChild(btn);
+        btn.addEventListener('click', function () {
+            var code = pre.querySelector('code');
+            var text = code ? (code.innerText || code.textContent) : (pre.innerText || pre.textContent);
+            navigator.clipboard.writeText(text).then(function () {
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            }).catch(function () {
+                var range = document.createRange();
+                range.selectNode(code || pre);
+                window.getSelection().removeAllRanges();
+                window.getSelection().addRange(range);
+                document.execCommand('copy');
+                window.getSelection().removeAllRanges();
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            });
+        });
+    });
+});
+</script>
+
+
+<script>
+(function() {
+    var nav = document.getElementById('toc-nav');
+    if (!nav) return;
+    var article = document.getElementById('main-content');
+    if (!article) return;
+    var headings = article.querySelectorAll('h2[id], h3[id]');
+    if (headings.length < 3) {
+        // Hide the entire TOC sidebar if fewer than 3 headings
+        var sidebar = nav.closest('.toc-sidebar');
+        if (sidebar) sidebar.style.display = 'none';
+        return;
+    }
+    var ids = [];
+    headings.forEach(function(h) {
+        var a = document.createElement('a');
+        a.href = '#' + h.id;
+        a.textContent = h.textContent.replace(/^#+\s*/, '').replace(/\s+/g, ' ').trim();
+        if (h.tagName === 'H3') a.classList.add('toc-h3');
+        nav.appendChild(a);
+        ids.push(h.id);
+    });
+    // Scroll-spy with IntersectionObserver
+    var links = nav.querySelectorAll('a');
+    var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                links.forEach(function(l) { l.classList.remove('toc-active'); });
+                var active = nav.querySelector('a[href="#' + entry.target.id + '"]');
+                if (active) active.classList.add('toc-active');
+            }
+        });
+    }, { rootMargin: '-80px 0px -70% 0px', threshold: 0 });
+    headings.forEach(function(h) { observer.observe(h); });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,1977 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>B2B Features Development — Magento 2 Developer Documentation</title>
+    <meta name="description" content="Master Adobe Commerce B2B architecture including company accounts, shared catalogs, requisition lists, quick order, quote negotiation, and B2B-specific permissions.">
+
+    <!-- Google Fonts: Inter Tight only. Courier New used for code. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Highlight.js: syntax highlighting for code blocks -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/php.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/ini.min.js"></script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        charcoal: {
+                            DEFAULT: '#2c2c2c', 50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6',
+                            300: '#6B6B6B', 400: '#474747', 500: '#2c2c2c', 600: '#262626',
+                            700: '#202020', 800: '#1c1c1c', 900: '#191919', 950: '#121212'
+                        },
+                        orange: {
+                            DEFAULT: '#D4551A', 50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad',
+                            300: '#f9ae78', 400: '#f58242', 500: '#f26423', 600: '#e34613',
+                            700: '#bc3312', 800: '#962a16', 900: '#792515', 950: '#411009'
+                        },
+                        yellow: {
+                            DEFAULT: '#B8860B', 50: '#fffdeb', 100: '#fdf9c8', 200: '#fbf38c',
+                            300: '#f8e651', 400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a',
+                            700: '#b1670c', 800: '#8f5111', 900: '#764311', 950: '#442204'
+                        },
+                        'off-white': '#FAFAFA',
+                    },
+                    fontFamily: {
+                        sans: ['Inter Tight', 'system-ui', '-apple-system', 'sans-serif'],
+                        mono: ['Courier New', 'Courier', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* ── Force light mode ── */
+        :root { color-scheme: light only; }
+
+        [x-cloak] { display: none !important; }
+
+        /* ── Scroll offset for sticky header ── */
+        .prose h2, .prose h3 { scroll-margin-top: 5rem; }
+
+        /* ── Code blocks: Bauhaus charcoal bg, no border-radius, highlight.js override ── */
+        .prose pre {
+            background-color: #2C2C2C !important;
+            border-radius: 0 !important;
+            padding: 1.25rem;
+            overflow-x: auto;
+            font-size: 0.875rem;
+            line-height: 1.7;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 1.5rem 0;
+        }
+        .prose pre code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            background: transparent !important;
+            padding: 0;
+                    color: #abb2bf;
+        }
+        /* Override highlight.js theme background to match Bauhaus charcoal */
+        .hljs {
+            background: #2C2C2C !important;
+            color: #abb2bf !important;
+            border-radius: 0 !important;
+        }
+
+        /* ── Inline code: charcoal bg, yellow text, no border-radius ── */
+        .prose code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.85em;
+        }
+        .prose :not(pre) > code {
+            background-color: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2em 0.45em;
+            border-radius: 0;
+        }
+
+        /* ── Step-code: same charcoal/yellow style for UI path chips ── */
+        .step-code {
+            background: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2rem 0.5rem;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            border-radius: 0;
+        }
+
+        /* ── Tables: no border-radius, charcoal header ── */
+        .prose table { width: 100%; border-collapse: collapse; }
+        .prose th {
+            background-color: #2C2C2C;
+            color: #ffffff;
+            font-weight: 600;
+            text-align: left;
+            padding: 0.75rem 1rem;
+            border-bottom: 2px solid #2C2C2C;
+            border-radius: 0;
+        }
+        .prose td { padding: 0.75rem 1rem; border-bottom: 1px solid #e5e5e5; }
+        .prose tr:hover { background-color: #fafafa; }
+
+        /* ── Blockquote: Bauhaus style — border-4 yellow, square, no left-only border ── */
+        .prose blockquote {
+            border: 4px solid #F1BC1B;
+            background-color: #ffffff;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+            border-radius: 0;
+        }
+        .prose blockquote p { margin: 0; }
+
+        /* ── Lists: hexagon bullets ── */
+        .prose ul { list-style: none; padding-left: 0; }
+        .prose ul li {
+            position: relative;
+            padding-left: 1.75rem;
+            margin-bottom: 0.4rem;
+            line-height: 1.7;
+        }
+        .prose ul li::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0.45em;
+            width: 10px;
+            height: 10px;
+            background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 2L21 7V17L12 22L3 17V7L12 2Z' stroke='%23F26423' stroke-width='2.5' stroke-linejoin='miter'/%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+        .prose ol { list-style-type: decimal; padding-left: 1.5rem; }
+        .prose li { margin-bottom: 0.4rem; }
+
+        /* ── Headings ── */
+        .prose h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            padding-top: 1.5rem;
+            border-top: 4px solid #F1BC1B;
+            color: #2C2C2C;
+        }
+        .prose h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+            color: #2C2C2C;
+        }
+        .prose h4 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #2C2C2C;
+        }
+        .prose p { margin-bottom: 1rem; line-height: 1.75; }
+        .prose a { color: #D4551A; text-decoration: none; }
+        .prose a:hover { color: #e34613; text-decoration: underline; }
+        .prose hr { border: none; border-top: 1px solid #e5e5e5; margin: 2rem 0; }
+
+        /* ── Callout boxes: Bauhaus — border-4 yellow, white bg, icon + title ── */
+        .callout-box {
+            background-color: #ffffff;
+            border: 4px solid #F1BC1B;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+        }
+        .callout-warning {
+            border-color: #D4551A;
+        }
+        .callout-important {
+            border-color: #2C2C2C;
+        }
+        .callout-box .callout-inner {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+        .callout-box .callout-title {
+            font-weight: 600;
+            color: #2C2C2C;
+            margin-bottom: 0.25rem;
+        }
+        .callout-box .callout-body {
+            font-size: 0.875rem;
+            line-height: 1.6;
+            color: rgba(44,44,44,0.85);
+        }
+
+        
+    
+        /* Code block copy button */
+        .code-wrapper {
+            position: relative;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            font-family: 'Inter Tight', system-ui, sans-serif;
+            background: rgba(255,255,255,0.1);
+            color: #abb2bf;
+            border: 1px solid rgba(255,255,255,0.15);
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.15s ease, background 0.15s ease;
+            z-index: 10;
+            line-height: 1.4;
+            border-radius: 4px;
+            user-select: none;
+        }
+        .code-wrapper:hover .copy-btn {
+            opacity: 1;
+        }
+        .copy-btn:hover,
+        .copy-btn:focus {
+            background: rgba(255,255,255,0.2);
+            color: #ffffff;
+            outline: 2px solid #D4551A;
+            outline-offset: 1px;
+        }
+        .copy-btn.copied {
+            color: #98c379;
+            background: rgba(152, 195, 121, 0.15);
+            opacity: 1;
+        }
+    
+        /* Right-hand TOC sidebar */
+        .toc-sidebar {
+            width: 14rem;
+            flex-shrink: 0;
+        }
+        .toc-sidebar a {
+            display: block;
+            padding: 0.375rem 0;
+            font-size: 0.8125rem;
+            line-height: 1.4;
+            color: #6b7280;
+            text-decoration: none;
+            transition: color 0.15s ease;
+            border-left: 2px solid transparent;
+            padding-left: 0.75rem;
+        }
+        .toc-sidebar a:hover {
+            color: #111827;
+        }
+        .toc-sidebar a.toc-active {
+            color: #ea580c;
+            border-left-color: #ea580c;
+            font-weight: 500;
+        }
+        .toc-sidebar a.toc-h3 {
+            padding-left: 1.5rem;
+            font-size: 0.75rem;
+        }
+        .toc-sidebar .toc-back-to-top {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e5e7eb;
+        }
+        .toc-sidebar .toc-back-to-top a {
+            border-left: none;
+            padding-left: 0;
+            font-weight: 500;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .toc-sidebar .toc-back-to-top a:hover {
+            color: #ea580c;
+        }
+    </style>
+</head>
+
+<body class="font-sans bg-off-white text-charcoal">
+
+    <!-- Shared header — single source of truth -->
+    <script src="includes/header.js"></script>
+
+    <!-- Breadcrumb — orange › separators -->
+    <div class="bg-white border-b border-gray-100">
+        <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <div class="flex items-center gap-2 text-sm flex-wrap">
+                <a href="index.html" class="text-orange hover:text-orange-600 transition-colors no-underline">Home</a> <span class="text-orange font-medium">›</span> <a href="index.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">Guides</a> <span class="text-orange font-medium">›</span> <a href="architecture.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">Architecture</a> <span class="text-orange font-medium">›</span> <span class="text-charcoal font-medium">B2B Features Development</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="flex gap-8">
+
+            <!-- Left Sidebar (desktop) -->
+            <aside class="hidden lg:block w-64 flex-shrink-0">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4">Architecture</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="guide-explanation-b2b-features.html" class="block px-3 py-2 text-sm text-orange font-semibold bg-orange-50 border-l-4 border-orange pl-2 transition-colors no-underline">B2B Features Development</a></li>
+<li class="pl-0"><a href="guide-explanation-eav-system.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">EAV System Architecture: Underst...</a></li>
+<li class="pl-0"><a href="guide-explanation-graphql-resolver-patterns.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">GraphQL Resolver Patterns in Mag...</a></li>
+<li class="pl-0"><a href="guide-explanation-indexer-system.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Indexer System Deep Dive: Unders...</a></li>
+<li class="pl-0"><a href="guide-explanation-message-queue-architecture.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Message Queue Architecture in Ma...</a></li>
+<li class="pl-0"><a href="guide-explanation-service-contracts-repositories.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Service Contracts vs Repositorie...</a></li>
+</ul>
+<h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4 mt-8">Guide Sections</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="tutorials.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Tutorials</a></li>
+<li class="pl-0"><a href="how-to-guides.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">How-To Guides</a></li>
+<li class="pl-0"><a href="architecture.html" class="block px-3 py-2 text-sm text-orange font-semibold bg-orange-50 border-l-4 border-orange pl-2 transition-colors no-underline">Architecture</a></li>
+<li class="pl-0"><a href="references.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">References</a></li>
+</ul>
+                </div>
+            </aside>
+
+            <!-- Article — square corners, border-t-4 orange accent -->
+            <main id="main-content" class="flex-1 min-w-0">
+                <article class="bg-white shadow-sm border border-gray-100 border-t-4 border-t-orange p-8 md:p-12">
+                    <!-- Title block -->
+                    <div class="mb-8">
+                        <span class="inline-block px-3 py-1.5 text-xs font-medium bg-charcoal-50 text-charcoal border border-charcoal-100">Explanation</span>
+                        <h1 class="text-3xl md:text-4xl font-extrabold text-charcoal mt-3 mb-3">B2B Features Development</h1>
+                        <p class="text-charcoal-300 text-lg mb-4">Master Adobe Commerce B2B architecture including company accounts, shared catalogs, requisition lists, quick order, quote negotiation, and B2B-specific permissions.</p>
+                        <!-- Meta pills -->
+                        <div class="flex flex-wrap gap-2"><span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-yellow-50 text-yellow-800"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>Advanced</span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-orange-50 text-orange-700"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>60 minutes</span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-charcoal text-white">Magento 2.4.7+</span></div>
+                    </div>
+
+                    <hr class="border-0 border-t border-gray-100 mb-8">
+
+                    <!-- Content -->
+                    <div class="prose max-w-none">
+                        <h1 id="b2b-features-development">B2B Features Development</h1>
+<h2 id="overview">Overview</h2>
+<p>Adobe Commerce B2B extends the platform with enterprise features for business-to-business commerce. Understanding the B2B architecture is critical for implementing custom workflows, integrations, and business logic for corporate purchasing environments.</p>
+<p><strong>What you'll learn:</strong>
+- Company account architecture and hierarchy management
+- Shared catalog implementation and product visibility control
+- Requisition list functionality and custom list types
+- Quick order implementation and bulk ordering workflows
+- Quote negotiation system and approval workflows
+- B2B-specific permission models (roles, rules, ACL)
+- Credit limit management and purchase order workflows
+- Integration patterns for ERP and procurement systems</p>
+<p><strong>Prerequisites:</strong>
+- Adobe Commerce 2.4.7+ with B2B module enabled
+- Advanced understanding of Magento customer management
+- Experience with catalog, pricing, and cart systems
+- Knowledge of ACL, permissions, and authorization
+- Familiarity with quote and order workflows</p>
+<p><strong>Note:</strong> B2B features are <strong>Adobe Commerce only</strong> and not available in Open Source.</p>
+<hr />
+<h2 id="b2b-architecture-overview">B2B Architecture Overview</h2>
+<h3 id="core-b2b-modules">Core B2B Modules</h3>
+<pre><code>Magento_Company           - Company account management
+Magento_CompanyCredit     - Credit limit and payment on account
+Magento_SharedCatalog     - Catalog visibility and custom pricing
+Magento_RequisitionList   - Saved shopping lists
+Magento_NegotiableQuote   - Quote negotiation workflow
+Magento_QuickOrder        - Bulk SKU entry
+Magento_PurchaseOrder     - Approval workflows
+Magento_B2b               - Integration layer
+</code></pre>
+<h3 id="b2b-customer-hierarchy">B2B Customer Hierarchy</h3>
+<pre><code>Company (ABC Corporation)
+  ├── Company Admin (john@abc.com)
+  ├── Team Lead (sarah@abc.com)
+  │   ├── Buyer 1 (mike@abc.com)
+  │   └── Buyer 2 (lisa@abc.com)
+  └── Finance Manager (david@abc.com)
+</code></pre>
+<h3 id="key-concepts">Key Concepts</h3>
+<ul>
+<li><strong>Company Account</strong>: Organization entity with admin, structure, and users</li>
+<li><strong>Shared Catalog</strong>: Custom product catalog and pricing per company</li>
+<li><strong>Requisition List</strong>: Reusable shopping lists for frequent purchases</li>
+<li><strong>Negotiable Quote</strong>: Request-for-quote workflow with admin negotiation</li>
+<li><strong>Purchase Order</strong>: Approval rules based on amount, requester, approvers</li>
+<li><strong>Company Credit</strong>: Credit limit and payment-on-account capability</li>
+</ul>
+<hr />
+<h2 id="company-account-architecture">Company Account Architecture</h2>
+<h3 id="company-entity-structure">Company Entity Structure</h3>
+<p><strong>Database Schema:</strong></p>
+<pre><code>company
+  ├── company_id (PK)
+  ├── company_name
+  ├── legal_name
+  ├── company_email
+  ├── status (0=pending, 1=approved, 2=rejected, 3=blocked)
+  ├── sales_representative_id
+  ├── customer_group_id
+  ├── super_user_id (company admin customer_id)
+  └── ...
+
+company_advanced_customer_entity
+  ├── entity_id (PK)
+  ├── customer_id (FK to customer_entity)
+  ├── company_id (FK to company)
+  ├── job_title
+  ├── status (0=inactive, 1=active)
+  └── telephone
+
+company_structure
+  ├── structure_id (PK)
+  ├── parent_id (self-referencing)
+  ├── entity_id (customer_id)
+  ├── entity_type (0=customer, 1=team)
+  ├── path (materialized path for hierarchy)
+  └── level
+</code></pre>
+<h3 id="creating-a-company-programmatically">Creating a Company Programmatically</h3>
+<p><strong>File</strong>: <code>Vendor/B2BExtension/Model/CompanyCreator.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\B2BExtension\Model;
+
+use Magento\Company\Api\CompanyRepositoryInterface;
+use Magento\Company\Api\Data\CompanyInterface;
+use Magento\Company\Api\Data\CompanyInterfaceFactory;
+use Magento\Customer\Api\CustomerRepositoryInterface;
+use Magento\Customer\Api\Data\CustomerInterface;
+use Magento\Framework\Exception\LocalizedException;
+use Psr\Log\LoggerInterface;
+
+class CompanyCreator
+{
+    public function __construct(
+        private readonly CompanyInterfaceFactory $companyFactory,
+        private readonly CompanyRepositoryInterface $companyRepository,
+        private readonly CustomerRepositoryInterface $customerRepository,
+        private readonly LoggerInterface $logger
+    ) {
+    }
+
+    /**
+     * Create company with admin user
+     *
+     * @param array $companyData
+     * @param CustomerInterface $adminCustomer
+     * @return CompanyInterface
+     * @throws LocalizedException
+     */
+    public function createCompany(array $companyData, CustomerInterface $adminCustomer): CompanyInterface
+    {
+        try {
+            // Validate required fields
+            $this-&gt;validateCompanyData($companyData);
+
+            /** @var CompanyInterface $company */
+            $company = $this-&gt;companyFactory-&gt;create();
+
+            $company-&gt;setCompanyName($companyData['company_name'])
+                -&gt;setLegalName($companyData['legal_name'] ?? $companyData['company_name'])
+                -&gt;setCompanyEmail($companyData['company_email'])
+                -&gt;setStatus(CompanyInterface::STATUS_PENDING)
+                -&gt;setSuperUserId((int)$adminCustomer-&gt;getId())
+                -&gt;setCustomerGroupId((int)($companyData['customer_group_id'] ?? 1))
+                -&gt;setComment($companyData['comment'] ?? '');
+
+            // Set address data
+            if (isset($companyData['street'])) {
+                $company-&gt;setStreet($companyData['street']);
+            }
+            if (isset($companyData['city'])) {
+                $company-&gt;setCity($companyData['city']);
+            }
+            if (isset($companyData['country_id'])) {
+                $company-&gt;setCountryId($companyData['country_id']);
+            }
+            if (isset($companyData['region_id'])) {
+                $company-&gt;setRegionId($companyData['region_id']);
+            }
+            if (isset($companyData['postcode'])) {
+                $company-&gt;setPostcode($companyData['postcode']);
+            }
+            if (isset($companyData['telephone'])) {
+                $company-&gt;setTelephone($companyData['telephone']);
+            }
+
+            // Save company
+            $savedCompany = $this-&gt;companyRepository-&gt;save($company);
+
+            $this-&gt;logger-&gt;info('Company created successfully', [
+                'company_id' =&gt; $savedCompany-&gt;getId(),
+                'company_name' =&gt; $savedCompany-&gt;getCompanyName()
+            ]);
+
+            return $savedCompany;
+
+        } catch (\Exception $e) {
+            $this-&gt;logger-&gt;error('Company creation failed', [
+                'exception' =&gt; $e-&gt;getMessage(),
+                'company_data' =&gt; $companyData
+            ]);
+            throw new LocalizedException(__('Failed to create company: %1', $e-&gt;getMessage()));
+        }
+    }
+
+    /**
+     * Approve company
+     */
+    public function approveCompany(int $companyId): void
+    {
+        $company = $this-&gt;companyRepository-&gt;get($companyId);
+        $company-&gt;setStatus(CompanyInterface::STATUS_APPROVED);
+        $this-&gt;companyRepository-&gt;save($company);
+    }
+
+    /**
+     * Add user to company
+     */
+    public function addCompanyUser(
+        int $companyId,
+        CustomerInterface $customer,
+        ?int $parentId = null,
+        string $jobTitle = ''
+    ): void {
+        $company = $this-&gt;companyRepository-&gt;get($companyId);
+
+        // Set company association in customer extension attributes
+        $extensionAttributes = $customer-&gt;getExtensionAttributes();
+        $extensionAttributes-&gt;setCompanyAttributes([
+            'company_id' =&gt; $companyId,
+            'status' =&gt; 1, // Active
+            'job_title' =&gt; $jobTitle,
+        ]);
+
+        $customer-&gt;setExtensionAttributes($extensionAttributes);
+        $this-&gt;customerRepository-&gt;save($customer);
+    }
+
+    /**
+     * Validate company data
+     */
+    private function validateCompanyData(array $data): void
+    {
+        $requiredFields = ['company_name', 'company_email'];
+
+        foreach ($requiredFields as $field) {
+            if (empty($data[$field])) {
+                throw new LocalizedException(__('Required field missing: %1', $field));
+            }
+        }
+
+        if (!filter_var($data['company_email'], FILTER_VALIDATE_EMAIL)) {
+            throw new LocalizedException(__('Invalid company email format'));
+        }
+    }
+}
+</code></pre>
+<h3 id="company-hierarchy-management">Company Hierarchy Management</h3>
+<p><strong>File</strong>: <code>Vendor/B2BExtension/Model/CompanyStructure.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\B2BExtension\Model;
+
+use Magento\Company\Api\Data\StructureInterface;
+use Magento\Company\Model\Company\Structure as CompanyStructure;
+use Magento\Framework\Exception\LocalizedException;
+
+class CompanyStructureManager
+{
+    public function __construct(
+        private readonly CompanyStructure $companyStructure
+    ) {
+    }
+
+    /**
+     * Create team under parent
+     *
+     * @param int $companyId
+     * @param int $parentStructureId
+     * @param string $teamName
+     * @return StructureInterface
+     */
+    public function createTeam(int $companyId, int $parentStructureId, string $teamName): StructureInterface
+    {
+        $team = $this-&gt;companyStructure-&gt;addNode(
+            0, // Team entity (not customer)
+            $parentStructureId,
+            $teamName
+        );
+
+        return $team;
+    }
+
+    /**
+     * Move user to different team/parent
+     */
+    public function moveUser(int $customerId, int $newParentId): void
+    {
+        $userNode = $this-&gt;companyStructure-&gt;getStructureByCustomerId($customerId);
+
+        if (!$userNode) {
+            throw new LocalizedException(__('User structure not found'));
+        }
+
+        $this-&gt;companyStructure-&gt;moveNode($userNode-&gt;getId(), $newParentId);
+    }
+
+    /**
+     * Get all users under a parent (recursive)
+     *
+     * @param int $parentStructureId
+     * @return array
+     */
+    public function getAllChildUsers(int $parentStructureId): array
+    {
+        $children = $this-&gt;companyStructure-&gt;getAllowedChildrenIds($parentStructureId);
+
+        $users = [];
+        foreach ($children as $childId) {
+            $node = $this-&gt;companyStructure-&gt;getStructureById($childId);
+
+            if ($node-&gt;getEntityType() == StructureInterface::TYPE_CUSTOMER) {
+                $users[] = $node-&gt;getEntityId(); // customer_id
+            }
+
+            // Recursively get children
+            $users = array_merge($users, $this-&gt;getAllChildUsers($childId));
+        }
+
+        return array_unique($users);
+    }
+
+    /**
+     * Get user's direct manager
+     */
+    public function getUserManager(int $customerId): ?int
+    {
+        $userNode = $this-&gt;companyStructure-&gt;getStructureByCustomerId($customerId);
+
+        if (!$userNode || !$userNode-&gt;getParentId()) {
+            return null;
+        }
+
+        $parentNode = $this-&gt;companyStructure-&gt;getStructureById($userNode-&gt;getParentId());
+
+        // Find first customer-type parent
+        while ($parentNode &amp;&amp; $parentNode-&gt;getEntityType() != StructureInterface::TYPE_CUSTOMER) {
+            if (!$parentNode-&gt;getParentId()) {
+                return null;
+            }
+            $parentNode = $this-&gt;companyStructure-&gt;getStructureById($parentNode-&gt;getParentId());
+        }
+
+        return $parentNode ? $parentNode-&gt;getEntityId() : null;
+    }
+}
+</code></pre>
+<hr />
+<h2 id="shared-catalog-implementation">Shared Catalog Implementation</h2>
+<h3 id="shared-catalog-architecture">Shared Catalog Architecture</h3>
+<p>Shared catalogs control:
+1. <strong>Product Visibility</strong>: Which products a company can see
+2. <strong>Custom Pricing</strong>: Tier prices specific to company/catalog
+3. <strong>Category Access</strong>: Category visibility restrictions</p>
+<h3 id="creating-a-shared-catalog">Creating a Shared Catalog</h3>
+<p><strong>File</strong>: <code>Vendor/B2BExtension/Model/SharedCatalogCreator.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\B2BExtension\Model;
+
+use Magento\SharedCatalog\Api\Data\SharedCatalogInterface;
+use Magento\SharedCatalog\Api\Data\SharedCatalogInterfaceFactory;
+use Magento\SharedCatalog\Api\SharedCatalogRepositoryInterface;
+use Magento\SharedCatalog\Model\SharedCatalogAssignment;
+use Magento\Framework\Exception\LocalizedException;
+
+class SharedCatalogCreator
+{
+    public function __construct(
+        private readonly SharedCatalogInterfaceFactory $sharedCatalogFactory,
+        private readonly SharedCatalogRepositoryInterface $sharedCatalogRepository,
+        private readonly SharedCatalogAssignment $sharedCatalogAssignment,
+        private readonly \Psr\Log\LoggerInterface $logger
+    ) {
+    }
+
+    /**
+     * Create shared catalog for company
+     *
+     * @param string $name
+     * @param int $customerGroupId
+     * @param int $createdBy
+     * @return SharedCatalogInterface
+     */
+    public function create(string $name, int $customerGroupId, int $createdBy): SharedCatalogInterface
+    {
+        try {
+            /** @var SharedCatalogInterface $sharedCatalog */
+            $sharedCatalog = $this-&gt;sharedCatalogFactory-&gt;create();
+
+            $sharedCatalog-&gt;setName($name)
+                -&gt;setDescription('Shared catalog for ' . $name)
+                -&gt;setType(SharedCatalogInterface::TYPE_CUSTOM)
+                -&gt;setCreatedBy($createdBy)
+                -&gt;setCustomerGroupId($customerGroupId)
+                -&gt;setTaxClassId(3); // Default product tax class
+
+            $savedCatalog = $this-&gt;sharedCatalogRepository-&gt;save($sharedCatalog);
+
+            $this-&gt;logger-&gt;info('Shared catalog created', [
+                'catalog_id' =&gt; $savedCatalog-&gt;getId(),
+                'name' =&gt; $savedCatalog-&gt;getName()
+            ]);
+
+            return $savedCatalog;
+
+        } catch (\Exception $e) {
+            $this-&gt;logger-&gt;error('Shared catalog creation failed', [
+                'exception' =&gt; $e-&gt;getMessage()
+            ]);
+            throw new LocalizedException(__('Failed to create shared catalog'));
+        }
+    }
+
+    /**
+     * Assign products to shared catalog
+     *
+     * @param int $sharedCatalogId
+     * @param array $productSkus
+     */
+    public function assignProducts(int $sharedCatalogId, array $productSkus): void
+    {
+        $this-&gt;sharedCatalogAssignment-&gt;assignProductsForCatalog(
+            $sharedCatalogId,
+            $productSkus
+        );
+    }
+
+    /**
+     * Assign categories to shared catalog
+     *
+     * @param int $sharedCatalogId
+     * @param array $categoryIds
+     */
+    public function assignCategories(int $sharedCatalogId, array $categoryIds): void
+    {
+        $this-&gt;sharedCatalogAssignment-&gt;assignCategoriesForCatalog(
+            $sharedCatalogId,
+            $categoryIds
+        );
+    }
+
+    /**
+     * Unassign products from shared catalog
+     */
+    public function unassignProducts(int $sharedCatalogId, array $productSkus): void
+    {
+        $this-&gt;sharedCatalogAssignment-&gt;unassignProductsForCatalog(
+            $sharedCatalogId,
+            $productSkus
+        );
+    }
+}
+</code></pre>
+<h3 id="custom-pricing-for-shared-catalog">Custom Pricing for Shared Catalog</h3>
+<p><strong>File</strong>: <code>Vendor/B2BExtension/Model/SharedCatalogPricing.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\B2BExtension\Model;
+
+use Magento\SharedCatalog\Api\ProductItemManagementInterface;
+use Magento\Catalog\Api\ProductRepositoryInterface;
+
+class SharedCatalogPricing
+{
+    public function __construct(
+        private readonly ProductItemManagementInterface $productItemManagement,
+        private readonly ProductRepositoryInterface $productRepository
+    ) {
+    }
+
+    /**
+     * Set custom price for product in shared catalog
+     *
+     * @param int $sharedCatalogId
+     * @param string $sku
+     * @param float $customPrice
+     */
+    public function setCustomPrice(int $sharedCatalogId, string $sku, float $customPrice): void
+    {
+        $this-&gt;productItemManagement-&gt;addItems(
+            $sharedCatalogId,
+            [
+                [
+                    'sku' =&gt; $sku,
+                    'custom_price' =&gt; $customPrice
+                ]
+            ]
+        );
+    }
+
+    /**
+     * Set tier prices for shared catalog
+     *
+     * @param int $sharedCatalogId
+     * @param string $sku
+     * @param array $tierPrices [['qty' =&gt; 10, 'price' =&gt; 8.50], ...]
+     */
+    public function setTierPricing(int $sharedCatalogId, string $sku, array $tierPrices): void
+    {
+        $product = $this-&gt;productRepository-&gt;get($sku);
+
+        $existingTierPrices = $product-&gt;getTierPrices() ?? [];
+
+        // Add shared catalog tier prices
+        foreach ($tierPrices as $tierPrice) {
+            $existingTierPrices[] = [
+                'website_id' =&gt; 0,
+                'customer_group_id' =&gt; $this-&gt;getCustomerGroupId($sharedCatalogId),
+                'qty' =&gt; $tierPrice['qty'],
+                'value' =&gt; $tierPrice['price'],
+                'percentage_value' =&gt; null,
+            ];
+        }
+
+        $product-&gt;setTierPrices($existingTierPrices);
+        $this-&gt;productRepository-&gt;save($product);
+    }
+
+    /**
+     * Apply percentage discount to all products in catalog
+     */
+    public function applyGlobalDiscount(int $sharedCatalogId, float $discountPercent): void
+    {
+        // Implementation would iterate through assigned products
+        // and apply percentage discount
+    }
+
+    private function getCustomerGroupId(int $sharedCatalogId): int
+    {
+        // Retrieve customer group ID from shared catalog
+        return 0; // Simplified
+    }
+}
+</code></pre>
+<hr />
+<h2 id="requisition-lists">Requisition Lists</h2>
+<h3 id="requisition-list-architecture">Requisition List Architecture</h3>
+<p>Requisition lists are persistent shopping lists that can be:
+- Created by company users
+- Shared within company hierarchy
+- Used for recurring purchases
+- Quickly added to cart</p>
+<h3 id="custom-requisition-list-type">Custom Requisition List Type</h3>
+<p><strong>File</strong>: <code>Vendor/B2BExtension/Model/RequisitionList/CustomList.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\B2BExtension\Model\RequisitionList;
+
+use Magento\RequisitionList\Api\Data\RequisitionListInterface;
+use Magento\RequisitionList\Api\RequisitionListRepositoryInterface;
+use Magento\RequisitionList\Model\RequisitionListItem\SaveHandler;
+use Magento\Framework\Exception\LocalizedException;
+
+class CustomListManager
+{
+    public function __construct(
+        private readonly RequisitionListRepositoryInterface $requisitionListRepository,
+        private readonly SaveHandler $itemSaveHandler,
+        private readonly \Magento\Catalog\Api\ProductRepositoryInterface $productRepository
+    ) {
+    }
+
+    /**
+     * Create recurring order list
+     *
+     * @param int $customerId
+     * @param string $name
+     * @param string $description
+     * @return RequisitionListInterface
+     */
+    public function createRecurringList(
+        int $customerId,
+        string $name,
+        string $description = ''
+    ): RequisitionListInterface {
+        /** @var RequisitionListInterface $list */
+        $list = $this-&gt;requisitionListRepository-&gt;create();
+
+        $list-&gt;setCustomerId($customerId)
+            -&gt;setName($name)
+            -&gt;setDescription($description);
+
+        return $this-&gt;requisitionListRepository-&gt;save($list);
+    }
+
+    /**
+     * Add product to requisition list
+     *
+     * @param int $listId
+     * @param string $sku
+     * @param float $qty
+     * @param array $options
+     */
+    public function addProduct(
+        int $listId,
+        string $sku,
+        float $qty = 1.0,
+        array $options = []
+    ): void {
+        $product = $this-&gt;productRepository-&gt;get($sku);
+
+        $item = [
+            'requisition_list_id' =&gt; $listId,
+            'sku' =&gt; $sku,
+            'qty' =&gt; $qty,
+            'options' =&gt; $options,
+        ];
+
+        $this-&gt;itemSaveHandler-&gt;saveItem($item, $product);
+    }
+
+    /**
+     * Add entire list to cart
+     *
+     * @param int $listId
+     * @param \Magento\Quote\Api\CartRepositoryInterface $cartRepository
+     * @param int $customerId
+     */
+    public function addListToCart(
+        int $listId,
+        \Magento\Quote\Api\CartRepositoryInterface $cartRepository,
+        int $customerId
+    ): void {
+        $list = $this-&gt;requisitionListRepository-&gt;get($listId);
+
+        if ($list-&gt;getCustomerId() != $customerId) {
+            throw new LocalizedException(__('Unauthorized access to requisition list'));
+        }
+
+        $quote = $cartRepository-&gt;getActiveForCustomer($customerId);
+
+        foreach ($list-&gt;getItems() as $item) {
+            try {
+                $product = $this-&gt;productRepository-&gt;get($item-&gt;getSku());
+
+                $buyRequest = new \Magento\Framework\DataObject([
+                    'qty' =&gt; $item-&gt;getQty(),
+                    'options' =&gt; $item-&gt;getOptions(),
+                ]);
+
+                $quote-&gt;addProduct($product, $buyRequest);
+
+            } catch (\Exception $e) {
+                // Log error but continue with other items
+                continue;
+            }
+        }
+
+        $cartRepository-&gt;save($quote);
+    }
+
+    /**
+     * Clone requisition list
+     */
+    public function cloneList(int $listId, int $targetCustomerId, string $newName): RequisitionListInterface
+    {
+        $sourceList = $this-&gt;requisitionListRepository-&gt;get($listId);
+
+        $newList = $this-&gt;createRecurringList(
+            $targetCustomerId,
+            $newName,
+            $sourceList-&gt;getDescription()
+        );
+
+        foreach ($sourceList-&gt;getItems() as $item) {
+            $this-&gt;addProduct(
+                (int)$newList-&gt;getId(),
+                $item-&gt;getSku(),
+                (float)$item-&gt;getQty(),
+                $item-&gt;getOptions() ?? []
+            );
+        }
+
+        return $newList;
+    }
+}
+</code></pre>
+<hr />
+<h2 id="quick-order-implementation">Quick Order Implementation</h2>
+<h3 id="quick-order-architecture">Quick Order Architecture</h3>
+<p>Quick Order allows bulk SKU entry with quantity for rapid ordering.</p>
+<p><strong>File</strong>: <code>Vendor/B2BExtension/Model/QuickOrder/Processor.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\B2BExtension\Model\QuickOrder;
+
+use Magento\Catalog\Api\ProductRepositoryInterface;
+use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Framework\Exception\NoSuchEntityException;
+
+class Processor
+{
+    private array $errors = [];
+    private array $successful = [];
+
+    public function __construct(
+        private readonly ProductRepositoryInterface $productRepository,
+        private readonly CartRepositoryInterface $cartRepository
+    ) {
+    }
+
+    /**
+     * Process bulk SKU list
+     *
+     * @param array $items [['sku' =&gt; 'ABC', 'qty' =&gt; 5], ...]
+     * @param int $customerId
+     * @return array ['successful' =&gt; [...], 'errors' =&gt; [...]]
+     */
+    public function processBulkOrder(array $items, int $customerId): array
+    {
+        $this-&gt;errors = [];
+        $this-&gt;successful = [];
+
+        $quote = $this-&gt;cartRepository-&gt;getActiveForCustomer($customerId);
+
+        foreach ($items as $item) {
+            try {
+                $this-&gt;processItem($item, $quote);
+                $this-&gt;successful[] = $item['sku'];
+
+            } catch (\Exception $e) {
+                $this-&gt;errors[] = [
+                    'sku' =&gt; $item['sku'],
+                    'error' =&gt; $e-&gt;getMessage()
+                ];
+            }
+        }
+
+        if (!empty($this-&gt;successful)) {
+            $this-&gt;cartRepository-&gt;save($quote);
+        }
+
+        return [
+            'successful' =&gt; $this-&gt;successful,
+            'errors' =&gt; $this-&gt;errors
+        ];
+    }
+
+    /**
+     * Process single item
+     */
+    private function processItem(array $item, $quote): void
+    {
+        if (empty($item['sku'])) {
+            throw new \InvalidArgumentException('SKU is required');
+        }
+
+        $qty = $item['qty'] ?? 1;
+
+        if ($qty &lt;= 0) {
+            throw new \InvalidArgumentException('Quantity must be greater than 0');
+        }
+
+        try {
+            $product = $this-&gt;productRepository-&gt;get($item['sku']);
+
+            if (!$product-&gt;isSalable()) {
+                throw new \RuntimeException('Product is not available for purchase');
+            }
+
+            $buyRequest = new \Magento\Framework\DataObject(['qty' =&gt; $qty]);
+            $quote-&gt;addProduct($product, $buyRequest);
+
+        } catch (NoSuchEntityException $e) {
+            throw new \RuntimeException('Product not found: ' . $item['sku']);
+        }
+    }
+
+    /**
+     * Parse CSV input for quick order
+     *
+     * @param string $csvContent
+     * @return array
+     */
+    public function parseCsvInput(string $csvContent): array
+    {
+        $lines = explode(&quot;\n&quot;, trim($csvContent));
+        $items = [];
+
+        foreach ($lines as $line) {
+            $parts = str_getcsv($line);
+
+            if (count($parts) &lt; 1 || empty(trim($parts[0]))) {
+                continue;
+            }
+
+            $items[] = [
+                'sku' =&gt; trim($parts[0]),
+                'qty' =&gt; isset($parts[1]) ? (float)trim($parts[1]) : 1.0,
+            ];
+        }
+
+        return $items;
+    }
+
+    /**
+     * Validate SKUs before processing
+     */
+    public function validateSkus(array $skus): array
+    {
+        $validation = [
+            'valid' =&gt; [],
+            'invalid' =&gt; [],
+        ];
+
+        foreach ($skus as $sku) {
+            try {
+                $product = $this-&gt;productRepository-&gt;get($sku);
+                $validation['valid'][] = [
+                    'sku' =&gt; $sku,
+                    'name' =&gt; $product-&gt;getName(),
+                    'price' =&gt; $product-&gt;getFinalPrice(),
+                ];
+            } catch (NoSuchEntityException $e) {
+                $validation['invalid'][] = $sku;
+            }
+        }
+
+        return $validation;
+    }
+}
+</code></pre>
+<hr />
+<h2 id="quote-negotiation-workflow">Quote Negotiation Workflow</h2>
+<h3 id="negotiable-quote-architecture">Negotiable Quote Architecture</h3>
+<p>Flow:
+1. Customer creates quote request
+2. Admin/Sales rep reviews and modifies
+3. Customer accepts/declines/negotiates
+4. Approved quote converts to order</p>
+<h3 id="quote-management">Quote Management</h3>
+<p><strong>File</strong>: <code>Vendor/B2BExtension/Model/Quote/NegotiableQuoteManager.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\B2BExtension\Model\Quote;
+
+use Magento\NegotiableQuote\Api\NegotiableQuoteRepositoryInterface;
+use Magento\NegotiableQuote\Api\Data\NegotiableQuoteInterface;
+use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Framework\Exception\LocalizedException;
+
+class NegotiableQuoteManager
+{
+    public function __construct(
+        private readonly NegotiableQuoteRepositoryInterface $negotiableQuoteRepository,
+        private readonly CartRepositoryInterface $cartRepository,
+        private readonly \Psr\Log\LoggerInterface $logger
+    ) {
+    }
+
+    /**
+     * Create negotiable quote from cart
+     *
+     * @param int $quoteId
+     * @param string $quoteName
+     * @param string $comment
+     * @return NegotiableQuoteInterface
+     */
+    public function createNegotiableQuote(
+        int $quoteId,
+        string $quoteName,
+        string $comment = ''
+    ): NegotiableQuoteInterface {
+        $quote = $this-&gt;cartRepository-&gt;get($quoteId);
+
+        if (!$quote-&gt;getItemsCount()) {
+            throw new LocalizedException(__('Cannot create quote from empty cart'));
+        }
+
+        // Create negotiable quote
+        $negotiableQuote = $quote-&gt;getExtensionAttributes()-&gt;getNegotiableQuote();
+
+        if (!$negotiableQuote) {
+            throw new LocalizedException(__('Quote is not negotiable'));
+        }
+
+        $negotiableQuote-&gt;setQuoteName($quoteName)
+            -&gt;setStatus(NegotiableQuoteInterface::STATUS_CREATED)
+            -&gt;setIsRegularQuote(true)
+            -&gt;setNegotiatedPriceValue(null);
+
+        if ($comment) {
+            $negotiableQuote-&gt;setCreatorId($quote-&gt;getCustomerId())
+                -&gt;setCreatorType(NegotiableQuoteInterface::CREATOR_TYPE_BUYER);
+        }
+
+        $this-&gt;negotiableQuoteRepository-&gt;save($negotiableQuote);
+
+        $this-&gt;logger-&gt;info('Negotiable quote created', [
+            'quote_id' =&gt; $quoteId,
+            'quote_name' =&gt; $quoteName
+        ]);
+
+        return $negotiableQuote;
+    }
+
+    /**
+     * Apply admin discount to negotiable quote
+     *
+     * @param int $quoteId
+     * @param float $discountPercent
+     * @param string $comment
+     */
+    public function applyAdminDiscount(
+        int $quoteId,
+        float $discountPercent,
+        string $comment = ''
+    ): void {
+        $quote = $this-&gt;cartRepository-&gt;get($quoteId);
+        $negotiableQuote = $quote-&gt;getExtensionAttributes()-&gt;getNegotiableQuote();
+
+        if (!$negotiableQuote) {
+            throw new LocalizedException(__('Quote is not negotiable'));
+        }
+
+        // Calculate new total
+        $originalPrice = (float)$quote-&gt;getBaseGrandTotal();
+        $discountAmount = $originalPrice * ($discountPercent / 100);
+        $newPrice = $originalPrice - $discountAmount;
+
+        $negotiableQuote-&gt;setNegotiatedPriceType(
+            NegotiableQuoteInterface::NEGOTIATED_PRICE_TYPE_PERCENTAGE_DISCOUNT
+        )
+            -&gt;setNegotiatedPriceValue($discountPercent)
+            -&gt;setStatus(NegotiableQuoteInterface::STATUS_SUBMITTED_BY_ADMIN);
+
+        $this-&gt;negotiableQuoteRepository-&gt;save($negotiableQuote);
+
+        $this-&gt;logger-&gt;info('Admin discount applied to quote', [
+            'quote_id' =&gt; $quoteId,
+            'discount_percent' =&gt; $discountPercent,
+            'original_price' =&gt; $originalPrice,
+            'new_price' =&gt; $newPrice
+        ]);
+    }
+
+    /**
+     * Customer accepts quote
+     */
+    public function acceptQuote(int $quoteId, int $customerId): void
+    {
+        $quote = $this-&gt;cartRepository-&gt;get($quoteId);
+
+        if ($quote-&gt;getCustomerId() != $customerId) {
+            throw new LocalizedException(__('Unauthorized access to quote'));
+        }
+
+        $negotiableQuote = $quote-&gt;getExtensionAttributes()-&gt;getNegotiableQuote();
+
+        $negotiableQuote-&gt;setStatus(NegotiableQuoteInterface::STATUS_ORDERED);
+
+        $this-&gt;negotiableQuoteRepository-&gt;save($negotiableQuote);
+    }
+
+    /**
+     * Customer declines quote
+     */
+    public function declineQuote(int $quoteId, int $customerId, string $reason = ''): void
+    {
+        $quote = $this-&gt;cartRepository-&gt;get($quoteId);
+
+        if ($quote-&gt;getCustomerId() != $customerId) {
+            throw new LocalizedException(__('Unauthorized access to quote'));
+        }
+
+        $negotiableQuote = $quote-&gt;getExtensionAttributes()-&gt;getNegotiableQuote();
+
+        $negotiableQuote-&gt;setStatus(NegotiableQuoteInterface::STATUS_DECLINED);
+
+        $this-&gt;negotiableQuoteRepository-&gt;save($negotiableQuote);
+    }
+
+    /**
+     * Get quote history/comments
+     */
+    public function getQuoteHistory(int $quoteId): array
+    {
+        // Retrieve comment history from negotiable_quote_history table
+        // Simplified implementation
+        return [];
+    }
+}
+</code></pre>
+<hr />
+<h2 id="purchase-order-approval-workflow">Purchase Order Approval Workflow</h2>
+<h3 id="purchase-order-rules">Purchase Order Rules</h3>
+<p><strong>File</strong>: <code>Vendor/B2BExtension/Model/PurchaseOrder/ApprovalRule.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\B2BExtension\Model\PurchaseOrder;
+
+use Magento\PurchaseOrder\Api\Data\PurchaseOrderInterface;
+use Magento\Framework\Exception\LocalizedException;
+
+class ApprovalRuleEngine
+{
+    /**
+     * Check if purchase order requires approval
+     *
+     * @param PurchaseOrderInterface $purchaseOrder
+     * @return bool
+     */
+    public function requiresApproval(PurchaseOrderInterface $purchaseOrder): bool
+    {
+        $rules = $this-&gt;getApprovalRules($purchaseOrder-&gt;getCompanyId());
+
+        foreach ($rules as $rule) {
+            if ($this-&gt;evaluateRule($rule, $purchaseOrder)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Get approval rules for company
+     */
+    private function getApprovalRules(int $companyId): array
+    {
+        // Example rules
+        return [
+            [
+                'type' =&gt; 'amount_threshold',
+                'condition' =&gt; 'greater_than',
+                'value' =&gt; 1000.00,
+                'approvers' =&gt; [2, 5], // Customer IDs
+            ],
+            [
+                'type' =&gt; 'requester_role',
+                'condition' =&gt; 'equals',
+                'value' =&gt; 'junior_buyer',
+                'approvers' =&gt; [3], // Manager
+            ],
+        ];
+    }
+
+    /**
+     * Evaluate single rule
+     */
+    private function evaluateRule(array $rule, PurchaseOrderInterface $purchaseOrder): bool
+    {
+        switch ($rule['type']) {
+            case 'amount_threshold':
+                return $this-&gt;evaluateAmountThreshold($rule, $purchaseOrder);
+
+            case 'requester_role':
+                return $this-&gt;evaluateRequesterRole($rule, $purchaseOrder);
+
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * Check if amount exceeds threshold
+     */
+    private function evaluateAmountThreshold(array $rule, PurchaseOrderInterface $purchaseOrder): bool
+    {
+        $amount = (float)$purchaseOrder-&gt;getGrandTotal();
+        $threshold = (float)$rule['value'];
+
+        return match ($rule['condition']) {
+            'greater_than' =&gt; $amount &gt; $threshold,
+            'less_than' =&gt; $amount &lt; $threshold,
+            'equals' =&gt; $amount == $threshold,
+            default =&gt; false,
+        };
+    }
+
+    /**
+     * Check requester role
+     */
+    private function evaluateRequesterRole(array $rule, PurchaseOrderInterface $purchaseOrder): bool
+    {
+        // Get creator's role from company structure
+        $creatorRole = $this-&gt;getCreatorRole($purchaseOrder-&gt;getCreatorId());
+
+        return $creatorRole === $rule['value'];
+    }
+
+    /**
+     * Get required approvers for purchase order
+     */
+    public function getRequiredApprovers(PurchaseOrderInterface $purchaseOrder): array
+    {
+        $approvers = [];
+        $rules = $this-&gt;getApprovalRules($purchaseOrder-&gt;getCompanyId());
+
+        foreach ($rules as $rule) {
+            if ($this-&gt;evaluateRule($rule, $purchaseOrder)) {
+                $approvers = array_merge($approvers, $rule['approvers']);
+            }
+        }
+
+        return array_unique($approvers);
+    }
+
+    /**
+     * Approve purchase order
+     */
+    public function approve(PurchaseOrderInterface $purchaseOrder, int $approverId): void
+    {
+        $requiredApprovers = $this-&gt;getRequiredApprovers($purchaseOrder);
+
+        if (!in_array($approverId, $requiredApprovers)) {
+            throw new LocalizedException(__('User not authorized to approve this purchase order'));
+        }
+
+        // Mark as approved by this approver
+        // Check if all required approvers have approved
+        // If yes, change status to approved
+    }
+
+    private function getCreatorRole(int $customerId): string
+    {
+        // Retrieve from company_advanced_customer_entity
+        return 'junior_buyer'; // Simplified
+    }
+}
+</code></pre>
+<hr />
+<h2 id="company-credit-management">Company Credit Management</h2>
+<h3 id="credit-limit-and-balance">Credit Limit and Balance</h3>
+<p><strong>File</strong>: <code>Vendor/B2BExtension/Model/CompanyCredit/CreditManager.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\B2BExtension\Model\CompanyCredit;
+
+use Magento\CompanyCredit\Api\CreditLimitRepositoryInterface;
+use Magento\CompanyCredit\Api\Data\CreditLimitInterface;
+use Magento\Framework\Exception\LocalizedException;
+
+class CreditManager
+{
+    public function __construct(
+        private readonly CreditLimitRepositoryInterface $creditLimitRepository
+    ) {
+    }
+
+    /**
+     * Set credit limit for company
+     *
+     * @param int $companyId
+     * @param float $creditLimit
+     * @param string $currencyCode
+     */
+    public function setCreditLimit(int $companyId, float $creditLimit, string $currencyCode = 'USD'): void
+    {
+        $credit = $this-&gt;getCreditByCompanyId($companyId);
+
+        $credit-&gt;setCreditLimit($creditLimit)
+            -&gt;setCurrencyCode($currencyCode);
+
+        $this-&gt;creditLimitRepository-&gt;save($credit);
+    }
+
+    /**
+     * Get available credit
+     */
+    public function getAvailableCredit(int $companyId): float
+    {
+        $credit = $this-&gt;getCreditByCompanyId($companyId);
+
+        $creditLimit = (float)$credit-&gt;getCreditLimit();
+        $balance = (float)$credit-&gt;getBalance();
+
+        return $creditLimit - $balance;
+    }
+
+    /**
+     * Check if company can purchase with credit
+     */
+    public function canPurchase(int $companyId, float $amount): bool
+    {
+        $availableCredit = $this-&gt;getAvailableCredit($companyId);
+
+        return $availableCredit &gt;= $amount;
+    }
+
+    /**
+     * Allocate credit for purchase
+     */
+    public function allocateCredit(int $companyId, float $amount): void
+    {
+        if (!$this-&gt;canPurchase($companyId, $amount)) {
+            throw new LocalizedException(__('Insufficient credit limit'));
+        }
+
+        $credit = $this-&gt;getCreditByCompanyId($companyId);
+
+        $newBalance = (float)$credit-&gt;getBalance() + $amount;
+        $credit-&gt;setBalance($newBalance);
+
+        $this-&gt;creditLimitRepository-&gt;save($credit);
+    }
+
+    /**
+     * Refund credit
+     */
+    public function refundCredit(int $companyId, float $amount): void
+    {
+        $credit = $this-&gt;getCreditByCompanyId($companyId);
+
+        $newBalance = max(0, (float)$credit-&gt;getBalance() - $amount);
+        $credit-&gt;setBalance($newBalance);
+
+        $this-&gt;creditLimitRepository-&gt;save($credit);
+    }
+
+    /**
+     * Get credit history
+     */
+    public function getCreditHistory(int $companyId): array
+    {
+        // Retrieve from company_credit_history table
+        // Simplified
+        return [];
+    }
+
+    private function getCreditByCompanyId(int $companyId): CreditLimitInterface
+    {
+        return $this-&gt;creditLimitRepository-&gt;get($companyId);
+    }
+}
+</code></pre>
+<hr />
+<h2 id="b2b-permissions-and-acl">B2B Permissions and ACL</h2>
+<h3 id="custom-company-roles">Custom Company Roles</h3>
+<p><strong>File</strong>: <code>Vendor/B2BExtension/Model/Authorization/RoleManager.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\B2BExtension\Model\Authorization;
+
+use Magento\Company\Api\AclInterface;
+
+class RoleManager
+{
+    public function __construct(
+        private readonly AclInterface $acl
+    ) {
+    }
+
+    /**
+     * Check if user has permission
+     *
+     * @param int $customerId
+     * @param string $resource
+     * @return bool
+     */
+    public function hasPermission(int $customerId, string $resource): bool
+    {
+        return $this-&gt;acl-&gt;isAllowed($customerId, $resource);
+    }
+
+    /**
+     * Define custom B2B resources
+     */
+    public function getB2BResources(): array
+    {
+        return [
+            'Magento_Company::view',
+            'Magento_Company::view_account',
+            'Magento_Company::edit_account',
+            'Magento_Company::view_address',
+            'Magento_Company::edit_address',
+            'Magento_Company::contacts',
+            'Magento_Company::user_management',
+            'Magento_Company::roles_view',
+            'Magento_Company::roles_edit',
+            'Magento_Sales::all',
+            'Magento_Sales::place_order',
+            'Magento_Sales::view_orders',
+            'Magento_Sales::view_orders_sub',
+            'Magento_NegotiableQuote::all',
+            'Magento_NegotiableQuote::manage',
+            'Magento_NegotiableQuote::checkout',
+            'Magento_PurchaseOrder::all',
+            'Magento_PurchaseOrder::view_purchase_orders',
+            'Magento_PurchaseOrder::view_purchase_orders_for_subordinates',
+            'Magento_PurchaseOrder::approve_purchase_orders',
+        ];
+    }
+}
+</code></pre>
+<hr />
+<h2 id="testing-b2b-features">Testing B2B Features</h2>
+<h3 id="integration-test">Integration Test</h3>
+<p><strong>File</strong>: <code>Vendor/B2BExtension/Test/Integration/Model/CompanyCreatorTest.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\B2BExtension\Test\Integration\Model;
+
+use Magento\TestFramework\Helper\Bootstrap;
+use PHPUnit\Framework\TestCase;
+
+class CompanyCreatorTest extends TestCase
+{
+    private $objectManager;
+    private $companyCreator;
+
+    protected function setUp(): void
+    {
+        $this-&gt;objectManager = Bootstrap::getObjectManager();
+        $this-&gt;companyCreator = $this-&gt;objectManager-&gt;get(
+            \Vendor\B2BExtension\Model\CompanyCreator::class
+        );
+    }
+
+    /**
+     * @magentoDataFixture Magento/Customer/_files/customer.php
+     */
+    public function testCreateCompanySuccess(): void
+    {
+        $customerRepository = $this-&gt;objectManager-&gt;get(
+            \Magento\Customer\Api\CustomerRepositoryInterface::class
+        );
+
+        $customer = $customerRepository-&gt;get('customer@example.com');
+
+        $companyData = [
+            'company_name' =&gt; 'Test Company',
+            'legal_name' =&gt; 'Test Company LLC',
+            'company_email' =&gt; 'company@test.com',
+            'street' =&gt; '123 Main St',
+            'city' =&gt; 'Los Angeles',
+            'country_id' =&gt; 'US',
+            'region_id' =&gt; 12,
+            'postcode' =&gt; '90001',
+            'telephone' =&gt; '555-1234',
+        ];
+
+        $company = $this-&gt;companyCreator-&gt;createCompany($companyData, $customer);
+
+        $this-&gt;assertNotNull($company-&gt;getId());
+        $this-&gt;assertEquals('Test Company', $company-&gt;getCompanyName());
+        $this-&gt;assertEquals($customer-&gt;getId(), $company-&gt;getSuperUserId());
+    }
+}
+</code></pre>
+<hr />
+<h2 id="summary">Summary</h2>
+<p><strong>Key Takeaways:</strong>
+- Company accounts provide hierarchical organization structure with admin and user roles
+- Shared catalogs enable custom product visibility and pricing per company/customer group
+- Requisition lists support recurring purchases and bulk ordering workflows
+- Quick order facilitates rapid SKU-based ordering for experienced buyers
+- Negotiable quotes support request-for-quote workflows with admin negotiation
+- Purchase orders enforce approval rules based on amount, requester, or custom logic
+- Company credit provides payment-on-account capability with credit limits
+- B2B permissions system extends Magento ACL for company-specific resources</p>
+<hr />
+<h2 id="assumptions">Assumptions</h2>
+<ul>
+<li><strong>Magento Version:</strong> Adobe Commerce 2.4.7+ with B2B modules enabled</li>
+<li><strong>PHP Version:</strong> 8.2+</li>
+<li><strong>License:</strong> Valid Adobe Commerce license required for B2B features</li>
+<li><strong>Company Structure:</strong> Hierarchical organization with defined roles</li>
+<li><strong>Integration:</strong> May require ERP/CRM integration for credit, pricing sync</li>
+</ul>
+<h2 id="why-this-approach">Why This Approach</h2>
+<ul>
+<li><strong>Service Contracts:</strong> All B2B features use repository interfaces for API stability</li>
+<li><strong>Hierarchy Model:</strong> Materialized path in company_structure enables efficient tree queries</li>
+<li><strong>Shared Catalog:</strong> Catalog visibility and pricing decoupled from core catalog</li>
+<li><strong>Quote Workflow:</strong> Stateful negotiation with history tracking</li>
+<li><strong>Approval Rules:</strong> Configurable rule engine supports custom business logic</li>
+<li><strong>Credit Management:</strong> Separate credit ledger with transaction history</li>
+</ul>
+<h2 id="security-impact">Security Impact</h2>
+<ul>
+<li><strong>Company Isolation:</strong> Strict validation of company ID on all operations</li>
+<li><strong>Authorization Checks:</strong> ACL verification for company resources</li>
+<li><strong>Quote Access:</strong> Users can only access quotes for their company</li>
+<li><strong>Approval Permissions:</strong> Purchase order approvers validated against rules</li>
+<li><strong>Credit Limits:</strong> Server-side validation prevents over-spending</li>
+<li><strong>PII Protection:</strong> Company and user data subject to GDPR compliance</li>
+</ul>
+<h2 id="performance-impact">Performance Impact</h2>
+<ul>
+<li><strong>Company Structure Queries:</strong> Materialized path enables efficient subtree queries</li>
+<li><strong>Shared Catalog Filtering:</strong> Additional joins on product collections; use indexing</li>
+<li><strong>Quote Negotiation:</strong> Quote locking prevents concurrent modifications</li>
+<li><strong>Credit Checks:</strong> Real-time credit validation on checkout</li>
+<li><strong>FPC:</strong> B2B pages often uncacheable due to user-specific content</li>
+</ul>
+<h2 id="backward-compatibility">Backward Compatibility</h2>
+<ul>
+<li><strong>B2B APIs:</strong> Repository interfaces stable across Adobe Commerce versions</li>
+<li><strong>Company Structure:</strong> Hierarchy model unchanged since B2B 1.0</li>
+<li><strong>Quote Schema:</strong> Negotiable quote schema additions BC-compliant</li>
+<li><strong>Extension Attributes:</strong> B2B uses extension attributes for core entity augmentation</li>
+</ul>
+<h2 id="tests-to-add">Tests to Add</h2>
+<p><strong>Unit Tests:</strong></p>
+<pre><code class="language-php">testCompanyCreation()
+testSharedCatalogAssignment()
+testQuoteNegotiation()
+testApprovalRuleEvaluation()
+testCreditAllocation()
+</code></pre>
+<p><strong>Integration Tests:</strong></p>
+<pre><code class="language-php">testCompanyHierarchyTraversal()
+testSharedCatalogPricing()
+testRequisitionListToCart()
+testPurchaseOrderWorkflow()
+</code></pre>
+<p><strong>Functional Tests (MFTF):</strong></p>
+<pre><code class="language-xml">&lt;test name=&quot;AdminCreateCompanyTest&quot;&gt;
+&lt;test name=&quot;StorefrontNegotiableQuoteWorkflowTest&quot;&gt;
+&lt;test name=&quot;StorefrontPurchaseOrderApprovalTest&quot;&gt;
+</code></pre>
+<h2 id="docs-to-update">Docs to Update</h2>
+<ul>
+<li><strong>README.md:</strong> B2B module installation, configuration, feature overview</li>
+<li><strong>docs/COMPANY.md:</strong> Company structure diagram, hierarchy management</li>
+<li><strong>docs/QUOTES.md:</strong> Quote negotiation workflow, state diagram</li>
+<li><strong>docs/APPROVALS.md:</strong> Purchase order approval rules, configuration examples</li>
+<li><strong>Admin User Guide:</strong> Screenshots of company admin, shared catalog setup, quote management UI</li>
+</ul>
+<h2 id="related-documentation">Related Documentation</h2>
+<h3 id="related-guides">Related Guides</h3>
+<ul>
+<li><a href="service-contracts-repositories.md">Service Contracts vs Repositories in Magento 2</a></li>
+<li><a href="../how-to/multi-store-setup.md">Multi-Store Configuration Mastery</a></li>
+</ul>
+<h3 id="related-module-documentation">Related Module Documentation</h3>
+<ul>
+<li><a href="../../modules/catalog/README.md">Magento_Catalog Overview</a></li>
+<li><a href="../../modules/customer/README.md">Magento_Customer Overview</a></li>
+<li><a href="../../modules/quote/README.md">Magento_Quote Overview</a></li>
+<li><a href="../../modules/sales/README.md">Magento_Sales Overview</a></li>
+</ul>
+                    </div>
+                </article>
+            </main>
+            <!-- Right Sidebar: On This Page (desktop) -->
+            <aside class="toc-sidebar hidden xl:block" aria-label="On this page">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-semibold text-gray-900 uppercase tracking-wider mb-4 mt-0">On this page</h3>
+                    <nav id="toc-nav" class="space-y-0" aria-label="Table of contents"></nav>
+                    <div class="toc-back-to-top">
+                        <a href="#">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+                            </svg>
+                            Back to top
+                        </a>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- ================================================================
+         FOOTER — matches module-catalog.html multi-column layout exactly
+         ================================================================ -->
+    <footer class="relative pt-12 bg-white border-t border-charcoal mt-16">
+        <div class="max-w-screen-2xl mx-auto w-full px-4 sm:px-6 lg:px-8">
+            <div>
+                <a href="index.html" class="inline-flex items-center no-underline">
+                    <svg width="30" height="33" viewBox="0 0 30 33" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Magento Association logo" role="img">
+                        <path d="M0 4.06492H29.6763V31.8882C29.6763 32.502 29.1713 33 28.5487 33H1.12762C0.505079 33 0 32.502 0 31.8882V4.06492Z" fill="#34323A"/>
+                        <path d="M1.26857 0H28.4078C29.1066 0 29.6763 0.561678 29.6763 1.25075V4.06492H0V1.25075C0 0.561678 0.569682 0 1.26857 0Z" fill="#C9C9C9"/>
+                        <path d="M2.37269 3.0458C2.94031 3.0458 3.40046 2.59211 3.40046 2.03246C3.40046 1.47281 2.94031 1.01913 2.37269 1.01913C1.80506 1.01913 1.34491 1.47281 1.34491 2.03246C1.34491 2.59211 1.80506 3.0458 2.37269 3.0458Z" fill="#848484"/>
+                        <path d="M5.28571 3.0458C5.85334 3.0458 6.31349 2.59211 6.31349 2.03246C6.31349 1.47281 5.85334 1.01913 5.28571 1.01913C4.71809 1.01913 4.25793 1.47281 4.25793 2.03246C4.25793 2.59211 4.71809 3.0458 5.28571 3.0458Z" fill="#848484"/>
+                        <path d="M14.7883 7.46973L4.90405 13.0923V24.349L7.54104 25.8487V14.5978L14.7883 10.4692L22.0415 14.5978V25.8487L24.6785 24.349V13.0923L14.7883 7.46973Z" fill="#F1BC1B"/>
+                        <path d="M16.0862 26.2367L14.7883 26.9779L13.4492 26.2135V14.233L10.178 16.0975V27.3485L13.4492 29.213L14.7883 29.9773L16.0862 29.2362L19.4045 27.3485V16.0975L16.0862 14.2098V26.2367Z" fill="#F1BC1B"/>
+                    </svg>
+                    <span class="ml-3 text-xl font-bold text-charcoal">Developer Documentation</span>
+                </a>
+            </div>
+
+            <div class="grid grid-cols-12 md:gap-x-8 gap-y-12 lg:mt-12">
+                <div class="col-span-12 lg:col-span-4">
+                    <p class="hidden lg:block text-xs text-charcoal sm:text-sm">Comprehensive developer documentation for Magento 2.4.7+ — tutorials, architecture deep dives, module references, and production-ready patterns built by the community, for the community.</p>
+                    <ul class="mt-6 hidden lg:flex items-center gap-3">
+                        <li class="pl-0">
+                            <a href="https://github.com/magento/magento2" class="p-2 md:p-0" aria-label="GitHub">
+                                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                                </svg>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Guides</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="tutorials.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Tutorials</a></li>
+                            <li class="pl-0"><a href="how-to-guides.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">How-To Guides</a></li>
+                            <li class="pl-0"><a href="architecture.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Architecture</a></li>
+                            <li class="pl-0"><a href="learning-paths.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Learning Paths</a></li>
+                            <li class="pl-0"><a href="references.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">References</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Modules</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="module-catalog.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Catalog</a></li>
+                            <li class="pl-0"><a href="module-checkout.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Checkout</a></li>
+                            <li class="pl-0"><a href="module-sales.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Sales</a></li>
+                            <li class="pl-0"><a href="module-customer.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Customer</a></li>
+                            <li class="pl-0"><a href="module-quote.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Quote</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Community</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Magento Community</a></li>
+                            <li class="pl-0"><a href="https://magento.stackexchange.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Stack Exchange</a></li>
+                            <li class="pl-0"><a href="https://marketplace.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Marketplace</a></li>
+                            <li class="pl-0"><a href="https://github.com/magento/magento2" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">GitHub</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Support</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://github.com/magento/magento2/issues" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Report Issues</a></li>
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Community Resources</a></li>
+                            <li class="pl-0"><a href="https://developer.adobe.com/commerce/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Adobe Commerce Docs</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-12 border-t pt-6 pb-16 border-charcoal">
+                <p class="text-xs text-charcoal">
+                    &copy; 2026 Magento 2 Developer Documentation. Magento&reg; is a registered trademark of Adobe Inc.
+                </p>
+                <p class="mt-6 text-xs text-charcoal">
+                    This documentation provides guidance for Magento 2 developers and extension builders. For merchant documentation, visit the <a href="index.html" class="text-orange hover:text-orange-600 transition-colors">merchant documentation</a>.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Initialize highlight.js -->
+    <script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('pre code').forEach(function (el) {
+        hljs.highlightElement(el);
+    });
+    document.querySelectorAll('pre').forEach(function (pre) {
+        if (pre.parentNode.classList && pre.parentNode.classList.contains('code-wrapper')) return;
+        var wrapper = document.createElement('div');
+        wrapper.className = 'code-wrapper';
+        pre.parentNode.insertBefore(wrapper, pre);
+        wrapper.appendChild(pre);
+        var btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.setAttribute('type', 'button');
+        btn.setAttribute('aria-label', 'Copy code to clipboard');
+        btn.setAttribute('title', 'Copy');
+        btn.textContent = 'Copy';
+        wrapper.appendChild(btn);
+        btn.addEventListener('click', function () {
+            var code = pre.querySelector('code');
+            var text = code ? (code.innerText || code.textContent) : (pre.innerText || pre.textContent);
+            navigator.clipboard.writeText(text).then(function () {
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            }).catch(function () {
+                var range = document.createRange();
+                range.selectNode(code || pre);
+                window.getSelection().removeAllRanges();
+                window.getSelection().addRange(range);
+                document.execCommand('copy');
+                window.getSelection().removeAllRanges();
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            });
+        });
+    });
+});
+</script>
+
+
+<script>
+(function() {
+    var nav = document.getElementById('toc-nav');
+    if (!nav) return;
+    var article = document.getElementById('main-content');
+    if (!article) return;
+    var headings = article.querySelectorAll('h2[id], h3[id]');
+    if (headings.length < 3) {
+        // Hide the entire TOC sidebar if fewer than 3 headings
+        var sidebar = nav.closest('.toc-sidebar');
+        if (sidebar) sidebar.style.display = 'none';
+        return;
+    }
+    var ids = [];
+    headings.forEach(function(h) {
+        var a = document.createElement('a');
+        a.href = '#' + h.id;
+        a.textContent = h.textContent.replace(/^#+\s*/, '').replace(/\s+/g, ' ').trim();
+        if (h.tagName === 'H3') a.classList.add('toc-h3');
+        nav.appendChild(a);
+        ids.push(h.id);
+    });
+    // Scroll-spy with IntersectionObserver
+    var links = nav.querySelectorAll('a');
+    var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                links.forEach(function(l) { l.classList.remove('toc-active'); });
+                var active = nav.querySelector('a[href="#' + entry.target.id + '"]');
+                if (active) active.classList.add('toc-active');
+            }
+        });
+    }, { rootMargin: '-80px 0px -70% 0px', threshold: 0 });
+    headings.forEach(function(h) { observer.observe(h); });
+})();
+</script>
+</body>
+</html>

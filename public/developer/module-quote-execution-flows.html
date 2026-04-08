@@ -1,0 +1,1669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magento_Quote Execution Flows — Magento 2 Developer Documentation</title>
+    <meta name="description" content="Magento_Quote Execution Flows">
+
+    <!-- Google Fonts: Inter Tight only. Courier New used for code. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Highlight.js: syntax highlighting for code blocks -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/php.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/ini.min.js"></script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        charcoal: {
+                            DEFAULT: '#2c2c2c', 50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6',
+                            300: '#6B6B6B', 400: '#474747', 500: '#2c2c2c', 600: '#262626',
+                            700: '#202020', 800: '#1c1c1c', 900: '#191919', 950: '#121212'
+                        },
+                        orange: {
+                            DEFAULT: '#D4551A', 50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad',
+                            300: '#f9ae78', 400: '#f58242', 500: '#f26423', 600: '#e34613',
+                            700: '#bc3312', 800: '#962a16', 900: '#792515', 950: '#411009'
+                        },
+                        yellow: {
+                            DEFAULT: '#B8860B', 50: '#fffdeb', 100: '#fdf9c8', 200: '#fbf38c',
+                            300: '#f8e651', 400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a',
+                            700: '#b1670c', 800: '#8f5111', 900: '#764311', 950: '#442204'
+                        },
+                        'off-white': '#FAFAFA',
+                    },
+                    fontFamily: {
+                        sans: ['Inter Tight', 'system-ui', '-apple-system', 'sans-serif'],
+                        mono: ['Courier New', 'Courier', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* ── Force light mode ── */
+        :root { color-scheme: light only; }
+
+        [x-cloak] { display: none !important; }
+
+        /* ── Scroll offset for sticky header ── */
+        .prose h2, .prose h3 { scroll-margin-top: 5rem; }
+
+        /* ── Code blocks: Bauhaus charcoal bg, no border-radius, highlight.js override ── */
+        .prose pre {
+            background-color: #2C2C2C !important;
+            border-radius: 0 !important;
+            padding: 1.25rem;
+            overflow-x: auto;
+            font-size: 0.875rem;
+            line-height: 1.7;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 1.5rem 0;
+        }
+        .prose pre code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            background: transparent !important;
+            padding: 0;
+                    color: #abb2bf;
+        }
+        /* Override highlight.js theme background to match Bauhaus charcoal */
+        .hljs {
+            background: #2C2C2C !important;
+            color: #abb2bf !important;
+            border-radius: 0 !important;
+        }
+
+        /* ── Inline code: charcoal bg, yellow text, no border-radius ── */
+        .prose code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.85em;
+        }
+        .prose :not(pre) > code {
+            background-color: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2em 0.45em;
+            border-radius: 0;
+        }
+
+        /* ── Step-code: same charcoal/yellow style for UI path chips ── */
+        .step-code {
+            background: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2rem 0.5rem;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            border-radius: 0;
+        }
+
+        /* ── Tables: no border-radius, charcoal header ── */
+        .prose table { width: 100%; border-collapse: collapse; }
+        .prose th {
+            background-color: #2C2C2C;
+            color: #ffffff;
+            font-weight: 600;
+            text-align: left;
+            padding: 0.75rem 1rem;
+            border-bottom: 2px solid #2C2C2C;
+            border-radius: 0;
+        }
+        .prose td { padding: 0.75rem 1rem; border-bottom: 1px solid #e5e5e5; }
+        .prose tr:hover { background-color: #fafafa; }
+
+        /* ── Blockquote: Bauhaus style — border-4 yellow, square, no left-only border ── */
+        .prose blockquote {
+            border: 4px solid #F1BC1B;
+            background-color: #ffffff;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+            border-radius: 0;
+        }
+        .prose blockquote p { margin: 0; }
+
+        /* ── Lists: hexagon bullets ── */
+        .prose ul { list-style: none; padding-left: 0; }
+        .prose ul li {
+            position: relative;
+            padding-left: 1.75rem;
+            margin-bottom: 0.4rem;
+            line-height: 1.7;
+        }
+        .prose ul li::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0.45em;
+            width: 10px;
+            height: 10px;
+            background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 2L21 7V17L12 22L3 17V7L12 2Z' stroke='%23F26423' stroke-width='2.5' stroke-linejoin='miter'/%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+        .prose ol { list-style-type: decimal; padding-left: 1.5rem; }
+        .prose li { margin-bottom: 0.4rem; }
+
+        /* ── Headings ── */
+        .prose h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            padding-top: 1.5rem;
+            border-top: 4px solid #F1BC1B;
+            color: #2C2C2C;
+        }
+        .prose h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+            color: #2C2C2C;
+        }
+        .prose h4 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #2C2C2C;
+        }
+        .prose p { margin-bottom: 1rem; line-height: 1.75; }
+        .prose a { color: #D4551A; text-decoration: none; }
+        .prose a:hover { color: #e34613; text-decoration: underline; }
+        .prose hr { border: none; border-top: 1px solid #e5e5e5; margin: 2rem 0; }
+
+        /* ── Callout boxes: Bauhaus — border-4 yellow, white bg, icon + title ── */
+        .callout-box {
+            background-color: #ffffff;
+            border: 4px solid #F1BC1B;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+        }
+        .callout-warning {
+            border-color: #D4551A;
+        }
+        .callout-important {
+            border-color: #2C2C2C;
+        }
+        .callout-box .callout-inner {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+        .callout-box .callout-title {
+            font-weight: 600;
+            color: #2C2C2C;
+            margin-bottom: 0.25rem;
+        }
+        .callout-box .callout-body {
+            font-size: 0.875rem;
+            line-height: 1.6;
+            color: rgba(44,44,44,0.85);
+        }
+
+        
+    
+        /* Code block copy button */
+        .code-wrapper {
+            position: relative;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            font-family: 'Inter Tight', system-ui, sans-serif;
+            background: rgba(255,255,255,0.1);
+            color: #abb2bf;
+            border: 1px solid rgba(255,255,255,0.15);
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.15s ease, background 0.15s ease;
+            z-index: 10;
+            line-height: 1.4;
+            border-radius: 4px;
+            user-select: none;
+        }
+        .code-wrapper:hover .copy-btn {
+            opacity: 1;
+        }
+        .copy-btn:hover,
+        .copy-btn:focus {
+            background: rgba(255,255,255,0.2);
+            color: #ffffff;
+            outline: 2px solid #D4551A;
+            outline-offset: 1px;
+        }
+        .copy-btn.copied {
+            color: #98c379;
+            background: rgba(152, 195, 121, 0.15);
+            opacity: 1;
+        }
+    
+        /* Right-hand TOC sidebar */
+        .toc-sidebar {
+            width: 14rem;
+            flex-shrink: 0;
+        }
+        .toc-sidebar a {
+            display: block;
+            padding: 0.375rem 0;
+            font-size: 0.8125rem;
+            line-height: 1.4;
+            color: #6b7280;
+            text-decoration: none;
+            transition: color 0.15s ease;
+            border-left: 2px solid transparent;
+            padding-left: 0.75rem;
+        }
+        .toc-sidebar a:hover {
+            color: #111827;
+        }
+        .toc-sidebar a.toc-active {
+            color: #ea580c;
+            border-left-color: #ea580c;
+            font-weight: 500;
+        }
+        .toc-sidebar a.toc-h3 {
+            padding-left: 1.5rem;
+            font-size: 0.75rem;
+        }
+        .toc-sidebar .toc-back-to-top {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e5e7eb;
+        }
+        .toc-sidebar .toc-back-to-top a {
+            border-left: none;
+            padding-left: 0;
+            font-weight: 500;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .toc-sidebar .toc-back-to-top a:hover {
+            color: #ea580c;
+        }
+    </style>
+</head>
+
+<body class="font-sans bg-off-white text-charcoal">
+
+    <!-- Shared header — single source of truth -->
+    <script src="includes/header.js"></script>
+
+    <!-- Breadcrumb — orange › separators -->
+    <div class="bg-white border-b border-gray-100">
+        <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <div class="flex items-center gap-2 text-sm flex-wrap">
+                <a href="index.html" class="text-orange hover:text-orange-600 transition-colors no-underline">Home</a> <span class="text-orange font-medium">›</span> <a href="modules.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">Modules</a> <span class="text-orange font-medium">›</span> <a href="module-quote.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">Quote</a> <span class="text-orange font-medium">›</span> <span class="text-charcoal font-medium">Magento_Quote Execution Flows</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="flex gap-8">
+
+            <!-- Left Sidebar (desktop) -->
+            <aside class="hidden lg:block w-64 flex-shrink-0">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4">Quote Module</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="module-quote-overview.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Overview</a></li>
+<li class="pl-0"><a href="module-quote-architecture.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Architecture</a></li>
+<li class="pl-0"><a href="module-quote-execution-flows.html" class="block px-3 py-2 text-sm text-orange font-semibold bg-orange-50 border-l-4 border-orange pl-2 transition-colors no-underline">Execution Flows</a></li>
+<li class="pl-0"><a href="module-quote-plugins-and-observers.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Plugins & Observers</a></li>
+<li class="pl-0"><a href="module-quote-integrations.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Integrations</a></li>
+<li class="pl-0"><a href="module-quote-anti-patterns.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Anti-Patterns</a></li>
+<li class="pl-0"><a href="module-quote-performance.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Performance</a></li>
+<li class="pl-0"><a href="module-quote-known-issues.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Known Issues</a></li>
+<li class="pl-0"><a href="module-quote-version-compatibility.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Version Compatibility</a></li>
+</ul>
+<h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4 mt-8">Other Modules</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="module-catalog.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Catalog</a></li>
+<li class="pl-0"><a href="module-checkout.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Checkout</a></li>
+<li class="pl-0"><a href="module-customer.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Customer</a></li>
+<li class="pl-0"><a href="module-sales.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Sales</a></li>
+</ul>
+                </div>
+            </aside>
+
+            <!-- Article — square corners, border-t-4 orange accent -->
+            <main id="main-content" class="flex-1 min-w-0">
+                <article class="bg-white shadow-sm border border-gray-100 border-t-4 border-t-orange p-8 md:p-12">
+                    <!-- Title block -->
+                    <div class="mb-8">
+                        <span class="inline-block px-3 py-1.5 text-xs font-medium bg-orange-50 text-orange-700 border border-orange-200">Execution Flows</span>
+                        <h1 class="text-3xl md:text-4xl font-extrabold text-charcoal mt-3 mb-3">Magento_Quote Execution Flows</h1>
+                        <p class="text-charcoal-300 text-lg mb-4">Magento_Quote Execution Flows</p>
+                        <!-- Meta pills -->
+                        <div class="flex flex-wrap gap-2"><span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-charcoal text-white">Magento 2.4.7+</span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-charcoal-50 text-charcoal border border-charcoal-100">Magento_Quote</span></div>
+                    </div>
+
+                    <hr class="border-0 border-t border-gray-100 mb-8">
+
+                    <!-- Content -->
+                    <div class="prose max-w-none">
+                        <h1 id="magento_quote-execution-flows">Magento_Quote Execution Flows</h1>
+<h2 id="overview">Overview</h2>
+<p>This document details the execution flows for critical Quote module operations, tracing the complete path from user action through controllers, services, models, and database persistence. Each flow includes sequence diagrams in text format, code examples, and performance considerations.</p>
+<p><strong>Target Version:</strong> Magento 2.4.7+ | Adobe Commerce &amp; Open Source
+<strong>PHP Version:</strong> 8.2+</p>
+<h2 id="flow-1-add-product-to-cart-customer">Flow 1: Add Product to Cart (Customer)</h2>
+<h3 id="user-story">User Story</h3>
+<p>A logged-in customer adds a simple product to their cart from the product detail page.</p>
+<h3 id="sequence-flow">Sequence Flow</h3>
+<pre><code>Customer Browser
+    ↓ POST /checkout/cart/add (product=123, qty=2)
+Magento\Checkout\Controller\Cart\Add
+    ↓ validate form key (CSRF protection)
+FormKey\Validator::validate()
+    ↓ validate product exists and is saleable
+Magento\Catalog\Api\ProductRepositoryInterface::getById(123)
+    ↓ get or create customer cart
+Magento\Quote\Api\CartManagementInterface::getCartForCustomer($customerId)
+    ├─&gt; Check cache for active quote
+    ├─&gt; If not cached: QuoteRepository::getForCustomer()
+    │       ├─&gt; ResourceModel\Quote::loadByCustomerId()
+    │       └─&gt; Return Quote object
+    └─&gt; If no quote: Create new empty cart
+            └─&gt; Quote::setCustomer(), setStore(), setIsActive(1)
+    ↓ add product to quote
+Quote::addProduct($product, $buyRequest)
+    ├─&gt; Product\Type::prepareForCartAdvanced()
+    │       ├─&gt; Validate qty, stock, product status
+    │       ├─&gt; Process product options
+    │       └─&gt; Return prepared product(s)
+    ├─&gt; Quote::_addCatalogProduct()
+    │       ├─&gt; Check for existing item (merge or new)
+    │       ├─&gt; Quote\Item::setProduct(), setQty(), setSku()
+    │       ├─&gt; Quote\Item::addOption() for buy request
+    │       └─&gt; ItemsCollection::addItem()
+    └─&gt; Return Quote\Item or error string
+    ↓ recalculate totals
+Quote::collectTotals()
+    ├─&gt; TotalsCollector::collect()
+    │       ├─&gt; Subtotal collector (priority 100)
+    │       ├─&gt; Shipping collector (priority 200)
+    │       ├─&gt; Tax collector (priority 300)
+    │       ├─&gt; Discount collector (priority 400)
+    │       └─&gt; GrandTotal collector (priority 500)
+    └─&gt; Update Quote totals from Address totals
+    ↓ persist quote
+QuoteRepository::save($quote)
+    ├─&gt; Event: sales_quote_save_before
+    ├─&gt; ResourceModel\Quote::save()
+    │       ├─&gt; Save quote header (quote table)
+    │       ├─&gt; Save items (quote_item table)
+    │       ├─&gt; Save addresses (quote_address table)
+    │       └─&gt; Save payment (quote_payment table)
+    ├─&gt; Event: sales_quote_save_after
+    └─&gt; Clear repository cache
+    ↓ update mini cart section
+CustomerData\Cart::getSectionData()
+    ├─&gt; Reload quote
+    ├─&gt; Build cart summary
+    └─&gt; Return JSON (items, qty, subtotal)
+    ↓ return response
+HTTP 302 Redirect → /checkout/cart
+Customer Browser
+    ↓ displays cart with new item
+</code></pre>
+<h3 id="implementation-example">Implementation Example</h3>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Magento\Checkout\Controller\Cart;
+
+use Magento\Framework\App\Action\HttpPostActionInterface;
+use Magento\Framework\Controller\Result\Redirect;
+
+/**
+ * Add product to cart controller
+ */
+class Add extends \Magento\Framework\App\Action\Action implements HttpPostActionInterface
+{
+    public function __construct(
+        \Magento\Framework\App\Action\Context $context,
+        private readonly \Magento\Quote\Api\CartManagementInterface $cartManagement,
+        private readonly \Magento\Quote\Api\CartRepositoryInterface $cartRepository,
+        private readonly \Magento\Catalog\Api\ProductRepositoryInterface $productRepository,
+        private readonly \Magento\Framework\Data\Form\FormKey\Validator $formKeyValidator,
+        private readonly \Magento\Customer\Model\Session $customerSession,
+        private readonly \Magento\Framework\Message\ManagerInterface $messageManager,
+        private readonly \Psr\Log\LoggerInterface $logger
+    ) {
+        parent::__construct($context);
+    }
+
+    /**
+     * Add product to cart action
+     *
+     * @return Redirect
+     */
+    public function execute(): Redirect
+    {
+        $resultRedirect = $this-&gt;resultRedirectFactory-&gt;create();
+
+        // Validate CSRF token
+        if (!$this-&gt;formKeyValidator-&gt;validate($this-&gt;getRequest())) {
+            $this-&gt;messageManager-&gt;addErrorMessage(__('Invalid form key.'));
+            return $resultRedirect-&gt;setPath('*/*/');
+        }
+
+        $productId = (int)$this-&gt;getRequest()-&gt;getParam('product');
+        $qty = (float)($this-&gt;getRequest()-&gt;getParam('qty') ?: 1);
+
+        if (!$productId) {
+            $this-&gt;messageManager-&gt;addErrorMessage(__('Product not specified.'));
+            return $resultRedirect-&gt;setPath('*/*/');
+        }
+
+        try {
+            // Load product
+            $product = $this-&gt;productRepository-&gt;getById($productId);
+
+            // Get or create customer cart
+            $customerId = (int)$this-&gt;customerSession-&gt;getCustomerId();
+            $quote = $this-&gt;cartManagement-&gt;getCartForCustomer($customerId);
+
+            // Prepare buy request
+            $params = $this-&gt;getRequest()-&gt;getParams();
+            $buyRequest = new \Magento\Framework\DataObject($params);
+
+            // Add product to cart
+            $item = $quote-&gt;addProduct($product, $buyRequest);
+
+            // Check for error message (string return)
+            if (is_string($item)) {
+                throw new \Magento\Framework\Exception\LocalizedException(__($item));
+            }
+
+            // Collect totals and save
+            $quote-&gt;collectTotals();
+            $this-&gt;cartRepository-&gt;save($quote);
+
+            // Success message
+            $this-&gt;messageManager-&gt;addSuccessMessage(
+                __('You added %1 to your shopping cart.', $product-&gt;getName())
+            );
+
+            // Dispatch event for observers
+            $this-&gt;_eventManager-&gt;dispatch(
+                'checkout_cart_add_product_complete',
+                ['product' =&gt; $product, 'request' =&gt; $this-&gt;getRequest(), 'response' =&gt; $this-&gt;getResponse()]
+            );
+
+        } catch (\Magento\Framework\Exception\LocalizedException $e) {
+            $this-&gt;messageManager-&gt;addErrorMessage($e-&gt;getMessage());
+            $this-&gt;logger-&gt;error('Add to cart error: ' . $e-&gt;getMessage());
+        } catch (\Exception $e) {
+            $this-&gt;messageManager-&gt;addErrorMessage(__('We cannot add this item to your cart.'));
+            $this-&gt;logger-&gt;critical('Add to cart critical error: ' . $e-&gt;getMessage());
+        }
+
+        return $resultRedirect-&gt;setPath('checkout/cart');
+    }
+}
+</code></pre>
+<h3 id="performance-considerations">Performance Considerations</h3>
+<ul>
+<li><strong>Database Queries:</strong> 3-5 queries (customer lookup, product load, quote load/save)</li>
+<li><strong>Cache Impact:</strong> Invalidates customer section data (mini cart)</li>
+<li><strong>Indexer Impact:</strong> None (quote operations don't trigger reindex)</li>
+<li><strong>Optimization:</strong> Cache product data, use lazy loading for quote items</li>
+</ul>
+<hr />
+<h2 id="flow-2-add-configurable-product-to-cart">Flow 2: Add Configurable Product to Cart</h2>
+<h3 id="user-story_1">User Story</h3>
+<p>Customer selects color and size options for a configurable product and adds it to cart.</p>
+<h3 id="sequence-flow_1">Sequence Flow</h3>
+<pre><code>Customer Browser
+    ↓ POST /checkout/cart/add (product=456, super_attribute[color]=23, super_attribute[size]=56, qty=1)
+Controller\Cart\Add::execute()
+    ↓ load configurable product
+ProductRepository::getById(456)
+    ↓ get customer cart
+CartManagement::getCartForCustomer()
+    ↓ prepare buy request with super attributes
+DataObject(['product' =&gt; 456, 'super_attribute' =&gt; [color =&gt; 23, size =&gt; 56], 'qty' =&gt; 1])
+    ↓ add product to quote
+Quote::addProduct($configurableProduct, $buyRequest)
+    ↓ prepare for cart (configurable-specific)
+Configurable\Product\Type::prepareForCartAdvanced()
+    ├─&gt; Validate super attributes provided
+    ├─&gt; Load simple product based on attributes
+    │       └─&gt; getProductByAttributes([color =&gt; 23, size =&gt; 56])
+    ├─&gt; Check simple product stock, status
+    ├─&gt; Return [configurable product, simple product]
+    └─&gt; Set parent-child relationship
+    ↓ add configurable product as parent item
+Quote::_addCatalogProduct($configurableProduct)
+    ├─&gt; Create Quote\Item for configurable
+    ├─&gt; Set sku, name, price from configurable
+    ├─&gt; Add option: info_buyRequest (serialized)
+    ├─&gt; Add option: product_type = configurable
+    └─&gt; Add to items collection
+    ↓ add simple product as child item
+Quote::_addCatalogProduct($simpleProduct)
+    ├─&gt; Create Quote\Item for simple
+    ├─&gt; Set parentItem to configurable item
+    ├─&gt; Set sku, price from simple
+    ├─&gt; Add option: simple_product
+    └─&gt; Add to parent's children collection
+    ↓ collect totals (uses simple product price)
+Quote::collectTotals()
+    ↓ save quote with parent-child items
+QuoteRepository::save()
+</code></pre>
+<h3 id="implementation-deep-dive">Implementation Deep Dive</h3>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Magento\ConfigurableProduct\Model\Product\Type;
+
+use Magento\Catalog\Model\Product;
+use Magento\Framework\DataObject;
+
+/**
+ * Configurable product type
+ */
+class Configurable extends \Magento\Catalog\Model\Product\Type\AbstractType
+{
+    /**
+     * Prepare product for cart
+     *
+     * @param DataObject $buyRequest
+     * @param Product $product
+     * @param string|null $processMode
+     * @return array|string Array of products or error message
+     */
+    public function prepareForCartAdvanced(DataObject $buyRequest, $product, $processMode = null)
+    {
+        $superAttributes = $buyRequest-&gt;getData('super_attribute');
+
+        // Validate super attributes provided
+        if (!is_array($superAttributes) || empty($superAttributes)) {
+            return __('Please specify the product\'s required option(s).')-&gt;render();
+        }
+
+        // Get simple product by attributes
+        $simpleProduct = $this-&gt;getProductByAttributes($superAttributes, $product);
+
+        if (!$simpleProduct || !$simpleProduct-&gt;getId()) {
+            return __('The required options you selected are not available.')-&gt;render();
+        }
+
+        // Check simple product is saleable
+        if (!$simpleProduct-&gt;isSaleable()) {
+            return __('This product is currently out of stock.')-&gt;render();
+        }
+
+        // Prepare configurable product
+        $product-&gt;setCustomOptions([]);
+        $this-&gt;_prepareProduct($buyRequest, $product, $processMode);
+
+        // Prepare simple product
+        $this-&gt;_prepareProduct($buyRequest, $simpleProduct, $processMode);
+
+        // Add attributes option to configurable
+        $product-&gt;addCustomOption('attributes', serialize($superAttributes));
+        $product-&gt;addCustomOption('product_qty_' . $simpleProduct-&gt;getId(), $buyRequest-&gt;getQty());
+        $product-&gt;addCustomOption('simple_product', $simpleProduct-&gt;getId(), $simpleProduct);
+
+        // Add parent product option to simple
+        $simpleProduct-&gt;addCustomOption('parent_product_id', $product-&gt;getId());
+
+        // Set simple product as child
+        $product-&gt;addCustomOption('child_product', $simpleProduct-&gt;getId(), $simpleProduct);
+
+        // Return both products (parent, child)
+        $products = [$product, $simpleProduct];
+
+        return $products;
+    }
+
+    /**
+     * Get simple product by selected attributes
+     *
+     * @param array $attributes
+     * @param Product $product
+     * @return Product|null
+     */
+    private function getProductByAttributes(array $attributes, Product $product): ?Product
+    {
+        $collection = $this-&gt;getUsedProductCollection($product)
+            -&gt;addAttributeToSelect('*')
+            -&gt;setFlag('has_stock_status_filter', true);
+
+        foreach ($attributes as $attributeId =&gt; $value) {
+            $collection-&gt;addAttributeToFilter($attributeId, $value);
+        }
+
+        return $collection-&gt;getFirstItem();
+    }
+}
+</code></pre>
+<h3 id="database-operations">Database Operations</h3>
+<pre><code class="language-sql">-- Load configurable product
+SELECT * FROM catalog_product_entity WHERE entity_id = 456;
+SELECT * FROM catalog_product_entity_varchar WHERE entity_id = 456; -- attributes
+
+-- Load simple product by attributes
+SELECT cpe.* FROM catalog_product_entity cpe
+INNER JOIN catalog_product_super_link cpsl ON cpsl.product_id = cpe.entity_id
+INNER JOIN catalog_product_entity_int cpei_color ON cpei_color.entity_id = cpe.entity_id
+INNER JOIN catalog_product_entity_int cpei_size ON cpei_size.entity_id = cpe.entity_id
+WHERE cpsl.parent_id = 456
+  AND cpei_color.attribute_id = 93 AND cpei_color.value = 23
+  AND cpei_size.attribute_id = 144 AND cpei_size.value = 56;
+
+-- Save quote items (parent and child)
+INSERT INTO quote_item (quote_id, product_id, product_type, sku, name, qty, price, parent_item_id)
+VALUES (789, 456, 'configurable', 'CONFIG-SKU', 'Configurable Product', 1, 59.99, NULL);
+
+INSERT INTO quote_item (quote_id, product_id, product_type, sku, name, qty, price, parent_item_id)
+VALUES (789, 457, 'simple', 'SIMPLE-SKU-RED-L', 'Configurable Product-Red-Large', 1, 59.99, 1001);
+
+-- Save item options
+INSERT INTO quote_item_option (item_id, product_id, code, value)
+VALUES (1001, 456, 'info_buyRequest', '{&quot;product&quot;:456,&quot;super_attribute&quot;:{&quot;color&quot;:23,&quot;size&quot;:56},&quot;qty&quot;:1}');
+
+INSERT INTO quote_item_option (item_id, product_id, code, value)
+VALUES (1001, 456, 'attributes', 'a:2:{s:5:&quot;color&quot;;i:23;s:4:&quot;size&quot;;i:56;}');
+
+INSERT INTO quote_item_option (item_id, product_id, code, value)
+VALUES (1001, 456, 'simple_product', '457');
+</code></pre>
+<hr />
+<h2 id="flow-3-update-cart-item-quantity">Flow 3: Update Cart Item Quantity</h2>
+<h3 id="user-story_2">User Story</h3>
+<p>Customer changes quantity of an item in cart from 2 to 5.</p>
+<h3 id="sequence-flow_2">Sequence Flow</h3>
+<pre><code>Customer Browser
+    ↓ POST /checkout/cart/updatePost (cart[item_id]=1001, cart[item_id][qty]=5)
+Controller\Cart\UpdatePost::execute()
+    ↓ validate form key
+FormKeyValidator::validate()
+    ↓ get customer cart
+CartRepository::getForCustomer($customerId)
+    ↓ parse cart data
+$cartData = $request-&gt;getParam('cart')
+    ↓ iterate cart data
+foreach ($cartData as $itemId =&gt; $itemInfo)
+    ↓ get item from quote
+Quote::getItemById($itemId)
+    ├─&gt; Validate item exists
+    └─&gt; Validate item belongs to this quote
+    ↓ check quantity
+if ($itemInfo['qty'] &gt; 0)
+    ├─&gt; Update quantity
+    │   Quote\Item::setQty($itemInfo['qty'])
+    └─&gt; Trigger item qty update
+        Quote\Item::calcRowTotal()
+else
+    └─&gt; Remove item
+        Quote::removeItem($itemId)
+    ↓ recalculate totals
+Quote::collectTotals()
+    ├─&gt; Reset all totals to zero
+    ├─&gt; Execute subtotal collector
+    │   Subtotal::collect()
+    │       ├─&gt; Iterate items
+    │       ├─&gt; Item::calcRowTotal() [price * qty]
+    │       ├─&gt; Sum row totals
+    │       └─&gt; Set address subtotal
+    ├─&gt; Execute shipping collector
+    ├─&gt; Execute tax collector
+    ├─&gt; Execute discount collector
+    └─&gt; Execute grand total collector
+    ↓ save updated quote
+QuoteRepository::save($quote)
+    ├─&gt; Event: sales_quote_save_before
+    ├─&gt; UPDATE quote SET items_count=X, items_qty=Y, subtotal=Z
+    ├─&gt; UPDATE quote_item SET qty=5, row_total=price*5
+    ├─&gt; Event: sales_quote_save_after
+    └─&gt; Clear cache
+    ↓ return success
+MessageManager::addSuccessMessage('Cart updated.')
+Redirect → /checkout/cart
+</code></pre>
+<h3 id="implementation">Implementation</h3>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Magento\Checkout\Controller\Cart;
+
+use Magento\Framework\App\Action\HttpPostActionInterface;
+
+class UpdatePost extends \Magento\Framework\App\Action\Action implements HttpPostActionInterface
+{
+    public function __construct(
+        \Magento\Framework\App\Action\Context $context,
+        private readonly \Magento\Quote\Api\CartRepositoryInterface $cartRepository,
+        private readonly \Magento\Customer\Model\Session $customerSession,
+        private readonly \Magento\Framework\Data\Form\FormKey\Validator $formKeyValidator,
+        private readonly \Magento\Framework\Message\ManagerInterface $messageManager
+    ) {
+        parent::__construct($context);
+    }
+
+    /**
+     * Update cart quantities
+     *
+     * @return \Magento\Framework\Controller\Result\Redirect
+     */
+    public function execute()
+    {
+        $resultRedirect = $this-&gt;resultRedirectFactory-&gt;create();
+
+        if (!$this-&gt;formKeyValidator-&gt;validate($this-&gt;getRequest())) {
+            return $resultRedirect-&gt;setPath('*/*/');
+        }
+
+        $cartData = $this-&gt;getRequest()-&gt;getParam('cart');
+        if (!is_array($cartData)) {
+            return $resultRedirect-&gt;setPath('*/*/');
+        }
+
+        try {
+            $customerId = (int)$this-&gt;customerSession-&gt;getCustomerId();
+            $quote = $this-&gt;cartRepository-&gt;getForCustomer($customerId);
+
+            $updateAction = false;
+
+            foreach ($cartData as $itemId =&gt; $itemInfo) {
+                $item = $quote-&gt;getItemById($itemId);
+                if (!$item) {
+                    continue;
+                }
+
+                $qty = isset($itemInfo['qty']) ? (float)$itemInfo['qty'] : 0;
+
+                if ($qty &gt; 0) {
+                    // Update quantity
+                    $item-&gt;setQty($qty);
+                    $updateAction = true;
+                } else {
+                    // Remove item
+                    $quote-&gt;removeItem($itemId);
+                    $updateAction = true;
+                }
+            }
+
+            if ($updateAction) {
+                // Recalculate totals
+                $quote-&gt;collectTotals();
+
+                // Save quote
+                $this-&gt;cartRepository-&gt;save($quote);
+
+                $this-&gt;messageManager-&gt;addSuccessMessage(__('Cart updated.'));
+
+                // Dispatch event
+                $this-&gt;_eventManager-&gt;dispatch(
+                    'checkout_cart_update_items_after',
+                    ['cart' =&gt; $quote, 'info' =&gt; $cartData]
+                );
+            }
+
+        } catch (\Magento\Framework\Exception\LocalizedException $e) {
+            $this-&gt;messageManager-&gt;addErrorMessage($e-&gt;getMessage());
+        } catch (\Exception $e) {
+            $this-&gt;messageManager-&gt;addErrorMessage(__('We cannot update the shopping cart.'));
+        }
+
+        return $resultRedirect-&gt;setPath('*/*/');
+    }
+}
+</code></pre>
+<hr />
+<h2 id="flow-4-apply-coupon-code">Flow 4: Apply Coupon Code</h2>
+<h3 id="user-story_3">User Story</h3>
+<p>Customer enters a coupon code "SAVE10" in the cart to receive a 10% discount.</p>
+<h3 id="sequence-flow_3">Sequence Flow</h3>
+<pre><code>Customer Browser
+    ↓ POST /checkout/cart/couponPost (coupon_code=SAVE10)
+Controller\Cart\CouponPost::execute()
+    ↓ get customer cart
+CartRepository::getForCustomer()
+    ↓ apply coupon
+CouponManagement::set($cartId, 'SAVE10')
+    ├─&gt; Validate coupon exists
+    │   SalesRule\Model\Coupon::loadByCode('SAVE10')
+    ├─&gt; Validate rule is active
+    │   SalesRule\Model\Rule::load($coupon-&gt;getRuleId())
+    ├─&gt; Validate date range
+    ├─&gt; Validate usage limits
+    └─&gt; Set coupon code on quote
+        Quote::setCouponCode('SAVE10')
+    ↓ collect totals (applies discount)
+Quote::collectTotals()
+    ├─&gt; Subtotal collector (before discount)
+    │   Subtotal = $100.00
+    ├─&gt; Discount collector (applies coupon)
+    │   Discount::collect()
+    │       ├─&gt; Load sales rules matching quote
+    │       ├─&gt; RuleProcessor::process()
+    │       │   ├─&gt; Validate rule conditions (cart subtotal, customer group, etc.)
+    │       │   ├─&gt; Calculate discount (10% of $100 = $10)
+    │       │   ├─&gt; Set item discounts
+    │       │   └─&gt; Update totals
+    │       ├─&gt; Total::setDiscountAmount(-10.00)
+    │       └─&gt; Total::setDiscountDescription('SAVE10')
+    └─&gt; Grand total collector
+        GrandTotal = Subtotal + Shipping + Tax - Discount
+                   = $100 + $5 + $8 - $10 = $103
+    ↓ save quote
+QuoteRepository::save()
+    ├─&gt; UPDATE quote SET coupon_code='SAVE10'
+    ├─&gt; UPDATE quote_address SET discount_amount=-10.00
+    └─&gt; Event: sales_quote_save_after
+    ↓ verify coupon applied
+if (Quote::getCouponCode() === 'SAVE10')
+    MessageManager::addSuccessMessage('Coupon applied.')
+else
+    MessageManager::addErrorMessage('Coupon is invalid.')
+</code></pre>
+<h3 id="implementation_1">Implementation</h3>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Magento\Quote\Model;
+
+use Magento\Quote\Api\CouponManagementInterface;
+use Magento\Framework\Exception\CouldNotSaveException;
+use Magento\Framework\Exception\NoSuchEntityException;
+
+class CouponManagement implements CouponManagementInterface
+{
+    public function __construct(
+        private readonly CartRepositoryInterface $quoteRepository,
+        private readonly \Magento\SalesRule\Model\CouponFactory $couponFactory,
+        private readonly \Magento\SalesRule\Model\RuleRepository $ruleRepository
+    ) {}
+
+    /**
+     * Set coupon code for cart
+     *
+     * @param int $cartId
+     * @param string $couponCode
+     * @return bool
+     * @throws NoSuchEntityException
+     * @throws CouldNotSaveException
+     */
+    public function set($cartId, $couponCode)
+    {
+        $quote = $this-&gt;quoteRepository-&gt;get($cartId);
+
+        // Trim and uppercase coupon code
+        $couponCode = trim($couponCode);
+
+        if (empty($couponCode)) {
+            throw new CouldNotSaveException(__('The coupon code is not valid.'));
+        }
+
+        try {
+            // Validate coupon exists
+            $coupon = $this-&gt;couponFactory-&gt;create();
+            $coupon-&gt;loadByCode($couponCode);
+
+            if (!$coupon-&gt;getId()) {
+                throw new NoSuchEntityException(__('The coupon code &quot;%1&quot; is not valid.', $couponCode));
+            }
+
+            // Validate rule is active
+            $rule = $this-&gt;ruleRepository-&gt;getById($coupon-&gt;getRuleId());
+
+            if (!$rule-&gt;getIsActive()) {
+                throw new CouldNotSaveException(__('The coupon code &quot;%1&quot; is not valid.', $couponCode));
+            }
+
+            // Validate usage limits
+            if ($coupon-&gt;getUsageLimit() &amp;&amp; $coupon-&gt;getTimesUsed() &gt;= $coupon-&gt;getUsageLimit()) {
+                throw new CouldNotSaveException(
+                    __('The coupon code &quot;%1&quot; has reached its usage limit.', $couponCode)
+                );
+            }
+
+            // Set coupon on quote
+            $quote-&gt;setCouponCode($couponCode);
+
+            // Collect totals to apply discount
+            $quote-&gt;collectTotals();
+
+            // Save quote
+            $this-&gt;quoteRepository-&gt;save($quote);
+
+            // Verify coupon was actually applied (rule conditions may have failed)
+            if ($quote-&gt;getCouponCode() !== $couponCode) {
+                throw new CouldNotSaveException(
+                    __('The coupon code &quot;%1&quot; is not valid for this cart.', $couponCode)
+                );
+            }
+
+            return true;
+
+        } catch (NoSuchEntityException | CouldNotSaveException $e) {
+            throw $e;
+        } catch (\Exception $e) {
+            throw new CouldNotSaveException(
+                __('Could not apply coupon code: %1', $e-&gt;getMessage()),
+                $e
+            );
+        }
+    }
+
+    /**
+     * Remove coupon from cart
+     *
+     * @param int $cartId
+     * @return bool
+     */
+    public function remove($cartId)
+    {
+        $quote = $this-&gt;quoteRepository-&gt;get($cartId);
+        $quote-&gt;setCouponCode('');
+        $quote-&gt;collectTotals();
+        $this-&gt;quoteRepository-&gt;save($quote);
+
+        return true;
+    }
+}
+</code></pre>
+<hr />
+<h2 id="flow-5-totals-calculation-deep-dive">Flow 5: Totals Calculation Deep Dive</h2>
+<h3 id="collector-execution-order">Collector Execution Order</h3>
+<pre><code>Quote::collectTotals()
+    ↓
+TotalsCollector::collect($quote)
+    ↓ for each address
+    TotalsCollector::collectAddressTotals($quote, $address)
+        ↓ create Total object (empty container)
+        Total::__construct()
+        ↓ execute collectors by priority
+        ├─&gt; [100] Subtotal::collect()
+        │       ├─&gt; Iterate items
+        │       ├─&gt; Item::calcRowTotal() [price * qty]
+        │       ├─&gt; Sum item totals
+        │       ├─&gt; Total::setSubtotal($sum)
+        │       └─&gt; Total::setBaseSubtotal($baseSum)
+        │
+        ├─&gt; [200] Shipping::collect()
+        │       ├─&gt; Get selected shipping method
+        │       ├─&gt; ShippingMethodManagement::getRate()
+        │       ├─&gt; Total::setShippingAmount($rate)
+        │       └─&gt; Total::setBaseShippingAmount($baseRate)
+        │
+        ├─&gt; [300] Tax::collect()
+        │       ├─&gt; TaxCalculation::calcTaxAmount()
+        │       ├─&gt; Apply tax to items
+        │       ├─&gt; Apply tax to shipping
+        │       ├─&gt; Total::setTaxAmount($tax)
+        │       └─&gt; Total::setBaseTaxAmount($baseTax)
+        │
+        ├─&gt; [400] Discount::collect()
+        │       ├─&gt; Load applicable sales rules
+        │       ├─&gt; RuleProcessor::process($items, $rules)
+        │       ├─&gt; Calculate discount per item
+        │       ├─&gt; Total::setDiscountAmount(-$discount)
+        │       └─&gt; Total::setDiscountDescription($codes)
+        │
+        └─&gt; [500] GrandTotal::collect()
+                ├─&gt; Sum all total amounts
+                ├─&gt; Grand = Subtotal + Shipping + Tax - Discount
+                ├─&gt; Total::setGrandTotal($grand)
+                └─&gt; Total::setBaseGrandTotal($baseGrand)
+        ↓ update address with totals
+        Address::addData($total-&gt;getData())
+        ├─&gt; Address::setSubtotal()
+        ├─&gt; Address::setShippingAmount()
+        ├─&gt; Address::setTaxAmount()
+        ├─&gt; Address::setDiscountAmount()
+        └─&gt; Address::setGrandTotal()
+</code></pre>
+<h3 id="custom-totals-collector-example">Custom Totals Collector Example</h3>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Model\Quote\Address\Total;
+
+use Magento\Quote\Model\Quote;
+use Magento\Quote\Api\Data\ShippingAssignmentInterface;
+use Magento\Quote\Model\Quote\Address\Total;
+use Magento\Quote\Model\Quote\Address\Total\AbstractTotal;
+
+/**
+ * Handling fee collector
+ *
+ * Adds a $2.99 handling fee to all orders.
+ * Executes after subtotal, before tax.
+ */
+class HandlingFee extends AbstractTotal
+{
+    /**
+     * Collector code
+     *
+     * @var string
+     */
+    protected string $_code = 'handling_fee';
+
+    /**
+     * Handling fee amount
+     */
+    private const FEE_AMOUNT = 2.99;
+
+    /**
+     * Collect handling fee
+     *
+     * @param Quote $quote
+     * @param ShippingAssignmentInterface $shippingAssignment
+     * @param Total $total
+     * @return $this
+     */
+    public function collect(
+        Quote $quote,
+        ShippingAssignmentInterface $shippingAssignment,
+        Total $total
+    ): self {
+        parent::collect($quote, $shippingAssignment, $total);
+
+        $address = $shippingAssignment-&gt;getShipping()-&gt;getAddress();
+
+        // Only apply to shipping address
+        if ($address-&gt;getAddressType() !== \Magento\Quote\Model\Quote\Address::ADDRESS_TYPE_SHIPPING) {
+            return $this;
+        }
+
+        // Skip if no items
+        $items = $shippingAssignment-&gt;getItems();
+        if (!count($items)) {
+            return $this;
+        }
+
+        $fee = self::FEE_AMOUNT;
+        $baseFee = $fee; // Assume same currency
+
+        // Add fee to totals
+        $total-&gt;setTotalAmount($this-&gt;getCode(), $fee);
+        $total-&gt;setBaseTotalAmount($this-&gt;getCode(), $baseFee);
+        $total-&gt;setHandlingFeeAmount($fee);
+        $total-&gt;setBaseHandlingFeeAmount($baseFee);
+
+        // Add to grand total
+        $total-&gt;setGrandTotal($total-&gt;getGrandTotal() + $fee);
+        $total-&gt;setBaseGrandTotal($total-&gt;getBaseGrandTotal() + $baseFee);
+
+        return $this;
+    }
+
+    /**
+     * Fetch handling fee for display
+     *
+     * @param Quote $quote
+     * @param Total $total
+     * @return array
+     */
+    public function fetch(Quote $quote, Total $total): array
+    {
+        $fee = $total-&gt;getHandlingFeeAmount();
+
+        if (!$fee) {
+            return [];
+        }
+
+        return [
+            'code' =&gt; $this-&gt;getCode(),
+            'title' =&gt; __('Handling Fee'),
+            'value' =&gt; $fee
+        ];
+    }
+
+    /**
+     * Get label for total
+     *
+     * @return \Magento\Framework\Phrase
+     */
+    public function getLabel(): \Magento\Framework\Phrase
+    {
+        return __('Handling Fee');
+    }
+}
+</code></pre>
+<p>Register collector in <code>etc/sales.xml</code>:</p>
+<pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;config xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+        xsi:noNamespaceSchemaLocation=&quot;urn:magento:module:Magento_Sales:etc/sales.xsd&quot;&gt;
+    &lt;section name=&quot;quote&quot;&gt;
+        &lt;group name=&quot;totals&quot;&gt;
+            &lt;!-- sort_order determines execution order (after subtotal=100, before tax=300) --&gt;
+            &lt;item name=&quot;handling_fee&quot;
+                  instance=&quot;Vendor\Module\Model\Quote\Address\Total\HandlingFee&quot;
+                  sort_order=&quot;250&quot;/&gt;
+        &lt;/group&gt;
+    &lt;/section&gt;
+&lt;/config&gt;
+</code></pre>
+<hr />
+<h2 id="flow-6-guest-cart-to-customer-cart-merge">Flow 6: Guest Cart to Customer Cart Merge</h2>
+<h3 id="user-story_4">User Story</h3>
+<p>A guest adds items to cart, then logs in. Guest cart merges with existing customer cart.</p>
+<h3 id="sequence-flow_4">Sequence Flow</h3>
+<pre><code>Guest Session
+    ↓ add items to cart
+    GuestCartManagement::createEmptyCart()
+        ├─&gt; Create new quote (customer_id=NULL)
+        ├─&gt; QuoteIdMask::createMaskedId($quoteId)
+        └─&gt; Return masked ID (UUID)
+    ↓ add products (masked ID: abc123)
+    GuestCartRepository::get('abc123')
+        └─&gt; QuoteIdMask::getQuoteIdByMaskedId('abc123') → quoteId=999
+    Quote(999)::addProduct($product1, qty=2)
+    Quote(999)::addProduct($product2, qty=1)
+    Guest cart now has 2 items
+Customer Login
+    ↓ POST /customer/account/loginPost
+    Customer\Account\LoginPost::execute()
+        ├─&gt; Authenticate customer
+        ├─&gt; Set customer session
+        └─&gt; Dispatch: customer_login
+Observer\AfterCustomerLogin::execute()
+    ↓ get guest cart ID from cookie
+    $guestQuoteId = Cookie::get('guest-cart')
+    ↓ check if customer has existing cart
+    try {
+        $customerQuote = QuoteRepository::getForCustomer($customerId)
+    } catch (NoSuchEntityException) {
+        $customerQuote = null
+    }
+    ↓ load guest quote
+    $guestQuote = QuoteRepository::get($guestQuoteId)
+    ↓ if customer has cart: merge
+    if ($customerQuote &amp;&amp; $customerQuote-&gt;getItemsCount() &gt; 0)
+        CustomerQuote::merge($guestQuote)
+            ├─&gt; Event: sales_quote_merge_before
+            ├─&gt; Iterate guest quote items
+            │   foreach ($guestQuote-&gt;getAllVisibleItems() as $guestItem)
+            │       ├─&gt; Check if item exists in customer cart
+            │       │   foreach ($customerQuote-&gt;getAllItems() as $customerItem)
+            │       │       if ($customerItem-&gt;compare($guestItem))
+            │       │           ├─&gt; Merge quantities
+            │       │           └─&gt; $customerItem-&gt;setQty($customerItem-&gt;getQty() + $guestItem-&gt;getQty())
+            │       └─&gt; If not found: add as new item
+            │           $newItem = clone $guestItem
+            │           $customerQuote-&gt;addItem($newItem)
+            ├─&gt; Merge coupon code
+            │   if (!$customerQuote-&gt;getCouponCode() &amp;&amp; $guestQuote-&gt;getCouponCode())
+            │       $customerQuote-&gt;setCouponCode($guestQuote-&gt;getCouponCode())
+            └─&gt; Event: sales_quote_merge_after
+    else
+        ↓ no customer cart: assign guest cart to customer
+        $guestQuote-&gt;setCustomer($customer)
+        $guestQuote-&gt;setCustomerId($customerId)
+        $guestQuote-&gt;setCustomerEmail($customer-&gt;getEmail())
+        $guestQuote-&gt;setCustomerGroupId($customer-&gt;getGroupId())
+    ↓ collect totals and save
+    $customerQuote-&gt;collectTotals()
+    QuoteRepository::save($customerQuote)
+    ↓ delete guest quote
+    QuoteRepository::delete($guestQuote)
+    ↓ delete masked ID
+    QuoteIdMask::delete($guestQuoteId)
+Customer now has merged cart
+</code></pre>
+<h3 id="implementation_2">Implementation</h3>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Magento\Quote\Observer;
+
+use Magento\Framework\Event\Observer;
+use Magento\Framework\Event\ObserverInterface;
+
+/**
+ * Merge guest cart into customer cart on login
+ */
+class AfterCustomerLogin implements ObserverInterface
+{
+    public function __construct(
+        private readonly \Magento\Quote\Api\CartRepositoryInterface $quoteRepository,
+        private readonly \Magento\Checkout\Model\Session $checkoutSession,
+        private readonly \Magento\Quote\Model\QuoteIdMaskFactory $quoteIdMaskFactory,
+        private readonly \Psr\Log\LoggerInterface $logger
+    ) {}
+
+    /**
+     * Execute merge logic
+     *
+     * @param Observer $observer
+     * @return void
+     */
+    public function execute(Observer $observer): void
+    {
+        $customer = $observer-&gt;getEvent()-&gt;getCustomer();
+
+        try {
+            // Get guest quote ID
+            $guestQuoteId = $this-&gt;checkoutSession-&gt;getQuoteId();
+            if (!$guestQuoteId) {
+                return;
+            }
+
+            $guestQuote = $this-&gt;quoteRepository-&gt;get($guestQuoteId);
+
+            // Skip if guest quote is empty
+            if (!$guestQuote-&gt;getItemsCount()) {
+                return;
+            }
+
+            // Check if customer has existing active quote
+            try {
+                $customerQuote = $this-&gt;quoteRepository-&gt;getForCustomer($customer-&gt;getId());
+            } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
+                // No existing customer quote - assign guest quote to customer
+                $guestQuote-&gt;setCustomer($customer);
+                $guestQuote-&gt;setCustomerId($customer-&gt;getId());
+                $guestQuote-&gt;setCustomerEmail($customer-&gt;getEmail());
+                $guestQuote-&gt;setCustomerGroupId($customer-&gt;getGroupId());
+                $guestQuote-&gt;setCustomerIsGuest(0);
+
+                $guestQuote-&gt;collectTotals();
+                $this-&gt;quoteRepository-&gt;save($guestQuote);
+
+                $this-&gt;checkoutSession-&gt;setQuoteId($guestQuote-&gt;getId());
+                return;
+            }
+
+            // Customer has existing quote - merge
+            if ($customerQuote-&gt;getId() &amp;&amp; $customerQuote-&gt;getItemsCount()) {
+                $customerQuote-&gt;merge($guestQuote);
+                $customerQuote-&gt;collectTotals();
+                $this-&gt;quoteRepository-&gt;save($customerQuote);
+
+                // Delete guest quote
+                $this-&gt;quoteRepository-&gt;delete($guestQuote);
+
+                $this-&gt;checkoutSession-&gt;setQuoteId($customerQuote-&gt;getId());
+            } else {
+                // Customer quote is empty - use guest quote
+                $guestQuote-&gt;setCustomer($customer);
+                $guestQuote-&gt;collectTotals();
+                $this-&gt;quoteRepository-&gt;save($guestQuote);
+
+                $this-&gt;checkoutSession-&gt;setQuoteId($guestQuote-&gt;getId());
+            }
+
+        } catch (\Exception $e) {
+            $this-&gt;logger-&gt;error('Error merging guest cart: ' . $e-&gt;getMessage());
+        }
+    }
+}
+</code></pre>
+<hr />
+<h2 id="flow-7-quote-to-order-conversion">Flow 7: Quote to Order Conversion</h2>
+<h3 id="user-story_5">User Story</h3>
+<p>Customer completes checkout and places order. Quote converts to order.</p>
+<h3 id="sequence-flow_5">Sequence Flow</h3>
+<pre><code>Customer Browser
+    ↓ POST /checkout/onepage/saveOrder
+Checkout\Controller\Onepage\SaveOrder::execute()
+    ↓ validate quote
+QuoteValidator::validateBeforeSubmit($quote)
+    ├─&gt; Check quote has items
+    ├─&gt; Check billing address complete
+    ├─&gt; Check shipping address (if not virtual)
+    ├─&gt; Check shipping method selected
+    ├─&gt; Check payment method selected
+    └─&gt; Validate all items are saleable
+    ↓ reserve order ID
+Quote::reserveOrderId()
+    ├─&gt; Generate increment ID
+    ├─&gt; Quote::setReservedOrderId($incrementId)
+    └─&gt; Save quote
+    ↓ dispatch before submit event
+Event: sales_model_service_quote_submit_before
+    ↓ submit quote (create order)
+CartManagement::placeOrder($cartId, $paymentMethod)
+    ↓
+    QuoteManagement::submit($quote)
+        ├─&gt; Convert quote to order
+        │   QuoteToOrderConverter::convert($quote)
+        │       ├─&gt; Create Order entity
+        │       ├─&gt; Order::setCustomerId($quote-&gt;getCustomerId())
+        │       ├─&gt; Order::setStoreId($quote-&gt;getStoreId())
+        │       ├─&gt; Order::setQuoteId($quote-&gt;getId())
+        │       ├─&gt; Copy addresses
+        │       │   QuoteAddressToOrderAddress::convert($quoteAddress)
+        │       ├─&gt; Copy payment
+        │       │   QuotePaymentToOrderPayment::convert($quotePayment)
+        │       └─&gt; Return Order
+        │
+        ├─&gt; Convert quote items to order items
+        │   foreach ($quote-&gt;getAllVisibleItems() as $quoteItem)
+        │       QuoteItemToOrderItem::convert($quoteItem)
+        │           ├─&gt; Create OrderItem
+        │           ├─&gt; OrderItem::setSku($quoteItem-&gt;getSku())
+        │           ├─&gt; OrderItem::setQtyOrdered($quoteItem-&gt;getQty())
+        │           ├─&gt; OrderItem::setPrice($quoteItem-&gt;getPrice())
+        │           ├─&gt; Copy options
+        │           └─&gt; Return OrderItem
+        │
+        ├─&gt; Copy totals
+        │   Order::setSubtotal($quote-&gt;getSubtotal())
+        │   Order::setGrandTotal($quote-&gt;getGrandTotal())
+        │   Order::setShippingAmount($quote-&gt;getShippingAmount())
+        │   Order::setTaxAmount($quote-&gt;getTaxAmount())
+        │   Order::setDiscountAmount($quote-&gt;getDiscountAmount())
+        │
+        ├─&gt; Save order
+        │   OrderRepository::save($order)
+        │       ├─&gt; INSERT INTO sales_order
+        │       ├─&gt; INSERT INTO sales_order_item (for each item)
+        │       ├─&gt; INSERT INTO sales_order_address (billing, shipping)
+        │       ├─&gt; INSERT INTO sales_order_payment
+        │       └─&gt; Event: sales_order_save_after
+        │
+        └─&gt; Dispatch submit success event
+            Event: sales_model_service_quote_submit_success
+                └─&gt; Observers: send order email, update inventory, etc.
+    ↓ deactivate quote
+    Quote::setIsActive(0)
+    QuoteRepository::save($quote)
+    ↓ return order ID
+    Order::getId()
+Redirect → /checkout/onepage/success?orderId=XXX
+</code></pre>
+<h3 id="performance-metrics">Performance Metrics</h3>
+<ul>
+<li><strong>Total Time:</strong> 500-1500ms (depending on payment gateway)</li>
+<li><strong>Database Queries:</strong> 15-25 queries</li>
+<li>Quote load: 3-5 queries</li>
+<li>Order save: 10-15 queries (header + items + addresses + payment)</li>
+<li>Quote deactivate: 1 query</li>
+<li><strong>Cache Impact:</strong> None (order placement doesn't invalidate FPC)</li>
+<li><strong>Events Dispatched:</strong> 5-8 events (observers may send emails, update inventory)</li>
+</ul>
+<hr />
+<h2 id="performance-best-practices">Performance Best Practices</h2>
+<h3 id="1-minimize-totals-collection">1. Minimize Totals Collection</h3>
+<p>Totals collection is expensive. Only call <code>collectTotals()</code> when necessary:</p>
+<pre><code class="language-php">// BAD: Collect totals multiple times
+$quote-&gt;addProduct($product1);
+$quote-&gt;collectTotals(); // Unnecessary
+$quote-&gt;addProduct($product2);
+$quote-&gt;collectTotals(); // Unnecessary
+$this-&gt;quoteRepository-&gt;save($quote);
+
+// GOOD: Collect totals once after all changes
+$quote-&gt;addProduct($product1);
+$quote-&gt;addProduct($product2);
+$quote-&gt;collectTotals(); // Only once
+$this-&gt;quoteRepository-&gt;save($quote);
+</code></pre>
+<h3 id="2-use-repository-caching">2. Use Repository Caching</h3>
+<p>Quote repository caches loaded quotes. Reuse quote instances:</p>
+<pre><code class="language-php">// BAD: Load quote multiple times
+$quote1 = $this-&gt;quoteRepository-&gt;get($quoteId);
+$quote1-&gt;addProduct($product);
+$quote2 = $this-&gt;quoteRepository-&gt;get($quoteId); // Reload from DB
+$quote2-&gt;collectTotals();
+
+// GOOD: Load once, reuse
+$quote = $this-&gt;quoteRepository-&gt;get($quoteId);
+$quote-&gt;addProduct($product);
+$quote-&gt;collectTotals();
+$this-&gt;quoteRepository-&gt;save($quote);
+</code></pre>
+<h3 id="3-lazy-load-products">3. Lazy Load Products</h3>
+<p>Don't load full product data unless needed:</p>
+<pre><code class="language-php">// BAD: Load full product with all attributes
+$product = $this-&gt;productRepository-&gt;getById($productId);
+
+// GOOD: Load minimal data
+$product = $this-&gt;productRepository-&gt;getById($productId, false, $storeId, false);
+</code></pre>
+<hr />
+<p><strong>Assumptions:</strong>
+- Magento 2.4.7+ with PHP 8.2+
+- MySQL/MariaDB database
+- Redis session storage
+- Standard single-address checkout flow</p>
+<p><strong>Why This Approach:</strong>
+Detailed execution flows with code examples provide implementation-ready guidance. Sequence diagrams trace complete request-to-database paths for debugging and optimization.</p>
+<p><strong>Security Impact:</strong>
+- All cart operations validate customer ownership
+- Form key (CSRF) validation on all POST requests
+- Coupon validation prevents invalid/expired code application
+- Quote-to-order conversion validates payment method</p>
+<p><strong>Performance Impact:</strong>
+- Totals collection is most expensive operation (5-15ms per call)
+- Quote repository caching reduces database queries
+- Mini cart updates use customer section data (no full page reload)
+- Large carts (100+ items) require optimization</p>
+<p><strong>Backward Compatibility:</strong>
+Service contracts ensure API stability. Event names and observer execution order are stable. Totals collector registration via sales.xml is upgrade-safe.</p>
+<p><strong>Tests to Add:</strong>
+- Integration tests for each flow (add to cart, update, coupon, merge, place order)
+- API functional tests for REST/GraphQL endpoints
+- Performance tests for large carts (100+ items)
+- MFTF tests for user flows</p>
+<p><strong>Docs to Update:</strong>
+- Flow diagrams for cart operations
+- Performance optimization guide
+- Debugging guide with query analysis</p>
+                    </div>
+                </article>
+            </main>
+            <!-- Right Sidebar: On This Page (desktop) -->
+            <aside class="toc-sidebar hidden xl:block" aria-label="On this page">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-semibold text-gray-900 uppercase tracking-wider mb-4 mt-0">On this page</h3>
+                    <nav id="toc-nav" class="space-y-0" aria-label="Table of contents"></nav>
+                    <div class="toc-back-to-top">
+                        <a href="#">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+                            </svg>
+                            Back to top
+                        </a>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- ================================================================
+         FOOTER — matches module-catalog.html multi-column layout exactly
+         ================================================================ -->
+    <footer class="relative pt-12 bg-white border-t border-charcoal mt-16">
+        <div class="max-w-screen-2xl mx-auto w-full px-4 sm:px-6 lg:px-8">
+            <div>
+                <a href="index.html" class="inline-flex items-center no-underline">
+                    <svg width="30" height="33" viewBox="0 0 30 33" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Magento Association logo" role="img">
+                        <path d="M0 4.06492H29.6763V31.8882C29.6763 32.502 29.1713 33 28.5487 33H1.12762C0.505079 33 0 32.502 0 31.8882V4.06492Z" fill="#34323A"/>
+                        <path d="M1.26857 0H28.4078C29.1066 0 29.6763 0.561678 29.6763 1.25075V4.06492H0V1.25075C0 0.561678 0.569682 0 1.26857 0Z" fill="#C9C9C9"/>
+                        <path d="M2.37269 3.0458C2.94031 3.0458 3.40046 2.59211 3.40046 2.03246C3.40046 1.47281 2.94031 1.01913 2.37269 1.01913C1.80506 1.01913 1.34491 1.47281 1.34491 2.03246C1.34491 2.59211 1.80506 3.0458 2.37269 3.0458Z" fill="#848484"/>
+                        <path d="M5.28571 3.0458C5.85334 3.0458 6.31349 2.59211 6.31349 2.03246C6.31349 1.47281 5.85334 1.01913 5.28571 1.01913C4.71809 1.01913 4.25793 1.47281 4.25793 2.03246C4.25793 2.59211 4.71809 3.0458 5.28571 3.0458Z" fill="#848484"/>
+                        <path d="M14.7883 7.46973L4.90405 13.0923V24.349L7.54104 25.8487V14.5978L14.7883 10.4692L22.0415 14.5978V25.8487L24.6785 24.349V13.0923L14.7883 7.46973Z" fill="#F1BC1B"/>
+                        <path d="M16.0862 26.2367L14.7883 26.9779L13.4492 26.2135V14.233L10.178 16.0975V27.3485L13.4492 29.213L14.7883 29.9773L16.0862 29.2362L19.4045 27.3485V16.0975L16.0862 14.2098V26.2367Z" fill="#F1BC1B"/>
+                    </svg>
+                    <span class="ml-3 text-xl font-bold text-charcoal">Developer Documentation</span>
+                </a>
+            </div>
+
+            <div class="grid grid-cols-12 md:gap-x-8 gap-y-12 lg:mt-12">
+                <div class="col-span-12 lg:col-span-4">
+                    <p class="hidden lg:block text-xs text-charcoal sm:text-sm">Comprehensive developer documentation for Magento 2.4.7+ — tutorials, architecture deep dives, module references, and production-ready patterns built by the community, for the community.</p>
+                    <ul class="mt-6 hidden lg:flex items-center gap-3">
+                        <li class="pl-0">
+                            <a href="https://github.com/magento/magento2" class="p-2 md:p-0" aria-label="GitHub">
+                                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                                </svg>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Guides</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="tutorials.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Tutorials</a></li>
+                            <li class="pl-0"><a href="how-to-guides.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">How-To Guides</a></li>
+                            <li class="pl-0"><a href="architecture.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Architecture</a></li>
+                            <li class="pl-0"><a href="learning-paths.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Learning Paths</a></li>
+                            <li class="pl-0"><a href="references.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">References</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Modules</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="module-catalog.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Catalog</a></li>
+                            <li class="pl-0"><a href="module-checkout.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Checkout</a></li>
+                            <li class="pl-0"><a href="module-sales.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Sales</a></li>
+                            <li class="pl-0"><a href="module-customer.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Customer</a></li>
+                            <li class="pl-0"><a href="module-quote.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Quote</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Community</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Magento Community</a></li>
+                            <li class="pl-0"><a href="https://magento.stackexchange.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Stack Exchange</a></li>
+                            <li class="pl-0"><a href="https://marketplace.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Marketplace</a></li>
+                            <li class="pl-0"><a href="https://github.com/magento/magento2" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">GitHub</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Support</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://github.com/magento/magento2/issues" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Report Issues</a></li>
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Community Resources</a></li>
+                            <li class="pl-0"><a href="https://developer.adobe.com/commerce/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Adobe Commerce Docs</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-12 border-t pt-6 pb-16 border-charcoal">
+                <p class="text-xs text-charcoal">
+                    &copy; 2026 Magento 2 Developer Documentation. Magento&reg; is a registered trademark of Adobe Inc.
+                </p>
+                <p class="mt-6 text-xs text-charcoal">
+                    This documentation provides guidance for Magento 2 developers and extension builders. For merchant documentation, visit the <a href="index.html" class="text-orange hover:text-orange-600 transition-colors">merchant documentation</a>.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Initialize highlight.js -->
+    <script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('pre code').forEach(function (el) {
+        hljs.highlightElement(el);
+    });
+    document.querySelectorAll('pre').forEach(function (pre) {
+        if (pre.parentNode.classList && pre.parentNode.classList.contains('code-wrapper')) return;
+        var wrapper = document.createElement('div');
+        wrapper.className = 'code-wrapper';
+        pre.parentNode.insertBefore(wrapper, pre);
+        wrapper.appendChild(pre);
+        var btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.setAttribute('type', 'button');
+        btn.setAttribute('aria-label', 'Copy code to clipboard');
+        btn.setAttribute('title', 'Copy');
+        btn.textContent = 'Copy';
+        wrapper.appendChild(btn);
+        btn.addEventListener('click', function () {
+            var code = pre.querySelector('code');
+            var text = code ? (code.innerText || code.textContent) : (pre.innerText || pre.textContent);
+            navigator.clipboard.writeText(text).then(function () {
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            }).catch(function () {
+                var range = document.createRange();
+                range.selectNode(code || pre);
+                window.getSelection().removeAllRanges();
+                window.getSelection().addRange(range);
+                document.execCommand('copy');
+                window.getSelection().removeAllRanges();
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            });
+        });
+    });
+});
+</script>
+
+
+<script>
+(function() {
+    var nav = document.getElementById('toc-nav');
+    if (!nav) return;
+    var article = document.getElementById('main-content');
+    if (!article) return;
+    var headings = article.querySelectorAll('h2[id], h3[id]');
+    if (headings.length < 3) {
+        // Hide the entire TOC sidebar if fewer than 3 headings
+        var sidebar = nav.closest('.toc-sidebar');
+        if (sidebar) sidebar.style.display = 'none';
+        return;
+    }
+    var ids = [];
+    headings.forEach(function(h) {
+        var a = document.createElement('a');
+        a.href = '#' + h.id;
+        a.textContent = h.textContent.replace(/^#+\s*/, '').replace(/\s+/g, ' ').trim();
+        if (h.tagName === 'H3') a.classList.add('toc-h3');
+        nav.appendChild(a);
+        ids.push(h.id);
+    });
+    // Scroll-spy with IntersectionObserver
+    var links = nav.querySelectorAll('a');
+    var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                links.forEach(function(l) { l.classList.remove('toc-active'); });
+                var active = nav.querySelector('a[href="#' + entry.target.id + '"]');
+                if (active) active.classList.add('toc-active');
+            }
+        });
+    }, { rootMargin: '-80px 0px -70% 0px', threshold: 0 });
+    headings.forEach(function(h) { observer.observe(h); });
+})();
+</script>
+</body>
+</html>

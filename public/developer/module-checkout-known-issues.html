@@ -1,0 +1,1368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magento_Checkout Known Issues — Magento 2 Developer Documentation</title>
+    <meta name="description" content="Magento_Checkout Known Issues">
+
+    <!-- Google Fonts: Inter Tight only. Courier New used for code. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Highlight.js: syntax highlighting for code blocks -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/php.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/ini.min.js"></script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        charcoal: {
+                            DEFAULT: '#2c2c2c', 50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6',
+                            300: '#6B6B6B', 400: '#474747', 500: '#2c2c2c', 600: '#262626',
+                            700: '#202020', 800: '#1c1c1c', 900: '#191919', 950: '#121212'
+                        },
+                        orange: {
+                            DEFAULT: '#D4551A', 50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad',
+                            300: '#f9ae78', 400: '#f58242', 500: '#f26423', 600: '#e34613',
+                            700: '#bc3312', 800: '#962a16', 900: '#792515', 950: '#411009'
+                        },
+                        yellow: {
+                            DEFAULT: '#B8860B', 50: '#fffdeb', 100: '#fdf9c8', 200: '#fbf38c',
+                            300: '#f8e651', 400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a',
+                            700: '#b1670c', 800: '#8f5111', 900: '#764311', 950: '#442204'
+                        },
+                        'off-white': '#FAFAFA',
+                    },
+                    fontFamily: {
+                        sans: ['Inter Tight', 'system-ui', '-apple-system', 'sans-serif'],
+                        mono: ['Courier New', 'Courier', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* ── Force light mode ── */
+        :root { color-scheme: light only; }
+
+        [x-cloak] { display: none !important; }
+
+        /* ── Scroll offset for sticky header ── */
+        .prose h2, .prose h3 { scroll-margin-top: 5rem; }
+
+        /* ── Code blocks: Bauhaus charcoal bg, no border-radius, highlight.js override ── */
+        .prose pre {
+            background-color: #2C2C2C !important;
+            border-radius: 0 !important;
+            padding: 1.25rem;
+            overflow-x: auto;
+            font-size: 0.875rem;
+            line-height: 1.7;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 1.5rem 0;
+        }
+        .prose pre code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            background: transparent !important;
+            padding: 0;
+                    color: #abb2bf;
+        }
+        /* Override highlight.js theme background to match Bauhaus charcoal */
+        .hljs {
+            background: #2C2C2C !important;
+            color: #abb2bf !important;
+            border-radius: 0 !important;
+        }
+
+        /* ── Inline code: charcoal bg, yellow text, no border-radius ── */
+        .prose code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.85em;
+        }
+        .prose :not(pre) > code {
+            background-color: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2em 0.45em;
+            border-radius: 0;
+        }
+
+        /* ── Step-code: same charcoal/yellow style for UI path chips ── */
+        .step-code {
+            background: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2rem 0.5rem;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            border-radius: 0;
+        }
+
+        /* ── Tables: no border-radius, charcoal header ── */
+        .prose table { width: 100%; border-collapse: collapse; }
+        .prose th {
+            background-color: #2C2C2C;
+            color: #ffffff;
+            font-weight: 600;
+            text-align: left;
+            padding: 0.75rem 1rem;
+            border-bottom: 2px solid #2C2C2C;
+            border-radius: 0;
+        }
+        .prose td { padding: 0.75rem 1rem; border-bottom: 1px solid #e5e5e5; }
+        .prose tr:hover { background-color: #fafafa; }
+
+        /* ── Blockquote: Bauhaus style — border-4 yellow, square, no left-only border ── */
+        .prose blockquote {
+            border: 4px solid #F1BC1B;
+            background-color: #ffffff;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+            border-radius: 0;
+        }
+        .prose blockquote p { margin: 0; }
+
+        /* ── Lists: hexagon bullets ── */
+        .prose ul { list-style: none; padding-left: 0; }
+        .prose ul li {
+            position: relative;
+            padding-left: 1.75rem;
+            margin-bottom: 0.4rem;
+            line-height: 1.7;
+        }
+        .prose ul li::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0.45em;
+            width: 10px;
+            height: 10px;
+            background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 2L21 7V17L12 22L3 17V7L12 2Z' stroke='%23F26423' stroke-width='2.5' stroke-linejoin='miter'/%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+        .prose ol { list-style-type: decimal; padding-left: 1.5rem; }
+        .prose li { margin-bottom: 0.4rem; }
+
+        /* ── Headings ── */
+        .prose h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            padding-top: 1.5rem;
+            border-top: 4px solid #F1BC1B;
+            color: #2C2C2C;
+        }
+        .prose h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+            color: #2C2C2C;
+        }
+        .prose h4 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #2C2C2C;
+        }
+        .prose p { margin-bottom: 1rem; line-height: 1.75; }
+        .prose a { color: #D4551A; text-decoration: none; }
+        .prose a:hover { color: #e34613; text-decoration: underline; }
+        .prose hr { border: none; border-top: 1px solid #e5e5e5; margin: 2rem 0; }
+
+        /* ── Callout boxes: Bauhaus — border-4 yellow, white bg, icon + title ── */
+        .callout-box {
+            background-color: #ffffff;
+            border: 4px solid #F1BC1B;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+        }
+        .callout-warning {
+            border-color: #D4551A;
+        }
+        .callout-important {
+            border-color: #2C2C2C;
+        }
+        .callout-box .callout-inner {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+        .callout-box .callout-title {
+            font-weight: 600;
+            color: #2C2C2C;
+            margin-bottom: 0.25rem;
+        }
+        .callout-box .callout-body {
+            font-size: 0.875rem;
+            line-height: 1.6;
+            color: rgba(44,44,44,0.85);
+        }
+
+        
+    
+        /* Code block copy button */
+        .code-wrapper {
+            position: relative;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            font-family: 'Inter Tight', system-ui, sans-serif;
+            background: rgba(255,255,255,0.1);
+            color: #abb2bf;
+            border: 1px solid rgba(255,255,255,0.15);
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.15s ease, background 0.15s ease;
+            z-index: 10;
+            line-height: 1.4;
+            border-radius: 4px;
+            user-select: none;
+        }
+        .code-wrapper:hover .copy-btn {
+            opacity: 1;
+        }
+        .copy-btn:hover,
+        .copy-btn:focus {
+            background: rgba(255,255,255,0.2);
+            color: #ffffff;
+            outline: 2px solid #D4551A;
+            outline-offset: 1px;
+        }
+        .copy-btn.copied {
+            color: #98c379;
+            background: rgba(152, 195, 121, 0.15);
+            opacity: 1;
+        }
+    
+        /* Right-hand TOC sidebar */
+        .toc-sidebar {
+            width: 14rem;
+            flex-shrink: 0;
+        }
+        .toc-sidebar a {
+            display: block;
+            padding: 0.375rem 0;
+            font-size: 0.8125rem;
+            line-height: 1.4;
+            color: #6b7280;
+            text-decoration: none;
+            transition: color 0.15s ease;
+            border-left: 2px solid transparent;
+            padding-left: 0.75rem;
+        }
+        .toc-sidebar a:hover {
+            color: #111827;
+        }
+        .toc-sidebar a.toc-active {
+            color: #ea580c;
+            border-left-color: #ea580c;
+            font-weight: 500;
+        }
+        .toc-sidebar a.toc-h3 {
+            padding-left: 1.5rem;
+            font-size: 0.75rem;
+        }
+        .toc-sidebar .toc-back-to-top {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e5e7eb;
+        }
+        .toc-sidebar .toc-back-to-top a {
+            border-left: none;
+            padding-left: 0;
+            font-weight: 500;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .toc-sidebar .toc-back-to-top a:hover {
+            color: #ea580c;
+        }
+    </style>
+</head>
+
+<body class="font-sans bg-off-white text-charcoal">
+
+    <!-- Shared header — single source of truth -->
+    <script src="includes/header.js"></script>
+
+    <!-- Breadcrumb — orange › separators -->
+    <div class="bg-white border-b border-gray-100">
+        <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <div class="flex items-center gap-2 text-sm flex-wrap">
+                <a href="index.html" class="text-orange hover:text-orange-600 transition-colors no-underline">Home</a> <span class="text-orange font-medium">›</span> <a href="modules.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">Modules</a> <span class="text-orange font-medium">›</span> <a href="module-checkout.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">Checkout</a> <span class="text-orange font-medium">›</span> <span class="text-charcoal font-medium">Magento_Checkout Known Issues</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="flex gap-8">
+
+            <!-- Left Sidebar (desktop) -->
+            <aside class="hidden lg:block w-64 flex-shrink-0">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4">Checkout Module</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="module-checkout-overview.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Overview</a></li>
+<li class="pl-0"><a href="module-checkout-architecture.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Architecture</a></li>
+<li class="pl-0"><a href="module-checkout-execution-flows.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Execution Flows</a></li>
+<li class="pl-0"><a href="module-checkout-plugins-and-observers.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Plugins & Observers</a></li>
+<li class="pl-0"><a href="module-checkout-integrations.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Integrations</a></li>
+<li class="pl-0"><a href="module-checkout-anti-patterns.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Anti-Patterns</a></li>
+<li class="pl-0"><a href="module-checkout-performance.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Performance</a></li>
+<li class="pl-0"><a href="module-checkout-known-issues.html" class="block px-3 py-2 text-sm text-orange font-semibold bg-orange-50 border-l-4 border-orange pl-2 transition-colors no-underline">Known Issues</a></li>
+<li class="pl-0"><a href="module-checkout-version-compatibility.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Version Compatibility</a></li>
+</ul>
+<h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4 mt-8">Other Modules</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="module-catalog.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Catalog</a></li>
+<li class="pl-0"><a href="module-customer.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Customer</a></li>
+<li class="pl-0"><a href="module-quote.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Quote</a></li>
+<li class="pl-0"><a href="module-sales.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Sales</a></li>
+</ul>
+                </div>
+            </aside>
+
+            <!-- Article — square corners, border-t-4 orange accent -->
+            <main id="main-content" class="flex-1 min-w-0">
+                <article class="bg-white shadow-sm border border-gray-100 border-t-4 border-t-orange p-8 md:p-12">
+                    <!-- Title block -->
+                    <div class="mb-8">
+                        <span class="inline-block px-3 py-1.5 text-xs font-medium bg-charcoal text-white">Known Issues</span>
+                        <h1 class="text-3xl md:text-4xl font-extrabold text-charcoal mt-3 mb-3">Magento_Checkout Known Issues</h1>
+                        <p class="text-charcoal-300 text-lg mb-4">Magento_Checkout Known Issues</p>
+                        <!-- Meta pills -->
+                        <div class="flex flex-wrap gap-2"><span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-charcoal text-white">Magento 2.4.7+</span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-charcoal-50 text-charcoal border border-charcoal-100">Magento_Checkout</span></div>
+                    </div>
+
+                    <hr class="border-0 border-t border-gray-100 mb-8">
+
+                    <!-- Content -->
+                    <div class="prose max-w-none">
+                        <h1 id="magento_checkout-known-issues">Magento_Checkout Known Issues</h1>
+<h2 id="overview">Overview</h2>
+<p>This document catalogs known issues, bugs, and quirks in the <code>Magento_Checkout</code> module across Magento 2.4.x versions. Each issue includes symptoms, root cause, workarounds, and permanent fixes where available.</p>
+<p><strong>Target Version:</strong> Magento 2.4.7+ (Adobe Commerce &amp; Open Source)</p>
+<hr />
+<h2 id="issue-1-quote-address-street-array-index-issue">Issue 1: Quote Address Street Array Index Issue</h2>
+<h3 id="severity-medium-affected-versions-240-246">Severity: MEDIUM | Affected Versions: 2.4.0 - 2.4.6</h3>
+<h3 id="symptoms">Symptoms</h3>
+<ul>
+<li>Checkout fails with error: "Notice: Undefined offset: 1 in Quote/Address.php"</li>
+<li>Street address lines beyond first line are lost</li>
+<li>Billing/shipping addresses incomplete after save</li>
+</ul>
+<h3 id="root-cause">Root Cause</h3>
+<p>The <code>street</code> field in quote addresses is stored as an array, but some address population methods expect a string. When street has only one line, accessing <code>$street[1]</code> triggers an undefined offset notice.</p>
+<pre><code class="language-php">// Problematic code in Magento\Quote\Model\Quote\Address
+public function getStreet()
+{
+    $street = parent::getStreet();
+    if (!is_array($street)) {
+        $street = explode(&quot;\n&quot;, $street);
+    }
+    // Accessing $street[1] without checking if it exists
+    return $street;
+}
+</code></pre>
+<h3 id="workaround">Workaround</h3>
+<p>Validate street array before access:</p>
+<pre><code class="language-php">namespace Vendor\Module\Plugin;
+
+use Magento\Quote\Model\Quote\Address;
+
+class AddressStreetFix
+{
+    /**
+     * Fix street array access
+     *
+     * @param Address $subject
+     * @param array|string|null $result
+     * @return array
+     */
+    public function afterGetStreet(
+        Address $subject,
+        $result
+    ): array {
+        if (!is_array($result)) {
+            $result = $result ? explode(&quot;\n&quot;, $result) : [];
+        }
+
+        // Ensure array has at least 2 elements
+        while (count($result) &lt; 2) {
+            $result[] = '';
+        }
+
+        return $result;
+    }
+}
+</code></pre>
+<p><strong>Register in <code>di.xml</code>:</strong></p>
+<pre><code class="language-xml">&lt;type name=&quot;Magento\Quote\Model\Quote\Address&quot;&gt;
+    &lt;plugin name=&quot;vendor_module_address_street_fix&quot;
+            type=&quot;Vendor\Module\Plugin\AddressStreetFix&quot;
+            sortOrder=&quot;10&quot;/&gt;
+&lt;/type&gt;
+</code></pre>
+<h3 id="permanent-fix">Permanent Fix</h3>
+<p>This issue is partially addressed in Magento 2.4.7 with improved street field handling. Verify your specific implementation.</p>
+<hr />
+<h2 id="issue-2-checkout-totals-not-updating-after-shipping-method-change">Issue 2: Checkout Totals Not Updating After Shipping Method Change</h2>
+<h3 id="severity-high-affected-versions-240-247">Severity: HIGH | Affected Versions: 2.4.0 - 2.4.7</h3>
+<h3 id="symptoms_1">Symptoms</h3>
+<ul>
+<li>Customer changes shipping method</li>
+<li>Shipping cost updates on frontend</li>
+<li>Grand total doesn't recalculate</li>
+<li>Tax calculation incorrect</li>
+<li>Order placed with wrong total</li>
+</ul>
+<h3 id="root-cause_1">Root Cause</h3>
+<p>Race condition in Knockout.js observable subscriptions causes totals update to fire before shipping method is fully saved. The <code>totals</code> observable updates before the server confirms the new shipping method.</p>
+<pre><code class="language-javascript">// Problematic sequence:
+// 1. Customer selects new shipping method
+// 2. Frontend updates UI immediately (optimistic)
+// 3. API call to save shipping method starts
+// 4. Totals collector runs with old shipping cost
+// 5. API call completes
+// 6. Totals are now stale
+</code></pre>
+<h3 id="workaround_1">Workaround</h3>
+<p>Force totals refresh after shipping method save:</p>
+<pre><code class="language-javascript">// Vendor/Module/view/frontend/web/js/view/shipping-method-refresh.js
+define([
+    'uiComponent',
+    'Magento_Checkout/js/model/quote',
+    'Magento_Checkout/js/action/get-totals',
+    'Magento_Checkout/js/model/shipping-service'
+], function (Component, quote, getTotalsAction, shippingService) {
+    'use strict';
+
+    return Component.extend({
+        initialize: function () {
+            this._super();
+
+            // Subscribe to shipping method changes
+            quote.shippingMethod.subscribe(function (newMethod) {
+                if (newMethod) {
+                    // Wait for server response before refreshing totals
+                    setTimeout(function () {
+                        getTotalsAction([]);
+                    }, 1000);
+                }
+            });
+
+            return this;
+        }
+    });
+});
+</code></pre>
+<p><strong>Alternative: Server-Side Fix</strong></p>
+<p>Add plugin to force totals collection:</p>
+<pre><code class="language-php">namespace Vendor\Module\Plugin;
+
+use Magento\Checkout\Api\ShippingInformationManagementInterface;
+use Magento\Checkout\Api\Data\ShippingInformationInterface;
+
+class ForceTotalsRefresh
+{
+    public function __construct(
+        private readonly \Magento\Quote\Api\CartRepositoryInterface $quoteRepository,
+        private readonly \Magento\Quote\Api\CartTotalRepositoryInterface $cartTotalsRepository
+    ) {}
+
+    /**
+     * Force totals recalculation after shipping method save
+     */
+    public function afterSaveAddressInformation(
+        ShippingInformationManagementInterface $subject,
+        \Magento\Checkout\Api\Data\PaymentDetailsInterface $result,
+        int $cartId,
+        ShippingInformationInterface $addressInformation
+    ): \Magento\Checkout\Api\Data\PaymentDetailsInterface {
+
+        // Force fresh totals calculation
+        $quote = $this-&gt;quoteRepository-&gt;getActive($cartId);
+        $quote-&gt;setTotalsCollectedFlag(false);
+        $quote-&gt;collectTotals();
+        $this-&gt;quoteRepository-&gt;save($quote);
+
+        // Update result with fresh totals
+        $totals = $this-&gt;cartTotalsRepository-&gt;get($cartId);
+        $result-&gt;setTotals($totals);
+
+        return $result;
+    }
+}
+</code></pre>
+<hr />
+<h2 id="issue-3-guest-email-validation-race-condition">Issue 3: Guest Email Validation Race Condition</h2>
+<h3 id="severity-medium-affected-versions-240-246_1">Severity: MEDIUM | Affected Versions: 2.4.0 - 2.4.6</h3>
+<h3 id="symptoms_2">Symptoms</h3>
+<ul>
+<li>Guest enters email that matches existing customer</li>
+<li>"Email already exists" warning doesn't appear</li>
+<li>Guest can complete checkout with existing customer email</li>
+<li>Duplicate customer records created</li>
+</ul>
+<h3 id="root-cause_2">Root Cause</h3>
+<p>Email availability check is debounced on frontend, but customer can click "Next" before the check completes. Backend doesn't re-validate email uniqueness during order placement.</p>
+<h3 id="workaround_2">Workaround</h3>
+<p>Add server-side email validation:</p>
+<pre><code class="language-php">namespace Vendor\Module\Plugin;
+
+use Magento\Checkout\Api\GuestPaymentInformationManagementInterface;
+use Magento\Quote\Api\Data\PaymentInterface;
+use Magento\Quote\Api\Data\AddressInterface;
+use Magento\Framework\Exception\LocalizedException;
+
+class ValidateGuestEmail
+{
+    public function __construct(
+        private readonly \Magento\Customer\Api\CustomerRepositoryInterface $customerRepository,
+        private readonly \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder,
+        private readonly \Magento\Quote\Api\CartRepositoryInterface $quoteRepository
+    ) {}
+
+    /**
+     * Validate guest email before placing order
+     */
+    public function beforeSavePaymentInformationAndPlaceOrder(
+        GuestPaymentInformationManagementInterface $subject,
+        string $cartId,
+        string $email,
+        PaymentInterface $paymentMethod,
+        ?AddressInterface $billingAddress = null
+    ): array {
+
+        // Check if email belongs to existing customer
+        $searchCriteria = $this-&gt;searchCriteriaBuilder
+            -&gt;addFilter('email', $email)
+            -&gt;create();
+
+        $customers = $this-&gt;customerRepository-&gt;getList($searchCriteria);
+
+        if ($customers-&gt;getTotalCount() &gt; 0) {
+            throw new LocalizedException(
+                __('A customer with this email address already exists. Please log in or use a different email.')
+            );
+        }
+
+        return [$cartId, $email, $paymentMethod, $billingAddress];
+    }
+}
+</code></pre>
+<hr />
+<h2 id="issue-4-payment-method-disappears-after-address-change">Issue 4: Payment Method Disappears After Address Change</h2>
+<h3 id="severity-high-affected-versions-240-247_1">Severity: HIGH | Affected Versions: 2.4.0 - 2.4.7</h3>
+<h3 id="symptoms_3">Symptoms</h3>
+<ul>
+<li>Customer selects payment method</li>
+<li>Changes billing/shipping address</li>
+<li>Payment method selection resets</li>
+<li>Customer must re-select payment method</li>
+</ul>
+<h3 id="root-cause_3">Root Cause</h3>
+<p>Address change triggers payment method re-evaluation. If payment method's <code>isAvailable()</code> check depends on address data (e.g., country restrictions), the selected method may become unavailable and is cleared from the quote.</p>
+<pre><code class="language-php">// Magento\Payment\Model\Method\AbstractMethod::isAvailable()
+public function isAvailable(\Magento\Quote\Api\Data\CartInterface $quote = null): bool
+{
+    if (!$this-&gt;isActive($quote ? $quote-&gt;getStoreId() : null)) {
+        return false;
+    }
+
+    // Payment method checks specific countries
+    $allowedCountries = $this-&gt;getConfigData('allowspecific');
+    if ($allowedCountries &amp;&amp; $quote) {
+        $billingCountry = $quote-&gt;getBillingAddress()-&gt;getCountryId();
+        // If country changes, method may become unavailable
+    }
+
+    return true;
+}
+</code></pre>
+<h3 id="workaround_3">Workaround</h3>
+<p>Preserve payment method if still available:</p>
+<pre><code class="language-php">namespace Vendor\Module\Plugin;
+
+use Magento\Checkout\Api\ShippingInformationManagementInterface;
+use Magento\Checkout\Api\Data\ShippingInformationInterface;
+
+class PreservePaymentMethod
+{
+    public function __construct(
+        private readonly \Magento\Quote\Api\CartRepositoryInterface $quoteRepository,
+        private readonly \Magento\Payment\Api\PaymentMethodListInterface $paymentMethodList,
+        private readonly \Psr\Log\LoggerInterface $logger
+    ) {}
+
+    /**
+     * Preserve payment method after address change if still available
+     */
+    public function afterSaveAddressInformation(
+        ShippingInformationManagementInterface $subject,
+        \Magento\Checkout\Api\Data\PaymentDetailsInterface $result,
+        int $cartId,
+        ShippingInformationInterface $addressInformation
+    ): \Magento\Checkout\Api\Data\PaymentDetailsInterface {
+
+        try {
+            $quote = $this-&gt;quoteRepository-&gt;getActive($cartId);
+            $currentPaymentMethod = $quote-&gt;getPayment()-&gt;getMethod();
+
+            if ($currentPaymentMethod) {
+                // Check if current payment method is still available
+                $availableMethods = $this-&gt;paymentMethodList-&gt;getList($cartId);
+                $methodCodes = array_map(function ($method) {
+                    return $method-&gt;getCode();
+                }, $availableMethods);
+
+                if (!in_array($currentPaymentMethod, $methodCodes)) {
+                    // Method no longer available, clear it
+                    $quote-&gt;getPayment()-&gt;setMethod(null);
+                    $this-&gt;quoteRepository-&gt;save($quote);
+
+                    $this-&gt;logger-&gt;warning('Payment method cleared after address change', [
+                        'quote_id' =&gt; $cartId,
+                        'payment_method' =&gt; $currentPaymentMethod,
+                        'new_country' =&gt; $quote-&gt;getBillingAddress()-&gt;getCountryId()
+                    ]);
+                }
+            }
+
+        } catch (\Exception $e) {
+            $this-&gt;logger-&gt;error('Failed to preserve payment method', [
+                'error' =&gt; $e-&gt;getMessage()
+            ]);
+        }
+
+        return $result;
+    }
+}
+</code></pre>
+<hr />
+<h2 id="issue-5-minicart-quantity-update-race-condition">Issue 5: Minicart Quantity Update Race Condition</h2>
+<h3 id="severity-medium-affected-versions-240-247">Severity: MEDIUM | Affected Versions: 2.4.0 - 2.4.7</h3>
+<h3 id="symptoms_4">Symptoms</h3>
+<ul>
+<li>Customer updates quantity in minicart</li>
+<li>Minicart shows updated quantity</li>
+<li>Checkout shows old quantity</li>
+<li>Customer must reload checkout to see correct quantity</li>
+</ul>
+<h3 id="root-cause_4">Root Cause</h3>
+<p>Minicart uses AJAX to update quantity, but checkout page caches quote data in JavaScript. The <code>window.checkoutConfig</code> object is not automatically refreshed after cart updates.</p>
+<h3 id="workaround_4">Workaround</h3>
+<p>Force checkout data refresh on cart updates:</p>
+<pre><code class="language-javascript">// Vendor/Module/view/frontend/web/js/cart-update-listener.js
+define([
+    'uiComponent',
+    'Magento_Customer/js/customer-data',
+    'Magento_Checkout/js/model/quote'
+], function (Component, customerData, quote) {
+    'use strict';
+
+    return Component.extend({
+        initialize: function () {
+            this._super();
+
+            // Listen for cart updates
+            var cart = customerData.get('cart');
+            cart.subscribe(function (updatedCart) {
+                // Reload page if items or quantity changed
+                if (window.location.pathname.indexOf('/checkout') !== -1) {
+                    window.location.reload();
+                }
+            });
+
+            return this;
+        }
+    });
+});
+</code></pre>
+<p><strong>Better Solution: Real-time Quote Sync</strong></p>
+<pre><code class="language-php">namespace Vendor\Module\Controller\Cart;
+
+use Magento\Framework\App\Action\HttpPostActionInterface;
+use Magento\Framework\Controller\Result\JsonFactory;
+
+class UpdateCheckout implements HttpPostActionInterface
+{
+    public function __construct(
+        private readonly \Magento\Checkout\Model\Session $checkoutSession,
+        private readonly \Magento\Quote\Api\CartRepositoryInterface $quoteRepository,
+        private readonly JsonFactory $resultJsonFactory
+    ) {}
+
+    /**
+     * Get updated quote data for checkout refresh
+     */
+    public function execute(): \Magento\Framework\Controller\Result\Json
+    {
+        $result = $this-&gt;resultJsonFactory-&gt;create();
+
+        try {
+            $quote = $this-&gt;checkoutSession-&gt;getQuote();
+            $quote-&gt;setTotalsCollectedFlag(false);
+            $quote-&gt;collectTotals();
+            $this-&gt;quoteRepository-&gt;save($quote);
+
+            $result-&gt;setData([
+                'success' =&gt; true,
+                'totals' =&gt; $quote-&gt;getTotals(),
+                'items' =&gt; $this-&gt;getQuoteItems($quote)
+            ]);
+
+        } catch (\Exception $e) {
+            $result-&gt;setData([
+                'success' =&gt; false,
+                'error' =&gt; $e-&gt;getMessage()
+            ]);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Get quote items data
+     */
+    private function getQuoteItems(\Magento\Quote\Model\Quote $quote): array
+    {
+        $items = [];
+        foreach ($quote-&gt;getAllVisibleItems() as $item) {
+            $items[] = [
+                'item_id' =&gt; $item-&gt;getId(),
+                'name' =&gt; $item-&gt;getName(),
+                'qty' =&gt; $item-&gt;getQty(),
+                'price' =&gt; $item-&gt;getPrice()
+            ];
+        }
+        return $items;
+    }
+}
+</code></pre>
+<hr />
+<h2 id="issue-6-virtual-products-break-shipping-step">Issue 6: Virtual Products Break Shipping Step</h2>
+<h3 id="severity-high-affected-versions-240-246">Severity: HIGH | Affected Versions: 2.4.0 - 2.4.6</h3>
+<h3 id="symptoms_5">Symptoms</h3>
+<ul>
+<li>Cart contains both virtual and physical products</li>
+<li>Shipping step shows but cannot be completed</li>
+<li>Error: "Please specify a shipping method"</li>
+<li>Shipping methods don't load</li>
+</ul>
+<h3 id="root-cause_5">Root Cause</h3>
+<p>Quote is considered virtual if all items are virtual, but logic doesn't properly handle mixed carts. Shipping step renders but shipping rates aren't calculated for mixed quote types.</p>
+<pre><code class="language-php">// Magento\Quote\Model\Quote::isVirtual()
+public function isVirtual(): bool
+{
+    $isVirtual = true;
+    foreach ($this-&gt;getAllItems() as $item) {
+        if (!$item-&gt;getProduct()-&gt;getIsVirtual()) {
+            $isVirtual = false;
+            break;
+        }
+    }
+    return $isVirtual;
+}
+</code></pre>
+<h3 id="workaround_5">Workaround</h3>
+<p>Ensure mixed carts properly collect shipping rates:</p>
+<pre><code class="language-php">namespace Vendor\Module\Observer;
+
+use Magento\Framework\Event\Observer;
+use Magento\Framework\Event\ObserverInterface;
+
+class EnsureShippingForMixedCart implements ObserverInterface
+{
+    /**
+     * Ensure shipping rates collected for mixed carts
+     */
+    public function execute(Observer $observer): void
+    {
+        /** @var \Magento\Quote\Model\Quote $quote */
+        $quote = $observer-&gt;getEvent()-&gt;getQuote();
+
+        // Check if cart has both virtual and physical items
+        $hasVirtual = false;
+        $hasPhysical = false;
+
+        foreach ($quote-&gt;getAllItems() as $item) {
+            if ($item-&gt;getProduct()-&gt;getIsVirtual()) {
+                $hasVirtual = true;
+            } else {
+                $hasPhysical = true;
+            }
+
+            if ($hasVirtual &amp;&amp; $hasPhysical) {
+                break;
+            }
+        }
+
+        // For mixed carts, ensure shipping address exists and rates are collected
+        if ($hasVirtual &amp;&amp; $hasPhysical) {
+            $shippingAddress = $quote-&gt;getShippingAddress();
+            if ($shippingAddress &amp;&amp; !$shippingAddress-&gt;getShippingMethod()) {
+                $shippingAddress-&gt;setCollectShippingRates(true);
+            }
+        }
+    }
+}
+</code></pre>
+<p><strong>Register Observer:</strong></p>
+<pre><code class="language-xml">&lt;event name=&quot;sales_quote_collect_totals_before&quot;&gt;
+    &lt;observer name=&quot;vendor_module_mixed_cart_shipping&quot;
+              instance=&quot;Vendor\Module\Observer\EnsureShippingForMixedCart&quot;/&gt;
+&lt;/event&gt;
+</code></pre>
+<hr />
+<h2 id="issue-7-session-lock-timeout-during-high-traffic">Issue 7: Session Lock Timeout During High Traffic</h2>
+<h3 id="severity-critical-affected-versions-240-247">Severity: CRITICAL | Affected Versions: 2.4.0 - 2.4.7</h3>
+<h3 id="symptoms_6">Symptoms</h3>
+<ul>
+<li>Checkout hangs at "Processing..." indefinitely</li>
+<li>Error logs: "Unable to acquire lock on session"</li>
+<li>Happens during peak traffic hours</li>
+<li>Multiple concurrent requests from same customer</li>
+</ul>
+<h3 id="root-cause_6">Root Cause</h3>
+<p>PHP session locking mechanism causes concurrent AJAX requests from checkout to queue. If one request takes too long, subsequent requests wait for session lock, eventually timing out.</p>
+<pre><code class="language-php">// Session lock flow:
+// Request 1: Acquire lock → Process → Release lock (5s)
+// Request 2: Wait for lock → Wait... → Wait... → Timeout (30s)
+// Request 3: Wait for lock → Wait... → Wait... → Timeout (30s)
+</code></pre>
+<h3 id="workaround_6">Workaround</h3>
+<p>Use Redis session storage with optimized locking:</p>
+<p><strong><code>app/etc/env.php</code>:</strong></p>
+<pre><code class="language-php">'session' =&gt; [
+    'save' =&gt; 'redis',
+    'redis' =&gt; [
+        'host' =&gt; '127.0.0.1',
+        'port' =&gt; '6379',
+        'password' =&gt; '',
+        'timeout' =&gt; '2.5',
+        'persistent_identifier' =&gt; '',
+        'database' =&gt; '2',
+        'compression_threshold' =&gt; '2048',
+        'compression_library' =&gt; 'gzip',
+        'log_level' =&gt; '4',
+        'max_concurrency' =&gt; '20',
+        'break_after_frontend' =&gt; '5',
+        'break_after_adminhtml' =&gt; '30',
+        'first_lifetime' =&gt; '600',
+        'bot_first_lifetime' =&gt; '60',
+        'bot_lifetime' =&gt; '7200',
+        'disable_locking' =&gt; '0',
+        'min_lifetime' =&gt; '60',
+        'max_lifetime' =&gt; '2592000'
+    ]
+],
+</code></pre>
+<p><strong>Alternative: Close Session Early</strong></p>
+<pre><code class="language-php">namespace Vendor\Module\Controller\Ajax;
+
+use Magento\Framework\App\Action\HttpPostActionInterface;
+
+class QuickResponse implements HttpPostActionInterface
+{
+    public function __construct(
+        private readonly \Magento\Framework\Session\SessionManagerInterface $session
+    ) {}
+
+    public function execute()
+    {
+        // Process data that doesn't need session write
+        $data = $this-&gt;processData();
+
+        // Close session early to release lock
+        $this-&gt;session-&gt;writeClose();
+
+        // Continue with slow operations (external API calls, etc.)
+        $result = $this-&gt;slowOperation($data);
+
+        return $this-&gt;jsonResponse($result);
+    }
+}
+</code></pre>
+<hr />
+<h2 id="issue-8-custom-customer-attributes-lost-during-checkout">Issue 8: Custom Customer Attributes Lost During Checkout</h2>
+<h3 id="severity-medium-affected-versions-240-247_1">Severity: MEDIUM | Affected Versions: 2.4.0 - 2.4.7</h3>
+<h3 id="symptoms_7">Symptoms</h3>
+<ul>
+<li>Custom customer attributes defined in <code>customer_eav_attribute</code> table</li>
+<li>Attributes set during registration or account update</li>
+<li>Attributes not available in checkout</li>
+<li>Order doesn't include custom attribute values</li>
+</ul>
+<h3 id="root-cause_7">Root Cause</h3>
+<p>Custom customer attributes aren't automatically included in checkout config provider. The <code>window.checkoutConfig.customerData</code> object only includes default attributes.</p>
+<h3 id="workaround_7">Workaround</h3>
+<p>Create custom config provider:</p>
+<pre><code class="language-php">namespace Vendor\Module\Model\Checkout;
+
+use Magento\Checkout\Model\ConfigProviderInterface;
+use Magento\Customer\Model\Session as CustomerSession;
+
+class CustomAttributeConfigProvider implements ConfigProviderInterface
+{
+    public function __construct(
+        private readonly CustomerSession $customerSession,
+        private readonly \Magento\Customer\Api\CustomerRepositoryInterface $customerRepository,
+        private readonly \Magento\Framework\Api\ExtensibleDataObjectConverter $dataObjectConverter
+    ) {}
+
+    /**
+     * Provide custom customer attributes to checkout
+     */
+    public function getConfig(): array
+    {
+        $config = [];
+
+        if ($this-&gt;customerSession-&gt;isLoggedIn()) {
+            $customerId = $this-&gt;customerSession-&gt;getCustomerId();
+
+            try {
+                $customer = $this-&gt;customerRepository-&gt;getById($customerId);
+
+                $config['customCustomerData'] = [
+                    'loyalty_tier' =&gt; $customer-&gt;getCustomAttribute('loyalty_tier')
+                        ? $customer-&gt;getCustomAttribute('loyalty_tier')-&gt;getValue()
+                        : null,
+                    'tax_exempt' =&gt; $customer-&gt;getCustomAttribute('tax_exempt')
+                        ? $customer-&gt;getCustomAttribute('tax_exempt')-&gt;getValue()
+                        : false,
+                    'preferred_delivery_time' =&gt; $customer-&gt;getCustomAttribute('preferred_delivery_time')
+                        ? $customer-&gt;getCustomAttribute('preferred_delivery_time')-&gt;getValue()
+                        : null,
+                ];
+
+            } catch (\Exception $e) {
+                // Log error but don't break checkout
+            }
+        }
+
+        return $config;
+    }
+}
+</code></pre>
+<p><strong>Register Config Provider:</strong></p>
+<pre><code class="language-xml">&lt;type name=&quot;Magento\Checkout\Model\CompositeConfigProvider&quot;&gt;
+    &lt;arguments&gt;
+        &lt;argument name=&quot;configProviders&quot; xsi:type=&quot;array&quot;&gt;
+            &lt;item name=&quot;custom_attribute_config_provider&quot; xsi:type=&quot;object&quot;&gt;
+                Vendor\Module\Model\Checkout\CustomAttributeConfigProvider
+            &lt;/item&gt;
+        &lt;/argument&gt;
+    &lt;/arguments&gt;
+&lt;/type&gt;
+</code></pre>
+<hr />
+<h2 id="issue-9-incorrect-tax-calculation-after-coupon-applied">Issue 9: Incorrect Tax Calculation After Coupon Applied</h2>
+<h3 id="severity-high-affected-versions-240-246_1">Severity: HIGH | Affected Versions: 2.4.0 - 2.4.6</h3>
+<h3 id="symptoms_8">Symptoms</h3>
+<ul>
+<li>Customer applies discount coupon</li>
+<li>Discount applied to subtotal</li>
+<li>Tax calculated on original subtotal (before discount)</li>
+<li>Grand total incorrect</li>
+</ul>
+<h3 id="root-cause_8">Root Cause</h3>
+<p>Tax collector runs before discount collector in totals collection sequence. Tax is calculated on pre-discount amount.</p>
+<h3 id="workaround_8">Workaround</h3>
+<p>Adjust totals collector sort order:</p>
+<pre><code class="language-xml">&lt;!-- etc/sales.xml --&gt;
+&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;config xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+        xsi:noNamespaceSchemaLocation=&quot;urn:magento:module:Magento_Sales:etc/sales.xsd&quot;&gt;
+    &lt;section name=&quot;quote&quot;&gt;
+        &lt;group name=&quot;totals&quot;&gt;
+            &lt;!-- Ensure discount runs before tax --&gt;
+            &lt;item name=&quot;discount&quot; instance=&quot;Magento\SalesRule\Model\Quote\Discount&quot; sort_order=&quot;300&quot;/&gt;
+            &lt;item name=&quot;tax&quot; instance=&quot;Magento\Tax\Model\Sales\Total\Quote\Tax&quot; sort_order=&quot;400&quot;/&gt;
+        &lt;/group&gt;
+    &lt;/section&gt;
+&lt;/config&gt;
+</code></pre>
+<p><strong>Note:</strong> In Magento 2.4.7, this is corrected in core, but verify your specific tax configuration.</p>
+<hr />
+<h2 id="issue-10-place-order-button-disabled-after-failed-payment">Issue 10: Place Order Button Disabled After Failed Payment</h2>
+<h3 id="severity-medium-affected-versions-240-247_2">Severity: MEDIUM | Affected Versions: 2.4.0 - 2.4.7</h3>
+<h3 id="symptoms_9">Symptoms</h3>
+<ul>
+<li>Payment authorization fails (declined card, insufficient funds, etc.)</li>
+<li>Error message displayed to customer</li>
+<li>"Place Order" button remains disabled</li>
+<li>Customer must reload page to retry</li>
+</ul>
+<h3 id="root-cause_9">Root Cause</h3>
+<p>JavaScript component sets <code>isPlaceOrderActionAllowed(false)</code> when placing order, but doesn't re-enable on error.</p>
+<pre><code class="language-javascript">// Magento_Checkout/js/view/payment/default.js
+placeOrder: function () {
+    this.isPlaceOrderActionAllowed(false); // Disable button
+
+    this.getPlaceOrderDeferredObject()
+        .done(function () {
+            // Success - redirect
+        }).fail(function () {
+            // Error - button stays disabled!
+        });
+}
+</code></pre>
+<h3 id="workaround_9">Workaround</h3>
+<p>Re-enable button on error:</p>
+<pre><code class="language-javascript">// Vendor/Module/view/frontend/web/js/view/payment/method-renderer/custom.js
+define([
+    'Magento_Checkout/js/view/payment/default'
+], function (Component) {
+    'use strict';
+
+    return Component.extend({
+        defaults: {
+            template: 'Vendor_Module/payment/custom'
+        },
+
+        placeOrder: function (data, event) {
+            var self = this;
+
+            if (event) {
+                event.preventDefault();
+            }
+
+            if (this.validate() &amp;&amp; this.isPlaceOrderActionAllowed() === true) {
+                this.isPlaceOrderActionAllowed(false);
+
+                this.getPlaceOrderDeferredObject()
+                    .done(function () {
+                        self.afterPlaceOrder();
+
+                        if (self.redirectAfterPlaceOrder) {
+                            redirectOnSuccessAction.execute();
+                        }
+                    }).fail(function () {
+                        // Re-enable button on error
+                        self.isPlaceOrderActionAllowed(true);
+                    });
+
+                return true;
+            }
+
+            return false;
+        }
+    });
+});
+</code></pre>
+<hr />
+<h2 id="issue-severity-classification">Issue Severity Classification</h2>
+<div class="overflow-x-auto my-6 border border-gray-200"><table class="min-w-full">
+<thead>
+<tr>
+<th>Severity</th>
+<th>Definition</th>
+<th>Response Time</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CRITICAL</td>
+<td>Prevents order placement or causes data loss</td>
+<td>Immediate</td>
+</tr>
+<tr>
+<td>HIGH</td>
+<td>Degrades checkout experience significantly</td>
+<td>1-2 business days</td>
+</tr>
+<tr>
+<td>MEDIUM</td>
+<td>Causes inconvenience but has workaround</td>
+<td>1-2 weeks</td>
+</tr>
+<tr>
+<td>LOW</td>
+<td>Cosmetic or minor functional issue</td>
+<td>As resources permit</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="reporting-new-issues">Reporting New Issues</h2>
+<p>When reporting checkout issues:</p>
+<ol>
+<li><strong>Magento Version</strong>: Exact version (e.g., 2.4.7-p1)</li>
+<li><strong>Reproduction Steps</strong>: Detailed step-by-step instructions</li>
+<li><strong>Expected Behavior</strong>: What should happen</li>
+<li><strong>Actual Behavior</strong>: What actually happens</li>
+<li><strong>Environment</strong>: PHP version, web server, session storage</li>
+<li><strong>Extensions</strong>: List of installed checkout-related extensions</li>
+<li><strong>Logs</strong>: Relevant error logs from <code>var/log/</code></li>
+<li><strong>Screenshots</strong>: Visual evidence of issue</li>
+</ol>
+<hr />
+<h2 id="assumptions">Assumptions</h2>
+<ul>
+<li><strong>Target Platform</strong>: Adobe Commerce &amp; Magento Open Source 2.4.7+</li>
+<li><strong>PHP Version</strong>: 8.1, 8.2, 8.3</li>
+<li><strong>Session Storage</strong>: Redis (recommended for production)</li>
+<li><strong>Deployment Mode</strong>: Production mode for performance testing</li>
+</ul>
+<h2 id="why-document-known-issues">Why Document Known Issues</h2>
+<ul>
+<li><strong>Faster Troubleshooting</strong>: Teams can quickly identify and resolve common problems</li>
+<li><strong>Reduce Support Tickets</strong>: Known issues with workarounds reduce customer support load</li>
+<li><strong>Informed Development</strong>: Developers can avoid triggering known bugs</li>
+<li><strong>Upgrade Planning</strong>: Understanding version-specific issues helps plan upgrades</li>
+</ul>
+<h2 id="security-impact">Security Impact</h2>
+<ul>
+<li><strong>Session Management</strong>: Session lock timeout issues can be exploited for DoS attacks</li>
+<li><strong>Email Validation</strong>: Guest email race condition could lead to account hijacking</li>
+<li><strong>Payment Failures</strong>: Failed payment retry issues may expose payment data in logs</li>
+</ul>
+<h2 id="performance-impact">Performance Impact</h2>
+<ul>
+<li><strong>Session Locks</strong>: Critical performance bottleneck during high traffic</li>
+<li><strong>Totals Collection</strong>: Race conditions cause unnecessary recalculation</li>
+<li><strong>Quote Refresh</strong>: Excessive quote reloads impact database performance</li>
+</ul>
+<h2 id="backward-compatibility">Backward Compatibility</h2>
+<ul>
+<li><strong>Workarounds</strong>: All workarounds use plugins/observers to maintain upgrade path</li>
+<li><strong>Configuration</strong>: System config changes won't break on upgrade</li>
+<li><strong>Data Integrity</strong>: Fixes don't modify core database schema</li>
+</ul>
+<h2 id="tests-to-add">Tests to Add</h2>
+<ol>
+<li><strong>Regression Tests</strong>: Verify known issues don't reappear after fixes</li>
+<li><strong>Load Tests</strong>: Test session locking under concurrent load</li>
+<li><strong>Integration Tests</strong>: Test mixed cart scenarios (virtual + physical)</li>
+<li><strong>API Tests</strong>: Verify payment method availability logic</li>
+</ol>
+<h2 id="documentation-to-update">Documentation to Update</h2>
+<ul>
+<li><strong>Troubleshooting Guide</strong>: Include symptoms and solutions for known issues</li>
+<li><strong>Release Notes</strong>: Document which issues are fixed in each version</li>
+<li><strong>Developer Guide</strong>: Best practices to avoid triggering known bugs</li>
+<li><strong>Upgrade Guide</strong>: Version-specific issues to watch during upgrades</li>
+</ul>
+                    </div>
+                </article>
+            </main>
+            <!-- Right Sidebar: On This Page (desktop) -->
+            <aside class="toc-sidebar hidden xl:block" aria-label="On this page">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-semibold text-gray-900 uppercase tracking-wider mb-4 mt-0">On this page</h3>
+                    <nav id="toc-nav" class="space-y-0" aria-label="Table of contents"></nav>
+                    <div class="toc-back-to-top">
+                        <a href="#">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+                            </svg>
+                            Back to top
+                        </a>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- ================================================================
+         FOOTER — matches module-catalog.html multi-column layout exactly
+         ================================================================ -->
+    <footer class="relative pt-12 bg-white border-t border-charcoal mt-16">
+        <div class="max-w-screen-2xl mx-auto w-full px-4 sm:px-6 lg:px-8">
+            <div>
+                <a href="index.html" class="inline-flex items-center no-underline">
+                    <svg width="30" height="33" viewBox="0 0 30 33" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Magento Association logo" role="img">
+                        <path d="M0 4.06492H29.6763V31.8882C29.6763 32.502 29.1713 33 28.5487 33H1.12762C0.505079 33 0 32.502 0 31.8882V4.06492Z" fill="#34323A"/>
+                        <path d="M1.26857 0H28.4078C29.1066 0 29.6763 0.561678 29.6763 1.25075V4.06492H0V1.25075C0 0.561678 0.569682 0 1.26857 0Z" fill="#C9C9C9"/>
+                        <path d="M2.37269 3.0458C2.94031 3.0458 3.40046 2.59211 3.40046 2.03246C3.40046 1.47281 2.94031 1.01913 2.37269 1.01913C1.80506 1.01913 1.34491 1.47281 1.34491 2.03246C1.34491 2.59211 1.80506 3.0458 2.37269 3.0458Z" fill="#848484"/>
+                        <path d="M5.28571 3.0458C5.85334 3.0458 6.31349 2.59211 6.31349 2.03246C6.31349 1.47281 5.85334 1.01913 5.28571 1.01913C4.71809 1.01913 4.25793 1.47281 4.25793 2.03246C4.25793 2.59211 4.71809 3.0458 5.28571 3.0458Z" fill="#848484"/>
+                        <path d="M14.7883 7.46973L4.90405 13.0923V24.349L7.54104 25.8487V14.5978L14.7883 10.4692L22.0415 14.5978V25.8487L24.6785 24.349V13.0923L14.7883 7.46973Z" fill="#F1BC1B"/>
+                        <path d="M16.0862 26.2367L14.7883 26.9779L13.4492 26.2135V14.233L10.178 16.0975V27.3485L13.4492 29.213L14.7883 29.9773L16.0862 29.2362L19.4045 27.3485V16.0975L16.0862 14.2098V26.2367Z" fill="#F1BC1B"/>
+                    </svg>
+                    <span class="ml-3 text-xl font-bold text-charcoal">Developer Documentation</span>
+                </a>
+            </div>
+
+            <div class="grid grid-cols-12 md:gap-x-8 gap-y-12 lg:mt-12">
+                <div class="col-span-12 lg:col-span-4">
+                    <p class="hidden lg:block text-xs text-charcoal sm:text-sm">Comprehensive developer documentation for Magento 2.4.7+ — tutorials, architecture deep dives, module references, and production-ready patterns built by the community, for the community.</p>
+                    <ul class="mt-6 hidden lg:flex items-center gap-3">
+                        <li class="pl-0">
+                            <a href="https://github.com/magento/magento2" class="p-2 md:p-0" aria-label="GitHub">
+                                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                                </svg>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Guides</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="tutorials.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Tutorials</a></li>
+                            <li class="pl-0"><a href="how-to-guides.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">How-To Guides</a></li>
+                            <li class="pl-0"><a href="architecture.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Architecture</a></li>
+                            <li class="pl-0"><a href="learning-paths.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Learning Paths</a></li>
+                            <li class="pl-0"><a href="references.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">References</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Modules</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="module-catalog.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Catalog</a></li>
+                            <li class="pl-0"><a href="module-checkout.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Checkout</a></li>
+                            <li class="pl-0"><a href="module-sales.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Sales</a></li>
+                            <li class="pl-0"><a href="module-customer.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Customer</a></li>
+                            <li class="pl-0"><a href="module-quote.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Quote</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Community</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Magento Community</a></li>
+                            <li class="pl-0"><a href="https://magento.stackexchange.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Stack Exchange</a></li>
+                            <li class="pl-0"><a href="https://marketplace.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Marketplace</a></li>
+                            <li class="pl-0"><a href="https://github.com/magento/magento2" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">GitHub</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Support</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://github.com/magento/magento2/issues" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Report Issues</a></li>
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Community Resources</a></li>
+                            <li class="pl-0"><a href="https://developer.adobe.com/commerce/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Adobe Commerce Docs</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-12 border-t pt-6 pb-16 border-charcoal">
+                <p class="text-xs text-charcoal">
+                    &copy; 2026 Magento 2 Developer Documentation. Magento&reg; is a registered trademark of Adobe Inc.
+                </p>
+                <p class="mt-6 text-xs text-charcoal">
+                    This documentation provides guidance for Magento 2 developers and extension builders. For merchant documentation, visit the <a href="index.html" class="text-orange hover:text-orange-600 transition-colors">merchant documentation</a>.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Initialize highlight.js -->
+    <script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('pre code').forEach(function (el) {
+        hljs.highlightElement(el);
+    });
+    document.querySelectorAll('pre').forEach(function (pre) {
+        if (pre.parentNode.classList && pre.parentNode.classList.contains('code-wrapper')) return;
+        var wrapper = document.createElement('div');
+        wrapper.className = 'code-wrapper';
+        pre.parentNode.insertBefore(wrapper, pre);
+        wrapper.appendChild(pre);
+        var btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.setAttribute('type', 'button');
+        btn.setAttribute('aria-label', 'Copy code to clipboard');
+        btn.setAttribute('title', 'Copy');
+        btn.textContent = 'Copy';
+        wrapper.appendChild(btn);
+        btn.addEventListener('click', function () {
+            var code = pre.querySelector('code');
+            var text = code ? (code.innerText || code.textContent) : (pre.innerText || pre.textContent);
+            navigator.clipboard.writeText(text).then(function () {
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            }).catch(function () {
+                var range = document.createRange();
+                range.selectNode(code || pre);
+                window.getSelection().removeAllRanges();
+                window.getSelection().addRange(range);
+                document.execCommand('copy');
+                window.getSelection().removeAllRanges();
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            });
+        });
+    });
+});
+</script>
+
+
+<script>
+(function() {
+    var nav = document.getElementById('toc-nav');
+    if (!nav) return;
+    var article = document.getElementById('main-content');
+    if (!article) return;
+    var headings = article.querySelectorAll('h2[id], h3[id]');
+    if (headings.length < 3) {
+        // Hide the entire TOC sidebar if fewer than 3 headings
+        var sidebar = nav.closest('.toc-sidebar');
+        if (sidebar) sidebar.style.display = 'none';
+        return;
+    }
+    var ids = [];
+    headings.forEach(function(h) {
+        var a = document.createElement('a');
+        a.href = '#' + h.id;
+        a.textContent = h.textContent.replace(/^#+\s*/, '').replace(/\s+/g, ' ').trim();
+        if (h.tagName === 'H3') a.classList.add('toc-h3');
+        nav.appendChild(a);
+        ids.push(h.id);
+    });
+    // Scroll-spy with IntersectionObserver
+    var links = nav.querySelectorAll('a');
+    var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                links.forEach(function(l) { l.classList.remove('toc-active'); });
+                var active = nav.querySelector('a[href="#' + entry.target.id + '"]');
+                if (active) active.classList.add('toc-active');
+            }
+        });
+    }, { rootMargin: '-80px 0px -70% 0px', threshold: 0 });
+    headings.forEach(function(h) { observer.observe(h); });
+})();
+</script>
+</body>
+</html>

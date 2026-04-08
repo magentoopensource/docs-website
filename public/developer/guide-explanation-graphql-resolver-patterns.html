@@ -1,0 +1,2144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GraphQL Resolver Patterns in Magento 2 — Magento 2 Developer Documentation</title>
+    <meta name="description" content="Developer guide: GraphQL Resolver Patterns in Magento 2">
+
+    <!-- Google Fonts: Inter Tight only. Courier New used for code. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Highlight.js: syntax highlighting for code blocks -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/php.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/ini.min.js"></script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        charcoal: {
+                            DEFAULT: '#2c2c2c', 50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6',
+                            300: '#6B6B6B', 400: '#474747', 500: '#2c2c2c', 600: '#262626',
+                            700: '#202020', 800: '#1c1c1c', 900: '#191919', 950: '#121212'
+                        },
+                        orange: {
+                            DEFAULT: '#D4551A', 50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad',
+                            300: '#f9ae78', 400: '#f58242', 500: '#f26423', 600: '#e34613',
+                            700: '#bc3312', 800: '#962a16', 900: '#792515', 950: '#411009'
+                        },
+                        yellow: {
+                            DEFAULT: '#B8860B', 50: '#fffdeb', 100: '#fdf9c8', 200: '#fbf38c',
+                            300: '#f8e651', 400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a',
+                            700: '#b1670c', 800: '#8f5111', 900: '#764311', 950: '#442204'
+                        },
+                        'off-white': '#FAFAFA',
+                    },
+                    fontFamily: {
+                        sans: ['Inter Tight', 'system-ui', '-apple-system', 'sans-serif'],
+                        mono: ['Courier New', 'Courier', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* ── Force light mode ── */
+        :root { color-scheme: light only; }
+
+        [x-cloak] { display: none !important; }
+
+        /* ── Scroll offset for sticky header ── */
+        .prose h2, .prose h3 { scroll-margin-top: 5rem; }
+
+        /* ── Code blocks: Bauhaus charcoal bg, no border-radius, highlight.js override ── */
+        .prose pre {
+            background-color: #2C2C2C !important;
+            border-radius: 0 !important;
+            padding: 1.25rem;
+            overflow-x: auto;
+            font-size: 0.875rem;
+            line-height: 1.7;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 1.5rem 0;
+        }
+        .prose pre code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            background: transparent !important;
+            padding: 0;
+                    color: #abb2bf;
+        }
+        /* Override highlight.js theme background to match Bauhaus charcoal */
+        .hljs {
+            background: #2C2C2C !important;
+            color: #abb2bf !important;
+            border-radius: 0 !important;
+        }
+
+        /* ── Inline code: charcoal bg, yellow text, no border-radius ── */
+        .prose code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.85em;
+        }
+        .prose :not(pre) > code {
+            background-color: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2em 0.45em;
+            border-radius: 0;
+        }
+
+        /* ── Step-code: same charcoal/yellow style for UI path chips ── */
+        .step-code {
+            background: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2rem 0.5rem;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            border-radius: 0;
+        }
+
+        /* ── Tables: no border-radius, charcoal header ── */
+        .prose table { width: 100%; border-collapse: collapse; }
+        .prose th {
+            background-color: #2C2C2C;
+            color: #ffffff;
+            font-weight: 600;
+            text-align: left;
+            padding: 0.75rem 1rem;
+            border-bottom: 2px solid #2C2C2C;
+            border-radius: 0;
+        }
+        .prose td { padding: 0.75rem 1rem; border-bottom: 1px solid #e5e5e5; }
+        .prose tr:hover { background-color: #fafafa; }
+
+        /* ── Blockquote: Bauhaus style — border-4 yellow, square, no left-only border ── */
+        .prose blockquote {
+            border: 4px solid #F1BC1B;
+            background-color: #ffffff;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+            border-radius: 0;
+        }
+        .prose blockquote p { margin: 0; }
+
+        /* ── Lists: hexagon bullets ── */
+        .prose ul { list-style: none; padding-left: 0; }
+        .prose ul li {
+            position: relative;
+            padding-left: 1.75rem;
+            margin-bottom: 0.4rem;
+            line-height: 1.7;
+        }
+        .prose ul li::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0.45em;
+            width: 10px;
+            height: 10px;
+            background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 2L21 7V17L12 22L3 17V7L12 2Z' stroke='%23F26423' stroke-width='2.5' stroke-linejoin='miter'/%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+        .prose ol { list-style-type: decimal; padding-left: 1.5rem; }
+        .prose li { margin-bottom: 0.4rem; }
+
+        /* ── Headings ── */
+        .prose h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            padding-top: 1.5rem;
+            border-top: 4px solid #F1BC1B;
+            color: #2C2C2C;
+        }
+        .prose h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+            color: #2C2C2C;
+        }
+        .prose h4 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #2C2C2C;
+        }
+        .prose p { margin-bottom: 1rem; line-height: 1.75; }
+        .prose a { color: #D4551A; text-decoration: none; }
+        .prose a:hover { color: #e34613; text-decoration: underline; }
+        .prose hr { border: none; border-top: 1px solid #e5e5e5; margin: 2rem 0; }
+
+        /* ── Callout boxes: Bauhaus — border-4 yellow, white bg, icon + title ── */
+        .callout-box {
+            background-color: #ffffff;
+            border: 4px solid #F1BC1B;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+        }
+        .callout-warning {
+            border-color: #D4551A;
+        }
+        .callout-important {
+            border-color: #2C2C2C;
+        }
+        .callout-box .callout-inner {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+        .callout-box .callout-title {
+            font-weight: 600;
+            color: #2C2C2C;
+            margin-bottom: 0.25rem;
+        }
+        .callout-box .callout-body {
+            font-size: 0.875rem;
+            line-height: 1.6;
+            color: rgba(44,44,44,0.85);
+        }
+
+        
+    
+        /* Code block copy button */
+        .code-wrapper {
+            position: relative;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            font-family: 'Inter Tight', system-ui, sans-serif;
+            background: rgba(255,255,255,0.1);
+            color: #abb2bf;
+            border: 1px solid rgba(255,255,255,0.15);
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.15s ease, background 0.15s ease;
+            z-index: 10;
+            line-height: 1.4;
+            border-radius: 4px;
+            user-select: none;
+        }
+        .code-wrapper:hover .copy-btn {
+            opacity: 1;
+        }
+        .copy-btn:hover,
+        .copy-btn:focus {
+            background: rgba(255,255,255,0.2);
+            color: #ffffff;
+            outline: 2px solid #D4551A;
+            outline-offset: 1px;
+        }
+        .copy-btn.copied {
+            color: #98c379;
+            background: rgba(152, 195, 121, 0.15);
+            opacity: 1;
+        }
+    
+        /* Right-hand TOC sidebar */
+        .toc-sidebar {
+            width: 14rem;
+            flex-shrink: 0;
+        }
+        .toc-sidebar a {
+            display: block;
+            padding: 0.375rem 0;
+            font-size: 0.8125rem;
+            line-height: 1.4;
+            color: #6b7280;
+            text-decoration: none;
+            transition: color 0.15s ease;
+            border-left: 2px solid transparent;
+            padding-left: 0.75rem;
+        }
+        .toc-sidebar a:hover {
+            color: #111827;
+        }
+        .toc-sidebar a.toc-active {
+            color: #ea580c;
+            border-left-color: #ea580c;
+            font-weight: 500;
+        }
+        .toc-sidebar a.toc-h3 {
+            padding-left: 1.5rem;
+            font-size: 0.75rem;
+        }
+        .toc-sidebar .toc-back-to-top {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e5e7eb;
+        }
+        .toc-sidebar .toc-back-to-top a {
+            border-left: none;
+            padding-left: 0;
+            font-weight: 500;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .toc-sidebar .toc-back-to-top a:hover {
+            color: #ea580c;
+        }
+    </style>
+</head>
+
+<body class="font-sans bg-off-white text-charcoal">
+
+    <!-- Shared header — single source of truth -->
+    <script src="includes/header.js"></script>
+
+    <!-- Breadcrumb — orange › separators -->
+    <div class="bg-white border-b border-gray-100">
+        <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <div class="flex items-center gap-2 text-sm flex-wrap">
+                <a href="index.html" class="text-orange hover:text-orange-600 transition-colors no-underline">Home</a> <span class="text-orange font-medium">›</span> <a href="index.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">Guides</a> <span class="text-orange font-medium">›</span> <a href="architecture.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">Architecture</a> <span class="text-orange font-medium">›</span> <span class="text-charcoal font-medium">GraphQL Resolver Patterns in Magento 2</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="flex gap-8">
+
+            <!-- Left Sidebar (desktop) -->
+            <aside class="hidden lg:block w-64 flex-shrink-0">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4">Architecture</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="guide-explanation-b2b-features.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">B2B Features Development</a></li>
+<li class="pl-0"><a href="guide-explanation-eav-system.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">EAV System Architecture: Underst...</a></li>
+<li class="pl-0"><a href="guide-explanation-graphql-resolver-patterns.html" class="block px-3 py-2 text-sm text-orange font-semibold bg-orange-50 border-l-4 border-orange pl-2 transition-colors no-underline">GraphQL Resolver Patterns in Mag...</a></li>
+<li class="pl-0"><a href="guide-explanation-indexer-system.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Indexer System Deep Dive: Unders...</a></li>
+<li class="pl-0"><a href="guide-explanation-message-queue-architecture.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Message Queue Architecture in Ma...</a></li>
+<li class="pl-0"><a href="guide-explanation-service-contracts-repositories.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Service Contracts vs Repositorie...</a></li>
+</ul>
+<h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4 mt-8">Guide Sections</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="tutorials.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Tutorials</a></li>
+<li class="pl-0"><a href="how-to-guides.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">How-To Guides</a></li>
+<li class="pl-0"><a href="architecture.html" class="block px-3 py-2 text-sm text-orange font-semibold bg-orange-50 border-l-4 border-orange pl-2 transition-colors no-underline">Architecture</a></li>
+<li class="pl-0"><a href="references.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">References</a></li>
+</ul>
+                </div>
+            </aside>
+
+            <!-- Article — square corners, border-t-4 orange accent -->
+            <main id="main-content" class="flex-1 min-w-0">
+                <article class="bg-white shadow-sm border border-gray-100 border-t-4 border-t-orange p-8 md:p-12">
+                    <!-- Title block -->
+                    <div class="mb-8">
+                        <span class="inline-block px-3 py-1.5 text-xs font-medium bg-charcoal-50 text-charcoal border border-charcoal-100">Explanation</span>
+                        <h1 class="text-3xl md:text-4xl font-extrabold text-charcoal mt-3 mb-3">GraphQL Resolver Patterns in Magento 2</h1>
+                        <p class="text-charcoal-300 text-lg mb-4">Developer guide: GraphQL Resolver Patterns in Magento 2</p>
+                        <!-- Meta pills -->
+                        <div class="flex flex-wrap gap-2"><span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-yellow-50 text-yellow-800"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>Intermediate</span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-orange-50 text-orange-700"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>20 minutes</span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-charcoal text-white">Magento 2.4.7+</span></div>
+                    </div>
+
+                    <hr class="border-0 border-t border-gray-100 mb-8">
+
+                    <!-- Content -->
+                    <div class="prose max-w-none">
+                        <h1 id="graphql-resolver-patterns-in-magento-2">GraphQL Resolver Patterns in Magento 2</h1>
+<h2 id="introduction">Introduction</h2>
+<p>GraphQL has emerged as Magento's <strong>preferred API layer</strong> for headless commerce, Progressive Web Apps (PWA Studio), and mobile applications. Unlike REST, which requires multiple round-trips for related data, GraphQL enables clients to fetch exactly the data they need in a single request—no more over-fetching or under-fetching.</p>
+<p>Magento's GraphQL implementation is built on <strong>webonyx/graphql-php</strong> with custom resolver patterns, performance optimizations, and integration with existing service contracts. Understanding these patterns is critical for building fast, secure, and maintainable GraphQL endpoints.</p>
+<h3 id="what-youll-learn">What You'll Learn</h3>
+<ul>
+<li>Magento's GraphQL architecture and request lifecycle</li>
+<li>schema.graphqls syntax and type system</li>
+<li>Query resolvers vs Mutation resolvers</li>
+<li>DataProvider pattern for separation of concerns</li>
+<li>Batch resolvers to eliminate N+1 query problems</li>
+<li>Custom types, interfaces, and unions</li>
+<li>Authorization and ACL integration</li>
+<li>Caching strategies for GraphQL responses</li>
+<li>Error handling and validation</li>
+<li>Real-world examples: custom product attributes, customer mutations</li>
+</ul>
+<hr />
+<h2 id="magento-graphql-architecture-overview">Magento GraphQL Architecture Overview</h2>
+<h3 id="request-lifecycle">Request Lifecycle</h3>
+<pre><code>Client Request (POST /graphql)
+         │
+         ▼
+┌─────────────────────────────────────────────────────────┐
+│             GraphQL Entry Point                         │
+│          (Magento\GraphQl\Controller\GraphQl)           │
+└────────────────────┬────────────────────────────────────┘
+                     │
+                     ▼
+┌─────────────────────────────────────────────────────────┐
+│              Schema Provider                            │
+│  - Aggregates schema.graphqls from all modules          │
+│  - Builds type registry                                 │
+└────────────────────┬────────────────────────────────────┘
+                     │
+                     ▼
+┌─────────────────────────────────────────────────────────┐
+│             Query Parser &amp; Validator                    │
+│  - Parses query syntax                                  │
+│  - Validates against schema                             │
+│  - Checks query depth/complexity                        │
+└────────────────────┬────────────────────────────────────┘
+                     │
+                     ▼
+┌─────────────────────────────────────────────────────────┐
+│            Resolver Execution                           │
+│  - Invokes field resolvers (Query, Mutation, Type)      │
+│  - Passes context (store, customer, authorization)      │
+│  - Handles batching and lazy loading                    │
+└────────────────────┬────────────────────────────────────┘
+                     │
+                     ▼
+┌─────────────────────────────────────────────────────────┐
+│           Response Formatter                            │
+│  - Serializes resolved data to JSON                     │
+│  - Includes errors array if validation/exceptions       │
+└────────────────────┬────────────────────────────────────┘
+                     │
+                     ▼
+                JSON Response
+</code></pre>
+<h3 id="core-components">Core Components</h3>
+<div class="overflow-x-auto my-6 border border-gray-200"><table class="min-w-full">
+<thead>
+<tr>
+<th>Component</th>
+<th>Purpose</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>schema.graphqls</strong></td>
+<td>Define types, queries, mutations</td>
+<td><code>type Product</code>, <code>type Query</code></td>
+</tr>
+<tr>
+<td><strong>Resolver</strong></td>
+<td>Fetch data for a field</td>
+<td><code>ProductResolver</code>, <code>CustomerResolver</code></td>
+</tr>
+<tr>
+<td><strong>DataProvider</strong></td>
+<td>Business logic layer (delegates to services)</td>
+<td><code>ProductDataProvider</code></td>
+</tr>
+<tr>
+<td><strong>Type Resolver</strong></td>
+<td>Resolve interfaces/unions to concrete types</td>
+<td><code>ProductTypeResolver</code></td>
+</tr>
+<tr>
+<td><strong>Authorization</strong></td>
+<td>Check ACL/permissions</td>
+<td><code>@doc(description: "requires customer token")</code></td>
+</tr>
+<tr>
+<td><strong>Cache</strong></td>
+<td>Cache resolved data per query</td>
+<td><code>CacheKeyCalculator</code>, <code>@cache</code> directive</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="schemagraphqls-syntax">schema.graphqls Syntax</h2>
+<h3 id="basic-structure">Basic Structure</h3>
+<p>Every Magento module can contribute a <code>etc/schema.graphqls</code> file. Magento merges all schemas into a single type registry.</p>
+<pre><code class="language-graphql"># VendorName/ModuleName/etc/schema.graphqls
+
+type Query {
+    &quot;&quot;&quot;
+    Fetch a product by SKU
+    @doc(description: &quot;Returns product details including custom attributes&quot;)
+    &quot;&quot;&quot;
+    product(
+        sku: String! @doc(description: &quot;Product SKU&quot;)
+    ): Product @resolver(class: &quot;VendorName\\ModuleName\\Model\\Resolver\\Product&quot;) @cache(cacheIdentity: &quot;VendorName\\ModuleName\\Model\\Resolver\\Product\\Identity&quot;)
+}
+
+type Product {
+    id: Int
+    sku: String
+    name: String
+    price: Float
+    warranty_info: WarrantyInfo @resolver(class: &quot;VendorName\\ModuleName\\Model\\Resolver\\Product\\WarrantyInfo&quot;)
+}
+
+type WarrantyInfo {
+    duration_months: Int
+    coverage_type: String
+    terms_url: String
+}
+
+type Mutation {
+    &quot;&quot;&quot;
+    Update product warranty information
+    @doc(description: &quot;Requires admin authorization&quot;)
+    &quot;&quot;&quot;
+    updateProductWarranty(
+        input: UpdateProductWarrantyInput!
+    ): UpdateProductWarrantyOutput @resolver(class: &quot;VendorName\\ModuleName\\Model\\Resolver\\UpdateProductWarranty&quot;)
+}
+
+input UpdateProductWarrantyInput {
+    sku: String!
+    duration_months: Int!
+    coverage_type: String!
+}
+
+type UpdateProductWarrantyOutput {
+    product: Product
+}
+</code></pre>
+<h3 id="type-system">Type System</h3>
+<h4 id="scalar-types">Scalar Types</h4>
+<div class="overflow-x-auto my-6 border border-gray-200"><table class="min-w-full">
+<thead>
+<tr>
+<th>Type</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Int</code></td>
+<td>Signed 32-bit integer</td>
+<td><code>42</code>, <code>-10</code></td>
+</tr>
+<tr>
+<td><code>Float</code></td>
+<td>Double-precision floating point</td>
+<td><code>99.99</code>, <code>3.14</code></td>
+</tr>
+<tr>
+<td><code>String</code></td>
+<td>UTF-8 character sequence</td>
+<td><code>"Hello"</code>, <code>"SKU123"</code></td>
+</tr>
+<tr>
+<td><code>Boolean</code></td>
+<td>true/false</td>
+<td><code>true</code>, <code>false</code></td>
+</tr>
+<tr>
+<td><code>ID</code></td>
+<td>Unique identifier (serialized as String)</td>
+<td><code>"123"</code>, <code>"ABC"</code></td>
+</tr>
+</tbody>
+</table></div>
+<h4 id="object-types">Object Types</h4>
+<pre><code class="language-graphql">type Product {
+    id: Int!              # Non-nullable
+    sku: String!
+    name: String
+    price: Float
+    categories: [Category]  # Nullable list of Category objects
+    related_products: [Product!]!  # Non-nullable list of non-nullable Products
+}
+</code></pre>
+<h4 id="input-types">Input Types</h4>
+<p>Used for mutation arguments (cannot have resolvers):</p>
+<pre><code class="language-graphql">input CreateProductInput {
+    sku: String!
+    name: String!
+    price: Float!
+    attribute_set_id: Int!
+    type_id: String! = &quot;simple&quot;  # Default value
+}
+</code></pre>
+<h4 id="interfaces">Interfaces</h4>
+<pre><code class="language-graphql">interface ProductInterface {
+    id: Int!
+    sku: String!
+    name: String!
+}
+
+type SimpleProduct implements ProductInterface {
+    id: Int!
+    sku: String!
+    name: String!
+    weight: Float
+}
+
+type ConfigurableProduct implements ProductInterface {
+    id: Int!
+    sku: String!
+    name: String!
+    configurable_options: [ConfigurableOption!]!
+}
+
+type Query {
+    productBySku(sku: String!): ProductInterface @resolver(...)
+}
+</code></pre>
+<p><strong>Type Resolver Required:</strong> When returning an interface, Magento needs to know the concrete type:</p>
+<pre><code class="language-php">// Model/Resolver/Product/ProductTypeResolver.php
+class ProductTypeResolver implements TypeResolverInterface
+{
+    public function resolveType(array $data): string
+    {
+        if (isset($data['type_id'])) {
+            return match ($data['type_id']) {
+                'simple' =&gt; 'SimpleProduct',
+                'configurable' =&gt; 'ConfigurableProduct',
+                'bundle' =&gt; 'BundleProduct',
+                default =&gt; 'SimpleProduct',
+            };
+        }
+        return 'SimpleProduct';
+    }
+}
+</code></pre>
+<h4 id="unions">Unions</h4>
+<pre><code class="language-graphql">union SearchResult = Product | Category | CmsPage
+
+type Query {
+    search(query: String!): [SearchResult!]! @resolver(...)
+}
+</code></pre>
+<p><strong>Type Resolver:</strong></p>
+<pre><code class="language-php">class SearchResultTypeResolver implements TypeResolverInterface
+{
+    public function resolveType(array $data): string
+    {
+        return match ($data['entity_type']) {
+            'product' =&gt; 'Product',
+            'category' =&gt; 'Category',
+            'cms_page' =&gt; 'CmsPage',
+            default =&gt; throw new \RuntimeException('Unknown entity type'),
+        };
+    }
+}
+</code></pre>
+<h4 id="enums">Enums</h4>
+<pre><code class="language-graphql">enum ProductStatus {
+    ENABLED
+    DISABLED
+}
+
+type Product {
+    status: ProductStatus
+}
+</code></pre>
+<h3 id="directives">Directives</h3>
+<div class="overflow-x-auto my-6 border border-gray-200"><table class="min-w-full">
+<thead>
+<tr>
+<th>Directive</th>
+<th>Purpose</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>@resolver</code></td>
+<td>Specify resolver class for field</td>
+<td><code>@resolver(class: "VendorName\\Module\\Model\\Resolver\\Product")</code></td>
+</tr>
+<tr>
+<td><code>@doc</code></td>
+<td>Add description (appears in introspection)</td>
+<td><code>@doc(description: "Product SKU")</code></td>
+</tr>
+<tr>
+<td><code>@cache</code></td>
+<td>Define cache identity for FPC</td>
+<td><code>@cache(cacheIdentity: "VendorName\\Module\\Model\\CacheIdentity")</code></td>
+</tr>
+<tr>
+<td><code>@deprecated</code></td>
+<td>Mark field as deprecated</td>
+<td><code>@deprecated(reason: "Use</code>newField<code>instead")</code></td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="query-resolvers">Query Resolvers</h2>
+<h3 id="purpose">Purpose</h3>
+<p>Query resolvers fetch data for read operations. They implement <code>Magento\Framework\GraphQl\Query\ResolverInterface</code>.</p>
+<h3 id="interface-contract">Interface Contract</h3>
+<pre><code class="language-php">namespace Magento\Framework\GraphQl\Query;
+
+interface ResolverInterface
+{
+    /**
+     * @param Field $field
+     * @param ContextInterface $context
+     * @param ResolveInfo $info
+     * @param array|null $value
+     * @param array|null $args
+     * @return mixed|Value
+     */
+    public function resolve(
+        Field $field,
+        $context,
+        ResolveInfo $info,
+        array $value = null,
+        array $args = null
+    );
+}
+</code></pre>
+<h3 id="parameters-explained">Parameters Explained</h3>
+<div class="overflow-x-auto my-6 border border-gray-200"><table class="min-w-full">
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>$field</code></td>
+<td><code>Field</code></td>
+<td>Current field being resolved (name, alias)</td>
+</tr>
+<tr>
+<td><code>$context</code></td>
+<td><code>ContextInterface</code></td>
+<td>Request context (customer, store, authorization)</td>
+</tr>
+<tr>
+<td><code>$info</code></td>
+<td><code>ResolveInfo</code></td>
+<td>Query AST, parent type, selection set</td>
+</tr>
+<tr>
+<td><code>$value</code></td>
+<td><code>array\|null</code></td>
+<td>Parent object's resolved value (for nested fields)</td>
+</tr>
+<tr>
+<td><code>$args</code></td>
+<td><code>array\|null</code></td>
+<td>Arguments passed to this field</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="example-simple-product-resolver">Example: Simple Product Resolver</h3>
+<pre><code class="language-php">namespace VendorName\ModuleName\Model\Resolver;
+
+use Magento\Framework\GraphQl\Query\ResolverInterface;
+use Magento\Framework\GraphQl\Config\Element\Field;
+use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
+use Magento\Framework\GraphQl\Exception\GraphQlInputException;
+use Magento\Framework\GraphQl\Exception\GraphQlNoSuchEntityException;
+
+class Product implements ResolverInterface
+{
+    public function __construct(
+        private \Magento\Catalog\Api\ProductRepositoryInterface $productRepository
+    ) {}
+
+    public function resolve(
+        Field $field,
+        $context,
+        ResolveInfo $info,
+        array $value = null,
+        array $args = null
+    ) {
+        if (!isset($args['sku']) || empty($args['sku'])) {
+            throw new GraphQlInputException(__('SKU is required'));
+        }
+
+        $storeId = (int) $context-&gt;getExtensionAttributes()-&gt;getStore()-&gt;getId();
+
+        try {
+            $product = $this-&gt;productRepository-&gt;get($args['sku'], false, $storeId);
+        } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
+            throw new GraphQlNoSuchEntityException(
+                __('Product with SKU &quot;%1&quot; does not exist', $args['sku'])
+            );
+        }
+
+        return [
+            'id' =&gt; $product-&gt;getId(),
+            'sku' =&gt; $product-&gt;getSku(),
+            'name' =&gt; $product-&gt;getName(),
+            'price' =&gt; $product-&gt;getPrice(),
+            'model' =&gt; $product, // Pass model for nested resolvers
+        ];
+    }
+}
+</code></pre>
+<p><strong>Key Points:</strong>
+- Validate arguments; throw <code>GraphQlInputException</code> for invalid input
+- Use service contracts (<code>ProductRepositoryInterface</code>), not Models directly
+- Respect store context from <code>$context-&gt;getExtensionAttributes()-&gt;getStore()</code>
+- Return associative array with snake_case keys matching schema fields
+- Include <code>model</code> key for nested resolvers to avoid re-fetching</p>
+<hr />
+<h2 id="mutation-resolvers">Mutation Resolvers</h2>
+<h3 id="purpose_1">Purpose</h3>
+<p>Mutation resolvers handle write operations (create, update, delete). They follow the same <code>ResolverInterface</code> but typically return output types with success indicators.</p>
+<h3 id="example-update-product-warranty">Example: Update Product Warranty</h3>
+<p><strong>Schema:</strong></p>
+<pre><code class="language-graphql">type Mutation {
+    updateProductWarranty(
+        input: UpdateProductWarrantyInput!
+    ): UpdateProductWarrantyOutput @resolver(class: &quot;VendorName\\ModuleName\\Model\\Resolver\\UpdateProductWarranty&quot;)
+}
+
+input UpdateProductWarrantyInput {
+    sku: String!
+    duration_months: Int!
+    coverage_type: String!
+    terms_url: String
+}
+
+type UpdateProductWarrantyOutput {
+    product: Product
+    success: Boolean!
+    message: String
+}
+</code></pre>
+<p><strong>Resolver:</strong></p>
+<pre><code class="language-php">namespace VendorName\ModuleName\Model\Resolver;
+
+use Magento\Framework\GraphQl\Query\ResolverInterface;
+use Magento\Framework\GraphQl\Config\Element\Field;
+use Magento\Framework\GraphQl\Schema\Type\ResolveInfo;
+use Magento\Framework\GraphQl\Exception\GraphQlAuthorizationException;
+use Magento\Framework\GraphQl\Exception\GraphQlInputException;
+
+class UpdateProductWarranty implements ResolverInterface
+{
+    public function __construct(
+        private \Magento\Catalog\Api\ProductRepositoryInterface $productRepository,
+        private \VendorName\ModuleName\Api\WarrantyManagementInterface $warrantyManagement,
+        private \Magento\Framework\AuthorizationInterface $authorization
+    ) {}
+
+    public function resolve(
+        Field $field,
+        $context,
+        ResolveInfo $info,
+        array $value = null,
+        array $args = null
+    ) {
+        // Authorization check
+        if (!$this-&gt;authorization-&gt;isAllowed('Magento_Catalog::products')) {
+            throw new GraphQlAuthorizationException(
+                __('You do not have permission to update product warranty')
+            );
+        }
+
+        // Validate input
+        if (!isset($args['input']['sku']) || empty($args['input']['sku'])) {
+            throw new GraphQlInputException(__('SKU is required'));
+        }
+
+        if ($args['input']['duration_months'] &lt; 1) {
+            throw new GraphQlInputException(__('Warranty duration must be at least 1 month'));
+        }
+
+        $input = $args['input'];
+        $storeId = (int) $context-&gt;getExtensionAttributes()-&gt;getStore()-&gt;getId();
+
+        try {
+            // Fetch product
+            $product = $this-&gt;productRepository-&gt;get($input['sku'], false, $storeId);
+
+            // Update warranty via service contract
+            $this-&gt;warrantyManagement-&gt;update(
+                $product-&gt;getId(),
+                $input['duration_months'],
+                $input['coverage_type'],
+                $input['terms_url'] ?? ''
+            );
+
+            // Reload product to reflect changes
+            $product = $this-&gt;productRepository-&gt;get($input['sku'], false, $storeId, true);
+
+            return [
+                'product' =&gt; [
+                    'id' =&gt; $product-&gt;getId(),
+                    'sku' =&gt; $product-&gt;getSku(),
+                    'name' =&gt; $product-&gt;getName(),
+                    'model' =&gt; $product,
+                ],
+                'success' =&gt; true,
+                'message' =&gt; 'Warranty updated successfully',
+            ];
+        } catch (\Exception $e) {
+            return [
+                'product' =&gt; null,
+                'success' =&gt; false,
+                'message' =&gt; $e-&gt;getMessage(),
+            ];
+        }
+    }
+}
+</code></pre>
+<p><strong>Best Practices:</strong>
+- Check authorization FIRST (ACL, customer token, admin role)
+- Validate all input fields; throw <code>GraphQlInputException</code> for bad data
+- Delegate business logic to service contracts (testable, reusable)
+- Return structured output with <code>success</code> boolean and <code>message</code>
+- Reload entity after mutation to reflect DB changes (auto-increments, timestamps)</p>
+<hr />
+<h2 id="dataprovider-pattern">DataProvider Pattern</h2>
+<h3 id="problem">Problem</h3>
+<p>Resolvers should be <strong>thin orchestrators</strong>, not business logic containers. Mixing data fetching, validation, and transformation in resolvers leads to:
+- Untestable code (hard to mock GraphQL-specific objects)
+- Code duplication across Query and Mutation resolvers
+- Difficult to reuse logic in REST APIs or CLI commands</p>
+<h3 id="solution-dataprovider">Solution: DataProvider</h3>
+<p>Extract data-fetching logic into <strong>DataProvider</strong> classes that accept simple types and return domain objects.</p>
+<p><strong>Architecture:</strong></p>
+<pre><code>Resolver (GraphQL-specific)
+    │
+    ├─ Validate arguments
+    ├─ Check authorization
+    └─ Delegate to DataProvider
+               │
+               ├─ Use service contracts (Repository, Management)
+               ├─ Transform data
+               └─ Return domain objects
+</code></pre>
+<h3 id="example-productdataprovider">Example: ProductDataProvider</h3>
+<pre><code class="language-php">namespace VendorName\ModuleName\Model\Resolver\Product;
+
+class DataProvider
+{
+    public function __construct(
+        private \Magento\Catalog\Api\ProductRepositoryInterface $productRepository,
+        private \Magento\Catalog\Model\ResourceModel\Product\CollectionFactory $collectionFactory
+    ) {}
+
+    /**
+     * Get product by SKU
+     *
+     * @param string $sku
+     * @param int $storeId
+     * @return array
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     */
+    public function getProductBySku(string $sku, int $storeId): array
+    {
+        $product = $this-&gt;productRepository-&gt;get($sku, false, $storeId);
+
+        return $this-&gt;formatProduct($product);
+    }
+
+    /**
+     * Get products by filter
+     *
+     * @param array $filters ['status' =&gt; 1, 'visibility' =&gt; [2, 3, 4]]
+     * @param int $storeId
+     * @param int $pageSize
+     * @param int $currentPage
+     * @return array
+     */
+    public function getProducts(
+        array $filters,
+        int $storeId,
+        int $pageSize = 20,
+        int $currentPage = 1
+    ): array {
+        $collection = $this-&gt;collectionFactory-&gt;create();
+        $collection-&gt;setStoreId($storeId);
+        $collection-&gt;addAttributeToSelect(['name', 'sku', 'price', 'status']);
+
+        foreach ($filters as $field =&gt; $value) {
+            $collection-&gt;addFieldToFilter($field, $value);
+        }
+
+        $collection-&gt;setPageSize($pageSize);
+        $collection-&gt;setCurPage($currentPage);
+
+        $items = [];
+        foreach ($collection as $product) {
+            $items[] = $this-&gt;formatProduct($product);
+        }
+
+        return [
+            'items' =&gt; $items,
+            'total_count' =&gt; $collection-&gt;getSize(),
+            'page_info' =&gt; [
+                'page_size' =&gt; $pageSize,
+                'current_page' =&gt; $currentPage,
+                'total_pages' =&gt; ceil($collection-&gt;getSize() / $pageSize),
+            ],
+        ];
+    }
+
+    /**
+     * Format product for GraphQL output
+     *
+     * @param \Magento\Catalog\Api\Data\ProductInterface $product
+     * @return array
+     */
+    private function formatProduct(\Magento\Catalog\Api\Data\ProductInterface $product): array
+    {
+        return [
+            'id' =&gt; $product-&gt;getId(),
+            'sku' =&gt; $product-&gt;getSku(),
+            'name' =&gt; $product-&gt;getName(),
+            'price' =&gt; $product-&gt;getPrice(),
+            'status' =&gt; $product-&gt;getStatus(),
+            'model' =&gt; $product, // For nested resolvers
+        ];
+    }
+}
+</code></pre>
+<p><strong>Resolver (Thin Wrapper):</strong></p>
+<pre><code class="language-php">namespace VendorName\ModuleName\Model\Resolver;
+
+class Products implements ResolverInterface
+{
+    public function __construct(
+        private \VendorName\ModuleName\Model\Resolver\Product\DataProvider $dataProvider
+    ) {}
+
+    public function resolve(
+        Field $field,
+        $context,
+        ResolveInfo $info,
+        array $value = null,
+        array $args = null
+    ) {
+        $storeId = (int) $context-&gt;getExtensionAttributes()-&gt;getStore()-&gt;getId();
+
+        $filters = $args['filter'] ?? [];
+        $pageSize = $args['pageSize'] ?? 20;
+        $currentPage = $args['currentPage'] ?? 1;
+
+        return $this-&gt;dataProvider-&gt;getProducts($filters, $storeId, $pageSize, $currentPage);
+    }
+}
+</code></pre>
+<p><strong>Benefits:</strong>
+- DataProvider is testable with simple mocks (no GraphQL objects)
+- Reusable in REST API controllers, CLI commands
+- Single responsibility: Resolver = GraphQL contract, DataProvider = business logic</p>
+<hr />
+<h2 id="batch-resolvers-for-performance">Batch Resolvers for Performance</h2>
+<h3 id="the-n1-query-problem">The N+1 Query Problem</h3>
+<p>Consider this query:</p>
+<pre><code class="language-graphql">query {
+  products(filter: {status: {eq: &quot;1&quot;}}) {
+    items {
+      sku
+      name
+      warranty_info {
+        duration_months
+        coverage_type
+      }
+    }
+  }
+}
+</code></pre>
+<p><strong>Naive Implementation:</strong></p>
+<pre><code class="language-php">// Product resolver returns 100 products
+// WarrantyInfo resolver runs ONCE PER PRODUCT:
+class WarrantyInfo implements ResolverInterface
+{
+    public function resolve(/* ... */)
+    {
+        $productId = $value['id'];
+        // SELECT * FROM warranty WHERE product_id = ? -- 100 QUERIES!
+        $warranty = $this-&gt;warrantyRepository-&gt;getByProductId($productId);
+
+        return [
+            'duration_months' =&gt; $warranty-&gt;getDurationMonths(),
+            'coverage_type' =&gt; $warranty-&gt;getCoverageType(),
+        ];
+    }
+}
+</code></pre>
+<p><strong>Result:</strong> 1 query for products + 100 queries for warranties = <strong>101 total queries</strong> (N+1 problem).</p>
+<h3 id="solution-batch-resolver">Solution: Batch Resolver</h3>
+<p>Magento's <code>webonyx/graphql-php</code> doesn't natively support DataLoader-style batching (as in GraphQL.js). The pattern is to:</p>
+<ol>
+<li><strong>Collect product IDs</strong> during product resolution</li>
+<li><strong>Batch-fetch warranties</strong> in a single query</li>
+<li><strong>Cache results</strong> in resolver or DataProvider</li>
+</ol>
+<p><strong>Optimized WarrantyInfo Resolver:</strong></p>
+<pre><code class="language-php">namespace VendorName\ModuleName\Model\Resolver\Product;
+
+class WarrantyInfo implements ResolverInterface
+{
+    private array $warrantyCache = [];
+
+    public function __construct(
+        private \VendorName\ModuleName\Model\ResourceModel\Warranty\CollectionFactory $warrantyCollectionFactory
+    ) {}
+
+    public function resolve(
+        Field $field,
+        $context,
+        ResolveInfo $info,
+        array $value = null,
+        array $args = null
+    ) {
+        $productId = $value['id'] ?? null;
+
+        if ($productId === null) {
+            return null;
+        }
+
+        // Lazy-load warranty cache on first access
+        if (empty($this-&gt;warrantyCache)) {
+            $this-&gt;loadWarrantyBatch($info);
+        }
+
+        $warranty = $this-&gt;warrantyCache[$productId] ?? null;
+
+        if ($warranty === null) {
+            return null;
+        }
+
+        return [
+            'duration_months' =&gt; $warranty-&gt;getDurationMonths(),
+            'coverage_type' =&gt; $warranty-&gt;getCoverageType(),
+            'terms_url' =&gt; $warranty-&gt;getTermsUrl(),
+        ];
+    }
+
+    /**
+     * Batch-load warranties for all products in current query
+     */
+    private function loadWarrantyBatch(ResolveInfo $info): void
+    {
+        // Extract all product IDs from parent query
+        // This is a simplification; real implementation inspects $info-&gt;path
+        // or collects IDs from parent resolver
+        $productIds = $this-&gt;extractProductIds($info);
+
+        if (empty($productIds)) {
+            return;
+        }
+
+        // Single query for all warranties
+        $collection = $this-&gt;warrantyCollectionFactory-&gt;create();
+        $collection-&gt;addFieldToFilter('product_id', ['in' =&gt; $productIds]);
+
+        foreach ($collection as $warranty) {
+            $this-&gt;warrantyCache[$warranty-&gt;getProductId()] = $warranty;
+        }
+    }
+
+    /**
+     * Extract product IDs from ResolveInfo (simplified)
+     */
+    private function extractProductIds(ResolveInfo $info): array
+    {
+        // In practice, this requires traversing $info-&gt;fieldNodes
+        // or receiving IDs from parent resolver via $value['product_ids']
+        // For demonstration, assume parent passes this in context
+        return $info-&gt;variableValues['product_ids'] ?? [];
+    }
+}
+</code></pre>
+<p><strong>Better Approach: Parent Passes IDs</strong></p>
+<pre><code class="language-php">// Products resolver
+class Products implements ResolverInterface
+{
+    public function resolve(/* ... */)
+    {
+        $products = $this-&gt;dataProvider-&gt;getProducts($filters, $storeId, $pageSize, $currentPage);
+
+        $productIds = array_map(fn($p) =&gt; $p['id'], $products['items']);
+
+        // Pre-load warranties in DataProvider
+        $this-&gt;dataProvider-&gt;preloadWarranties($productIds);
+
+        return $products;
+    }
+}
+
+// DataProvider
+class DataProvider
+{
+    private array $warrantyCache = [];
+
+    public function preloadWarranties(array $productIds): void
+    {
+        $collection = $this-&gt;warrantyCollectionFactory-&gt;create();
+        $collection-&gt;addFieldToFilter('product_id', ['in' =&gt; $productIds]);
+
+        foreach ($collection as $warranty) {
+            $this-&gt;warrantyCache[$warranty-&gt;getProductId()] = $warranty;
+        }
+    }
+
+    public function getWarrantyByProductId(int $productId): ?array
+    {
+        $warranty = $this-&gt;warrantyCache[$productId] ?? null;
+
+        if ($warranty === null) {
+            return null;
+        }
+
+        return [
+            'duration_months' =&gt; $warranty-&gt;getDurationMonths(),
+            'coverage_type' =&gt; $warranty-&gt;getCoverageType(),
+        ];
+    }
+}
+
+// WarrantyInfo resolver
+class WarrantyInfo implements ResolverInterface
+{
+    public function __construct(
+        private DataProvider $dataProvider
+    ) {}
+
+    public function resolve(/* ... */)
+    {
+        $productId = $value['id'] ?? null;
+        return $this-&gt;dataProvider-&gt;getWarrantyByProductId($productId);
+    }
+}
+</code></pre>
+<p><strong>Result:</strong> 1 query for products + 1 query for warranties = <strong>2 total queries</strong> (optimal).</p>
+<hr />
+<h2 id="custom-types-and-interfaces">Custom Types and Interfaces</h2>
+<h3 id="when-to-create-custom-types">When to Create Custom Types</h3>
+<ul>
+<li><strong>Complex nested data:</strong> Product options, customer addresses, order items</li>
+<li><strong>Shared fields across entities:</strong> Use interfaces for common fields (e.g., <code>EntityInterface</code> with <code>id</code>, <code>created_at</code>)</li>
+<li><strong>Polymorphic responses:</strong> Use unions for search results (Product | Category | Page)</li>
+</ul>
+<h3 id="example-custom-address-type">Example: Custom Address Type</h3>
+<pre><code class="language-graphql">interface AddressInterface {
+    street: [String!]!
+    city: String!
+    region: String
+    postcode: String
+    country_code: String!
+}
+
+type CustomerAddress implements AddressInterface {
+    id: Int!
+    street: [String!]!
+    city: String!
+    region: String
+    postcode: String
+    country_code: String!
+    default_shipping: Boolean
+    default_billing: Boolean
+}
+
+type OrderAddress implements AddressInterface {
+    street: [String!]!
+    city: String!
+    region: String
+    postcode: String
+    country_code: String!
+    telephone: String
+}
+
+type Customer {
+    addresses: [CustomerAddress!]!
+}
+
+type Order {
+    shipping_address: OrderAddress
+    billing_address: OrderAddress
+}
+</code></pre>
+<p><strong>Type Resolver:</strong></p>
+<pre><code class="language-php">class AddressTypeResolver implements TypeResolverInterface
+{
+    public function resolveType(array $data): string
+    {
+        if (isset($data['default_shipping'])) {
+            return 'CustomerAddress';
+        }
+
+        if (isset($data['telephone'])) {
+            return 'OrderAddress';
+        }
+
+        return 'CustomerAddress'; // Default
+    }
+}
+</code></pre>
+<hr />
+<h2 id="authorization-in-resolvers">Authorization in Resolvers</h2>
+<h3 id="customer-token-authorization">Customer Token Authorization</h3>
+<pre><code class="language-php">class MyAccountResolver implements ResolverInterface
+{
+    public function resolve(/* ... */)
+    {
+        $currentUserId = $context-&gt;getUserId();
+
+        if ($currentUserId === null || $currentUserId === 0) {
+            throw new GraphQlAuthorizationException(
+                __('The current customer is not authorized.')
+            );
+        }
+
+        // Customer-specific logic
+        $customer = $this-&gt;customerRepository-&gt;getById($currentUserId);
+
+        return [
+            'email' =&gt; $customer-&gt;getEmail(),
+            'firstname' =&gt; $customer-&gt;getFirstname(),
+        ];
+    }
+}
+</code></pre>
+<p><strong>Request:</strong></p>
+<pre><code class="language-http">POST /graphql
+Authorization: Bearer &lt;customer_token&gt;
+Content-Type: application/json
+
+{
+  &quot;query&quot;: &quot;{ myAccount { email firstname } }&quot;
+}
+</code></pre>
+<h3 id="admin-acl-authorization">Admin ACL Authorization</h3>
+<pre><code class="language-php">class UpdateProductResolver implements ResolverInterface
+{
+    public function __construct(
+        private \Magento\Framework\AuthorizationInterface $authorization
+    ) {}
+
+    public function resolve(/* ... */)
+    {
+        if (!$this-&gt;authorization-&gt;isAllowed('Magento_Catalog::products')) {
+            throw new GraphQlAuthorizationException(
+                __('You do not have permission to update products.')
+            );
+        }
+
+        // Admin-only mutation logic
+    }
+}
+</code></pre>
+<p><strong>ACL Definition:</strong></p>
+<pre><code class="language-xml">&lt;!-- etc/acl.xml --&gt;
+&lt;config xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+        xsi:noNamespaceSchemaLocation=&quot;urn:magento:framework:Acl/etc/acl.xsd&quot;&gt;
+    &lt;acl&gt;
+        &lt;resources&gt;
+            &lt;resource id=&quot;Magento_Backend::admin&quot;&gt;
+                &lt;resource id=&quot;Magento_Catalog::catalog&quot;&gt;
+                    &lt;resource id=&quot;Magento_Catalog::products&quot; title=&quot;Products&quot; sortOrder=&quot;10&quot;/&gt;
+                &lt;/resource&gt;
+            &lt;/resource&gt;
+        &lt;/resources&gt;
+    &lt;/acl&gt;
+&lt;/config&gt;
+</code></pre>
+<h3 id="guest-vs-authenticated">Guest vs Authenticated</h3>
+<pre><code class="language-php">$currentUserId = $context-&gt;getUserId();
+
+if ($currentUserId !== null &amp;&amp; $currentUserId &gt; 0) {
+    // Customer authenticated
+} else {
+    // Guest user
+}
+</code></pre>
+<hr />
+<h2 id="caching-graphql-responses">Caching GraphQL Responses</h2>
+<h3 id="full-page-cache-fpc-integration">Full Page Cache (FPC) Integration</h3>
+<p>Magento can cache GraphQL responses in Varnish/FPC if the query is:
+1. <strong>Publicly cacheable</strong> (no customer-specific data)
+2. <strong>Annotated with <code>@cache</code> directive</strong></p>
+<h3 id="cache-identity">Cache Identity</h3>
+<pre><code class="language-graphql">type Query {
+    products(filter: ProductFilterInput): ProductSearchResults
+        @resolver(class: &quot;Magento\\CatalogGraphQl\\Model\\Resolver\\Products&quot;)
+        @cache(cacheIdentity: &quot;Magento\\CatalogGraphQl\\Model\\Resolver\\Products\\Identity&quot;)
+}
+</code></pre>
+<p><strong>Cache Identity Class:</strong></p>
+<pre><code class="language-php">namespace Magento\CatalogGraphQl\Model\Resolver\Products;
+
+use Magento\Framework\GraphQl\Query\Resolver\IdentityInterface;
+
+class Identity implements IdentityInterface
+{
+    private const CACHE_TAG = 'cat_p';
+
+    /**
+     * @param array $resolvedData
+     * @return string[]
+     */
+    public function getIdentities(array $resolvedData): array
+    {
+        $ids = [];
+
+        foreach ($resolvedData['items'] ?? [] as $item) {
+            $ids[] = sprintf('%s_%s', self::CACHE_TAG, $item['id']);
+        }
+
+        return $ids;
+    }
+}
+</code></pre>
+<p><strong>Cache Tags:</strong> When a product is updated, Magento invalidates <code>cat_p_123</code> tag, purging cached queries that included that product.</p>
+<h3 id="cache-headers">Cache Headers</h3>
+<p>For publicly cacheable queries, Magento sets:</p>
+<pre><code class="language-http">X-Magento-Tags: cat_p_123,cat_p_456
+X-Magento-Cache-Control: max-age=3600
+</code></pre>
+<p>Varnish uses these headers to cache and invalidate responses.</p>
+<h3 id="disabling-cache-for-customer-specific-data">Disabling Cache for Customer-Specific Data</h3>
+<pre><code class="language-php">class MyAccountResolver implements ResolverInterface
+{
+    public function resolve(/* ... */)
+    {
+        // Disable FPC for this query
+        $context-&gt;getExtensionAttributes()-&gt;getStore()-&gt;setCurrentCurrencyCode('USD');
+
+        // Customer-specific data
+        return ['email' =&gt; $customer-&gt;getEmail()];
+    }
+}
+</code></pre>
+<p>Or use <code>@cache(cacheable: false)</code> in schema:</p>
+<pre><code class="language-graphql">type Query {
+    myAccount: Customer
+        @resolver(class: &quot;...&quot;)
+        @cache(cacheable: false)
+}
+</code></pre>
+<hr />
+<h2 id="error-handling-best-practices">Error Handling Best Practices</h2>
+<h3 id="exception-types">Exception Types</h3>
+<div class="overflow-x-auto my-6 border border-gray-200"><table class="min-w-full">
+<thead>
+<tr>
+<th>Exception</th>
+<th>HTTP Status</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GraphQlInputException</code></td>
+<td>400</td>
+<td>Invalid arguments, validation errors</td>
+</tr>
+<tr>
+<td><code>GraphQlNoSuchEntityException</code></td>
+<td>404</td>
+<td>Entity not found</td>
+</tr>
+<tr>
+<td><code>GraphQlAuthorizationException</code></td>
+<td>403</td>
+<td>Insufficient permissions</td>
+</tr>
+<tr>
+<td><code>GraphQlAuthenticationException</code></td>
+<td>401</td>
+<td>Missing/invalid token</td>
+</tr>
+<tr>
+<td><code>LocalizedException</code></td>
+<td>500</td>
+<td>Generic business logic errors</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="example-comprehensive-error-handling">Example: Comprehensive Error Handling</h3>
+<pre><code class="language-php">class CreateCustomerResolver implements ResolverInterface
+{
+    public function resolve(/* ... */)
+    {
+        // Input validation
+        if (empty($args['input']['email'])) {
+            throw new GraphQlInputException(__('Email is required'));
+        }
+
+        if (!filter_var($args['input']['email'], FILTER_VALIDATE_EMAIL)) {
+            throw new GraphQlInputException(__('Invalid email format'));
+        }
+
+        try {
+            $customer = $this-&gt;customerDataFactory-&gt;create();
+            $customer-&gt;setEmail($args['input']['email']);
+            $customer-&gt;setFirstname($args['input']['firstname']);
+            $customer-&gt;setLastname($args['input']['lastname']);
+
+            $savedCustomer = $this-&gt;customerRepository-&gt;save($customer, $args['input']['password']);
+
+            return [
+                'customer' =&gt; $this-&gt;formatCustomer($savedCustomer),
+                'success' =&gt; true,
+            ];
+        } catch (\Magento\Framework\Exception\AlreadyExistsException $e) {
+            throw new GraphQlInputException(
+                __('A customer with email &quot;%1&quot; already exists', $args['input']['email'])
+            );
+        } catch (\Magento\Framework\Exception\LocalizedException $e) {
+            throw new GraphQlInputException(__($e-&gt;getMessage()));
+        } catch (\Exception $e) {
+            // Log unexpected errors
+            $this-&gt;logger-&gt;critical($e);
+            throw new LocalizedException(__('Unable to create customer'));
+        }
+    }
+}
+</code></pre>
+<h3 id="response-format">Response Format</h3>
+<p><strong>Success:</strong></p>
+<pre><code class="language-json">{
+  &quot;data&quot;: {
+    &quot;createCustomer&quot;: {
+      &quot;customer&quot;: {
+        &quot;id&quot;: 123,
+        &quot;email&quot;: &quot;john@example.com&quot;
+      },
+      &quot;success&quot;: true
+    }
+  }
+}
+</code></pre>
+<p><strong>Error:</strong></p>
+<pre><code class="language-json">{
+  &quot;data&quot;: {
+    &quot;createCustomer&quot;: null
+  },
+  &quot;errors&quot;: [
+    {
+      &quot;message&quot;: &quot;A customer with email \&quot;john@example.com\&quot; already exists&quot;,
+      &quot;extensions&quot;: {
+        &quot;category&quot;: &quot;graphql-input&quot;
+      },
+      &quot;locations&quot;: [{&quot;line&quot;: 2, &quot;column&quot;: 3}],
+      &quot;path&quot;: [&quot;createCustomer&quot;]
+    }
+  ]
+}
+</code></pre>
+<hr />
+<h2 id="real-world-examples">Real-World Examples</h2>
+<h3 id="example-1-custom-product-attribute-in-graphql">Example 1: Custom Product Attribute in GraphQL</h3>
+<p><strong>Requirement:</strong> Expose <code>manufacturer_country</code> custom attribute in GraphQL.</p>
+<p><strong>Step 1: Extend Schema</strong></p>
+<pre><code class="language-graphql"># VendorName/ModuleName/etc/schema.graphqls
+interface ProductInterface {
+    manufacturer_country: String @doc(description: &quot;Country of manufacture&quot;)
+        @resolver(class: &quot;VendorName\\ModuleName\\Model\\Resolver\\Product\\ManufacturerCountry&quot;)
+}
+</code></pre>
+<p><strong>Step 2: Resolver</strong></p>
+<pre><code class="language-php">namespace VendorName\ModuleName\Model\Resolver\Product;
+
+class ManufacturerCountry implements ResolverInterface
+{
+    public function resolve(
+        Field $field,
+        $context,
+        ResolveInfo $info,
+        array $value = null,
+        array $args = null
+    ) {
+        $product = $value['model'] ?? null;
+
+        if (!$product instanceof \Magento\Catalog\Api\Data\ProductInterface) {
+            return null;
+        }
+
+        $customAttribute = $product-&gt;getCustomAttribute('manufacturer_country');
+
+        return $customAttribute ? $customAttribute-&gt;getValue() : null;
+    }
+}
+</code></pre>
+<p><strong>Query:</strong></p>
+<pre><code class="language-graphql">query {
+  products(filter: {sku: {eq: &quot;TEST-SKU&quot;}}) {
+    items {
+      sku
+      name
+      manufacturer_country
+    }
+  }
+}
+</code></pre>
+<p><strong>Response:</strong></p>
+<pre><code class="language-json">{
+  &quot;data&quot;: {
+    &quot;products&quot;: {
+      &quot;items&quot;: [
+        {
+          &quot;sku&quot;: &quot;TEST-SKU&quot;,
+          &quot;name&quot;: &quot;Test Product&quot;,
+          &quot;manufacturer_country&quot;: &quot;Germany&quot;
+        }
+      ]
+    }
+  }
+}
+</code></pre>
+<h3 id="example-2-customer-address-mutation">Example 2: Customer Address Mutation</h3>
+<p><strong>Requirement:</strong> Allow customers to add/update addresses via GraphQL.</p>
+<p><strong>Schema:</strong></p>
+<pre><code class="language-graphql">type Mutation {
+    createCustomerAddress(
+        input: CreateCustomerAddressInput!
+    ): CreateCustomerAddressOutput
+        @resolver(class: &quot;VendorName\\ModuleName\\Model\\Resolver\\CreateCustomerAddress&quot;)
+}
+
+input CreateCustomerAddressInput {
+    street: [String!]!
+    city: String!
+    region: String
+    postcode: String!
+    country_code: String!
+    telephone: String
+    default_shipping: Boolean
+    default_billing: Boolean
+}
+
+type CreateCustomerAddressOutput {
+    address: CustomerAddress
+    success: Boolean!
+    message: String
+}
+</code></pre>
+<p><strong>Resolver:</strong></p>
+<pre><code class="language-php">namespace VendorName\ModuleName\Model\Resolver;
+
+class CreateCustomerAddress implements ResolverInterface
+{
+    public function __construct(
+        private \Magento\Customer\Api\AddressRepositoryInterface $addressRepository,
+        private \Magento\Customer\Api\Data\AddressInterfaceFactory $addressFactory
+    ) {}
+
+    public function resolve(
+        Field $field,
+        $context,
+        ResolveInfo $info,
+        array $value = null,
+        array $args = null
+    ) {
+        $currentUserId = $context-&gt;getUserId();
+
+        if ($currentUserId === null || $currentUserId === 0) {
+            throw new GraphQlAuthorizationException(
+                __('The current customer is not authorized.')
+            );
+        }
+
+        $input = $args['input'];
+
+        $address = $this-&gt;addressFactory-&gt;create();
+        $address-&gt;setCustomerId($currentUserId);
+        $address-&gt;setStreet($input['street']);
+        $address-&gt;setCity($input['city']);
+        $address-&gt;setRegion($input['region'] ?? '');
+        $address-&gt;setPostcode($input['postcode']);
+        $address-&gt;setCountryId($input['country_code']);
+        $address-&gt;setTelephone($input['telephone'] ?? '');
+        $address-&gt;setIsDefaultShipping($input['default_shipping'] ?? false);
+        $address-&gt;setIsDefaultBilling($input['default_billing'] ?? false);
+
+        try {
+            $savedAddress = $this-&gt;addressRepository-&gt;save($address);
+
+            return [
+                'address' =&gt; [
+                    'id' =&gt; $savedAddress-&gt;getId(),
+                    'street' =&gt; $savedAddress-&gt;getStreet(),
+                    'city' =&gt; $savedAddress-&gt;getCity(),
+                ],
+                'success' =&gt; true,
+                'message' =&gt; 'Address created successfully',
+            ];
+        } catch (\Exception $e) {
+            return [
+                'address' =&gt; null,
+                'success' =&gt; false,
+                'message' =&gt; $e-&gt;getMessage(),
+            ];
+        }
+    }
+}
+</code></pre>
+<p><strong>Request:</strong></p>
+<pre><code class="language-graphql">mutation {
+  createCustomerAddress(input: {
+    street: [&quot;123 Main St&quot;, &quot;Apt 4B&quot;]
+    city: &quot;New York&quot;
+    region: &quot;NY&quot;
+    postcode: &quot;10001&quot;
+    country_code: &quot;US&quot;
+    telephone: &quot;555-1234&quot;
+    default_shipping: true
+  }) {
+    address {
+      id
+      street
+      city
+    }
+    success
+    message
+  }
+}
+</code></pre>
+<hr />
+<h2 id="trade-offs-and-design-decisions">Trade-Offs and Design Decisions</h2>
+<h3 id="graphql-vs-rest">GraphQL vs REST</h3>
+<div class="overflow-x-auto my-6 border border-gray-200"><table class="min-w-full">
+<thead>
+<tr>
+<th>Aspect</th>
+<th>GraphQL</th>
+<th>REST</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Over-fetching</strong></td>
+<td>Client requests only needed fields</td>
+<td>Returns full entity</td>
+</tr>
+<tr>
+<td><strong>Under-fetching</strong></td>
+<td>Single query for nested data</td>
+<td>Multiple endpoints (N+1 HTTP calls)</td>
+</tr>
+<tr>
+<td><strong>Caching</strong></td>
+<td>Complex (requires cache identity)</td>
+<td>Simple (URL-based)</td>
+</tr>
+<tr>
+<td><strong>Tooling</strong></td>
+<td>Strong typing, introspection, playground</td>
+<td>OpenAPI/Swagger for docs</td>
+</tr>
+<tr>
+<td><strong>Learning curve</strong></td>
+<td>Steeper (schema, resolvers, batching)</td>
+<td>Familiar (HTTP verbs, endpoints)</td>
+</tr>
+<tr>
+<td><strong>Versioning</strong></td>
+<td>Schema evolution (deprecate fields)</td>
+<td>URL versioning (/v1/, /v2/)</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Verdict:</strong> GraphQL excels for frontend-heavy apps (PWA Studio, mobile), REST for simpler integrations.</p>
+<h3 id="thin-resolvers-vs-fat-resolvers">Thin Resolvers vs Fat Resolvers</h3>
+<p><strong>Thin Resolvers (Recommended):</strong>
+- Resolver validates arguments, checks auth
+- Delegates to DataProvider/Service contracts
+- Testable, reusable business logic</p>
+<p><strong>Fat Resolvers:</strong>
+- Business logic embedded in resolver
+- Hard to test (GraphQL objects)
+- Cannot reuse in REST, CLI</p>
+<p><strong>Verdict:</strong> Always use thin resolvers + DataProvider pattern.</p>
+<h3 id="n1-queries-acceptable-vs-unacceptable">N+1 Queries: Acceptable vs Unacceptable</h3>
+<p><strong>Acceptable:</strong>
+- Nested fields rarely requested (e.g., <code>product.reviews</code> not in 90% of queries)
+- Parent resolver triggers batch pre-load when nested field detected</p>
+<p><strong>Unacceptable:</strong>
+- Common fields (e.g., <code>product.price</code>) causing 100+ queries per request
+- No batching or caching</p>
+<p><strong>Solution:</strong> Monitor query performance with New Relic/Blackfire, batch-load common fields.</p>
+<hr />
+<h2 id="antipatterns-to-avoid">Antipatterns to Avoid</h2>
+<h3 id="1-direct-model-access-in-resolvers">1. Direct Model Access in Resolvers</h3>
+<pre><code class="language-php">// WRONG
+class ProductResolver implements ResolverInterface
+{
+    public function resolve(/* ... */)
+    {
+        $product = $this-&gt;productFactory-&gt;create()-&gt;load($args['id']);
+        return $product-&gt;getData();
+    }
+}
+</code></pre>
+<p><strong>Why Wrong:</strong> No service contract, no store context, no caching.</p>
+<p><strong>Fix:</strong> Use <code>ProductRepositoryInterface</code>.</p>
+<h3 id="2-ignoring-store-context">2. Ignoring Store Context</h3>
+<pre><code class="language-php">// WRONG
+public function resolve(/* ... */)
+{
+    $product = $this-&gt;productRepository-&gt;get($args['sku']); // Default store!
+}
+</code></pre>
+<p><strong>Why Wrong:</strong> Multi-store setups return wrong prices/names.</p>
+<p><strong>Fix:</strong></p>
+<pre><code class="language-php">$storeId = (int) $context-&gt;getExtensionAttributes()-&gt;getStore()-&gt;getId();
+$product = $this-&gt;productRepository-&gt;get($args['sku'], false, $storeId);
+</code></pre>
+<h3 id="3-returning-raw-models">3. Returning Raw Models</h3>
+<pre><code class="language-php">// WRONG
+public function resolve(/* ... */)
+{
+    return $this-&gt;productRepository-&gt;get($args['sku']); // Magento\Catalog\Model\Product
+}
+</code></pre>
+<p><strong>Why Wrong:</strong> Exposes internal Model methods, breaks schema contract (expects plain array).</p>
+<p><strong>Fix:</strong></p>
+<pre><code class="language-php">return [
+    'id' =&gt; $product-&gt;getId(),
+    'sku' =&gt; $product-&gt;getSku(),
+    'model' =&gt; $product, // For nested resolvers
+];
+</code></pre>
+<h3 id="4-no-pagination-on-lists">4. No Pagination on Lists</h3>
+<pre><code class="language-graphql"># WRONG
+type Query {
+    products: [Product!]! # Returns ALL products!
+}
+</code></pre>
+<p><strong>Why Wrong:</strong> OOM on large catalogs.</p>
+<p><strong>Fix:</strong></p>
+<pre><code class="language-graphql">type Query {
+    products(
+        pageSize: Int = 20
+        currentPage: Int = 1
+    ): ProductSearchResults!
+}
+
+type ProductSearchResults {
+    items: [Product!]!
+    total_count: Int!
+    page_info: SearchResultPageInfo!
+}
+</code></pre>
+<h3 id="5-swallowing-exceptions">5. Swallowing Exceptions</h3>
+<pre><code class="language-php">// WRONG
+try {
+    $product = $this-&gt;productRepository-&gt;get($args['sku']);
+} catch (\Exception $e) {
+    return null; // Silent failure!
+}
+</code></pre>
+<p><strong>Why Wrong:</strong> Client has no idea why query failed.</p>
+<p><strong>Fix:</strong></p>
+<pre><code class="language-php">try {
+    $product = $this-&gt;productRepository-&gt;get($args['sku']);
+} catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
+    throw new GraphQlNoSuchEntityException(__('Product not found'));
+}
+</code></pre>
+<hr />
+<h2 id="further-reading">Further Reading</h2>
+<h3 id="official-documentation">Official Documentation</h3>
+<ul>
+<li><a href="https://developer.adobe.com/commerce/webapi/graphql/">GraphQL Developer Guide</a> - Adobe Commerce GraphQL docs</li>
+<li><a href="https://developer.adobe.com/commerce/webapi/graphql/schema/">GraphQL Schema Reference</a> - Complete schema reference</li>
+<li><a href="https://developer.adobe.com/commerce/webapi/graphql/usage/authorization-tokens/">GraphQL Authorization</a> - Customer/admin tokens</li>
+</ul>
+<h3 id="core-module-examples">Core Module Examples</h3>
+<ul>
+<li><code>Magento\CatalogGraphQl</code> - Product queries, filters, caching</li>
+<li><code>Magento\CustomerGraphQl</code> - Customer mutations, address management</li>
+<li><code>Magento\SalesGraphQl</code> - Order queries, order history</li>
+<li><code>Magento\GraphQl</code> - Base framework classes</li>
+</ul>
+<h3 id="tools">Tools</h3>
+<ul>
+<li><a href="https://github.com/graphql/graphql-playground">GraphQL Playground</a> - Interactive query builder</li>
+<li><a href="https://altair.sirmuel.design/">Altair GraphQL Client</a> - Standalone client with docs explorer</li>
+<li><a href="https://devdocs.magento.com/guides/v2.4/graphql/develop/create-graphqls-file.html">Magento 2 GraphQL Schema Stitching</a></li>
+</ul>
+<h3 id="performance">Performance</h3>
+<ul>
+<li><a href="https://webonyx.github.io/graphql-php/security/#query-complexity-analysis">GraphQL Query Complexity Analysis</a> - Prevent DoS</li>
+<li><a href="https://github.com/graphql/dataloader">DataLoader Pattern (JS)</a> - Batching concept (manual in Magento)</li>
+</ul>
+<hr />
+<h2 id="conclusion">Conclusion</h2>
+<p>Magento's GraphQL implementation provides a <strong>powerful, flexible API layer</strong> for modern commerce experiences. By mastering resolver patterns, DataProviders, batching, and caching strategies, you can build APIs that are:</p>
+<ul>
+<li><strong>Fast:</strong> Batch resolvers eliminate N+1 queries</li>
+<li><strong>Secure:</strong> Authorization checks at resolver level</li>
+<li><strong>Maintainable:</strong> Thin resolvers + service contracts</li>
+<li><strong>Cacheable:</strong> FPC integration for public queries</li>
+</ul>
+<p><strong>Key Takeaways:</strong>
+1. <strong>Use thin resolvers + DataProvider</strong> for testable, reusable logic
+2. <strong>Batch-load nested fields</strong> to avoid N+1 queries
+3. <strong>Respect store context</strong> for multi-store setups
+4. <strong>Implement proper authorization</strong> (customer token, admin ACL)
+5. <strong>Leverage caching</strong> for public queries
+6. <strong>Return structured errors</strong> with appropriate exception types
+7. <strong>Study core modules</strong> (CatalogGraphQl, CustomerGraphQl) for patterns</p>
+<p>GraphQL is Magento's future API strategy—invest in learning it well.</p>
+<hr />
+<p><strong>Assumptions:</strong>
+- Magento Open Source / Adobe Commerce 2.4.7+
+- PHP 8.2+
+- webonyx/graphql-php 14.x (bundled with Magento)
+- Modules follow PSR-4 autoloading and Magento module structure</p>
+<p><strong>Why This Approach:</strong>
+- <strong>Performance:</strong> Batching prevents N+1 queries; FPC caching reduces server load
+- <strong>Maintainability:</strong> DataProvider pattern separates GraphQL concerns from business logic
+- <strong>Extensibility:</strong> Plugins on service contracts allow third-party modifications
+- <strong>Security:</strong> Authorization checks at resolver level; input validation prevents injection
+- <strong>Standards:</strong> Follows GraphQL spec and Magento best practices</p>
+<p><strong>Security Impact:</strong>
+- <strong>Authorization:</strong> Resolver checks customer token, admin ACL before mutations
+- <strong>Input validation:</strong> Throw <code>GraphQlInputException</code> for malformed data; prevents SQL injection, XSS
+- <strong>Rate limiting:</strong> Use Magento's built-in rate limiter or Varnish rules
+- <strong>Query depth/complexity limits:</strong> Prevent DoS via deeply nested queries (configure in <code>GraphQl\Config</code>)
+- <strong>CSRF:</strong> GraphQL uses token-based auth, no form keys needed (stateless)</p>
+<p><strong>Performance Impact:</strong>
+- <strong>Batching:</strong> Reduces 100+ queries to 2-3 queries per request
+- <strong>FPC caching:</strong> Public queries cached in Varnish (3600s TTL typical)
+- <strong>Lazy loading:</strong> Only resolve requested fields (no over-fetching)
+- <strong>N+1 monitoring:</strong> Use Blackfire/New Relic to detect unbatched resolvers
+- <strong>Query complexity limits:</strong> Reject queries with complexity &gt; 300 (configurable)</p>
+<p><strong>Backward Compatibility:</strong>
+- <strong>Schema evolution:</strong> Add new fields (BC-safe), deprecate old fields (BC-safe), never remove fields (BC-break)
+- <strong>Resolver signatures:</strong> Don't change <code>ResolverInterface::resolve()</code> parameters
+- <strong>Type changes:</strong> Widening return types safe (nullable to non-nullable = BC-break)
+- <strong>Input types:</strong> Adding optional fields safe, adding required fields = BC-break
+- <strong>Versioning:</strong> Use <code>@deprecated</code> directive, maintain old fields for 2-3 minor versions</p>
+<p><strong>Tests to Add:</strong>
+- <strong>Unit tests:</strong> Mock DataProviders, verify resolver logic
+- <strong>Integration tests (GraphQlTester):</strong> Test full query execution, context, authorization
+- <strong>API functional tests:</strong> Verify requests/responses match schema
+- <strong>Performance tests (Blackfire):</strong> Assert query count &lt; threshold, response time &lt; 500ms
+- <strong>Security tests:</strong> Verify unauthorized access throws <code>GraphQlAuthorizationException</code></p>
+<p><strong>Docs to Update:</strong>
+- <strong>README:</strong> GraphQL endpoints, authentication, example queries
+- <strong>CHANGELOG:</strong> New queries, mutations, breaking changes
+- <strong>schema.graphqls:</strong> Inline <code>@doc</code> descriptions for introspection
+- <strong>Admin user guide:</strong> Screenshots of using GraphQL in Postman/Altair
+- <strong>API reference:</strong> Generate from schema with graphql-markdown or Spectaql</p>
+<h2 id="related-documentation">Related Documentation</h2>
+<h3 id="related-guides">Related Guides</h3>
+<ul>
+<li><a href="service-contracts-repositories.md">Service Contracts vs Repositories in Magento 2</a></li>
+<li><a href="../how-to/full-page-cache-strategy.md">Full Page Cache Strategy for High-Performance Magento</a></li>
+<li><a href="../how-to/security-checklist.md">Security Checklist for Custom Modules</a></li>
+</ul>
+<h3 id="related-module-documentation">Related Module Documentation</h3>
+<ul>
+<li><a href="../../modules/catalog/README.md">Magento_Catalog Overview</a></li>
+<li><a href="../../modules/customer/README.md">Magento_Customer Overview</a></li>
+<li><a href="../../modules/checkout/README.md">Magento_Checkout Overview</a></li>
+</ul>
+                    </div>
+                </article>
+            </main>
+            <!-- Right Sidebar: On This Page (desktop) -->
+            <aside class="toc-sidebar hidden xl:block" aria-label="On this page">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-semibold text-gray-900 uppercase tracking-wider mb-4 mt-0">On this page</h3>
+                    <nav id="toc-nav" class="space-y-0" aria-label="Table of contents"></nav>
+                    <div class="toc-back-to-top">
+                        <a href="#">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+                            </svg>
+                            Back to top
+                        </a>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- ================================================================
+         FOOTER — matches module-catalog.html multi-column layout exactly
+         ================================================================ -->
+    <footer class="relative pt-12 bg-white border-t border-charcoal mt-16">
+        <div class="max-w-screen-2xl mx-auto w-full px-4 sm:px-6 lg:px-8">
+            <div>
+                <a href="index.html" class="inline-flex items-center no-underline">
+                    <svg width="30" height="33" viewBox="0 0 30 33" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Magento Association logo" role="img">
+                        <path d="M0 4.06492H29.6763V31.8882C29.6763 32.502 29.1713 33 28.5487 33H1.12762C0.505079 33 0 32.502 0 31.8882V4.06492Z" fill="#34323A"/>
+                        <path d="M1.26857 0H28.4078C29.1066 0 29.6763 0.561678 29.6763 1.25075V4.06492H0V1.25075C0 0.561678 0.569682 0 1.26857 0Z" fill="#C9C9C9"/>
+                        <path d="M2.37269 3.0458C2.94031 3.0458 3.40046 2.59211 3.40046 2.03246C3.40046 1.47281 2.94031 1.01913 2.37269 1.01913C1.80506 1.01913 1.34491 1.47281 1.34491 2.03246C1.34491 2.59211 1.80506 3.0458 2.37269 3.0458Z" fill="#848484"/>
+                        <path d="M5.28571 3.0458C5.85334 3.0458 6.31349 2.59211 6.31349 2.03246C6.31349 1.47281 5.85334 1.01913 5.28571 1.01913C4.71809 1.01913 4.25793 1.47281 4.25793 2.03246C4.25793 2.59211 4.71809 3.0458 5.28571 3.0458Z" fill="#848484"/>
+                        <path d="M14.7883 7.46973L4.90405 13.0923V24.349L7.54104 25.8487V14.5978L14.7883 10.4692L22.0415 14.5978V25.8487L24.6785 24.349V13.0923L14.7883 7.46973Z" fill="#F1BC1B"/>
+                        <path d="M16.0862 26.2367L14.7883 26.9779L13.4492 26.2135V14.233L10.178 16.0975V27.3485L13.4492 29.213L14.7883 29.9773L16.0862 29.2362L19.4045 27.3485V16.0975L16.0862 14.2098V26.2367Z" fill="#F1BC1B"/>
+                    </svg>
+                    <span class="ml-3 text-xl font-bold text-charcoal">Developer Documentation</span>
+                </a>
+            </div>
+
+            <div class="grid grid-cols-12 md:gap-x-8 gap-y-12 lg:mt-12">
+                <div class="col-span-12 lg:col-span-4">
+                    <p class="hidden lg:block text-xs text-charcoal sm:text-sm">Comprehensive developer documentation for Magento 2.4.7+ — tutorials, architecture deep dives, module references, and production-ready patterns built by the community, for the community.</p>
+                    <ul class="mt-6 hidden lg:flex items-center gap-3">
+                        <li class="pl-0">
+                            <a href="https://github.com/magento/magento2" class="p-2 md:p-0" aria-label="GitHub">
+                                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                                </svg>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Guides</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="tutorials.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Tutorials</a></li>
+                            <li class="pl-0"><a href="how-to-guides.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">How-To Guides</a></li>
+                            <li class="pl-0"><a href="architecture.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Architecture</a></li>
+                            <li class="pl-0"><a href="learning-paths.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Learning Paths</a></li>
+                            <li class="pl-0"><a href="references.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">References</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Modules</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="module-catalog.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Catalog</a></li>
+                            <li class="pl-0"><a href="module-checkout.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Checkout</a></li>
+                            <li class="pl-0"><a href="module-sales.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Sales</a></li>
+                            <li class="pl-0"><a href="module-customer.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Customer</a></li>
+                            <li class="pl-0"><a href="module-quote.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Quote</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Community</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Magento Community</a></li>
+                            <li class="pl-0"><a href="https://magento.stackexchange.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Stack Exchange</a></li>
+                            <li class="pl-0"><a href="https://marketplace.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Marketplace</a></li>
+                            <li class="pl-0"><a href="https://github.com/magento/magento2" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">GitHub</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Support</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://github.com/magento/magento2/issues" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Report Issues</a></li>
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Community Resources</a></li>
+                            <li class="pl-0"><a href="https://developer.adobe.com/commerce/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Adobe Commerce Docs</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-12 border-t pt-6 pb-16 border-charcoal">
+                <p class="text-xs text-charcoal">
+                    &copy; 2026 Magento 2 Developer Documentation. Magento&reg; is a registered trademark of Adobe Inc.
+                </p>
+                <p class="mt-6 text-xs text-charcoal">
+                    This documentation provides guidance for Magento 2 developers and extension builders. For merchant documentation, visit the <a href="index.html" class="text-orange hover:text-orange-600 transition-colors">merchant documentation</a>.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Initialize highlight.js -->
+    <script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('pre code').forEach(function (el) {
+        hljs.highlightElement(el);
+    });
+    document.querySelectorAll('pre').forEach(function (pre) {
+        if (pre.parentNode.classList && pre.parentNode.classList.contains('code-wrapper')) return;
+        var wrapper = document.createElement('div');
+        wrapper.className = 'code-wrapper';
+        pre.parentNode.insertBefore(wrapper, pre);
+        wrapper.appendChild(pre);
+        var btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.setAttribute('type', 'button');
+        btn.setAttribute('aria-label', 'Copy code to clipboard');
+        btn.setAttribute('title', 'Copy');
+        btn.textContent = 'Copy';
+        wrapper.appendChild(btn);
+        btn.addEventListener('click', function () {
+            var code = pre.querySelector('code');
+            var text = code ? (code.innerText || code.textContent) : (pre.innerText || pre.textContent);
+            navigator.clipboard.writeText(text).then(function () {
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            }).catch(function () {
+                var range = document.createRange();
+                range.selectNode(code || pre);
+                window.getSelection().removeAllRanges();
+                window.getSelection().addRange(range);
+                document.execCommand('copy');
+                window.getSelection().removeAllRanges();
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            });
+        });
+    });
+});
+</script>
+
+
+<script>
+(function() {
+    var nav = document.getElementById('toc-nav');
+    if (!nav) return;
+    var article = document.getElementById('main-content');
+    if (!article) return;
+    var headings = article.querySelectorAll('h2[id], h3[id]');
+    if (headings.length < 3) {
+        // Hide the entire TOC sidebar if fewer than 3 headings
+        var sidebar = nav.closest('.toc-sidebar');
+        if (sidebar) sidebar.style.display = 'none';
+        return;
+    }
+    var ids = [];
+    headings.forEach(function(h) {
+        var a = document.createElement('a');
+        a.href = '#' + h.id;
+        a.textContent = h.textContent.replace(/^#+\s*/, '').replace(/\s+/g, ' ').trim();
+        if (h.tagName === 'H3') a.classList.add('toc-h3');
+        nav.appendChild(a);
+        ids.push(h.id);
+    });
+    // Scroll-spy with IntersectionObserver
+    var links = nav.querySelectorAll('a');
+    var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                links.forEach(function(l) { l.classList.remove('toc-active'); });
+                var active = nav.querySelector('a[href="#' + entry.target.id + '"]');
+                if (active) active.classList.add('toc-active');
+            }
+        });
+    }, { rootMargin: '-80px 0px -70% 0px', threshold: 0 });
+    headings.forEach(function(h) { observer.observe(h); });
+})();
+</script>
+</body>
+</html>

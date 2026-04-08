@@ -1,0 +1,1236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magento_Checkout Overview — Magento 2 Developer Documentation</title>
+    <meta name="description" content="Magento_Checkout Overview">
+
+    <!-- Google Fonts: Inter Tight only. Courier New used for code. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Highlight.js: syntax highlighting for code blocks -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/php.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/ini.min.js"></script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        charcoal: {
+                            DEFAULT: '#2c2c2c', 50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6',
+                            300: '#6B6B6B', 400: '#474747', 500: '#2c2c2c', 600: '#262626',
+                            700: '#202020', 800: '#1c1c1c', 900: '#191919', 950: '#121212'
+                        },
+                        orange: {
+                            DEFAULT: '#D4551A', 50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad',
+                            300: '#f9ae78', 400: '#f58242', 500: '#f26423', 600: '#e34613',
+                            700: '#bc3312', 800: '#962a16', 900: '#792515', 950: '#411009'
+                        },
+                        yellow: {
+                            DEFAULT: '#B8860B', 50: '#fffdeb', 100: '#fdf9c8', 200: '#fbf38c',
+                            300: '#f8e651', 400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a',
+                            700: '#b1670c', 800: '#8f5111', 900: '#764311', 950: '#442204'
+                        },
+                        'off-white': '#FAFAFA',
+                    },
+                    fontFamily: {
+                        sans: ['Inter Tight', 'system-ui', '-apple-system', 'sans-serif'],
+                        mono: ['Courier New', 'Courier', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* ── Force light mode ── */
+        :root { color-scheme: light only; }
+
+        [x-cloak] { display: none !important; }
+
+        /* ── Scroll offset for sticky header ── */
+        .prose h2, .prose h3 { scroll-margin-top: 5rem; }
+
+        /* ── Code blocks: Bauhaus charcoal bg, no border-radius, highlight.js override ── */
+        .prose pre {
+            background-color: #2C2C2C !important;
+            border-radius: 0 !important;
+            padding: 1.25rem;
+            overflow-x: auto;
+            font-size: 0.875rem;
+            line-height: 1.7;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 1.5rem 0;
+        }
+        .prose pre code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            background: transparent !important;
+            padding: 0;
+                    color: #abb2bf;
+        }
+        /* Override highlight.js theme background to match Bauhaus charcoal */
+        .hljs {
+            background: #2C2C2C !important;
+            color: #abb2bf !important;
+            border-radius: 0 !important;
+        }
+
+        /* ── Inline code: charcoal bg, yellow text, no border-radius ── */
+        .prose code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.85em;
+        }
+        .prose :not(pre) > code {
+            background-color: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2em 0.45em;
+            border-radius: 0;
+        }
+
+        /* ── Step-code: same charcoal/yellow style for UI path chips ── */
+        .step-code {
+            background: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2rem 0.5rem;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            border-radius: 0;
+        }
+
+        /* ── Tables: no border-radius, charcoal header ── */
+        .prose table { width: 100%; border-collapse: collapse; }
+        .prose th {
+            background-color: #2C2C2C;
+            color: #ffffff;
+            font-weight: 600;
+            text-align: left;
+            padding: 0.75rem 1rem;
+            border-bottom: 2px solid #2C2C2C;
+            border-radius: 0;
+        }
+        .prose td { padding: 0.75rem 1rem; border-bottom: 1px solid #e5e5e5; }
+        .prose tr:hover { background-color: #fafafa; }
+
+        /* ── Blockquote: Bauhaus style — border-4 yellow, square, no left-only border ── */
+        .prose blockquote {
+            border: 4px solid #F1BC1B;
+            background-color: #ffffff;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+            border-radius: 0;
+        }
+        .prose blockquote p { margin: 0; }
+
+        /* ── Lists: hexagon bullets ── */
+        .prose ul { list-style: none; padding-left: 0; }
+        .prose ul li {
+            position: relative;
+            padding-left: 1.75rem;
+            margin-bottom: 0.4rem;
+            line-height: 1.7;
+        }
+        .prose ul li::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0.45em;
+            width: 10px;
+            height: 10px;
+            background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 2L21 7V17L12 22L3 17V7L12 2Z' stroke='%23F26423' stroke-width='2.5' stroke-linejoin='miter'/%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+        .prose ol { list-style-type: decimal; padding-left: 1.5rem; }
+        .prose li { margin-bottom: 0.4rem; }
+
+        /* ── Headings ── */
+        .prose h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            padding-top: 1.5rem;
+            border-top: 4px solid #F1BC1B;
+            color: #2C2C2C;
+        }
+        .prose h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+            color: #2C2C2C;
+        }
+        .prose h4 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #2C2C2C;
+        }
+        .prose p { margin-bottom: 1rem; line-height: 1.75; }
+        .prose a { color: #D4551A; text-decoration: none; }
+        .prose a:hover { color: #e34613; text-decoration: underline; }
+        .prose hr { border: none; border-top: 1px solid #e5e5e5; margin: 2rem 0; }
+
+        /* ── Callout boxes: Bauhaus — border-4 yellow, white bg, icon + title ── */
+        .callout-box {
+            background-color: #ffffff;
+            border: 4px solid #F1BC1B;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+        }
+        .callout-warning {
+            border-color: #D4551A;
+        }
+        .callout-important {
+            border-color: #2C2C2C;
+        }
+        .callout-box .callout-inner {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+        .callout-box .callout-title {
+            font-weight: 600;
+            color: #2C2C2C;
+            margin-bottom: 0.25rem;
+        }
+        .callout-box .callout-body {
+            font-size: 0.875rem;
+            line-height: 1.6;
+            color: rgba(44,44,44,0.85);
+        }
+
+        
+    
+        /* Code block copy button */
+        .code-wrapper {
+            position: relative;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            font-family: 'Inter Tight', system-ui, sans-serif;
+            background: rgba(255,255,255,0.1);
+            color: #abb2bf;
+            border: 1px solid rgba(255,255,255,0.15);
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.15s ease, background 0.15s ease;
+            z-index: 10;
+            line-height: 1.4;
+            border-radius: 4px;
+            user-select: none;
+        }
+        .code-wrapper:hover .copy-btn {
+            opacity: 1;
+        }
+        .copy-btn:hover,
+        .copy-btn:focus {
+            background: rgba(255,255,255,0.2);
+            color: #ffffff;
+            outline: 2px solid #D4551A;
+            outline-offset: 1px;
+        }
+        .copy-btn.copied {
+            color: #98c379;
+            background: rgba(152, 195, 121, 0.15);
+            opacity: 1;
+        }
+    
+        /* Right-hand TOC sidebar */
+        .toc-sidebar {
+            width: 14rem;
+            flex-shrink: 0;
+        }
+        .toc-sidebar a {
+            display: block;
+            padding: 0.375rem 0;
+            font-size: 0.8125rem;
+            line-height: 1.4;
+            color: #6b7280;
+            text-decoration: none;
+            transition: color 0.15s ease;
+            border-left: 2px solid transparent;
+            padding-left: 0.75rem;
+        }
+        .toc-sidebar a:hover {
+            color: #111827;
+        }
+        .toc-sidebar a.toc-active {
+            color: #ea580c;
+            border-left-color: #ea580c;
+            font-weight: 500;
+        }
+        .toc-sidebar a.toc-h3 {
+            padding-left: 1.5rem;
+            font-size: 0.75rem;
+        }
+        .toc-sidebar .toc-back-to-top {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e5e7eb;
+        }
+        .toc-sidebar .toc-back-to-top a {
+            border-left: none;
+            padding-left: 0;
+            font-weight: 500;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .toc-sidebar .toc-back-to-top a:hover {
+            color: #ea580c;
+        }
+    </style>
+</head>
+
+<body class="font-sans bg-off-white text-charcoal">
+
+    <!-- Shared header — single source of truth -->
+    <script src="includes/header.js"></script>
+
+    <!-- Breadcrumb — orange › separators -->
+    <div class="bg-white border-b border-gray-100">
+        <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <div class="flex items-center gap-2 text-sm flex-wrap">
+                <a href="index.html" class="text-orange hover:text-orange-600 transition-colors no-underline">Home</a> <span class="text-orange font-medium">›</span> <a href="modules.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">Modules</a> <span class="text-orange font-medium">›</span> <a href="module-checkout.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">Checkout</a> <span class="text-orange font-medium">›</span> <span class="text-charcoal font-medium">Magento_Checkout Overview</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="flex gap-8">
+
+            <!-- Left Sidebar (desktop) -->
+            <aside class="hidden lg:block w-64 flex-shrink-0">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4">Checkout Module</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="module-checkout-overview.html" class="block px-3 py-2 text-sm text-orange font-semibold bg-orange-50 border-l-4 border-orange pl-2 transition-colors no-underline">Overview</a></li>
+<li class="pl-0"><a href="module-checkout-architecture.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Architecture</a></li>
+<li class="pl-0"><a href="module-checkout-execution-flows.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Execution Flows</a></li>
+<li class="pl-0"><a href="module-checkout-plugins-and-observers.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Plugins & Observers</a></li>
+<li class="pl-0"><a href="module-checkout-integrations.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Integrations</a></li>
+<li class="pl-0"><a href="module-checkout-anti-patterns.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Anti-Patterns</a></li>
+<li class="pl-0"><a href="module-checkout-performance.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Performance</a></li>
+<li class="pl-0"><a href="module-checkout-known-issues.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Known Issues</a></li>
+<li class="pl-0"><a href="module-checkout-version-compatibility.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Version Compatibility</a></li>
+</ul>
+<h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4 mt-8">Other Modules</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="module-catalog.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Catalog</a></li>
+<li class="pl-0"><a href="module-customer.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Customer</a></li>
+<li class="pl-0"><a href="module-quote.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Quote</a></li>
+<li class="pl-0"><a href="module-sales.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Sales</a></li>
+</ul>
+                </div>
+            </aside>
+
+            <!-- Article — square corners, border-t-4 orange accent -->
+            <main id="main-content" class="flex-1 min-w-0">
+                <article class="bg-white shadow-sm border border-gray-100 border-t-4 border-t-orange p-8 md:p-12">
+                    <!-- Title block -->
+                    <div class="mb-8">
+                        <span class="inline-block px-3 py-1.5 text-xs font-medium bg-charcoal-50 text-charcoal border border-charcoal-100">Overview</span>
+                        <h1 class="text-3xl md:text-4xl font-extrabold text-charcoal mt-3 mb-3">Magento_Checkout Overview</h1>
+                        <p class="text-charcoal-300 text-lg mb-4">Magento_Checkout Overview</p>
+                        <!-- Meta pills -->
+                        <div class="flex flex-wrap gap-2"><span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-charcoal text-white">Magento 2.4.7+</span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-charcoal-50 text-charcoal border border-charcoal-100">Magento_Checkout</span></div>
+                    </div>
+
+                    <hr class="border-0 border-t border-gray-100 mb-8">
+
+                    <!-- Content -->
+                    <div class="prose max-w-none">
+                        <h1 id="magento_checkout-module">Magento_Checkout Module</h1>
+<h2 id="overview">Overview</h2>
+<p>The <code>Magento_Checkout</code> module is the cornerstone of Magento's order placement workflow, orchestrating the multi-step checkout process from cart review through payment processing to order creation. This module provides a highly extensible, componentized architecture built on Knockout.js UI components, service contracts, and a robust plugin system.</p>
+<p><strong>Target Version:</strong> Magento 2.4.7+ (Adobe Commerce &amp; Open Source)
+<strong>PHP Requirements:</strong> 8.1, 8.2, 8.3
+<strong>Frontend Stack:</strong> Knockout.js, RequireJS, UI Components, LESS</p>
+<h2 id="module-purpose">Module Purpose</h2>
+<p>Magento_Checkout serves three primary functions:</p>
+<ol>
+<li><strong>Multi-Step Checkout Flow</strong> - Orchestrates shipping, billing, payment, and order review steps with validation and state persistence</li>
+<li><strong>Frontend Checkout UI</strong> - Provides a component-based UI framework for rendering checkout steps, forms, and payment methods</li>
+<li><strong>Order Placement Contract</strong> - Defines service contracts and integration points for converting quotes to orders</li>
+</ol>
+<h2 id="key-features">Key Features</h2>
+<h3 id="1-checkout-architecture">1. Checkout Architecture</h3>
+<p>The checkout is built as a <strong>single-page application (SPA)</strong> using Knockout.js, with each step rendered as a UI component:</p>
+<ul>
+<li><strong>Shipping Step</strong>: Address entry, shipping method selection, validation</li>
+<li><strong>Payment Step</strong>: Billing address, payment method selection, payment form rendering</li>
+<li><strong>Order Review</strong>: Summary sidebar, totals calculation, place order action</li>
+<li><strong>Success Page</strong>: Order confirmation, registration prompt for guests</li>
+</ul>
+<h3 id="2-service-contracts">2. Service Contracts</h3>
+<p>The module exposes several critical service contracts:</p>
+<ul>
+<li><strong><code>GuestPaymentInformationManagementInterface</code></strong> - Place orders for guest customers</li>
+<li><strong><code>PaymentInformationManagementInterface</code></strong> - Place orders for registered customers</li>
+<li><strong><code>ShippingInformationManagementInterface</code></strong> - Save shipping information and calculate totals</li>
+<li><strong><code>TotalsInformationManagementInterface</code></strong> - Calculate totals for address information</li>
+<li><strong><code>GuestShippingInformationManagementInterface</code></strong> - Guest shipping operations</li>
+</ul>
+<h3 id="3-checkout-session-management">3. Checkout Session Management</h3>
+<p><code>\Magento\Checkout\Model\Session</code> extends <code>\Magento\Framework\Session\SessionManager</code>:</p>
+<pre><code class="language-php">namespace Magento\Checkout\Model;
+
+use Magento\Quote\Api\Data\CartInterface;
+use Magento\Framework\Session\SessionManager;
+
+class Session extends SessionManager
+{
+    /**
+     * @var \Magento\Quote\Model\Quote|null
+     */
+    protected $_quote;
+
+    /**
+     * Get active quote from session
+     *
+     * @return CartInterface
+     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     */
+    public function getQuote(): CartInterface
+    {
+        if ($this-&gt;_quote === null) {
+            $quoteId = $this-&gt;getQuoteId();
+            if ($quoteId) {
+                $this-&gt;_quote = $this-&gt;quoteRepository-&gt;getActive($quoteId);
+            }
+        }
+        return $this-&gt;_quote;
+    }
+
+    /**
+     * Reset checkout session state
+     *
+     * @return $this
+     */
+    public function clearQuote()
+    {
+        $this-&gt;_quote = null;
+        $this-&gt;setQuoteId(null);
+        $this-&gt;setLastSuccessQuoteId(null);
+        // Also dispatches 'checkout_quote_destroy' event
+        return $this;
+    }
+
+    /**
+     * Get last order ID placed through checkout
+     *
+     * @return int|null
+     */
+    public function getLastOrderId(): ?int
+    {
+        return $this-&gt;storage-&gt;getData('last_order_id');
+    }
+}
+</code></pre>
+<h3 id="4-checkout-configuration">4. Checkout Configuration</h3>
+<p>The module provides <code>\Magento\Checkout\Model\ConfigProviderInterface</code> for injecting data into the checkout UI:</p>
+<pre><code class="language-php">namespace Vendor\CustomCheckout\Model;
+
+use Magento\Checkout\Model\ConfigProviderInterface;
+use Magento\Checkout\Model\Session as CheckoutSession;
+
+class CustomConfigProvider implements ConfigProviderInterface
+{
+    public function __construct(
+        private readonly CheckoutSession $checkoutSession,
+        private readonly \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
+    ) {}
+
+    /**
+     * Provide custom checkout configuration
+     *
+     * @return array&lt;string, mixed&gt;
+     */
+    public function getConfig(): array
+    {
+        $quote = $this-&gt;checkoutSession-&gt;getQuote();
+
+        return [
+            'customCheckout' =&gt; [
+                'enabled' =&gt; $this-&gt;scopeConfig-&gt;isSetFlag(
+                    'custom/checkout/enabled',
+                    \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+                ),
+                'cartItemCount' =&gt; $quote-&gt;getItemsCount(),
+                'grandTotal' =&gt; $quote-&gt;getGrandTotal(),
+                'currencyCode' =&gt; $quote-&gt;getQuoteCurrencyCode(),
+            ],
+        ];
+    }
+}
+</code></pre>
+<p>Register in <code>di.xml</code>:</p>
+<pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;config xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+        xsi:noNamespaceSchemaLocation=&quot;urn:magento:framework:ObjectManager/etc/config.xsd&quot;&gt;
+    &lt;type name=&quot;Magento\Checkout\Model\CompositeConfigProvider&quot;&gt;
+        &lt;arguments&gt;
+            &lt;argument name=&quot;configProviders&quot; xsi:type=&quot;array&quot;&gt;
+                &lt;item name=&quot;custom_checkout_config_provider&quot; xsi:type=&quot;object&quot;&gt;
+                    Vendor\CustomCheckout\Model\CustomConfigProvider
+                &lt;/item&gt;
+            &lt;/argument&gt;
+        &lt;/arguments&gt;
+    &lt;/type&gt;
+&lt;/config&gt;
+</code></pre>
+<h3 id="5-checkout-agreements-terms-conditions">5. Checkout Agreements (Terms &amp; Conditions)</h3>
+<p>The module includes a system for displaying and validating checkout agreements:</p>
+<pre><code class="language-php">namespace Magento\CheckoutAgreements\Model;
+
+use Magento\CheckoutAgreements\Api\Data\AgreementInterface;
+
+interface CheckoutAgreementsRepositoryInterface
+{
+    /**
+     * Get list of active checkout agreements for store
+     *
+     * @param int|null $storeId
+     * @return AgreementInterface[]
+     */
+    public function getList($storeId = null);
+}
+</code></pre>
+<p>Frontend validation via UI component:</p>
+<pre><code class="language-javascript">define([
+    'uiComponent',
+    'Magento_Customer/js/model/customer',
+    'Magento_Checkout/js/model/agreement-validator'
+], function (Component, customer, agreementValidator) {
+    'use strict';
+
+    return Component.extend({
+        defaults: {
+            template: 'Magento_CheckoutAgreements/checkout/agreement'
+        },
+
+        /**
+         * Validate agreements before place order
+         */
+        validate: function () {
+            return agreementValidator.validate();
+        }
+    });
+});
+</code></pre>
+<h3 id="6-address-validation">6. Address Validation</h3>
+<p>Address validation during checkout is handled by <code>Magento\Quote\Model\QuoteAddressValidator</code>. This class validates that:</p>
+<ul>
+<li>If a <code>customer_address_id</code> is provided, it belongs to the current customer</li>
+<li>The referenced customer exists (for logged-in customer quotes)</li>
+<li>Address ownership is correct (a guest cannot reference saved addresses)</li>
+</ul>
+<pre><code class="language-php">namespace Magento\Quote\Model;
+
+use Magento\Customer\Api\AddressRepositoryInterface;
+use Magento\Customer\Api\CustomerRepositoryInterface;
+use Magento\Customer\Model\Session;
+use Magento\Quote\Api\Data\AddressInterface;
+use Magento\Quote\Api\Data\CartInterface;
+
+class QuoteAddressValidator
+{
+    public function __construct(
+        AddressRepositoryInterface $addressRepository,
+        CustomerRepositoryInterface $customerRepository,
+        Session $customerSession
+    ) {
+        $this-&gt;addressRepository = $addressRepository;
+        $this-&gt;customerRepository = $customerRepository;
+        $this-&gt;customerSession = $customerSession;
+    }
+
+    /**
+     * Validates the fields in a specified address data object.
+     *
+     * @param AddressInterface $addressData
+     * @return bool
+     */
+    public function validate(AddressInterface $addressData): bool
+    {
+        // Validates customer ID exists and address belongs to customer
+        $this-&gt;doValidate($addressData, $addressData-&gt;getCustomerId());
+        return true;
+    }
+
+    /**
+     * Validate address for a specific cart (added in 2.4.x).
+     *
+     * @param CartInterface $cart
+     * @param AddressInterface $address
+     * @return void
+     */
+    public function validateForCart(CartInterface $cart, AddressInterface $address): void
+    {
+        // Validates customer/address ownership against the cart's customer
+        $this-&gt;doValidate($address, $cart-&gt;getCustomerIsGuest() ? null : $cart-&gt;getCustomer()-&gt;getId());
+    }
+}
+</code></pre>
+<blockquote>
+<p><strong>Key point</strong>: <code>QuoteAddressValidator</code> does <strong>not</strong> validate field contents (firstname, city, postcode). It validates <strong>ownership</strong> — ensuring the address ID belongs to the logged-in customer. Field-level validation is handled separately by frontend validators and API input processing.</p>
+</blockquote>
+<h3 id="7-minicart-integration">7. Minicart Integration</h3>
+<p>The module provides minicart functionality tightly integrated with checkout:</p>
+<pre><code class="language-xml">&lt;!-- Magento_Checkout::page/html/header.phtml --&gt;
+&lt;div class=&quot;minicart-wrapper&quot; data-bind=&quot;scope: 'minicart_content'&quot;&gt;
+    &lt;!-- ko template: getTemplate() --&gt;&lt;!-- /ko --&gt;
+&lt;/div&gt;
+
+&lt;script type=&quot;text/x-magento-init&quot;&gt;
+{
+    &quot;[data-block='minicart']&quot;: {
+        &quot;Magento_Checkout/js/view/minicart&quot;: {
+            &quot;shoppingCartUrl&quot;: &quot;&lt;?= $escaper-&gt;escapeUrl($block-&gt;getShoppingCartUrl()) ?&gt;&quot;,
+            &quot;maxItemsToDisplay&quot;: &lt;?= (int)$block-&gt;getMaxItemsToDisplay() ?&gt;
+        }
+    }
+}
+&lt;/script&gt;
+</code></pre>
+<h3 id="8-cart-price-rules-during-checkout">8. Cart Price Rules During Checkout</h3>
+<p>Checkout integrates with <code>Magento_SalesRule</code> for applying discounts. Discount processing is handled by the totals collector <code>Magento\SalesRule\Model\Quote\Discount</code>, which extends <code>Magento\Quote\Model\Quote\Address\Total\AbstractTotal</code>.</p>
+<p>The collector is registered in <code>Magento_SalesRule/etc/sales.xml</code> and runs automatically as part of <code>TotalsCollector::collect()</code>:</p>
+<pre><code class="language-php">namespace Magento\SalesRule\Model\Quote;
+
+use Magento\Quote\Model\Quote\Address\Total\AbstractTotal;
+
+class Discount extends AbstractTotal
+{
+    /**
+     * Collect discount totals for each quote item.
+     * Called automatically by TotalsCollector during quote save/totals recalculation.
+     */
+    public function collect(
+        \Magento\Quote\Model\Quote $quote,
+        \Magento\Quote\Api\Data\ShippingAssignmentInterface $shippingAssignment,
+        \Magento\Quote\Model\Quote\Address\Total $total
+    ) {
+        parent::collect($quote, $shippingAssignment, $total);
+        // Applies SalesRule rules to each item via Magento\SalesRule\Model\Validator
+        // Sets discount amounts on items and address totals
+    }
+}
+</code></pre>
+<blockquote>
+<p><strong>Key point</strong>: There is no standalone "CartDiscountProcessor" class. Discounts are applied through the totals collector pipeline — <code>TotalsCollector</code> iterates all registered collectors including <code>Discount</code>, which uses <code>Magento\SalesRule\Model\Validator</code> internally to evaluate and apply rules.</p>
+</blockquote>
+<h2 id="checkout-flow-summary">Checkout Flow Summary</h2>
+<ol>
+<li><strong>Customer lands on <code>/checkout</code></strong> - Session initializes, quote loads</li>
+<li><strong>Shipping step renders</strong> - Customer enters address, selects shipping method</li>
+<li><strong>Shipping information saved</strong> - API call to <code>ShippingInformationManagementInterface::saveAddressInformation()</code></li>
+<li><strong>Payment step renders</strong> - Billing address, payment methods load via <code>CompositeConfigProvider</code></li>
+<li><strong>Place order triggered</strong> - <code>PaymentInformationManagementInterface::savePaymentInformationAndPlaceOrder()</code></li>
+<li><strong>Order created</strong> - Quote converts to order, inventory reserved, emails sent</li>
+<li><strong>Success page</strong> - Customer redirected to <code>/checkout/onepage/success</code></li>
+</ol>
+<h2 id="configuration-paths">Configuration Paths</h2>
+<h3 id="system-configuration">System Configuration</h3>
+<ul>
+<li><strong><code>checkout/options/guest_checkout</code></strong> - Enable guest checkout (0/1)</li>
+<li><strong><code>checkout/options/onepage_checkout_enabled</code></strong> - Enable onepage checkout (0/1)</li>
+<li><strong><code>checkout/options/enable_agreements</code></strong> - Enable terms and conditions (0/1)</li>
+<li><strong><code>checkout/cart/redirect_to_cart</code></strong> - Redirect to cart after add-to-cart (0/1)</li>
+<li><strong><code>checkout/cart_link/use_qty</code></strong> - Display item quantities in minicart (0/1)</li>
+<li><strong><code>checkout/sidebar/display</code></strong> - Display shopping cart sidebar (0/1)</li>
+<li><strong><code>checkout/sidebar/count</code></strong> - Maximum items to display in minicart</li>
+</ul>
+<h3 id="layout-handles">Layout Handles</h3>
+<ul>
+<li><strong><code>checkout_index_index</code></strong> - Main checkout page</li>
+<li><strong><code>checkout_cart_index</code></strong> - Shopping cart page</li>
+<li><strong><code>checkout_onepage_success</code></strong> - Order success page</li>
+<li><strong><code>checkout_cart_configure</code></strong> - Cart item configuration page</li>
+</ul>
+<h2 id="api-endpoints">API Endpoints</h2>
+<h3 id="rest-api">REST API</h3>
+<pre><code>POST   /V1/guest-carts/:cartId/shipping-information
+POST   /V1/carts/mine/shipping-information
+POST   /V1/guest-carts/:cartId/payment-information
+POST   /V1/carts/mine/payment-information
+GET    /V1/carts/mine/totals
+GET    /V1/guest-carts/:cartId/totals
+POST   /V1/carts/mine/estimate-shipping-methods
+</code></pre>
+<h3 id="graphql">GraphQL</h3>
+<pre><code class="language-graphql">mutation SetShippingAddressesOnCart($input: SetShippingAddressesOnCartInput!) {
+  setShippingAddressesOnCart(input: $input) {
+    cart {
+      shipping_addresses {
+        firstname
+        lastname
+        street
+        city
+        region { code }
+        postcode
+        country { code }
+      }
+    }
+  }
+}
+
+mutation SetPaymentMethodOnCart($input: SetPaymentMethodOnCartInput!) {
+  setPaymentMethodOnCart(input: $input) {
+    cart {
+      selected_payment_method {
+        code
+        title
+      }
+    }
+  }
+}
+
+mutation PlaceOrder($input: PlaceOrderInput!) {
+  placeOrder(input: $input) {
+    order {
+      order_number
+    }
+  }
+}
+</code></pre>
+<h2 id="extension-points">Extension Points</h2>
+<h3 id="1-custom-checkout-step">1. Custom Checkout Step</h3>
+<p>Add custom step via layout XML:</p>
+<pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;page xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+      xsi:noNamespaceSchemaLocation=&quot;urn:magento:framework:View/Layout/etc/page_configuration.xsd&quot;&gt;
+    &lt;body&gt;
+        &lt;referenceBlock name=&quot;checkout.root&quot;&gt;
+            &lt;arguments&gt;
+                &lt;argument name=&quot;jsLayout&quot; xsi:type=&quot;array&quot;&gt;
+                    &lt;item name=&quot;components&quot; xsi:type=&quot;array&quot;&gt;
+                        &lt;item name=&quot;checkout&quot; xsi:type=&quot;array&quot;&gt;
+                            &lt;item name=&quot;children&quot; xsi:type=&quot;array&quot;&gt;
+                                &lt;item name=&quot;steps&quot; xsi:type=&quot;array&quot;&gt;
+                                    &lt;item name=&quot;children&quot; xsi:type=&quot;array&quot;&gt;
+                                        &lt;item name=&quot;custom-step&quot; xsi:type=&quot;array&quot;&gt;
+                                            &lt;item name=&quot;component&quot; xsi:type=&quot;string&quot;&gt;
+                                                Vendor_Module/js/view/custom-step
+                                            &lt;/item&gt;
+                                            &lt;item name=&quot;sortOrder&quot; xsi:type=&quot;string&quot;&gt;2&lt;/item&gt;
+                                            &lt;item name=&quot;children&quot; xsi:type=&quot;array&quot;&gt;
+                                                &lt;!-- Step content --&gt;
+                                            &lt;/item&gt;
+                                        &lt;/item&gt;
+                                    &lt;/item&gt;
+                                &lt;/item&gt;
+                            &lt;/item&gt;
+                        &lt;/item&gt;
+                    &lt;/item&gt;
+                &lt;/argument&gt;
+            &lt;/arguments&gt;
+        &lt;/referenceBlock&gt;
+    &lt;/body&gt;
+&lt;/page&gt;
+</code></pre>
+<h3 id="2-payment-method-integration">2. Payment Method Integration</h3>
+<p>Implement <code>\Magento\Payment\Model\MethodInterface</code>:</p>
+<pre><code class="language-php">namespace Vendor\Payment\Model;
+
+use Magento\Payment\Model\Method\AbstractMethod;
+
+class CustomPayment extends AbstractMethod
+{
+    protected $_code = 'custom_payment';
+    protected $_isGateway = true;
+    protected $_canAuthorize = true;
+    protected $_canCapture = true;
+    protected $_canRefund = true;
+
+    /**
+     * Authorize payment
+     *
+     * @param \Magento\Payment\Model\InfoInterface $payment
+     * @param float $amount
+     * @return $this
+     */
+    public function authorize(
+        \Magento\Payment\Model\InfoInterface $payment,
+        $amount
+    ): self {
+        // Implement authorization logic
+        return $this;
+    }
+}
+</code></pre>
+<h3 id="3-custom-totals">3. Custom Totals</h3>
+<p>Add custom total collector:</p>
+<pre><code class="language-php">namespace Vendor\Module\Model\Quote\Address\Total;
+
+use Magento\Quote\Model\Quote\Address\Total\AbstractTotal;
+
+class CustomFee extends AbstractTotal
+{
+    protected $_code = 'custom_fee';
+
+    /**
+     * Collect custom fee total
+     */
+    public function collect(
+        \Magento\Quote\Model\Quote $quote,
+        \Magento\Quote\Api\Data\ShippingAssignmentInterface $shippingAssignment,
+        \Magento\Quote\Model\Quote\Address\Total $total
+    ): self {
+        parent::collect($quote, $shippingAssignment, $total);
+
+        $fee = 5.00; // Calculate fee
+        $total-&gt;setCustomFee($fee);
+        $total-&gt;setGrandTotal($total-&gt;getGrandTotal() + $fee);
+        $total-&gt;setBaseGrandTotal($total-&gt;getBaseGrandTotal() + $fee);
+
+        return $this;
+    }
+}
+</code></pre>
+<h2 id="common-customizations">Common Customizations</h2>
+<h3 id="1-disable-specific-payment-method-based-on-cart">1. Disable Specific Payment Method Based on Cart</h3>
+<pre><code class="language-php">namespace Vendor\Module\Plugin;
+
+use Magento\Payment\Model\MethodInterface;
+
+class PaymentMethodAvailability
+{
+    public function __construct(
+        private readonly \Magento\Checkout\Model\Session $checkoutSession
+    ) {}
+
+    /**
+     * Disable payment method based on cart total
+     *
+     * @param MethodInterface $subject
+     * @param bool $result
+     * @return bool
+     */
+    public function afterIsAvailable(
+        MethodInterface $subject,
+        bool $result
+    ): bool {
+        if ($subject-&gt;getCode() === 'cashondelivery') {
+            $quote = $this-&gt;checkoutSession-&gt;getQuote();
+            if ($quote-&gt;getGrandTotal() &gt; 1000) {
+                return false;
+            }
+        }
+        return $result;
+    }
+}
+</code></pre>
+<h3 id="2-add-custom-validation-to-checkout">2. Add Custom Validation to Checkout</h3>
+<pre><code class="language-php">namespace Vendor\Module\Model;
+
+use Magento\Quote\Api\Data\CartInterface;
+use Magento\Framework\Exception\LocalizedException;
+
+class CheckoutValidator
+{
+    /**
+     * Validate cart before checkout
+     *
+     * @param CartInterface $quote
+     * @throws LocalizedException
+     */
+    public function validate(CartInterface $quote): void
+    {
+        // Custom validation logic
+        $hasVirtualProduct = false;
+        foreach ($quote-&gt;getAllItems() as $item) {
+            if ($item-&gt;getIsVirtual()) {
+                $hasVirtualProduct = true;
+                break;
+            }
+        }
+
+        if ($hasVirtualProduct &amp;&amp; $quote-&gt;getItemsQty() &gt; 1) {
+            throw new LocalizedException(
+                __('Virtual products cannot be purchased with physical products.')
+            );
+        }
+    }
+}
+</code></pre>
+<h2 id="testing-checkout">Testing Checkout</h2>
+<h3 id="unit-test-example">Unit Test Example</h3>
+<pre><code class="language-php">namespace Vendor\Module\Test\Unit\Model;
+
+use PHPUnit\Framework\TestCase;
+use Magento\Checkout\Model\Session;
+
+class CheckoutProcessorTest extends TestCase
+{
+    private Session $checkoutSession;
+    private \Vendor\Module\Model\CheckoutProcessor $processor;
+
+    protected function setUp(): void
+    {
+        $this-&gt;checkoutSession = $this-&gt;createMock(Session::class);
+        $this-&gt;processor = new \Vendor\Module\Model\CheckoutProcessor(
+            $this-&gt;checkoutSession
+        );
+    }
+
+    public function testProcessCheckoutWithValidQuote(): void
+    {
+        $quote = $this-&gt;createMock(\Magento\Quote\Model\Quote::class);
+        $quote-&gt;method('getGrandTotal')-&gt;willReturn(100.00);
+
+        $this-&gt;checkoutSession
+            -&gt;method('getQuote')
+            -&gt;willReturn($quote);
+
+        $result = $this-&gt;processor-&gt;process();
+        $this-&gt;assertTrue($result);
+    }
+}
+</code></pre>
+<h3 id="integration-test-example">Integration Test Example</h3>
+<pre><code class="language-php">namespace Vendor\Module\Test\Integration\Model;
+
+use Magento\TestFramework\Helper\Bootstrap;
+
+class CheckoutFlowTest extends \PHPUnit\Framework\TestCase
+{
+    /**
+     * @magentoDataFixture Magento/Checkout/_files/quote_with_items_saved.php
+     */
+    public function testGuestCheckoutFlow(): void
+    {
+        $objectManager = Bootstrap::getObjectManager();
+        $quote = $objectManager-&gt;create(\Magento\Quote\Model\Quote::class);
+        $quote-&gt;load('test_order_1', 'reserved_order_id');
+
+        $this-&gt;assertGreaterThan(0, $quote-&gt;getId());
+        $this-&gt;assertGreaterThan(0, $quote-&gt;getGrandTotal());
+    }
+}
+</code></pre>
+<h2 id="dependencies">Dependencies</h2>
+<h3 id="required-modules">Required Modules</h3>
+<ul>
+<li><code>Magento_Catalog</code> - Product information</li>
+<li><code>Magento_Quote</code> - Cart/quote management</li>
+<li><code>Magento_Customer</code> - Customer data and authentication</li>
+<li><code>Magento_Sales</code> - Order creation</li>
+<li><code>Magento_Payment</code> - Payment methods</li>
+<li><code>Magento_Store</code> - Multi-store support</li>
+<li><code>Magento_Directory</code> - Country/region data</li>
+<li><code>Magento_Ui</code> - UI components framework</li>
+<li><code>Magento_Shipping</code> - Shipping methods</li>
+</ul>
+<h3 id="optional-integration">Optional Integration</h3>
+<ul>
+<li><code>Magento_Tax</code> - Tax calculation</li>
+<li><code>Magento_SalesRule</code> - Cart price rules</li>
+<li><code>Magento_GiftMessage</code> - Gift message support</li>
+<li><code>Magento_Captcha</code> - CAPTCHA on checkout</li>
+<li><code>Magento_Multishipping</code> - Multiple shipping addresses</li>
+</ul>
+<h2 id="performance-considerations">Performance Considerations</h2>
+<ol>
+<li><strong>Full Page Cache</strong> - Checkout pages are excluded from FPC by default</li>
+<li><strong>Session Storage</strong> - Use Redis for session storage in production</li>
+<li><strong>Quote Cleanup</strong> - Configure <code>checkout/cart/delete_quote_after</code> to clean up old quotes</li>
+<li><strong>Address Optimization</strong> - Cache country/region data to reduce DB queries</li>
+<li><strong>Payment Methods</strong> - Lazy load payment method JavaScript</li>
+</ol>
+<h2 id="security-considerations">Security Considerations</h2>
+<ol>
+<li><strong>Form Keys</strong> - All checkout forms must include and validate form keys</li>
+<li><strong>Quote Validation</strong> - Validate quote ownership before operations</li>
+<li><strong>Price Tampering</strong> - Never trust client-side prices; always recalculate server-side</li>
+<li><strong>Payment Info</strong> - Never log or expose sensitive payment data</li>
+<li><strong>Guest Checkout</strong> - Implement rate limiting on guest checkout to prevent abuse</li>
+</ol>
+<hr />
+<h2 id="assumptions">Assumptions</h2>
+<ul>
+<li><strong>Target Platform</strong>: Adobe Commerce &amp; Magento Open Source 2.4.7+</li>
+<li><strong>PHP Version</strong>: 8.1, 8.2, 8.3</li>
+<li><strong>Frontend</strong>: Luma theme or Luma-based custom theme</li>
+<li><strong>Area</strong>: Frontend (with API service contracts for headless)</li>
+<li><strong>Scope</strong>: Store-level configuration for most checkout settings</li>
+</ul>
+<h2 id="why-this-approach">Why This Approach</h2>
+<p>The Magento_Checkout module uses a component-based SPA architecture to provide a seamless, single-page checkout experience while maintaining server-side validation and processing. This approach:</p>
+<ul>
+<li><strong>Separates concerns</strong> - UI components handle presentation, service contracts handle business logic</li>
+<li><strong>Enables extensibility</strong> - Plugins, observers, and UI component layout allow customization without core modifications</li>
+<li><strong>Supports multiple frontend implementations</strong> - Same service contracts work for Luma, PWA Studio, and headless</li>
+<li><strong>Maintains upgrade path</strong> - Following service contracts and avoiding preferences ensures compatibility</li>
+</ul>
+<h2 id="security-impact">Security Impact</h2>
+<ul>
+<li><strong>CSRF Protection</strong>: All checkout forms include form key validation via <code>\Magento\Framework\Data\Form\FormKey</code></li>
+<li><strong>Quote Ownership</strong>: Service contracts validate customer/guest owns the quote before operations</li>
+<li><strong>Payment Security</strong>: PCI compliance maintained by not storing card data; payment methods handle tokenization</li>
+<li><strong>XSS Prevention</strong>: All checkout output escaped via <code>$escaper-&gt;escapeHtml()</code> and Knockout.js automatic escaping</li>
+<li><strong>Rate Limiting</strong>: Consider implementing rate limiting on checkout APIs to prevent abuse</li>
+</ul>
+<h2 id="performance-impact">Performance Impact</h2>
+<ul>
+<li><strong>No FPC</strong>: Checkout pages excluded from Full Page Cache due to dynamic content</li>
+<li><strong>Session I/O</strong>: Heavy session usage; Redis session storage critical for production</li>
+<li><strong>DB Queries</strong>: Address validation and totals calculation generate multiple queries; use query profiling</li>
+<li><strong>JavaScript Bundle</strong>: Knockout.js and checkout components add ~500KB; consider code splitting</li>
+<li><strong>Core Web Vitals</strong>: Checkout often has lower scores due to dynamic forms; optimize with lazy loading</li>
+</ul>
+<h2 id="backward-compatibility">Backward Compatibility</h2>
+<ul>
+<li><strong>Service Contracts</strong>: <code>PaymentInformationManagementInterface</code>, <code>ShippingInformationManagementInterface</code> are stable APIs</li>
+<li><strong>UI Components</strong>: Adding custom components via layout XML is BC-safe</li>
+<li><strong>Plugins</strong>: Prefer plugins on service contracts over model classes</li>
+<li><strong>Breaking Changes</strong>: Magento 2.4.x maintains BC for public APIs; check deprecation notices in release notes</li>
+</ul>
+<h2 id="tests-to-add">Tests to Add</h2>
+<ol>
+<li><strong>Unit Tests</strong>: Mock dependencies, test business logic in isolation</li>
+<li><strong>Integration Tests</strong>: Use <code>@magentoDataFixture</code> for quote/customer fixtures</li>
+<li><strong>API Tests</strong>: Test REST/GraphQL endpoints with WebAPI framework</li>
+<li><strong>MFTF Tests</strong>: End-to-end checkout flow tests</li>
+<li><strong>Performance Tests</strong>: Load test checkout with Apache JMeter</li>
+</ol>
+<h2 id="documentation-to-update">Documentation to Update</h2>
+<ul>
+<li><strong>README.md</strong>: Module overview (this file)</li>
+<li><strong>CHANGELOG.md</strong>: Version history and breaking changes</li>
+<li><strong>Admin Guide</strong>: System &gt; Configuration &gt; Sales &gt; Checkout settings</li>
+<li><strong>Developer Guide</strong>: Custom checkout step tutorial, payment method integration</li>
+<li><strong>API Documentation</strong>: REST/GraphQL schema for checkout endpoints</li>
+</ul>
+<h2 id="related-guides">Related Guides</h2>
+<ul>
+<li><a href="../../guides/explanations/graphql-resolver-patterns.md">GraphQL Resolver Patterns in Magento 2</a></li>
+<li><a href="../../guides/how-to/full-page-cache-strategy.md">Full Page Cache Strategy for High-Performance Magento</a></li>
+<li><a href="../../guides/how-to/layout-xml-deep-dive.md">Layout XML Deep Dive: Mastering Magento's View Layer</a></li>
+<li><a href="../../guides/how-to/security-checklist.md">Security Checklist for Custom Modules</a></li>
+<li><a href="../../guides/how-to/testing-strategies.md">Comprehensive Testing Strategies for Magento 2</a></li>
+<li><a href="../../guides/references/upgrade-guide-247-248.md">Upgrade Guide: Adobe Commerce 2.4.6 to 2.4.7/2.4.8</a></li>
+<li><a href="../../guides/tutorials/custom-payment-method.md">Custom Payment Method Development: Building Secure Payment Integrations</a></li>
+<li><a href="../../guides/tutorials/custom-shipping-method.md">Custom Shipping Method Development: Building Flexible Shipping Solutions</a></li>
+</ul>
+                    </div>
+                </article>
+            </main>
+            <!-- Right Sidebar: On This Page (desktop) -->
+            <aside class="toc-sidebar hidden xl:block" aria-label="On this page">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-semibold text-gray-900 uppercase tracking-wider mb-4 mt-0">On this page</h3>
+                    <nav id="toc-nav" class="space-y-0" aria-label="Table of contents"></nav>
+                    <div class="toc-back-to-top">
+                        <a href="#">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+                            </svg>
+                            Back to top
+                        </a>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- ================================================================
+         FOOTER — matches module-catalog.html multi-column layout exactly
+         ================================================================ -->
+    <footer class="relative pt-12 bg-white border-t border-charcoal mt-16">
+        <div class="max-w-screen-2xl mx-auto w-full px-4 sm:px-6 lg:px-8">
+            <div>
+                <a href="index.html" class="inline-flex items-center no-underline">
+                    <svg width="30" height="33" viewBox="0 0 30 33" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Magento Association logo" role="img">
+                        <path d="M0 4.06492H29.6763V31.8882C29.6763 32.502 29.1713 33 28.5487 33H1.12762C0.505079 33 0 32.502 0 31.8882V4.06492Z" fill="#34323A"/>
+                        <path d="M1.26857 0H28.4078C29.1066 0 29.6763 0.561678 29.6763 1.25075V4.06492H0V1.25075C0 0.561678 0.569682 0 1.26857 0Z" fill="#C9C9C9"/>
+                        <path d="M2.37269 3.0458C2.94031 3.0458 3.40046 2.59211 3.40046 2.03246C3.40046 1.47281 2.94031 1.01913 2.37269 1.01913C1.80506 1.01913 1.34491 1.47281 1.34491 2.03246C1.34491 2.59211 1.80506 3.0458 2.37269 3.0458Z" fill="#848484"/>
+                        <path d="M5.28571 3.0458C5.85334 3.0458 6.31349 2.59211 6.31349 2.03246C6.31349 1.47281 5.85334 1.01913 5.28571 1.01913C4.71809 1.01913 4.25793 1.47281 4.25793 2.03246C4.25793 2.59211 4.71809 3.0458 5.28571 3.0458Z" fill="#848484"/>
+                        <path d="M14.7883 7.46973L4.90405 13.0923V24.349L7.54104 25.8487V14.5978L14.7883 10.4692L22.0415 14.5978V25.8487L24.6785 24.349V13.0923L14.7883 7.46973Z" fill="#F1BC1B"/>
+                        <path d="M16.0862 26.2367L14.7883 26.9779L13.4492 26.2135V14.233L10.178 16.0975V27.3485L13.4492 29.213L14.7883 29.9773L16.0862 29.2362L19.4045 27.3485V16.0975L16.0862 14.2098V26.2367Z" fill="#F1BC1B"/>
+                    </svg>
+                    <span class="ml-3 text-xl font-bold text-charcoal">Developer Documentation</span>
+                </a>
+            </div>
+
+            <div class="grid grid-cols-12 md:gap-x-8 gap-y-12 lg:mt-12">
+                <div class="col-span-12 lg:col-span-4">
+                    <p class="hidden lg:block text-xs text-charcoal sm:text-sm">Comprehensive developer documentation for Magento 2.4.7+ — tutorials, architecture deep dives, module references, and production-ready patterns built by the community, for the community.</p>
+                    <ul class="mt-6 hidden lg:flex items-center gap-3">
+                        <li class="pl-0">
+                            <a href="https://github.com/magento/magento2" class="p-2 md:p-0" aria-label="GitHub">
+                                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                                </svg>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Guides</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="tutorials.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Tutorials</a></li>
+                            <li class="pl-0"><a href="how-to-guides.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">How-To Guides</a></li>
+                            <li class="pl-0"><a href="architecture.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Architecture</a></li>
+                            <li class="pl-0"><a href="learning-paths.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Learning Paths</a></li>
+                            <li class="pl-0"><a href="references.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">References</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Modules</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="module-catalog.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Catalog</a></li>
+                            <li class="pl-0"><a href="module-checkout.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Checkout</a></li>
+                            <li class="pl-0"><a href="module-sales.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Sales</a></li>
+                            <li class="pl-0"><a href="module-customer.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Customer</a></li>
+                            <li class="pl-0"><a href="module-quote.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Quote</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Community</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Magento Community</a></li>
+                            <li class="pl-0"><a href="https://magento.stackexchange.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Stack Exchange</a></li>
+                            <li class="pl-0"><a href="https://marketplace.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Marketplace</a></li>
+                            <li class="pl-0"><a href="https://github.com/magento/magento2" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">GitHub</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Support</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://github.com/magento/magento2/issues" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Report Issues</a></li>
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Community Resources</a></li>
+                            <li class="pl-0"><a href="https://developer.adobe.com/commerce/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Adobe Commerce Docs</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-12 border-t pt-6 pb-16 border-charcoal">
+                <p class="text-xs text-charcoal">
+                    &copy; 2026 Magento 2 Developer Documentation. Magento&reg; is a registered trademark of Adobe Inc.
+                </p>
+                <p class="mt-6 text-xs text-charcoal">
+                    This documentation provides guidance for Magento 2 developers and extension builders. For merchant documentation, visit the <a href="index.html" class="text-orange hover:text-orange-600 transition-colors">merchant documentation</a>.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Initialize highlight.js -->
+    <script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('pre code').forEach(function (el) {
+        hljs.highlightElement(el);
+    });
+    document.querySelectorAll('pre').forEach(function (pre) {
+        if (pre.parentNode.classList && pre.parentNode.classList.contains('code-wrapper')) return;
+        var wrapper = document.createElement('div');
+        wrapper.className = 'code-wrapper';
+        pre.parentNode.insertBefore(wrapper, pre);
+        wrapper.appendChild(pre);
+        var btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.setAttribute('type', 'button');
+        btn.setAttribute('aria-label', 'Copy code to clipboard');
+        btn.setAttribute('title', 'Copy');
+        btn.textContent = 'Copy';
+        wrapper.appendChild(btn);
+        btn.addEventListener('click', function () {
+            var code = pre.querySelector('code');
+            var text = code ? (code.innerText || code.textContent) : (pre.innerText || pre.textContent);
+            navigator.clipboard.writeText(text).then(function () {
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            }).catch(function () {
+                var range = document.createRange();
+                range.selectNode(code || pre);
+                window.getSelection().removeAllRanges();
+                window.getSelection().addRange(range);
+                document.execCommand('copy');
+                window.getSelection().removeAllRanges();
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            });
+        });
+    });
+});
+</script>
+
+
+<script>
+(function() {
+    var nav = document.getElementById('toc-nav');
+    if (!nav) return;
+    var article = document.getElementById('main-content');
+    if (!article) return;
+    var headings = article.querySelectorAll('h2[id], h3[id]');
+    if (headings.length < 3) {
+        // Hide the entire TOC sidebar if fewer than 3 headings
+        var sidebar = nav.closest('.toc-sidebar');
+        if (sidebar) sidebar.style.display = 'none';
+        return;
+    }
+    var ids = [];
+    headings.forEach(function(h) {
+        var a = document.createElement('a');
+        a.href = '#' + h.id;
+        a.textContent = h.textContent.replace(/^#+\s*/, '').replace(/\s+/g, ' ').trim();
+        if (h.tagName === 'H3') a.classList.add('toc-h3');
+        nav.appendChild(a);
+        ids.push(h.id);
+    });
+    // Scroll-spy with IntersectionObserver
+    var links = nav.querySelectorAll('a');
+    var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                links.forEach(function(l) { l.classList.remove('toc-active'); });
+                var active = nav.querySelector('a[href="#' + entry.target.id + '"]');
+                if (active) active.classList.add('toc-active');
+            }
+        });
+    }, { rootMargin: '-80px 0px -70% 0px', threshold: 0 });
+    headings.forEach(function(h) { observer.observe(h); });
+})();
+</script>
+</body>
+</html>

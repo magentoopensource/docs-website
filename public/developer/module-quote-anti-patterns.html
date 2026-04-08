@@ -1,0 +1,1716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magento_Quote Anti-Patterns — Magento 2 Developer Documentation</title>
+    <meta name="description" content="Magento_Quote Anti-Patterns">
+
+    <!-- Google Fonts: Inter Tight only. Courier New used for code. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Highlight.js: syntax highlighting for code blocks -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/php.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/ini.min.js"></script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        charcoal: {
+                            DEFAULT: '#2c2c2c', 50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6',
+                            300: '#6B6B6B', 400: '#474747', 500: '#2c2c2c', 600: '#262626',
+                            700: '#202020', 800: '#1c1c1c', 900: '#191919', 950: '#121212'
+                        },
+                        orange: {
+                            DEFAULT: '#D4551A', 50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad',
+                            300: '#f9ae78', 400: '#f58242', 500: '#f26423', 600: '#e34613',
+                            700: '#bc3312', 800: '#962a16', 900: '#792515', 950: '#411009'
+                        },
+                        yellow: {
+                            DEFAULT: '#B8860B', 50: '#fffdeb', 100: '#fdf9c8', 200: '#fbf38c',
+                            300: '#f8e651', 400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a',
+                            700: '#b1670c', 800: '#8f5111', 900: '#764311', 950: '#442204'
+                        },
+                        'off-white': '#FAFAFA',
+                    },
+                    fontFamily: {
+                        sans: ['Inter Tight', 'system-ui', '-apple-system', 'sans-serif'],
+                        mono: ['Courier New', 'Courier', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* ── Force light mode ── */
+        :root { color-scheme: light only; }
+
+        [x-cloak] { display: none !important; }
+
+        /* ── Scroll offset for sticky header ── */
+        .prose h2, .prose h3 { scroll-margin-top: 5rem; }
+
+        /* ── Code blocks: Bauhaus charcoal bg, no border-radius, highlight.js override ── */
+        .prose pre {
+            background-color: #2C2C2C !important;
+            border-radius: 0 !important;
+            padding: 1.25rem;
+            overflow-x: auto;
+            font-size: 0.875rem;
+            line-height: 1.7;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 1.5rem 0;
+        }
+        .prose pre code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            background: transparent !important;
+            padding: 0;
+                    color: #abb2bf;
+        }
+        /* Override highlight.js theme background to match Bauhaus charcoal */
+        .hljs {
+            background: #2C2C2C !important;
+            color: #abb2bf !important;
+            border-radius: 0 !important;
+        }
+
+        /* ── Inline code: charcoal bg, yellow text, no border-radius ── */
+        .prose code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.85em;
+        }
+        .prose :not(pre) > code {
+            background-color: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2em 0.45em;
+            border-radius: 0;
+        }
+
+        /* ── Step-code: same charcoal/yellow style for UI path chips ── */
+        .step-code {
+            background: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2rem 0.5rem;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            border-radius: 0;
+        }
+
+        /* ── Tables: no border-radius, charcoal header ── */
+        .prose table { width: 100%; border-collapse: collapse; }
+        .prose th {
+            background-color: #2C2C2C;
+            color: #ffffff;
+            font-weight: 600;
+            text-align: left;
+            padding: 0.75rem 1rem;
+            border-bottom: 2px solid #2C2C2C;
+            border-radius: 0;
+        }
+        .prose td { padding: 0.75rem 1rem; border-bottom: 1px solid #e5e5e5; }
+        .prose tr:hover { background-color: #fafafa; }
+
+        /* ── Blockquote: Bauhaus style — border-4 yellow, square, no left-only border ── */
+        .prose blockquote {
+            border: 4px solid #F1BC1B;
+            background-color: #ffffff;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+            border-radius: 0;
+        }
+        .prose blockquote p { margin: 0; }
+
+        /* ── Lists: hexagon bullets ── */
+        .prose ul { list-style: none; padding-left: 0; }
+        .prose ul li {
+            position: relative;
+            padding-left: 1.75rem;
+            margin-bottom: 0.4rem;
+            line-height: 1.7;
+        }
+        .prose ul li::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0.45em;
+            width: 10px;
+            height: 10px;
+            background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 2L21 7V17L12 22L3 17V7L12 2Z' stroke='%23F26423' stroke-width='2.5' stroke-linejoin='miter'/%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+        .prose ol { list-style-type: decimal; padding-left: 1.5rem; }
+        .prose li { margin-bottom: 0.4rem; }
+
+        /* ── Headings ── */
+        .prose h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            padding-top: 1.5rem;
+            border-top: 4px solid #F1BC1B;
+            color: #2C2C2C;
+        }
+        .prose h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+            color: #2C2C2C;
+        }
+        .prose h4 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #2C2C2C;
+        }
+        .prose p { margin-bottom: 1rem; line-height: 1.75; }
+        .prose a { color: #D4551A; text-decoration: none; }
+        .prose a:hover { color: #e34613; text-decoration: underline; }
+        .prose hr { border: none; border-top: 1px solid #e5e5e5; margin: 2rem 0; }
+
+        /* ── Callout boxes: Bauhaus — border-4 yellow, white bg, icon + title ── */
+        .callout-box {
+            background-color: #ffffff;
+            border: 4px solid #F1BC1B;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+        }
+        .callout-warning {
+            border-color: #D4551A;
+        }
+        .callout-important {
+            border-color: #2C2C2C;
+        }
+        .callout-box .callout-inner {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+        .callout-box .callout-title {
+            font-weight: 600;
+            color: #2C2C2C;
+            margin-bottom: 0.25rem;
+        }
+        .callout-box .callout-body {
+            font-size: 0.875rem;
+            line-height: 1.6;
+            color: rgba(44,44,44,0.85);
+        }
+
+        
+    
+        /* Code block copy button */
+        .code-wrapper {
+            position: relative;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            font-family: 'Inter Tight', system-ui, sans-serif;
+            background: rgba(255,255,255,0.1);
+            color: #abb2bf;
+            border: 1px solid rgba(255,255,255,0.15);
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.15s ease, background 0.15s ease;
+            z-index: 10;
+            line-height: 1.4;
+            border-radius: 4px;
+            user-select: none;
+        }
+        .code-wrapper:hover .copy-btn {
+            opacity: 1;
+        }
+        .copy-btn:hover,
+        .copy-btn:focus {
+            background: rgba(255,255,255,0.2);
+            color: #ffffff;
+            outline: 2px solid #D4551A;
+            outline-offset: 1px;
+        }
+        .copy-btn.copied {
+            color: #98c379;
+            background: rgba(152, 195, 121, 0.15);
+            opacity: 1;
+        }
+    
+        /* Right-hand TOC sidebar */
+        .toc-sidebar {
+            width: 14rem;
+            flex-shrink: 0;
+        }
+        .toc-sidebar a {
+            display: block;
+            padding: 0.375rem 0;
+            font-size: 0.8125rem;
+            line-height: 1.4;
+            color: #6b7280;
+            text-decoration: none;
+            transition: color 0.15s ease;
+            border-left: 2px solid transparent;
+            padding-left: 0.75rem;
+        }
+        .toc-sidebar a:hover {
+            color: #111827;
+        }
+        .toc-sidebar a.toc-active {
+            color: #ea580c;
+            border-left-color: #ea580c;
+            font-weight: 500;
+        }
+        .toc-sidebar a.toc-h3 {
+            padding-left: 1.5rem;
+            font-size: 0.75rem;
+        }
+        .toc-sidebar .toc-back-to-top {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e5e7eb;
+        }
+        .toc-sidebar .toc-back-to-top a {
+            border-left: none;
+            padding-left: 0;
+            font-weight: 500;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .toc-sidebar .toc-back-to-top a:hover {
+            color: #ea580c;
+        }
+    </style>
+</head>
+
+<body class="font-sans bg-off-white text-charcoal">
+
+    <!-- Shared header — single source of truth -->
+    <script src="includes/header.js"></script>
+
+    <!-- Breadcrumb — orange › separators -->
+    <div class="bg-white border-b border-gray-100">
+        <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <div class="flex items-center gap-2 text-sm flex-wrap">
+                <a href="index.html" class="text-orange hover:text-orange-600 transition-colors no-underline">Home</a> <span class="text-orange font-medium">›</span> <a href="modules.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">Modules</a> <span class="text-orange font-medium">›</span> <a href="module-quote.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">Quote</a> <span class="text-orange font-medium">›</span> <span class="text-charcoal font-medium">Magento_Quote Anti-Patterns</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="flex gap-8">
+
+            <!-- Left Sidebar (desktop) -->
+            <aside class="hidden lg:block w-64 flex-shrink-0">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4">Quote Module</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="module-quote-overview.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Overview</a></li>
+<li class="pl-0"><a href="module-quote-architecture.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Architecture</a></li>
+<li class="pl-0"><a href="module-quote-execution-flows.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Execution Flows</a></li>
+<li class="pl-0"><a href="module-quote-plugins-and-observers.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Plugins & Observers</a></li>
+<li class="pl-0"><a href="module-quote-integrations.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Integrations</a></li>
+<li class="pl-0"><a href="module-quote-anti-patterns.html" class="block px-3 py-2 text-sm text-orange font-semibold bg-orange-50 border-l-4 border-orange pl-2 transition-colors no-underline">Anti-Patterns</a></li>
+<li class="pl-0"><a href="module-quote-performance.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Performance</a></li>
+<li class="pl-0"><a href="module-quote-known-issues.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Known Issues</a></li>
+<li class="pl-0"><a href="module-quote-version-compatibility.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Version Compatibility</a></li>
+</ul>
+<h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4 mt-8">Other Modules</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="module-catalog.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Catalog</a></li>
+<li class="pl-0"><a href="module-checkout.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Checkout</a></li>
+<li class="pl-0"><a href="module-customer.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Customer</a></li>
+<li class="pl-0"><a href="module-sales.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Sales</a></li>
+</ul>
+                </div>
+            </aside>
+
+            <!-- Article — square corners, border-t-4 orange accent -->
+            <main id="main-content" class="flex-1 min-w-0">
+                <article class="bg-white shadow-sm border border-gray-100 border-t-4 border-t-orange p-8 md:p-12">
+                    <!-- Title block -->
+                    <div class="mb-8">
+                        <span class="inline-block px-3 py-1.5 text-xs font-medium bg-charcoal text-white">Anti-Patterns</span>
+                        <h1 class="text-3xl md:text-4xl font-extrabold text-charcoal mt-3 mb-3">Magento_Quote Anti-Patterns</h1>
+                        <p class="text-charcoal-300 text-lg mb-4">Magento_Quote Anti-Patterns</p>
+                        <!-- Meta pills -->
+                        <div class="flex flex-wrap gap-2"><span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-charcoal text-white">Magento 2.4.7+</span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-charcoal-50 text-charcoal border border-charcoal-100">Magento_Quote</span></div>
+                    </div>
+
+                    <hr class="border-0 border-t border-gray-100 mb-8">
+
+                    <!-- Content -->
+                    <div class="prose max-w-none">
+                        <h1 id="magento_quote-anti-patterns">Magento_Quote Anti-Patterns</h1>
+<h2 id="overview">Overview</h2>
+<p>This document catalogs common mistakes, anti-patterns, and problematic practices when working with the Magento_Quote module. Each anti-pattern includes the problem description, why it's harmful, correct alternatives, and migration strategies for fixing existing code.</p>
+<p><strong>Target Version:</strong> Magento 2.4.7+ | Adobe Commerce &amp; Open Source
+<strong>PHP Version:</strong> 8.2+</p>
+<h2 id="anti-pattern-categories">Anti-Pattern Categories</h2>
+<ol>
+<li>Direct Model Manipulation</li>
+<li>Totals Calculation Errors</li>
+<li>Quote State Management Issues</li>
+<li>Performance Anti-Patterns</li>
+<li>Security Vulnerabilities</li>
+<li>Data Integrity Problems</li>
+</ol>
+<hr />
+<h2 id="1-direct-model-manipulation">1. Direct Model Manipulation</h2>
+<h3 id="anti-pattern-11-direct-save-on-quote-model">Anti-Pattern 1.1: Direct save() on Quote Model</h3>
+<p><strong>Problem:</strong></p>
+<pre><code class="language-php">&lt;?php
+// WRONG: Direct save bypasses repository plugins and validation
+$quote = $this-&gt;quoteFactory-&gt;create();
+$quote-&gt;load($quoteId);
+$quote-&gt;setGrandTotal(100.00);
+$quote-&gt;save(); // Anti-pattern
+</code></pre>
+<p><strong>Why It's Harmful:</strong></p>
+<ul>
+<li>Bypasses repository plugins that may enforce business rules</li>
+<li>Skips validation logic in repository layer</li>
+<li>Doesn't trigger proper cache invalidation</li>
+<li>Breaks extension points for third-party modules</li>
+<li>Makes code harder to test (tightly coupled to model)</li>
+</ul>
+<p><strong>Correct Approach:</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Service;
+
+use Magento\Quote\Api\CartRepositoryInterface;
+
+class QuoteUpdateService
+{
+    public function __construct(
+        private readonly CartRepositoryInterface $cartRepository
+    ) {}
+
+    public function updateQuote(int $quoteId): void
+    {
+        // CORRECT: Use repository for all persistence operations
+        $quote = $this-&gt;cartRepository-&gt;get($quoteId);
+        $quote-&gt;setGrandTotal(100.00);
+        $this-&gt;cartRepository-&gt;save($quote);
+    }
+}
+</code></pre>
+<p><strong>Migration Strategy:</strong></p>
+<ol>
+<li>Search codebase for <code>$quote-&gt;save()</code> calls</li>
+<li>Replace with repository pattern</li>
+<li>Add deprecation warnings if maintaining BC required</li>
+<li>Run integration tests to verify plugins still execute</li>
+</ol>
+<hr />
+<h3 id="anti-pattern-12-direct-database-queries">Anti-Pattern 1.2: Direct Database Queries</h3>
+<p><strong>Problem:</strong></p>
+<pre><code class="language-php">&lt;?php
+// WRONG: Direct SQL query bypasses models and validations
+$connection = $this-&gt;resource-&gt;getConnection();
+$connection-&gt;update(
+    'quote',
+    ['grand_total' =&gt; 100.00],
+    ['entity_id = ?' =&gt; $quoteId]
+);
+</code></pre>
+<p><strong>Why It's Harmful:</strong></p>
+<ul>
+<li>Bypasses all business logic and validation</li>
+<li>Skips event dispatch (no observers execute)</li>
+<li>Doesn't update cached data</li>
+<li>Breaks data encapsulation</li>
+<li>Creates maintenance burden (schema changes break code)</li>
+<li>Violates Magento architecture principles</li>
+</ul>
+<p><strong>Correct Approach:</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Service;
+
+use Magento\Quote\Api\CartRepositoryInterface;
+
+class QuoteTotalService
+{
+    public function __construct(
+        private readonly CartRepositoryInterface $cartRepository
+    ) {}
+
+    public function updateTotal(int $quoteId, float $total): void
+    {
+        // CORRECT: Use service contracts and models
+        $quote = $this-&gt;cartRepository-&gt;get($quoteId);
+        $quote-&gt;setGrandTotal($total);
+        $quote-&gt;collectTotals(); // Recalculate dependent totals
+        $this-&gt;cartRepository-&gt;save($quote);
+    }
+}
+</code></pre>
+<hr />
+<h3 id="anti-pattern-13-modifying-quote-without-collecttotals">Anti-Pattern 1.3: Modifying Quote Without collectTotals()</h3>
+<p><strong>Problem:</strong></p>
+<pre><code class="language-php">&lt;?php
+// WRONG: Changing items without recalculating totals
+$quote = $this-&gt;cartRepository-&gt;get($quoteId);
+$item = $quote-&gt;getItemById($itemId);
+$item-&gt;setQty(10); // Changed quantity
+$this-&gt;cartRepository-&gt;save($quote); // Saved without collectTotals()
+</code></pre>
+<p><strong>Why It's Harmful:</strong></p>
+<ul>
+<li>Quote totals become stale and incorrect</li>
+<li>Grand total doesn't reflect item changes</li>
+<li>Tax, shipping, discounts not recalculated</li>
+<li>Customer sees wrong prices in cart</li>
+<li>Order placement fails validation</li>
+</ul>
+<p><strong>Correct Approach:</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Service;
+
+use Magento\Quote\Api\CartRepositoryInterface;
+
+class UpdateItemQuantityService
+{
+    public function __construct(
+        private readonly CartRepositoryInterface $cartRepository
+    ) {}
+
+    public function updateQuantity(int $quoteId, int $itemId, float $qty): void
+    {
+        $quote = $this-&gt;cartRepository-&gt;get($quoteId);
+        $item = $quote-&gt;getItemById($itemId);
+
+        if (!$item) {
+            throw new \Magento\Framework\Exception\LocalizedException(
+                __('Item not found in cart.')
+            );
+        }
+
+        $item-&gt;setQty($qty);
+
+        // CORRECT: Always recalculate totals after modifications
+        $quote-&gt;collectTotals();
+
+        $this-&gt;cartRepository-&gt;save($quote);
+    }
+}
+</code></pre>
+<hr />
+<h2 id="2-totals-calculation-errors">2. Totals Calculation Errors</h2>
+<h3 id="anti-pattern-21-custom-totals-collector-without-sort_order">Anti-Pattern 2.1: Custom Totals Collector Without sort_order</h3>
+<p><strong>Problem:</strong></p>
+<pre><code class="language-xml">&lt;!-- WRONG: No sort_order specified --&gt;
+&lt;config xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+        xsi:noNamespaceSchemaLocation=&quot;urn:magento:module:Magento_Sales:etc/sales.xsd&quot;&gt;
+    &lt;section name=&quot;quote&quot;&gt;
+        &lt;group name=&quot;totals&quot;&gt;
+            &lt;item name=&quot;custom_fee&quot; instance=&quot;Vendor\Module\Model\Quote\Address\Total\CustomFee&quot;/&gt;
+        &lt;/group&gt;
+    &lt;/section&gt;
+&lt;/config&gt;
+</code></pre>
+<p><strong>Why It's Harmful:</strong></p>
+<ul>
+<li>Unpredictable execution order</li>
+<li>May execute before required totals (e.g., before subtotal calculated)</li>
+<li>Different behavior across Magento versions</li>
+<li>Hard to debug totals issues</li>
+<li>Breaks in multi-module scenarios</li>
+</ul>
+<p><strong>Correct Approach:</strong></p>
+<pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;config xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+        xsi:noNamespaceSchemaLocation=&quot;urn:magento:module:Magento_Sales:etc/sales.xsd&quot;&gt;
+    &lt;section name=&quot;quote&quot;&gt;
+        &lt;group name=&quot;totals&quot;&gt;
+            &lt;!--
+            CORRECT: Explicit sort_order
+            Standard order:
+            100 - Subtotal
+            200 - Shipping
+            300 - Tax
+            400 - Discount
+            500 - Grand Total
+            --&gt;
+            &lt;item name=&quot;custom_fee&quot;
+                  instance=&quot;Vendor\Module\Model\Quote\Address\Total\CustomFee&quot;
+                  sort_order=&quot;250&quot;/&gt;
+        &lt;/group&gt;
+    &lt;/section&gt;
+&lt;/config&gt;
+</code></pre>
+<hr />
+<h3 id="anti-pattern-22-modifying-grand-total-in-collector">Anti-Pattern 2.2: Modifying Grand Total in Collector</h3>
+<p><strong>Problem:</strong></p>
+<pre><code class="language-php">&lt;?php
+// WRONG: Custom collector modifies grand_total directly
+class CustomFee extends AbstractTotal
+{
+    public function collect(Quote $quote, ShippingAssignmentInterface $shippingAssignment, Total $total): self
+    {
+        $fee = 10.00;
+
+        // WRONG: Don't modify grand_total directly
+        $total-&gt;setGrandTotal($total-&gt;getGrandTotal() + $fee);
+
+        return $this;
+    }
+}
+</code></pre>
+<p><strong>Why It's Harmful:</strong></p>
+<ul>
+<li>Grand total collector executes last and overwrites changes</li>
+<li>Breaks totals consistency</li>
+<li>Fee not included in proper total components</li>
+<li>Doesn't display correctly in cart/checkout</li>
+<li>Order totals mismatch quote totals</li>
+</ul>
+<p><strong>Correct Approach:</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Model\Quote\Address\Total;
+
+use Magento\Quote\Model\Quote;
+use Magento\Quote\Api\Data\ShippingAssignmentInterface;
+use Magento\Quote\Model\Quote\Address\Total;
+use Magento\Quote\Model\Quote\Address\Total\AbstractTotal;
+
+/**
+ * Custom fee collector - CORRECT implementation
+ */
+class CustomFee extends AbstractTotal
+{
+    protected string $_code = 'custom_fee';
+
+    public function collect(
+        Quote $quote,
+        ShippingAssignmentInterface $shippingAssignment,
+        Total $total
+    ): self {
+        parent::collect($quote, $shippingAssignment, $total);
+
+        $fee = 10.00;
+
+        // CORRECT: Use setTotalAmount() - grand total collector will sum automatically
+        $total-&gt;setTotalAmount($this-&gt;getCode(), $fee);
+        $total-&gt;setBaseTotalAmount($this-&gt;getCode(), $fee);
+
+        // Store for display
+        $total-&gt;setCustomFeeAmount($fee);
+        $total-&gt;setBaseCustomFeeAmount($fee);
+
+        return $this;
+    }
+
+    /**
+     * Fetch for display in cart
+     *
+     * @param Quote $quote
+     * @param Total $total
+     * @return array
+     */
+    public function fetch(Quote $quote, Total $total): array
+    {
+        return [
+            'code' =&gt; $this-&gt;getCode(),
+            'title' =&gt; __('Custom Fee'),
+            'value' =&gt; $total-&gt;getCustomFeeAmount()
+        ];
+    }
+}
+</code></pre>
+<hr />
+<h3 id="anti-pattern-23-multiple-collecttotals-calls">Anti-Pattern 2.3: Multiple collectTotals() Calls</h3>
+<p><strong>Problem:</strong></p>
+<pre><code class="language-php">&lt;?php
+// WRONG: Calling collectTotals() multiple times unnecessarily
+$quote = $this-&gt;cartRepository-&gt;get($quoteId);
+
+$quote-&gt;addProduct($product1);
+$quote-&gt;collectTotals(); // Wasteful
+
+$quote-&gt;addProduct($product2);
+$quote-&gt;collectTotals(); // Wasteful
+
+$quote-&gt;setCouponCode('SAVE10');
+$quote-&gt;collectTotals(); // Wasteful
+
+$this-&gt;cartRepository-&gt;save($quote);
+</code></pre>
+<p><strong>Why It's Harmful:</strong></p>
+<ul>
+<li>Totals collection is expensive (5-15ms per call)</li>
+<li>Executes all collectors multiple times unnecessarily</li>
+<li>Scales poorly with large carts</li>
+<li>Delays user experience</li>
+<li>Wastes server resources</li>
+</ul>
+<p><strong>Correct Approach:</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Service;
+
+use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Catalog\Api\ProductRepositoryInterface;
+
+class BatchCartUpdateService
+{
+    public function __construct(
+        private readonly CartRepositoryInterface $cartRepository,
+        private readonly ProductRepositoryInterface $productRepository
+    ) {}
+
+    public function addMultipleProducts(int $quoteId, array $productData): void
+    {
+        $quote = $this-&gt;cartRepository-&gt;get($quoteId);
+
+        // Add all products first
+        foreach ($productData as $data) {
+            $product = $this-&gt;productRepository-&gt;getById($data['product_id']);
+            $quote-&gt;addProduct($product, $data['qty']);
+        }
+
+        // Apply coupon if provided
+        if (isset($productData['coupon_code'])) {
+            $quote-&gt;setCouponCode($productData['coupon_code']);
+        }
+
+        // CORRECT: Collect totals once after all changes
+        $quote-&gt;collectTotals();
+
+        $this-&gt;cartRepository-&gt;save($quote);
+    }
+}
+</code></pre>
+<hr />
+<h2 id="3-quote-state-management-issues">3. Quote State Management Issues</h2>
+<h3 id="anti-pattern-31-not-validating-quote-ownership">Anti-Pattern 3.1: Not Validating Quote Ownership</h3>
+<p><strong>Problem:</strong></p>
+<pre><code class="language-php">&lt;?php
+// WRONG: Loading quote without validating customer ownership
+public function updateCart(int $quoteId, int $itemId, float $qty): void
+{
+    $quote = $this-&gt;cartRepository-&gt;get($quoteId); // No ownership check
+    $item = $quote-&gt;getItemById($itemId);
+    $item-&gt;setQty($qty);
+    $quote-&gt;collectTotals();
+    $this-&gt;cartRepository-&gt;save($quote);
+}
+</code></pre>
+<p><strong>Why It's Harmful:</strong></p>
+<ul>
+<li>Security vulnerability (customer can modify other customers' carts)</li>
+<li>CRITICAL: Allows cart manipulation attacks</li>
+<li>Violates data privacy</li>
+<li>PCI DSS compliance issue</li>
+<li>GDPR violation (accessing other customers' data)</li>
+</ul>
+<p><strong>Correct Approach:</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Service;
+
+use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Customer\Model\Session as CustomerSession;
+use Magento\Framework\Exception\LocalizedException;
+
+class SecureCartUpdateService
+{
+    public function __construct(
+        private readonly CartRepositoryInterface $cartRepository,
+        private readonly CustomerSession $customerSession
+    ) {}
+
+    public function updateCart(int $quoteId, int $itemId, float $qty): void
+    {
+        $quote = $this-&gt;cartRepository-&gt;get($quoteId);
+
+        // CORRECT: Validate customer owns this quote
+        $customerId = (int)$this-&gt;customerSession-&gt;getCustomerId();
+        if ($quote-&gt;getCustomerId() !== $customerId) {
+            throw new LocalizedException(__('Access denied.'));
+        }
+
+        $item = $quote-&gt;getItemById($itemId);
+        if (!$item) {
+            throw new LocalizedException(__('Item not found.'));
+        }
+
+        $item-&gt;setQty($qty);
+        $quote-&gt;collectTotals();
+        $this-&gt;cartRepository-&gt;save($quote);
+    }
+}
+</code></pre>
+<hr />
+<h3 id="anti-pattern-32-reusing-converted-quotes">Anti-Pattern 3.2: Reusing Converted Quotes</h3>
+<p><strong>Problem:</strong></p>
+<pre><code class="language-php">&lt;?php
+// WRONG: Trying to use quote after order placement
+$quote = $this-&gt;cartRepository-&gt;get($quoteId);
+$orderId = $this-&gt;cartManagement-&gt;placeOrder($quoteId);
+
+// Quote is now inactive (is_active = 0)
+$quote-&gt;addProduct($product); // Will fail or create issues
+$quote-&gt;collectTotals();
+$this-&gt;cartRepository-&gt;save($quote);
+</code></pre>
+<p><strong>Why It's Harmful:</strong></p>
+<ul>
+<li>Quote is marked inactive after order placement</li>
+<li>Reserved order ID already used</li>
+<li>Can create duplicate orders</li>
+<li>Data integrity issues</li>
+<li>Customer sees wrong cart state</li>
+</ul>
+<p><strong>Correct Approach:</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Service;
+
+use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Quote\Api\CartManagementInterface;
+
+class OrderPlacementService
+{
+    public function __construct(
+        private readonly CartRepositoryInterface $cartRepository,
+        private readonly CartManagementInterface $cartManagement
+    ) {}
+
+    public function placeOrder(int $customerId): int
+    {
+        // Get quote before placing order
+        $quote = $this-&gt;cartRepository-&gt;getForCustomer($customerId);
+        $quoteId = $quote-&gt;getId();
+
+        // Place order (quote becomes inactive)
+        $orderId = $this-&gt;cartManagement-&gt;placeOrder($quoteId);
+
+        // CORRECT: Create new cart for customer after order placement
+        $newQuoteId = $this-&gt;cartManagement-&gt;createEmptyCartForCustomer($customerId);
+
+        return $orderId;
+    }
+}
+</code></pre>
+<hr />
+<h3 id="anti-pattern-33-not-handling-quote-merge-conflicts">Anti-Pattern 3.3: Not Handling Quote Merge Conflicts</h3>
+<p><strong>Problem:</strong></p>
+<pre><code class="language-php">&lt;?php
+// WRONG: Merging without checking for conflicts
+public function mergeGuestCart(int $customerId, int $guestQuoteId): void
+{
+    $customerQuote = $this-&gt;cartRepository-&gt;getForCustomer($customerId);
+    $guestQuote = $this-&gt;cartRepository-&gt;get($guestQuoteId);
+
+    // WRONG: Blind merge without conflict resolution
+    $customerQuote-&gt;merge($guestQuote);
+    $this-&gt;cartRepository-&gt;save($customerQuote);
+}
+</code></pre>
+<p><strong>Why It's Harmful:</strong></p>
+<ul>
+<li>May exceed cart item limits</li>
+<li>Duplicate items not handled properly</li>
+<li>Store mismatch issues</li>
+<li>Customer confusion</li>
+<li>Data loss on merge</li>
+</ul>
+<p><strong>Correct Approach:</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Service;
+
+use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Framework\Exception\LocalizedException;
+
+class CartMergeService
+{
+    private const MAX_ITEMS = 100;
+
+    public function __construct(
+        private readonly CartRepositoryInterface $cartRepository
+    ) {}
+
+    public function mergeGuestCart(int $customerId, int $guestQuoteId): void
+    {
+        $customerQuote = $this-&gt;cartRepository-&gt;getForCustomer($customerId);
+        $guestQuote = $this-&gt;cartRepository-&gt;get($guestQuoteId);
+
+        // CORRECT: Validate merge compatibility
+        $this-&gt;validateMerge($customerQuote, $guestQuote);
+
+        // Merge with conflict resolution
+        $customerQuote-&gt;merge($guestQuote);
+        $customerQuote-&gt;collectTotals();
+        $this-&gt;cartRepository-&gt;save($customerQuote);
+
+        // Delete guest quote
+        $this-&gt;cartRepository-&gt;delete($guestQuote);
+    }
+
+    private function validateMerge($customerQuote, $guestQuote): void
+    {
+        // Check total items won't exceed limit
+        $totalItems = $customerQuote-&gt;getItemsCount() + $guestQuote-&gt;getItemsCount();
+        if ($totalItems &gt; self::MAX_ITEMS) {
+            throw new LocalizedException(
+                __('Cannot merge carts: would exceed maximum of %1 items.', self::MAX_ITEMS)
+            );
+        }
+
+        // Check stores match
+        if ($customerQuote-&gt;getStoreId() !== $guestQuote-&gt;getStoreId()) {
+            throw new LocalizedException(
+                __('Cannot merge carts from different stores.')
+            );
+        }
+    }
+}
+</code></pre>
+<hr />
+<h2 id="4-performance-anti-patterns">4. Performance Anti-Patterns</h2>
+<h3 id="anti-pattern-41-loading-full-quote-collection">Anti-Pattern 4.1: Loading Full Quote Collection</h3>
+<p><strong>Problem:</strong></p>
+<pre><code class="language-php">&lt;?php
+// WRONG: Loading all quotes to find one quote
+$quoteCollection = $this-&gt;quoteCollectionFactory-&gt;create();
+$quoteCollection-&gt;addFieldToFilter('reserved_order_id', $orderId);
+$quotes = $quoteCollection-&gt;getItems(); // Loads ALL data
+</code></pre>
+<p><strong>Why It's Harmful:</strong></p>
+<ul>
+<li>Loads unnecessary data (items, addresses, payment)</li>
+<li>Slow query (missing indexes)</li>
+<li>High memory usage</li>
+<li>Scales poorly</li>
+<li>Database performance impact</li>
+</ul>
+<p><strong>Correct Approach:</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Service;
+
+use Magento\Quote\Model\ResourceModel\Quote\CollectionFactory;
+
+class QuoteLookupService
+{
+    public function __construct(
+        private readonly CollectionFactory $quoteCollectionFactory
+    ) {}
+
+    public function findByReservedOrderId(string $orderId): ?int
+    {
+        // CORRECT: Select only required fields, use limit
+        $collection = $this-&gt;quoteCollectionFactory-&gt;create();
+        $collection-&gt;addFieldToFilter('reserved_order_id', $orderId);
+        $collection-&gt;addFieldToSelect('entity_id'); // Only load ID
+        $collection-&gt;setPageSize(1); // Limit to 1 result
+
+        $quote = $collection-&gt;getFirstItem();
+        return $quote-&gt;getId() ?: null;
+    }
+}
+</code></pre>
+<hr />
+<h3 id="anti-pattern-42-n1-query-problem-with-quote-items">Anti-Pattern 4.2: N+1 Query Problem with Quote Items</h3>
+<p><strong>Problem:</strong></p>
+<pre><code class="language-php">&lt;?php
+// WRONG: Loading products in loop (N+1 queries)
+$quote = $this-&gt;cartRepository-&gt;get($quoteId);
+foreach ($quote-&gt;getAllItems() as $item) {
+    // Each iteration triggers a product load query
+    $product = $this-&gt;productRepository-&gt;getById($item-&gt;getProductId());
+    $stockStatus = $product-&gt;getStockStatus();
+}
+</code></pre>
+<p><strong>Why It's Harmful:</strong></p>
+<ul>
+<li>N+1 database queries (1 for quote + N for products)</li>
+<li>Severe performance degradation with large carts</li>
+<li>Timeout issues</li>
+<li>High database load</li>
+<li>Poor scalability</li>
+</ul>
+<p><strong>Correct Approach:</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Service;
+
+use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Catalog\Model\ResourceModel\Product\CollectionFactory;
+
+class QuoteProductStockService
+{
+    public function __construct(
+        private readonly CartRepositoryInterface $cartRepository,
+        private readonly CollectionFactory $productCollectionFactory
+    ) {}
+
+    public function getStockStatus(int $quoteId): array
+    {
+        $quote = $this-&gt;cartRepository-&gt;get($quoteId);
+
+        // Collect all product IDs
+        $productIds = [];
+        foreach ($quote-&gt;getAllItems() as $item) {
+            $productIds[] = $item-&gt;getProductId();
+        }
+
+        // CORRECT: Load all products in single query
+        $productCollection = $this-&gt;productCollectionFactory-&gt;create();
+        $productCollection-&gt;addFieldToFilter('entity_id', ['in' =&gt; $productIds]);
+        $productCollection-&gt;addAttributeToSelect('stock_status');
+
+        // Build stock status map
+        $stockStatus = [];
+        foreach ($productCollection as $product) {
+            $stockStatus[$product-&gt;getId()] = $product-&gt;getStockStatus();
+        }
+
+        return $stockStatus;
+    }
+}
+</code></pre>
+<hr />
+<h3 id="anti-pattern-43-not-using-quote-item-collection-cache">Anti-Pattern 4.3: Not Using Quote Item Collection Cache</h3>
+<p><strong>Problem:</strong></p>
+<pre><code class="language-php">&lt;?php
+// WRONG: Calling getAllItems() multiple times
+$quote = $this-&gt;cartRepository-&gt;get($quoteId);
+
+foreach ($quote-&gt;getAllItems() as $item) {
+    // Process item
+}
+
+// Later in same request...
+foreach ($quote-&gt;getAllItems() as $item) {
+    // Process item again - reloads collection
+}
+</code></pre>
+<p><strong>Why It's Harmful:</strong></p>
+<ul>
+<li>Multiple database queries for same data</li>
+<li>Unnecessary memory allocation</li>
+<li>Slower request processing</li>
+<li>Inefficient resource usage</li>
+</ul>
+<p><strong>Correct Approach:</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Service;
+
+use Magento\Quote\Api\CartRepositoryInterface;
+
+class QuoteItemProcessorService
+{
+    public function __construct(
+        private readonly CartRepositoryInterface $cartRepository
+    ) {}
+
+    public function processItems(int $quoteId): void
+    {
+        $quote = $this-&gt;cartRepository-&gt;get($quoteId);
+
+        // CORRECT: Load items once, store in variable
+        $items = $quote-&gt;getAllItems();
+
+        // First pass
+        foreach ($items as $item) {
+            $this-&gt;validateItem($item);
+        }
+
+        // Second pass - reuses same collection
+        foreach ($items as $item) {
+            $this-&gt;processItem($item);
+        }
+    }
+}
+</code></pre>
+<hr />
+<h2 id="5-security-vulnerabilities">5. Security Vulnerabilities</h2>
+<h3 id="anti-pattern-51-trusting-client-provided-prices">Anti-Pattern 5.1: Trusting Client-Provided Prices</h3>
+<p><strong>Problem:</strong></p>
+<pre><code class="language-php">&lt;?php
+// WRONG: Accepting price from client request
+public function addToCart(int $productId, float $qty, float $price): void
+{
+    $quote = $this-&gt;getCustomerQuote();
+    $product = $this-&gt;productRepository-&gt;getById($productId);
+
+    // CRITICAL VULNERABILITY: Never trust client price
+    $product-&gt;setPrice($price);
+
+    $quote-&gt;addProduct($product, $qty);
+    $quote-&gt;collectTotals();
+    $this-&gt;cartRepository-&gt;save($quote);
+}
+</code></pre>
+<p><strong>Why It's Harmful:</strong></p>
+<ul>
+<li>CRITICAL security vulnerability</li>
+<li>Customers can set any price ($0.01 for expensive items)</li>
+<li>Revenue loss</li>
+<li>Fraud vector</li>
+<li>PCI DSS violation</li>
+</ul>
+<p><strong>Correct Approach:</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Service;
+
+use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Catalog\Api\ProductRepositoryInterface;
+use Magento\Quote\Api\CartManagementInterface;
+use Magento\Customer\Model\Session;
+
+class SecureAddToCartService
+{
+    public function __construct(
+        private readonly CartRepositoryInterface $cartRepository,
+        private readonly ProductRepositoryInterface $productRepository,
+        private readonly CartManagementInterface $cartManagement,
+        private readonly Session $customerSession
+    ) {}
+
+    public function addToCart(int $productId, float $qty): void
+    {
+        $customerId = (int)$this-&gt;customerSession-&gt;getCustomerId();
+        $quote = $this-&gt;cartManagement-&gt;getCartForCustomer($customerId);
+
+        // CORRECT: Load product with server-side pricing
+        $product = $this-&gt;productRepository-&gt;getById($productId, false, $quote-&gt;getStoreId());
+
+        // Price comes from catalog, not client
+        // Customer group pricing, special price, catalog rules all apply
+        $quote-&gt;addProduct($product, $qty);
+        $quote-&gt;collectTotals();
+        $this-&gt;cartRepository-&gt;save($quote);
+    }
+}
+</code></pre>
+<hr />
+<h3 id="anti-pattern-52-missing-csrf-protection">Anti-Pattern 5.2: Missing CSRF Protection</h3>
+<p><strong>Problem:</strong></p>
+<pre><code class="language-php">&lt;?php
+// WRONG: Controller without form key validation
+class UpdateCart extends \Magento\Framework\App\Action\Action
+{
+    public function execute()
+    {
+        $cartData = $this-&gt;getRequest()-&gt;getParam('cart');
+
+        // VULNERABILITY: No CSRF protection
+        $this-&gt;updateCart($cartData);
+
+        return $this-&gt;resultRedirectFactory-&gt;create()-&gt;setPath('checkout/cart');
+    }
+}
+</code></pre>
+<p><strong>Why It's Harmful:</strong></p>
+<ul>
+<li>CSRF (Cross-Site Request Forgery) vulnerability</li>
+<li>Attackers can trigger cart modifications via hidden forms</li>
+<li>Security compliance violation</li>
+<li>User account compromise</li>
+</ul>
+<p><strong>Correct Approach:</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Controller\Cart;
+
+use Magento\Framework\App\Action\HttpPostActionInterface;
+use Magento\Framework\App\CsrfAwareActionInterface;
+use Magento\Framework\App\Request\InvalidRequestException;
+use Magento\Framework\App\RequestInterface;
+
+/**
+ * CORRECT: Implement CsrfAwareActionInterface for API endpoints
+ * OR use FormKey validator for form submissions
+ */
+class UpdateCart extends \Magento\Framework\App\Action\Action implements
+    HttpPostActionInterface,
+    CsrfAwareActionInterface
+{
+    public function __construct(
+        \Magento\Framework\App\Action\Context $context,
+        private readonly \Magento\Framework\Data\Form\FormKey\Validator $formKeyValidator
+    ) {
+        parent::__construct($context);
+    }
+
+    public function execute()
+    {
+        // CORRECT: Validate form key
+        if (!$this-&gt;formKeyValidator-&gt;validate($this-&gt;getRequest())) {
+            $this-&gt;messageManager-&gt;addErrorMessage(__('Invalid form key.'));
+            return $this-&gt;resultRedirectFactory-&gt;create()-&gt;setPath('checkout/cart');
+        }
+
+        $cartData = $this-&gt;getRequest()-&gt;getParam('cart');
+        $this-&gt;updateCart($cartData);
+
+        return $this-&gt;resultRedirectFactory-&gt;create()-&gt;setPath('checkout/cart');
+    }
+
+    /**
+     * Create CSRF validation exception
+     */
+    public function createCsrfValidationException(RequestInterface $request): ?InvalidRequestException
+    {
+        return new InvalidRequestException(
+            $this-&gt;resultRedirectFactory-&gt;create()-&gt;setPath('checkout/cart'),
+            [__('Invalid form key.')]
+        );
+    }
+
+    /**
+     * Validate for CSRF
+     */
+    public function validateForCsrf(RequestInterface $request): ?bool
+    {
+        return $this-&gt;formKeyValidator-&gt;validate($request);
+    }
+}
+</code></pre>
+<hr />
+<h3 id="anti-pattern-53-exposing-internal-quote-ids">Anti-Pattern 5.3: Exposing Internal Quote IDs</h3>
+<p><strong>Problem:</strong></p>
+<pre><code class="language-php">&lt;?php
+// WRONG: Using internal quote ID in URLs for guest carts
+$checkoutUrl = $this-&gt;urlBuilder-&gt;getUrl('checkout/cart', [
+    'quote_id' =&gt; $quote-&gt;getId() // Exposes internal ID
+]);
+</code></pre>
+<p><strong>Why It's Harmful:</strong></p>
+<ul>
+<li>Quote ID enumeration attack vector</li>
+<li>Guests can access other guests' carts</li>
+<li>Security vulnerability</li>
+<li>Privacy violation</li>
+<li>Predictable IDs enable attacks</li>
+</ul>
+<p><strong>Correct Approach:</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Service;
+
+use Magento\Quote\Model\QuoteIdMaskFactory;
+use Magento\Framework\UrlInterface;
+
+class GuestCartUrlService
+{
+    public function __construct(
+        private readonly QuoteIdMaskFactory $quoteIdMaskFactory,
+        private readonly UrlInterface $urlBuilder
+    ) {}
+
+    public function getCheckoutUrl(int $quoteId): string
+    {
+        // CORRECT: Use masked ID for guest carts
+        $quoteIdMask = $this-&gt;quoteIdMaskFactory-&gt;create();
+        $quoteIdMask-&gt;load($quoteId, 'quote_id');
+
+        if (!$quoteIdMask-&gt;getMaskedId()) {
+            // Create masked ID if doesn't exist
+            $maskedId = $quoteIdMask-&gt;createMaskedId($quoteId);
+        } else {
+            $maskedId = $quoteIdMask-&gt;getMaskedId();
+        }
+
+        // Use UUID instead of internal ID
+        return $this-&gt;urlBuilder-&gt;getUrl('checkout/cart', [
+            'cart_id' =&gt; $maskedId // UUID like &quot;a1b2c3d4-e5f6-7890-abcd-ef1234567890&quot;
+        ]);
+    }
+}
+</code></pre>
+<hr />
+<h2 id="6-data-integrity-problems">6. Data Integrity Problems</h2>
+<h3 id="anti-pattern-61-not-validating-product-options">Anti-Pattern 6.1: Not Validating Product Options</h3>
+<p><strong>Problem:</strong></p>
+<pre><code class="language-php">&lt;?php
+// WRONG: Adding configurable product without validating options
+$product = $this-&gt;productRepository-&gt;getById($productId);
+$quote-&gt;addProduct($product, $qty); // Missing required options
+</code></pre>
+<p><strong>Why It's Harmful:</strong></p>
+<ul>
+<li>Creates invalid quote items</li>
+<li>Order placement fails</li>
+<li>Customer frustration</li>
+<li>Data inconsistency</li>
+<li>Can't convert quote to order</li>
+</ul>
+<p><strong>Correct Approach:</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Service;
+
+use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Catalog\Api\ProductRepositoryInterface;
+use Magento\Framework\Exception\LocalizedException;
+
+class AddConfigurableToCartService
+{
+    public function __construct(
+        private readonly CartRepositoryInterface $cartRepository,
+        private readonly ProductRepositoryInterface $productRepository
+    ) {}
+
+    public function addConfigurable(
+        int $quoteId,
+        int $productId,
+        float $qty,
+        array $options
+    ): void {
+        $quote = $this-&gt;cartRepository-&gt;get($quoteId);
+        $product = $this-&gt;productRepository-&gt;getById($productId);
+
+        // CORRECT: Validate product type and required options
+        if ($product-&gt;getTypeId() === 'configurable') {
+            $this-&gt;validateConfigurableOptions($product, $options);
+        }
+
+        // Build buy request with options
+        $buyRequest = new \Magento\Framework\DataObject([
+            'product' =&gt; $productId,
+            'qty' =&gt; $qty,
+            'super_attribute' =&gt; $options
+        ]);
+
+        $result = $quote-&gt;addProduct($product, $buyRequest);
+
+        // Check for error message
+        if (is_string($result)) {
+            throw new LocalizedException(__($result));
+        }
+
+        $quote-&gt;collectTotals();
+        $this-&gt;cartRepository-&gt;save($quote);
+    }
+
+    private function validateConfigurableOptions($product, array $options): void
+    {
+        $configurableAttributes = $product-&gt;getTypeInstance()
+            -&gt;getConfigurableAttributes($product);
+
+        foreach ($configurableAttributes as $attribute) {
+            $attributeId = $attribute-&gt;getAttributeId();
+            if (!isset($options[$attributeId])) {
+                throw new LocalizedException(
+                    __('Please specify required option: %1', $attribute-&gt;getLabel())
+                );
+            }
+        }
+    }
+}
+</code></pre>
+<hr />
+<h3 id="anti-pattern-62-not-handling-out-of-stock-items">Anti-Pattern 6.2: Not Handling Out of Stock Items</h3>
+<p><strong>Problem:</strong></p>
+<pre><code class="language-php">&lt;?php
+// WRONG: Adding items without stock validation
+foreach ($productIds as $productId) {
+    $product = $this-&gt;productRepository-&gt;getById($productId);
+    $quote-&gt;addProduct($product, 1); // No stock check
+}
+</code></pre>
+<p><strong>Why It's Harmful:</strong></p>
+<ul>
+<li>Customer adds out-of-stock items to cart</li>
+<li>Order placement fails</li>
+<li>Overselling issues</li>
+<li>Poor customer experience</li>
+<li>Inventory discrepancies</li>
+</ul>
+<p><strong>Correct Approach:</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Service;
+
+use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Catalog\Api\ProductRepositoryInterface;
+use Magento\CatalogInventory\Api\StockRegistryInterface;
+use Magento\Framework\Exception\LocalizedException;
+
+class StockAwareAddToCartService
+{
+    public function __construct(
+        private readonly CartRepositoryInterface $cartRepository,
+        private readonly ProductRepositoryInterface $productRepository,
+        private readonly StockRegistryInterface $stockRegistry
+    ) {}
+
+    public function addProducts(int $quoteId, array $productData): void
+    {
+        $quote = $this-&gt;cartRepository-&gt;get($quoteId);
+
+        foreach ($productData as $data) {
+            $product = $this-&gt;productRepository-&gt;getById($data['product_id']);
+
+            // CORRECT: Validate stock before adding
+            $this-&gt;validateStock($product, $data['qty']);
+
+            $result = $quote-&gt;addProduct($product, $data['qty']);
+
+            if (is_string($result)) {
+                throw new LocalizedException(__($result));
+            }
+        }
+
+        $quote-&gt;collectTotals();
+        $this-&gt;cartRepository-&gt;save($quote);
+    }
+
+    private function validateStock($product, float $qty): void
+    {
+        $stockItem = $this-&gt;stockRegistry-&gt;getStockItem($product-&gt;getId());
+
+        // Check if in stock
+        if (!$stockItem-&gt;getIsInStock()) {
+            throw new LocalizedException(
+                __('Product &quot;%1&quot; is out of stock.', $product-&gt;getName())
+            );
+        }
+
+        // Check quantity availability
+        if ($stockItem-&gt;getManageStock() &amp;&amp; $qty &gt; $stockItem-&gt;getQty()) {
+            throw new LocalizedException(
+                __(
+                    'The requested qty of &quot;%1&quot; is not available. Available: %2',
+                    $product-&gt;getName(),
+                    $stockItem-&gt;getQty()
+                )
+            );
+        }
+    }
+}
+</code></pre>
+<hr />
+<h2 id="detection-and-remediation">Detection and Remediation</h2>
+<h3 id="automated-detection">Automated Detection</h3>
+<pre><code class="language-bash"># Find direct save() calls on quote models
+grep -r '\$quote-&gt;save()' app/code/
+
+# Find direct database queries on quote table
+grep -r &quot;-&gt;update('quote'&quot; app/code/
+
+# Find missing collectTotals() calls
+grep -B5 -A2 'cartRepository-&gt;save' app/code/ | grep -v collectTotals
+
+# Find controllers without form key validation
+grep -r &quot;class.*extends.*Action&quot; app/code/ | xargs grep -L &quot;formKeyValidator&quot;
+</code></pre>
+<h3 id="phpstan-rules-for-quote-anti-patterns">PHPStan Rules for Quote Anti-Patterns</h3>
+<pre><code class="language-php">&lt;?php
+// Custom PHPStan rule to detect direct quote save
+
+namespace Vendor\Module\PHPStan\Rules;
+
+use PhpParser\Node;
+use PHPStan\Analyser\Scope;
+use PHPStan\Rules\Rule;
+
+/**
+ * Detect direct save() on Quote model
+ *
+ * @implements Rule&lt;Node\Expr\MethodCall&gt;
+ */
+class NoDirectQuoteSaveRule implements Rule
+{
+    public function getNodeType(): string
+    {
+        return Node\Expr\MethodCall::class;
+    }
+
+    public function processNode(Node $node, Scope $scope): array
+    {
+        if (!$node-&gt;name instanceof Node\Identifier) {
+            return [];
+        }
+
+        if ($node-&gt;name-&gt;toString() !== 'save') {
+            return [];
+        }
+
+        $callerType = $scope-&gt;getType($node-&gt;var);
+        if ($callerType-&gt;getObjectClassNames() === ['Magento\\Quote\\Model\\Quote']) {
+            return [
+                'Direct save() on Quote model is not allowed. Use CartRepositoryInterface::save() instead.'
+            ];
+        }
+
+        return [];
+    }
+}
+</code></pre>
+<hr />
+<p><strong>Assumptions:</strong>
+- Magento 2.4.7+ with PHP 8.2+
+- Service contracts used for quote operations
+- Form key validation on all POST requests
+- Stock validation enabled</p>
+<p><strong>Why This Approach:</strong>
+Catalogs real-world mistakes with concrete fixes. Provides detection strategies for existing codebases. Emphasizes security and data integrity alongside architectural concerns.</p>
+<p><strong>Security Impact:</strong>
+- Missing CSRF protection enables attack vectors
+- Trusting client prices is critical vulnerability
+- Exposed internal IDs enable enumeration attacks
+- Quote ownership validation prevents unauthorized access</p>
+<p><strong>Performance Impact:</strong>
+- Multiple collectTotals() calls significantly degrade performance
+- N+1 queries in loops cause severe slowdowns
+- Full collection loads waste memory and database resources
+- Proper optimization can improve cart operations by 5-10x</p>
+<p><strong>Backward Compatibility:</strong>
+Fixing anti-patterns may require BC breaks if public APIs exposed problematic behavior. Use deprecation warnings and provide migration paths for major changes.</p>
+<p><strong>Tests to Add:</strong>
+- Security tests for CSRF protection
+- Integration tests for quote ownership validation
+- Performance tests detecting N+1 queries
+- Static analysis rules to prevent anti-patterns</p>
+<p><strong>Docs to Update:</strong>
+- Best practices guide with anti-pattern examples
+- Security checklist for quote operations
+- Performance optimization guide
+- Code review checklist</p>
+                    </div>
+                </article>
+            </main>
+            <!-- Right Sidebar: On This Page (desktop) -->
+            <aside class="toc-sidebar hidden xl:block" aria-label="On this page">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-semibold text-gray-900 uppercase tracking-wider mb-4 mt-0">On this page</h3>
+                    <nav id="toc-nav" class="space-y-0" aria-label="Table of contents"></nav>
+                    <div class="toc-back-to-top">
+                        <a href="#">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+                            </svg>
+                            Back to top
+                        </a>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- ================================================================
+         FOOTER — matches module-catalog.html multi-column layout exactly
+         ================================================================ -->
+    <footer class="relative pt-12 bg-white border-t border-charcoal mt-16">
+        <div class="max-w-screen-2xl mx-auto w-full px-4 sm:px-6 lg:px-8">
+            <div>
+                <a href="index.html" class="inline-flex items-center no-underline">
+                    <svg width="30" height="33" viewBox="0 0 30 33" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Magento Association logo" role="img">
+                        <path d="M0 4.06492H29.6763V31.8882C29.6763 32.502 29.1713 33 28.5487 33H1.12762C0.505079 33 0 32.502 0 31.8882V4.06492Z" fill="#34323A"/>
+                        <path d="M1.26857 0H28.4078C29.1066 0 29.6763 0.561678 29.6763 1.25075V4.06492H0V1.25075C0 0.561678 0.569682 0 1.26857 0Z" fill="#C9C9C9"/>
+                        <path d="M2.37269 3.0458C2.94031 3.0458 3.40046 2.59211 3.40046 2.03246C3.40046 1.47281 2.94031 1.01913 2.37269 1.01913C1.80506 1.01913 1.34491 1.47281 1.34491 2.03246C1.34491 2.59211 1.80506 3.0458 2.37269 3.0458Z" fill="#848484"/>
+                        <path d="M5.28571 3.0458C5.85334 3.0458 6.31349 2.59211 6.31349 2.03246C6.31349 1.47281 5.85334 1.01913 5.28571 1.01913C4.71809 1.01913 4.25793 1.47281 4.25793 2.03246C4.25793 2.59211 4.71809 3.0458 5.28571 3.0458Z" fill="#848484"/>
+                        <path d="M14.7883 7.46973L4.90405 13.0923V24.349L7.54104 25.8487V14.5978L14.7883 10.4692L22.0415 14.5978V25.8487L24.6785 24.349V13.0923L14.7883 7.46973Z" fill="#F1BC1B"/>
+                        <path d="M16.0862 26.2367L14.7883 26.9779L13.4492 26.2135V14.233L10.178 16.0975V27.3485L13.4492 29.213L14.7883 29.9773L16.0862 29.2362L19.4045 27.3485V16.0975L16.0862 14.2098V26.2367Z" fill="#F1BC1B"/>
+                    </svg>
+                    <span class="ml-3 text-xl font-bold text-charcoal">Developer Documentation</span>
+                </a>
+            </div>
+
+            <div class="grid grid-cols-12 md:gap-x-8 gap-y-12 lg:mt-12">
+                <div class="col-span-12 lg:col-span-4">
+                    <p class="hidden lg:block text-xs text-charcoal sm:text-sm">Comprehensive developer documentation for Magento 2.4.7+ — tutorials, architecture deep dives, module references, and production-ready patterns built by the community, for the community.</p>
+                    <ul class="mt-6 hidden lg:flex items-center gap-3">
+                        <li class="pl-0">
+                            <a href="https://github.com/magento/magento2" class="p-2 md:p-0" aria-label="GitHub">
+                                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                                </svg>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Guides</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="tutorials.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Tutorials</a></li>
+                            <li class="pl-0"><a href="how-to-guides.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">How-To Guides</a></li>
+                            <li class="pl-0"><a href="architecture.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Architecture</a></li>
+                            <li class="pl-0"><a href="learning-paths.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Learning Paths</a></li>
+                            <li class="pl-0"><a href="references.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">References</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Modules</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="module-catalog.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Catalog</a></li>
+                            <li class="pl-0"><a href="module-checkout.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Checkout</a></li>
+                            <li class="pl-0"><a href="module-sales.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Sales</a></li>
+                            <li class="pl-0"><a href="module-customer.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Customer</a></li>
+                            <li class="pl-0"><a href="module-quote.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Quote</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Community</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Magento Community</a></li>
+                            <li class="pl-0"><a href="https://magento.stackexchange.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Stack Exchange</a></li>
+                            <li class="pl-0"><a href="https://marketplace.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Marketplace</a></li>
+                            <li class="pl-0"><a href="https://github.com/magento/magento2" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">GitHub</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Support</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://github.com/magento/magento2/issues" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Report Issues</a></li>
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Community Resources</a></li>
+                            <li class="pl-0"><a href="https://developer.adobe.com/commerce/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Adobe Commerce Docs</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-12 border-t pt-6 pb-16 border-charcoal">
+                <p class="text-xs text-charcoal">
+                    &copy; 2026 Magento 2 Developer Documentation. Magento&reg; is a registered trademark of Adobe Inc.
+                </p>
+                <p class="mt-6 text-xs text-charcoal">
+                    This documentation provides guidance for Magento 2 developers and extension builders. For merchant documentation, visit the <a href="index.html" class="text-orange hover:text-orange-600 transition-colors">merchant documentation</a>.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Initialize highlight.js -->
+    <script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('pre code').forEach(function (el) {
+        hljs.highlightElement(el);
+    });
+    document.querySelectorAll('pre').forEach(function (pre) {
+        if (pre.parentNode.classList && pre.parentNode.classList.contains('code-wrapper')) return;
+        var wrapper = document.createElement('div');
+        wrapper.className = 'code-wrapper';
+        pre.parentNode.insertBefore(wrapper, pre);
+        wrapper.appendChild(pre);
+        var btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.setAttribute('type', 'button');
+        btn.setAttribute('aria-label', 'Copy code to clipboard');
+        btn.setAttribute('title', 'Copy');
+        btn.textContent = 'Copy';
+        wrapper.appendChild(btn);
+        btn.addEventListener('click', function () {
+            var code = pre.querySelector('code');
+            var text = code ? (code.innerText || code.textContent) : (pre.innerText || pre.textContent);
+            navigator.clipboard.writeText(text).then(function () {
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            }).catch(function () {
+                var range = document.createRange();
+                range.selectNode(code || pre);
+                window.getSelection().removeAllRanges();
+                window.getSelection().addRange(range);
+                document.execCommand('copy');
+                window.getSelection().removeAllRanges();
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            });
+        });
+    });
+});
+</script>
+
+
+<script>
+(function() {
+    var nav = document.getElementById('toc-nav');
+    if (!nav) return;
+    var article = document.getElementById('main-content');
+    if (!article) return;
+    var headings = article.querySelectorAll('h2[id], h3[id]');
+    if (headings.length < 3) {
+        // Hide the entire TOC sidebar if fewer than 3 headings
+        var sidebar = nav.closest('.toc-sidebar');
+        if (sidebar) sidebar.style.display = 'none';
+        return;
+    }
+    var ids = [];
+    headings.forEach(function(h) {
+        var a = document.createElement('a');
+        a.href = '#' + h.id;
+        a.textContent = h.textContent.replace(/^#+\s*/, '').replace(/\s+/g, ' ').trim();
+        if (h.tagName === 'H3') a.classList.add('toc-h3');
+        nav.appendChild(a);
+        ids.push(h.id);
+    });
+    // Scroll-spy with IntersectionObserver
+    var links = nav.querySelectorAll('a');
+    var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                links.forEach(function(l) { l.classList.remove('toc-active'); });
+                var active = nav.querySelector('a[href="#' + entry.target.id + '"]');
+                if (active) active.classList.add('toc-active');
+            }
+        });
+    }, { rootMargin: '-80px 0px -70% 0px', threshold: 0 });
+    headings.forEach(function(h) { observer.observe(h); });
+})();
+</script>
+</body>
+</html>

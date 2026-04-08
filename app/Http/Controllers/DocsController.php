@@ -20,9 +20,17 @@ class DocsController extends Controller
     }
 
     /**
-     * Show the homepage with merchant documentation categories.
+     * Show the main landing page with links to merchant and developer docs.
      */
     public function showRootPage()
+    {
+        return view("landing");
+    }
+
+    /**
+     * Show the merchant homepage with documentation categories.
+     */
+    public function showMerchantHomepage()
     {
         $categories = $this->navigationParser->getCategories()
             ->map(function ($category) {

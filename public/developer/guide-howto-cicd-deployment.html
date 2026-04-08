@@ -1,0 +1,1621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CI/CD Deployment Pipelines for Magento 2 — Magento 2 Developer Documentation</title>
+    <meta name="description" content="Developer guide: CI/CD Deployment Pipelines for Magento 2">
+
+    <!-- Google Fonts: Inter Tight only. Courier New used for code. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Highlight.js: syntax highlighting for code blocks -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/php.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/ini.min.js"></script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        charcoal: {
+                            DEFAULT: '#2c2c2c', 50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6',
+                            300: '#6B6B6B', 400: '#474747', 500: '#2c2c2c', 600: '#262626',
+                            700: '#202020', 800: '#1c1c1c', 900: '#191919', 950: '#121212'
+                        },
+                        orange: {
+                            DEFAULT: '#D4551A', 50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad',
+                            300: '#f9ae78', 400: '#f58242', 500: '#f26423', 600: '#e34613',
+                            700: '#bc3312', 800: '#962a16', 900: '#792515', 950: '#411009'
+                        },
+                        yellow: {
+                            DEFAULT: '#B8860B', 50: '#fffdeb', 100: '#fdf9c8', 200: '#fbf38c',
+                            300: '#f8e651', 400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a',
+                            700: '#b1670c', 800: '#8f5111', 900: '#764311', 950: '#442204'
+                        },
+                        'off-white': '#FAFAFA',
+                    },
+                    fontFamily: {
+                        sans: ['Inter Tight', 'system-ui', '-apple-system', 'sans-serif'],
+                        mono: ['Courier New', 'Courier', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* ── Force light mode ── */
+        :root { color-scheme: light only; }
+
+        [x-cloak] { display: none !important; }
+
+        /* ── Scroll offset for sticky header ── */
+        .prose h2, .prose h3 { scroll-margin-top: 5rem; }
+
+        /* ── Code blocks: Bauhaus charcoal bg, no border-radius, highlight.js override ── */
+        .prose pre {
+            background-color: #2C2C2C !important;
+            border-radius: 0 !important;
+            padding: 1.25rem;
+            overflow-x: auto;
+            font-size: 0.875rem;
+            line-height: 1.7;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 1.5rem 0;
+        }
+        .prose pre code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            background: transparent !important;
+            padding: 0;
+                    color: #abb2bf;
+        }
+        /* Override highlight.js theme background to match Bauhaus charcoal */
+        .hljs {
+            background: #2C2C2C !important;
+            color: #abb2bf !important;
+            border-radius: 0 !important;
+        }
+
+        /* ── Inline code: charcoal bg, yellow text, no border-radius ── */
+        .prose code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.85em;
+        }
+        .prose :not(pre) > code {
+            background-color: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2em 0.45em;
+            border-radius: 0;
+        }
+
+        /* ── Step-code: same charcoal/yellow style for UI path chips ── */
+        .step-code {
+            background: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2rem 0.5rem;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            border-radius: 0;
+        }
+
+        /* ── Tables: no border-radius, charcoal header ── */
+        .prose table { width: 100%; border-collapse: collapse; }
+        .prose th {
+            background-color: #2C2C2C;
+            color: #ffffff;
+            font-weight: 600;
+            text-align: left;
+            padding: 0.75rem 1rem;
+            border-bottom: 2px solid #2C2C2C;
+            border-radius: 0;
+        }
+        .prose td { padding: 0.75rem 1rem; border-bottom: 1px solid #e5e5e5; }
+        .prose tr:hover { background-color: #fafafa; }
+
+        /* ── Blockquote: Bauhaus style — border-4 yellow, square, no left-only border ── */
+        .prose blockquote {
+            border: 4px solid #F1BC1B;
+            background-color: #ffffff;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+            border-radius: 0;
+        }
+        .prose blockquote p { margin: 0; }
+
+        /* ── Lists: hexagon bullets ── */
+        .prose ul { list-style: none; padding-left: 0; }
+        .prose ul li {
+            position: relative;
+            padding-left: 1.75rem;
+            margin-bottom: 0.4rem;
+            line-height: 1.7;
+        }
+        .prose ul li::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0.45em;
+            width: 10px;
+            height: 10px;
+            background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 2L21 7V17L12 22L3 17V7L12 2Z' stroke='%23F26423' stroke-width='2.5' stroke-linejoin='miter'/%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+        .prose ol { list-style-type: decimal; padding-left: 1.5rem; }
+        .prose li { margin-bottom: 0.4rem; }
+
+        /* ── Headings ── */
+        .prose h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            padding-top: 1.5rem;
+            border-top: 4px solid #F1BC1B;
+            color: #2C2C2C;
+        }
+        .prose h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+            color: #2C2C2C;
+        }
+        .prose h4 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #2C2C2C;
+        }
+        .prose p { margin-bottom: 1rem; line-height: 1.75; }
+        .prose a { color: #D4551A; text-decoration: none; }
+        .prose a:hover { color: #e34613; text-decoration: underline; }
+        .prose hr { border: none; border-top: 1px solid #e5e5e5; margin: 2rem 0; }
+
+        /* ── Callout boxes: Bauhaus — border-4 yellow, white bg, icon + title ── */
+        .callout-box {
+            background-color: #ffffff;
+            border: 4px solid #F1BC1B;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+        }
+        .callout-warning {
+            border-color: #D4551A;
+        }
+        .callout-important {
+            border-color: #2C2C2C;
+        }
+        .callout-box .callout-inner {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+        .callout-box .callout-title {
+            font-weight: 600;
+            color: #2C2C2C;
+            margin-bottom: 0.25rem;
+        }
+        .callout-box .callout-body {
+            font-size: 0.875rem;
+            line-height: 1.6;
+            color: rgba(44,44,44,0.85);
+        }
+
+        
+    
+        /* Code block copy button */
+        .code-wrapper {
+            position: relative;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            font-family: 'Inter Tight', system-ui, sans-serif;
+            background: rgba(255,255,255,0.1);
+            color: #abb2bf;
+            border: 1px solid rgba(255,255,255,0.15);
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.15s ease, background 0.15s ease;
+            z-index: 10;
+            line-height: 1.4;
+            border-radius: 4px;
+            user-select: none;
+        }
+        .code-wrapper:hover .copy-btn {
+            opacity: 1;
+        }
+        .copy-btn:hover,
+        .copy-btn:focus {
+            background: rgba(255,255,255,0.2);
+            color: #ffffff;
+            outline: 2px solid #D4551A;
+            outline-offset: 1px;
+        }
+        .copy-btn.copied {
+            color: #98c379;
+            background: rgba(152, 195, 121, 0.15);
+            opacity: 1;
+        }
+    
+        /* Right-hand TOC sidebar */
+        .toc-sidebar {
+            width: 14rem;
+            flex-shrink: 0;
+        }
+        .toc-sidebar a {
+            display: block;
+            padding: 0.375rem 0;
+            font-size: 0.8125rem;
+            line-height: 1.4;
+            color: #6b7280;
+            text-decoration: none;
+            transition: color 0.15s ease;
+            border-left: 2px solid transparent;
+            padding-left: 0.75rem;
+        }
+        .toc-sidebar a:hover {
+            color: #111827;
+        }
+        .toc-sidebar a.toc-active {
+            color: #ea580c;
+            border-left-color: #ea580c;
+            font-weight: 500;
+        }
+        .toc-sidebar a.toc-h3 {
+            padding-left: 1.5rem;
+            font-size: 0.75rem;
+        }
+        .toc-sidebar .toc-back-to-top {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e5e7eb;
+        }
+        .toc-sidebar .toc-back-to-top a {
+            border-left: none;
+            padding-left: 0;
+            font-weight: 500;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .toc-sidebar .toc-back-to-top a:hover {
+            color: #ea580c;
+        }
+    </style>
+</head>
+
+<body class="font-sans bg-off-white text-charcoal">
+
+    <!-- Shared header — single source of truth -->
+    <script src="includes/header.js"></script>
+
+    <!-- Breadcrumb — orange › separators -->
+    <div class="bg-white border-b border-gray-100">
+        <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <div class="flex items-center gap-2 text-sm flex-wrap">
+                <a href="index.html" class="text-orange hover:text-orange-600 transition-colors no-underline">Home</a> <span class="text-orange font-medium">›</span> <a href="index.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">Guides</a> <span class="text-orange font-medium">›</span> <a href="how-to-guides.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">How-To Guides</a> <span class="text-orange font-medium">›</span> <span class="text-charcoal font-medium">CI/CD Deployment Pipelines for Magento 2</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="flex gap-8">
+
+            <!-- Left Sidebar (desktop) -->
+            <aside class="hidden lg:block w-64 flex-shrink-0">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4">How-To Guides</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="guide-howto-admin-ui-components.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Building Admin UI Components in ...</a></li>
+<li class="pl-0"><a href="guide-howto-cicd-deployment.html" class="block px-3 py-2 text-sm text-orange font-semibold bg-orange-50 border-l-4 border-orange pl-2 transition-colors no-underline">CI/CD Deployment Pipelines for M...</a></li>
+<li class="pl-0"><a href="guide-howto-cron-jobs.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Cron Jobs Implementation: Buildi...</a></li>
+<li class="pl-0"><a href="guide-howto-email-templates.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Email Templates Customization</a></li>
+<li class="pl-0"><a href="guide-howto-erp-integration.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">ERP Integration Patterns for Mag...</a></li>
+<li class="pl-0"><a href="guide-howto-full-page-cache-strategy.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Full Page Cache Strategy for Hig...</a></li>
+<li class="pl-0"><a href="guide-howto-import-export.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Import/Export System Deep Dive</a></li>
+<li class="pl-0"><a href="guide-howto-layout-xml-deep-dive.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Layout XML Deep Dive: Mastering ...</a></li>
+<li class="pl-0"><a href="guide-howto-multi-store-setup.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Multi-Store Configuration Mastery</a></li>
+<li class="pl-0"><a href="guide-howto-security-checklist.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Security Checklist for Custom Mo...</a></li>
+<li class="pl-0"><a href="guide-howto-testing-strategies.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Comprehensive Testing Strategies...</a></li>
+</ul>
+<h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4 mt-8">Guide Sections</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="tutorials.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Tutorials</a></li>
+<li class="pl-0"><a href="how-to-guides.html" class="block px-3 py-2 text-sm text-orange font-semibold bg-orange-50 border-l-4 border-orange pl-2 transition-colors no-underline">How-To Guides</a></li>
+<li class="pl-0"><a href="architecture.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Architecture</a></li>
+<li class="pl-0"><a href="references.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">References</a></li>
+</ul>
+                </div>
+            </aside>
+
+            <!-- Article — square corners, border-t-4 orange accent -->
+            <main id="main-content" class="flex-1 min-w-0">
+                <article class="bg-white shadow-sm border border-gray-100 border-t-4 border-t-orange p-8 md:p-12">
+                    <!-- Title block -->
+                    <div class="mb-8">
+                        <span class="inline-block px-3 py-1.5 text-xs font-medium bg-yellow-50 text-yellow-800 border border-yellow-200">How-To</span>
+                        <h1 class="text-3xl md:text-4xl font-extrabold text-charcoal mt-3 mb-3">CI/CD Deployment Pipelines for Magento 2</h1>
+                        <p class="text-charcoal-300 text-lg mb-4">Developer guide: CI/CD Deployment Pipelines for Magento 2</p>
+                        <!-- Meta pills -->
+                        <div class="flex flex-wrap gap-2"><span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-yellow-50 text-yellow-800"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>Advanced</span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-orange-50 text-orange-700"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>35 minutes</span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-charcoal text-white">Magento 2.4.7+</span></div>
+                    </div>
+
+                    <hr class="border-0 border-t border-gray-100 mb-8">
+
+                    <!-- Content -->
+                    <div class="prose max-w-none">
+                        <h1 id="cicd-deployment-pipelines-for-magento-2">CI/CD Deployment Pipelines for Magento 2</h1>
+<h2 id="overview">Overview</h2>
+<p>Reliable CI/CD pipelines are essential for Magento deployments at scale. This guide provides production-proven patterns for build artifacts, static content deployment, zero-downtime releases, and rollback procedures across GitHub Actions, GitLab CI, and cloud platforms.</p>
+<p><strong>What you'll learn:</strong>
+- Build artifact strategy vs build-on-server approaches
+- Static content deployment strategies (quick, compact, standard)
+- Zero-downtime deployment patterns (blue-green, rolling)
+- GitHub Actions and GitLab CI pipeline examples
+- Rollback procedures and health checks
+- Performance optimization for deployment speed</p>
+<p><strong>Prerequisites:</strong>
+- Magento architecture knowledge (FPC, indexers, cron)
+- Basic CI/CD concepts (pipelines, stages, artifacts)
+- Linux system administration (SSH, systemd, file permissions)
+- Git workflows (branching, tagging, releases)</p>
+<hr />
+<h2 id="deployment-strategies-overview">Deployment Strategies: Overview</h2>
+<h3 id="build-artifact-vs-build-on-server">Build Artifact vs Build-on-Server</h3>
+<div class="overflow-x-auto my-6 border border-gray-200"><table class="min-w-full">
+<thead>
+<tr>
+<th>Approach</th>
+<th>Build Artifact</th>
+<th>Build-on-Server</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Where code is built</strong></td>
+<td>CI server</td>
+<td>Production server</td>
+</tr>
+<tr>
+<td><strong>Composer install</strong></td>
+<td>CI stage</td>
+<td>During deployment</td>
+</tr>
+<tr>
+<td><strong>Static content</strong></td>
+<td>Pre-compiled</td>
+<td>On-demand or pre-deploy</td>
+</tr>
+<tr>
+<td><strong>Deploy speed</strong></td>
+<td>Fast (2-5 min)</td>
+<td>Slow (10-20 min)</td>
+</tr>
+<tr>
+<td><strong>Rollback</strong></td>
+<td>Instant (swap symlink)</td>
+<td>Rebuild required</td>
+</tr>
+<tr>
+<td><strong>Disk space</strong></td>
+<td>2-3x (artifacts)</td>
+<td>1x (single codebase)</td>
+</tr>
+<tr>
+<td><strong>Best for</strong></td>
+<td>Production, staging</td>
+<td>Development only</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Recommendation:</strong> Use build artifact strategy for all non-development environments.</p>
+<hr />
+<h2 id="build-artifact-pipeline">Build Artifact Pipeline</h2>
+<h3 id="architecture">Architecture</h3>
+<pre><code>[Git Push] → [CI Build] → [Run Tests] → [Compile Assets] → [Package Artifact] → [Deploy to Server] → [Activate Release]
+</code></pre>
+<h3 id="stage-1-build-and-test">Stage 1: Build and Test</h3>
+<p><strong>GitHub Actions example:</strong></p>
+<pre><code class="language-yaml">name: Build and Deploy
+
+on:
+  push:
+    branches: [main, staging, production]
+  pull_request:
+    branches: [main]
+
+env:
+  PHP_VERSION: '8.2'
+  NODE_VERSION: '18'
+  COMPOSER_VERSION: '2'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      artifact-name: ${{ steps.artifact.outputs.name }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: bcmath, ctype, curl, dom, gd, intl, mbstring, pdo_mysql, simplexml, soap, xsl, zip
+          tools: composer:v2
+
+      - name: Get composer cache directory
+        id: composer-cache
+        run: echo &quot;dir=$(composer config cache-files-dir)&quot; &gt;&gt; $GITHUB_OUTPUT
+
+      - name: Cache composer dependencies
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install dependencies
+        run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+
+      - name: Run static analysis
+        run: |
+          vendor/bin/phpstan analyse app/code --level 8
+          vendor/bin/phpcs app/code --standard=Magento2
+
+      - name: Run unit tests
+        run: vendor/bin/phpunit -c dev/tests/unit/phpunit.xml.dist
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Build frontend assets
+        run: npm run build
+
+      - name: Set deployment mode to production
+        run: bin/magento deploy:mode:set production --skip-compilation
+
+      - name: Compile DI
+        run: bin/magento setup:di:compile
+
+      - name: Deploy static content (all locales and themes)
+        run: |
+          bin/magento setup:static-content:deploy -f \
+            en_US en_GB de_DE fr_FR \
+            --theme Magento/luma \
+            --theme Magento/backend \
+            --jobs 4
+
+      - name: Create artifact directory structure
+        run: |
+          mkdir -p artifact/magento
+          rsync -a --exclude='.git' --exclude='node_modules' --exclude='dev' --exclude='var/log' . artifact/magento/
+
+      - name: Generate artifact name
+        id: artifact
+        run: |
+          ARTIFACT_NAME=&quot;magento-${{ github.sha }}-$(date +%Y%m%d-%H%M%S).tar.gz&quot;
+          echo &quot;name=$ARTIFACT_NAME&quot; &gt;&gt; $GITHUB_OUTPUT
+          echo &quot;Artifact name: $ARTIFACT_NAME&quot;
+
+      - name: Package artifact
+        run: |
+          cd artifact
+          tar -czf ${{ steps.artifact.outputs.name }} magento/
+          sha256sum ${{ steps.artifact.outputs.name }} &gt; ${{ steps.artifact.outputs.name }}.sha256
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ steps.artifact.outputs.name }}
+          path: |
+            artifact/${{ steps.artifact.outputs.name }}
+            artifact/${{ steps.artifact.outputs.name }}.sha256
+          retention-days: 30
+</code></pre>
+<h3 id="stage-2-deploy-to-staging">Stage 2: Deploy to Staging</h3>
+<pre><code class="language-yaml">  deploy-staging:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/staging'
+    environment:
+      name: staging
+      url: https://staging.example.com
+
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ needs.build.outputs.artifact-name }}
+
+      - name: Verify artifact checksum
+        run: |
+          sha256sum -c ${{ needs.build.outputs.artifact-name }}.sha256
+          echo &quot;Artifact verified successfully&quot;
+
+      - name: Deploy to staging servers
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.STAGING_HOST }}
+          username: ${{ secrets.STAGING_USER }}
+          key: ${{ secrets.STAGING_SSH_KEY }}
+          script: |
+            set -e
+
+            # Configuration
+            DEPLOY_USER=&quot;www-data&quot;
+            DEPLOY_PATH=&quot;/var/www/magento&quot;
+            RELEASES_PATH=&quot;$DEPLOY_PATH/releases&quot;
+            SHARED_PATH=&quot;$DEPLOY_PATH/shared&quot;
+            CURRENT_PATH=&quot;$DEPLOY_PATH/current&quot;
+            ARTIFACT_NAME=&quot;${{ needs.build.outputs.artifact-name }}&quot;
+            RELEASE_NAME=&quot;$(date +%Y%m%d-%H%M%S)&quot;
+            RELEASE_PATH=&quot;$RELEASES_PATH/$RELEASE_NAME&quot;
+
+            # Create release directory
+            mkdir -p $RELEASE_PATH
+
+            # Extract artifact
+            tar -xzf /tmp/$ARTIFACT_NAME -C $RELEASE_PATH --strip-components=1
+
+            # Link shared directories
+            ln -nfs $SHARED_PATH/var $RELEASE_PATH/var
+            ln -nfs $SHARED_PATH/pub/media $RELEASE_PATH/pub/media
+            ln -nfs $SHARED_PATH/app/etc/env.php $RELEASE_PATH/app/etc/env.php
+
+            # Set permissions
+            chown -R $DEPLOY_USER:$DEPLOY_USER $RELEASE_PATH
+            find $RELEASE_PATH -type d -exec chmod 755 {} \;
+            find $RELEASE_PATH -type f -exec chmod 644 {} \;
+            chmod +x $RELEASE_PATH/bin/magento
+
+            # Maintenance mode ON
+            if [ -L $CURRENT_PATH ]; then
+              php $CURRENT_PATH/bin/magento maintenance:enable
+            fi
+
+            # Database migrations
+            php $RELEASE_PATH/bin/magento setup:upgrade --keep-generated
+
+            # Reindex
+            php $RELEASE_PATH/bin/magento indexer:reindex
+
+            # Clear cache
+            php $RELEASE_PATH/bin/magento cache:flush
+
+            # Atomic symlink swap
+            ln -nfs $RELEASE_PATH $CURRENT_PATH
+
+            # Maintenance mode OFF
+            php $CURRENT_PATH/bin/magento maintenance:disable
+
+            # Reload PHP-FPM
+            sudo systemctl reload php8.2-fpm
+
+            # Keep only last 5 releases
+            cd $RELEASES_PATH &amp;&amp; ls -t | tail -n +6 | xargs rm -rf
+
+            echo &quot;Deployment completed successfully&quot;
+
+      - name: Run smoke tests
+        run: |
+          curl -f https://staging.example.com/health || exit 1
+          curl -f https://staging.example.com/ | grep -q &quot;Magento&quot; || exit 1
+
+      - name: Notify deployment
+        uses: 8398a7/action-slack@v3
+        if: always()
+        with:
+          status: ${{ job.status }}
+          text: 'Staging deployment ${{ job.status }}'
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+</code></pre>
+<h3 id="stage-3-deploy-to-production-manual-approval">Stage 3: Deploy to Production (Manual Approval)</h3>
+<pre><code class="language-yaml">  deploy-production:
+    needs: [build, deploy-staging]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/production'
+    environment:
+      name: production
+      url: https://www.example.com
+
+    steps:
+      # Similar to staging, with additional steps:
+      # - Blue-green deployment pattern
+      # - Canary release (10% → 50% → 100%)
+      # - Advanced health checks
+      # - Automatic rollback on errors
+</code></pre>
+<hr />
+<h2 id="static-content-deployment-strategies">Static Content Deployment Strategies</h2>
+<h3 id="strategy-comparison">Strategy Comparison</h3>
+<div class="overflow-x-auto my-6 border border-gray-200"><table class="min-w-full">
+<thead>
+<tr>
+<th>Strategy</th>
+<th>Speed</th>
+<th>File Size</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Standard</strong></td>
+<td>Slow (10-15 min)</td>
+<td>Smallest</td>
+<td>Production, multi-locale</td>
+</tr>
+<tr>
+<td><strong>Quick</strong></td>
+<td>Medium (5-7 min)</td>
+<td>Medium</td>
+<td>Single-locale stores</td>
+</tr>
+<tr>
+<td><strong>Compact</strong></td>
+<td>Fast (3-5 min)</td>
+<td>Largest</td>
+<td>Development, staging</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="standard-strategy-production">Standard Strategy (Production)</h3>
+<p><strong>Pros:</strong>
+- Smallest file size (minified, merged)
+- Best performance (fewer HTTP requests)
+- Optimal for CDN distribution</p>
+<p><strong>Cons:</strong>
+- Slowest deployment
+- Requires all locales/themes specified</p>
+<p><strong>Command:</strong></p>
+<pre><code class="language-bash">bin/magento setup:static-content:deploy \
+  en_US de_DE fr_FR \
+  --theme Magento/luma \
+  --theme Magento/backend \
+  --exclude-theme Magento/blank \
+  --jobs 4 \
+  --max-execution-time 3600 \
+  --no-html-minify  # Optional: skip HTML minification for speed
+</code></pre>
+<p><strong>Optimization:</strong></p>
+<pre><code class="language-bash"># Pre-generate RequireJS config (faster than on-demand)
+bin/magento setup:static-content:deploy --strategy=compact
+
+# Use parallel jobs (CPU cores - 1)
+--jobs $(( $(nproc) - 1 ))
+</code></pre>
+<h3 id="quick-strategy-staging">Quick Strategy (Staging)</h3>
+<p><strong>Pros:</strong>
+- Faster than standard
+- Production-like assets
+- Good for pre-production testing</p>
+<p><strong>Cons:</strong>
+- Slightly larger files
+- Less aggressive optimization</p>
+<p><strong>Command:</strong></p>
+<pre><code class="language-bash">bin/magento setup:static-content:deploy -f -s quick \
+  en_US \
+  --theme Magento/luma \
+  --jobs 4
+</code></pre>
+<h3 id="compact-strategy">Compact Strategy</h3>
+<p><strong>Pros:</strong>
+- Fastest deployment — compiles all locales in a single pass
+- Reduces duplication across locale-specific files</p>
+<p><strong>Cons:</strong>
+- Less granular output (harder to debug locale-specific issues)
+- All locales compiled together, cannot deploy selectively</p>
+<div class="callout-box"><div class="callout-inner"><svg class="w-5 h-5 text-orange flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg><div><p class="callout-title">Note</p><div class="callout-body"><p> Symlink behavior (no copying, instant changes) is a feature of
+<strong>developer mode</strong>, not the compact strategy. Do not confuse the two.</p></div></div></div></div>
+<p><strong>Command:</strong></p>
+<pre><code class="language-bash">bin/magento setup:static-content:deploy -f -s compact
+</code></pre>
+<p><strong>Use in developer mode:</strong></p>
+<pre><code class="language-bash">bin/magento deploy:mode:set developer
+# Static files generated on-demand, no pre-deployment needed
+</code></pre>
+<h3 id="optimizing-static-content-deployment">Optimizing Static Content Deployment</h3>
+<p><strong>1. Deploy only changed themes:</strong></p>
+<pre><code class="language-bash"># Deploy admin theme only (after backend changes)
+bin/magento setup:static-content:deploy --theme Magento/backend
+
+# Deploy specific locale
+bin/magento setup:static-content:deploy en_US --theme Magento/luma
+</code></pre>
+<p><strong>2. Exclude unnecessary locales:</strong></p>
+<pre><code class="language-bash"># In app/etc/config.php, set allowed locales
+'system' =&gt; [
+    'default' =&gt; [
+        'general' =&gt; [
+            'locale' =&gt; [
+                'code' =&gt; 'en_US'
+            ]
+        ]
+    ]
+]
+</code></pre>
+<p><strong>3. Use CDN for static assets:</strong></p>
+<pre><code class="language-bash"># app/etc/env.php
+'system' =&gt; [
+    'default' =&gt; [
+        'web' =&gt; [
+            'unsecure' =&gt; [
+                'base_static_url' =&gt; 'https://cdn.example.com/static/'
+            ],
+            'secure' =&gt; [
+                'base_static_url' =&gt; 'https://cdn.example.com/static/'
+            ]
+        ]
+    ]
+]
+</code></pre>
+<p><strong>4. Cache frontend dependencies:</strong></p>
+<pre><code class="language-bash"># CI pipeline: cache node_modules and composer packages
+- name: Cache Node modules
+  uses: actions/cache@v3
+  with:
+    path: node_modules
+    key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+</code></pre>
+<hr />
+<h2 id="zero-downtime-deployment-patterns">Zero-Downtime Deployment Patterns</h2>
+<h3 id="blue-green-deployment">Blue-Green Deployment</h3>
+<p><strong>Architecture:</strong></p>
+<pre><code>                    Load Balancer
+                   /              \
+              [Blue]              [Green]
+          (Current: v1.0)     (New: v1.1)
+</code></pre>
+<p><strong>Process:</strong></p>
+<ol>
+<li>Deploy new version to Green environment</li>
+<li>Run smoke tests on Green</li>
+<li>Switch traffic from Blue to Green</li>
+<li>Monitor metrics (error rates, response times)</li>
+<li>If issues, instant rollback to Blue</li>
+<li>After validation, Blue becomes next Green</li>
+</ol>
+<p><strong>Implementation:</strong></p>
+<pre><code class="language-bash">#!/bin/bash
+# blue-green-deploy.sh
+
+set -e
+
+BLUE_PATH=&quot;/var/www/magento-blue&quot;
+GREEN_PATH=&quot;/var/www/magento-green&quot;
+CURRENT_LINK=&quot;/var/www/magento&quot;
+ARTIFACT_PATH=&quot;/tmp/magento-artifact.tar.gz&quot;
+
+# Determine current and target
+if [ &quot;$(readlink $CURRENT_LINK)&quot; == &quot;$BLUE_PATH&quot; ]; then
+    CURRENT_ENV=&quot;blue&quot;
+    TARGET_ENV=&quot;green&quot;
+    TARGET_PATH=$GREEN_PATH
+else
+    CURRENT_ENV=&quot;green&quot;
+    TARGET_ENV=&quot;blue&quot;
+    TARGET_PATH=$BLUE_PATH
+fi
+
+echo &quot;Current environment: $CURRENT_ENV&quot;
+echo &quot;Deploying to: $TARGET_ENV&quot;
+
+# Extract artifact to target
+rm -rf $TARGET_PATH/*
+tar -xzf $ARTIFACT_PATH -C $TARGET_PATH --strip-components=1
+
+# Link shared resources
+ln -nfs /var/www/shared/var $TARGET_PATH/var
+ln -nfs /var/www/shared/pub/media $TARGET_PATH/pub/media
+ln -nfs /var/www/shared/app/etc/env.php $TARGET_PATH/app/etc/env.php
+
+# Set permissions
+chown -R www-data:www-data $TARGET_PATH
+
+# Database migrations (apply to shared DB)
+php $TARGET_PATH/bin/magento setup:upgrade --keep-generated
+
+# Reindex
+php $TARGET_PATH/bin/magento indexer:reindex
+
+# Clear cache
+php $TARGET_PATH/bin/magento cache:flush
+
+# Health check
+php $TARGET_PATH/bin/magento app:config:status || { echo &quot;Health check failed&quot;; exit 1; }
+
+# Atomic switch
+ln -nfs $TARGET_PATH $CURRENT_LINK
+
+# Reload PHP-FPM (graceful reload)
+sudo systemctl reload php8.2-fpm
+
+# Reload Nginx
+sudo nginx -s reload
+
+echo &quot;Deployment to $TARGET_ENV completed. Traffic switched.&quot;
+</code></pre>
+<p><strong>Nginx configuration:</strong></p>
+<pre><code class="language-nginx">upstream magento_backend {
+    server unix:/var/run/php/php8.2-fpm.sock;
+}
+
+server {
+    listen 80;
+    server_name example.com;
+
+    # Current symlink points to blue or green
+    root /var/www/magento/pub;
+
+    location / {
+        try_files $uri $uri/ /index.php$is_args$args;
+    }
+
+    location ~ \.php$ {
+        fastcgi_pass magento_backend;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        include fastcgi_params;
+    }
+}
+</code></pre>
+<h3 id="rolling-deployment-multi-server">Rolling Deployment (Multi-Server)</h3>
+<p><strong>Architecture:</strong></p>
+<pre><code>Load Balancer
+    ├── Server 1 (update → activate)
+    ├── Server 2 (update → activate)
+    ├── Server 3 (update → activate)
+    └── Server 4 (update → activate)
+</code></pre>
+<p><strong>Process:</strong></p>
+<ol>
+<li>Remove Server 1 from load balancer</li>
+<li>Deploy new version to Server 1</li>
+<li>Validate Server 1 health</li>
+<li>Add Server 1 back to load balancer</li>
+<li>Repeat for Server 2, 3, 4...</li>
+</ol>
+<p><strong>Ansible playbook example:</strong></p>
+<pre><code class="language-yaml"># deploy-rolling.yml
+---
+- name: Rolling deployment to production servers
+  hosts: webservers
+  serial: 1  # Deploy one server at a time
+  max_fail_percentage: 0
+
+  vars:
+    artifact_url: &quot;https://artifacts.example.com/magento-{{ build_id }}.tar.gz&quot;
+    deploy_path: &quot;/var/www/magento&quot;
+    release_path: &quot;{{ deploy_path }}/releases/{{ ansible_date_time.epoch }}&quot;
+    current_path: &quot;{{ deploy_path }}/current&quot;
+    shared_path: &quot;{{ deploy_path }}/shared&quot;
+
+  tasks:
+    - name: Remove server from load balancer
+      uri:
+        url: &quot;https://lb.example.com/api/servers/{{ inventory_hostname }}/disable&quot;
+        method: POST
+        headers:
+          Authorization: &quot;Bearer {{ lb_api_token }}&quot;
+      delegate_to: localhost
+
+    - name: Wait for active connections to drain
+      wait_for:
+        timeout: 30
+
+    - name: Download artifact
+      get_url:
+        url: &quot;{{ artifact_url }}&quot;
+        dest: &quot;/tmp/magento-artifact.tar.gz&quot;
+        checksum: &quot;sha256:{{ artifact_checksum }}&quot;
+
+    - name: Create release directory
+      file:
+        path: &quot;{{ release_path }}&quot;
+        state: directory
+        owner: www-data
+        group: www-data
+
+    - name: Extract artifact
+      unarchive:
+        src: &quot;/tmp/magento-artifact.tar.gz&quot;
+        dest: &quot;{{ release_path }}&quot;
+        remote_src: yes
+        extra_opts: [--strip-components=1]
+
+    - name: Link shared directories
+      file:
+        src: &quot;{{ shared_path }}/{{ item }}&quot;
+        dest: &quot;{{ release_path }}/{{ item }}&quot;
+        state: link
+      loop:
+        - var
+        - pub/media
+        - app/etc/env.php
+
+    - name: Run database migrations
+      command: php {{ release_path }}/bin/magento setup:upgrade --keep-generated
+      run_once: true  # Only run on first server
+
+    - name: Reindex
+      command: php {{ release_path }}/bin/magento indexer:reindex
+
+    - name: Clear cache
+      command: php {{ release_path }}/bin/magento cache:flush
+
+    - name: Switch symlink
+      file:
+        src: &quot;{{ release_path }}&quot;
+        dest: &quot;{{ current_path }}&quot;
+        state: link
+        force: yes
+
+    - name: Reload PHP-FPM
+      systemd:
+        name: php8.2-fpm
+        state: reloaded
+
+    - name: Health check
+      uri:
+        url: &quot;http://localhost/health&quot;
+        status_code: 200
+      retries: 5
+      delay: 5
+
+    - name: Add server back to load balancer
+      uri:
+        url: &quot;https://lb.example.com/api/servers/{{ inventory_hostname }}/enable&quot;
+        method: POST
+        headers:
+          Authorization: &quot;Bearer {{ lb_api_token }}&quot;
+      delegate_to: localhost
+
+    - name: Cleanup old releases
+      shell: ls -t {{ deploy_path }}/releases | tail -n +6 | xargs rm -rf
+      args:
+        chdir: &quot;{{ deploy_path }}/releases&quot;
+</code></pre>
+<hr />
+<h2 id="health-checks-and-validation">Health Checks and Validation</h2>
+<h3 id="application-health-endpoint">Application Health Endpoint</h3>
+<p><strong>Create custom health check module:</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Controller\Health;
+
+use Magento\Framework\App\Action\HttpGetActionInterface;
+use Magento\Framework\Controller\Result\JsonFactory;
+use Magento\Framework\App\ResourceConnection;
+use Magento\Framework\App\CacheInterface;
+
+class Check implements HttpGetActionInterface
+{
+    public function __construct(
+        private readonly JsonFactory $resultJsonFactory,
+        private readonly ResourceConnection $resourceConnection,
+        private readonly CacheInterface $cache
+    ) {}
+
+    public function execute()
+    {
+        $result = $this-&gt;resultJsonFactory-&gt;create();
+        $health = [
+            'status' =&gt; 'healthy',
+            'checks' =&gt; []
+        ];
+
+        // Database check
+        try {
+            $connection = $this-&gt;resourceConnection-&gt;getConnection();
+            $connection-&gt;fetchOne('SELECT 1');
+            $health['checks']['database'] = 'ok';
+        } catch (\Exception $e) {
+            $health['checks']['database'] = 'error: ' . $e-&gt;getMessage();
+            $health['status'] = 'unhealthy';
+        }
+
+        // Cache check
+        try {
+            $this-&gt;cache-&gt;save('health_check', 'health_check', [], 60);
+            $cached = $this-&gt;cache-&gt;load('health_check');
+            $health['checks']['cache'] = $cached === 'health_check' ? 'ok' : 'error';
+        } catch (\Exception $e) {
+            $health['checks']['cache'] = 'error: ' . $e-&gt;getMessage();
+        }
+
+        // Filesystem check
+        $varPath = BP . '/var';
+        $health['checks']['filesystem'] = is_writable($varPath) ? 'ok' : 'error: var/ not writable';
+
+        $httpCode = $health['status'] === 'healthy' ? 200 : 503;
+        return $result-&gt;setHttpResponseCode($httpCode)-&gt;setData($health);
+    }
+}
+</code></pre>
+<p><strong>Route configuration (routes.xml):</strong></p>
+<pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;config xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+        xsi:noNamespaceSchemaLocation=&quot;urn:magento:framework:App/etc/routes.xsd&quot;&gt;
+    &lt;router id=&quot;standard&quot;&gt;
+        &lt;route id=&quot;health&quot; frontName=&quot;health&quot;&gt;
+            &lt;module name=&quot;Vendor_Module&quot;/&gt;
+        &lt;/route&gt;
+    &lt;/router&gt;
+&lt;/config&gt;
+</code></pre>
+<p><strong>Usage:</strong></p>
+<pre><code class="language-bash">curl -f https://example.com/health/check || exit 1
+</code></pre>
+<h3 id="load-balancer-health-checks">Load Balancer Health Checks</h3>
+<p><strong>HAProxy configuration:</strong></p>
+<pre><code class="language-haproxy">backend magento_servers
+    balance roundrobin
+    option httpchk GET /health/check
+    http-check expect status 200
+
+    server web1 10.0.1.10:80 check inter 5s fall 3 rise 2
+    server web2 10.0.1.11:80 check inter 5s fall 3 rise 2
+    server web3 10.0.1.12:80 check inter 5s fall 3 rise 2
+</code></pre>
+<p><strong>AWS ALB Target Group:</strong></p>
+<pre><code class="language-json">{
+  &quot;HealthCheckEnabled&quot;: true,
+  &quot;HealthCheckIntervalSeconds&quot;: 30,
+  &quot;HealthCheckPath&quot;: &quot;/health/check&quot;,
+  &quot;HealthCheckProtocol&quot;: &quot;HTTP&quot;,
+  &quot;HealthCheckTimeoutSeconds&quot;: 5,
+  &quot;HealthyThresholdCount&quot;: 2,
+  &quot;UnhealthyThresholdCount&quot;: 3,
+  &quot;Matcher&quot;: {
+    &quot;HttpCode&quot;: &quot;200&quot;
+  }
+}
+</code></pre>
+<hr />
+<h2 id="rollback-procedures">Rollback Procedures</h2>
+<h3 id="instant-rollback-symlink-based">Instant Rollback (Symlink-Based)</h3>
+<pre><code class="language-bash">#!/bin/bash
+# rollback.sh
+
+set -e
+
+RELEASES_PATH=&quot;/var/www/magento/releases&quot;
+CURRENT_PATH=&quot;/var/www/magento/current&quot;
+
+# Get current release
+CURRENT_RELEASE=$(readlink $CURRENT_PATH)
+
+# Get previous release
+PREVIOUS_RELEASE=$(ls -t $RELEASES_PATH | sed -n '2p')
+
+if [ -z &quot;$PREVIOUS_RELEASE&quot; ]; then
+    echo &quot;No previous release found&quot;
+    exit 1
+fi
+
+echo &quot;Rolling back from $(basename $CURRENT_RELEASE) to $PREVIOUS_RELEASE&quot;
+
+# Maintenance mode ON
+php $CURRENT_PATH/bin/magento maintenance:enable
+
+# Atomic symlink swap
+ln -nfs $RELEASES_PATH/$PREVIOUS_RELEASE $CURRENT_PATH
+
+# Clear cache
+php $CURRENT_PATH/bin/magento cache:flush
+
+# Maintenance mode OFF
+php $CURRENT_PATH/bin/magento maintenance:disable
+
+# Reload services
+sudo systemctl reload php8.2-fpm
+sudo nginx -s reload
+
+echo &quot;Rollback completed successfully&quot;
+</code></pre>
+<h3 id="database-rollback-migrations">Database Rollback (Migrations)</h3>
+<p><strong>Important:</strong> Magento doesn't support automatic DB rollback. Strategies:</p>
+<p><strong>1. Backup before deployment:</strong></p>
+<pre><code class="language-bash"># Pre-deployment backup
+mysqldump -u root -p magento_prod &gt; /backups/magento_prod_$(date +%Y%m%d-%H%M%S).sql
+
+# Restore if needed
+mysql -u root -p magento_prod &lt; /backups/magento_prod_20260205-120000.sql
+</code></pre>
+<p><strong>2. Schema version tracking:</strong></p>
+<pre><code class="language-bash"># Check current schema version
+bin/magento module:status
+
+# Manually revert to previous version (requires custom migration scripts)
+bin/magento setup:rollback --code-version=2.4.6
+</code></pre>
+<p><strong>3. Blue-Green with separate databases (complex):</strong></p>
+<pre><code>Blue: Database A (current)
+Green: Database B (new schema)
+
+After validation → switch application to Database B
+Rollback → switch back to Database A
+</code></pre>
+<h3 id="automated-rollback-on-failure">Automated Rollback on Failure</h3>
+<p><strong>GitHub Actions example:</strong></p>
+<pre><code class="language-yaml">- name: Deploy to production
+  id: deploy
+  run: ./deploy.sh
+
+- name: Run smoke tests
+  id: smoke-test
+  run: ./smoke-tests.sh
+  continue-on-error: true
+
+- name: Rollback on failure
+  if: steps.smoke-test.outcome == 'failure'
+  run: |
+    echo &quot;Smoke tests failed, initiating rollback&quot;
+    ./rollback.sh
+    exit 1
+</code></pre>
+<hr />
+<h2 id="gitlab-ci-complete-example">GitLab CI Complete Example</h2>
+<pre><code class="language-yaml"># .gitlab-ci.yml
+stages:
+  - build
+  - test
+  - package
+  - deploy-staging
+  - deploy-production
+
+variables:
+  PHP_VERSION: &quot;8.2&quot;
+  ARTIFACT_NAME: &quot;magento-${CI_COMMIT_SHA}-${CI_PIPELINE_ID}.tar.gz&quot;
+
+build:
+  stage: build
+  image: php:${PHP_VERSION}-cli
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+      - vendor/
+      - node_modules/
+  script:
+    - apt-get update &amp;&amp; apt-get install -y git unzip nodejs npm
+    - composer install --no-dev --optimize-autoloader
+    - npm ci &amp;&amp; npm run build
+    - bin/magento deploy:mode:set production --skip-compilation
+    - bin/magento setup:di:compile
+    - bin/magento setup:static-content:deploy -f en_US --jobs 4
+  artifacts:
+    paths:
+      - ./
+    expire_in: 1 week
+
+test:unit:
+  stage: test
+  image: php:${PHP_VERSION}-cli
+  dependencies:
+    - build
+  script:
+    - composer install --dev
+    - vendor/bin/phpunit -c dev/tests/unit/phpunit.xml.dist
+
+test:static:
+  stage: test
+  image: php:${PHP_VERSION}-cli
+  dependencies:
+    - build
+  script:
+    - composer install --dev
+    - vendor/bin/phpstan analyse app/code --level 8
+    - vendor/bin/phpcs app/code --standard=Magento2
+
+package:
+  stage: package
+  image: alpine:latest
+  dependencies:
+    - build
+  script:
+    - apk add tar gzip
+    - tar -czf ${ARTIFACT_NAME} --exclude='.git' --exclude='dev' --exclude='var/log' .
+    - sha256sum ${ARTIFACT_NAME} &gt; ${ARTIFACT_NAME}.sha256
+  artifacts:
+    paths:
+      - ${ARTIFACT_NAME}
+      - ${ARTIFACT_NAME}.sha256
+    expire_in: 30 days
+
+deploy:staging:
+  stage: deploy-staging
+  image: alpine:latest
+  dependencies:
+    - package
+  environment:
+    name: staging
+    url: https://staging.example.com
+  only:
+    - staging
+  script:
+    - apk add openssh-client rsync
+    - eval $(ssh-agent -s)
+    - echo &quot;$STAGING_SSH_KEY&quot; | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh &amp;&amp; chmod 700 ~/.ssh
+    - ssh-keyscan $STAGING_HOST &gt;&gt; ~/.ssh/known_hosts
+    - scp ${ARTIFACT_NAME} ${STAGING_USER}@${STAGING_HOST}:/tmp/
+    - ssh ${STAGING_USER}@${STAGING_HOST} &quot;./deploy.sh /tmp/${ARTIFACT_NAME}&quot;
+
+deploy:production:
+  stage: deploy-production
+  image: alpine:latest
+  dependencies:
+    - package
+  environment:
+    name: production
+    url: https://www.example.com
+  only:
+    - production
+  when: manual  # Require manual approval
+  script:
+    - apk add openssh-client
+    - eval $(ssh-agent -s)
+    - echo &quot;$PRODUCTION_SSH_KEY&quot; | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh &amp;&amp; chmod 700 ~/.ssh
+    - ssh-keyscan $PRODUCTION_HOST &gt;&gt; ~/.ssh/known_hosts
+    - scp ${ARTIFACT_NAME} ${PRODUCTION_USER}@${PRODUCTION_HOST}:/tmp/
+    - ssh ${PRODUCTION_USER}@${PRODUCTION_HOST} &quot;./deploy.sh /tmp/${ARTIFACT_NAME}&quot;
+  after_script:
+    - echo &quot;Running smoke tests&quot;
+    - curl -f https://www.example.com/health/check || exit 1
+</code></pre>
+<hr />
+<h2 id="performance-optimization">Performance Optimization</h2>
+<h3 id="parallel-builds">Parallel Builds</h3>
+<pre><code class="language-yaml"># Split static content deployment by locale
+deploy-static-en:
+  script: bin/magento setup:static-content:deploy en_US --jobs 4
+
+deploy-static-de:
+  script: bin/magento setup:static-content:deploy de_DE --jobs 4
+
+# Run in parallel
+</code></pre>
+<h3 id="incremental-builds">Incremental Builds</h3>
+<pre><code class="language-bash"># Note: setup:di:compile-multi-tenant does not exist in Magento 2.4.x.
+# Use the standard DI compile command (it compiles all modules):
+bin/magento setup:di:compile
+
+# Skip unchanged static content
+bin/magento setup:static-content:deploy --theme Magento/backend  # Admin only
+</code></pre>
+<h3 id="caching-in-ci">Caching in CI</h3>
+<pre><code class="language-yaml">- name: Cache Composer packages
+  uses: actions/cache@v3
+  with:
+    path: ~/.composer/cache
+    key: composer-${{ hashFiles('composer.lock') }}
+
+- name: Cache static content
+  uses: actions/cache@v3
+  with:
+    path: |
+      pub/static
+      var/view_preprocessed
+    key: static-${{ hashFiles('app/design/**/*') }}
+</code></pre>
+<hr />
+<h2 id="assumptions">Assumptions</h2>
+<ul>
+<li><strong>Magento version:</strong> 2.4.7+ (PHP 8.2+, Composer 2)</li>
+<li><strong>Infrastructure:</strong> Linux servers (Ubuntu 22.04 or RHEL 9)</li>
+<li><strong>Web server:</strong> Nginx 1.24+ with PHP-FPM 8.2</li>
+<li><strong>CI platform:</strong> GitHub Actions or GitLab CI</li>
+<li><strong>Deployment:</strong> Symlink-based releases with shared resources</li>
+<li><strong>Database:</strong> MySQL 8.0 or MariaDB 10.6</li>
+</ul>
+<h2 id="why-this-approach">Why This Approach</h2>
+<p><strong>Build artifact strategy:</strong>
+- Eliminates "works on my machine" issues (identical artifacts across environments)
+- Faster deployments (no composer install on production)
+- Instant rollback (symlink swap)
+- Reproducible builds (composer.lock committed)</p>
+<p><strong>Blue-green deployment:</strong>
+- Zero downtime (traffic switches instantly)
+- Easy rollback (switch back to previous environment)
+- Full validation before traffic switch
+- No database locking during deployment</p>
+<p><strong>Rolling deployment:</strong>
+- Zero downtime for multi-server setups
+- Gradual rollout reduces blast radius
+- Load balancer handles traffic distribution
+- Automatic health check integration</p>
+<p><strong>Static content pre-compilation:</strong>
+- No on-demand generation overhead
+- Consistent performance (no cache warm-up)
+- CDN-ready assets
+- Predictable deployment times</p>
+<h2 id="security-impact">Security Impact</h2>
+<ul>
+<li><strong>SSH keys:</strong> Use dedicated deploy keys with restricted permissions (read-only access to artifact storage, write to deployment directories only)</li>
+<li><strong>Secrets:</strong> Store in CI platform secrets manager (GitHub Secrets, GitLab CI/CD variables); never commit to VCS</li>
+<li><strong>File permissions:</strong> <code>www-data:www-data</code> ownership, 755 for directories, 644 for files, +x only for bin/magento</li>
+<li><strong>Artifact integrity:</strong> SHA256 checksums verify artifact hasn't been tampered with</li>
+<li><strong>Database credentials:</strong> Stored in <code>app/etc/env.php</code> (symlinked from shared directory, excluded from artifact)</li>
+<li><strong>Maintenance mode:</strong> Prevents race conditions during schema upgrades; returns 503 status to search engines (preserves SEO)</li>
+</ul>
+<h2 id="performance-impact">Performance Impact</h2>
+<ul>
+<li><strong>Deployment speed:</strong> Build artifact: 2-5 min; Build-on-server: 10-20 min</li>
+<li><strong>Downtime:</strong> Blue-green: 0s; Rolling: 0s; Traditional: 2-5 min</li>
+<li><strong>Static content:</strong> Pre-compiled: 3-5 min (one-time); On-demand: 100-500ms per request</li>
+<li><strong>Rollback time:</strong> Symlink swap: &lt;10s; Full rebuild: 10-20 min</li>
+<li><strong>Cache warm-up:</strong> Pre-warmed cache (during deployment) vs cold cache (after rollback)</li>
+<li><strong>Database migrations:</strong> <code>--keep-generated</code> flag avoids full DI recompilation</li>
+</ul>
+<h2 id="backward-compatibility">Backward Compatibility</h2>
+<ul>
+<li><strong>Deployment scripts:</strong> Shell scripts compatible with Bash 4+, POSIX-compliant</li>
+<li><strong>Magento CLI:</strong> Commands stable across 2.4.x; deprecations noted in release notes</li>
+<li><strong>Artifact structure:</strong> Consistent across Magento versions; <code>composer.lock</code> ensures dependency compatibility</li>
+<li><strong>Database migrations:</strong> Forward-only; rollback requires manual intervention or backups</li>
+<li><strong>Static content:</strong> Theme structure changes may require updated deployment commands</li>
+</ul>
+<h2 id="tests-to-add">Tests to Add</h2>
+<p><strong>Pre-deployment:</strong>
+- Unit tests (PHPUnit)
+- Integration tests
+- Static analysis (PHPStan, PHPCS)
+- Security scanning (composer audit)</p>
+<p><strong>Post-deployment:</strong>
+- Smoke tests (HTTP 200 on critical URLs)
+- Health check endpoint validation
+- Functional tests (checkout flow, admin login)
+- Performance regression tests (response time baselines)</p>
+<h2 id="documentation-to-update">Documentation to Update</h2>
+<ul>
+<li><strong>README:</strong> Add deployment instructions, required secrets, server prerequisites</li>
+<li><strong>RUNBOOK:</strong> Document rollback procedures, emergency contacts, escalation paths</li>
+<li><strong>CHANGELOG:</strong> Track deployment history, schema changes, breaking changes</li>
+<li><strong>Infrastructure diagrams:</strong> Server topology, load balancer configuration, network flow</li>
+<li><strong>Screenshots:</strong> CI pipeline stages, artifact storage, deployment logs</li>
+<li><strong>Monitoring dashboards:</strong> Grafana/Datadog links, key metrics, alert thresholds</li>
+</ul>
+<hr />
+<h2 id="additional-resources">Additional Resources</h2>
+<ul>
+<li><a href="https://experienceleague.adobe.com/docs/commerce-operations/configuration-guide/deployment/">Magento DevDocs: Deployment</a></li>
+<li><a href="https://docs.github.com/en/actions">GitHub Actions Documentation</a></li>
+<li><a href="https://docs.gitlab.com/ee/ci/">GitLab CI/CD Documentation</a></li>
+<li><a href="https://martinfowler.com/bliki/BlueGreenDeployment.html">Blue-Green Deployment Pattern</a></li>
+<li><a href="https://github.com/elfhosted/ansible-magento2">Ansible for Magento Automation</a></li>
+</ul>
+<h2 id="related-documentation">Related Documentation</h2>
+<h3 id="related-guides">Related Guides</h3>
+<ul>
+<li><a href="../tutorials/docker-development-environment.md">Docker Development Environment Setup for Magento 2</a></li>
+<li><a href="testing-strategies.md">Comprehensive Testing Strategies for Magento 2</a></li>
+<li><a href="full-page-cache-strategy.md">Full Page Cache Strategy for High-Performance Magento</a></li>
+</ul>
+                    </div>
+                </article>
+            </main>
+            <!-- Right Sidebar: On This Page (desktop) -->
+            <aside class="toc-sidebar hidden xl:block" aria-label="On this page">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-semibold text-gray-900 uppercase tracking-wider mb-4 mt-0">On this page</h3>
+                    <nav id="toc-nav" class="space-y-0" aria-label="Table of contents"></nav>
+                    <div class="toc-back-to-top">
+                        <a href="#">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+                            </svg>
+                            Back to top
+                        </a>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- ================================================================
+         FOOTER — matches module-catalog.html multi-column layout exactly
+         ================================================================ -->
+    <footer class="relative pt-12 bg-white border-t border-charcoal mt-16">
+        <div class="max-w-screen-2xl mx-auto w-full px-4 sm:px-6 lg:px-8">
+            <div>
+                <a href="index.html" class="inline-flex items-center no-underline">
+                    <svg width="30" height="33" viewBox="0 0 30 33" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Magento Association logo" role="img">
+                        <path d="M0 4.06492H29.6763V31.8882C29.6763 32.502 29.1713 33 28.5487 33H1.12762C0.505079 33 0 32.502 0 31.8882V4.06492Z" fill="#34323A"/>
+                        <path d="M1.26857 0H28.4078C29.1066 0 29.6763 0.561678 29.6763 1.25075V4.06492H0V1.25075C0 0.561678 0.569682 0 1.26857 0Z" fill="#C9C9C9"/>
+                        <path d="M2.37269 3.0458C2.94031 3.0458 3.40046 2.59211 3.40046 2.03246C3.40046 1.47281 2.94031 1.01913 2.37269 1.01913C1.80506 1.01913 1.34491 1.47281 1.34491 2.03246C1.34491 2.59211 1.80506 3.0458 2.37269 3.0458Z" fill="#848484"/>
+                        <path d="M5.28571 3.0458C5.85334 3.0458 6.31349 2.59211 6.31349 2.03246C6.31349 1.47281 5.85334 1.01913 5.28571 1.01913C4.71809 1.01913 4.25793 1.47281 4.25793 2.03246C4.25793 2.59211 4.71809 3.0458 5.28571 3.0458Z" fill="#848484"/>
+                        <path d="M14.7883 7.46973L4.90405 13.0923V24.349L7.54104 25.8487V14.5978L14.7883 10.4692L22.0415 14.5978V25.8487L24.6785 24.349V13.0923L14.7883 7.46973Z" fill="#F1BC1B"/>
+                        <path d="M16.0862 26.2367L14.7883 26.9779L13.4492 26.2135V14.233L10.178 16.0975V27.3485L13.4492 29.213L14.7883 29.9773L16.0862 29.2362L19.4045 27.3485V16.0975L16.0862 14.2098V26.2367Z" fill="#F1BC1B"/>
+                    </svg>
+                    <span class="ml-3 text-xl font-bold text-charcoal">Developer Documentation</span>
+                </a>
+            </div>
+
+            <div class="grid grid-cols-12 md:gap-x-8 gap-y-12 lg:mt-12">
+                <div class="col-span-12 lg:col-span-4">
+                    <p class="hidden lg:block text-xs text-charcoal sm:text-sm">Comprehensive developer documentation for Magento 2.4.7+ — tutorials, architecture deep dives, module references, and production-ready patterns built by the community, for the community.</p>
+                    <ul class="mt-6 hidden lg:flex items-center gap-3">
+                        <li class="pl-0">
+                            <a href="https://github.com/magento/magento2" class="p-2 md:p-0" aria-label="GitHub">
+                                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                                </svg>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Guides</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="tutorials.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Tutorials</a></li>
+                            <li class="pl-0"><a href="how-to-guides.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">How-To Guides</a></li>
+                            <li class="pl-0"><a href="architecture.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Architecture</a></li>
+                            <li class="pl-0"><a href="learning-paths.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Learning Paths</a></li>
+                            <li class="pl-0"><a href="references.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">References</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Modules</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="module-catalog.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Catalog</a></li>
+                            <li class="pl-0"><a href="module-checkout.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Checkout</a></li>
+                            <li class="pl-0"><a href="module-sales.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Sales</a></li>
+                            <li class="pl-0"><a href="module-customer.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Customer</a></li>
+                            <li class="pl-0"><a href="module-quote.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Quote</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Community</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Magento Community</a></li>
+                            <li class="pl-0"><a href="https://magento.stackexchange.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Stack Exchange</a></li>
+                            <li class="pl-0"><a href="https://marketplace.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Marketplace</a></li>
+                            <li class="pl-0"><a href="https://github.com/magento/magento2" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">GitHub</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Support</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://github.com/magento/magento2/issues" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Report Issues</a></li>
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Community Resources</a></li>
+                            <li class="pl-0"><a href="https://developer.adobe.com/commerce/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Adobe Commerce Docs</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-12 border-t pt-6 pb-16 border-charcoal">
+                <p class="text-xs text-charcoal">
+                    &copy; 2026 Magento 2 Developer Documentation. Magento&reg; is a registered trademark of Adobe Inc.
+                </p>
+                <p class="mt-6 text-xs text-charcoal">
+                    This documentation provides guidance for Magento 2 developers and extension builders. For merchant documentation, visit the <a href="index.html" class="text-orange hover:text-orange-600 transition-colors">merchant documentation</a>.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Initialize highlight.js -->
+    <script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('pre code').forEach(function (el) {
+        hljs.highlightElement(el);
+    });
+    document.querySelectorAll('pre').forEach(function (pre) {
+        if (pre.parentNode.classList && pre.parentNode.classList.contains('code-wrapper')) return;
+        var wrapper = document.createElement('div');
+        wrapper.className = 'code-wrapper';
+        pre.parentNode.insertBefore(wrapper, pre);
+        wrapper.appendChild(pre);
+        var btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.setAttribute('type', 'button');
+        btn.setAttribute('aria-label', 'Copy code to clipboard');
+        btn.setAttribute('title', 'Copy');
+        btn.textContent = 'Copy';
+        wrapper.appendChild(btn);
+        btn.addEventListener('click', function () {
+            var code = pre.querySelector('code');
+            var text = code ? (code.innerText || code.textContent) : (pre.innerText || pre.textContent);
+            navigator.clipboard.writeText(text).then(function () {
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            }).catch(function () {
+                var range = document.createRange();
+                range.selectNode(code || pre);
+                window.getSelection().removeAllRanges();
+                window.getSelection().addRange(range);
+                document.execCommand('copy');
+                window.getSelection().removeAllRanges();
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            });
+        });
+    });
+});
+</script>
+
+
+<script>
+(function() {
+    var nav = document.getElementById('toc-nav');
+    if (!nav) return;
+    var article = document.getElementById('main-content');
+    if (!article) return;
+    var headings = article.querySelectorAll('h2[id], h3[id]');
+    if (headings.length < 3) {
+        // Hide the entire TOC sidebar if fewer than 3 headings
+        var sidebar = nav.closest('.toc-sidebar');
+        if (sidebar) sidebar.style.display = 'none';
+        return;
+    }
+    var ids = [];
+    headings.forEach(function(h) {
+        var a = document.createElement('a');
+        a.href = '#' + h.id;
+        a.textContent = h.textContent.replace(/^#+\s*/, '').replace(/\s+/g, ' ').trim();
+        if (h.tagName === 'H3') a.classList.add('toc-h3');
+        nav.appendChild(a);
+        ids.push(h.id);
+    });
+    // Scroll-spy with IntersectionObserver
+    var links = nav.querySelectorAll('a');
+    var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                links.forEach(function(l) { l.classList.remove('toc-active'); });
+                var active = nav.querySelector('a[href="#' + entry.target.id + '"]');
+                if (active) active.classList.add('toc-active');
+            }
+        });
+    }, { rootMargin: '-80px 0px -70% 0px', threshold: 0 });
+    headings.forEach(function(h) { observer.observe(h); });
+})();
+</script>
+</body>
+</html>

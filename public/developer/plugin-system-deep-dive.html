@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plugin System Deep Dive: Mastering Magento 2 Interception | Magento Developer Documentation</title>
+  <meta name="description" content="Complete guide to Magento 2's plugin system (interceptors): Before, After, Around plugins, execution order, best practices, performance optimization, and production-ready examples">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            charcoal: {
+              DEFAULT: '#2c2c2c',
+              50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6',
+              300: '#6B6B6B', 400: '#474747', 500: '#2c2c2c',
+              600: '#262626', 700: '#202020', 800: '#1c1c1c',
+              900: '#191919', 950: '#121212'
+            },
+            orange: {
+              DEFAULT: '#D4551A',
+              50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad',
+              300: '#f9ae78', 400: '#f58242', 500: '#f26423',
+              600: '#e34613', 700: '#bc3312', 800: '#962a16',
+              900: '#792515', 950: '#411009'
+            },
+            yellow: {
+              DEFAULT: '#B8860B',
+              50: '#fffdeb', 100: '#fdf9c8', 200: '#fbf38c',
+              300: '#f8e651', 400: '#f7d728', 500: '#f1bc1b',
+              600: '#d5900a', 700: '#b1670c', 800: '#8f5111',
+              900: '#764311', 950: '#442204'
+            },
+            dark: { 500: '#171923', 600: '#12141C' },
+            'off-white': '#FAFAFA',
+          },
+          fontFamily: {
+            sans: ['Inter Tight', 'system-ui', '-apple-system', 'sans-serif'],
+            mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
+          },
+        }
+      }
+    }
+  </script>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- Highlight.js for Syntax Highlighting -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/php.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/xml.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+
+  <style>
+    body { font-family: 'Inter Tight', system-ui, sans-serif; }
+
+    .hljs {
+      background: #2c2c2c;
+      padding: 1rem;
+      overflow-x: auto;
+    }
+
+    .hexagon-bullet::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0.5em;
+      width: 9px;
+      height: 9px;
+      background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 2L21 7V17L12 22L3 17V7L12 2Z' stroke='%23F26423' stroke-width='2.5' stroke-linejoin='miter'/%3E%3C/svg%3E");
+      background-size: contain;
+      background-repeat: no-repeat;
+    }
+  
+        /* Code block copy button */
+        .code-wrapper {
+            position: relative;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            font-family: 'Inter Tight', system-ui, sans-serif;
+            background: rgba(255,255,255,0.1);
+            color: #abb2bf;
+            border: 1px solid rgba(255,255,255,0.15);
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.15s ease, background 0.15s ease;
+            z-index: 10;
+            line-height: 1.4;
+            border-radius: 4px;
+            user-select: none;
+        }
+        .code-wrapper:hover .copy-btn {
+            opacity: 1;
+        }
+        .copy-btn:hover,
+        .copy-btn:focus {
+            background: rgba(255,255,255,0.2);
+            color: #ffffff;
+            outline: 2px solid #D4551A;
+            outline-offset: 1px;
+        }
+        .copy-btn.copied {
+            color: #98c379;
+            background: rgba(152, 195, 121, 0.15);
+            opacity: 1;
+        }
+    
+        /* Right-hand TOC sidebar */
+        .toc-sidebar {
+            width: 14rem;
+            flex-shrink: 0;
+        }
+        .toc-sidebar a {
+            display: block;
+            padding: 0.375rem 0;
+            font-size: 0.8125rem;
+            line-height: 1.4;
+            color: #6b7280;
+            text-decoration: none;
+            transition: color 0.15s ease;
+            border-left: 2px solid transparent;
+            padding-left: 0.75rem;
+        }
+        .toc-sidebar a:hover {
+            color: #111827;
+        }
+        .toc-sidebar a.toc-active {
+            color: #ea580c;
+            border-left-color: #ea580c;
+            font-weight: 500;
+        }
+        .toc-sidebar a.toc-h3 {
+            padding-left: 1.5rem;
+            font-size: 0.75rem;
+        }
+        .toc-sidebar .toc-back-to-top {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e5e7eb;
+        }
+        .toc-sidebar .toc-back-to-top a {
+            border-left: none;
+            padding-left: 0;
+            font-weight: 500;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .toc-sidebar .toc-back-to-top a:hover {
+            color: #ea580c;
+        }
+    </style>
+</head>
+<body class="bg-off-white text-charcoal font-sans antialiased">
+  <!-- Skip Link -->
+  <a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-charcoal-700 focus:text-white">
+    Skip to content
+  </a>
+
+  <!-- Header -->
+    <!-- Shared header — single source of truth -->
+    <script src="includes/header.js"></script>
+
+  <!-- Main Content -->
+  <main id="main-content" id="main" class="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
+    <div class="lg:grid lg:grid-cols-4 lg:gap-8">
+      <!-- Sidebar / TOC -->
+      <aside class="hidden lg:block lg:col-span-1">
+        <div class="sticky top-8">
+          <nav class="bg-white border border-charcoal-200 p-4 shadow-sm">
+            <h4 class="text-sm font-semibold text-charcoal-700 mb-3 uppercase tracking-wide">On This Page</h4>
+            <ul class="space-y-2 text-sm">
+              <li><a href="#overview" class="text-charcoal-500 hover:text-orange-600 transition-colors">Overview</a></li>
+              <li><a href="#learning-objectives" class="text-charcoal-500 hover:text-orange-600 transition-colors">Learning Objectives</a></li>
+              <li><a href="#plugin-types" class="text-charcoal-500 hover:text-orange-600 transition-colors">Plugin Types</a></li>
+              <li><a href="#registration" class="text-charcoal-500 hover:text-orange-600 transition-colors">Plugin Registration</a></li>
+              <li><a href="#execution-order" class="text-charcoal-500 hover:text-orange-600 transition-colors">Execution Order</a></li>
+              <li><a href="#when-to-use" class="text-charcoal-500 hover:text-orange-600 transition-colors">When to Use</a></li>
+              <li><a href="#common-mistakes" class="text-charcoal-500 hover:text-orange-600 transition-colors">Common Mistakes</a></li>
+              <li><a href="#performance" class="text-charcoal-500 hover:text-orange-600 transition-colors">Performance</a></li>
+              <li><a href="#production-example" class="text-charcoal-500 hover:text-orange-600 transition-colors">Production Example</a></li>
+              <li><a href="#debugging" class="text-charcoal-500 hover:text-orange-600 transition-colors">Debugging</a></li>
+              <li><a href="#testing" class="text-charcoal-500 hover:text-orange-600 transition-colors">Testing</a></li>
+            </ul>
+          </nav>
+        </div>
+      </aside>
+
+      <!-- Article Content -->
+      <article class="docs-content lg:col-span-3 max-w-none">
+
+        <!-- Overview Section -->
+        <section id="overview" class="mb-12">
+          <div class="bg-white p-8 border-t-4 border-orange-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-charcoal mb-4 mt-0">Learning Objectives</h2>
+            <p class="text-lg text-charcoal-500 leading-relaxed mb-6">
+              By completing this tutorial, you will master Magento 2's plugin system and understand how to extend functionality without modifying core or third-party code. You'll learn when to use plugins versus alternatives, avoid common pitfalls, and build production-ready interceptors.
+            </p>
+            <div class="mt-6">
+              <p class="font-semibold text-charcoal mb-3">What you'll accomplish:</p>
+              <ul class="space-y-2 pl-6">
+                <li class="relative hexagon-bullet pl-6 text-charcoal-500">Understand the plugin (interceptor) pattern and implementation</li>
+                <li class="relative hexagon-bullet pl-6 text-charcoal-500">Master Before, After, and Around plugin types with real-world examples</li>
+                <li class="relative hexagon-bullet pl-6 text-charcoal-500">Control plugin execution order using sortOrder and dependencies</li>
+                <li class="relative hexagon-bullet pl-6 text-charcoal-500">Choose the correct extension mechanism: plugins vs observers vs preferences</li>
+                <li class="relative hexagon-bullet pl-6 text-charcoal-500">Avoid common plugin pitfalls that break functionality or performance</li>
+                <li class="relative hexagon-bullet pl-6 text-charcoal-500">Optimize plugin performance and minimize generated code bloat</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- Introduction -->
+        <section class="mb-12">
+          <h2 class="text-xl sm:text-2xl lg:text-3xl font-bold text-charcoal border-b border-charcoal-200 pb-2 mb-6">Introduction</h2>
+          <p class="text-base text-charcoal-500 leading-relaxed mb-4">
+            Magento 2's plugin system (also called interceptors) is the primary mechanism for extending core and third-party functionality <strong>without modifying original code</strong>. Plugins enable you to run custom code before, after, or around any public method in Magento, making them essential for building upgrade-safe, modular extensions.
+          </p>
+
+          <h3 class="text-lg font-semibold text-charcoal mb-3 mt-6">What Are Plugins?</h3>
+          <p class="text-charcoal-500 leading-relaxed mb-4">
+            Plugins are PHP classes that intercept method calls on <strong>public methods</strong> of <strong>non-final classes</strong>. When a method is intercepted, Magento's generated code routes the call through your plugin, allowing you to:
+          </p>
+          <ul class="space-y-2 pl-6 mb-6">
+            <li class="relative hexagon-bullet pl-6 text-charcoal-500">Modify input arguments (Before plugin)</li>
+            <li class="relative hexagon-bullet pl-6 text-charcoal-500">Modify return values (After plugin)</li>
+            <li class="relative hexagon-bullet pl-6 text-charcoal-500">Completely replace method logic (Around plugin)</li>
+          </ul>
+
+          <!-- Table: When to Use -->
+          <div class="bg-white border border-charcoal-200 p-6 mt-8">
+            <h3 class="text-lg font-semibold text-charcoal mb-4">When to Use Plugins vs Alternatives</h3>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-sm">
+                <thead class="bg-orange-500 text-white">
+                  <tr>
+                    <th class="px-4 py-3 font-semibold">Mechanism</th>
+                    <th class="px-4 py-3 font-semibold">Use Case</th>
+                    <th class="px-4 py-3 font-semibold">Example</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-charcoal-200">
+                  <tr class="hover:bg-charcoal-50">
+                    <td class="px-4 py-3 font-medium">Plugin</td>
+                    <td class="px-4 py-3 text-charcoal-500">Modify method behavior, arguments, or return values</td>
+                    <td class="px-4 py-3 text-charcoal-500">Change product price calculation</td>
+                  </tr>
+                  <tr class="hover:bg-charcoal-50">
+                    <td class="px-4 py-3 font-medium">Observer</td>
+                    <td class="px-4 py-3 text-charcoal-500">React to events without return value</td>
+                    <td class="px-4 py-3 text-charcoal-500">Send email after order placed</td>
+                  </tr>
+                  <tr class="hover:bg-charcoal-50">
+                    <td class="px-4 py-3 font-medium">Preference</td>
+                    <td class="px-4 py-3 text-charcoal-500">Replace entire class (last resort)</td>
+                    <td class="px-4 py-3 text-charcoal-500">Override core class with major changes</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- Plugin Types -->
+        <section id="plugin-types" class="mb-12">
+          <h2 class="text-xl sm:text-2xl lg:text-3xl font-bold text-charcoal border-b border-charcoal-200 pb-2 mb-6">Plugin Types: Before, After, Around</h2>
+
+          <p class="text-charcoal-500 leading-relaxed mb-6">
+            Magento provides three plugin types, each with distinct capabilities and use cases.
+          </p>
+
+          <!-- Before Plugin -->
+          <div class="border-t-4 border-orange-500 bg-white shadow-sm p-8 mb-6">
+            <div class="flex items-center gap-4 mb-6">
+              <div class="w-10 h-10 bg-orange-500 text-white font-extrabold text-lg flex items-center justify-center flex-shrink-0">1</div>
+              <h3 class="text-2xl font-bold text-charcoal m-0">Before Plugin</h3>
+            </div>
+            <div class="text-charcoal-500 leading-relaxed">
+              <p class="mb-4"><strong>Purpose:</strong> Modify method arguments before the original method executes.</p>
+              <p class="mb-4"><strong>Signature:</strong> <code class="bg-charcoal-500 text-[#abb2bf] px-2 py-1 font-mono text-sm">public function before&lt;MethodName&gt;($subject, $argument1, ...)</code></p>
+              <p class="mb-4"><strong>Return:</strong> Array of modified arguments (or null to keep original)</p>
+
+              <div class="bg-orange-50 border-l-4 border-orange-400 p-4 my-6">
+                <p class="font-semibold text-orange-800 mb-1">Key Point</p>
+                <p class="text-orange-700 text-sm leading-relaxed">Returning <code class="bg-charcoal-500 text-[#abb2bf] px-1 font-mono">null</code> keeps original arguments. Returning <code class="bg-charcoal-500 text-[#abb2bf] px-1 font-mono">[]</code> would replace arguments with an empty array, which would break the method call.</p>
+              </div>
+
+              <p class="font-semibold text-charcoal mb-3">Example: Add customer group discount to product price calculation</p>
+              <pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Plugin\Catalog\Model\Product;
+
+use Magento\Catalog\Model\Product;
+use Magento\Customer\Model\Session as CustomerSession;
+use Psr\Log\LoggerInterface;
+
+class PriceExtend
+{
+    public function __construct(
+        private readonly CustomerSession $customerSession,
+        private readonly LoggerInterface $logger
+    ) {
+    }
+
+    public function beforeGetFinalPrice(Product $subject, $qty = 1.0): ?array
+    {
+        $customerGroupId = $this->customerSession->getCustomerGroupId();
+
+        // Example: Apply bulk discount for wholesale customer group (ID 3)
+        if ($customerGroupId === 3 && $qty &lt; 10) {
+            $this->logger->info('Adjusting quantity to 10 for wholesale pricing');
+            return [10.0]; // Force minimum quantity for wholesale price tier
+        }
+
+        return null; // Return null to keep original arguments unchanged
+    }
+}</code></pre>
+            </div>
+          </div>
+
+          <!-- After Plugin -->
+          <div class="border-t-4 border-orange-500 bg-white shadow-sm p-8 mb-6">
+            <div class="flex items-center gap-4 mb-6">
+              <div class="w-10 h-10 bg-orange-500 text-white font-extrabold text-lg flex items-center justify-center flex-shrink-0">2</div>
+              <h3 class="text-2xl font-bold text-charcoal m-0">After Plugin</h3>
+            </div>
+            <div class="text-charcoal-500 leading-relaxed">
+              <p class="mb-4"><strong>Purpose:</strong> Modify the return value after the original method executes.</p>
+              <p class="mb-4"><strong>Signature:</strong> <code class="bg-charcoal-500 text-[#abb2bf] px-2 py-1 font-mono text-sm">public function after&lt;MethodName&gt;($subject, $result, $argument1, ...)</code></p>
+              <p class="mb-4"><strong>Return:</strong> Modified result (must match original return type)</p>
+
+              <p class="font-semibold text-charcoal mb-3">Example: Add custom attribute to product collection</p>
+              <pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Plugin\Catalog\Model\ResourceModel\Product;
+
+use Magento\Catalog\Model\ResourceModel\Product\Collection;
+use Psr\Log\LoggerInterface;
+
+class CollectionExtend
+{
+    public function __construct(
+        private readonly LoggerInterface $logger
+    ) {
+    }
+
+    public function afterLoad(Collection $subject, Collection $result): Collection
+    {
+        if ($result->count() === 0) {
+            return $result;
+        }
+
+        foreach ($result->getItems() as $product) {
+            $customValue = $this->calculateCustomValue($product);
+            $product->setData('custom_attribute', $customValue);
+        }
+
+        $this->logger->debug('Added custom attribute to product collection', [
+            'product_count' =&gt; $result->count()
+        ]);
+
+        return $result;
+    }
+
+    private function calculateCustomValue($product): string
+    {
+        return 'custom_' . $product->getId();
+    }
+}</code></pre>
+            </div>
+          </div>
+
+          <!-- Around Plugin -->
+          <div class="border-t-4 border-orange-500 bg-white shadow-sm p-8 mb-6">
+            <div class="flex items-center gap-4 mb-6">
+              <div class="w-10 h-10 bg-orange-500 text-white font-extrabold text-lg flex items-center justify-center flex-shrink-0">3</div>
+              <h3 class="text-2xl font-bold text-charcoal m-0">Around Plugin</h3>
+            </div>
+            <div class="text-charcoal-500 leading-relaxed">
+              <p class="mb-4"><strong>Purpose:</strong> Completely control method execution (call original, skip it, or replace it).</p>
+              <p class="mb-4"><strong>Signature:</strong> <code class="bg-charcoal-500 text-[#abb2bf] px-2 py-1 font-mono text-sm">public function around&lt;MethodName&gt;($subject, callable $proceed, $argument1, ...)</code></p>
+              <p class="mb-4"><strong>Use Case:</strong> Conditional execution, caching, performance optimization</p>
+
+              <div class="bg-orange-100 border-l-4 border-orange-700 p-4 my-6">
+                <div class="flex items-start gap-3">
+                  <svg class="w-5 h-5 text-orange-700 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                  </svg>
+                  <div class="flex-1">
+                    <p class="font-semibold text-orange-900 mb-1">Warning</p>
+                    <p class="text-orange-800 text-sm leading-relaxed">Around plugins are the most powerful but also most dangerous. Always call <code class="bg-charcoal-500 text-[#abb2bf] px-1 font-mono">$proceed()</code> unless intentionally skipping the original method.</p>
+                  </div>
+                </div>
+              </div>
+
+              <p class="font-semibold text-charcoal mb-3">Example: Add caching layer to expensive product recommendation</p>
+              <pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Plugin\Catalog\Model\Product;
+
+use Magento\Framework\App\CacheInterface;
+use Magento\Framework\Serialize\SerializerInterface;
+
+class RecommendationExtend
+{
+    private const CACHE_KEY_PREFIX = 'product_recommendations_';
+    private const CACHE_LIFETIME = 3600;
+    private const CACHE_TAG = 'product_recommendations';
+
+    public function __construct(
+        private readonly CacheInterface $cache,
+        private readonly SerializerInterface $serializer
+    ) {
+    }
+
+    public function aroundGetRecommendations(
+        $subject,
+        callable $proceed,
+        $product,
+        int $limit = 5
+    ): array {
+        $cacheKey = self::CACHE_KEY_PREFIX . $product->getId() . '_' . $limit;
+
+        // Try cache first
+        $cachedData = $this->cache->load($cacheKey);
+        if ($cachedData !== false) {
+            return $this->serializer->unserialize($cachedData);
+        }
+
+        // Cache miss - call original method
+        $result = $proceed($product, $limit);
+
+        // Store in cache
+        $this->cache->save(
+            $this->serializer->serialize($result),
+            $cacheKey,
+            [self::CACHE_TAG],
+            self::CACHE_LIFETIME
+        );
+
+        return $result;
+    }
+}</code></pre>
+            </div>
+          </div>
+        </section>
+
+        <!-- Plugin Registration -->
+        <section id="registration" class="mb-12">
+          <h2 class="text-xl sm:text-2xl lg:text-3xl font-bold text-charcoal border-b border-charcoal-200 pb-2 mb-6">Plugin Registration (di.xml)</h2>
+
+          <p class="text-charcoal-500 leading-relaxed mb-6">
+            Plugins are declared in <code class="bg-charcoal-500 text-[#abb2bf] px-2 py-1 font-mono text-sm">etc/di.xml</code> (global scope) or <code class="bg-charcoal-500 text-[#abb2bf] px-2 py-1 font-mono text-sm">etc/frontend/di.xml</code> / <code class="bg-charcoal-500 text-[#abb2bf] px-2 py-1 font-mono text-sm">etc/adminhtml/di.xml</code> (area-specific).
+          </p>
+
+          <div class="bg-white p-6 border border-charcoal-200 mb-6">
+            <h3 class="text-lg font-semibold text-charcoal mb-4">Basic Plugin Registration</h3>
+            <pre><code class="language-xml">&lt;?xml version="1.0"?&gt;
+&lt;config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd"&gt;
+
+    &lt;type name="Magento\Catalog\Model\Product"&gt;
+        &lt;plugin name="vendor_module_product_price_plugin"
+                type="Vendor\Module\Plugin\Catalog\Model\Product\PriceExtend"
+                sortOrder="10"
+                disabled="false" /&gt;
+    &lt;/type&gt;
+
+&lt;/config&gt;</code></pre>
+          </div>
+
+          <!-- Table: Attributes -->
+          <div class="bg-white border border-charcoal-200 p-6">
+            <h3 class="text-lg font-semibold text-charcoal mb-4">Plugin Attributes</h3>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-sm">
+                <thead class="bg-orange-500 text-white">
+                  <tr>
+                    <th class="px-4 py-3 font-semibold">Attribute</th>
+                    <th class="px-4 py-3 font-semibold">Required</th>
+                    <th class="px-4 py-3 font-semibold">Description</th>
+                    <th class="px-4 py-3 font-semibold">Example</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-charcoal-200">
+                  <tr class="hover:bg-charcoal-50">
+                    <td class="px-4 py-3 font-mono text-xs">name</td>
+                    <td class="px-4 py-3">Yes</td>
+                    <td class="px-4 py-3 text-charcoal-500">Unique plugin identifier</td>
+                    <td class="px-4 py-3 font-mono text-xs text-charcoal-500">vendor_module_product_price_plugin</td>
+                  </tr>
+                  <tr class="hover:bg-charcoal-50">
+                    <td class="px-4 py-3 font-mono text-xs">type</td>
+                    <td class="px-4 py-3">Yes</td>
+                    <td class="px-4 py-3 text-charcoal-500">Fully qualified plugin class name</td>
+                    <td class="px-4 py-3 font-mono text-xs text-charcoal-500">Vendor\Module\Plugin\Class</td>
+                  </tr>
+                  <tr class="hover:bg-charcoal-50">
+                    <td class="px-4 py-3 font-mono text-xs">sortOrder</td>
+                    <td class="px-4 py-3">No</td>
+                    <td class="px-4 py-3 text-charcoal-500">Execution order (default: 10)</td>
+                    <td class="px-4 py-3 font-mono text-xs text-charcoal-500">10</td>
+                  </tr>
+                  <tr class="hover:bg-charcoal-50">
+                    <td class="px-4 py-3 font-mono text-xs">disabled</td>
+                    <td class="px-4 py-3">No</td>
+                    <td class="px-4 py-3 text-charcoal-500">Enable/disable plugin (default: false)</td>
+                    <td class="px-4 py-3 font-mono text-xs text-charcoal-500">true</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- Execution Order -->
+        <section id="execution-order" class="mb-12">
+          <h2 class="text-xl sm:text-2xl lg:text-3xl font-bold text-charcoal border-b border-charcoal-200 pb-2 mb-6">Plugin Execution Order</h2>
+
+          <p class="text-charcoal-500 leading-relaxed mb-6">
+            When multiple plugins intercept the same method, execution order is determined by <code class="bg-charcoal-500 text-[#abb2bf] px-2 py-1 font-mono text-sm">sortOrder</code> (ascending).
+          </p>
+
+          <div class="bg-white p-6 border border-charcoal-200 mb-6">
+            <h3 class="text-lg font-semibold text-charcoal mb-4">Example: Three Plugins with Different sortOrder</h3>
+            <pre><code class="language-xml">&lt;type name="ClassName"&gt;
+    &lt;plugin name="pluginA" type="PluginA" sortOrder="10" /&gt;
+    &lt;plugin name="pluginB" type="PluginB" sortOrder="20" /&gt;
+    &lt;plugin name="pluginC" type="PluginC" sortOrder="30" /&gt;
+&lt;/type&gt;</code></pre>
+          </div>
+
+          <div class="bg-orange-50 border-l-4 border-orange-400 p-4 mb-6">
+            <p class="font-semibold text-orange-800 mb-2">Execution Sequence</p>
+            <ol class="space-y-1 list-decimal list-inside text-orange-700 text-sm leading-relaxed">
+              <li>PluginA::beforeMethodName() (sortOrder 10)</li>
+              <li>PluginB::beforeMethodName() (sortOrder 20)</li>
+              <li>PluginC::beforeMethodName() (sortOrder 30)</li>
+              <li>PluginA::aroundMethodName() (sortOrder 10, calls $proceed)</li>
+              <li>PluginB::aroundMethodName() (sortOrder 20, calls $proceed)</li>
+              <li>PluginC::aroundMethodName() (sortOrder 30, calls $proceed)</li>
+              <li><strong>Original method executes</strong></li>
+              <li>PluginC::aroundMethodName() returns (reverse order)</li>
+              <li>PluginB::aroundMethodName() returns</li>
+              <li>PluginA::aroundMethodName() returns</li>
+              <li>PluginA::afterMethodName() (sortOrder 10)</li>
+              <li>PluginB::afterMethodName() (sortOrder 20)</li>
+              <li>PluginC::afterMethodName() (sortOrder 30)</li>
+            </ol>
+          </div>
+
+          <!-- Strategic sortOrder values -->
+          <div class="bg-white border border-charcoal-200 p-6">
+            <h3 class="text-lg font-semibold text-charcoal mb-4">Strategic sortOrder Values</h3>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-sm">
+                <thead class="bg-orange-500 text-white">
+                  <tr>
+                    <th class="px-4 py-3 font-semibold">sortOrder</th>
+                    <th class="px-4 py-3 font-semibold">Purpose</th>
+                    <th class="px-4 py-3 font-semibold">Example</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-charcoal-200">
+                  <tr class="hover:bg-charcoal-50">
+                    <td class="px-4 py-3 font-mono text-xs">1-9</td>
+                    <td class="px-4 py-3 text-charcoal-500">Early validation, security checks</td>
+                    <td class="px-4 py-3 text-charcoal-500">Authentication plugin</td>
+                  </tr>
+                  <tr class="hover:bg-charcoal-50">
+                    <td class="px-4 py-3 font-mono text-xs">10-50</td>
+                    <td class="px-4 py-3 text-charcoal-500">Standard business logic</td>
+                    <td class="px-4 py-3 text-charcoal-500">Price calculation</td>
+                  </tr>
+                  <tr class="hover:bg-charcoal-50">
+                    <td class="px-4 py-3 font-mono text-xs">51-90</td>
+                    <td class="px-4 py-3 text-charcoal-500">Post-processing, logging</td>
+                    <td class="px-4 py-3 text-charcoal-500">Audit trail</td>
+                  </tr>
+                  <tr class="hover:bg-charcoal-50">
+                    <td class="px-4 py-3 font-mono text-xs">91-100</td>
+                    <td class="px-4 py-3 text-charcoal-500">Final transformations</td>
+                    <td class="px-4 py-3 text-charcoal-500">Output formatting</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- Common Mistakes -->
+        <section id="common-mistakes" class="mb-12">
+          <h2 class="text-xl sm:text-2xl lg:text-3xl font-bold text-charcoal border-b border-charcoal-200 pb-2 mb-6">Common Plugin Mistakes</h2>
+
+          <!-- Mistake 1 -->
+          <div class="bg-white border border-charcoal-200 p-6 mb-4">
+            <h3 class="text-lg font-semibold text-charcoal mb-3">Mistake 1: Wrong Return Type in After Plugin</h3>
+            <div class="grid md:grid-cols-2 gap-4">
+              <div>
+                <p class="text-sm font-semibold text-charcoal-700 mb-2">❌ Wrong</p>
+                <pre><code class="language-php">public function afterGetName(
+    Product $subject,
+    string $result
+): array {
+    return ['modified_name'];
+}</code></pre>
+              </div>
+              <div>
+                <p class="text-sm font-semibold text-charcoal-700 mb-2">✅ Correct</p>
+                <pre><code class="language-php">public function afterGetName(
+    Product $subject,
+    string $result
+): string {
+    return 'Modified: ' . $result;
+}</code></pre>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mistake 2 -->
+          <div class="bg-white border border-charcoal-200 p-6 mb-4">
+            <h3 class="text-lg font-semibold text-charcoal mb-3">Mistake 2: Not Calling $proceed in Around Plugin</h3>
+            <div class="grid md:grid-cols-2 gap-4">
+              <div>
+                <p class="text-sm font-semibold text-charcoal-700 mb-2">❌ Wrong</p>
+                <pre><code class="language-php">public function aroundSave(
+    $subject,
+    callable $proceed,
+    $product
+): ProductInterface {
+    if (!$this->isValid($product)) {
+        throw new \Exception('Invalid');
+    }
+    // Forgot $proceed - original never runs!
+    return $product;
+}</code></pre>
+              </div>
+              <div>
+                <p class="text-sm font-semibold text-charcoal-700 mb-2">✅ Correct</p>
+                <pre><code class="language-php">public function aroundSave(
+    $subject,
+    callable $proceed,
+    $product
+): ProductInterface {
+    if (!$this->isValid($product)) {
+        throw new \Exception('Invalid');
+    }
+    return $proceed($product);
+}</code></pre>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Performance -->
+        <section id="performance" class="mb-12">
+          <h2 class="text-xl sm:text-2xl lg:text-3xl font-bold text-charcoal border-b border-charcoal-200 pb-2 mb-6">Performance Considerations</h2>
+
+          <!-- Optimization -->
+          <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 mb-6">
+            <div class="flex items-start gap-3">
+              <svg class="w-5 h-5 text-yellow-700 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/>
+              </svg>
+              <div class="flex-1">
+                <p class="font-semibold text-yellow-900 mb-1">Optimization Tip</p>
+                <p class="text-yellow-800 text-sm leading-relaxed">Prefer Before/After plugins over Around plugins when possible. Around plugins have 2-5x higher overhead due to wrapping the original method.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Table: Performance Cost -->
+          <div class="bg-white border border-charcoal-200 p-6 mb-6">
+            <h3 class="text-lg font-semibold text-charcoal mb-4">Plugin Performance Impact</h3>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-sm">
+                <thead class="bg-orange-500 text-white">
+                  <tr>
+                    <th class="px-4 py-3 font-semibold">Type</th>
+                    <th class="px-4 py-3 font-semibold">Overhead</th>
+                    <th class="px-4 py-3 font-semibold">Reason</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-charcoal-200">
+                  <tr class="hover:bg-charcoal-50">
+                    <td class="px-4 py-3 font-medium">Before</td>
+                    <td class="px-4 py-3 text-charcoal-500">Low</td>
+                    <td class="px-4 py-3 text-charcoal-500">Simple argument pass-through</td>
+                  </tr>
+                  <tr class="hover:bg-charcoal-50">
+                    <td class="px-4 py-3 font-medium">After</td>
+                    <td class="px-4 py-3 text-charcoal-500">Low</td>
+                    <td class="px-4 py-3 text-charcoal-500">Simple result pass-through</td>
+                  </tr>
+                  <tr class="hover:bg-charcoal-50">
+                    <td class="px-4 py-3 font-medium">Around</td>
+                    <td class="px-4 py-3 text-orange-600 font-semibold">High</td>
+                    <td class="px-4 py-3 text-charcoal-500">Wraps original method, adds call stack depth</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Optimization Strategies -->
+          <div class="space-y-4">
+            <h3 class="text-lg font-semibold text-charcoal">Optimization Strategies</h3>
+
+            <div class="bg-white border border-charcoal-200 p-6">
+              <h4 class="font-semibold text-charcoal mb-3">1. Minimize Around Plugins</h4>
+              <div class="grid md:grid-cols-2 gap-4">
+                <div>
+                  <p class="text-sm font-semibold text-charcoal-700 mb-2">❌ Avoid</p>
+                  <pre><code class="language-php">public function aroundGetPrice(
+    $subject,
+    callable $proceed
+): float {
+    $price = $proceed();
+    return $price * 1.1;
+}</code></pre>
+                </div>
+                <div>
+                  <p class="text-sm font-semibold text-charcoal-700 mb-2">✅ Better</p>
+                  <pre><code class="language-php">public function afterGetPrice(
+    $subject,
+    float $result
+): float {
+    return $result * 1.1;
+}</code></pre>
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-white border border-charcoal-200 p-6">
+              <h4 class="font-semibold text-charcoal mb-3">2. Use Area-Specific Plugins</h4>
+              <p class="text-sm text-charcoal-500 mb-3">Limit plugin scope to frontend or adminhtml to reduce overhead:</p>
+              <pre><code class="language-xml">&lt;!-- etc/frontend/di.xml --&gt;
+&lt;type name="Magento\Catalog\Model\Product"&gt;
+    &lt;plugin name="frontend_specific_plugin" type="FrontendPlugin" /&gt;
+&lt;/type&gt;</code></pre>
+            </div>
+          </div>
+        </section>
+
+        <!-- Production Example -->
+        <section id="production-example" class="mb-12">
+          <h2 class="text-xl sm:text-2xl lg:text-3xl font-bold text-charcoal border-b border-charcoal-200 pb-2 mb-6">Production-Ready Plugin Example</h2>
+
+          <div class="bg-orange-50 border-l-4 border-orange-400 p-4 mb-6">
+            <p class="font-semibold text-orange-800 mb-2">Complete Example Following All Best Practices</p>
+            <ul class="space-y-1 list-disc list-inside text-orange-700 text-sm">
+              <li>Type declarations with PHP 8.2+ strict types</li>
+              <li>Constructor DI with readonly properties</li>
+              <li>Exception handling with meaningful messages</li>
+              <li>Logging for troubleshooting</li>
+              <li>PHPDoc with @see, @param, @return, @throws</li>
+              <li>Explicit sortOrder for predictable execution</li>
+            </ul>
+          </div>
+
+          <div class="bg-white border border-charcoal-200 p-6 mb-4">
+            <h3 class="text-lg font-semibold text-charcoal mb-4">Plugin/Sales/Api/OrderRepositoryExtend.php</h3>
+            <pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Plugin\Sales\Api;
+
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
+use Psr\Log\LoggerInterface;
+
+/**
+ * Plugin to add audit trail when orders are saved
+ *
+ * @see OrderRepositoryInterface
+ */
+class OrderRepositoryExtend
+{
+    public function __construct(
+        private readonly LoggerInterface $logger,
+        private readonly \Magento\Framework\Stdlib\DateTime\DateTime $dateTime,
+        private readonly \Magento\Backend\Model\Auth\Session $authSession
+    ) {
+    }
+
+    /**
+     * Validate order before save
+     */
+    public function beforeSave(
+        OrderRepositoryInterface $subject,
+        OrderInterface $order
+    ): ?array {
+        if ($order->getGrandTotal() &lt; 0) {
+            throw new LocalizedException(
+                __('Order grand total cannot be negative.')
+            );
+        }
+
+        $this->logger->debug('Order validation passed', [
+            'order_id' =&gt; $order->getEntityId(),
+            'grand_total' =&gt; $order->getGrandTotal()
+        ]);
+
+        return null;
+    }
+
+    /**
+     * Add audit trail after order is saved
+     */
+    public function afterSave(
+        OrderRepositoryInterface $subject,
+        OrderInterface $result,
+        OrderInterface $order
+    ): OrderInterface {
+        $adminUser = $this->authSession->getUser();
+        $adminUsername = $adminUser ? $adminUser->getUserName() : 'system';
+
+        $this->logger->info('Order saved', [
+            'order_id' =&gt; $result->getEntityId(),
+            'admin_user' =&gt; $adminUsername,
+            'timestamp' =&gt; $this->dateTime->gmtDate(),
+            'status' =&gt; $result->getStatus()
+        ]);
+
+        $result->setData('last_modified_by', $adminUsername);
+        $result->setData('last_modified_at', $this->dateTime->gmtDate());
+
+        return $result;
+    }
+}</code></pre>
+          </div>
+
+          <div class="bg-white border border-charcoal-200 p-6">
+            <h3 class="text-lg font-semibold text-charcoal mb-4">etc/di.xml</h3>
+            <pre><code class="language-xml">&lt;?xml version="1.0"?&gt;
+&lt;config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd"&gt;
+
+    &lt;type name="Magento\Sales\Api\OrderRepositoryInterface"&gt;
+        &lt;plugin name="vendor_module_order_audit_plugin"
+                type="Vendor\Module\Plugin\Sales\Api\OrderRepositoryExtend"
+                sortOrder="100"
+                disabled="false" /&gt;
+    &lt;/type&gt;
+
+&lt;/config&gt;</code></pre>
+          </div>
+        </section>
+
+        <!-- Debugging -->
+        <section id="debugging" class="mb-12">
+          <h2 class="text-xl sm:text-2xl lg:text-3xl font-bold text-charcoal border-b border-charcoal-200 pb-2 mb-6">Debugging Plugins</h2>
+
+          <div class="space-y-4">
+            <div class="bg-white border border-charcoal-200 p-6">
+              <h3 class="text-lg font-semibold text-charcoal mb-3">Check Plugin Registration</h3>
+              <pre><code class="language-bash"># List all plugins for a class
+bin/magento dev:di:info "Magento\Catalog\Model\Product"</code></pre>
+            </div>
+
+            <div class="bg-white border border-charcoal-200 p-6">
+              <h3 class="text-lg font-semibold text-charcoal mb-3">Inspect Generated Interceptor</h3>
+              <pre><code class="language-bash"># View generated plugin wrapper
+cat generated/code/Magento/Catalog/Model/Product/Interceptor.php</code></pre>
+            </div>
+
+            <div class="bg-white border border-charcoal-200 p-6">
+              <h3 class="text-lg font-semibold text-charcoal mb-3">Enable Debug Logging</h3>
+              <pre><code class="language-php">$this->logger->debug('Plugin executed', [
+    'method' =&gt; __METHOD__,
+    'subject_class' =&gt; get_class($subject),
+    'arguments' =&gt; func_get_args()
+]);</code></pre>
+            </div>
+          </div>
+        </section>
+
+        <!-- Testing -->
+        <section id="testing" class="mb-12">
+          <h2 class="text-xl sm:text-2xl lg:text-3xl font-bold text-charcoal border-b border-charcoal-200 pb-2 mb-6">Testing Plugins</h2>
+
+          <div class="bg-white border border-charcoal-200 p-6">
+            <h3 class="text-lg font-semibold text-charcoal mb-4">Unit Test Example</h3>
+            <pre><code class="language-php">&lt;?php
+namespace Vendor\Module\Test\Unit\Plugin;
+
+use PHPUnit\Framework\TestCase;
+use Vendor\Module\Plugin\MyPluginExtend;
+
+class MyPluginExtendTest extends TestCase
+{
+    private MyPluginExtend $plugin;
+
+    protected function setUp(): void
+    {
+        $this->plugin = new MyPluginExtend(
+            $this->createMock(\Psr\Log\LoggerInterface::class)
+        );
+    }
+
+    public function testAfterGetName(): void
+    {
+        $subjectMock = $this->createMock(
+            \Magento\Catalog\Model\Product::class
+        );
+        $originalResult = 'Product Name';
+
+        $result = $this->plugin->afterGetName(
+            $subjectMock,
+            $originalResult
+        );
+
+        $this->assertStringContainsString('Modified', $result);
+    }
+}</code></pre>
+          </div>
+        </section>
+
+      </article>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-charcoal text-white py-8 mt-16">
+    <div class="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+        <p class="text-sm text-charcoal-300">Magento Developer Documentation</p>
+        <nav class="flex gap-6 text-sm">
+          <a href="references.html" class="text-charcoal-300 hover:text-white transition-colors">API Reference</a>
+          <a href="https://github.com/magento/magento2" class="text-charcoal-300 hover:text-white transition-colors">GitHub</a>
+          <a href="https://community.magento.com/" class="text-charcoal-300 hover:text-white transition-colors">Community</a>
+        </nav>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('pre code').forEach(function (el) {
+        hljs.highlightElement(el);
+    });
+    document.querySelectorAll('pre').forEach(function (pre) {
+        if (pre.parentNode.classList && pre.parentNode.classList.contains('code-wrapper')) return;
+        var wrapper = document.createElement('div');
+        wrapper.className = 'code-wrapper';
+        pre.parentNode.insertBefore(wrapper, pre);
+        wrapper.appendChild(pre);
+        var btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.setAttribute('type', 'button');
+        btn.setAttribute('aria-label', 'Copy code to clipboard');
+        btn.setAttribute('title', 'Copy');
+        btn.textContent = 'Copy';
+        wrapper.appendChild(btn);
+        btn.addEventListener('click', function () {
+            var code = pre.querySelector('code');
+            var text = code ? (code.innerText || code.textContent) : (pre.innerText || pre.textContent);
+            navigator.clipboard.writeText(text).then(function () {
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            }).catch(function () {
+                var range = document.createRange();
+                range.selectNode(code || pre);
+                window.getSelection().removeAllRanges();
+                window.getSelection().addRange(range);
+                document.execCommand('copy');
+                window.getSelection().removeAllRanges();
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            });
+        });
+    });
+});
+</script>
+
+<script>
+(function() {
+    var nav = document.getElementById('toc-nav');
+    if (!nav) return;
+    var article = document.getElementById('main-content');
+    if (!article) return;
+    var headings = article.querySelectorAll('h2[id], h3[id]');
+    if (headings.length < 3) {
+        // Hide the entire TOC sidebar if fewer than 3 headings
+        var sidebar = nav.closest('.toc-sidebar');
+        if (sidebar) sidebar.style.display = 'none';
+        return;
+    }
+    var ids = [];
+    headings.forEach(function(h) {
+        var a = document.createElement('a');
+        a.href = '#' + h.id;
+        a.textContent = h.textContent.replace(/^#+\s*/, '').replace(/\s+/g, ' ').trim();
+        if (h.tagName === 'H3') a.classList.add('toc-h3');
+        nav.appendChild(a);
+        ids.push(h.id);
+    });
+    // Scroll-spy with IntersectionObserver
+    var links = nav.querySelectorAll('a');
+    var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                links.forEach(function(l) { l.classList.remove('toc-active'); });
+                var active = nav.querySelector('a[href="#' + entry.target.id + '"]');
+                if (active) active.classList.add('toc-active');
+            }
+        });
+    }, { rootMargin: '-80px 0px -70% 0px', threshold: 0 });
+    headings.forEach(function(h) { observer.observe(h); });
+})();
+</script>
+</body>
+</html>

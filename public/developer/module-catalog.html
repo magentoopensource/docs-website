@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magento_Catalog — Magento 2 Developer Documentation</title>
+    <meta name="description" content="The foundational product and category management system in Adobe Commerce and Magento Open Source. Core data structures, business logic, and APIs for managing products, categories, product attributes, and pricing.">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&family=JetBrains+Mono&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        charcoal: {
+                            DEFAULT: '#2c2c2c',
+                            50: '#f1f1f1',
+                            100: '#d9d9d9',
+                            200: '#b6b6b6',
+                            300: '#6B6B6B',
+                            400: '#474747',
+                            500: '#2c2c2c',
+                            600: '#262626',
+                            700: '#202020',
+                            800: '#1c1c1c',
+                            900: '#191919',
+                            950: '#121212'
+                        },
+                        orange: {
+                            DEFAULT: '#D4551A',
+                            50: '#fef5ee',
+                            100: '#fee9d6',
+                            200: '#fbd0ad',
+                            300: '#f9ae78',
+                            400: '#f58242',
+                            500: '#f26423',
+                            600: '#e34613',
+                            700: '#bc3312',
+                            800: '#962a16',
+                            900: '#792515',
+                            950: '#411009'
+                        },
+                        yellow: {
+                            DEFAULT: '#B8860B',
+                            50: '#fffdeb',
+                            100: '#fdf9c8',
+                            200: '#fbf38c',
+                            300: '#f8e651',
+                            400: '#f7d728',
+                            500: '#f1bc1b',
+                            600: '#d5900a',
+                            700: '#b1670c',
+                            800: '#8f5111',
+                            900: '#764311',
+                            950: '#442204'
+                        },
+                        'off-white': '#FAFAFA',
+                    },
+                    fontFamily: {
+                        sans: ['Inter Tight', 'system-ui', '-apple-system', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style>
+        [x-cloak] { display: none !important; }
+    </style>
+</head>
+
+<body class="font-sans bg-off-white text-charcoal">
+
+    <!-- Header -->
+    <!-- Shared header — single source of truth -->
+    <script src="includes/header.js"></script>
+
+    <!-- Page Header -->
+    <section class="bg-white border-b border-gray-200">
+        <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+            <nav class="mb-6">
+                <ol class="flex items-center gap-2 text-sm text-charcoal-300">
+                    <li><a href="index.html" class="hover:text-orange transition-colors no-underline">Home</a></li>
+                    <li class="before:content-['/'] before:mx-2"><a href="modules.html" class="hover:text-orange transition-colors no-underline">Modules</a></li>
+                    <li class="before:content-['/'] before:mx-2">Magento_Catalog</li>
+                </ol>
+            </nav>
+
+            <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold leading-none text-charcoal">
+                Magento_Catalog
+            </h1>
+            <p class="mt-6 text-lg sm:text-xl font-medium leading-relaxed text-charcoal-300 max-w-3xl">
+                The foundational product and category management system in Adobe Commerce and Magento Open Source. Core data structures, business logic, and APIs for managing products, categories, product attributes, and pricing.
+            </p>
+
+            <div class="flex flex-wrap gap-4 mt-8">
+                <span class="inline-flex items-center gap-2 bg-charcoal text-white px-4 py-2 text-sm font-mono">
+                    Magento\Catalog
+                </span>
+                <span class="inline-flex items-center gap-2 bg-orange-50 text-orange-700 px-4 py-2 text-sm font-medium">
+                    2.4.7+
+                </span>
+                <span class="inline-flex items-center gap-2 bg-charcoal-50 text-charcoal px-4 py-2 text-sm font-medium">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    9 Documents
+                </span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick Nav -->
+    <nav class="sticky top-16 z-40 bg-white border-b border-gray-200 shadow-sm">
+        <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center gap-6 sm:gap-8 py-3 overflow-x-auto text-sm font-medium">
+                <a href="#core" class="text-charcoal-300 hover:text-orange transition-colors no-underline whitespace-nowrap">Core</a>
+                <a href="#extension-points" class="text-charcoal-300 hover:text-orange transition-colors no-underline whitespace-nowrap">Extension Points</a>
+                <a href="#quality" class="text-charcoal-300 hover:text-orange transition-colors no-underline whitespace-nowrap">Quality &amp; Maintenance</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Core Documentation Section -->
+    <section id="core" class="py-16 sm:py-20 bg-off-white">
+        <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-2xl sm:text-3xl font-bold text-charcoal mb-8">Core Documentation</h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+                <!-- Overview Card -->
+                <a href="module-catalog-overview.html" class="group block bg-white border-2 border-gray-200 border-t-4 border-t-orange hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 no-underline">
+                    <div class="p-6 sm:p-8">
+                        <div class="mb-4">
+                            <svg class="w-8 h-8 text-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-charcoal group-hover:text-orange transition-colors mb-3">Overview</h3>
+                        <p class="text-sm text-charcoal-300 leading-relaxed mb-6">
+                            Module purpose, key features, six product types, category tree management, EAV attribute system, and service contract APIs.
+                        </p>
+                        <span class="inline-block bg-orange-50 text-orange-700 px-3 py-1.5 text-xs font-medium border border-orange-200">overview</span>
+                    </div>
+                </a>
+
+                <!-- Architecture Card -->
+                <a href="module-catalog-architecture.html" class="group block bg-white border-2 border-gray-200 border-t-4 border-t-orange hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 no-underline">
+                    <div class="p-6 sm:p-8">
+                        <div class="mb-4">
+                            <svg class="w-8 h-8 text-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-charcoal group-hover:text-orange transition-colors mb-3">Architecture</h3>
+                        <p class="text-sm text-charcoal-300 leading-relaxed mb-6">
+                            Class hierarchy, database schema (EAV tables, flat tables), service contracts, dependency injection configuration, and design patterns.
+                        </p>
+                        <span class="inline-block bg-orange-50 text-orange-700 px-3 py-1.5 text-xs font-medium border border-orange-200">architecture</span>
+                    </div>
+                </a>
+
+                <!-- Execution Flows Card -->
+                <a href="module-catalog-execution-flows.html" class="group block bg-white border-2 border-gray-200 border-t-4 border-t-orange hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 no-underline">
+                    <div class="p-6 sm:p-8">
+                        <div class="mb-4">
+                            <svg class="w-8 h-8 text-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 5l7 7-7 7M5 5l7 7-7 7"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-charcoal group-hover:text-orange transition-colors mb-3">Execution Flows</h3>
+                        <p class="text-sm text-charcoal-300 leading-relaxed mb-6">
+                            Product save flow, category tree operations, add-to-cart pipeline, product listing page load, and flat index rebuild sequences.
+                        </p>
+                        <span class="inline-block bg-orange-50 text-orange-700 px-3 py-1.5 text-xs font-medium border border-orange-200">execution-flows</span>
+                    </div>
+                </a>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Extension Points Section -->
+    <section id="extension-points" class="py-16 sm:py-20 bg-white">
+        <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-2xl sm:text-3xl font-bold text-charcoal mb-8">Extension Points</h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                <!-- Plugins & Observers Card -->
+                <a href="module-catalog-plugins-and-observers.html" class="group block bg-white border-2 border-gray-200 border-t-4 border-t-yellow-500 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 no-underline">
+                    <div class="p-6 sm:p-8">
+                        <h3 class="text-xl font-bold text-charcoal group-hover:text-orange transition-colors mb-3">Plugins &amp; Observers</h3>
+                        <p class="text-sm text-charcoal-300 leading-relaxed mb-6">
+                            Before/after/around plugins on product save, price calculation, and category operations. Observer events for catalog_product_save_after, catalog_category_prepare_save, and more.
+                        </p>
+                        <span class="inline-block bg-yellow-50 text-yellow-800 px-3 py-1.5 text-xs font-medium border border-yellow-200">plugins-observers</span>
+                    </div>
+                </a>
+
+                <!-- Integrations Card -->
+                <a href="module-catalog-integrations.html" class="group block bg-white border-2 border-gray-200 border-t-4 border-t-yellow-500 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 no-underline">
+                    <div class="p-6 sm:p-8">
+                        <h3 class="text-xl font-bold text-charcoal group-hover:text-orange transition-colors mb-3">Integrations</h3>
+                        <p class="text-sm text-charcoal-300 leading-relaxed mb-6">
+                            Cross-module dependencies with Quote, Sales, CatalogInventory, CatalogSearch. REST/GraphQL API contracts. Third-party integration patterns for PIM and ERP systems.
+                        </p>
+                        <span class="inline-block bg-yellow-50 text-yellow-800 px-3 py-1.5 text-xs font-medium border border-yellow-200">integrations</span>
+                    </div>
+                </a>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Quality & Maintenance Section -->
+    <section id="quality" class="py-16 sm:py-20 bg-off-white">
+        <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-2xl sm:text-3xl font-bold text-charcoal mb-8">Quality &amp; Maintenance</h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                <!-- Anti-Patterns Card -->
+                <a href="module-catalog-anti-patterns.html" class="group block bg-white border-2 border-gray-200 border-t-4 border-t-charcoal hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 no-underline">
+                    <div class="p-6 sm:p-8">
+                        <h3 class="text-xl font-bold text-charcoal group-hover:text-orange transition-colors mb-3">Anti-Patterns</h3>
+                        <p class="text-sm text-charcoal-300 leading-relaxed mb-6">
+                            Common mistakes: direct SQL queries on EAV tables, bypassing service contracts, loading full product collections, and incorrect flat index assumptions.
+                        </p>
+                        <span class="inline-block bg-charcoal-50 text-charcoal-400 px-3 py-1.5 text-xs font-medium border border-charcoal-100">anti-patterns</span>
+                    </div>
+                </a>
+
+                <!-- Known Issues Card -->
+                <a href="module-catalog-known-issues.html" class="group block bg-white border-2 border-gray-200 border-t-4 border-t-charcoal hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 no-underline">
+                    <div class="p-6 sm:p-8">
+                        <h3 class="text-xl font-bold text-charcoal group-hover:text-orange transition-colors mb-3">Known Issues</h3>
+                        <p class="text-sm text-charcoal-300 leading-relaxed mb-6">
+                            Documented bugs, flat index race conditions, URL rewrite conflicts, category anchor behavior quirks, and version-specific workarounds.
+                        </p>
+                        <span class="inline-block bg-charcoal-50 text-charcoal-400 px-3 py-1.5 text-xs font-medium border border-charcoal-100">known-issues</span>
+                    </div>
+                </a>
+
+                <!-- Version Compatibility Card -->
+                <a href="module-catalog-version-compatibility.html" class="group block bg-white border-2 border-gray-200 border-t-4 border-t-charcoal hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 no-underline">
+                    <div class="p-6 sm:p-8">
+                        <h3 class="text-xl font-bold text-charcoal group-hover:text-orange transition-colors mb-3">Version Compatibility</h3>
+                        <p class="text-sm text-charcoal-300 leading-relaxed mb-6">
+                            Breaking changes across 2.4.x versions, deprecated APIs, Elasticsearch to OpenSearch migration, and declarative schema evolution.
+                        </p>
+                        <span class="inline-block bg-charcoal-50 text-charcoal-400 px-3 py-1.5 text-xs font-medium border border-charcoal-100">version-compat</span>
+                    </div>
+                </a>
+
+                <!-- Performance Card -->
+                <a href="module-catalog-performance.html" class="group block bg-white border-2 border-gray-200 border-t-4 border-t-charcoal hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 no-underline">
+                    <div class="p-6 sm:p-8">
+                        <h3 class="text-xl font-bold text-charcoal group-hover:text-orange transition-colors mb-3">Performance</h3>
+                        <p class="text-sm text-charcoal-300 leading-relaxed mb-6">
+                            Flat index optimization, product collection tuning, category tree caching, EAV query reduction, and full page cache strategies for catalog pages.
+                        </p>
+                        <span class="inline-block bg-charcoal-50 text-charcoal-400 px-3 py-1.5 text-xs font-medium border border-charcoal-100">performance</span>
+                    </div>
+                </a>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Related Modules -->
+    <section class="py-16 sm:py-20 bg-white border-t border-gray-200">
+        <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-2xl sm:text-3xl font-bold text-charcoal mb-8">Related Modules</h2>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+
+                <!-- Checkout -->
+                <a href="module-checkout.html" class="group block bg-white border-2 border-gray-200 border-l-4 border-l-orange hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 no-underline">
+                    <div class="p-5">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="text-base font-bold text-charcoal group-hover:text-orange transition-colors">Magento_Checkout</h3>
+                                <span class="text-xs text-charcoal-300 font-mono">Magento\Checkout</span>
+                            </div>
+                            <svg class="w-5 h-5 text-charcoal-200 group-hover:text-orange group-hover:translate-x-0.5 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Sales -->
+                <a href="module-sales.html" class="group block bg-white border-2 border-gray-200 border-l-4 border-l-orange hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 no-underline">
+                    <div class="p-5">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="text-base font-bold text-charcoal group-hover:text-orange transition-colors">Magento_Sales</h3>
+                                <span class="text-xs text-charcoal-300 font-mono">Magento\Sales</span>
+                            </div>
+                            <svg class="w-5 h-5 text-charcoal-200 group-hover:text-orange group-hover:translate-x-0.5 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Customer -->
+                <a href="module-customer.html" class="group block bg-white border-2 border-gray-200 border-l-4 border-l-orange hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 no-underline">
+                    <div class="p-5">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="text-base font-bold text-charcoal group-hover:text-orange transition-colors">Magento_Customer</h3>
+                                <span class="text-xs text-charcoal-300 font-mono">Magento\Customer</span>
+                            </div>
+                            <svg class="w-5 h-5 text-charcoal-200 group-hover:text-orange group-hover:translate-x-0.5 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Quote -->
+                <a href="module-quote.html" class="group block bg-white border-2 border-gray-200 border-l-4 border-l-orange hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 no-underline">
+                    <div class="p-5">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="text-base font-bold text-charcoal group-hover:text-orange transition-colors">Magento_Quote</h3>
+                                <span class="text-xs text-charcoal-300 font-mono">Magento\Quote</span>
+                            </div>
+                            <svg class="w-5 h-5 text-charcoal-200 group-hover:text-orange group-hover:translate-x-0.5 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                        </div>
+                    </div>
+                </a>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Back to All Modules -->
+    <section class="bg-off-white py-8 border-t border-gray-200">
+        <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
+            <a href="modules.html" class="inline-flex items-center gap-2 text-sm font-medium text-orange hover:text-orange-600 transition-colors no-underline">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                Back to all modules
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="relative pt-12 bg-white border-t border-charcoal">
+        <div class="max-w-screen-2xl mx-auto w-full px-4 sm:px-6 lg:px-8">
+            <div>
+                <a href="index.html" class="inline-flex items-center no-underline">
+                    <svg width="30" height="33" viewBox="0 0 30 33" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Magento Association logo" role="img">
+                        <path d="M0 4.06492H29.6763V31.8882C29.6763 32.502 29.1713 33 28.5487 33H1.12762C0.505079 33 0 32.502 0 31.8882V4.06492Z" fill="#34323A"/>
+                        <path d="M1.26857 0H28.4078C29.1066 0 29.6763 0.561678 29.6763 1.25075V4.06492H0V1.25075C0 0.561678 0.569682 0 1.26857 0Z" fill="#C9C9C9"/>
+                        <path d="M2.37269 3.0458C2.94031 3.0458 3.40046 2.59211 3.40046 2.03246C3.40046 1.47281 2.94031 1.01913 2.37269 1.01913C1.80506 1.01913 1.34491 1.47281 1.34491 2.03246C1.34491 2.59211 1.80506 3.0458 2.37269 3.0458Z" fill="#848484"/>
+                        <path d="M5.28571 3.0458C5.85334 3.0458 6.31349 2.59211 6.31349 2.03246C6.31349 1.47281 5.85334 1.01913 5.28571 1.01913C4.71809 1.01913 4.25793 1.47281 4.25793 2.03246C4.25793 2.59211 4.71809 3.0458 5.28571 3.0458Z" fill="#848484"/>
+                        <path d="M14.7883 7.46973L4.90405 13.0923V24.349L7.54104 25.8487V14.5978L14.7883 10.4692L22.0415 14.5978V25.8487L24.6785 24.349V13.0923L14.7883 7.46973Z" fill="#F1BC1B"/>
+                        <path d="M16.0862 26.2367L14.7883 26.9779L13.4492 26.2135V14.233L10.178 16.0975V27.3485L13.4492 29.213L14.7883 29.9773L16.0862 29.2362L19.4045 27.3485V16.0975L16.0862 14.2098V26.2367Z" fill="#F1BC1B"/>
+                    </svg>
+                    <span class="ml-3 text-xl font-bold text-charcoal">Developer Documentation</span>
+                </a>
+            </div>
+
+            <div class="grid grid-cols-12 md:gap-x-8 gap-y-12 lg:mt-12">
+                <div class="col-span-12 lg:col-span-4">
+                    <p class="hidden lg:block text-xs text-charcoal sm:text-sm">Comprehensive developer documentation for Magento 2.4.7+ — tutorials, architecture deep dives, module references, and production-ready patterns built by the community, for the community.</p>
+                    <ul class="mt-6 hidden lg:flex items-center gap-3">
+                        <li class="pl-0">
+                            <a href="https://github.com/magento/magento2" class="p-2 md:p-0" aria-label="GitHub">
+                                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                                </svg>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Guides</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="tutorials.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Tutorials</a></li>
+                            <li class="pl-0"><a href="how-to-guides.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">How-To Guides</a></li>
+                            <li class="pl-0"><a href="architecture.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Architecture</a></li>
+                            <li class="pl-0"><a href="learning-paths.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Learning Paths</a></li>
+                            <li class="pl-0"><a href="references.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">References</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Modules</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="module-catalog.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Catalog</a></li>
+                            <li class="pl-0"><a href="module-checkout.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Checkout</a></li>
+                            <li class="pl-0"><a href="module-sales.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Sales</a></li>
+                            <li class="pl-0"><a href="module-customer.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Customer</a></li>
+                            <li class="pl-0"><a href="module-quote.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Quote</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Community</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Magento Community</a></li>
+                            <li class="pl-0"><a href="https://magento.stackexchange.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Stack Exchange</a></li>
+                            <li class="pl-0"><a href="https://marketplace.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Marketplace</a></li>
+                            <li class="pl-0"><a href="https://github.com/magento/magento2" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">GitHub</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Support</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://github.com/magento/magento2/issues" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Report Issues</a></li>
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Community Resources</a></li>
+                            <li class="pl-0"><a href="https://developer.adobe.com/commerce/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Adobe Commerce Docs</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-12 border-t pt-6 pb-16 border-charcoal">
+                <p class="text-xs text-charcoal">
+                    &copy; 2026 Magento 2 Developer Documentation. Magento&reg; is a registered trademark of Adobe Inc.
+                </p>
+                <p class="mt-6 text-xs text-charcoal">
+                    This documentation provides guidance for Magento 2 developers and extension builders. For merchant documentation, visit the <a href="index.html" class="text-orange hover:text-orange-500 transition-colors">merchant documentation</a>.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

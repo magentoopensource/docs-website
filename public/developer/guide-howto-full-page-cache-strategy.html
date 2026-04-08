@@ -1,0 +1,1745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Full Page Cache Strategy for High-Performance Magento — Magento 2 Developer Documentation</title>
+    <meta name="description" content="Master Magento 2 FPC architecture: cacheable blocks, ESI holes, private content, Varnish VCL, cache warming, and performance optimization techniques">
+
+    <!-- Google Fonts: Inter Tight only. Courier New used for code. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Highlight.js: syntax highlighting for code blocks -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/php.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/ini.min.js"></script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        charcoal: {
+                            DEFAULT: '#2c2c2c', 50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6',
+                            300: '#6B6B6B', 400: '#474747', 500: '#2c2c2c', 600: '#262626',
+                            700: '#202020', 800: '#1c1c1c', 900: '#191919', 950: '#121212'
+                        },
+                        orange: {
+                            DEFAULT: '#D4551A', 50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad',
+                            300: '#f9ae78', 400: '#f58242', 500: '#f26423', 600: '#e34613',
+                            700: '#bc3312', 800: '#962a16', 900: '#792515', 950: '#411009'
+                        },
+                        yellow: {
+                            DEFAULT: '#B8860B', 50: '#fffdeb', 100: '#fdf9c8', 200: '#fbf38c',
+                            300: '#f8e651', 400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a',
+                            700: '#b1670c', 800: '#8f5111', 900: '#764311', 950: '#442204'
+                        },
+                        'off-white': '#FAFAFA',
+                    },
+                    fontFamily: {
+                        sans: ['Inter Tight', 'system-ui', '-apple-system', 'sans-serif'],
+                        mono: ['Courier New', 'Courier', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* ── Force light mode ── */
+        :root { color-scheme: light only; }
+
+        [x-cloak] { display: none !important; }
+
+        /* ── Scroll offset for sticky header ── */
+        .prose h2, .prose h3 { scroll-margin-top: 5rem; }
+
+        /* ── Code blocks: Bauhaus charcoal bg, no border-radius, highlight.js override ── */
+        .prose pre {
+            background-color: #2C2C2C !important;
+            border-radius: 0 !important;
+            padding: 1.25rem;
+            overflow-x: auto;
+            font-size: 0.875rem;
+            line-height: 1.7;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 1.5rem 0;
+        }
+        .prose pre code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            background: transparent !important;
+            padding: 0;
+                    color: #abb2bf;
+        }
+        /* Override highlight.js theme background to match Bauhaus charcoal */
+        .hljs {
+            background: #2C2C2C !important;
+            color: #abb2bf !important;
+            border-radius: 0 !important;
+        }
+
+        /* ── Inline code: charcoal bg, yellow text, no border-radius ── */
+        .prose code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.85em;
+        }
+        .prose :not(pre) > code {
+            background-color: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2em 0.45em;
+            border-radius: 0;
+        }
+
+        /* ── Step-code: same charcoal/yellow style for UI path chips ── */
+        .step-code {
+            background: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2rem 0.5rem;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            border-radius: 0;
+        }
+
+        /* ── Tables: no border-radius, charcoal header ── */
+        .prose table { width: 100%; border-collapse: collapse; }
+        .prose th {
+            background-color: #2C2C2C;
+            color: #ffffff;
+            font-weight: 600;
+            text-align: left;
+            padding: 0.75rem 1rem;
+            border-bottom: 2px solid #2C2C2C;
+            border-radius: 0;
+        }
+        .prose td { padding: 0.75rem 1rem; border-bottom: 1px solid #e5e5e5; }
+        .prose tr:hover { background-color: #fafafa; }
+
+        /* ── Blockquote: Bauhaus style — border-4 yellow, square, no left-only border ── */
+        .prose blockquote {
+            border: 4px solid #F1BC1B;
+            background-color: #ffffff;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+            border-radius: 0;
+        }
+        .prose blockquote p { margin: 0; }
+
+        /* ── Lists: hexagon bullets ── */
+        .prose ul { list-style: none; padding-left: 0; }
+        .prose ul li {
+            position: relative;
+            padding-left: 1.75rem;
+            margin-bottom: 0.4rem;
+            line-height: 1.7;
+        }
+        .prose ul li::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0.45em;
+            width: 10px;
+            height: 10px;
+            background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 2L21 7V17L12 22L3 17V7L12 2Z' stroke='%23F26423' stroke-width='2.5' stroke-linejoin='miter'/%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+        .prose ol { list-style-type: decimal; padding-left: 1.5rem; }
+        .prose li { margin-bottom: 0.4rem; }
+
+        /* ── Headings ── */
+        .prose h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            padding-top: 1.5rem;
+            border-top: 4px solid #F1BC1B;
+            color: #2C2C2C;
+        }
+        .prose h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+            color: #2C2C2C;
+        }
+        .prose h4 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #2C2C2C;
+        }
+        .prose p { margin-bottom: 1rem; line-height: 1.75; }
+        .prose a { color: #D4551A; text-decoration: none; }
+        .prose a:hover { color: #e34613; text-decoration: underline; }
+        .prose hr { border: none; border-top: 1px solid #e5e5e5; margin: 2rem 0; }
+
+        /* ── Callout boxes: Bauhaus — border-4 yellow, white bg, icon + title ── */
+        .callout-box {
+            background-color: #ffffff;
+            border: 4px solid #F1BC1B;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+        }
+        .callout-warning {
+            border-color: #D4551A;
+        }
+        .callout-important {
+            border-color: #2C2C2C;
+        }
+        .callout-box .callout-inner {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+        .callout-box .callout-title {
+            font-weight: 600;
+            color: #2C2C2C;
+            margin-bottom: 0.25rem;
+        }
+        .callout-box .callout-body {
+            font-size: 0.875rem;
+            line-height: 1.6;
+            color: rgba(44,44,44,0.85);
+        }
+
+        
+    
+        /* Code block copy button */
+        .code-wrapper {
+            position: relative;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            font-family: 'Inter Tight', system-ui, sans-serif;
+            background: rgba(255,255,255,0.1);
+            color: #abb2bf;
+            border: 1px solid rgba(255,255,255,0.15);
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.15s ease, background 0.15s ease;
+            z-index: 10;
+            line-height: 1.4;
+            border-radius: 4px;
+            user-select: none;
+        }
+        .code-wrapper:hover .copy-btn {
+            opacity: 1;
+        }
+        .copy-btn:hover,
+        .copy-btn:focus {
+            background: rgba(255,255,255,0.2);
+            color: #ffffff;
+            outline: 2px solid #D4551A;
+            outline-offset: 1px;
+        }
+        .copy-btn.copied {
+            color: #98c379;
+            background: rgba(152, 195, 121, 0.15);
+            opacity: 1;
+        }
+    
+        /* Right-hand TOC sidebar */
+        .toc-sidebar {
+            width: 14rem;
+            flex-shrink: 0;
+        }
+        .toc-sidebar a {
+            display: block;
+            padding: 0.375rem 0;
+            font-size: 0.8125rem;
+            line-height: 1.4;
+            color: #6b7280;
+            text-decoration: none;
+            transition: color 0.15s ease;
+            border-left: 2px solid transparent;
+            padding-left: 0.75rem;
+        }
+        .toc-sidebar a:hover {
+            color: #111827;
+        }
+        .toc-sidebar a.toc-active {
+            color: #ea580c;
+            border-left-color: #ea580c;
+            font-weight: 500;
+        }
+        .toc-sidebar a.toc-h3 {
+            padding-left: 1.5rem;
+            font-size: 0.75rem;
+        }
+        .toc-sidebar .toc-back-to-top {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e5e7eb;
+        }
+        .toc-sidebar .toc-back-to-top a {
+            border-left: none;
+            padding-left: 0;
+            font-weight: 500;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .toc-sidebar .toc-back-to-top a:hover {
+            color: #ea580c;
+        }
+    </style>
+</head>
+
+<body class="font-sans bg-off-white text-charcoal">
+
+    <!-- Shared header — single source of truth -->
+    <script src="includes/header.js"></script>
+
+    <!-- Breadcrumb — orange › separators -->
+    <div class="bg-white border-b border-gray-100">
+        <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <div class="flex items-center gap-2 text-sm flex-wrap">
+                <a href="index.html" class="text-orange hover:text-orange-600 transition-colors no-underline">Home</a> <span class="text-orange font-medium">›</span> <a href="index.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">Guides</a> <span class="text-orange font-medium">›</span> <a href="how-to-guides.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">How-To Guides</a> <span class="text-orange font-medium">›</span> <span class="text-charcoal font-medium">Full Page Cache Strategy for High-Performance Magento</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="flex gap-8">
+
+            <!-- Left Sidebar (desktop) -->
+            <aside class="hidden lg:block w-64 flex-shrink-0">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4">How-To Guides</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="guide-howto-admin-ui-components.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Building Admin UI Components in ...</a></li>
+<li class="pl-0"><a href="guide-howto-cicd-deployment.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">CI/CD Deployment Pipelines for M...</a></li>
+<li class="pl-0"><a href="guide-howto-cron-jobs.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Cron Jobs Implementation: Buildi...</a></li>
+<li class="pl-0"><a href="guide-howto-email-templates.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Email Templates Customization</a></li>
+<li class="pl-0"><a href="guide-howto-erp-integration.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">ERP Integration Patterns for Mag...</a></li>
+<li class="pl-0"><a href="guide-howto-full-page-cache-strategy.html" class="block px-3 py-2 text-sm text-orange font-semibold bg-orange-50 border-l-4 border-orange pl-2 transition-colors no-underline">Full Page Cache Strategy for Hig...</a></li>
+<li class="pl-0"><a href="guide-howto-import-export.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Import/Export System Deep Dive</a></li>
+<li class="pl-0"><a href="guide-howto-layout-xml-deep-dive.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Layout XML Deep Dive: Mastering ...</a></li>
+<li class="pl-0"><a href="guide-howto-multi-store-setup.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Multi-Store Configuration Mastery</a></li>
+<li class="pl-0"><a href="guide-howto-security-checklist.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Security Checklist for Custom Mo...</a></li>
+<li class="pl-0"><a href="guide-howto-testing-strategies.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Comprehensive Testing Strategies...</a></li>
+</ul>
+<h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4 mt-8">Guide Sections</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="tutorials.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Tutorials</a></li>
+<li class="pl-0"><a href="how-to-guides.html" class="block px-3 py-2 text-sm text-orange font-semibold bg-orange-50 border-l-4 border-orange pl-2 transition-colors no-underline">How-To Guides</a></li>
+<li class="pl-0"><a href="architecture.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Architecture</a></li>
+<li class="pl-0"><a href="references.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">References</a></li>
+</ul>
+                </div>
+            </aside>
+
+            <!-- Article — square corners, border-t-4 orange accent -->
+            <main id="main-content" class="flex-1 min-w-0">
+                <article class="bg-white shadow-sm border border-gray-100 border-t-4 border-t-orange p-8 md:p-12">
+                    <!-- Title block -->
+                    <div class="mb-8">
+                        <span class="inline-block px-3 py-1.5 text-xs font-medium bg-yellow-50 text-yellow-800 border border-yellow-200">How-To</span>
+                        <h1 class="text-3xl md:text-4xl font-extrabold text-charcoal mt-3 mb-3">Full Page Cache Strategy for High-Performance Magento</h1>
+                        <p class="text-charcoal-300 text-lg mb-4">Master Magento 2 FPC architecture: cacheable blocks, ESI holes, private content, Varnish VCL, cache warming, and performance optimization techniques</p>
+                        <!-- Meta pills -->
+                        <div class="flex flex-wrap gap-2"><span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-yellow-50 text-yellow-800"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>Advanced</span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-orange-50 text-orange-700"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>60 minutes</span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-charcoal text-white">Magento 2.4.7+</span></div>
+                    </div>
+
+                    <hr class="border-0 border-t border-gray-100 mb-8">
+
+                    <!-- Content -->
+                    <div class="prose max-w-none">
+                        <h1 id="full-page-cache-strategy-for-high-performance-magento">Full Page Cache Strategy for High-Performance Magento</h1>
+<h2 id="problem-statement">Problem Statement</h2>
+<p>A poorly optimized Magento store can serve pages in 2-5 seconds under load, leading to abandoned carts, low conversion rates, and poor Core Web Vitals scores. The culprit is often <strong>inadequate Full Page Cache (FPC) strategy</strong>:</p>
+<ul>
+<li><strong>Mixed cacheable/private content</strong> in blocks, causing entire pages to bypass cache</li>
+<li><strong>Missing or incorrect cache tags</strong>, preventing automatic invalidation</li>
+<li><strong>ESI holes not used</strong>, forcing dynamic content to bust FPC</li>
+<li><strong>Varnish misconfiguration</strong>, resulting in low hit rates or stale content</li>
+<li><strong>Cold cache after deployments</strong>, causing post-release slowdowns</li>
+</ul>
+<p>The Full Page Cache is Magento's <strong>most powerful performance lever</strong>. A well-configured FPC can deliver cached pages in <strong>50-150ms</strong> (vs 2000ms+ for uncached), achieve <strong>90%+ hit rates</strong>, and scale to <strong>10,000+ requests/minute</strong> on modest hardware.</p>
+<p>This guide provides a <strong>complete FPC architecture and implementation strategy</strong>:</p>
+<ol>
+<li><strong>Cacheable vs Non-Cacheable Blocks</strong>: Design patterns for mixing public and private content</li>
+<li><strong>Cache Tags and Invalidation</strong>: Automatic cache purging on product/category/CMS updates</li>
+<li><strong>ESI (Edge Side Includes) Holes</strong>: Serve static content from cache while embedding dynamic fragments</li>
+<li><strong>Private Content (Customer Sections)</strong>: AJAX-based customer data loading post-page-load</li>
+<li><strong>Varnish VCL Configuration</strong>: Magento-optimized VCL for maximum hit rates</li>
+<li><strong>Cache Warming Strategies</strong>: Pre-populate cache after deployments or invalidations</li>
+<li><strong>Debugging and Monitoring</strong>: Tools to diagnose cache misses and measure performance</li>
+<li><strong>Performance Benchmarks</strong>: Real-world metrics and optimization targets</li>
+</ol>
+<p>By the end, you'll architect modules that <strong>respect FPC</strong>, achieve <strong>sub-200ms cached page loads</strong>, and maintain <strong>high hit rates under production traffic</strong>.</p>
+<hr />
+<h2 id="prerequisites">Prerequisites</h2>
+<ul>
+<li>Magento 2.4.7+ (Adobe Commerce or Open Source)</li>
+<li>PHP 8.2+ with OPcache and Redis</li>
+<li>Redis for page cache and session storage</li>
+<li>Varnish 7.x (recommended) or built-in FPC</li>
+<li>Access to production-like load testing environment</li>
+<li>Familiarity with Magento block lifecycle and layout XML</li>
+</ul>
+<p><strong>Tools:</strong>
+- <code>varnishstat</code>, <code>varnishlog</code>, <code>varnishncsa</code> (Varnish monitoring)
+- <code>redis-cli</code> (cache inspection)
+- Apache Bench (<code>ab</code>) or k6 for load testing
+- New Relic, Blackfire, or Tideways for APM
+- Browser DevTools (Network tab, Lighthouse)</p>
+<p><strong>Assumed Setup:</strong>
+- Redis as default page cache backend (<code>app/etc/env.php</code>)
+- Varnish as HTTP cache in front of Nginx/Apache
+- CDN (Fastly, Cloudflare) in front of Varnish (optional but recommended)</p>
+<hr />
+<h2 id="step-by-step-solution">Step-by-Step Solution</h2>
+<h3 id="1-cacheable-vs-non-cacheable-blocks-the-foundation">1. Cacheable vs Non-Cacheable Blocks: The Foundation</h3>
+<p><strong>The Principle:</strong>
+A page is <strong>cacheable</strong> only if <strong>all blocks</strong> on that page are cacheable. A single non-cacheable block (e.g., customer name, cart count) makes the entire page non-cacheable, forcing a full PHP execution for every request.</p>
+<p><strong>Block Cache Properties:</strong></p>
+<pre><code class="language-php">&lt;?php
+namespace MyVendor\MyModule\Block;
+
+use Magento\Framework\View\Element\Template;
+
+class ProductList extends Template
+{
+    protected $_isScopePrivate = false; // PUBLIC block (default)
+
+    protected function _construct()
+    {
+        parent::_construct();
+
+        // Cache configuration
+        $this-&gt;addData([
+            'cache_lifetime' =&gt; 3600, // 1 hour (seconds)
+            'cache_tags' =&gt; [
+                \Magento\Catalog\Model\Product::CACHE_TAG,
+                \Magento\Catalog\Model\Category::CACHE_TAG,
+            ],
+            'cache_key' =&gt; $this-&gt;getCacheKey(),
+        ]);
+    }
+
+    public function getCacheKey()
+    {
+        // Unique cache key per page variant
+        return implode('_', [
+            'product_list',
+            $this-&gt;_storeManager-&gt;getStore()-&gt;getId(),
+            $this-&gt;_design-&gt;getDesignTheme()-&gt;getId(),
+            $this-&gt;getRequest()-&gt;getParam('p', 1), // Page number
+            $this-&gt;getRequest()-&gt;getParam('category_id'),
+        ]);
+    }
+
+    public function getCacheKeyInfo()
+    {
+        return [
+            'PRODUCT_LIST',
+            $this-&gt;_storeManager-&gt;getStore()-&gt;getId(),
+            $this-&gt;_design-&gt;getDesignTheme()-&gt;getId(),
+            $this-&gt;getRequest()-&gt;getParam('p', 1),
+            $this-&gt;getRequest()-&gt;getParam('category_id'),
+        ];
+    }
+}
+</code></pre>
+<p><strong>Non-Cacheable Block (Anti-Pattern):</strong></p>
+<pre><code class="language-php">&lt;?php
+namespace MyVendor\MyModule\Block;
+
+use Magento\Framework\View\Element\Template;
+
+class CustomerWelcome extends Template
+{
+    // This makes the ENTIRE PAGE non-cacheable!
+    protected $_isScopePrivate = true;
+
+    public function getCustomerName(): string
+    {
+        $customer = $this-&gt;customerSession-&gt;getCustomer();
+        return $customer-&gt;getName();
+    }
+}
+</code></pre>
+<p><strong>Impact:</strong> If <code>CustomerWelcome</code> block is added to the homepage layout, <strong>all homepage requests</strong> bypass FPC, even for guest users.</p>
+<p><strong>The Fix: Private Content Sections (see Section 4)</strong></p>
+<hr />
+<h3 id="2-cache-tags-and-invalidation-smart-purging">2. Cache Tags and Invalidation: Smart Purging</h3>
+<p><strong>The Problem:</strong>
+After updating a product, the product page must be purged from cache. Manually purging by URL is fragile (what about category pages showing that product? Search results?). Magento's <strong>cache tag system</strong> automates this.</p>
+<p><strong>How It Works:</strong>
+1. Blocks declare <strong>cache tags</strong> (e.g., <code>catalog_product_123</code>, <code>catalog_category_45</code>)
+2. When a product is saved, Magento invalidates all cache entries with that tag
+3. Next request regenerates and caches the page with fresh data</p>
+<p><strong>Declaring Cache Tags in Blocks:</strong></p>
+<pre><code class="language-php">&lt;?php
+namespace MyVendor\MyModule\Block;
+
+use Magento\Catalog\Api\Data\ProductInterface;
+use Magento\Catalog\Block\Product\AbstractProduct;
+
+class FeaturedProduct extends AbstractProduct
+{
+    protected function _construct()
+    {
+        parent::_construct();
+        $this-&gt;addData([
+            'cache_lifetime' =&gt; 86400, // 24 hours
+            'cache_tags' =&gt; $this-&gt;getCacheTags(),
+        ]);
+    }
+
+    protected function getCacheTags(): array
+    {
+        $tags = [];
+
+        $product = $this-&gt;getProduct();
+        if ($product instanceof ProductInterface) {
+            $tags[] = \Magento\Catalog\Model\Product::CACHE_TAG . '_' . $product-&gt;getId();
+
+            // Invalidate when any category containing this product changes
+            foreach ($product-&gt;getCategoryIds() as $categoryId) {
+                $tags[] = \Magento\Catalog\Model\Category::CACHE_TAG . '_' . $categoryId;
+            }
+        }
+
+        return $tags;
+    }
+
+    public function getIdentities()
+    {
+        // Required for FPC: return cache tags for page-level invalidation
+        return $this-&gt;getCacheTags();
+    }
+}
+</code></pre>
+<p><strong>Adding Cache Tags to Custom Entities:</strong></p>
+<pre><code class="language-php">&lt;?php
+namespace MyVendor\MyModule\Model;
+
+use Magento\Framework\DataObject\IdentityInterface;
+use Magento\Framework\Model\AbstractModel;
+
+class CustomEntity extends AbstractModel implements IdentityInterface
+{
+    public const CACHE_TAG = 'myvendor_mymodule_entity';
+
+    protected $_cacheTag = self::CACHE_TAG;
+
+    protected function _construct()
+    {
+        $this-&gt;_init(\MyVendor\MyModule\Model\ResourceModel\CustomEntity::class);
+    }
+
+    public function getIdentities()
+    {
+        return [
+            self::CACHE_TAG . '_' . $this-&gt;getId(),
+            self::CACHE_TAG, // Invalidate all entity pages
+        ];
+    }
+}
+</code></pre>
+<p><strong>Observer: Invalidate Cache on Entity Save</strong></p>
+<pre><code class="language-php">&lt;?php
+namespace MyVendor\MyModule\Observer;
+
+use Magento\Framework\Event\Observer;
+use Magento\Framework\Event\ObserverInterface;
+use Magento\PageCache\Model\Cache\Type as FullPageCache;
+
+class InvalidateEntityCache implements ObserverInterface
+{
+    public function __construct(
+        private FullPageCache $fullPageCache
+    ) {}
+
+    public function execute(Observer $observer)
+    {
+        $entity = $observer-&gt;getEvent()-&gt;getEntity();
+
+        if ($entity instanceof \Magento\Framework\DataObject\IdentityInterface) {
+            $this-&gt;fullPageCache-&gt;clean(
+                \Zend_Cache::CLEANING_MODE_MATCHING_TAG,
+                $entity-&gt;getIdentities()
+            );
+        }
+    }
+}
+</code></pre>
+<pre><code class="language-xml">&lt;!-- etc/frontend/events.xml --&gt;
+&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;config xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+        xsi:noNamespaceSchemaLocation=&quot;urn:magento:framework:Event/etc/events.xsd&quot;&gt;
+    &lt;event name=&quot;myvendor_mymodule_entity_save_after&quot;&gt;
+        &lt;observer name=&quot;invalidate_entity_cache&quot;
+                  instance=&quot;MyVendor\MyModule\Observer\InvalidateEntityCache&quot;/&gt;
+    &lt;/event&gt;
+&lt;/config&gt;
+</code></pre>
+<p><strong>Testing Cache Invalidation:</strong></p>
+<pre><code class="language-bash"># Enable cache
+bin/magento cache:enable full_page
+
+# Load product page (cache miss, generates cache)
+curl -I https://magento.local/product-page.html
+# X-Magento-Cache-Debug: MISS
+
+# Load again (cache hit)
+curl -I https://magento.local/product-page.html
+# X-Magento-Cache-Debug: HIT
+
+# Update product in admin panel
+
+# Load again (cache miss after invalidation)
+curl -I https://magento.local/product-page.html
+# X-Magento-Cache-Debug: MISS
+</code></pre>
+<p><strong>Checklist:</strong>
+- [ ] All cacheable blocks declare <code>cache_lifetime</code> and <code>cache_tags</code>
+- [ ] Custom entities implement <code>IdentityInterface</code> and return tags from <code>getIdentities()</code>
+- [ ] Observers invalidate cache on entity save/delete
+- [ ] Cache tags include entity ID and related entities (e.g., product → categories)</p>
+<hr />
+<h3 id="3-esi-edge-side-includes-holes-cache-dynamic-content">3. ESI (Edge Side Includes) Holes: Cache + Dynamic Content</h3>
+<p><strong>The Problem:</strong>
+You want to cache the product page but show the <strong>user's cart item count</strong> (dynamic). Traditional solution: make the entire page non-cacheable. Better solution: <strong>ESI</strong>.</p>
+<p><strong>ESI Concept:</strong>
+Varnish (or other reverse proxy) caches the main page but leaves "holes" (ESI tags) that are filled with dynamic content on each request.</p>
+<pre><code class="language-html">&lt;!-- Cached page with ESI hole --&gt;
+&lt;html&gt;
+  &lt;body&gt;
+    &lt;h1&gt;Product Page&lt;/h1&gt; &lt;!-- Cached --&gt;
+
+    &lt;!-- ESI hole: fetched on every request --&gt;
+    &lt;esi:include src=&quot;/customer/section/load?sections=cart&quot; /&gt;
+
+    &lt;div&gt;Product details...&lt;/div&gt; &lt;!-- Cached --&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p><strong>Magento Implementation: Cacheable Block with ESI Hole</strong></p>
+<pre><code class="language-xml">&lt;!-- view/frontend/layout/catalog_product_view.xml --&gt;
+&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;page xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+      xsi:noNamespaceSchemaLocation=&quot;urn:magento:framework:View/Layout/etc/page_configuration.xsd&quot;&gt;
+    &lt;body&gt;
+        &lt;referenceContainer name=&quot;header.panel&quot;&gt;
+            &lt;!-- ESI-enabled block: cached page, dynamic content via ESI --&gt;
+            &lt;block class=&quot;Magento\Framework\View\Element\Template&quot;
+                   name=&quot;header.links&quot;
+                   template=&quot;Magento_Theme::header/links.phtml&quot;
+                   cacheable=&quot;true&quot;&gt;
+                &lt;arguments&gt;
+                    &lt;argument name=&quot;jsLayout&quot; xsi:type=&quot;array&quot;&gt;
+                        &lt;item name=&quot;components&quot; xsi:type=&quot;array&quot;&gt;
+                            &lt;item name=&quot;minicart&quot; xsi:type=&quot;array&quot;&gt;
+                                &lt;item name=&quot;config&quot; xsi:type=&quot;array&quot;&gt;
+                                    &lt;item name=&quot;esi&quot; xsi:type=&quot;boolean&quot;&gt;true&lt;/item&gt;
+                                &lt;/item&gt;
+                            &lt;/item&gt;
+                        &lt;/item&gt;
+                    &lt;/argument&gt;
+                &lt;/arguments&gt;
+            &lt;/block&gt;
+        &lt;/referenceContainer&gt;
+    &lt;/body&gt;
+&lt;/page&gt;
+</code></pre>
+<p><strong>Varnish VCL for ESI:</strong></p>
+<pre><code class="language-vcl"># /etc/varnish/default.vcl (Magento 2.4.7 compatible)
+
+sub vcl_recv {
+    # Enable ESI processing
+    if (req.url ~ &quot;^/customer/section/load&quot;) {
+        return (pass); # Never cache customer sections
+    }
+
+    # Strip cookies for static assets
+    if (req.url ~ &quot;\.(css|js|jpg|png|gif|ico|woff2)$&quot;) {
+        unset req.http.Cookie;
+    }
+}
+
+sub vcl_backend_response {
+    # Enable ESI for pages with ESI tags
+    if (beresp.http.X-Magento-Tags) {
+        set beresp.do_esi = true;
+    }
+
+    # Cache static assets for 1 year
+    if (bereq.url ~ &quot;\.(css|js|jpg|png|gif|ico|woff2)$&quot;) {
+        set beresp.ttl = 365d;
+        unset beresp.http.Set-Cookie;
+    }
+
+    # Cache product pages for 1 hour
+    if (bereq.url ~ &quot;^/(.*)\\.html$&quot;) {
+        set beresp.ttl = 1h;
+    }
+}
+
+sub vcl_deliver {
+    # Add cache debug header
+    if (obj.hits &gt; 0) {
+        set resp.http.X-Cache = &quot;HIT&quot;;
+    } else {
+        set resp.http.X-Cache = &quot;MISS&quot;;
+    }
+
+    # Remove internal headers
+    unset resp.http.X-Magento-Tags;
+    unset resp.http.X-Powered-By;
+}
+</code></pre>
+<p><strong>Testing ESI:</strong></p>
+<pre><code class="language-bash"># Restart Varnish with ESI enabled
+sudo systemctl restart varnish
+
+# Load page and check for ESI processing
+curl -I https://magento.local/product-page.html
+# X-Cache: MISS (first load)
+
+curl -I https://magento.local/product-page.html
+# X-Cache: HIT (ESI-processed cached page)
+
+# Verify ESI hole fetched separately
+varnishlog -q 'ReqURL ~ &quot;customer/section/load&quot;'
+</code></pre>
+<p><strong>Checklist:</strong>
+- [ ] Varnish VCL has <code>set beresp.do_esi = true</code> for Magento pages
+- [ ] Blocks with private content use <code>cacheable="true"</code> + customer sections (not ESI directly)
+- [ ] ESI-included URLs return <code>pass</code> in Varnish (never cached)
+- [ ] Test with <code>curl</code> and <code>varnishlog</code> to verify ESI fetch</p>
+<p><strong>Important:</strong> Magento 2.4+ <strong>does not use ESI tags directly</strong> for customer data. Instead, it uses <strong>Customer Sections (Section 4)</strong>. ESI is available for custom use cases (e.g., third-party content, A/B testing).</p>
+<hr />
+<h3 id="4-private-content-customer-sections-the-magento-way">4. Private Content: Customer Sections (The Magento Way)</h3>
+<p><strong>The Problem:</strong>
+Customer-specific data (name, cart count, wishlist) cannot be cached. ESI could work, but Magento uses a <strong>JavaScript-based approach</strong>: <strong>Customer Sections</strong>.</p>
+<p><strong>How It Works:</strong>
+1. Page loads from cache (fast, &lt;150ms)
+2. Page includes <code>sections.xml</code> configuration
+3. JavaScript fetches customer data via AJAX (<code>/customer/section/load</code>)
+4. Data injected into page via Knockout.js</p>
+<p><strong>Result:</strong> Cached page + dynamic content with no ESI complexity.</p>
+<p><strong>Defining a Customer Section:</strong></p>
+<pre><code class="language-xml">&lt;!-- etc/frontend/sections.xml --&gt;
+&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;config xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+        xsi:noNamespaceSchemaLocation=&quot;urn:magento:module:Magento_Customer:etc/sections.xsd&quot;&gt;
+
+    &lt;!-- Define custom section --&gt;
+    &lt;action name=&quot;mymodule/entity/save&quot;&gt;
+        &lt;section name=&quot;cart&quot;/&gt; &lt;!-- Reload cart after entity save --&gt;
+        &lt;section name=&quot;mymodule-custom&quot;/&gt; &lt;!-- Reload custom section --&gt;
+    &lt;/action&gt;
+
+    &lt;action name=&quot;checkout/cart/add&quot;&gt;
+        &lt;section name=&quot;cart&quot;/&gt;
+        &lt;section name=&quot;mymodule-custom&quot;/&gt; &lt;!-- Invalidate custom section on cart update --&gt;
+    &lt;/action&gt;
+&lt;/config&gt;
+</code></pre>
+<p><strong>Custom Section Data Provider:</strong></p>
+<pre><code class="language-php">&lt;?php
+namespace MyVendor\MyModule\CustomerData;
+
+use Magento\Customer\CustomerData\SectionSourceInterface;
+
+class CustomSection implements SectionSourceInterface
+{
+    public function __construct(
+        private \Magento\Customer\Model\Session $customerSession,
+        private \MyVendor\MyModule\Model\CustomRepository $customRepository
+    ) {}
+
+    /**
+     * @return array
+     */
+    public function getSectionData()
+    {
+        if (!$this-&gt;customerSession-&gt;isLoggedIn()) {
+            return [];
+        }
+
+        $customerId = $this-&gt;customerSession-&gt;getCustomerId();
+        $data = $this-&gt;customRepository-&gt;getByCustomerId($customerId);
+
+        return [
+            'items' =&gt; $data-&gt;getItems(),
+            'count' =&gt; $data-&gt;getCount(),
+            'last_updated' =&gt; time(),
+        ];
+    }
+}
+</code></pre>
+<pre><code class="language-xml">&lt;!-- etc/frontend/di.xml --&gt;
+&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;config xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+        xsi:noNamespaceSchemaLocation=&quot;urn:magento:framework:ObjectManager/etc/config.xsd&quot;&gt;
+    &lt;type name=&quot;Magento\Customer\CustomerData\SectionPoolInterface&quot;&gt;
+        &lt;arguments&gt;
+            &lt;argument name=&quot;sectionSourceMap&quot; xsi:type=&quot;array&quot;&gt;
+                &lt;item name=&quot;mymodule-custom&quot; xsi:type=&quot;string&quot;&gt;MyVendor\MyModule\CustomerData\CustomSection&lt;/item&gt;
+            &lt;/argument&gt;
+        &lt;/arguments&gt;
+    &lt;/type&gt;
+&lt;/config&gt;
+</code></pre>
+<p><strong>Consuming Section Data in JavaScript:</strong></p>
+<pre><code class="language-javascript">// view/frontend/web/js/custom-widget.js
+define([
+    'uiComponent',
+    'Magento_Customer/js/customer-data'
+], function (Component, customerData) {
+    'use strict';
+
+    return Component.extend({
+        initialize: function () {
+            this._super();
+            this.customSection = customerData.get('mymodule-custom');
+
+            // Subscribe to changes
+            this.customSection.subscribe(function (data) {
+                console.log('Custom section updated:', data);
+            });
+        },
+
+        getItemCount: function () {
+            return this.customSection().count || 0;
+        }
+    });
+});
+</code></pre>
+<pre><code class="language-html">&lt;!-- view/frontend/templates/custom-widget.phtml --&gt;
+&lt;div data-bind=&quot;scope: 'custom-widget'&quot;&gt;
+    &lt;span&gt;Items: &lt;span data-bind=&quot;text: getItemCount()&quot;&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;/div&gt;
+
+&lt;script type=&quot;text/x-magento-init&quot;&gt;
+{
+    &quot;[data-bind*='custom-widget']&quot;: {
+        &quot;Magento_Ui/js/core/app&quot;: {
+            &quot;components&quot;: {
+                &quot;custom-widget&quot;: {
+                    &quot;component&quot;: &quot;MyVendor_MyModule/js/custom-widget&quot;
+                }
+            }
+        }
+    }
+}
+&lt;/script&gt;
+</code></pre>
+<p><strong>Invalidating Sections Programmatically:</strong></p>
+<pre><code class="language-php">&lt;?php
+namespace MyVendor\MyModule\Controller\Entity;
+
+use Magento\Framework\App\Action\HttpPostActionInterface;
+use Magento\Framework\Controller\ResultFactory;
+
+class Save implements HttpPostActionInterface
+{
+    public function __construct(
+        private ResultFactory $resultFactory,
+        private \Magento\Customer\Model\Session $customerSession
+    ) {}
+
+    public function execute()
+    {
+        // ... save entity
+
+        // Invalidate customer sections
+        $this-&gt;customerSession-&gt;regenerateId(); // Forces section reload
+
+        return $this-&gt;resultFactory-&gt;create(ResultFactory::TYPE_REDIRECT)
+            -&gt;setPath('*/*/success');
+    }
+}
+</code></pre>
+<p><strong>Checklist:</strong>
+- [ ] Customer-specific data moved to customer sections (not blocks)
+- [ ] <code>etc/frontend/sections.xml</code> defines section invalidation rules
+- [ ] Section data providers implement <code>SectionSourceInterface</code>
+- [ ] JavaScript uses <code>customerData.get('section-name')</code> to access data
+- [ ] Test: Load page, verify AJAX request to <code>/customer/section/load</code></p>
+<hr />
+<h3 id="5-varnish-vcl-magento-optimized-configuration">5. Varnish VCL: Magento-Optimized Configuration</h3>
+<p><strong>Generate Base VCL:</strong></p>
+<pre><code class="language-bash"># Export Magento-provided VCL (Magento 2.4.7)
+bin/magento varnish:vcl:generate --export-version=7 &gt; /etc/varnish/magento.vcl
+
+# Review and customize
+sudo nano /etc/varnish/magento.vcl
+</code></pre>
+<p><strong>Production-Ready VCL (Highlights):</strong></p>
+<pre><code class="language-vcl">vcl 4.1;
+
+import std;
+
+backend default {
+    .host = &quot;127.0.0.1&quot;;
+    .port = &quot;8080&quot;; # Nginx backend
+    .first_byte_timeout = 600s;
+    .probe = {
+        .url = &quot;/health_check.php&quot;;
+        .timeout = 2s;
+        .interval = 5s;
+        .window = 10;
+        .threshold = 5;
+    }
+}
+
+acl purge {
+    &quot;localhost&quot;;
+    &quot;127.0.0.1&quot;;
+    &quot;192.168.1.0&quot;/24; # Internal network
+}
+
+sub vcl_recv {
+    # Allow cache purge from trusted IPs
+    if (req.method == &quot;PURGE&quot;) {
+        if (!client.ip ~ purge) {
+            return (synth(403, &quot;Forbidden&quot;));
+        }
+        return (purge);
+    }
+
+    # Only cache GET and HEAD
+    if (req.method != &quot;GET&quot; &amp;&amp; req.method != &quot;HEAD&quot;) {
+        return (pass);
+    }
+
+    # Don't cache admin, checkout, customer account
+    if (req.url ~ &quot;^/(admin|checkout|customer)&quot;) {
+        return (pass);
+    }
+
+    # Strip query strings from static assets
+    if (req.url ~ &quot;\.(css|js|jpg|jpeg|png|gif|ico|svg|woff2)(\?.*)?$&quot;) {
+        set req.url = regsub(req.url, &quot;\?.*$&quot;, &quot;&quot;);
+        unset req.http.Cookie;
+        return (hash);
+    }
+
+    # Normalize Accept-Encoding
+    if (req.http.Accept-Encoding) {
+        if (req.http.Accept-Encoding ~ &quot;gzip&quot;) {
+            set req.http.Accept-Encoding = &quot;gzip&quot;;
+        } elsif (req.http.Accept-Encoding ~ &quot;deflate&quot;) {
+            set req.http.Accept-Encoding = &quot;deflate&quot;;
+        } else {
+            unset req.http.Accept-Encoding;
+        }
+    }
+
+    # Remove Google Analytics cookies
+    set req.http.Cookie = regsuball(req.http.Cookie, &quot;(^|;\s*)(_ga|_gid|_gat)=[^;]*&quot;, &quot;&quot;);
+    set req.http.Cookie = regsuball(req.http.Cookie, &quot;^;\s*&quot;, &quot;&quot;);
+
+    # If no cookies remain, unset Cookie header
+    if (req.http.Cookie == &quot;&quot;) {
+        unset req.http.Cookie;
+    }
+
+    return (hash);
+}
+
+sub vcl_hash {
+    # Vary cache by URL and host
+    hash_data(req.url);
+    if (req.http.host) {
+        hash_data(req.http.host);
+    } else {
+        hash_data(server.ip);
+    }
+
+    # Vary by currency cookie (Magento multi-currency)
+    if (req.http.Cookie ~ &quot;currency=&quot;) {
+        hash_data(regsub(req.http.Cookie, &quot;^.*?currency=([^;]+);*.*$&quot;, &quot;\1&quot;));
+    }
+
+    # Vary by store code cookie
+    if (req.http.Cookie ~ &quot;store=&quot;) {
+        hash_data(regsub(req.http.Cookie, &quot;^.*?store=([^;]+);*.*$&quot;, &quot;\1&quot;));
+    }
+
+    return (lookup);
+}
+
+sub vcl_backend_response {
+    # Enable grace mode (serve stale content if backend down)
+    set beresp.grace = 24h;
+
+    # Cache static assets for 1 year
+    if (bereq.url ~ &quot;\.(css|js|jpg|jpeg|png|gif|ico|svg|woff2)$&quot;) {
+        set beresp.ttl = 365d;
+        unset beresp.http.Set-Cookie;
+        return (deliver);
+    }
+
+    # Respect Cache-Control from Magento
+    if (beresp.http.Cache-Control ~ &quot;no-cache|no-store|private&quot;) {
+        set beresp.ttl = 0s;
+        set beresp.uncacheable = true;
+        return (deliver);
+    }
+
+    # Default TTL for cacheable pages
+    if (beresp.ttl &lt;= 0s) {
+        set beresp.ttl = 1h;
+    }
+
+    return (deliver);
+}
+
+sub vcl_deliver {
+    # Add cache status header (dev only)
+    if (obj.hits &gt; 0) {
+        set resp.http.X-Cache = &quot;HIT&quot;;
+        set resp.http.X-Cache-Hits = obj.hits;
+    } else {
+        set resp.http.X-Cache = &quot;MISS&quot;;
+    }
+
+    # Remove internal headers in production
+    # unset resp.http.X-Cache;
+    # unset resp.http.X-Magento-Tags;
+    # unset resp.http.X-Powered-By;
+
+    return (deliver);
+}
+</code></pre>
+<p><strong>Reload Varnish:</strong></p>
+<pre><code class="language-bash">sudo varnishreload # Or: sudo systemctl reload varnish
+</code></pre>
+<p><strong>Testing Varnish:</strong></p>
+<pre><code class="language-bash"># Check hit/miss
+curl -I https://magento.local/
+
+# Purge specific URL
+curl -X PURGE https://magento.local/product-page.html
+
+# Purge by cache tag (requires custom VCL)
+curl -X PURGE https://magento.local/ -H &quot;X-Magento-Tags-Pattern: catalog_product_123&quot;
+
+# Monitor Varnish stats
+varnishstat -1 | grep cache_hit
+# cache_hit: 45678 (hit rate: 92%)
+</code></pre>
+<p><strong>Checklist:</strong>
+- [ ] Varnish VCL generated from Magento (<code>bin/magento varnish:vcl:generate</code>)
+- [ ] Backend health check configured (<code>/health_check.php</code> or <code>/pub/health_check.php</code>)
+- [ ] PURGE ACL restricted to internal IPs
+- [ ] Static assets cached for 1 year, stripped of cookies
+- [ ] Grace mode enabled (serve stale on backend failure)
+- [ ] Hit rate &gt;85% in production (monitor with <code>varnishstat</code>)</p>
+<hr />
+<h3 id="6-cache-warming-prevent-cold-cache-slowdowns">6. Cache Warming: Prevent Cold Cache Slowdowns</h3>
+<p><strong>The Problem:</strong>
+After deployment or cache flush, the first request to each page is slow (cache miss). If 1000 pages exist, the first 1000 visitors experience degraded performance.</p>
+<p><strong>The Solution: Cache Warming</strong></p>
+<p><strong>Strategy A: Sitemap-Based Warming</strong></p>
+<pre><code class="language-bash">#!/bin/bash
+# warm-cache.sh
+
+SITEMAP_URL=&quot;https://magento.local/sitemap.xml&quot;
+CONCURRENCY=10
+
+# Download sitemap
+curl -s $SITEMAP_URL | \
+  grep -oP '(?&lt;=&lt;loc&gt;).*?(?=&lt;/loc&gt;)' | \
+  xargs -n 1 -P $CONCURRENCY curl -s -o /dev/null -w &quot;%{url_effective} %{http_code} %{time_total}s\n&quot;
+
+echo &quot;Cache warming complete.&quot;
+</code></pre>
+<p><strong>Run after deployment:</strong></p>
+<pre><code class="language-bash"># Flush cache
+bin/magento cache:flush
+
+# Reindex
+bin/magento indexer:reindex
+
+# Warm cache
+bash warm-cache.sh
+</code></pre>
+<p><strong>Strategy B: Priority URL Warming (Critical Pages First)</strong></p>
+<pre><code class="language-php">&lt;?php
+// Script: bin/warm-cache.php
+
+use Magento\Framework\App\Bootstrap;
+
+require __DIR__ . '/../app/bootstrap.php';
+
+$bootstrap = Bootstrap::create(BP, $_SERVER);
+$objectManager = $bootstrap-&gt;getObjectManager();
+
+$storeManager = $objectManager-&gt;get(\Magento\Store\Model\StoreManagerInterface::class);
+$urlFinder = $objectManager-&gt;get(\Magento\Catalog\Model\ResourceModel\Product\CollectionFactory::class);
+
+// Get top 100 products by sales
+$productCollection = $urlFinder-&gt;create()
+    -&gt;addAttributeToSelect('url_key')
+    -&gt;addAttributeToSort('ordered_qty', 'DESC')
+    -&gt;setPageSize(100);
+
+$urls = [];
+foreach ($productCollection as $product) {
+    $urls[] = $product-&gt;getProductUrl();
+}
+
+// Warm cache (multi-threaded via curl_multi)
+$multiHandle = curl_multi_init();
+$curlHandles = [];
+
+foreach ($urls as $url) {
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_HEADER, true);
+    curl_setopt($ch, CURLOPT_NOBODY, true); // HEAD request
+    curl_multi_add_handle($multiHandle, $ch);
+    $curlHandles[] = $ch;
+}
+
+$running = null;
+do {
+    curl_multi_exec($multiHandle, $running);
+    curl_multi_select($multiHandle);
+} while ($running &gt; 0);
+
+foreach ($curlHandles as $ch) {
+    curl_multi_remove_handle($multiHandle, $ch);
+    curl_close($ch);
+}
+
+curl_multi_close($multiHandle);
+
+echo &quot;Cache warmed for &quot; . count($urls) . &quot; URLs.\n&quot;;
+</code></pre>
+<p><strong>Run via cron (post-deployment):</strong></p>
+<pre><code class="language-bash">php bin/warm-cache.php
+</code></pre>
+<p><strong>Strategy C: Continuous Cache Warming (Proactive)</strong></p>
+<pre><code class="language-xml">&lt;!-- etc/crontab.xml --&gt;
+&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;config xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+        xsi:noNamespaceSchemaLocation=&quot;urn:magento:module:Magento_Cron:etc/crontab.xsd&quot;&gt;
+    &lt;group id=&quot;default&quot;&gt;
+        &lt;job name=&quot;myvendor_cache_warm&quot; instance=&quot;MyVendor\MyModule\Cron\WarmCache&quot; method=&quot;execute&quot;&gt;
+            &lt;schedule&gt;*/30 * * * *&lt;/schedule&gt; &lt;!-- Every 30 minutes --&gt;
+        &lt;/job&gt;
+    &lt;/group&gt;
+&lt;/config&gt;
+</code></pre>
+<pre><code class="language-php">&lt;?php
+namespace MyVendor\MyModule\Cron;
+
+class WarmCache
+{
+    public function __construct(
+        private \MyVendor\MyModule\Model\CacheWarmer $cacheWarmer
+    ) {}
+
+    public function execute()
+    {
+        $this-&gt;cacheWarmer-&gt;warmTopPages();
+        return $this;
+    }
+}
+</code></pre>
+<p><strong>Checklist:</strong>
+- [ ] Cache warming script targets top 100-500 URLs by traffic
+- [ ] Script runs post-deployment and post-cache-flush
+- [ ] Concurrency set to 10-20 (balance speed vs backend load)
+- [ ] Monitor backend CPU during warming; adjust concurrency if needed
+- [ ] Optional: Continuous warming via cron for long-tail pages</p>
+<hr />
+<h3 id="7-debugging-cache-issues">7. Debugging Cache Issues</h3>
+<p><strong>Enable Cache Debug Headers:</strong></p>
+<pre><code class="language-bash">bin/magento config:set system/full_page_cache/debug 1
+bin/magento cache:flush
+</code></pre>
+<p><strong>Headers to Check:</strong></p>
+<div class="overflow-x-auto my-6 border border-gray-200"><table class="min-w-full">
+<thead>
+<tr>
+<th>Header</th>
+<th>Value</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>X-Magento-Cache-Debug</code></td>
+<td><code>HIT</code></td>
+<td>Page served from FPC</td>
+</tr>
+<tr>
+<td><code>X-Magento-Cache-Debug</code></td>
+<td><code>MISS</code></td>
+<td>Page generated, now cached</td>
+</tr>
+<tr>
+<td><code>X-Magento-Cache-Debug</code></td>
+<td><code>BYPASS</code></td>
+<td>Page not cacheable</td>
+</tr>
+<tr>
+<td><code>X-Magento-Tags</code></td>
+<td><code>cat_p_123,store_1</code></td>
+<td>Cache tags for this page</td>
+</tr>
+<tr>
+<td><code>X-Cache</code></td>
+<td><code>HIT</code></td>
+<td>Varnish cache hit</td>
+</tr>
+<tr>
+<td><code>X-Cache</code></td>
+<td><code>MISS</code></td>
+<td>Varnish cache miss</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Common Issues:</strong></p>
+<p><strong>Issue: All Requests Show BYPASS</strong></p>
+<p><strong>Cause:</strong> Non-cacheable block in layout.</p>
+<p><strong>Debug:</strong></p>
+<pre><code class="language-bash"># Enable layout debugging
+bin/magento dev:template-hints:enable
+bin/magento dev:template-hints:status
+
+# View page source, identify non-cacheable block (highlighted in red)
+# Check block class for `$_isScopePrivate = true`
+</code></pre>
+<p><strong>Issue: Low Hit Rate (&lt;50%)</strong></p>
+<p><strong>Cause:</strong> Cache keys vary by unnecessary parameters (e.g., tracking UTM params).</p>
+<p><strong>Fix:</strong> Normalize URLs in Varnish VCL:</p>
+<pre><code class="language-vcl">sub vcl_recv {
+    # Strip tracking parameters
+    set req.url = regsuball(req.url, &quot;[?&amp;](utm_[^&amp;]+|gclid=[^&amp;]+)&quot;, &quot;&quot;);
+}
+</code></pre>
+<p><strong>Issue: Cache Not Invalidated After Product Update</strong></p>
+<p><strong>Cause:</strong> Missing cache tags or observer not firing.</p>
+<p><strong>Debug:</strong></p>
+<pre><code class="language-bash"># Note: events:list is not a core Magento Open Source command (it is part of Adobe I/O Events).
+# To check if an observer is registered, search the codebase directly:
+grep -r &quot;catalog_product_save_after&quot; app/code/ vendor/ --include=&quot;events.xml&quot;
+
+# Check block cache tags
+grep -r &quot;getIdentities\|cache_tags&quot; app/code/MyVendor/MyModule/Block/
+</code></pre>
+<p><strong>Issue: Customer Sections Not Loading</strong></p>
+<p><strong>Cause:</strong> JavaScript error or missing section registration.</p>
+<p><strong>Debug:</strong>
+1. Open browser DevTools → Console
+2. Check for JS errors
+3. Verify AJAX request to <code>/customer/section/load?sections=cart,mymodule-custom</code>
+4. Verify <code>etc/frontend/di.xml</code> registers section data provider</p>
+<p><strong>Tools:</strong></p>
+<pre><code class="language-bash"># Monitor Redis cache keys
+redis-cli --scan --pattern &quot;zc:*&quot; | head -20
+
+# Monitor Varnish logs for specific URL
+varnishlog -q &quot;ReqURL ~ '/product-page.html'&quot;
+
+# Varnish hit rate
+varnishstat -1 | grep cache_hit
+
+# Magento cache status
+bin/magento cache:status
+</code></pre>
+<p><strong>Checklist:</strong>
+- [ ] Cache debug headers enabled in dev/staging
+- [ ] All cacheable pages return <code>X-Magento-Cache-Debug: HIT</code> on second request
+- [ ] Varnish hit rate &gt;85% in production
+- [ ] Cache invalidates within 60s of product/category update
+- [ ] Customer sections load via AJAX (check Network tab)</p>
+<hr />
+<h2 id="performance-benchmarks">Performance Benchmarks</h2>
+<h3 id="baseline-no-cache">Baseline (No Cache)</h3>
+<p><strong>Test:</strong> Apache Bench, 1000 requests, concurrency 10, no cache.</p>
+<pre><code class="language-bash">ab -n 1000 -c 10 https://magento.local/product-page.html
+
+# Results (no cache):
+# Requests per second: 5.2 req/s
+# Time per request: 1923 ms (mean)
+# 95th percentile: 2800 ms
+</code></pre>
+<h3 id="with-fpc-redis">With FPC (Redis)</h3>
+<pre><code class="language-bash"># Enable cache, warm first
+bin/magento cache:enable full_page
+curl https://magento.local/product-page.html &gt; /dev/null
+
+ab -n 1000 -c 10 https://magento.local/product-page.html
+
+# Results (Redis FPC):
+# Requests per second: 125 req/s
+# Time per request: 80 ms (mean)
+# 95th percentile: 120 ms
+</code></pre>
+<p><strong>24x improvement</strong> in throughput, <strong>95% reduction</strong> in latency.</p>
+<h3 id="with-varnish-fpc">With Varnish + FPC</h3>
+<pre><code class="language-bash">ab -n 1000 -c 10 https://magento.local/product-page.html
+
+# Results (Varnish + Redis):
+# Requests per second: 850 req/s
+# Time per request: 12 ms (mean)
+# 95th percentile: 20 ms
+</code></pre>
+<p><strong>163x improvement</strong> vs no cache, <strong>7x improvement</strong> vs Redis alone.</p>
+<h3 id="real-world-targets">Real-World Targets</h3>
+<div class="overflow-x-auto my-6 border border-gray-200"><table class="min-w-full">
+<thead>
+<tr>
+<th>Metric</th>
+<th>Target</th>
+<th>Impact</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Cache Hit Rate</strong></td>
+<td>&gt;90%</td>
+<td>Higher = fewer backend requests</td>
+</tr>
+<tr>
+<td><strong>TTFB (Time to First Byte)</strong></td>
+<td>&lt;200ms</td>
+<td>Faster perceived load</td>
+</tr>
+<tr>
+<td><strong>LCP (Largest Contentful Paint)</strong></td>
+<td>&lt;2.5s</td>
+<td>Core Web Vitals "Good"</td>
+</tr>
+<tr>
+<td><strong>FCP (First Contentful Paint)</strong></td>
+<td>&lt;1.8s</td>
+<td>User sees content fast</td>
+</tr>
+<tr>
+<td><strong>Cache Size</strong></td>
+<td>&lt;10GB</td>
+<td>Balance memory vs hit rate</td>
+</tr>
+<tr>
+<td><strong>Cache Lifetime</strong></td>
+<td>1-24 hours</td>
+<td>Balance freshness vs performance</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Monitoring:</strong></p>
+<pre><code class="language-bash"># New Relic: Track cache hit rate, TTFB, page load time
+# Google Lighthouse: Run on key pages, aim for Performance Score &gt;90
+# Varnish: varnishstat, varnishhist
+# Magento: New Relic PHP extension + FPC monitoring
+</code></pre>
+<hr />
+<h2 id="security-and-performance-notes">Security and Performance Notes</h2>
+<p><strong>Security:</strong>
+- <strong>Varnish PURGE ACL:</strong> Restrict to internal IPs; public access enables DoS
+- <strong>Cache Poisoning:</strong> Validate <code>X-Forwarded-Host</code> header; reject if untrusted
+- <strong>ESI Injection:</strong> Never use user input in ESI src URLs
+- <strong>Private Data Leakage:</strong> Ensure customer-specific data ONLY in customer sections, not cacheable blocks</p>
+<p><strong>Performance:</strong>
+- <strong>Redis vs Varnish:</strong> Redis stores serialized PHP objects (slower deserialization); Varnish stores HTTP responses (faster, no PHP deserialization)
+- <strong>Grace Mode:</strong> Serve stale content if backend down; better UX than downtime
+- <strong>Cache Size:</strong> Monitor Redis/Varnish memory; if full, eviction reduces hit rate
+- <strong>CDN:</strong> Place Cloudflare/Fastly in front of Varnish for global distribution and DDoS protection</p>
+<hr />
+<h2 id="backward-compatibility">Backward Compatibility</h2>
+<ul>
+<li><strong>Customer Sections:</strong> Introduced in 2.0.0; consistent API in 2.4.x</li>
+<li><strong>Varnish VCL:</strong> Magento 2.4.7 officially supports Varnish 7.x; VCL 4.1 syntax</li>
+<li><strong>ESI:</strong> Supported since 2.0.0; not used by core for customer data (sections preferred)</li>
+<li><strong>Cache Tags:</strong> API stable since 2.0.0; <code>IdentityInterface</code> unchanged</li>
+</ul>
+<p><strong>Upgrade Path:</strong> All techniques compatible with 2.4.0 → 2.4.8. Varnish VCL may need minor adjustments between major Varnish versions (6.x → 7.x).</p>
+<hr />
+<h2 id="tests-to-add">Tests to Add</h2>
+<h3 id="unit-test-cache-key-uniqueness">Unit Test: Cache Key Uniqueness</h3>
+<pre><code class="language-php">&lt;?php
+namespace MyVendor\MyModule\Test\Unit\Block;
+
+use MyVendor\MyModule\Block\ProductList;
+use PHPUnit\Framework\TestCase;
+
+class ProductListTest extends TestCase
+{
+    public function testCacheKeyUnique()
+    {
+        $block1 = $this-&gt;createBlock(['category_id' =&gt; 5, 'p' =&gt; 1]);
+        $block2 = $this-&gt;createBlock(['category_id' =&gt; 5, 'p' =&gt; 2]);
+
+        $this-&gt;assertNotEquals($block1-&gt;getCacheKey(), $block2-&gt;getCacheKey());
+    }
+
+    private function createBlock(array $params): ProductList
+    {
+        // Mock request, store, theme
+        // ...
+        return $block;
+    }
+}
+</code></pre>
+<h3 id="integration-test-cache-invalidation">Integration Test: Cache Invalidation</h3>
+<pre><code class="language-php">&lt;?php
+namespace MyVendor\MyModule\Test\Integration\Observer;
+
+use Magento\TestFramework\Helper\Bootstrap;
+use PHPUnit\Framework\TestCase;
+
+class InvalidateEntityCacheTest extends TestCase
+{
+    public function testCacheInvalidatedOnSave()
+    {
+        $objectManager = Bootstrap::getObjectManager();
+        $cache = $objectManager-&gt;get(\Magento\PageCache\Model\Cache\Type::class);
+        $repository = $objectManager-&gt;get(\MyVendor\MyModule\Api\EntityRepositoryInterface::class);
+
+        $entity = $repository-&gt;getById(1);
+
+        // Simulate page cache
+        $cacheId = 'entity_page_1';
+        $cache-&gt;save('cached_data', $cacheId, $entity-&gt;getIdentities());
+
+        // Update entity
+        $entity-&gt;setName('Updated');
+        $repository-&gt;save($entity);
+
+        // Verify cache invalidated
+        $cachedData = $cache-&gt;load($cacheId);
+        $this-&gt;assertFalse($cachedData);
+    }
+}
+</code></pre>
+<h3 id="load-test-cache-hit-rate">Load Test: Cache Hit Rate</h3>
+<pre><code class="language-bash"># k6 load test (k6.io)
+import http from 'k6/http';
+import { check } from 'k6';
+
+export let options = {
+  stages: [
+    { duration: '1m', target: 100 }, // Ramp to 100 users
+    { duration: '5m', target: 100 }, // Stay at 100
+    { duration: '1m', target: 0 },   // Ramp down
+  ],
+};
+
+export default function () {
+  let res = http.get('https://magento.local/product-page.html');
+
+  check(res, {
+    'status is 200': (r) =&gt; r.status === 200,
+    'cache hit': (r) =&gt; r.headers['X-Cache'] === 'HIT',
+    'response time &lt; 200ms': (r) =&gt; r.timings.duration &lt; 200,
+  });
+}
+
+# Run: k6 run load-test.js
+# Target: &gt;90% cache hit rate, &lt;200ms avg response time
+</code></pre>
+<hr />
+<h2 id="documentation-to-update">Documentation to Update</h2>
+<ol>
+<li><strong>README.md</strong></li>
+<li>Add "Performance" section with FPC strategy overview</li>
+<li>
+<p>Link to this guide</p>
+</li>
+<li>
+<p><strong>CHANGELOG.md</strong></p>
+</li>
+<li>
+<p>Version 2.0.0: "Refactored blocks for FPC compatibility, added customer sections"</p>
+</li>
+<li>
+<p><strong>Admin User Guide</strong> (<code>docs/admin-guide.md</code>)</p>
+</li>
+<li>How to flush cache after content updates</li>
+<li>
+<p>How to enable/disable FPC in admin panel</p>
+</li>
+<li>
+<p><strong>Developer Guide</strong> (<code>docs/developer-guide.md</code>)</p>
+</li>
+<li>FPC architecture diagram</li>
+<li>How to make custom blocks cacheable</li>
+<li>
+<p>How to add customer sections</p>
+</li>
+<li>
+<p><strong>DevOps Runbook</strong> (<code>docs/runbook.md</code>)</p>
+</li>
+<li>Varnish restart procedure</li>
+<li>Cache warming post-deployment</li>
+<li>Monitoring: Varnish hit rate, Redis memory, cache invalidation lag</li>
+</ol>
+<hr />
+<h2 id="assumptions">Assumptions</h2>
+<ul>
+<li><strong>Magento Version:</strong> 2.4.7+ (Adobe Commerce or Open Source)</li>
+<li><strong>PHP Version:</strong> 8.2+ with OPcache, Redis PHP extension</li>
+<li><strong>Cache Backend:</strong> Redis 6.x or 7.x</li>
+<li><strong>HTTP Cache:</strong> Varnish 7.x (or built-in FPC if Varnish unavailable)</li>
+<li><strong>Infrastructure:</strong> Dedicated Redis instance (not shared with sessions); Varnish with 2GB+ memory</li>
+<li><strong>Traffic:</strong> Production site with &gt;1000 requests/hour (FPC benefits scale with traffic)</li>
+</ul>
+<hr />
+<h2 id="why-this-approach">Why This Approach</h2>
+<p><strong>Trade-offs:</strong>
+- <strong>Customer Sections vs ESI:</strong> Sections require JavaScript but avoid Varnish complexity; ESI is more flexible but harder to debug
+- <strong>Cache Lifetime (1h-24h):</strong> Longer = fewer backend requests but staler content; adjust per page type (product: 1h, CMS: 24h)
+- <strong>Varnish vs Built-in FPC:</strong> Varnish is faster (no PHP deserialization) but adds operational overhead; built-in FPC sufficient for &lt;10k req/hour</p>
+<p><strong>Alternatives Considered:</strong>
+- <strong>GraphQL + SPA:</strong> Eliminates FPC entirely (client-side rendering); chosen for headless projects but adds frontend complexity
+- <strong>HTTP/2 Server Push:</strong> Can replace customer sections with pushed resources; limited browser support, harder to debug
+- <strong>Static Site Generation (SSG):</strong> Pre-render all pages at build time; works for content-heavy sites but not for dynamic catalogs</p>
+<p><strong>Chosen Approach:</strong> Hybrid FPC with customer sections balances <strong>performance, maintainability, and compatibility</strong> with existing Magento themes/extensions.</p>
+<hr />
+<h2 id="summary">Summary</h2>
+<p>A <strong>comprehensive Full Page Cache strategy</strong> is the difference between a sluggish Magento store and a lightning-fast customer experience. By architecting cacheable blocks, leveraging cache tags, using customer sections for private content, optimizing Varnish VCL, and implementing cache warming, you achieve:</p>
+<ul>
+<li><strong>Sub-200ms cached page loads</strong> (vs 2000ms+ uncached)</li>
+<li><strong>90%+ cache hit rates</strong> under production traffic</li>
+<li><strong>10x-100x throughput improvement</strong> on existing hardware</li>
+<li><strong>Improved Core Web Vitals</strong> (LCP &lt;2.5s, FCP &lt;1.8s)</li>
+<li><strong>Scalability to 10,000+ req/min</strong> with proper caching</li>
+</ul>
+<p><strong>Next Steps:</strong>
+1. Audit existing blocks for FPC compatibility (identify non-cacheable blocks)
+2. Refactor private content to customer sections
+3. Deploy Varnish with Magento-optimized VCL
+4. Implement cache warming script and post-deployment workflow
+5. Monitor hit rate, TTFB, and invalidation lag in production</p>
+<p><strong>Performance is not a feature—it's a competitive advantage.</strong> Build it into your architecture from day one.</p>
+<h2 id="related-documentation">Related Documentation</h2>
+<h3 id="related-guides">Related Guides</h3>
+<ul>
+<li><a href="../explanations/indexer-system.md">Indexer System Deep Dive: Understanding Magento 2's Data Indexing Architecture</a></li>
+<li><a href="layout-xml-deep-dive.md">Layout XML Deep Dive: Mastering Magento's View Layer</a></li>
+</ul>
+<h3 id="related-module-documentation">Related Module Documentation</h3>
+<ul>
+<li><a href="../../modules/catalog/README.md">Magento_Catalog Overview</a></li>
+<li><a href="../../modules/checkout/README.md">Magento_Checkout Overview</a></li>
+</ul>
+                    </div>
+                </article>
+            </main>
+            <!-- Right Sidebar: On This Page (desktop) -->
+            <aside class="toc-sidebar hidden xl:block" aria-label="On this page">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-semibold text-gray-900 uppercase tracking-wider mb-4 mt-0">On this page</h3>
+                    <nav id="toc-nav" class="space-y-0" aria-label="Table of contents"></nav>
+                    <div class="toc-back-to-top">
+                        <a href="#">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+                            </svg>
+                            Back to top
+                        </a>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- ================================================================
+         FOOTER — matches module-catalog.html multi-column layout exactly
+         ================================================================ -->
+    <footer class="relative pt-12 bg-white border-t border-charcoal mt-16">
+        <div class="max-w-screen-2xl mx-auto w-full px-4 sm:px-6 lg:px-8">
+            <div>
+                <a href="index.html" class="inline-flex items-center no-underline">
+                    <svg width="30" height="33" viewBox="0 0 30 33" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Magento Association logo" role="img">
+                        <path d="M0 4.06492H29.6763V31.8882C29.6763 32.502 29.1713 33 28.5487 33H1.12762C0.505079 33 0 32.502 0 31.8882V4.06492Z" fill="#34323A"/>
+                        <path d="M1.26857 0H28.4078C29.1066 0 29.6763 0.561678 29.6763 1.25075V4.06492H0V1.25075C0 0.561678 0.569682 0 1.26857 0Z" fill="#C9C9C9"/>
+                        <path d="M2.37269 3.0458C2.94031 3.0458 3.40046 2.59211 3.40046 2.03246C3.40046 1.47281 2.94031 1.01913 2.37269 1.01913C1.80506 1.01913 1.34491 1.47281 1.34491 2.03246C1.34491 2.59211 1.80506 3.0458 2.37269 3.0458Z" fill="#848484"/>
+                        <path d="M5.28571 3.0458C5.85334 3.0458 6.31349 2.59211 6.31349 2.03246C6.31349 1.47281 5.85334 1.01913 5.28571 1.01913C4.71809 1.01913 4.25793 1.47281 4.25793 2.03246C4.25793 2.59211 4.71809 3.0458 5.28571 3.0458Z" fill="#848484"/>
+                        <path d="M14.7883 7.46973L4.90405 13.0923V24.349L7.54104 25.8487V14.5978L14.7883 10.4692L22.0415 14.5978V25.8487L24.6785 24.349V13.0923L14.7883 7.46973Z" fill="#F1BC1B"/>
+                        <path d="M16.0862 26.2367L14.7883 26.9779L13.4492 26.2135V14.233L10.178 16.0975V27.3485L13.4492 29.213L14.7883 29.9773L16.0862 29.2362L19.4045 27.3485V16.0975L16.0862 14.2098V26.2367Z" fill="#F1BC1B"/>
+                    </svg>
+                    <span class="ml-3 text-xl font-bold text-charcoal">Developer Documentation</span>
+                </a>
+            </div>
+
+            <div class="grid grid-cols-12 md:gap-x-8 gap-y-12 lg:mt-12">
+                <div class="col-span-12 lg:col-span-4">
+                    <p class="hidden lg:block text-xs text-charcoal sm:text-sm">Comprehensive developer documentation for Magento 2.4.7+ — tutorials, architecture deep dives, module references, and production-ready patterns built by the community, for the community.</p>
+                    <ul class="mt-6 hidden lg:flex items-center gap-3">
+                        <li class="pl-0">
+                            <a href="https://github.com/magento/magento2" class="p-2 md:p-0" aria-label="GitHub">
+                                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                                </svg>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Guides</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="tutorials.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Tutorials</a></li>
+                            <li class="pl-0"><a href="how-to-guides.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">How-To Guides</a></li>
+                            <li class="pl-0"><a href="architecture.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Architecture</a></li>
+                            <li class="pl-0"><a href="learning-paths.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Learning Paths</a></li>
+                            <li class="pl-0"><a href="references.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">References</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Modules</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="module-catalog.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Catalog</a></li>
+                            <li class="pl-0"><a href="module-checkout.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Checkout</a></li>
+                            <li class="pl-0"><a href="module-sales.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Sales</a></li>
+                            <li class="pl-0"><a href="module-customer.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Customer</a></li>
+                            <li class="pl-0"><a href="module-quote.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Quote</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Community</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Magento Community</a></li>
+                            <li class="pl-0"><a href="https://magento.stackexchange.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Stack Exchange</a></li>
+                            <li class="pl-0"><a href="https://marketplace.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Marketplace</a></li>
+                            <li class="pl-0"><a href="https://github.com/magento/magento2" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">GitHub</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Support</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://github.com/magento/magento2/issues" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Report Issues</a></li>
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Community Resources</a></li>
+                            <li class="pl-0"><a href="https://developer.adobe.com/commerce/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Adobe Commerce Docs</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-12 border-t pt-6 pb-16 border-charcoal">
+                <p class="text-xs text-charcoal">
+                    &copy; 2026 Magento 2 Developer Documentation. Magento&reg; is a registered trademark of Adobe Inc.
+                </p>
+                <p class="mt-6 text-xs text-charcoal">
+                    This documentation provides guidance for Magento 2 developers and extension builders. For merchant documentation, visit the <a href="index.html" class="text-orange hover:text-orange-600 transition-colors">merchant documentation</a>.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Initialize highlight.js -->
+    <script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('pre code').forEach(function (el) {
+        hljs.highlightElement(el);
+    });
+    document.querySelectorAll('pre').forEach(function (pre) {
+        if (pre.parentNode.classList && pre.parentNode.classList.contains('code-wrapper')) return;
+        var wrapper = document.createElement('div');
+        wrapper.className = 'code-wrapper';
+        pre.parentNode.insertBefore(wrapper, pre);
+        wrapper.appendChild(pre);
+        var btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.setAttribute('type', 'button');
+        btn.setAttribute('aria-label', 'Copy code to clipboard');
+        btn.setAttribute('title', 'Copy');
+        btn.textContent = 'Copy';
+        wrapper.appendChild(btn);
+        btn.addEventListener('click', function () {
+            var code = pre.querySelector('code');
+            var text = code ? (code.innerText || code.textContent) : (pre.innerText || pre.textContent);
+            navigator.clipboard.writeText(text).then(function () {
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            }).catch(function () {
+                var range = document.createRange();
+                range.selectNode(code || pre);
+                window.getSelection().removeAllRanges();
+                window.getSelection().addRange(range);
+                document.execCommand('copy');
+                window.getSelection().removeAllRanges();
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            });
+        });
+    });
+});
+</script>
+
+
+<script>
+(function() {
+    var nav = document.getElementById('toc-nav');
+    if (!nav) return;
+    var article = document.getElementById('main-content');
+    if (!article) return;
+    var headings = article.querySelectorAll('h2[id], h3[id]');
+    if (headings.length < 3) {
+        // Hide the entire TOC sidebar if fewer than 3 headings
+        var sidebar = nav.closest('.toc-sidebar');
+        if (sidebar) sidebar.style.display = 'none';
+        return;
+    }
+    var ids = [];
+    headings.forEach(function(h) {
+        var a = document.createElement('a');
+        a.href = '#' + h.id;
+        a.textContent = h.textContent.replace(/^#+\s*/, '').replace(/\s+/g, ' ').trim();
+        if (h.tagName === 'H3') a.classList.add('toc-h3');
+        nav.appendChild(a);
+        ids.push(h.id);
+    });
+    // Scroll-spy with IntersectionObserver
+    var links = nav.querySelectorAll('a');
+    var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                links.forEach(function(l) { l.classList.remove('toc-active'); });
+                var active = nav.querySelector('a[href="#' + entry.target.id + '"]');
+                if (active) active.classList.add('toc-active');
+            }
+        });
+    }, { rootMargin: '-80px 0px -70% 0px', threshold: 0 });
+    headings.forEach(function(h) { observer.observe(h); });
+})();
+</script>
+</body>
+</html>

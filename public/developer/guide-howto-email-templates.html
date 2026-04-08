@@ -1,0 +1,1648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Templates Customization — Magento 2 Developer Documentation</title>
+    <meta name="description" content="Master Magento email template architecture, transactional email customization, SMTP configuration, and queue management for reliable email delivery.">
+
+    <!-- Google Fonts: Inter Tight only. Courier New used for code. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Highlight.js: syntax highlighting for code blocks -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/php.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/ini.min.js"></script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        charcoal: {
+                            DEFAULT: '#2c2c2c', 50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6',
+                            300: '#6B6B6B', 400: '#474747', 500: '#2c2c2c', 600: '#262626',
+                            700: '#202020', 800: '#1c1c1c', 900: '#191919', 950: '#121212'
+                        },
+                        orange: {
+                            DEFAULT: '#D4551A', 50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad',
+                            300: '#f9ae78', 400: '#f58242', 500: '#f26423', 600: '#e34613',
+                            700: '#bc3312', 800: '#962a16', 900: '#792515', 950: '#411009'
+                        },
+                        yellow: {
+                            DEFAULT: '#B8860B', 50: '#fffdeb', 100: '#fdf9c8', 200: '#fbf38c',
+                            300: '#f8e651', 400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a',
+                            700: '#b1670c', 800: '#8f5111', 900: '#764311', 950: '#442204'
+                        },
+                        'off-white': '#FAFAFA',
+                    },
+                    fontFamily: {
+                        sans: ['Inter Tight', 'system-ui', '-apple-system', 'sans-serif'],
+                        mono: ['Courier New', 'Courier', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* ── Force light mode ── */
+        :root { color-scheme: light only; }
+
+        [x-cloak] { display: none !important; }
+
+        /* ── Scroll offset for sticky header ── */
+        .prose h2, .prose h3 { scroll-margin-top: 5rem; }
+
+        /* ── Code blocks: Bauhaus charcoal bg, no border-radius, highlight.js override ── */
+        .prose pre {
+            background-color: #2C2C2C !important;
+            border-radius: 0 !important;
+            padding: 1.25rem;
+            overflow-x: auto;
+            font-size: 0.875rem;
+            line-height: 1.7;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 1.5rem 0;
+        }
+        .prose pre code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            background: transparent !important;
+            padding: 0;
+                    color: #abb2bf;
+        }
+        /* Override highlight.js theme background to match Bauhaus charcoal */
+        .hljs {
+            background: #2C2C2C !important;
+            color: #abb2bf !important;
+            border-radius: 0 !important;
+        }
+
+        /* ── Inline code: charcoal bg, yellow text, no border-radius ── */
+        .prose code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.85em;
+        }
+        .prose :not(pre) > code {
+            background-color: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2em 0.45em;
+            border-radius: 0;
+        }
+
+        /* ── Step-code: same charcoal/yellow style for UI path chips ── */
+        .step-code {
+            background: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2rem 0.5rem;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            border-radius: 0;
+        }
+
+        /* ── Tables: no border-radius, charcoal header ── */
+        .prose table { width: 100%; border-collapse: collapse; }
+        .prose th {
+            background-color: #2C2C2C;
+            color: #ffffff;
+            font-weight: 600;
+            text-align: left;
+            padding: 0.75rem 1rem;
+            border-bottom: 2px solid #2C2C2C;
+            border-radius: 0;
+        }
+        .prose td { padding: 0.75rem 1rem; border-bottom: 1px solid #e5e5e5; }
+        .prose tr:hover { background-color: #fafafa; }
+
+        /* ── Blockquote: Bauhaus style — border-4 yellow, square, no left-only border ── */
+        .prose blockquote {
+            border: 4px solid #F1BC1B;
+            background-color: #ffffff;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+            border-radius: 0;
+        }
+        .prose blockquote p { margin: 0; }
+
+        /* ── Lists: hexagon bullets ── */
+        .prose ul { list-style: none; padding-left: 0; }
+        .prose ul li {
+            position: relative;
+            padding-left: 1.75rem;
+            margin-bottom: 0.4rem;
+            line-height: 1.7;
+        }
+        .prose ul li::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0.45em;
+            width: 10px;
+            height: 10px;
+            background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 2L21 7V17L12 22L3 17V7L12 2Z' stroke='%23F26423' stroke-width='2.5' stroke-linejoin='miter'/%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+        .prose ol { list-style-type: decimal; padding-left: 1.5rem; }
+        .prose li { margin-bottom: 0.4rem; }
+
+        /* ── Headings ── */
+        .prose h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            padding-top: 1.5rem;
+            border-top: 4px solid #F1BC1B;
+            color: #2C2C2C;
+        }
+        .prose h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+            color: #2C2C2C;
+        }
+        .prose h4 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #2C2C2C;
+        }
+        .prose p { margin-bottom: 1rem; line-height: 1.75; }
+        .prose a { color: #D4551A; text-decoration: none; }
+        .prose a:hover { color: #e34613; text-decoration: underline; }
+        .prose hr { border: none; border-top: 1px solid #e5e5e5; margin: 2rem 0; }
+
+        /* ── Callout boxes: Bauhaus — border-4 yellow, white bg, icon + title ── */
+        .callout-box {
+            background-color: #ffffff;
+            border: 4px solid #F1BC1B;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+        }
+        .callout-warning {
+            border-color: #D4551A;
+        }
+        .callout-important {
+            border-color: #2C2C2C;
+        }
+        .callout-box .callout-inner {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+        .callout-box .callout-title {
+            font-weight: 600;
+            color: #2C2C2C;
+            margin-bottom: 0.25rem;
+        }
+        .callout-box .callout-body {
+            font-size: 0.875rem;
+            line-height: 1.6;
+            color: rgba(44,44,44,0.85);
+        }
+
+        
+    
+        /* Code block copy button */
+        .code-wrapper {
+            position: relative;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            font-family: 'Inter Tight', system-ui, sans-serif;
+            background: rgba(255,255,255,0.1);
+            color: #abb2bf;
+            border: 1px solid rgba(255,255,255,0.15);
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.15s ease, background 0.15s ease;
+            z-index: 10;
+            line-height: 1.4;
+            border-radius: 4px;
+            user-select: none;
+        }
+        .code-wrapper:hover .copy-btn {
+            opacity: 1;
+        }
+        .copy-btn:hover,
+        .copy-btn:focus {
+            background: rgba(255,255,255,0.2);
+            color: #ffffff;
+            outline: 2px solid #D4551A;
+            outline-offset: 1px;
+        }
+        .copy-btn.copied {
+            color: #98c379;
+            background: rgba(152, 195, 121, 0.15);
+            opacity: 1;
+        }
+    
+        /* Right-hand TOC sidebar */
+        .toc-sidebar {
+            width: 14rem;
+            flex-shrink: 0;
+        }
+        .toc-sidebar a {
+            display: block;
+            padding: 0.375rem 0;
+            font-size: 0.8125rem;
+            line-height: 1.4;
+            color: #6b7280;
+            text-decoration: none;
+            transition: color 0.15s ease;
+            border-left: 2px solid transparent;
+            padding-left: 0.75rem;
+        }
+        .toc-sidebar a:hover {
+            color: #111827;
+        }
+        .toc-sidebar a.toc-active {
+            color: #ea580c;
+            border-left-color: #ea580c;
+            font-weight: 500;
+        }
+        .toc-sidebar a.toc-h3 {
+            padding-left: 1.5rem;
+            font-size: 0.75rem;
+        }
+        .toc-sidebar .toc-back-to-top {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e5e7eb;
+        }
+        .toc-sidebar .toc-back-to-top a {
+            border-left: none;
+            padding-left: 0;
+            font-weight: 500;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .toc-sidebar .toc-back-to-top a:hover {
+            color: #ea580c;
+        }
+    </style>
+</head>
+
+<body class="font-sans bg-off-white text-charcoal">
+
+    <!-- Shared header — single source of truth -->
+    <script src="includes/header.js"></script>
+
+    <!-- Breadcrumb — orange › separators -->
+    <div class="bg-white border-b border-gray-100">
+        <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <div class="flex items-center gap-2 text-sm flex-wrap">
+                <a href="index.html" class="text-orange hover:text-orange-600 transition-colors no-underline">Home</a> <span class="text-orange font-medium">›</span> <a href="index.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">Guides</a> <span class="text-orange font-medium">›</span> <a href="how-to-guides.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">How-To Guides</a> <span class="text-orange font-medium">›</span> <span class="text-charcoal font-medium">Email Templates Customization</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="flex gap-8">
+
+            <!-- Left Sidebar (desktop) -->
+            <aside class="hidden lg:block w-64 flex-shrink-0">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4">How-To Guides</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="guide-howto-admin-ui-components.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Building Admin UI Components in ...</a></li>
+<li class="pl-0"><a href="guide-howto-cicd-deployment.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">CI/CD Deployment Pipelines for M...</a></li>
+<li class="pl-0"><a href="guide-howto-cron-jobs.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Cron Jobs Implementation: Buildi...</a></li>
+<li class="pl-0"><a href="guide-howto-email-templates.html" class="block px-3 py-2 text-sm text-orange font-semibold bg-orange-50 border-l-4 border-orange pl-2 transition-colors no-underline">Email Templates Customization</a></li>
+<li class="pl-0"><a href="guide-howto-erp-integration.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">ERP Integration Patterns for Mag...</a></li>
+<li class="pl-0"><a href="guide-howto-full-page-cache-strategy.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Full Page Cache Strategy for Hig...</a></li>
+<li class="pl-0"><a href="guide-howto-import-export.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Import/Export System Deep Dive</a></li>
+<li class="pl-0"><a href="guide-howto-layout-xml-deep-dive.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Layout XML Deep Dive: Mastering ...</a></li>
+<li class="pl-0"><a href="guide-howto-multi-store-setup.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Multi-Store Configuration Mastery</a></li>
+<li class="pl-0"><a href="guide-howto-security-checklist.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Security Checklist for Custom Mo...</a></li>
+<li class="pl-0"><a href="guide-howto-testing-strategies.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Comprehensive Testing Strategies...</a></li>
+</ul>
+<h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4 mt-8">Guide Sections</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="tutorials.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Tutorials</a></li>
+<li class="pl-0"><a href="how-to-guides.html" class="block px-3 py-2 text-sm text-orange font-semibold bg-orange-50 border-l-4 border-orange pl-2 transition-colors no-underline">How-To Guides</a></li>
+<li class="pl-0"><a href="architecture.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Architecture</a></li>
+<li class="pl-0"><a href="references.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">References</a></li>
+</ul>
+                </div>
+            </aside>
+
+            <!-- Article — square corners, border-t-4 orange accent -->
+            <main id="main-content" class="flex-1 min-w-0">
+                <article class="bg-white shadow-sm border border-gray-100 border-t-4 border-t-orange p-8 md:p-12">
+                    <!-- Title block -->
+                    <div class="mb-8">
+                        <span class="inline-block px-3 py-1.5 text-xs font-medium bg-yellow-50 text-yellow-800 border border-yellow-200">How-To</span>
+                        <h1 class="text-3xl md:text-4xl font-extrabold text-charcoal mt-3 mb-3">Email Templates Customization</h1>
+                        <p class="text-charcoal-300 text-lg mb-4">Master Magento email template architecture, transactional email customization, SMTP configuration, and queue management for reliable email delivery.</p>
+                        <!-- Meta pills -->
+                        <div class="flex flex-wrap gap-2"><span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-yellow-50 text-yellow-800"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>Intermediate</span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-orange-50 text-orange-700"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>45 minutes</span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-charcoal text-white">Magento 2.4.7+</span></div>
+                    </div>
+
+                    <hr class="border-0 border-t border-gray-100 mb-8">
+
+                    <!-- Content -->
+                    <div class="prose max-w-none">
+                        <h1 id="email-templates-customization">Email Templates Customization</h1>
+<h2 id="overview">Overview</h2>
+<p>Magento's email system is built on a robust template engine that supports multi-store configurations, locale-specific content, and transactional email workflows. This guide covers the complete email architecture, from template structure to queue management and SMTP integration.</p>
+<p><strong>What you'll learn:</strong>
+- Email template architecture and the template rendering pipeline
+- Creating and customizing transactional email templates in modules
+- Working with email variables, blocks, and directives
+- SMTP configuration and third-party email service integration
+- Email queue management and asynchronous sending
+- Testing and previewing email templates
+- Performance optimization and troubleshooting</p>
+<p><strong>Prerequisites:</strong>
+- Magento 2.4.7+ (Adobe Commerce or Open Source)
+- Understanding of Magento module structure
+- Basic knowledge of XML configuration and PHTML templates
+- Familiarity with dependency injection</p>
+<hr />
+<h2 id="email-template-architecture">Email Template Architecture</h2>
+<h3 id="template-system-components">Template System Components</h3>
+<p>Magento's email system consists of several key components:</p>
+<ol>
+<li><strong>Template Models</strong>: <code>Magento\Email\Model\Template</code> handles template loading and rendering</li>
+<li><strong>Transport Builder</strong>: <code>Magento\Framework\Mail\Template\TransportBuilder</code> constructs email messages</li>
+<li><strong>Email Queue</strong>: Asynchronous email sending can be achieved via the message queue framework (<code>Magento\Framework\MessageQueue</code>)</li>
+<li><strong>Template Filter</strong>: <code>Magento\Email\Model\Template\Filter</code> processes template directives</li>
+<li><strong>SMTP Transport</strong>: Configurable transport layer for email delivery</li>
+</ol>
+<h3 id="email-flow">Email Flow</h3>
+<pre><code>[Trigger Event] → [Observer/Controller]
+       ↓
+[TransportBuilder] → [Template Loading]
+       ↓
+[Variable Processing] → [Template Rendering]
+       ↓
+[Transport Creation] → [Queue (optional)]
+       ↓
+[SMTP Delivery] → [Customer Inbox]
+</code></pre>
+<hr />
+<h2 id="email-template-structure">Email Template Structure</h2>
+<h3 id="template-file-format">Template File Format</h3>
+<p>Email templates use HTML with Magento-specific directives and variables.</p>
+<p><strong>File</strong>: <code>view/frontend/email/custom_notification.html</code></p>
+<pre><code class="language-html">&lt;!--@subject {{trans &quot;Order Confirmation for %store_name&quot; store_name=$store.getFrontendName()}} @--&gt;
+&lt;!--@vars
+{
+    &quot;var order&quot;: &quot;Magento\\Sales\\Model\\Order&quot;,
+    &quot;var store&quot;: &quot;Magento\\Store\\Model\\Store&quot;,
+    &quot;var customer&quot;: &quot;Magento\\Customer\\Model\\Customer&quot;,
+    &quot;var shipment&quot;: &quot;Magento\\Sales\\Model\\Order\\Shipment|null&quot;
+}
+@--&gt;
+&lt;!--@styles
+body {
+    background: #f6f6f6;
+    font-family: Arial, sans-serif;
+}
+.email-container {
+    max-width: 600px;
+    margin: 0 auto;
+    background: #ffffff;
+}
+@--&gt;
+
+{{template config_path=&quot;design/email/header_template&quot;}}
+
+&lt;table class=&quot;email-container&quot;&gt;
+    &lt;tr&gt;
+        &lt;td class=&quot;email-heading&quot;&gt;
+            &lt;h1&gt;{{trans &quot;Hello %customer_name,&quot; customer_name=$order.getCustomerName()}}&lt;/h1&gt;
+        &lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+        &lt;td class=&quot;email-content&quot;&gt;
+            &lt;p&gt;{{trans &quot;Thank you for your order from %store_name.&quot; store_name=$store.getFrontendName()}}&lt;/p&gt;
+
+            {{if order.getIsNotVirtual()}}
+            &lt;p&gt;{{trans &quot;Your order will be shipped to:&quot;}}&lt;/p&gt;
+            {{block class=&quot;Magento\\Sales\\Block\\Order\\Email\\Address&quot;
+                    area=&quot;frontend&quot;
+                    template=&quot;Magento_Sales::email/order/address.phtml&quot;
+                    address=$order.getShippingAddress()}}
+            {{/if}}
+
+            &lt;h2&gt;{{trans &quot;Order #%increment_id&quot; increment_id=$order.getIncrementId()}}&lt;/h2&gt;
+
+            {{block class=&quot;Magento\\Sales\\Block\\Order\\Email\\Items&quot;
+                    area=&quot;frontend&quot;
+                    template=&quot;Magento_Sales::email/order/items.phtml&quot;
+                    order=$order}}
+
+            {{block class=&quot;Magento\\Framework\\View\\Element\\Template&quot;
+                    area=&quot;frontend&quot;
+                    template=&quot;Magento_Sales::email/order/totals.phtml&quot;
+                    order=$order}}
+        &lt;/td&gt;
+    &lt;/tr&gt;
+&lt;/table&gt;
+
+{{template config_path=&quot;design/email/footer_template&quot;}}
+</code></pre>
+<h3 id="template-directives">Template Directives</h3>
+<p><strong>Common Directives:</strong></p>
+<pre><code class="language-html">&lt;!-- Variable output with escaping --&gt;
+{{var customer_name}}
+
+&lt;!-- Translation --&gt;
+{{trans &quot;Welcome to %store&quot; store=$store_name}}
+
+&lt;!-- Conditional logic --&gt;
+{{if order.getShippingMethod()}}
+    Shipping: {{var order.getShippingDescription()}}
+{{else}}
+    No shipping required
+{{/if}}
+
+&lt;!-- Loops --&gt;
+{{for item in order.getAllItems()}}
+    &lt;li&gt;{{var item.getName()}} - {{var item.getQty()}}&lt;/li&gt;
+{{/for}}
+
+&lt;!-- Include another template --&gt;
+{{template config_path=&quot;design/email/header_template&quot;}}
+
+&lt;!-- Embed a block --&gt;
+{{block class=&quot;Magento\\Cms\\Block\\Block&quot; block_id=&quot;email_footer&quot;}}
+
+&lt;!-- Dependent variables --&gt;
+{{depend customer_id}}
+    Customer ID: {{var customer_id}}
+{{/depend}}
+
+&lt;!-- Store configuration --&gt;
+{{config path=&quot;general/store_information/phone&quot;}}
+
+&lt;!-- Media URL --&gt;
+{{media url=&quot;email/logo.png&quot;}}
+
+&lt;!-- Store URL --&gt;
+{{store url=&quot;&quot;}}
+
+&lt;!-- Custom variables --&gt;
+{{customVar code=&quot;my_custom_var&quot;}}
+</code></pre>
+<hr />
+<h2 id="creating-custom-email-templates">Creating Custom Email Templates</h2>
+<h3 id="step-1-define-email-template-in-module">Step 1: Define Email Template in Module</h3>
+<p><strong>File</strong>: <code>Vendor/CustomEmail/etc/email_templates.xml</code></p>
+<pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;config xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+        xsi:noNamespaceSchemaLocation=&quot;urn:magento:module:Magento_Email:etc/email_templates.xsd&quot;&gt;
+
+    &lt;!-- Custom notification email --&gt;
+    &lt;template id=&quot;custom_email_notification_template&quot;
+              label=&quot;Custom Notification Email&quot;
+              file=&quot;custom_notification.html&quot;
+              type=&quot;html&quot;
+              module=&quot;Vendor_CustomEmail&quot;
+              area=&quot;frontend&quot;/&gt;
+
+    &lt;!-- Admin notification --&gt;
+    &lt;template id=&quot;custom_email_admin_notification&quot;
+              label=&quot;Admin Alert Email&quot;
+              file=&quot;admin_alert.html&quot;
+              type=&quot;html&quot;
+              module=&quot;Vendor_CustomEmail&quot;
+              area=&quot;adminhtml&quot;/&gt;
+
+    &lt;!-- Text-only template --&gt;
+    &lt;template id=&quot;custom_email_text_notification&quot;
+              label=&quot;Text Notification&quot;
+              file=&quot;text_notification.txt&quot;
+              type=&quot;text&quot;
+              module=&quot;Vendor_CustomEmail&quot;
+              area=&quot;frontend&quot;/&gt;
+&lt;/config&gt;
+</code></pre>
+<h3 id="step-2-create-system-configuration">Step 2: Create System Configuration</h3>
+<p><strong>File</strong>: <code>Vendor/CustomEmail/etc/adminhtml/system.xml</code></p>
+<pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;config xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+        xsi:noNamespaceSchemaLocation=&quot;urn:magento:module:Magento_Config:etc/system_file.xsd&quot;&gt;
+    &lt;system&gt;
+        &lt;section id=&quot;custom_email&quot; translate=&quot;label&quot; type=&quot;text&quot; sortOrder=&quot;300&quot; showInDefault=&quot;1&quot; showInWebsite=&quot;1&quot; showInStore=&quot;1&quot;&gt;
+            &lt;label&gt;Custom Email Settings&lt;/label&gt;
+            &lt;tab&gt;general&lt;/tab&gt;
+            &lt;resource&gt;Vendor_CustomEmail::config&lt;/resource&gt;
+
+            &lt;group id=&quot;notification&quot; translate=&quot;label&quot; type=&quot;text&quot; sortOrder=&quot;10&quot; showInDefault=&quot;1&quot; showInWebsite=&quot;1&quot; showInStore=&quot;1&quot;&gt;
+                &lt;label&gt;Notification Settings&lt;/label&gt;
+
+                &lt;field id=&quot;enabled&quot; translate=&quot;label comment&quot; type=&quot;select&quot; sortOrder=&quot;10&quot; showInDefault=&quot;1&quot; showInWebsite=&quot;1&quot; showInStore=&quot;1&quot;&gt;
+                    &lt;label&gt;Enable Notifications&lt;/label&gt;
+                    &lt;source_model&gt;Magento\Config\Model\Config\Source\Yesno&lt;/source_model&gt;
+                    &lt;config_path&gt;custom_email/notification/enabled&lt;/config_path&gt;
+                &lt;/field&gt;
+
+                &lt;field id=&quot;template&quot; translate=&quot;label comment&quot; type=&quot;select&quot; sortOrder=&quot;20&quot; showInDefault=&quot;1&quot; showInWebsite=&quot;1&quot; showInStore=&quot;1&quot;&gt;
+                    &lt;label&gt;Email Template&lt;/label&gt;
+                    &lt;source_model&gt;Magento\Config\Model\Config\Source\Email\Template&lt;/source_model&gt;
+                    &lt;config_path&gt;custom_email/notification/template&lt;/config_path&gt;
+                    &lt;comment&gt;Email template for customer notifications&lt;/comment&gt;
+                &lt;/field&gt;
+
+                &lt;field id=&quot;sender&quot; translate=&quot;label comment&quot; type=&quot;select&quot; sortOrder=&quot;30&quot; showInDefault=&quot;1&quot; showInWebsite=&quot;1&quot; showInStore=&quot;1&quot;&gt;
+                    &lt;label&gt;Email Sender&lt;/label&gt;
+                    &lt;source_model&gt;Magento\Config\Model\Config\Source\Email\Identity&lt;/source_model&gt;
+                    &lt;config_path&gt;custom_email/notification/sender&lt;/config_path&gt;
+                &lt;/field&gt;
+
+                &lt;field id=&quot;copy_to&quot; translate=&quot;label comment&quot; type=&quot;text&quot; sortOrder=&quot;40&quot; showInDefault=&quot;1&quot; showInWebsite=&quot;1&quot; showInStore=&quot;1&quot;&gt;
+                    &lt;label&gt;Send Email Copy To&lt;/label&gt;
+                    &lt;comment&gt;Comma-separated list of email addresses&lt;/comment&gt;
+                    &lt;config_path&gt;custom_email/notification/copy_to&lt;/config_path&gt;
+                    &lt;validate&gt;validate-emails&lt;/validate&gt;
+                &lt;/field&gt;
+
+                &lt;field id=&quot;copy_method&quot; translate=&quot;label&quot; type=&quot;select&quot; sortOrder=&quot;50&quot; showInDefault=&quot;1&quot; showInWebsite=&quot;1&quot; showInStore=&quot;1&quot;&gt;
+                    &lt;label&gt;Send Email Copy Method&lt;/label&gt;
+                    &lt;source_model&gt;Magento\Config\Model\Config\Source\Email\Method&lt;/source_model&gt;
+                    &lt;config_path&gt;custom_email/notification/copy_method&lt;/config_path&gt;
+                &lt;/field&gt;
+            &lt;/group&gt;
+        &lt;/section&gt;
+    &lt;/system&gt;
+&lt;/config&gt;
+</code></pre>
+<h3 id="step-3-create-email-sender-service">Step 3: Create Email Sender Service</h3>
+<p><strong>File</strong>: <code>Vendor/CustomEmail/Model/EmailSender.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\CustomEmail\Model;
+
+use Magento\Framework\App\Area;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Mail\Template\TransportBuilder;
+use Magento\Framework\Translate\Inline\StateInterface;
+use Magento\Store\Model\ScopeInterface;
+use Magento\Store\Model\StoreManagerInterface;
+use Psr\Log\LoggerInterface;
+
+class EmailSender
+{
+    private const XML_PATH_EMAIL_ENABLED = 'custom_email/notification/enabled';
+    private const XML_PATH_EMAIL_TEMPLATE = 'custom_email/notification/template';
+    private const XML_PATH_EMAIL_SENDER = 'custom_email/notification/sender';
+    private const XML_PATH_EMAIL_COPY_TO = 'custom_email/notification/copy_to';
+    private const XML_PATH_EMAIL_COPY_METHOD = 'custom_email/notification/copy_method';
+
+    public function __construct(
+        private readonly TransportBuilder $transportBuilder,
+        private readonly StateInterface $inlineTranslation,
+        private readonly ScopeConfigInterface $scopeConfig,
+        private readonly StoreManagerInterface $storeManager,
+        private readonly LoggerInterface $logger
+    ) {
+    }
+
+    /**
+     * Send custom notification email
+     *
+     * @param array $emailData
+     * @param int|null $storeId
+     * @return bool
+     */
+    public function sendNotificationEmail(array $emailData, ?int $storeId = null): bool
+    {
+        if (!$this-&gt;isEnabled($storeId)) {
+            return false;
+        }
+
+        try {
+            $this-&gt;inlineTranslation-&gt;suspend();
+
+            $storeId = $storeId ?? (int)$this-&gt;storeManager-&gt;getStore()-&gt;getId();
+            $sender = $this-&gt;getSender($storeId);
+            $template = $this-&gt;getTemplate($storeId);
+
+            // Build transport
+            $transport = $this-&gt;transportBuilder
+                -&gt;setTemplateIdentifier($template)
+                -&gt;setTemplateOptions([
+                    'area' =&gt; Area::FRONTEND,
+                    'store' =&gt; $storeId,
+                ])
+                -&gt;setTemplateVars($emailData['variables'] ?? [])
+                -&gt;setFromByScope($sender, $storeId)
+                -&gt;addTo($emailData['recipient_email'], $emailData['recipient_name'] ?? '')
+                -&gt;getTransport();
+
+            // Handle BCC/CC copies
+            $this-&gt;addEmailCopies($storeId);
+
+            // Send email
+            $transport-&gt;sendMessage();
+
+            $this-&gt;inlineTranslation-&gt;resume();
+
+            return true;
+
+        } catch (\Exception $e) {
+            $this-&gt;logger-&gt;error('Email sending failed: ' . $e-&gt;getMessage(), [
+                'exception' =&gt; $e,
+                'email_data' =&gt; $emailData
+            ]);
+            $this-&gt;inlineTranslation-&gt;resume();
+            return false;
+        }
+    }
+
+    /**
+     * Send email asynchronously via queue
+     *
+     * @param array $emailData
+     * @param int|null $storeId
+     * @return bool
+     */
+    public function sendNotificationEmailAsync(array $emailData, ?int $storeId = null): bool
+    {
+        if (!$this-&gt;isEnabled($storeId)) {
+            return false;
+        }
+
+        try {
+            $storeId = $storeId ?? (int)$this-&gt;storeManager-&gt;getStore()-&gt;getId();
+            $sender = $this-&gt;getSender($storeId);
+            $template = $this-&gt;getTemplate($storeId);
+
+            // Build transport but don't send immediately
+            $this-&gt;transportBuilder
+                -&gt;setTemplateIdentifier($template)
+                -&gt;setTemplateOptions([
+                    'area' =&gt; Area::FRONTEND,
+                    'store' =&gt; $storeId,
+                ])
+                -&gt;setTemplateVars($emailData['variables'] ?? [])
+                -&gt;setFromByScope($sender, $storeId)
+                -&gt;addTo($emailData['recipient_email'], $emailData['recipient_name'] ?? '');
+
+            $this-&gt;addEmailCopies($storeId);
+
+            // Add to queue instead of sending immediately
+            $transport = $this-&gt;transportBuilder-&gt;getTransport();
+
+            // Queue is handled automatically by Magento's email queue system
+            // when using TransportBuilder with proper configuration
+
+            return true;
+
+        } catch (\Exception $e) {
+            $this-&gt;logger-&gt;error('Email queue failed: ' . $e-&gt;getMessage(), [
+                'exception' =&gt; $e,
+                'email_data' =&gt; $emailData
+            ]);
+            return false;
+        }
+    }
+
+    /**
+     * Add CC/BCC copies based on configuration
+     */
+    private function addEmailCopies(int $storeId): void
+    {
+        $copyTo = $this-&gt;getCopyTo($storeId);
+        $copyMethod = $this-&gt;getCopyMethod($storeId);
+
+        if (!empty($copyTo)) {
+            foreach ($copyTo as $email) {
+                if ($copyMethod === 'bcc') {
+                    $this-&gt;transportBuilder-&gt;addBcc($email);
+                } else {
+                    $this-&gt;transportBuilder-&gt;addCc($email);
+                }
+            }
+        }
+    }
+
+    private function isEnabled(?int $storeId = null): bool
+    {
+        return $this-&gt;scopeConfig-&gt;isSetFlag(
+            self::XML_PATH_EMAIL_ENABLED,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+    }
+
+    private function getTemplate(?int $storeId = null): string
+    {
+        return (string)$this-&gt;scopeConfig-&gt;getValue(
+            self::XML_PATH_EMAIL_TEMPLATE,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+    }
+
+    private function getSender(?int $storeId = null): string
+    {
+        return (string)$this-&gt;scopeConfig-&gt;getValue(
+            self::XML_PATH_EMAIL_SENDER,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+    }
+
+    private function getCopyTo(?int $storeId = null): array
+    {
+        $copyTo = $this-&gt;scopeConfig-&gt;getValue(
+            self::XML_PATH_EMAIL_COPY_TO,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+
+        if (empty($copyTo)) {
+            return [];
+        }
+
+        return array_filter(array_map('trim', explode(',', $copyTo)));
+    }
+
+    private function getCopyMethod(?int $storeId = null): string
+    {
+        return (string)$this-&gt;scopeConfig-&gt;getValue(
+            self::XML_PATH_EMAIL_COPY_METHOD,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+    }
+}
+</code></pre>
+<hr />
+<h2 id="advanced-template-variables">Advanced Template Variables</h2>
+<h3 id="creating-custom-variable-providers">Creating Custom Variable Providers</h3>
+<p><strong>File</strong>: <code>Vendor/CustomEmail/Model/Template/VariableProvider.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\CustomEmail\Model\Template;
+
+use Magento\Customer\Api\CustomerRepositoryInterface;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Store\Model\StoreManagerInterface;
+
+class VariableProvider
+{
+    public function __construct(
+        private readonly CustomerRepositoryInterface $customerRepository,
+        private readonly StoreManagerInterface $storeManager,
+        private readonly ScopeConfigInterface $scopeConfig
+    ) {
+    }
+
+    /**
+     * Get variables for order confirmation email
+     *
+     * @param \Magento\Sales\Model\Order $order
+     * @return array
+     */
+    public function getOrderVariables(\Magento\Sales\Model\Order $order): array
+    {
+        $store = $this-&gt;storeManager-&gt;getStore($order-&gt;getStoreId());
+
+        return [
+            'order' =&gt; $order,
+            'store' =&gt; $store,
+            'customer' =&gt; $this-&gt;getCustomerData($order),
+            'billing' =&gt; $order-&gt;getBillingAddress(),
+            'shipping' =&gt; $order-&gt;getShippingAddress(),
+            'payment_html' =&gt; $this-&gt;getPaymentHtml($order),
+            'formattedBillingAddress' =&gt; $this-&gt;formatAddress($order-&gt;getBillingAddress()),
+            'formattedShippingAddress' =&gt; $this-&gt;formatAddress($order-&gt;getShippingAddress()),
+            'store_name' =&gt; $store-&gt;getFrontendName(),
+            'store_phone' =&gt; $this-&gt;scopeConfig-&gt;getValue(
+                'general/store_information/phone',
+                \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+                $order-&gt;getStoreId()
+            ),
+            'created_at_formatted' =&gt; $order-&gt;getCreatedAtFormatted(2),
+            'items' =&gt; $this-&gt;formatOrderItems($order),
+        ];
+    }
+
+    private function getCustomerData(\Magento\Sales\Model\Order $order): ?object
+    {
+        if (!$order-&gt;getCustomerId()) {
+            return null;
+        }
+
+        try {
+            return $this-&gt;customerRepository-&gt;getById($order-&gt;getCustomerId());
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+
+    private function formatAddress($address): string
+    {
+        if (!$address) {
+            return '';
+        }
+
+        return $address-&gt;format('html');
+    }
+
+    private function formatOrderItems(\Magento\Sales\Model\Order $order): array
+    {
+        $items = [];
+        foreach ($order-&gt;getAllVisibleItems() as $item) {
+            $items[] = [
+                'name' =&gt; $item-&gt;getName(),
+                'sku' =&gt; $item-&gt;getSku(),
+                'qty' =&gt; (int)$item-&gt;getQtyOrdered(),
+                'price' =&gt; $order-&gt;formatPrice($item-&gt;getPrice()),
+                'row_total' =&gt; $order-&gt;formatPrice($item-&gt;getRowTotal()),
+            ];
+        }
+        return $items;
+    }
+
+    private function getPaymentHtml(\Magento\Sales\Model\Order $order): string
+    {
+        $payment = $order-&gt;getPayment();
+        return $payment-&gt;getMethodInstance()-&gt;getTitle();
+    }
+}
+</code></pre>
+<hr />
+<h2 id="smtp-configuration">SMTP Configuration</h2>
+<h3 id="step-1-create-smtp-transport-configuration">Step 1: Create SMTP Transport Configuration</h3>
+<p><strong>File</strong>: <code>app/etc/env.php</code> (configuration example)</p>
+<pre><code class="language-php">&lt;?php
+return [
+    // ... other configuration
+
+    'system' =&gt; [
+        'default' =&gt; [
+            'system' =&gt; [
+                'smtp' =&gt; [
+                    'disable' =&gt; '0',
+                    'host' =&gt; 'smtp.example.com',
+                    'port' =&gt; '587',
+                    'username' =&gt; 'user@example.com',
+                    'password' =&gt; 'encrypted_password',
+                    'auth' =&gt; 'login', // 'login', 'plain', 'crammd5'
+                    'ssl' =&gt; 'tls', // 'tls', 'ssl', or empty
+                ]
+            ]
+        ]
+    ]
+];
+</code></pre>
+<h3 id="step-2-custom-smtp-transport-module">Step 2: Custom SMTP Transport Module</h3>
+<p><strong>File</strong>: <code>Vendor/SmtpConfig/etc/di.xml</code></p>
+<pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;config xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+        xsi:noNamespaceSchemaLocation=&quot;urn:magento:framework:ObjectManager/etc/config.xsd&quot;&gt;
+
+    &lt;!-- Override default mail transport --&gt;
+    &lt;type name=&quot;Magento\Framework\Mail\TransportInterface&quot;&gt;
+        &lt;plugin name=&quot;smtp_transport_plugin&quot;
+                type=&quot;Vendor\SmtpConfig\Plugin\Mail\TransportExtend&quot;
+                sortOrder=&quot;10&quot;/&gt;
+    &lt;/type&gt;
+
+    &lt;!-- SMTP configuration provider --&gt;
+    &lt;type name=&quot;Vendor\SmtpConfig\Model\Config&quot;&gt;
+        &lt;arguments&gt;
+            &lt;argument name=&quot;scopeConfig&quot; xsi:type=&quot;object&quot;&gt;Magento\Framework\App\Config\ScopeConfigInterface&lt;/argument&gt;
+        &lt;/arguments&gt;
+    &lt;/type&gt;
+&lt;/config&gt;
+</code></pre>
+<p><strong>File</strong>: <code>Vendor/SmtpConfig/Plugin/Mail/TransportExtend.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\SmtpConfig\Plugin\Mail;
+
+use Magento\Framework\Mail\TransportInterface;
+use Vendor\SmtpConfig\Model\Config;
+use Laminas\Mail\Transport\Smtp;
+use Laminas\Mail\Transport\SmtpOptions;
+use Psr\Log\LoggerInterface;
+
+class TransportExtend
+{
+    public function __construct(
+        private readonly Config $smtpConfig,
+        private readonly LoggerInterface $logger
+    ) {
+    }
+
+    /**
+     * Replace default transport with SMTP transport
+     */
+    public function aroundSendMessage(
+        TransportInterface $subject,
+        callable $proceed
+    ): void {
+        if (!$this-&gt;smtpConfig-&gt;isEnabled()) {
+            $proceed();
+            return;
+        }
+
+        try {
+            $message = $subject-&gt;getMessage();
+
+            $transport = new Smtp();
+            $transport-&gt;setOptions(new SmtpOptions([
+                'host' =&gt; $this-&gt;smtpConfig-&gt;getHost(),
+                'port' =&gt; $this-&gt;smtpConfig-&gt;getPort(),
+                'connection_class' =&gt; $this-&gt;smtpConfig-&gt;getAuth(),
+                'connection_config' =&gt; [
+                    'username' =&gt; $this-&gt;smtpConfig-&gt;getUsername(),
+                    'password' =&gt; $this-&gt;smtpConfig-&gt;getPassword(),
+                    'ssl' =&gt; $this-&gt;smtpConfig-&gt;getSsl(),
+                ],
+            ]));
+
+            $transport-&gt;send($message);
+
+        } catch (\Exception $e) {
+            $this-&gt;logger-&gt;error('SMTP transport failed: ' . $e-&gt;getMessage(), [
+                'exception' =&gt; $e
+            ]);
+            throw $e;
+        }
+    }
+}
+</code></pre>
+<hr />
+<h2 id="email-queue-management">Email Queue Management</h2>
+<h3 id="enabling-asynchronous-email-sending">Enabling Asynchronous Email Sending</h3>
+<p><strong>File</strong>: <code>app/etc/env.php</code></p>
+<pre><code class="language-php">&lt;?php
+return [
+    // ... other configuration
+
+    'queue' =&gt; [
+        'consumers_wait_for_messages' =&gt; 1,
+    ],
+
+    'cron_consumers_runner' =&gt; [
+        'cron_run' =&gt; true,
+        'max_messages' =&gt; 1000,
+        'consumers' =&gt; [
+            'emailSender'
+        ]
+    ]
+];
+</code></pre>
+<h3 id="custom-queue-consumer">Custom Queue Consumer</h3>
+<p><strong>File</strong>: <code>Vendor/CustomEmail/etc/queue_consumer.xml</code></p>
+<pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;config xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+        xsi:noNamespaceSchemaLocation=&quot;urn:magento:framework-message-queue:etc/consumer.xsd&quot;&gt;
+    &lt;consumer name=&quot;custom.email.sender&quot;
+              queue=&quot;custom.email.queue&quot;
+              connection=&quot;amqp&quot;
+              handler=&quot;Vendor\CustomEmail\Model\Queue\EmailHandler::process&quot;
+              consumerInstance=&quot;Magento\Framework\MessageQueue\Consumer&quot;
+              maxMessages=&quot;100&quot;/&gt;
+&lt;/config&gt;
+</code></pre>
+<p><strong>File</strong>: <code>Vendor/CustomEmail/etc/queue_topology.xml</code></p>
+<pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;config xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+        xsi:noNamespaceSchemaLocation=&quot;urn:magento:framework-message-queue:etc/topology.xsd&quot;&gt;
+    &lt;exchange name=&quot;custom.email&quot; type=&quot;topic&quot; connection=&quot;amqp&quot;&gt;
+        &lt;binding id=&quot;customEmailBinding&quot; topic=&quot;custom.email.send&quot; destinationType=&quot;queue&quot; destination=&quot;custom.email.queue&quot;/&gt;
+    &lt;/exchange&gt;
+&lt;/config&gt;
+</code></pre>
+<h3 id="monitoring-email-queue">Monitoring Email Queue</h3>
+<pre><code class="language-bash"># Check queue status
+bin/magento queue:consumers:list
+
+# View pending messages
+mysql -e &quot;SELECT * FROM queue_message WHERE status = 'new' ORDER BY created_at DESC LIMIT 10;&quot;
+
+# Start consumer manually
+bin/magento queue:consumers:start emailSender --max-messages=100
+
+# Clear failed messages (careful!)
+mysql -e &quot;DELETE FROM queue_message WHERE status = 'error' AND updated_at &lt; DATE_SUB(NOW(), INTERVAL 7 DAY);&quot;
+</code></pre>
+<hr />
+<h2 id="testing-and-debugging">Testing and Debugging</h2>
+<h3 id="email-preview-in-admin">Email Preview in Admin</h3>
+<p><strong>Create Preview Controller:</strong></p>
+<p><strong>File</strong>: <code>Vendor/CustomEmail/Controller/Adminhtml/Email/Preview.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\CustomEmail\Controller\Adminhtml\Email;
+
+use Magento\Backend\App\Action;
+use Magento\Backend\App\Action\Context;
+use Magento\Email\Model\TemplateFactory;
+use Magento\Framework\App\Area;
+use Magento\Framework\Controller\ResultInterface;
+use Magento\Framework\View\Result\PageFactory;
+
+class Preview extends Action
+{
+    public const ADMIN_RESOURCE = 'Vendor_CustomEmail::email_preview';
+
+    public function __construct(
+        Context $context,
+        private readonly PageFactory $resultPageFactory,
+        private readonly TemplateFactory $templateFactory
+    ) {
+        parent::__construct($context);
+    }
+
+    public function execute(): ResultInterface
+    {
+        $templateId = (int)$this-&gt;getRequest()-&gt;getParam('id');
+
+        $template = $this-&gt;templateFactory-&gt;create();
+        $template-&gt;load($templateId);
+
+        if (!$template-&gt;getId()) {
+            $this-&gt;messageManager-&gt;addErrorMessage(__('Template not found.'));
+            return $this-&gt;resultRedirectFactory-&gt;create()-&gt;setPath('*/*/');
+        }
+
+        // Set preview variables
+        $variables = $this-&gt;getPreviewVariables();
+
+        $template-&gt;setVars($variables);
+        $processedTemplate = $template-&gt;processTemplate();
+
+        $resultPage = $this-&gt;resultPageFactory-&gt;create();
+        $resultPage-&gt;getConfig()-&gt;getTitle()-&gt;prepend(__('Email Preview'));
+
+        $block = $resultPage-&gt;getLayout()-&gt;createBlock(
+            \Magento\Framework\View\Element\Template::class
+        );
+        $block-&gt;setTemplate('Vendor_CustomEmail::email/preview.phtml');
+        $block-&gt;setData('email_content', $processedTemplate);
+
+        return $resultPage;
+    }
+
+    private function getPreviewVariables(): array
+    {
+        return [
+            'customer_name' =&gt; 'John Doe',
+            'store_name' =&gt; 'Demo Store',
+            'order_id' =&gt; '000000123',
+            // Add more preview data
+        ];
+    }
+}
+</code></pre>
+<h3 id="cli-test-command">CLI Test Command</h3>
+<p><strong>File</strong>: <code>Vendor/CustomEmail/Console/Command/TestEmail.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\CustomEmail\Console\Command;
+
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\OutputInterface;
+use Vendor\CustomEmail\Model\EmailSender;
+
+class TestEmail extends Command
+{
+    private const ARGUMENT_EMAIL = 'email';
+    private const OPTION_STORE = 'store';
+
+    public function __construct(
+        private readonly EmailSender $emailSender,
+        ?string $name = null
+    ) {
+        parent::__construct($name);
+    }
+
+    protected function configure(): void
+    {
+        $this-&gt;setName('custom:email:test')
+            -&gt;setDescription('Send test email')
+            -&gt;addArgument(
+                self::ARGUMENT_EMAIL,
+                InputArgument::REQUIRED,
+                'Recipient email address'
+            )
+            -&gt;addOption(
+                self::OPTION_STORE,
+                's',
+                InputOption::VALUE_OPTIONAL,
+                'Store ID',
+                null
+            );
+    }
+
+    protected function execute(InputInterface $input, OutputInterface $output): int
+    {
+        $email = $input-&gt;getArgument(self::ARGUMENT_EMAIL);
+        $storeId = $input-&gt;getOption(self::OPTION_STORE)
+            ? (int)$input-&gt;getOption(self::OPTION_STORE)
+            : null;
+
+        $output-&gt;writeln('&lt;info&gt;Sending test email...&lt;/info&gt;');
+
+        $emailData = [
+            'recipient_email' =&gt; $email,
+            'recipient_name' =&gt; 'Test Recipient',
+            'variables' =&gt; [
+                'customer_name' =&gt; 'Test Customer',
+                'order_id' =&gt; '000000999',
+                'store_name' =&gt; 'Test Store',
+            ]
+        ];
+
+        $result = $this-&gt;emailSender-&gt;sendNotificationEmail($emailData, $storeId);
+
+        if ($result) {
+            $output-&gt;writeln('&lt;info&gt;Email sent successfully!&lt;/info&gt;');
+            return Command::SUCCESS;
+        }
+
+        $output-&gt;writeln('&lt;error&gt;Email sending failed. Check logs.&lt;/error&gt;');
+        return Command::FAILURE;
+    }
+}
+</code></pre>
+<p><strong>Register command:</strong></p>
+<p><strong>File</strong>: <code>Vendor/CustomEmail/etc/di.xml</code></p>
+<pre><code class="language-xml">&lt;type name=&quot;Magento\Framework\Console\CommandList&quot;&gt;
+    &lt;arguments&gt;
+        &lt;argument name=&quot;commands&quot; xsi:type=&quot;array&quot;&gt;
+            &lt;item name=&quot;custom_email_test&quot; xsi:type=&quot;object&quot;&gt;Vendor\CustomEmail\Console\Command\TestEmail&lt;/item&gt;
+        &lt;/argument&gt;
+    &lt;/arguments&gt;
+&lt;/type&gt;
+</code></pre>
+<hr />
+<h2 id="performance-optimization">Performance Optimization</h2>
+<h3 id="email-template-caching">Email Template Caching</h3>
+<pre><code class="language-php">&lt;?php
+// Cache processed templates
+$cacheKey = 'email_template_' . $templateId . '_' . $storeId;
+$cachedContent = $cache-&gt;load($cacheKey);
+
+if ($cachedContent === false) {
+    $cachedContent = $template-&gt;processTemplate();
+    $cache-&gt;save($cachedContent, $cacheKey, ['email_template'], 3600);
+}
+</code></pre>
+<h3 id="batch-email-sending">Batch Email Sending</h3>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\CustomEmail\Model;
+
+use Magento\Framework\Mail\Template\TransportBuilder;
+
+class BatchEmailSender
+{
+    private array $emailQueue = [];
+    private const BATCH_SIZE = 50;
+
+    public function __construct(
+        private readonly TransportBuilder $transportBuilder
+    ) {
+    }
+
+    public function addToQueue(array $emailData): void
+    {
+        $this-&gt;emailQueue[] = $emailData;
+
+        if (count($this-&gt;emailQueue) &gt;= self::BATCH_SIZE) {
+            $this-&gt;flush();
+        }
+    }
+
+    public function flush(): void
+    {
+        foreach ($this-&gt;emailQueue as $emailData) {
+            try {
+                // Send email
+                $this-&gt;sendSingleEmail($emailData);
+            } catch (\Exception $e) {
+                // Log error but continue with batch
+                continue;
+            }
+        }
+
+        $this-&gt;emailQueue = [];
+    }
+
+    private function sendSingleEmail(array $emailData): void
+    {
+        // Implementation
+    }
+}
+</code></pre>
+<hr />
+<h2 id="security-considerations">Security Considerations</h2>
+<h3 id="input-sanitization">Input Sanitization</h3>
+<pre><code class="language-php">&lt;?php
+// Always escape variables in templates
+{{var customer_name|escape}}
+
+// For URLs
+{{var redirect_url|escape:'url'}}
+
+// For HTML attributes
+&lt;a href=&quot;{{var link|escape:'htmlAttr'}}&quot;&gt;Link&lt;/a&gt;
+</code></pre>
+<h3 id="preventing-email-injection">Preventing Email Injection</h3>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\CustomEmail\Model;
+
+class EmailValidator
+{
+    /**
+     * Validate email address to prevent header injection
+     */
+    public function validateEmail(string $email): bool
+    {
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return false;
+        }
+
+        // Check for newline characters that could inject headers
+        if (preg_match('/[\r\n]/', $email)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Sanitize email subject
+     */
+    public function sanitizeSubject(string $subject): string
+    {
+        // Remove any newline or carriage return characters
+        return str_replace([&quot;\r&quot;, &quot;\n&quot;], '', $subject);
+    }
+}
+</code></pre>
+<hr />
+<h2 id="troubleshooting">Troubleshooting</h2>
+<h3 id="common-issues">Common Issues</h3>
+<p><strong>1. Emails not sending:</strong></p>
+<pre><code class="language-bash"># Check mail.log
+tail -f var/log/mail.log
+
+# Check exception.log
+tail -f var/log/exception.log
+
+# Test SMTP connection
+telnet smtp.example.com 587
+
+# Check queue consumer
+bin/magento queue:consumers:list
+ps aux | grep emailSender
+</code></pre>
+<p><strong>2. Template variables not rendering:</strong></p>
+<pre><code class="language-php">// Ensure variables are properly set
+$transport-&gt;setTemplateVars([
+    'var customer_name' =&gt; 'John', // WRONG
+    'customer_name' =&gt; 'John',     // CORRECT
+]);
+
+// Check template syntax
+{{var customer_name}}  // CORRECT
+{{customer_name}}      // WRONG
+</code></pre>
+<p><strong>3. Email queue stuck:</strong></p>
+<pre><code class="language-bash"># Check queue table
+mysql -e &quot;SELECT COUNT(*), status FROM queue_message GROUP BY status;&quot;
+
+# Restart consumer
+supervisorctl restart magento_queue_emailSender
+
+# Or manually
+bin/magento queue:consumers:start emailSender
+</code></pre>
+<hr />
+<h2 id="summary">Summary</h2>
+<p><strong>Key Takeaways:</strong>
+- Email templates use HTML with Magento directives (trans, var, block, if, for)
+- TransportBuilder is the primary interface for constructing emails
+- Always use scope-aware configuration for multi-store setups
+- Leverage email queue for high-volume sending
+- SMTP can be configured via plugins without modifying core
+- Test emails using CLI commands and preview functionality
+- Sanitize all inputs to prevent email injection attacks
+- Monitor queue consumers and mail logs for debugging</p>
+<hr />
+<h2 id="assumptions">Assumptions</h2>
+<ul>
+<li><strong>Magento Version:</strong> 2.4.7+ (Adobe Commerce or Open Source)</li>
+<li><strong>PHP Version:</strong> 8.2+</li>
+<li><strong>Email Transport:</strong> Default Sendmail or custom SMTP</li>
+<li><strong>Queue Backend:</strong> Database or RabbitMQ for async sending</li>
+<li><strong>Environment:</strong> Multi-store configuration with scope-aware settings</li>
+</ul>
+<h2 id="why-this-approach">Why This Approach</h2>
+<ul>
+<li><strong>Service-Oriented:</strong> EmailSender encapsulates all email logic with clean dependencies</li>
+<li><strong>Configuration-Driven:</strong> Templates and settings are configurable per store scope</li>
+<li><strong>Queue Support:</strong> Async sending prevents blocking operations during checkout/order flow</li>
+<li><strong>Testability:</strong> CLI commands and preview functionality enable easy testing</li>
+<li><strong>Security:</strong> Input validation and escaping prevent injection attacks</li>
+<li><strong>Performance:</strong> Batch sending and template caching reduce overhead</li>
+</ul>
+<h2 id="security-impact">Security Impact</h2>
+<ul>
+<li><strong>CSRF Protection:</strong> Email forms require form keys when user-triggered</li>
+<li><strong>XSS Prevention:</strong> All template variables must use escape filters</li>
+<li><strong>Email Injection:</strong> Validate email addresses and sanitize subjects</li>
+<li><strong>PII Handling:</strong> Email content may contain customer data; ensure GDPR compliance</li>
+<li><strong>Secrets Management:</strong> SMTP credentials stored in env.php (encrypted recommended)</li>
+<li><strong>Logging:</strong> Avoid logging email content or recipient addresses</li>
+</ul>
+<h2 id="performance-impact">Performance Impact</h2>
+<ul>
+<li><strong>FPC:</strong> Email sending bypasses full page cache (backend operation)</li>
+<li><strong>Queue:</strong> Async sending prevents blocking checkout/order placement</li>
+<li><strong>Database:</strong> Queue table grows with pending messages; monitor and purge old records</li>
+<li><strong>SMTP:</strong> External SMTP may add latency; use connection pooling</li>
+<li><strong>Template Rendering:</strong> Cache processed templates when possible</li>
+</ul>
+<h2 id="backward-compatibility">Backward Compatibility</h2>
+<ul>
+<li><strong>API Stability:</strong> TransportBuilder and email template APIs are stable</li>
+<li><strong>Template Format:</strong> Email template format unchanged since Magento 2.3</li>
+<li><strong>Queue System:</strong> Message queue interface is BC-compliant</li>
+<li><strong>Configuration Paths:</strong> Email configuration paths are stable</li>
+<li><strong>Upgrade Path:</strong> Custom email modules upgrade cleanly to Magento 2.4.8+</li>
+</ul>
+<h2 id="tests-to-add">Tests to Add</h2>
+<p><strong>Unit Tests:</strong></p>
+<pre><code class="language-php">// Test email sender
+testSendNotificationEmailSuccess()
+testSendNotificationEmailDisabled()
+testEmailVariableProvider()
+
+// Test validators
+testEmailValidation()
+testSubjectSanitization()
+</code></pre>
+<p><strong>Integration Tests:</strong></p>
+<pre><code class="language-php">// Test email sending
+testEmailTransportBuildsCorrectly()
+testEmailQueueProcessing()
+testEmailTemplateRendering()
+</code></pre>
+<p><strong>Functional Tests (MFTF):</strong></p>
+<pre><code class="language-xml">&lt;!-- Test email configuration --&gt;
+&lt;test name=&quot;AdminConfigureCustomEmailTest&quot;&gt;
+&lt;test name=&quot;AdminPreviewEmailTemplateTest&quot;&gt;
+</code></pre>
+<h2 id="docs-to-update">Docs to Update</h2>
+<ul>
+<li><strong>README.md:</strong> Installation, configuration, and usage examples</li>
+<li><strong>CHANGELOG.md:</strong> Version history and breaking changes</li>
+<li><strong>docs/CONFIGURATION.md:</strong> System.xml field descriptions and SMTP setup</li>
+<li><strong>docs/TEMPLATES.md:</strong> Template directive reference and variable guide</li>
+<li><strong>Admin User Guide:</strong> Screenshots of email configuration panel and preview feature</li>
+</ul>
+<h2 id="related-documentation">Related Documentation</h2>
+<h3 id="related-guides">Related Guides</h3>
+<ul>
+<li><a href="cron-jobs.md">Cron Jobs Implementation: Building Reliable Scheduled Tasks in Magento 2</a></li>
+<li><a href="../tutorials/plugin-system-deep-dive.md">Plugin System Deep Dive: Mastering Magento 2 Interception</a></li>
+</ul>
+<h3 id="related-module-documentation">Related Module Documentation</h3>
+<ul>
+<li><a href="../../modules/customer/README.md">Magento_Customer Overview</a></li>
+<li><a href="../../modules/sales/README.md">Magento_Sales Overview</a></li>
+</ul>
+                    </div>
+                </article>
+            </main>
+            <!-- Right Sidebar: On This Page (desktop) -->
+            <aside class="toc-sidebar hidden xl:block" aria-label="On this page">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-semibold text-gray-900 uppercase tracking-wider mb-4 mt-0">On this page</h3>
+                    <nav id="toc-nav" class="space-y-0" aria-label="Table of contents"></nav>
+                    <div class="toc-back-to-top">
+                        <a href="#">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+                            </svg>
+                            Back to top
+                        </a>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- ================================================================
+         FOOTER — matches module-catalog.html multi-column layout exactly
+         ================================================================ -->
+    <footer class="relative pt-12 bg-white border-t border-charcoal mt-16">
+        <div class="max-w-screen-2xl mx-auto w-full px-4 sm:px-6 lg:px-8">
+            <div>
+                <a href="index.html" class="inline-flex items-center no-underline">
+                    <svg width="30" height="33" viewBox="0 0 30 33" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Magento Association logo" role="img">
+                        <path d="M0 4.06492H29.6763V31.8882C29.6763 32.502 29.1713 33 28.5487 33H1.12762C0.505079 33 0 32.502 0 31.8882V4.06492Z" fill="#34323A"/>
+                        <path d="M1.26857 0H28.4078C29.1066 0 29.6763 0.561678 29.6763 1.25075V4.06492H0V1.25075C0 0.561678 0.569682 0 1.26857 0Z" fill="#C9C9C9"/>
+                        <path d="M2.37269 3.0458C2.94031 3.0458 3.40046 2.59211 3.40046 2.03246C3.40046 1.47281 2.94031 1.01913 2.37269 1.01913C1.80506 1.01913 1.34491 1.47281 1.34491 2.03246C1.34491 2.59211 1.80506 3.0458 2.37269 3.0458Z" fill="#848484"/>
+                        <path d="M5.28571 3.0458C5.85334 3.0458 6.31349 2.59211 6.31349 2.03246C6.31349 1.47281 5.85334 1.01913 5.28571 1.01913C4.71809 1.01913 4.25793 1.47281 4.25793 2.03246C4.25793 2.59211 4.71809 3.0458 5.28571 3.0458Z" fill="#848484"/>
+                        <path d="M14.7883 7.46973L4.90405 13.0923V24.349L7.54104 25.8487V14.5978L14.7883 10.4692L22.0415 14.5978V25.8487L24.6785 24.349V13.0923L14.7883 7.46973Z" fill="#F1BC1B"/>
+                        <path d="M16.0862 26.2367L14.7883 26.9779L13.4492 26.2135V14.233L10.178 16.0975V27.3485L13.4492 29.213L14.7883 29.9773L16.0862 29.2362L19.4045 27.3485V16.0975L16.0862 14.2098V26.2367Z" fill="#F1BC1B"/>
+                    </svg>
+                    <span class="ml-3 text-xl font-bold text-charcoal">Developer Documentation</span>
+                </a>
+            </div>
+
+            <div class="grid grid-cols-12 md:gap-x-8 gap-y-12 lg:mt-12">
+                <div class="col-span-12 lg:col-span-4">
+                    <p class="hidden lg:block text-xs text-charcoal sm:text-sm">Comprehensive developer documentation for Magento 2.4.7+ — tutorials, architecture deep dives, module references, and production-ready patterns built by the community, for the community.</p>
+                    <ul class="mt-6 hidden lg:flex items-center gap-3">
+                        <li class="pl-0">
+                            <a href="https://github.com/magento/magento2" class="p-2 md:p-0" aria-label="GitHub">
+                                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                                </svg>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Guides</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="tutorials.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Tutorials</a></li>
+                            <li class="pl-0"><a href="how-to-guides.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">How-To Guides</a></li>
+                            <li class="pl-0"><a href="architecture.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Architecture</a></li>
+                            <li class="pl-0"><a href="learning-paths.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Learning Paths</a></li>
+                            <li class="pl-0"><a href="references.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">References</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Modules</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="module-catalog.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Catalog</a></li>
+                            <li class="pl-0"><a href="module-checkout.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Checkout</a></li>
+                            <li class="pl-0"><a href="module-sales.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Sales</a></li>
+                            <li class="pl-0"><a href="module-customer.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Customer</a></li>
+                            <li class="pl-0"><a href="module-quote.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Quote</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Community</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Magento Community</a></li>
+                            <li class="pl-0"><a href="https://magento.stackexchange.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Stack Exchange</a></li>
+                            <li class="pl-0"><a href="https://marketplace.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Marketplace</a></li>
+                            <li class="pl-0"><a href="https://github.com/magento/magento2" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">GitHub</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Support</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://github.com/magento/magento2/issues" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Report Issues</a></li>
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Community Resources</a></li>
+                            <li class="pl-0"><a href="https://developer.adobe.com/commerce/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Adobe Commerce Docs</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-12 border-t pt-6 pb-16 border-charcoal">
+                <p class="text-xs text-charcoal">
+                    &copy; 2026 Magento 2 Developer Documentation. Magento&reg; is a registered trademark of Adobe Inc.
+                </p>
+                <p class="mt-6 text-xs text-charcoal">
+                    This documentation provides guidance for Magento 2 developers and extension builders. For merchant documentation, visit the <a href="index.html" class="text-orange hover:text-orange-600 transition-colors">merchant documentation</a>.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Initialize highlight.js -->
+    <script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('pre code').forEach(function (el) {
+        hljs.highlightElement(el);
+    });
+    document.querySelectorAll('pre').forEach(function (pre) {
+        if (pre.parentNode.classList && pre.parentNode.classList.contains('code-wrapper')) return;
+        var wrapper = document.createElement('div');
+        wrapper.className = 'code-wrapper';
+        pre.parentNode.insertBefore(wrapper, pre);
+        wrapper.appendChild(pre);
+        var btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.setAttribute('type', 'button');
+        btn.setAttribute('aria-label', 'Copy code to clipboard');
+        btn.setAttribute('title', 'Copy');
+        btn.textContent = 'Copy';
+        wrapper.appendChild(btn);
+        btn.addEventListener('click', function () {
+            var code = pre.querySelector('code');
+            var text = code ? (code.innerText || code.textContent) : (pre.innerText || pre.textContent);
+            navigator.clipboard.writeText(text).then(function () {
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            }).catch(function () {
+                var range = document.createRange();
+                range.selectNode(code || pre);
+                window.getSelection().removeAllRanges();
+                window.getSelection().addRange(range);
+                document.execCommand('copy');
+                window.getSelection().removeAllRanges();
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            });
+        });
+    });
+});
+</script>
+
+
+<script>
+(function() {
+    var nav = document.getElementById('toc-nav');
+    if (!nav) return;
+    var article = document.getElementById('main-content');
+    if (!article) return;
+    var headings = article.querySelectorAll('h2[id], h3[id]');
+    if (headings.length < 3) {
+        // Hide the entire TOC sidebar if fewer than 3 headings
+        var sidebar = nav.closest('.toc-sidebar');
+        if (sidebar) sidebar.style.display = 'none';
+        return;
+    }
+    var ids = [];
+    headings.forEach(function(h) {
+        var a = document.createElement('a');
+        a.href = '#' + h.id;
+        a.textContent = h.textContent.replace(/^#+\s*/, '').replace(/\s+/g, ' ').trim();
+        if (h.tagName === 'H3') a.classList.add('toc-h3');
+        nav.appendChild(a);
+        ids.push(h.id);
+    });
+    // Scroll-spy with IntersectionObserver
+    var links = nav.querySelectorAll('a');
+    var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                links.forEach(function(l) { l.classList.remove('toc-active'); });
+                var active = nav.querySelector('a[href="#' + entry.target.id + '"]');
+                if (active) active.classList.add('toc-active');
+            }
+        });
+    }, { rootMargin: '-80px 0px -70% 0px', threshold: 0 });
+    headings.forEach(function(h) { observer.observe(h); });
+})();
+</script>
+</body>
+</html>

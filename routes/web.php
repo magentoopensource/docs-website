@@ -10,7 +10,8 @@ use App\Http\Controllers\WebhookController;
 Route::middleware('throttle:120,1')->group(function () {
     Route::get("/", [DocsController::class, "showRootPage"])->name("home");
 
-    Route::get("/merchant", [DocsController::class, "showDocsIndex"])->name("merchant.index");
+    Route::get("/merchant", [DocsController::class, "showMerchantHomepage"])->name("merchant.home");
+    Route::get("/merchant/index", [DocsController::class, "showDocsIndex"])->name("merchant.index");
     Route::get("/merchant/index.json", [DocsController::class, "index"]);
 
     Route::get("/merchant/{category}/{page}", [DocsController::class, "show"])
