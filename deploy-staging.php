@@ -50,11 +50,10 @@ desc('Authenticate with maxcluster control plane');
 task('deploy:cluster-auth', function () {
     writeln('🔐 Authenticating with cluster-control...');
 
-    // Get PAT from local environment (set in GitHub Actions)
-    // Note: This runs on the CI runner, not the remote server
     $pat = getenv('MAXCLUSTER_PAT');
     if (empty($pat)) {
-        throw new \Exception('❌ MAXCLUSTER_PAT environment variable not set!');
+        writeln('⚠️  MAXCLUSTER_PAT not set — skipping cluster-control auth (staging)');
+        return;
     }
 
     run("cluster-control login --pa_token=" . escapeshellarg($pat));
@@ -143,8 +142,12 @@ desc('Clear PHP OPcache by reloading PHP-FPM');
 task('deploy:clear-opcache', function () {
     writeln('🔄 Reloading PHP-FPM to clear OPcache...');
 
-    // Use cluster-control to gracefully reload PHP-FPM
-    // This clears OPcache and allows running processes to complete (30s timeout)
+    $pat = getenv('MAXCLUSTER_PAT');
+    if (empty($pat)) {
+        writeln('⚠️  MAXCLUSTER_PAT not set — skipping OPcache clear (staging)');
+        return;
+    }
+
     run('cluster-control php:reload C-727 srv-a --no-interaction');
     run('cluster-control logout');
 
