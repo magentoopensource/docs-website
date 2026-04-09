@@ -114,7 +114,7 @@
                     Built by the community, for the community. Choose your path.
                 </p>
                 <div class="inline-flex items-center gap-2 px-4 py-2 bg-charcoal text-sm text-gray-300">
-                    <svg class="w-3.5 h-3.5 text-gold" viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 22,8 22,16 12,22 2,16 2,8"/></svg>
+                    <svg class="w-3.5 h-3.5 text-orange" viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 22,8 22,16 12,22 2,16 2,8"/></svg>
                     Magento Open Source 2.4.8
                 </div>
             </div>
@@ -129,7 +129,7 @@
             <div class="grid md:grid-cols-2 gap-6 lg:gap-8 max-w-5xl mx-auto">
 
                 {{-- Merchant Documentation Card --}}
-                <a href="/merchant" class="doc-card group block bg-white border-2 border-gray-200 hover:border-gold no-underline relative overflow-hidden">
+                <a href="/merchant" class="doc-card group block bg-white border-2 border-gray-200 hover:border-charcoal no-underline relative overflow-hidden">
                     <div class="h-1.5 bg-gold"></div>
                     <div class="p-8 sm:p-10">
                         <div class="w-16 h-16 mb-6 relative">
@@ -145,7 +145,7 @@
                                 </g>
                             </svg>
                         </div>
-                        <h2 class="text-2xl sm:text-3xl font-extrabold text-charcoal mb-3 group-hover:text-gold-600 transition-colors">
+                        <h2 class="text-2xl sm:text-3xl font-extrabold text-charcoal mb-3 group-hover:text-charcoal-400 transition-colors">
                             Merchant Documentation
                         </h2>
                         <p class="text-charcoal-300 leading-relaxed mb-6">
@@ -153,23 +153,23 @@
                         </p>
                         <ul class="space-y-2.5 mb-8">
                             <li class="flex items-center gap-3 text-sm text-charcoal-400">
-                                <svg class="w-4 h-4 text-gold flex-shrink-0" viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 22,8 22,16 12,22 2,16 2,8"/></svg>
+                                <svg class="w-4 h-4 text-charcoal-300 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 22,8 22,16 12,22 2,16 2,8"/></svg>
                                 Getting Started Guides
                             </li>
                             <li class="flex items-center gap-3 text-sm text-charcoal-400">
-                                <svg class="w-4 h-4 text-gold flex-shrink-0" viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 22,8 22,16 12,22 2,16 2,8"/></svg>
+                                <svg class="w-4 h-4 text-charcoal-300 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 22,8 22,16 12,22 2,16 2,8"/></svg>
                                 Catalog &amp; Product Management
                             </li>
                             <li class="flex items-center gap-3 text-sm text-charcoal-400">
-                                <svg class="w-4 h-4 text-gold flex-shrink-0" viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 22,8 22,16 12,22 2,16 2,8"/></svg>
+                                <svg class="w-4 h-4 text-charcoal-300 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 22,8 22,16 12,22 2,16 2,8"/></svg>
                                 Sales &amp; Order Processing
                             </li>
                             <li class="flex items-center gap-3 text-sm text-charcoal-400">
-                                <svg class="w-4 h-4 text-gold flex-shrink-0" viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 22,8 22,16 12,22 2,16 2,8"/></svg>
+                                <svg class="w-4 h-4 text-charcoal-300 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 22,8 22,16 12,22 2,16 2,8"/></svg>
                                 Store Configuration
                             </li>
                         </ul>
-                        <div class="flex items-center gap-2 text-gold font-bold text-sm group-hover:gap-3 transition-all">
+                        <div class="flex items-center gap-2 text-charcoal font-bold text-sm group-hover:gap-3 transition-all">
                             Explore Merchant Docs
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
                         </div>
@@ -238,7 +238,7 @@
         <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
             <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
                 <div>
-                    <span class="block text-4xl sm:text-5xl font-extrabold text-gold">90+</span>
+                    <span class="block text-4xl sm:text-5xl font-extrabold text-white">90+</span>
                     <span class="text-sm text-gray-400 uppercase tracking-wider font-medium mt-1 block">Pages of Docs</span>
                 </div>
                 <div>
@@ -246,7 +246,7 @@
                     <span class="text-sm text-gray-400 uppercase tracking-wider font-medium mt-1 block">Core Modules</span>
                 </div>
                 <div>
-                    <span class="block text-4xl sm:text-5xl font-extrabold text-gold">9</span>
+                    <span class="block text-4xl sm:text-5xl font-extrabold text-white">9</span>
                     <span class="text-sm text-gray-400 uppercase tracking-wider font-medium mt-1 block">Doc Types Per Module</span>
                 </div>
                 <div>
@@ -299,12 +299,12 @@
                     </div>
                 </a>
 
-                <a href="/developer/guide-explanation-eav-system.html" class="group flex items-start gap-4 p-6 bg-white border-2 border-gray-200 hover:border-gold hover:shadow-md transition-all no-underline">
+                <a href="/developer/guide-explanation-eav-system.html" class="group flex items-start gap-4 p-6 bg-white border-2 border-gray-200 hover:border-charcoal hover:shadow-md transition-all no-underline">
                     <div class="w-10 h-10 flex-shrink-0 hex-clip bg-charcoal flex items-center justify-center">
                         <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/></svg>
                     </div>
                     <div>
-                        <h3 class="font-bold text-charcoal group-hover:text-gold-600 transition-colors mb-1">EAV System Architecture</h3>
+                        <h3 class="font-bold text-charcoal group-hover:text-charcoal-400 transition-colors mb-1">EAV System Architecture</h3>
                         <p class="text-sm text-charcoal-300">How Magento stores entity attributes</p>
                     </div>
                 </a>
@@ -319,12 +319,12 @@
                     </div>
                 </a>
 
-                <a href="/developer/certifications.html" class="group flex items-start gap-4 p-6 bg-white border-2 border-gray-200 hover:border-gold hover:shadow-md transition-all no-underline">
+                <a href="/developer/certifications.html" class="group flex items-start gap-4 p-6 bg-white border-2 border-gray-200 hover:border-charcoal hover:shadow-md transition-all no-underline">
                     <div class="w-10 h-10 flex-shrink-0 hex-clip bg-gold flex items-center justify-center">
                         <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
                     </div>
                     <div>
-                        <h3 class="font-bold text-charcoal group-hover:text-gold-600 transition-colors mb-1">Certifications</h3>
+                        <h3 class="font-bold text-charcoal group-hover:text-charcoal-400 transition-colors mb-1">Certifications</h3>
                         <p class="text-sm text-charcoal-300">Study guides for all certification tracks</p>
                     </div>
                 </a>
