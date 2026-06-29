@@ -80,6 +80,57 @@ class WebhookController extends Controller
             $commitProcess->run();
             $currentCommit = trim($commitProcess->getOutput());
 
+            // Generate developer docs if developer/ content was checked out.
+            // Guard: skipped silently when developer/ is absent so that merchant-only
+            // pushes are completely unaffected.
+            // Fail-safe: a generation failure is logged but does NOT abort the merchant
+            // sync or change the HTTP response to an error.
+            $devDocsOutcome = 'skipped — developer/ content not present';
+
+            $developerSourcePath = resource_path('docs/main/developer');
+
+            if (is_dir($developerSourcePath)) {
+                try {
+                    $generateScript = base_path('bin/devdocs/generate.sh');
+
+                    // Prefer the server-side venv for reproducible deps; fall back to
+                    // whatever python3 is on PATH (works locally without any venv).
+                    $home = getenv('HOME') ?: '';
+                    $venvBinDir = $home ? $home . '/docs-python-venv/bin' : '';
+                    $processEnv = null;
+
+                    if ($venvBinDir && is_dir($venvBinDir)) {
+                        $processEnv = getenv();
+                        $processEnv['PATH'] = $venvBinDir . ':' . ($processEnv['PATH'] ?? '/usr/local/bin:/usr/bin:/bin');
+                    }
+
+                    // generate.sh builds into a temp dir then atomically renames into
+                    // public_path('developer'), so the live directory is never half-written.
+                    $generateProcess = new Process(
+                        ['bash', $generateScript, $developerSourcePath, public_path('developer')],
+                        base_path(),
+                        $processEnv,
+                    );
+                    $generateProcess->setTimeout(120);
+                    $generateProcess->run();
+
+                    if ($generateProcess->isSuccessful()) {
+                        $devDocsOutcome = 'generated successfully';
+                        Log::info('Developer docs generated successfully');
+                    } else {
+                        $devDocsOutcome = 'generation failed (see error log)';
+                        Log::error('Developer docs generation failed — merchant sync unaffected', [
+                            'stderr' => $generateProcess->getErrorOutput(),
+                        ]);
+                    }
+                } catch (\Exception $devException) {
+                    $devDocsOutcome = 'exception: ' . $devException->getMessage();
+                    Log::error('Developer docs generation threw exception — merchant sync unaffected', [
+                        'exception' => $devException->getMessage(),
+                    ]);
+                }
+            }
+
             // Clear Laravel caches
             Artisan::call('cache:clear');
             Artisan::call('view:clear');
@@ -97,6 +148,7 @@ class WebhookController extends Controller
                 'success' => true,
                 'message' => 'Documentation synced successfully',
                 'commit' => $currentCommit,
+                'developer_docs' => $devDocsOutcome,
             ]);
 
         } catch (\Exception $e) {
