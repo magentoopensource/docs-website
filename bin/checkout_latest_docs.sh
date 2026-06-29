@@ -15,6 +15,12 @@ fi
 
 echo "Using base path: $BASE_PATH"
 
+# Content source repo — overridable per environment. Staging points at the fork
+# (which carries the developer/ content); production uses the default official repo.
+# The branch stays "main" everywhere; only the repo URL differs.
+DOCS_REPO_URL="${DOCS_REPO_URL:-https://github.com/magentoopensource/docs.git}"
+echo "Using docs repo: $DOCS_REPO_URL"
+
 # Marker file to track if we've done the post-rewrite clone
 MARKER_FILE="$BASE_PATH/resources/docs/.history-rewrite-fixed"
 
@@ -30,13 +36,15 @@ for v in "${DOCS_VERSIONS[@]}"; do
     if [ -d "$DOCS_DIR" ]; then
         echo "Updating documentation for $v..."
         cd "$DOCS_DIR"
+        # Repoint origin in case the configured source changed (official <-> fork).
+        git remote set-url origin "$DOCS_REPO_URL"
         git fetch --force origin "$v"
         git reset --hard "origin/$v"
         echo "Successfully updated $v"
     else
         echo "Cloning $v..."
         mkdir -p "$BASE_PATH/resources/docs"
-        git clone --single-branch --branch "$v" https://github.com/magentoopensource/docs.git "$DOCS_DIR"
+        git clone --single-branch --branch "$v" "$DOCS_REPO_URL" "$DOCS_DIR"
     fi
 done
 

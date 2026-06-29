@@ -99,7 +99,9 @@ task('deploy:verify-assets', function () {
 
 desc('Sync external documentation');
 task('deploy:sync-docs', function () {
-    run('cd {{release_path}} && DEPLOYER_ROOT={{deploy_path}} bash bin/checkout_latest_docs.sh');
+    // Staging pulls content (incl. developer/) from the fork; production uses the
+    // default official repo. Only the URL differs — the branch stays main.
+    run('cd {{release_path}} && DEPLOYER_ROOT={{deploy_path}} DOCS_REPO_URL=https://github.com/carl-simpson/docs.git bash bin/checkout_latest_docs.sh');
 });
 
 desc('Ensure webhook secret is configured');
