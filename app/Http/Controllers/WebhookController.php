@@ -93,10 +93,13 @@ class WebhookController extends Controller
                 try {
                     $generateScript = base_path('bin/devdocs/generate.sh');
 
-                    // Prefer the server-side venv for reproducible deps; fall back to
-                    // whatever python3 is on PATH (works locally without any venv).
-                    $home = getenv('HOME') ?: '';
-                    $venvBinDir = $home ? $home . '/docs-python-venv/bin' : '';
+                    // Prefer the explicitly-configured server venv (DEVDOCS_VENV_PATH)
+                    // for reproducible deps; fall back to whatever python3 is on PATH
+                    // (works locally without any venv). Using config rather than
+                    // getenv('HOME') keeps this deterministic under PHP-FPM, whose
+                    // HOME may differ from the deploy user's.
+                    $venvPath = config('services.devdocs.venv_path');
+                    $venvBinDir = $venvPath ? rtrim($venvPath, '/') . '/bin' : '';
                     $processEnv = null;
 
                     if ($venvBinDir && is_dir($venvBinDir)) {

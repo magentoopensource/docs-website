@@ -137,7 +137,18 @@ task('deploy:setup-python-venv', function () {
     // Install/upgrade deps into the venv (idempotent — pip skips up-to-date packages).
     run("$venvPath/bin/pip install -q -r $requirementsSrc");
 
-    writeln('✅ Python venv ready');
+    // Record the venv's ABSOLUTE path in shared .env so the runtime webhook
+    // controller resolves it via config('services.devdocs.venv_path') deterministically,
+    // independent of PHP-FPM's HOME. deploy:optimize (config:cache) picks this up.
+    $venvAbs = trim(run('echo $HOME/docs-python-venv'));
+    $sharedEnv = '{{deploy_path}}/shared/.env';
+    if (test("grep -q '^DEVDOCS_VENV_PATH=' $sharedEnv")) {
+        run("sed -i 's#^DEVDOCS_VENV_PATH=.*#DEVDOCS_VENV_PATH=$venvAbs#' $sharedEnv");
+    } else {
+        run("echo 'DEVDOCS_VENV_PATH=$venvAbs' >> $sharedEnv");
+    }
+
+    writeln('✅ Python venv ready (DEVDOCS_VENV_PATH=' . $venvAbs . ')');
 });
 
 desc('Generate developer documentation HTML from checked-out content');

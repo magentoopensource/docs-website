@@ -37,4 +37,11 @@ return [
         'webhook_secret' => env('GITHUB_WEBHOOK_SECRET'),
     ],
 
+    'devdocs' => [
+        // Absolute path to the Python venv used by the developer-docs generator.
+        // Set in the server .env by the Deployer setup-python-venv task. When unset
+        // (e.g. local dev) the generator falls back to system python3 on PATH.
+        'venv_path' => env('DEVDOCS_VENV_PATH'),
+    ],
+
 ];
