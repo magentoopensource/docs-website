@@ -189,20 +189,41 @@ task('deploy:optimize', function () {
     run('php artisan view:cache');
 });
 
-desc('Clear PHP OPcache by reloading PHP-FPM');
+desc('Clear PHP OPcache by reloading PHP-FPM (cachetool fallback when no PAT)');
 task('deploy:clear-opcache', function () {
-    writeln('🔄 Reloading PHP-FPM to clear OPcache...');
+    writeln('🔄 Clearing PHP OPcache...');
 
+    // Preferred path: reload PHP-FPM via maxcluster control plane.
     $pat = getenv('MAXCLUSTER_PAT');
-    if (empty($pat)) {
-        writeln('⚠️  MAXCLUSTER_PAT not set — skipping OPcache clear (staging)');
+    if (!empty($pat)) {
+        run('cluster-control php:reload C-727 srv-a --no-interaction');
+        run('cluster-control logout');
+        writeln('✅ PHP-FPM reloaded via cluster-control, OPcache cleared');
         return;
     }
 
-    run('cluster-control php:reload C-727 srv-a --no-interaction');
-    run('cluster-control logout');
+    // Fallback (no MAXCLUSTER_PAT, e.g. local deploys): reset OPcache directly
+    // with cachetool. A symlink deploy otherwise leaves PHP-FPM resolving the
+    // PREVIOUS release through its realpath/opcache, so the app renders stale
+    // Vite asset hashes that 404 against the new build.
+    writeln('ℹ  MAXCLUSTER_PAT not set — resetting OPcache via cachetool');
+    if (!test('command -v cachetool >/dev/null 2>&1')) {
+        writeln('⚠️  cachetool not available — skipping OPcache reset');
+        return;
+    }
 
-    writeln('✅ PHP-FPM reloaded, OPcache cleared');
+    // Prefer this site's dedicated FPM pool socket; fall back to the default pool.
+    $sock = trim(run("ls /var/run/php*-fpm-docs-test.magento-opensource.com.sock 2>/dev/null | head -1 || true"));
+    if (empty($sock)) {
+        $sock = trim(run("ls /var/run/php*-fpm-default.sock 2>/dev/null | head -1 || true"));
+    }
+    if (empty($sock)) {
+        writeln('⚠️  No PHP-FPM socket found — skipping OPcache reset');
+        return;
+    }
+
+    run('cachetool opcache:reset --fcgi=' . escapeshellarg($sock));
+    writeln('✅ OPcache reset via cachetool (' . $sock . ')');
 });
 
 desc('Verify deployment health');
