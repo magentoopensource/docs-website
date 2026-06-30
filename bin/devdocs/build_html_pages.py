@@ -47,6 +47,32 @@ def md_to_html_filename(md_path):
         parts[0] = 'module'
     return '-'.join(parts) + '.html'
 
+def rewrite_md_links(html, md_path):
+    """Rewrite relative .md cross-reference links to their flat .html filenames.
+
+    Internal links in the markdown (e.g. ../tutorials/x.md, ../../modules/catalog/README.md)
+    are resolved relative to the source file and mapped through md_to_html_filename so they
+    point at the generated HTML pages instead of raw markdown. External URLs, anchors and
+    links outside the docs tree are left untouched.
+    """
+    src_dir = os.path.dirname(md_path)
+
+    def _repl(match):
+        target = match.group(2)
+        if target.startswith(('http://', 'https://', '//', '#', 'mailto:')):
+            return match.group(0)
+        path_part, sep, frag = target.partition('#')
+        if not path_part.endswith('.md'):
+            return match.group(0)
+        abs_md = os.path.normpath(os.path.join(src_dir, path_part))
+        rel = os.path.relpath(abs_md, MD_DIR)
+        if rel.startswith('..'):
+            return match.group(0)
+        new_target = md_to_html_filename(abs_md) + (sep + frag if sep else '')
+        return f'{match.group(1)}{new_target}{match.group(3)}'
+
+    return re.sub(r'(href=")([^"]+?\.md(?:#[^"]*)?)(")', _repl, html)
+
 def parse_frontmatter(content):
     """Extract YAML frontmatter and body from markdown."""
     if content.startswith('---'):
@@ -237,6 +263,7 @@ def build_page(md_path):
     })
 
     content_html = md.convert(body)
+    content_html = rewrite_md_links(content_html, md_path)
     toc_html = md.toc
 
     # Post-process: style tables, callouts, lists, headings

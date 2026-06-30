@@ -17,6 +17,37 @@
     <!-- Alpine.js -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
+    <!-- Quick-jump navigation: highlight the active section on click and on scroll -->
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('sectionNav', () => ({
+                active: 'guides',
+                sections: ['guides', 'modules', 'learning-paths', 'the-core'],
+                init() {
+                    const observer = new IntersectionObserver((entries) => {
+                        entries.forEach((entry) => {
+                            if (entry.isIntersecting) {
+                                this.active = entry.target.id;
+                            }
+                        });
+                    }, { rootMargin: '-25% 0px -65% 0px', threshold: 0 });
+                    this.sections.forEach((id) => {
+                        const el = document.getElementById(id);
+                        if (el) { observer.observe(el); }
+                    });
+                },
+                setActive(id) {
+                    this.active = id;
+                },
+                navClass(id) {
+                    return this.active === id
+                        ? 'text-orange border-orange'
+                        : 'text-charcoal border-gray-200 hover:text-white hover:bg-orange hover:border-orange';
+                },
+            }));
+        });
+    </script>
+
     <!-- Tailwind Configuration -->
     <script>
         tailwind.config = {
@@ -163,13 +194,13 @@
     <!-- ============================================================ -->
     <!-- QUICK JUMP NAVIGATION                                         -->
     <!-- ============================================================ -->
-    <section class="bg-off-white border-b border-gray-200 sticky top-16 z-30">
+    <section x-data="sectionNav" class="bg-off-white border-b border-gray-200 shadow-md sticky top-16 z-30">
         <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
             <nav class="flex items-center gap-1 py-3 overflow-x-auto" aria-label="Section navigation">
-                <a href="#guides" class="flex-shrink-0 px-4 py-2 text-sm font-medium text-charcoal hover:text-white hover:bg-orange transition-all no-underline border-2 border-gray-200 hover:border-orange bg-white">Guides</a>
-                <a href="#modules" class="flex-shrink-0 px-4 py-2 text-sm font-medium text-charcoal hover:text-white hover:bg-orange transition-all no-underline border-2 border-gray-200 hover:border-orange bg-white">Modules</a>
-                <a href="#learning-paths" class="flex-shrink-0 px-4 py-2 text-sm font-medium text-charcoal hover:text-white hover:bg-orange transition-all no-underline border-2 border-gray-200 hover:border-orange bg-white">Learning Paths</a>
-                <a href="#the-core" class="flex-shrink-0 px-4 py-2 text-sm font-medium text-orange hover:text-white hover:bg-orange transition-all no-underline border-2 border-orange hover:border-orange bg-white">The Core</a>
+                <a href="#guides" @click="setActive('guides')" :class="navClass('guides')" :aria-current="active === 'guides' ? 'true' : null" class="flex-shrink-0 px-4 py-2 text-sm font-medium transition-all no-underline border-2 bg-white">Guides</a>
+                <a href="#modules" @click="setActive('modules')" :class="navClass('modules')" :aria-current="active === 'modules' ? 'true' : null" class="flex-shrink-0 px-4 py-2 text-sm font-medium transition-all no-underline border-2 bg-white">Modules</a>
+                <a href="#learning-paths" @click="setActive('learning-paths')" :class="navClass('learning-paths')" :aria-current="active === 'learning-paths' ? 'true' : null" class="flex-shrink-0 px-4 py-2 text-sm font-medium transition-all no-underline border-2 bg-white">Learning Paths</a>
+                <a href="#the-core" @click="setActive('the-core')" :class="navClass('the-core')" :aria-current="active === 'the-core' ? 'true' : null" class="flex-shrink-0 px-4 py-2 text-sm font-medium transition-all no-underline border-2 bg-white">The Core</a>
             </nav>
         </div>
     </section>
@@ -184,7 +215,7 @@
                 <svg class="w-5 h-5 text-orange flex-shrink-0" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="12,2 22,8 22,16 12,22 2,16 2,8"/></svg>
                 <h2 class="text-3xl sm:text-4xl font-bold text-charcoal">Guides</h2>
             </div>
-            <p class="text-lg text-charcoal-300 leading-relaxed max-w-5xl mb-12 whitespace-nowrap">
+            <p class="text-lg text-charcoal-300 leading-relaxed max-w-5xl mb-12">
                 Tutorials, how-to recipes, and architecture deep dives — everything you need to build on Magento 2.
             </p>
 
