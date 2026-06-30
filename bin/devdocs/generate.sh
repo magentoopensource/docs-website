@@ -71,4 +71,9 @@ else
 fi
 # WORK_DIR is removed by the EXIT trap.
 
+# Ensure the published tree stays web-readable. `rsync -a` (and cp -a) copy the
+# 0700 perms of the mktemp work dir onto $OUTPUT_HTML_DIR, which makes the web
+# server return 403 on /developer/. Force dirs traversable + files readable.
+chmod -R a+rX "$OUTPUT_HTML_DIR"
+
 echo "Done → $OUTPUT_HTML_DIR ($HTML_COUNT files)"
