@@ -134,15 +134,16 @@ class WebhookController extends Controller
                 }
             }
 
-            // Clear Laravel caches
+            // Clear and rebuild content-related caches. Routes are static (defined
+            // in routes/web.php) and never change on a docs content sync, so route
+            // caching is deliberately excluded: Artisan::call('route:cache') throws a
+            // TypeError at runtime when routes are already compiled as a
+            // CompiledRouteCollection, which crashed this handler.
             Artisan::call('cache:clear');
             Artisan::call('view:clear');
             Artisan::call('config:clear');
-            Artisan::call('route:clear');
 
-            // Rebuild caches
             Artisan::call('config:cache');
-            Artisan::call('route:cache');
             Artisan::call('view:cache');
 
             Log::info('Docs sync completed successfully', ['commit' => $currentCommit]);
@@ -154,7 +155,7 @@ class WebhookController extends Controller
                 'developer_docs' => $devDocsOutcome,
             ]);
 
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             Log::error('Docs sync failed: ' . $e->getMessage());
 
             return response()->json([
