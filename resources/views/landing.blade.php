@@ -129,7 +129,7 @@
             <div class="grid md:grid-cols-2 gap-6 lg:gap-8 max-w-5xl mx-auto">
 
                 {{-- Merchant Documentation Card --}}
-                <a href="/merchant" class="doc-card group block bg-white border-2 border-gray-200 hover:border-charcoal no-underline relative overflow-hidden">
+                <a href="/merchant" class="doc-card group block bg-white border-2 border-gray-200 hover:border-gold-600 no-underline relative overflow-hidden">
                     <div class="h-1.5 bg-gold"></div>
                     <div class="p-8 sm:p-10">
                         <div class="w-16 h-16 mb-6 relative">
