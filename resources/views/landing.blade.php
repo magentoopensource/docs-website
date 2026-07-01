@@ -58,6 +58,10 @@
             transform: translateY(-4px);
             box-shadow: 0 20px 40px rgba(0,0,0,0.12);
         }
+        /* The cards use hexagon SVGs as bullets; suppress the global "•" pseudo-bullet. */
+        .doc-card ul > li::before {
+            content: none;
+        }
     </style>
 </head>
 
