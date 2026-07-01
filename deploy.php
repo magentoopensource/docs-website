@@ -126,6 +126,55 @@ task('deploy:configure-webhook', function () {
     }
 });
 
+desc('Ensure Python venv and devdocs dependencies are installed on the server');
+task('deploy:setup-python-venv', function () {
+    $venvPath = '~/docs-python-venv';
+    $requirementsSrc = '{{release_path}}/bin/devdocs/requirements.txt';
+
+    // Create the venv if it does not exist (idempotent).
+    run("[ -d $venvPath ] || python3 -m venv $venvPath");
+
+    // Install/upgrade deps into the venv (idempotent — pip skips up-to-date packages).
+    run("$venvPath/bin/pip install -q -r $requirementsSrc");
+
+    // Record the venv's ABSOLUTE path in shared .env so the runtime webhook
+    // controller resolves it via config('services.devdocs.venv_path') deterministically,
+    // independent of PHP-FPM's HOME. deploy:optimize (config:cache) picks this up.
+    $venvAbs = trim(run('echo $HOME/docs-python-venv'));
+    $sharedEnv = '{{deploy_path}}/shared/.env';
+    if (test("grep -q '^DEVDOCS_VENV_PATH=' $sharedEnv")) {
+        run("sed -i 's#^DEVDOCS_VENV_PATH=.*#DEVDOCS_VENV_PATH=$venvAbs#' $sharedEnv");
+    } else {
+        run("echo 'DEVDOCS_VENV_PATH=$venvAbs' >> $sharedEnv");
+    }
+
+    writeln('✅ Python venv ready (DEVDOCS_VENV_PATH=' . $venvAbs . ')');
+});
+
+desc('Generate developer documentation HTML from checked-out content');
+task('deploy:generate-devdocs', function () {
+    $devSource = '{{deploy_path}}/shared/resources/docs/main/developer';
+
+    // Guard: skip silently when developer/ is absent so merchant-only
+    // deploys are completely unaffected.
+    if (!test("[ -d $devSource ]")) {
+        writeln('ℹ  developer/ content not present — skipping devdocs generation');
+        return;
+    }
+
+    $generateScript = '{{release_path}}/bin/devdocs/generate.sh';
+    $devOutput = '{{release_path}}/public/developer';
+    $venvBin = '~/docs-python-venv/bin';
+
+    // Fail-safe: a generation error is logged as a warning but does NOT abort the deploy.
+    try {
+        run("PATH=$venvBin:\$PATH bash $generateScript $devSource $devOutput");
+        writeln('✅ Developer docs generated successfully');
+    } catch (\Throwable $e) {
+        writeln('⚠️  Developer docs generation failed (non-fatal): ' . $e->getMessage());
+    }
+});
+
 desc('Clear and optimize Laravel caches');
 task('deploy:optimize', function () {
     cd('{{release_path}}');
@@ -189,7 +238,9 @@ after('deploy:npm-install', 'deploy:build-assets');
 after('deploy:build-assets', 'deploy:verify-assets');
 after('deploy:symlink', 'deploy:sync-docs');
 after('deploy:sync-docs', 'deploy:configure-webhook');  // Set webhook secret if provided
-after('deploy:configure-webhook', 'deploy:clear-opcache');  // Clear OPcache BEFORE rebuilding caches
+after('deploy:configure-webhook', 'deploy:setup-python-venv');    // Ensure Python venv for devdocs
+after('deploy:setup-python-venv', 'deploy:generate-devdocs');     // Generate developer HTML if content exists
+after('deploy:generate-devdocs', 'deploy:clear-opcache');  // Clear OPcache BEFORE rebuilding caches
 after('deploy:clear-opcache', 'deploy:optimize');   // Rebuild Laravel caches with fresh PHP
 after('deploy:optimize', 'deploy:health-check');
 
