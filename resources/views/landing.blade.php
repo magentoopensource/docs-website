@@ -278,7 +278,7 @@
                         <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M12 5l7 7-7 7"/></svg>
                     </div>
                     <div>
-                        <h3 class="font-bold text-charcoal group-hover:text-orange transition-colors mb-1">Docker Dev Environment</h3>
+                        <h3 class="font-bold text-charcoal group-hover:text-orange transition-colors mt-0 mb-1">Docker Dev Environment</h3>
                         <p class="text-sm text-charcoal-300">Set up a full Magento dev stack in Docker</p>
                     </div>
                 </a>
@@ -288,7 +288,7 @@
                         <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
                     </div>
                     <div>
-                        <h3 class="font-bold text-charcoal group-hover:text-orange transition-colors mb-1">Plugin System Deep Dive</h3>
+                        <h3 class="font-bold text-charcoal group-hover:text-orange transition-colors mt-0 mb-1">Plugin System Deep Dive</h3>
                         <p class="text-sm text-charcoal-300">Before/after/around interceptors explained</p>
                     </div>
                 </a>
@@ -298,7 +298,7 @@
                         <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
                     </div>
                     <div>
-                        <h3 class="font-bold text-charcoal group-hover:text-orange transition-colors mb-1">Catalog Module</h3>
+                        <h3 class="font-bold text-charcoal group-hover:text-orange transition-colors mt-0 mb-1">Catalog Module</h3>
                         <p class="text-sm text-charcoal-300">Architecture, plugins, execution flows</p>
                     </div>
                 </a>
@@ -308,7 +308,7 @@
                         <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/></svg>
                     </div>
                     <div>
-                        <h3 class="font-bold text-charcoal group-hover:text-charcoal-400 transition-colors mb-1">EAV System Architecture</h3>
+                        <h3 class="font-bold text-charcoal group-hover:text-charcoal-400 transition-colors mt-0 mb-1">EAV System Architecture</h3>
                         <p class="text-sm text-charcoal-300">How Magento stores entity attributes</p>
                     </div>
                 </a>
@@ -318,7 +318,7 @@
                         <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
                     </div>
                     <div>
-                        <h3 class="font-bold text-charcoal group-hover:text-orange transition-colors mb-1">Learning Paths</h3>
+                        <h3 class="font-bold text-charcoal group-hover:text-orange transition-colors mt-0 mb-1">Learning Paths</h3>
                         <p class="text-sm text-charcoal-300">Guided progression from beginner to expert</p>
                     </div>
                 </a>
@@ -328,7 +328,7 @@
                         <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
                     </div>
                     <div>
-                        <h3 class="font-bold text-charcoal group-hover:text-charcoal-400 transition-colors mb-1">Certifications</h3>
+                        <h3 class="font-bold text-charcoal group-hover:text-charcoal-400 transition-colors mt-0 mb-1">Certifications</h3>
                         <p class="text-sm text-charcoal-300">Study guides for all certification tracks</p>
                     </div>
                 </a>
