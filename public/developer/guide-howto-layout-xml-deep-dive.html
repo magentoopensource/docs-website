@@ -1,0 +1,1568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Layout XML Deep Dive: Mastering Magento's View Layer — Magento 2 Developer Documentation</title>
+    <meta name="description" content="Comprehensive guide to Magento 2 layout XML: handles, containers vs blocks, move/remove operations, UI components, debugging, and production-grade patterns">
+
+    <!-- Google Fonts: Inter Tight only. Courier New used for code. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Highlight.js: syntax highlighting for code blocks -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/php.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/ini.min.js"></script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        charcoal: {
+                            DEFAULT: '#2c2c2c', 50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6',
+                            300: '#6B6B6B', 400: '#474747', 500: '#2c2c2c', 600: '#262626',
+                            700: '#202020', 800: '#1c1c1c', 900: '#191919', 950: '#121212'
+                        },
+                        orange: {
+                            DEFAULT: '#D4551A', 50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad',
+                            300: '#f9ae78', 400: '#f58242', 500: '#f26423', 600: '#e34613',
+                            700: '#bc3312', 800: '#962a16', 900: '#792515', 950: '#411009'
+                        },
+                        yellow: {
+                            DEFAULT: '#B8860B', 50: '#fffdeb', 100: '#fdf9c8', 200: '#fbf38c',
+                            300: '#f8e651', 400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a',
+                            700: '#b1670c', 800: '#8f5111', 900: '#764311', 950: '#442204'
+                        },
+                        'off-white': '#FAFAFA',
+                    },
+                    fontFamily: {
+                        sans: ['Inter Tight', 'system-ui', '-apple-system', 'sans-serif'],
+                        mono: ['Courier New', 'Courier', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* ── Force light mode ── */
+        :root { color-scheme: light only; }
+
+        [x-cloak] { display: none !important; }
+
+        /* ── Scroll offset for sticky header ── */
+        .prose h2, .prose h3 { scroll-margin-top: 5rem; }
+
+        /* ── Code blocks: Bauhaus charcoal bg, no border-radius, highlight.js override ── */
+        .prose pre {
+            background-color: #2C2C2C !important;
+            border-radius: 0 !important;
+            padding: 1.25rem;
+            overflow-x: auto;
+            font-size: 0.875rem;
+            line-height: 1.7;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 1.5rem 0;
+        }
+        .prose pre code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            background: transparent !important;
+            padding: 0;
+                    color: #abb2bf;
+        }
+        /* Override highlight.js theme background to match Bauhaus charcoal */
+        .hljs {
+            background: #2C2C2C !important;
+            color: #abb2bf !important;
+            border-radius: 0 !important;
+        }
+
+        /* ── Inline code: charcoal bg, yellow text, no border-radius ── */
+        .prose code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.85em;
+        }
+        .prose :not(pre) > code {
+            background-color: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2em 0.45em;
+            border-radius: 0;
+        }
+
+        /* ── Step-code: same charcoal/yellow style for UI path chips ── */
+        .step-code {
+            background: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2rem 0.5rem;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            border-radius: 0;
+        }
+
+        /* ── Tables: no border-radius, charcoal header ── */
+        .prose table { width: 100%; border-collapse: collapse; }
+        .prose th {
+            background-color: #2C2C2C;
+            color: #ffffff;
+            font-weight: 600;
+            text-align: left;
+            padding: 0.75rem 1rem;
+            border-bottom: 2px solid #2C2C2C;
+            border-radius: 0;
+        }
+        .prose td { padding: 0.75rem 1rem; border-bottom: 1px solid #e5e5e5; }
+        .prose tr:hover { background-color: #fafafa; }
+
+        /* ── Blockquote: Bauhaus style — border-4 yellow, square, no left-only border ── */
+        .prose blockquote {
+            border: 4px solid #F1BC1B;
+            background-color: #ffffff;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+            border-radius: 0;
+        }
+        .prose blockquote p { margin: 0; }
+
+        /* ── Lists: hexagon bullets ── */
+        .prose ul { list-style: none; padding-left: 0; }
+        .prose ul li {
+            position: relative;
+            padding-left: 1.75rem;
+            margin-bottom: 0.4rem;
+            line-height: 1.7;
+        }
+        .prose ul li::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0.45em;
+            width: 10px;
+            height: 10px;
+            background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 2L21 7V17L12 22L3 17V7L12 2Z' stroke='%23F26423' stroke-width='2.5' stroke-linejoin='miter'/%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+        .prose ol { list-style-type: decimal; padding-left: 1.5rem; }
+        .prose li { margin-bottom: 0.4rem; }
+
+        /* ── Headings ── */
+        .prose h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            padding-top: 1.5rem;
+            border-top: 4px solid #F1BC1B;
+            color: #2C2C2C;
+        }
+        .prose h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+            color: #2C2C2C;
+        }
+        .prose h4 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #2C2C2C;
+        }
+        .prose p { margin-bottom: 1rem; line-height: 1.75; }
+        .prose a { color: #D4551A; text-decoration: none; }
+        .prose a:hover { color: #e34613; text-decoration: underline; }
+        .prose hr { border: none; border-top: 1px solid #e5e5e5; margin: 2rem 0; }
+
+        /* ── Callout boxes: Bauhaus — border-4 yellow, white bg, icon + title ── */
+        .callout-box {
+            background-color: #ffffff;
+            border: 4px solid #F1BC1B;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+        }
+        .callout-warning {
+            border-color: #D4551A;
+        }
+        .callout-important {
+            border-color: #2C2C2C;
+        }
+        .callout-box .callout-inner {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+        .callout-box .callout-title {
+            font-weight: 600;
+            color: #2C2C2C;
+            margin-bottom: 0.25rem;
+        }
+        .callout-box .callout-body {
+            font-size: 0.875rem;
+            line-height: 1.6;
+            color: rgba(44,44,44,0.85);
+        }
+
+        
+    
+        /* Code block copy button */
+        .code-wrapper {
+            position: relative;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            font-family: 'Inter Tight', system-ui, sans-serif;
+            background: rgba(255,255,255,0.1);
+            color: #abb2bf;
+            border: 1px solid rgba(255,255,255,0.15);
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.15s ease, background 0.15s ease;
+            z-index: 10;
+            line-height: 1.4;
+            border-radius: 4px;
+            user-select: none;
+        }
+        .code-wrapper:hover .copy-btn {
+            opacity: 1;
+        }
+        .copy-btn:hover,
+        .copy-btn:focus {
+            background: rgba(255,255,255,0.2);
+            color: #ffffff;
+            outline: 2px solid #D4551A;
+            outline-offset: 1px;
+        }
+        .copy-btn.copied {
+            color: #98c379;
+            background: rgba(152, 195, 121, 0.15);
+            opacity: 1;
+        }
+    
+        /* Right-hand TOC sidebar */
+        .toc-sidebar {
+            width: 14rem;
+            flex-shrink: 0;
+        }
+        .toc-sidebar a {
+            display: block;
+            padding: 0.375rem 0;
+            font-size: 0.8125rem;
+            line-height: 1.4;
+            color: #6b7280;
+            text-decoration: none;
+            transition: color 0.15s ease;
+            border-left: 2px solid transparent;
+            padding-left: 0.75rem;
+        }
+        .toc-sidebar a:hover {
+            color: #111827;
+        }
+        .toc-sidebar a.toc-active {
+            color: #ea580c;
+            border-left-color: #ea580c;
+            font-weight: 500;
+        }
+        .toc-sidebar a.toc-h3 {
+            padding-left: 1.5rem;
+            font-size: 0.75rem;
+        }
+        .toc-sidebar .toc-back-to-top {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e5e7eb;
+        }
+        .toc-sidebar .toc-back-to-top a {
+            border-left: none;
+            padding-left: 0;
+            font-weight: 500;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .toc-sidebar .toc-back-to-top a:hover {
+            color: #ea580c;
+        }
+    </style>
+</head>
+
+<body class="font-sans bg-off-white text-charcoal">
+
+    <!-- Shared header — single source of truth -->
+    <script src="includes/header.js"></script>
+
+    <!-- Breadcrumb — orange › separators -->
+    <div class="bg-white border-b border-gray-100">
+        <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <div class="flex items-center gap-2 text-sm flex-wrap">
+                <a href="index.html" class="text-orange hover:text-orange-600 transition-colors no-underline">Home</a> <span class="text-orange font-medium">›</span> <a href="index.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">Guides</a> <span class="text-orange font-medium">›</span> <a href="how-to-guides.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">How-To Guides</a> <span class="text-orange font-medium">›</span> <span class="text-charcoal font-medium">Layout XML Deep Dive: Mastering Magento's View Layer</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="flex gap-8">
+
+            <!-- Left Sidebar (desktop) -->
+            <aside class="hidden lg:block w-64 flex-shrink-0">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4">How-To Guides</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="guide-howto-admin-ui-components.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Building Admin UI Components in ...</a></li>
+<li class="pl-0"><a href="guide-howto-cicd-deployment.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">CI/CD Deployment Pipelines for M...</a></li>
+<li class="pl-0"><a href="guide-howto-cron-jobs.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Cron Jobs Implementation: Buildi...</a></li>
+<li class="pl-0"><a href="guide-howto-email-templates.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Email Templates Customization</a></li>
+<li class="pl-0"><a href="guide-howto-erp-integration.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">ERP Integration Patterns for Mag...</a></li>
+<li class="pl-0"><a href="guide-howto-full-page-cache-strategy.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Full Page Cache Strategy for Hig...</a></li>
+<li class="pl-0"><a href="guide-howto-import-export.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Import/Export System Deep Dive</a></li>
+<li class="pl-0"><a href="guide-howto-layout-xml-deep-dive.html" class="block px-3 py-2 text-sm text-orange font-semibold bg-orange-50 border-l-4 border-orange pl-2 transition-colors no-underline">Layout XML Deep Dive: Mastering ...</a></li>
+<li class="pl-0"><a href="guide-howto-multi-store-setup.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Multi-Store Configuration Mastery</a></li>
+<li class="pl-0"><a href="guide-howto-security-checklist.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Security Checklist for Custom Mo...</a></li>
+<li class="pl-0"><a href="guide-howto-testing-strategies.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Comprehensive Testing Strategies...</a></li>
+</ul>
+<h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4 mt-8">Guide Sections</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="tutorials.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Tutorials</a></li>
+<li class="pl-0"><a href="how-to-guides.html" class="block px-3 py-2 text-sm text-orange font-semibold bg-orange-50 border-l-4 border-orange pl-2 transition-colors no-underline">How-To Guides</a></li>
+<li class="pl-0"><a href="architecture.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Architecture</a></li>
+<li class="pl-0"><a href="references.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">References</a></li>
+</ul>
+                </div>
+            </aside>
+
+            <!-- Article — square corners, border-t-4 orange accent -->
+            <main id="main-content" class="flex-1 min-w-0">
+                <article class="bg-white shadow-sm border border-gray-100 border-t-4 border-t-orange p-8 md:p-12">
+                    <!-- Title block -->
+                    <div class="mb-8">
+                        <span class="inline-block px-3 py-1.5 text-xs font-medium bg-yellow-50 text-yellow-800 border border-yellow-200">How-To</span>
+                        <h1 class="text-3xl md:text-4xl font-extrabold text-charcoal mt-3 mb-3">Layout XML Deep Dive: Mastering Magento's View Layer</h1>
+                        <p class="text-charcoal-300 text-lg mb-4">Comprehensive guide to Magento 2 layout XML: handles, containers vs blocks, move/remove operations, UI components, debugging, and production-grade patterns</p>
+                        <!-- Meta pills -->
+                        <div class="flex flex-wrap gap-2"><span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-yellow-50 text-yellow-800"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>Intermediate</span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-orange-50 text-orange-700"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>50 minutes</span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-charcoal text-white">Magento 2.4.7+</span></div>
+                    </div>
+
+                    <hr class="border-0 border-t border-gray-100 mb-8">
+
+                    <!-- Content -->
+                    <div class="prose max-w-none">
+                        <h1 id="layout-xml-deep-dive-mastering-magentos-view-layer">Layout XML Deep Dive: Mastering Magento's View Layer</h1>
+<h2 id="problem-statement">Problem Statement</h2>
+<p>Magento's layout system is <strong>declarative, modular, and powerful</strong>—but also <strong>complex and error-prone</strong>. Common developer struggles:</p>
+<ul>
+<li><strong>Layout handle confusion:</strong> When does <code>default.xml</code> apply vs <code>catalog_product_view.xml</code>?</li>
+<li><strong>Container vs block misuse:</strong> Adding a block to a container that doesn't exist, or treating containers as blocks</li>
+<li><strong>Overrides gone wrong:</strong> <code>&lt;move&gt;</code> and <code>&lt;remove&gt;</code> directives that break third-party themes or cause layout errors</li>
+<li><strong>UI Component integration:</strong> Mixing traditional blocks with UI Components leads to inconsistent patterns</li>
+<li><strong>Debugging black holes:</strong> Silent layout failures with no error messages, requiring manual XML inspection</li>
+</ul>
+<p>A poorly structured layout leads to:
+- <strong>Broken pages</strong> (missing blocks, incorrect ordering)
+- <strong>Upgrade fragility</strong> (custom layouts break on Magento updates)
+- <strong>Theme conflicts</strong> (multiple modules overriding the same layout elements)
+- <strong>Performance issues</strong> (unnecessary block rendering, redundant ESI holes)</p>
+<p>This guide provides a <strong>complete mental model</strong> of Magento's layout XML system, from fundamentals to production-grade patterns:</p>
+<ol>
+<li><strong>Layout Handles:</strong> Full action name, page type, custom handles, and execution order</li>
+<li><strong>Containers vs Blocks:</strong> Structural differences, when to use each, and nesting rules</li>
+<li><strong>Layout Directives:</strong> <code>&lt;move&gt;</code>, <code>&lt;remove&gt;</code>, <code>&lt;referenceBlock&gt;</code>, <code>&lt;referenceContainer&gt;</code>, and conflict resolution</li>
+<li><strong>Arguments and Attributes:</strong> Passing data to blocks, <code>data-mage-init</code>, and view models</li>
+<li><strong>UI Components in Layout:</strong> Integrating grids, forms, and listings</li>
+<li><strong>Layout Debugging:</strong> Template hints, layout update log, and XML validation</li>
+<li><strong>Best Practices:</strong> Upgrade-safe patterns, theme overrides, and anti-patterns to avoid</li>
+<li><strong>Real-World Examples:</strong> Product page customization, checkout step addition, admin grid modification</li>
+</ol>
+<p>By the end, you'll confidently <strong>architect complex layouts</strong>, <strong>debug layout issues in minutes</strong>, and <strong>build upgrade-safe, theme-compatible modules</strong>.</p>
+<hr />
+<h2 id="prerequisites">Prerequisites</h2>
+<ul>
+<li>Magento 2.4.7+ (Adobe Commerce or Open Source)</li>
+<li>PHP 8.2+</li>
+<li>Working knowledge of XML syntax</li>
+<li>Familiarity with Magento module structure (<code>view/frontend/layout/</code>, blocks, templates)</li>
+<li>Access to Magento Developer Mode for debugging</li>
+</ul>
+<p><strong>Tools:</strong>
+- XML validator (IDE with XSD support, e.g., PhpStorm, VS Code + XML extension)
+- Browser DevTools (Inspect Element)
+- <code>bin/magento dev:template-hints:enable</code> (layout debugging)
+- <code>magerun2</code> CLI tool (optional, for layout inspection)</p>
+<hr />
+<h2 id="step-by-step-solution">Step-by-Step Solution</h2>
+<h3 id="1-layout-handles-execution-order-and-scope">1. Layout Handles: Execution Order and Scope</h3>
+<p><strong>What Are Layout Handles?</strong></p>
+<p>A <strong>layout handle</strong> is an XML file name that determines <strong>when and where</strong> layout instructions are applied. Magento merges multiple XML files based on the current request's handles.</p>
+<p><strong>Handle Types:</strong></p>
+<div class="overflow-x-auto my-6 border border-gray-200"><table class="min-w-full">
+<thead>
+<tr>
+<th>Handle Type</th>
+<th>File Name</th>
+<th>Applies To</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Default</strong></td>
+<td><code>default.xml</code></td>
+<td>Every page (global)</td>
+<td>Header, footer, CSS/JS includes</td>
+</tr>
+<tr>
+<td><strong>Page Type</strong></td>
+<td><code>cms_page_view.xml</code></td>
+<td>All CMS pages</td>
+<td>CMS-specific breadcrumbs</td>
+</tr>
+<tr>
+<td><strong>Full Action Name</strong></td>
+<td><code>catalog_product_view.xml</code></td>
+<td>Product detail page</td>
+<td>Product image gallery, tabs</td>
+</tr>
+<tr>
+<td><strong>Entity-Specific</strong></td>
+<td><code>catalog_product_view_id_123.xml</code></td>
+<td>Product ID 123 only</td>
+<td>Rarely used, testing only</td>
+</tr>
+<tr>
+<td><strong>Custom Handle</strong></td>
+<td>Programmatically added</td>
+<td>Conditional logic</td>
+<td>A/B testing, customer group</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Execution Order (Merge Sequence):</strong></p>
+<ol>
+<li><code>default.xml</code> (global, all pages)</li>
+<li>Page-type handle (e.g., <code>catalog_category_view.xml</code>)</li>
+<li>Full action name handle (e.g., <code>catalog_product_view.xml</code>)</li>
+<li>Custom handles (added via observers or layout processors)</li>
+<li>Theme-specific overrides (theme's <code>default.xml</code> overrides module's)</li>
+</ol>
+<p><strong>Example: Product Page Load Sequence</strong></p>
+<pre><code>Request: https://magento.local/product-page.html
+
+Handles applied (in order):
+1. default.xml (all pages)
+2. catalog_product_view.xml (product pages)
+3. [custom handles if registered]
+
+Final layout = merge of all XML files with these handles
+</code></pre>
+<p><strong>Adding Custom Handles Programmatically:</strong></p>
+<pre><code class="language-php">&lt;?php
+namespace MyVendor\MyModule\Observer;
+
+use Magento\Framework\Event\Observer;
+use Magento\Framework\Event\ObserverInterface;
+
+class AddCustomLayoutHandle implements ObserverInterface
+{
+    public function __construct(
+        private \Magento\Customer\Model\Session $customerSession
+    ) {}
+
+    public function execute(Observer $observer)
+    {
+        $layout = $observer-&gt;getEvent()-&gt;getLayout();
+        $fullActionName = $observer-&gt;getEvent()-&gt;getFullActionName();
+
+        // Add handle for premium customers on product pages
+        if ($fullActionName === 'catalog_product_view') {
+            if ($this-&gt;customerSession-&gt;getCustomer()-&gt;getGroupId() == 4) { // Wholesale group
+                $layout-&gt;getUpdate()-&gt;addHandle('catalog_product_view_wholesale');
+            }
+        }
+    }
+}
+</code></pre>
+<pre><code class="language-xml">&lt;!-- etc/frontend/events.xml --&gt;
+&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;config xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+        xsi:noNamespaceSchemaLocation=&quot;urn:magento:framework:Event/etc/events.xsd&quot;&gt;
+    &lt;event name=&quot;layout_load_before&quot;&gt;
+        &lt;observer name=&quot;add_custom_layout_handle&quot;
+                  instance=&quot;MyVendor\MyModule\Observer\AddCustomLayoutHandle&quot;/&gt;
+    &lt;/event&gt;
+&lt;/config&gt;
+</code></pre>
+<pre><code class="language-xml">&lt;!-- view/frontend/layout/catalog_product_view_wholesale.xml --&gt;
+&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;page xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+      xsi:noNamespaceSchemaLocation=&quot;urn:magento:framework:View/Layout/etc/page_configuration.xsd&quot;&gt;
+    &lt;body&gt;
+        &lt;referenceContainer name=&quot;product.info.main&quot;&gt;
+            &lt;block class=&quot;MyVendor\MyModule\Block\Wholesale\PriceTier&quot;
+                   name=&quot;product.wholesale.price&quot;
+                   template=&quot;MyVendor_MyModule::product/wholesale-price.phtml&quot;
+                   after=&quot;product.info.price&quot;/&gt;
+        &lt;/referenceContainer&gt;
+    &lt;/body&gt;
+&lt;/page&gt;
+</code></pre>
+<p><strong>Checklist:</strong>
+- [ ] Understand handle execution order (default → page type → full action name → custom)
+- [ ] Use <code>default.xml</code> sparingly (only for truly global elements)
+- [ ] Create page-specific layouts in correct files (e.g., <code>catalog_product_view.xml</code> for product pages)
+- [ ] Test custom handles with different customer groups/conditions</p>
+<hr />
+<h3 id="2-containers-vs-blocks-structure-and-purpose">2. Containers vs Blocks: Structure and Purpose</h3>
+<p><strong>Containers:</strong>
+- <strong>Structural elements</strong>: Wrap content with HTML tags (e.g., <code>&lt;div&gt;</code>, <code>&lt;section&gt;</code>)
+- <strong>No direct output</strong>: Cannot have templates or render logic
+- <strong>Hold blocks or other containers</strong>
+- <strong>Use case:</strong> Layout structure, responsive wrappers</p>
+<p><strong>Blocks:</strong>
+- <strong>Render content</strong>: Have PHP class and <code>.phtml</code> template
+- <strong>Cannot contain containers</strong> (only other blocks)
+- <strong>Use case:</strong> Actual HTML output (widgets, product info, forms)</p>
+<p><strong>XML Syntax:</strong></p>
+<pre><code class="language-xml">&lt;!-- Container: htmlTag defines wrapper element --&gt;
+&lt;container name=&quot;header.container&quot; htmlTag=&quot;header&quot; htmlClass=&quot;page-header&quot;&gt;
+    &lt;!-- Blocks inside container --&gt;
+    &lt;block class=&quot;Magento\Theme\Block\Html\Header\Logo&quot; name=&quot;logo&quot;/&gt;
+    &lt;container name=&quot;header.panel&quot; htmlTag=&quot;div&quot; htmlClass=&quot;header panel&quot;&gt;
+        &lt;block class=&quot;Magento\Customer\Block\Account\Link&quot; name=&quot;customer-link&quot;/&gt;
+    &lt;/container&gt;
+&lt;/container&gt;
+
+&lt;!-- Block: class + template --&gt;
+&lt;block class=&quot;Magento\Catalog\Block\Product\View&quot; name=&quot;product.info&quot;
+       template=&quot;Magento_Catalog::product/view/details.phtml&quot;&gt;
+    &lt;!-- Nested blocks (child blocks) --&gt;
+    &lt;block class=&quot;Magento\Catalog\Block\Product\View\Description&quot;
+           name=&quot;product.description&quot;
+           template=&quot;Magento_Catalog::product/view/attribute.phtml&quot;/&gt;
+&lt;/block&gt;
+</code></pre>
+<p><strong>Rendered Output:</strong></p>
+<pre><code class="language-html">&lt;!-- Container with htmlTag=&quot;header&quot; --&gt;
+&lt;header class=&quot;page-header&quot;&gt;
+    &lt;!-- Block: logo --&gt;
+    &lt;a href=&quot;/&quot; class=&quot;logo&quot;&gt;...&lt;/a&gt;
+
+    &lt;!-- Nested container --&gt;
+    &lt;div class=&quot;header panel&quot;&gt;
+        &lt;!-- Block: customer-link --&gt;
+        &lt;a href=&quot;/customer/account/&quot;&gt;My Account&lt;/a&gt;
+    &lt;/div&gt;
+&lt;/header&gt;
+</code></pre>
+<p><strong>Key Differences:</strong></p>
+<div class="overflow-x-auto my-6 border border-gray-200"><table class="min-w-full">
+<thead>
+<tr>
+<th>Feature</th>
+<th>Container</th>
+<th>Block</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Has template</strong></td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><strong>Has PHP class</strong></td>
+<td>No (uses generic <code>Container</code> class)</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><strong>Renders HTML</strong></td>
+<td>Only wrapper tag</td>
+<td>Full template output</td>
+</tr>
+<tr>
+<td><strong>Can contain containers</strong></td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr>
+<td><strong>Can contain blocks</strong></td>
+<td>Yes</td>
+<td>Yes (child blocks)</td>
+</tr>
+<tr>
+<td><strong>Use <code>&lt;referenceContainer&gt;</code></strong></td>
+<td>Yes</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><strong>Use <code>&lt;referenceBlock&gt;</code></strong></td>
+<td>N/A</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Common Mistake: Treating Containers as Blocks</strong></p>
+<pre><code class="language-xml">&lt;!-- WRONG: Trying to add template to container --&gt;
+&lt;referenceContainer name=&quot;content&quot;&gt;
+    &lt;container name=&quot;my.container&quot; template=&quot;MyVendor_MyModule::container.phtml&quot;/&gt;
+    &lt;!-- ERROR: Containers cannot have templates --&gt;
+&lt;/referenceContainer&gt;
+
+&lt;!-- CORRECT: Add block inside container --&gt;
+&lt;referenceContainer name=&quot;content&quot;&gt;
+    &lt;block class=&quot;Magento\Framework\View\Element\Template&quot;
+           name=&quot;my.block&quot;
+           template=&quot;MyVendor_MyModule::content.phtml&quot;/&gt;
+&lt;/referenceContainer&gt;
+</code></pre>
+<p><strong>Checklist:</strong>
+- [ ] Use <strong>containers</strong> for structural layout (headers, sidebars, wrappers)
+- [ ] Use <strong>blocks</strong> for actual content rendering (product details, forms, widgets)
+- [ ] Never try to add <code>template</code> attribute to <code>&lt;container&gt;</code>
+- [ ] Use <code>&lt;referenceContainer&gt;</code> to modify containers, <code>&lt;referenceBlock&gt;</code> for blocks</p>
+<hr />
+<h3 id="3-layout-directives-move-remove-reference">3. Layout Directives: Move, Remove, Reference</h3>
+<p><strong>Common Directives:</strong></p>
+<h4 id="referencecontainer-referenceblock-modify-existing-elements"><code>&lt;referenceContainer&gt;</code> / <code>&lt;referenceBlock&gt;</code>: Modify Existing Elements</h4>
+<pre><code class="language-xml">&lt;!-- Modify existing container --&gt;
+&lt;referenceContainer name=&quot;header.container&quot;&gt;
+    &lt;!-- Add new block to existing container --&gt;
+    &lt;block class=&quot;MyVendor\MyModule\Block\CustomHeader&quot;
+           name=&quot;custom.header&quot;
+           template=&quot;MyVendor_MyModule::custom-header.phtml&quot;
+           before=&quot;-&quot;/&gt; &lt;!-- before=&quot;-&quot; means first position --&gt;
+&lt;/referenceContainer&gt;
+
+&lt;!-- Modify existing block --&gt;
+&lt;referenceBlock name=&quot;product.info.price&quot;&gt;
+    &lt;!-- Change template --&gt;
+    &lt;action method=&quot;setTemplate&quot;&gt;
+        &lt;argument name=&quot;template&quot; xsi:type=&quot;string&quot;&gt;MyVendor_MyModule::product/price.phtml&lt;/argument&gt;
+    &lt;/action&gt;
+&lt;/referenceBlock&gt;
+</code></pre>
+<h4 id="move-reposition-elements"><code>&lt;move&gt;</code>: Reposition Elements</h4>
+<pre><code class="language-xml">&lt;!-- Move block to different container --&gt;
+&lt;move element=&quot;product.info.stock.sku&quot;
+      destination=&quot;product.info.main&quot;
+      after=&quot;product.info.price&quot;/&gt;
+
+&lt;!-- Move to first position --&gt;
+&lt;move element=&quot;breadcrumbs&quot; destination=&quot;page.top&quot; before=&quot;-&quot;/&gt;
+
+&lt;!-- Move to last position --&gt;
+&lt;move element=&quot;footer.links&quot; destination=&quot;footer&quot; after=&quot;-&quot;/&gt;
+</code></pre>
+<p><strong>Important:</strong> <code>&lt;move&gt;</code> <strong>does not copy</strong>—it relocates. The element is removed from its original location.</p>
+<h4 id="remove-hide-elements"><code>&lt;remove&gt;</code>: Hide Elements</h4>
+<pre><code class="language-xml">&lt;!-- Remove block (doesn't render) --&gt;
+&lt;remove name=&quot;product.info.review&quot;/&gt;
+
+&lt;!-- Remove multiple blocks --&gt;
+&lt;referenceBlock name=&quot;catalog.compare.sidebar&quot; remove=&quot;true&quot;/&gt;
+&lt;referenceBlock name=&quot;wishlist.sidebar&quot; remove=&quot;true&quot;/&gt;
+</code></pre>
+<p><strong>Important:</strong> <code>&lt;remove&gt;</code> only hides the element in the <strong>current layout handle</strong>. It can be re-enabled in other handles.</p>
+<h4 id="arguments-pass-data-to-blocks"><code>&lt;arguments&gt;</code>: Pass Data to Blocks</h4>
+<pre><code class="language-xml">&lt;block class=&quot;MyVendor\MyModule\Block\CustomBlock&quot; name=&quot;custom.block&quot;&gt;
+    &lt;arguments&gt;
+        &lt;!-- Simple string --&gt;
+        &lt;argument name=&quot;title&quot; xsi:type=&quot;string&quot;&gt;Custom Title&lt;/argument&gt;
+
+        &lt;!-- Number --&gt;
+        &lt;argument name=&quot;limit&quot; xsi:type=&quot;number&quot;&gt;10&lt;/argument&gt;
+
+        &lt;!-- Boolean --&gt;
+        &lt;argument name=&quot;show_description&quot; xsi:type=&quot;boolean&quot;&gt;true&lt;/argument&gt;
+
+        &lt;!-- Array --&gt;
+        &lt;argument name=&quot;config&quot; xsi:type=&quot;array&quot;&gt;
+            &lt;item name=&quot;enabled&quot; xsi:type=&quot;boolean&quot;&gt;true&lt;/item&gt;
+            &lt;item name=&quot;mode&quot; xsi:type=&quot;string&quot;&gt;grid&lt;/item&gt;
+        &lt;/argument&gt;
+
+        &lt;!-- Object (injected via DI) --&gt;
+        &lt;argument name=&quot;viewModel&quot; xsi:type=&quot;object&quot;&gt;MyVendor\MyModule\ViewModel\CustomViewModel&lt;/argument&gt;
+    &lt;/arguments&gt;
+&lt;/block&gt;
+</code></pre>
+<p><strong>Accessing Arguments in Block:</strong></p>
+<pre><code class="language-php">&lt;?php
+namespace MyVendor\MyModule\Block;
+
+use Magento\Framework\View\Element\Template;
+
+class CustomBlock extends Template
+{
+    public function getTitle(): string
+    {
+        return $this-&gt;getData('title') ?: 'Default Title';
+    }
+
+    public function getLimit(): int
+    {
+        return (int)$this-&gt;getData('limit');
+    }
+
+    public function getConfig(): array
+    {
+        return $this-&gt;getData('config') ?: [];
+    }
+
+    public function getViewModel(): \MyVendor\MyModule\ViewModel\CustomViewModel
+    {
+        return $this-&gt;getData('viewModel');
+    }
+}
+</code></pre>
+<p><strong>Checklist:</strong>
+- [ ] Use <code>&lt;referenceBlock&gt;</code> or <code>&lt;referenceContainer&gt;</code> to modify existing elements
+- [ ] Use <code>&lt;move&gt;</code> to reposition elements (not copy)
+- [ ] Use <code>&lt;remove&gt;</code> to hide elements (can be re-enabled in other handles)
+- [ ] Pass data to blocks via <code>&lt;arguments&gt;</code> (preferred over hardcoding in blocks)
+- [ ] Use <code>xsi:type</code> to specify argument type (string, number, boolean, array, object)</p>
+<hr />
+<h3 id="4-best-practices-positioning-and-conflict-avoidance">4. Best Practices: Positioning and Conflict Avoidance</h3>
+<p><strong>Positioning Attributes:</strong></p>
+<div class="overflow-x-auto my-6 border border-gray-200"><table class="min-w-full">
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Effect</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>before="-"</code></td>
+<td>First position</td>
+<td>Show banner at top of page</td>
+</tr>
+<tr>
+<td><code>after="-"</code></td>
+<td>Last position</td>
+<td>Show disclaimer at bottom</td>
+</tr>
+<tr>
+<td><code>before="element.name"</code></td>
+<td>Before specific element</td>
+<td>Show custom block before price</td>
+</tr>
+<tr>
+<td><code>after="element.name"</code></td>
+<td>After specific element</td>
+<td>Show reviews after description</td>
+</tr>
+<tr>
+<td>No attribute</td>
+<td>Order undefined (risky)</td>
+<td>Avoid in production</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Conflict Avoidance:</strong></p>
+<p><strong>Problem:</strong> Two modules both try to move the same block.</p>
+<pre><code class="language-xml">&lt;!-- Module A: Move breadcrumbs to header --&gt;
+&lt;move element=&quot;breadcrumbs&quot; destination=&quot;header.container&quot; after=&quot;-&quot;/&gt;
+
+&lt;!-- Module B: Move breadcrumbs to footer --&gt;
+&lt;move element=&quot;breadcrumbs&quot; destination=&quot;footer&quot; before=&quot;-&quot;/&gt;
+
+&lt;!-- Result: Last move wins (Module B in this case, alphabetical module load order) --&gt;
+</code></pre>
+<p><strong>Solution: Use <code>&lt;referenceBlock&gt;</code> Instead of Moving</strong></p>
+<pre><code class="language-xml">&lt;!-- Module A: Add breadcrumbs to header without moving original --&gt;
+&lt;referenceContainer name=&quot;header.container&quot;&gt;
+    &lt;block class=&quot;Magento\Theme\Block\Html\Breadcrumbs&quot;
+           name=&quot;breadcrumbs.header&quot;
+           template=&quot;Magento_Theme::html/breadcrumbs.phtml&quot;/&gt;
+&lt;/referenceContainer&gt;
+
+&lt;!-- Module B: Keep original breadcrumbs in default position --&gt;
+&lt;!-- No conflict --&gt;
+</code></pre>
+<p><strong>Upgrade-Safe Patterns:</strong></p>
+<pre><code class="language-xml">&lt;!-- ANTI-PATTERN: Referencing Luma-specific blocks (breaks on other themes) --&gt;
+&lt;referenceContainer name=&quot;columns.top&quot;&gt;
+    &lt;!-- columns.top doesn't exist in all themes --&gt;
+&lt;/referenceContainer&gt;
+
+&lt;!-- BETTER: Check if container exists in your module's layout --&gt;
+&lt;referenceContainer name=&quot;content&quot;&gt;
+    &lt;!-- content exists in all themes --&gt;
+    &lt;block class=&quot;MyVendor\MyModule\Block\Custom&quot; name=&quot;my.block&quot;/&gt;
+&lt;/referenceContainer&gt;
+
+&lt;!-- BEST: Use theme-agnostic containers --&gt;
+&lt;!-- See Magento\Theme\view\frontend\layout\default.xml for universal containers:
+     - page.wrapper
+     - main.content
+     - footer
+--&gt;
+</code></pre>
+<p><strong>Checklist:</strong>
+- [ ] Always specify <code>before</code> or <code>after</code> for predictable positioning
+- [ ] Avoid moving blocks from core modules (conflicts with other extensions)
+- [ ] Reference only containers that exist in <strong>all themes</strong> (content, footer, header)
+- [ ] Test layout with multiple themes (Luma, Blank, custom)</p>
+<hr />
+<h3 id="5-ui-components-in-layout">5. UI Components in Layout</h3>
+<p><strong>UI Components</strong> (grids, forms, listings) are XML-configured JavaScript components. Integrating them into layout requires <code>uiComponent</code> block.</p>
+<p><strong>Example: Admin Product Grid</strong></p>
+<pre><code class="language-xml">&lt;!-- view/adminhtml/layout/catalog_product_index.xml --&gt;
+&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;page xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+      xsi:noNamespaceSchemaLocation=&quot;urn:magento:framework:View/Layout/etc/page_configuration.xsd&quot;&gt;
+    &lt;body&gt;
+        &lt;referenceContainer name=&quot;content&quot;&gt;
+            &lt;!-- UI Component container block --&gt;
+            &lt;uiComponent name=&quot;product_listing&quot;/&gt;
+        &lt;/referenceContainer&gt;
+    &lt;/body&gt;
+&lt;/page&gt;
+</code></pre>
+<p><strong>UI Component Definition:</strong></p>
+<pre><code class="language-xml">&lt;!-- view/adminhtml/ui_component/product_listing.xml --&gt;
+&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;listing xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+         xsi:noNamespaceSchemaLocation=&quot;urn:magento:module:Magento_Ui:etc/ui_configuration.xsd&quot;&gt;
+    &lt;argument name=&quot;data&quot; xsi:type=&quot;array&quot;&gt;
+        &lt;item name=&quot;js_config&quot; xsi:type=&quot;array&quot;&gt;
+            &lt;item name=&quot;provider&quot; xsi:type=&quot;string&quot;&gt;product_listing.product_listing_data_source&lt;/item&gt;
+        &lt;/item&gt;
+    &lt;/argument&gt;
+
+    &lt;dataSource name=&quot;product_listing_data_source&quot;&gt;
+        &lt;argument name=&quot;dataProvider&quot; xsi:type=&quot;configurableObject&quot;&gt;
+            &lt;argument name=&quot;class&quot; xsi:type=&quot;string&quot;&gt;Magento\Catalog\Ui\DataProvider\Product\ProductDataProvider&lt;/argument&gt;
+            &lt;argument name=&quot;name&quot; xsi:type=&quot;string&quot;&gt;product_listing_data_source&lt;/argument&gt;
+        &lt;/argument&gt;
+    &lt;/dataSource&gt;
+
+    &lt;columns name=&quot;product_columns&quot;&gt;
+        &lt;column name=&quot;entity_id&quot;&gt;
+            &lt;argument name=&quot;data&quot; xsi:type=&quot;array&quot;&gt;
+                &lt;item name=&quot;config&quot; xsi:type=&quot;array&quot;&gt;
+                    &lt;item name=&quot;label&quot; xsi:type=&quot;string&quot; translate=&quot;true&quot;&gt;ID&lt;/item&gt;
+                &lt;/item&gt;
+            &lt;/argument&gt;
+        &lt;/column&gt;
+        &lt;column name=&quot;name&quot;&gt;
+            &lt;argument name=&quot;data&quot; xsi:type=&quot;array&quot;&gt;
+                &lt;item name=&quot;config&quot; xsi:type=&quot;array&quot;&gt;
+                    &lt;item name=&quot;label&quot; xsi:type=&quot;string&quot; translate=&quot;true&quot;&gt;Name&lt;/item&gt;
+                &lt;/item&gt;
+            &lt;/argument&gt;
+        &lt;/column&gt;
+    &lt;/columns&gt;
+&lt;/listing&gt;
+</code></pre>
+<p><strong>Modifying Existing UI Components:</strong></p>
+<pre><code class="language-xml">&lt;!-- Add custom column to product grid --&gt;
+&lt;referenceBlock name=&quot;product_listing&quot;&gt;
+    &lt;arguments&gt;
+        &lt;argument name=&quot;data&quot; xsi:type=&quot;array&quot;&gt;
+            &lt;item name=&quot;config&quot; xsi:type=&quot;array&quot;&gt;
+                &lt;item name=&quot;columns&quot; xsi:type=&quot;array&quot;&gt;
+                    &lt;item name=&quot;custom_column&quot; xsi:type=&quot;array&quot;&gt;
+                        &lt;item name=&quot;label&quot; xsi:type=&quot;string&quot; translate=&quot;true&quot;&gt;Custom Data&lt;/item&gt;
+                        &lt;item name=&quot;sortOrder&quot; xsi:type=&quot;number&quot;&gt;100&lt;/item&gt;
+                    &lt;/item&gt;
+                &lt;/item&gt;
+            &lt;/item&gt;
+        &lt;/argument&gt;
+    &lt;/arguments&gt;
+&lt;/referenceBlock&gt;
+</code></pre>
+<p><strong>Frontend UI Component (Customer Sections):</strong></p>
+<pre><code class="language-xml">&lt;!-- view/frontend/layout/default.xml --&gt;
+&lt;referenceContainer name=&quot;before.body.end&quot;&gt;
+    &lt;block class=&quot;Magento\Framework\View\Element\Template&quot;
+           name=&quot;customer-data-init&quot;
+           template=&quot;Magento_Customer::js/customer-data.phtml&quot;/&gt;
+&lt;/referenceContainer&gt;
+</code></pre>
+<p><strong>Checklist:</strong>
+- [ ] Use <code>&lt;uiComponent name="..."/&gt;</code> to embed UI Component in layout
+- [ ] Define UI Component XML in <code>view/adminhtml/ui_component/</code> or <code>view/frontend/ui_component/</code>
+- [ ] Modify existing UI Components via <code>&lt;referenceBlock&gt;</code> + <code>&lt;arguments&gt;</code>
+- [ ] Test UI Component rendering in browser DevTools (check for JS errors)</p>
+<hr />
+<h3 id="6-layout-debugging-tools-and-techniques">6. Layout Debugging: Tools and Techniques</h3>
+<p><strong>Enable Template Hints:</strong></p>
+<pre><code class="language-bash"># Enable template hints + block names (dev mode only)
+bin/magento dev:template-hints:enable
+
+# Disable
+bin/magento dev:template-hints:disable
+
+# Check status
+bin/magento dev:template-hints:status
+</code></pre>
+<p><strong>Output:</strong></p>
+<p>Hovering over elements shows:
+- Template path: <code>Magento_Catalog::product/view/details.phtml</code>
+- Block class: <code>Magento\Catalog\Block\Product\View</code>
+- Block name: <code>product.info</code></p>
+<p><strong>Inspect Layout XML Merge:</strong></p>
+<pre><code class="language-bash"># Generate merged layout XML for specific handle
+bin/magento dev:xml:convert view/frontend/layout/catalog_product_view.xml
+
+# Or use n98-magerun2 (third-party tool, not a core Magento command)
+n98-magerun2.phar dev:console &quot;echo \Magento\Framework\App\ObjectManager::getInstance()-&gt;get(\Magento\Framework\View\Layout::class)-&gt;getXmlString();&quot;
+</code></pre>
+<p><strong>Output:</strong> Shows final XML after all merges (useful to see which module/theme modified what).</p>
+<p><strong>Common Layout Errors:</strong></p>
+<div class="overflow-x-auto my-6 border border-gray-200"><table class="min-w-full">
+<thead>
+<tr>
+<th>Error</th>
+<th>Cause</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>"Invalid block name"</strong></td>
+<td>Referencing non-existent block</td>
+<td>Check block name spelling; verify block exists in layout</td>
+</tr>
+<tr>
+<td><strong>"Element not found"</strong></td>
+<td><code>&lt;move&gt;</code> references invalid element</td>
+<td>Verify element name; check if removed by another module</td>
+</tr>
+<tr>
+<td><strong>Block renders twice</strong></td>
+<td>Block added in multiple layout files</td>
+<td>Search for duplicate <code>&lt;block name="..."&gt;</code> in all XML files</td>
+</tr>
+<tr>
+<td><strong>Block doesn't render</strong></td>
+<td>Container removed or <code>cacheable="false"</code> conflicts</td>
+<td>Check if parent container exists; review cache settings</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Debugging Workflow:</strong></p>
+<ol>
+<li><strong>Enable template hints</strong> → Identify block name and template</li>
+<li><strong>Search layout XML files</strong> → Find where block is defined
+   <code>bash
+   grep -r 'name="product.info"' view/frontend/layout/</code></li>
+<li><strong>Check for conflicts</strong> → Search for <code>&lt;remove&gt;</code>, <code>&lt;move&gt;</code>, or duplicate names</li>
+<li><strong>Dump merged layout</strong> → See final XML after all merges</li>
+<li><strong>Check block class</strong> → Verify block class exists and extends correct parent</li>
+</ol>
+<p><strong>Checklist:</strong>
+- [ ] Use template hints to identify block names and templates
+- [ ] Dump merged layout XML to see final structure
+- [ ] Search for conflicts (duplicate names, removed elements, conflicting moves)
+- [ ] Validate XML syntax with XSD schema (IDE should auto-validate)</p>
+<hr />
+<h3 id="7-real-world-example-custom-product-page-layout">7. Real-World Example: Custom Product Page Layout</h3>
+<p><strong>Goal:</strong> Add custom "Shipping Calculator" block below product price.</p>
+<p><strong>Step 1: Identify Container</strong></p>
+<p>Enable template hints and inspect product page. Identify container: <code>product.info.main</code>.</p>
+<p><strong>Step 2: Create Layout XML</strong></p>
+<pre><code class="language-xml">&lt;!-- view/frontend/layout/catalog_product_view.xml --&gt;
+&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;page xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+      xsi:noNamespaceSchemaLocation=&quot;urn:magento:framework:View/Layout/etc/page_configuration.xsd&quot;&gt;
+    &lt;body&gt;
+        &lt;referenceContainer name=&quot;product.info.main&quot;&gt;
+            &lt;block class=&quot;MyVendor\ShippingCalculator\Block\Product\ShippingEstimate&quot;
+                   name=&quot;product.shipping.estimate&quot;
+                   template=&quot;MyVendor_ShippingCalculator::product/shipping-estimate.phtml&quot;
+                   after=&quot;product.info.price&quot;&gt;
+                &lt;arguments&gt;
+                    &lt;argument name=&quot;view_model&quot; xsi:type=&quot;object&quot;&gt;MyVendor\ShippingCalculator\ViewModel\ShippingEstimate&lt;/argument&gt;
+                &lt;/arguments&gt;
+            &lt;/block&gt;
+        &lt;/referenceContainer&gt;
+    &lt;/body&gt;
+&lt;/page&gt;
+</code></pre>
+<p><strong>Step 3: Create Block</strong></p>
+<pre><code class="language-php">&lt;?php
+namespace MyVendor\ShippingCalculator\Block\Product;
+
+use Magento\Framework\View\Element\Template;
+
+class ShippingEstimate extends Template
+{
+    public function getViewModel(): \MyVendor\ShippingCalculator\ViewModel\ShippingEstimate
+    {
+        return $this-&gt;getData('view_model');
+    }
+}
+</code></pre>
+<p><strong>Step 4: Create ViewModel</strong></p>
+<pre><code class="language-php">&lt;?php
+namespace MyVendor\ShippingCalculator\ViewModel;
+
+use Magento\Framework\View\Element\Block\ArgumentInterface;
+
+class ShippingEstimate implements ArgumentInterface
+{
+    public function __construct(
+        private \Magento\Checkout\Model\Session $checkoutSession,
+        private \Magento\Quote\Api\ShippingMethodManagementInterface $shippingMethodManagement
+    ) {}
+
+    public function getShippingMethods(): array
+    {
+        $quote = $this-&gt;checkoutSession-&gt;getQuote();
+        if (!$quote-&gt;getItemsCount()) {
+            return [];
+        }
+
+        $address = $quote-&gt;getShippingAddress();
+        $address-&gt;setCollectShippingRates(true);
+
+        return $this-&gt;shippingMethodManagement-&gt;getList($quote-&gt;getId());
+    }
+}
+</code></pre>
+<p><strong>Step 5: Create Template</strong></p>
+<pre><code class="language-php">&lt;?php
+/**
+ * @var \MyVendor\ShippingCalculator\Block\Product\ShippingEstimate $block
+ * @var \MyVendor\ShippingCalculator\ViewModel\ShippingEstimate $viewModel
+ */
+$viewModel = $block-&gt;getViewModel();
+?&gt;
+
+&lt;div class=&quot;shipping-estimate&quot;&gt;
+    &lt;h3&gt;&lt;?= $block-&gt;escapeHtml(__('Estimate Shipping')) ?&gt;&lt;/h3&gt;
+
+    &lt;form id=&quot;shipping-zip-form&quot;&gt;
+        &lt;input type=&quot;text&quot; name=&quot;zip&quot; placeholder=&quot;&lt;?= $block-&gt;escapeHtmlAttr(__('Enter ZIP code')) ?&gt;&quot; /&gt;
+        &lt;button type=&quot;button&quot; data-mage-init='{&quot;MyVendor_ShippingCalculator/js/estimate&quot;: {}}'&gt;
+            &lt;?= $block-&gt;escapeHtml(__('Calculate')) ?&gt;
+        &lt;/button&gt;
+    &lt;/form&gt;
+
+    &lt;div id=&quot;shipping-results&quot; style=&quot;display:none;&quot;&gt;
+        &lt;!-- Results loaded via AJAX --&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+</code></pre>
+<p><strong>Step 6: Test</strong></p>
+<pre><code class="language-bash">bin/magento cache:flush layout block_html
+</code></pre>
+<p>Load product page → Verify "Estimate Shipping" block appears below price.</p>
+<hr />
+<h3 id="8-anti-patterns-to-avoid">8. Anti-Patterns to Avoid</h3>
+<p><strong>Anti-Pattern 1: Hardcoding Block Positions</strong></p>
+<pre><code class="language-xml">&lt;!-- BAD: No positioning attribute (order undefined) --&gt;
+&lt;referenceContainer name=&quot;content&quot;&gt;
+    &lt;block class=&quot;MyVendor\MyModule\Block\Custom&quot; name=&quot;custom.block&quot;/&gt;
+&lt;/referenceContainer&gt;
+
+&lt;!-- GOOD: Explicit positioning --&gt;
+&lt;referenceContainer name=&quot;content&quot;&gt;
+    &lt;block class=&quot;MyVendor\MyModule\Block\Custom&quot; name=&quot;custom.block&quot; before=&quot;-&quot;/&gt;
+&lt;/referenceContainer&gt;
+</code></pre>
+<p><strong>Anti-Pattern 2: Overusing <code>&lt;remove&gt;</code></strong></p>
+<pre><code class="language-xml">&lt;!-- BAD: Removing core blocks (breaks functionality) --&gt;
+&lt;remove name=&quot;product.info.addtocart&quot;/&gt; &lt;!-- Removes &quot;Add to Cart&quot; button! --&gt;
+
+&lt;!-- GOOD: Hide via CSS if needed for specific cases --&gt;
+&lt;referenceBlock name=&quot;product.info.addtocart&quot;&gt;
+    &lt;arguments&gt;
+        &lt;argument name=&quot;css_class&quot; xsi:type=&quot;string&quot;&gt;hidden&lt;/argument&gt;
+    &lt;/arguments&gt;
+&lt;/referenceBlock&gt;
+</code></pre>
+<p><strong>Anti-Pattern 3: Deep Nesting in <code>default.xml</code></strong></p>
+<pre><code class="language-xml">&lt;!-- BAD: Adding page-specific blocks to default.xml --&gt;
+&lt;page xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;&gt;
+    &lt;body&gt;
+        &lt;referenceContainer name=&quot;content&quot;&gt;
+            &lt;block class=&quot;MyVendor\MyModule\Block\ProductSpecificBlock&quot; name=&quot;...&quot;/&gt;
+            &lt;!-- This renders on EVERY page, not just product pages --&gt;
+        &lt;/referenceContainer&gt;
+    &lt;/body&gt;
+&lt;/page&gt;
+
+&lt;!-- GOOD: Use specific layout handle --&gt;
+&lt;!-- File: catalog_product_view.xml --&gt;
+&lt;referenceContainer name=&quot;content&quot;&gt;
+    &lt;block class=&quot;MyVendor\MyModule\Block\ProductSpecificBlock&quot; name=&quot;...&quot;/&gt;
+&lt;/referenceContainer&gt;
+</code></pre>
+<p><strong>Anti-Pattern 4: Modifying Layout in Controllers</strong></p>
+<pre><code class="language-php">&lt;?php
+// BAD: Manipulating layout in controller
+public function execute()
+{
+    $this-&gt;_view-&gt;getLayout()-&gt;getBlock('product.info')-&gt;setTemplate('custom.phtml');
+    // Fragile, bypasses layout XML, hard to debug
+}
+
+// GOOD: Use layout XML
+// File: view/frontend/layout/catalog_product_view.xml
+&lt;referenceBlock name=&quot;product.info&quot;&gt;
+    &lt;action method=&quot;setTemplate&quot;&gt;
+        &lt;argument name=&quot;template&quot; xsi:type=&quot;string&quot;&gt;MyVendor_MyModule::custom.phtml&lt;/argument&gt;
+    &lt;/action&gt;
+&lt;/referenceBlock&gt;
+</code></pre>
+<p><strong>Anti-Pattern 5: Coupling to Theme Structure</strong></p>
+<pre><code class="language-xml">&lt;!-- BAD: Assumes Luma theme structure --&gt;
+&lt;referenceContainer name=&quot;columns.top&quot;/&gt;
+&lt;!-- Breaks on Blank, custom themes --&gt;
+
+&lt;!-- GOOD: Use universal containers --&gt;
+&lt;referenceContainer name=&quot;content&quot;/&gt;
+&lt;referenceContainer name=&quot;page.top&quot;/&gt;
+</code></pre>
+<p><strong>Checklist:</strong>
+- [ ] Always specify <code>before</code> or <code>after</code> for positioning
+- [ ] Avoid removing core blocks unless absolutely necessary
+- [ ] Use specific layout handles, not <code>default.xml</code> for page-specific blocks
+- [ ] Never manipulate layout in controllers (use layout XML)
+- [ ] Reference theme-agnostic containers</p>
+<hr />
+<h2 id="testing-and-verification">Testing and Verification</h2>
+<h3 id="test-1-block-renders-correctly">Test 1: Block Renders Correctly</h3>
+<pre><code class="language-bash"># Flush cache
+bin/magento cache:flush layout block_html
+
+# Load page
+curl https://magento.local/product-page.html | grep &quot;shipping-estimate&quot;
+# Should output HTML containing &quot;shipping-estimate&quot; class
+</code></pre>
+<h3 id="test-2-layout-handle-applied">Test 2: Layout Handle Applied</h3>
+<pre><code class="language-bash"># Note: dev:layout:dump is not a core Magento CLI command.
+# Enable layout debug logging instead and check var/log/:
+bin/magento dev:template-hints:enable
+# Then load the page in a browser and inspect the rendered block output.
+# Alternatively, check compiled layout XML in var/view_preprocessed/.
+</code></pre>
+<h3 id="test-3-no-layout-errors">Test 3: No Layout Errors</h3>
+<pre><code class="language-bash"># Check Magento logs
+tail -f var/log/system.log | grep -i &quot;layout&quot;
+
+# Look for errors:
+# - &quot;Invalid block name&quot;
+# - &quot;Element not found&quot;
+</code></pre>
+<h3 id="test-4-cross-theme-compatibility">Test 4: Cross-Theme Compatibility</h3>
+<pre><code class="language-bash"># Switch theme to Blank
+bin/magento config:set design/theme/theme_id 2
+bin/magento cache:flush
+
+# Test page render
+curl -I https://magento.local/product-page.html
+# Should return 200 OK (not 500 error)
+</code></pre>
+<h3 id="test-5-performance-block-cache">Test 5: Performance (Block Cache)</h3>
+<pre><code class="language-php">&lt;?php
+// In block class
+protected function _construct()
+{
+    parent::_construct();
+    $this-&gt;addData([
+        'cache_lifetime' =&gt; 3600,
+        'cache_tags' =&gt; [\Magento\Catalog\Model\Product::CACHE_TAG],
+    ]);
+}
+</code></pre>
+<pre><code class="language-bash"># Load page twice
+curl -I https://magento.local/product-page.html
+# X-Magento-Cache-Debug: MISS (first load)
+
+curl -I https://magento.local/product-page.html
+# X-Magento-Cache-Debug: HIT (cached)
+</code></pre>
+<hr />
+<h2 id="security-and-performance-notes">Security and Performance Notes</h2>
+<p><strong>Security:</strong>
+- <strong>XSS in Templates:</strong> Always use <code>escapeHtml()</code>, <code>escapeHtmlAttr()</code>, <code>escapeUrl()</code> in <code>.phtml</code> files
+- <strong>Unrestricted Layout Handles:</strong> Validate custom handle names; avoid user input in handle names
+- <strong>Block Data Leakage:</strong> Don't expose sensitive data (API keys, customer PII) in block arguments</p>
+<p><strong>Performance:</strong>
+- <strong>Block Caching:</strong> Enable <code>cache_lifetime</code> for cacheable blocks (see FPC guide)
+- <strong>Lazy Loading:</strong> Use <code>lazyLoad="true"</code> for non-critical blocks (deferred rendering)
+- <strong>Avoid Expensive Blocks in <code>default.xml</code>:</strong> Only global, lightweight blocks (header, footer)
+- <strong>UI Component Performance:</strong> Large grids/listings can be slow; use pagination, lazy loading</p>
+<hr />
+<h2 id="backward-compatibility">Backward Compatibility</h2>
+<ul>
+<li><strong>Layout XML Schema:</strong> Stable since 2.0.0; XSD path unchanged in 2.4.x</li>
+<li><strong>Handle Naming:</strong> Consistent across 2.x versions</li>
+<li><strong>Container/Block API:</strong> No breaking changes in 2.4.x</li>
+<li><strong>UI Components:</strong> Schema updates in minor versions (e.g., 2.4.6 → 2.4.7); always review release notes</li>
+</ul>
+<p><strong>Upgrade Safety:</strong>
+- Use <code>&lt;referenceBlock&gt;</code> instead of overriding entire layouts (allows core updates)
+- Avoid hardcoded layout XML in custom themes (prefer module layout files)
+- Test with each Magento minor version update</p>
+<hr />
+<h2 id="tests-to-add">Tests to Add</h2>
+<h3 id="unit-test-block-data">Unit Test: Block Data</h3>
+<pre><code class="language-php">&lt;?php
+namespace MyVendor\ShippingCalculator\Test\Unit\Block;
+
+use MyVendor\ShippingCalculator\Block\Product\ShippingEstimate;
+use PHPUnit\Framework\TestCase;
+
+class ShippingEstimateTest extends TestCase
+{
+    public function testGetViewModel()
+    {
+        $viewModel = $this-&gt;createMock(\MyVendor\ShippingCalculator\ViewModel\ShippingEstimate::class);
+
+        $block = $this-&gt;getMockBuilder(ShippingEstimate::class)
+            -&gt;disableOriginalConstructor()
+            -&gt;getMock();
+
+        $block-&gt;method('getData')-&gt;willReturn($viewModel);
+
+        $this-&gt;assertInstanceOf(
+            \MyVendor\ShippingCalculator\ViewModel\ShippingEstimate::class,
+            $block-&gt;getData('view_model')
+        );
+    }
+}
+</code></pre>
+<h3 id="integration-test-layout-rendering">Integration Test: Layout Rendering</h3>
+<pre><code class="language-php">&lt;?php
+namespace MyVendor\ShippingCalculator\Test\Integration;
+
+use Magento\TestFramework\Helper\Bootstrap;
+use PHPUnit\Framework\TestCase;
+
+class LayoutRenderTest extends TestCase
+{
+    public function testShippingEstimateBlockRendered()
+    {
+        $objectManager = Bootstrap::getObjectManager();
+        $layout = $objectManager-&gt;get(\Magento\Framework\View\LayoutInterface::class);
+
+        $layout-&gt;getUpdate()-&gt;load(['catalog_product_view']);
+        $layout-&gt;generateXml();
+        $layout-&gt;generateElements();
+
+        $block = $layout-&gt;getBlock('product.shipping.estimate');
+
+        $this-&gt;assertNotFalse($block, 'Shipping estimate block should exist in layout');
+        $this-&gt;assertInstanceOf(
+            \MyVendor\ShippingCalculator\Block\Product\ShippingEstimate::class,
+            $block
+        );
+    }
+}
+</code></pre>
+<h3 id="mftf-test-block-visibility">MFTF Test: Block Visibility</h3>
+<pre><code class="language-xml">&lt;!-- Test/Mftf/Test/ShippingEstimateVisibilityTest.xml --&gt;
+&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;tests xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+       xsi:noNamespaceSchemaLocation=&quot;urn:magento:mftf:Test/etc/testSchema.xsd&quot;&gt;
+    &lt;test name=&quot;ShippingEstimateVisibilityTest&quot;&gt;
+        &lt;annotations&gt;
+            &lt;description&gt;Verify shipping estimate block appears on product page&lt;/description&gt;
+        &lt;/annotations&gt;
+
+        &lt;actionGroup ref=&quot;StorefrontOpenProductPageActionGroup&quot; stepKey=&quot;openProductPage&quot;&gt;
+            &lt;argument name=&quot;productUrl&quot; value=&quot;{{SimpleProduct.urlKey}}&quot;/&gt;
+        &lt;/actionGroup&gt;
+
+        &lt;waitForElementVisible selector=&quot;.shipping-estimate&quot; stepKey=&quot;waitForShippingEstimate&quot;/&gt;
+        &lt;see selector=&quot;.shipping-estimate h3&quot; userInput=&quot;Estimate Shipping&quot; stepKey=&quot;seeHeading&quot;/&gt;
+    &lt;/test&gt;
+&lt;/tests&gt;
+</code></pre>
+<hr />
+<h2 id="documentation-to-update">Documentation to Update</h2>
+<ol>
+<li><strong>README.md</strong></li>
+<li>Add "Layout Customization" section with link to this guide</li>
+<li>
+<p>Document custom layout handles and how to extend</p>
+</li>
+<li>
+<p><strong>CHANGELOG.md</strong></p>
+</li>
+<li>
+<p>Version 1.2.0: "Added shipping estimate block to product page; see layout XML customization guide"</p>
+</li>
+<li>
+<p><strong>Developer Guide</strong> (<code>docs/developer-guide.md</code>)</p>
+</li>
+<li>Layout architecture diagram (containers → blocks → templates)</li>
+<li>How to add custom blocks</li>
+<li>
+<p>How to override theme layouts</p>
+</li>
+<li>
+<p><strong>Theme Documentation</strong> (if custom theme)</p>
+</li>
+<li>List custom containers and their purposes</li>
+<li>Document layout handle naming conventions</li>
+<li>Provide layout XML examples</li>
+</ol>
+<hr />
+<h2 id="assumptions">Assumptions</h2>
+<ul>
+<li><strong>Magento Version:</strong> 2.4.7+ (Adobe Commerce or Open Source)</li>
+<li><strong>PHP Version:</strong> 8.2+</li>
+<li><strong>Environment:</strong> Developer mode for debugging (template hints, unminified JS/CSS)</li>
+<li><strong>Audience:</strong> Intermediate developers familiar with XML and Magento module basics</li>
+</ul>
+<hr />
+<h2 id="why-this-approach">Why This Approach</h2>
+<p><strong>Trade-offs:</strong>
+- <strong>Layout XML vs Programmatic Layout:</strong> XML is declarative (easier to maintain, merge) but less flexible than PHP; chosen for upgrade safety
+- <strong>ViewModel vs Block Logic:</strong> ViewModels (service layer) are testable and reusable; blocks are tightly coupled to templates; chosen for separation of concerns
+- <strong>UI Components vs Traditional Blocks:</strong> UI Components are powerful but complex; traditional blocks are simpler; chosen based on use case (admin grids = UI Components, frontend widgets = blocks)</p>
+<p><strong>Alternatives Considered:</strong>
+- <strong>Knockout.js Templating:</strong> Powerful for dynamic UIs but adds JS complexity; chosen for customer sections and admin UI Components
+- <strong>GraphQL + Headless:</strong> Eliminates layout XML entirely; chosen for fully decoupled frontends but not for traditional Magento themes</p>
+<p><strong>Chosen Approach:</strong> <strong>Layout XML with ViewModels</strong> balances <strong>maintainability, upgrade safety, and theme compatibility</strong>.</p>
+<hr />
+<h2 id="summary">Summary</h2>
+<p>Magento's layout XML system is <strong>declarative, modular, and extensible</strong>—but mastery requires understanding <strong>handles, containers vs blocks, directives, and debugging techniques</strong>. By following this guide's patterns:</p>
+<ul>
+<li><strong>Use correct layout handles</strong> (page-specific, not <code>default.xml</code> for everything)</li>
+<li><strong>Respect container/block hierarchy</strong> (containers for structure, blocks for content)</li>
+<li><strong>Position explicitly</strong> (always use <code>before</code>/<code>after</code>)</li>
+<li><strong>Avoid anti-patterns</strong> (no layout manipulation in controllers, no hardcoded positions)</li>
+<li><strong>Debug systematically</strong> (template hints → merged XML → conflict search)</li>
+</ul>
+<p>You'll build <strong>upgrade-safe, theme-compatible modules</strong> that integrate seamlessly with Magento's view layer.</p>
+<p><strong>Next Steps:</strong>
+1. Audit existing layouts for anti-patterns (missing positioning, <code>default.xml</code> overuse)
+2. Refactor layout XML to use ViewModels for business logic
+3. Add layout integration tests (verify blocks render correctly)
+4. Document custom layout handles and containers in your module's README</p>
+<p><strong>Layout XML is not a barrier—it's a blueprint.</strong> Master it, and you control Magento's entire frontend.</p>
+<h2 id="related-documentation">Related Documentation</h2>
+<h3 id="related-guides">Related Guides</h3>
+<ul>
+<li><a href="admin-ui-components.md">Building Admin UI Components in Magento 2</a></li>
+<li><a href="full-page-cache-strategy.md">Full Page Cache Strategy for High-Performance Magento</a></li>
+</ul>
+<h3 id="related-module-documentation">Related Module Documentation</h3>
+<ul>
+<li><a href="../../modules/catalog/README.md">Magento_Catalog Overview</a></li>
+<li><a href="../../modules/checkout/README.md">Magento_Checkout Overview</a></li>
+</ul>
+                    </div>
+                </article>
+            </main>
+            <!-- Right Sidebar: On This Page (desktop) -->
+            <aside class="toc-sidebar hidden xl:block" aria-label="On this page">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-semibold text-gray-900 uppercase tracking-wider mb-4 mt-0">On this page</h3>
+                    <nav id="toc-nav" class="space-y-0" aria-label="Table of contents"></nav>
+                    <div class="toc-back-to-top">
+                        <a href="#">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+                            </svg>
+                            Back to top
+                        </a>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- ================================================================
+         FOOTER — matches module-catalog.html multi-column layout exactly
+         ================================================================ -->
+    <footer class="relative pt-12 bg-white border-t border-charcoal mt-16">
+        <div class="max-w-screen-2xl mx-auto w-full px-4 sm:px-6 lg:px-8">
+            <div>
+                <a href="index.html" class="inline-flex items-center no-underline">
+                    <svg width="30" height="33" viewBox="0 0 30 33" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Magento Association logo" role="img">
+                        <path d="M0 4.06492H29.6763V31.8882C29.6763 32.502 29.1713 33 28.5487 33H1.12762C0.505079 33 0 32.502 0 31.8882V4.06492Z" fill="#34323A"/>
+                        <path d="M1.26857 0H28.4078C29.1066 0 29.6763 0.561678 29.6763 1.25075V4.06492H0V1.25075C0 0.561678 0.569682 0 1.26857 0Z" fill="#C9C9C9"/>
+                        <path d="M2.37269 3.0458C2.94031 3.0458 3.40046 2.59211 3.40046 2.03246C3.40046 1.47281 2.94031 1.01913 2.37269 1.01913C1.80506 1.01913 1.34491 1.47281 1.34491 2.03246C1.34491 2.59211 1.80506 3.0458 2.37269 3.0458Z" fill="#848484"/>
+                        <path d="M5.28571 3.0458C5.85334 3.0458 6.31349 2.59211 6.31349 2.03246C6.31349 1.47281 5.85334 1.01913 5.28571 1.01913C4.71809 1.01913 4.25793 1.47281 4.25793 2.03246C4.25793 2.59211 4.71809 3.0458 5.28571 3.0458Z" fill="#848484"/>
+                        <path d="M14.7883 7.46973L4.90405 13.0923V24.349L7.54104 25.8487V14.5978L14.7883 10.4692L22.0415 14.5978V25.8487L24.6785 24.349V13.0923L14.7883 7.46973Z" fill="#F1BC1B"/>
+                        <path d="M16.0862 26.2367L14.7883 26.9779L13.4492 26.2135V14.233L10.178 16.0975V27.3485L13.4492 29.213L14.7883 29.9773L16.0862 29.2362L19.4045 27.3485V16.0975L16.0862 14.2098V26.2367Z" fill="#F1BC1B"/>
+                    </svg>
+                    <span class="ml-3 text-xl font-bold text-charcoal">Developer Documentation</span>
+                </a>
+            </div>
+
+            <div class="grid grid-cols-12 md:gap-x-8 gap-y-12 lg:mt-12">
+                <div class="col-span-12 lg:col-span-4">
+                    <p class="hidden lg:block text-xs text-charcoal sm:text-sm">Comprehensive developer documentation for Magento 2.4.7+ — tutorials, architecture deep dives, module references, and production-ready patterns built by the community, for the community.</p>
+                    <ul class="mt-6 hidden lg:flex items-center gap-3">
+                        <li class="pl-0">
+                            <a href="https://github.com/magento/magento2" class="p-2 md:p-0" aria-label="GitHub">
+                                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                                </svg>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Guides</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="tutorials.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Tutorials</a></li>
+                            <li class="pl-0"><a href="how-to-guides.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">How-To Guides</a></li>
+                            <li class="pl-0"><a href="architecture.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Architecture</a></li>
+                            <li class="pl-0"><a href="learning-paths.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Learning Paths</a></li>
+                            <li class="pl-0"><a href="references.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">References</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Modules</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="module-catalog.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Catalog</a></li>
+                            <li class="pl-0"><a href="module-checkout.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Checkout</a></li>
+                            <li class="pl-0"><a href="module-sales.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Sales</a></li>
+                            <li class="pl-0"><a href="module-customer.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Customer</a></li>
+                            <li class="pl-0"><a href="module-quote.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Quote</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Community</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Magento Community</a></li>
+                            <li class="pl-0"><a href="https://magento.stackexchange.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Stack Exchange</a></li>
+                            <li class="pl-0"><a href="https://marketplace.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Marketplace</a></li>
+                            <li class="pl-0"><a href="https://github.com/magento/magento2" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">GitHub</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Support</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://github.com/magento/magento2/issues" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Report Issues</a></li>
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Community Resources</a></li>
+                            <li class="pl-0"><a href="https://developer.adobe.com/commerce/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Adobe Commerce Docs</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-12 border-t pt-6 pb-16 border-charcoal">
+                <p class="text-xs text-charcoal">
+                    &copy; 2026 Magento 2 Developer Documentation. Magento&reg; is a registered trademark of Adobe Inc.
+                </p>
+                <p class="mt-6 text-xs text-charcoal">
+                    This documentation provides guidance for Magento 2 developers and extension builders. For merchant documentation, visit the <a href="index.html" class="text-orange hover:text-orange-600 transition-colors">merchant documentation</a>.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Initialize highlight.js -->
+    <script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('pre code').forEach(function (el) {
+        hljs.highlightElement(el);
+    });
+    document.querySelectorAll('pre').forEach(function (pre) {
+        if (pre.parentNode.classList && pre.parentNode.classList.contains('code-wrapper')) return;
+        var wrapper = document.createElement('div');
+        wrapper.className = 'code-wrapper';
+        pre.parentNode.insertBefore(wrapper, pre);
+        wrapper.appendChild(pre);
+        var btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.setAttribute('type', 'button');
+        btn.setAttribute('aria-label', 'Copy code to clipboard');
+        btn.setAttribute('title', 'Copy');
+        btn.textContent = 'Copy';
+        wrapper.appendChild(btn);
+        btn.addEventListener('click', function () {
+            var code = pre.querySelector('code');
+            var text = code ? (code.innerText || code.textContent) : (pre.innerText || pre.textContent);
+            navigator.clipboard.writeText(text).then(function () {
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            }).catch(function () {
+                var range = document.createRange();
+                range.selectNode(code || pre);
+                window.getSelection().removeAllRanges();
+                window.getSelection().addRange(range);
+                document.execCommand('copy');
+                window.getSelection().removeAllRanges();
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            });
+        });
+    });
+});
+</script>
+
+
+<script>
+(function() {
+    var nav = document.getElementById('toc-nav');
+    if (!nav) return;
+    var article = document.getElementById('main-content');
+    if (!article) return;
+    var headings = article.querySelectorAll('h2[id], h3[id]');
+    if (headings.length < 3) {
+        // Hide the entire TOC sidebar if fewer than 3 headings
+        var sidebar = nav.closest('.toc-sidebar');
+        if (sidebar) sidebar.style.display = 'none';
+        return;
+    }
+    var ids = [];
+    headings.forEach(function(h) {
+        var a = document.createElement('a');
+        a.href = '#' + h.id;
+        a.textContent = h.textContent.replace(/^#+\s*/, '').replace(/\s+/g, ' ').trim();
+        if (h.tagName === 'H3') a.classList.add('toc-h3');
+        nav.appendChild(a);
+        ids.push(h.id);
+    });
+    // Scroll-spy with IntersectionObserver
+    var links = nav.querySelectorAll('a');
+    var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                links.forEach(function(l) { l.classList.remove('toc-active'); });
+                var active = nav.querySelector('a[href="#' + entry.target.id + '"]');
+                if (active) active.classList.add('toc-active');
+            }
+        });
+    }, { rootMargin: '-80px 0px -70% 0px', threshold: 0 });
+    headings.forEach(function(h) { observer.observe(h); });
+})();
+</script>
+</body>
+</html>

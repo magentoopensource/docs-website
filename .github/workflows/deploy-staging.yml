@@ -1,0 +1,60 @@
+name: Deploy to Staging (docs-test)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy to Staging Server
+    runs-on: ubuntu-latest
+    environment: staging
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, xml, ctype, json, bcmath
+          coverage: none
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+      # Note: Assets are built on the staging server during deployment
+      # This ensures consistency and avoids git conflicts with built files
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H 62.113.231.168 >> ~/.ssh/known_hosts
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Test SSH Connection
+        run: |
+          ssh -o StrictHostKeyChecking=no web-user@62.113.231.168 'echo "SSH connection successful"'
+
+      - name: Deploy with Deployer
+        run: |
+          vendor/bin/dep deploy staging -vvv
+        env:
+          MAXCLUSTER_PAT: ${{ secrets.MAXCLUSTER_PAT }}
+          DOCS_WEBHOOK_SECRET: ${{ secrets.DOCS_WEBHOOK_SECRET }}
+
+      - name: Cleanup
+        if: always()
+        run: |
+          rm -f ~/.ssh/id_rsa
+
+      - name: Deployment notification
+        if: success()
+        run: echo "Staging deployment to docs-test.magento-opensource.com successful"
+
+      - name: Deployment failure notification
+        if: failure()
+        run: echo "Staging deployment failed! Check the logs above for details."

@@ -1,0 +1,1589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magento_Quote Performance — Magento 2 Developer Documentation</title>
+    <meta name="description" content="Magento_Quote Performance">
+
+    <!-- Google Fonts: Inter Tight only. Courier New used for code. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Highlight.js: syntax highlighting for code blocks -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/php.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/ini.min.js"></script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        charcoal: {
+                            DEFAULT: '#2c2c2c', 50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6',
+                            300: '#6B6B6B', 400: '#474747', 500: '#2c2c2c', 600: '#262626',
+                            700: '#202020', 800: '#1c1c1c', 900: '#191919', 950: '#121212'
+                        },
+                        orange: {
+                            DEFAULT: '#D4551A', 50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad',
+                            300: '#f9ae78', 400: '#f58242', 500: '#f26423', 600: '#e34613',
+                            700: '#bc3312', 800: '#962a16', 900: '#792515', 950: '#411009'
+                        },
+                        yellow: {
+                            DEFAULT: '#B8860B', 50: '#fffdeb', 100: '#fdf9c8', 200: '#fbf38c',
+                            300: '#f8e651', 400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a',
+                            700: '#b1670c', 800: '#8f5111', 900: '#764311', 950: '#442204'
+                        },
+                        'off-white': '#FAFAFA',
+                    },
+                    fontFamily: {
+                        sans: ['Inter Tight', 'system-ui', '-apple-system', 'sans-serif'],
+                        mono: ['Courier New', 'Courier', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* ── Force light mode ── */
+        :root { color-scheme: light only; }
+
+        [x-cloak] { display: none !important; }
+
+        /* ── Scroll offset for sticky header ── */
+        .prose h2, .prose h3 { scroll-margin-top: 5rem; }
+
+        /* ── Code blocks: Bauhaus charcoal bg, no border-radius, highlight.js override ── */
+        .prose pre {
+            background-color: #2C2C2C !important;
+            border-radius: 0 !important;
+            padding: 1.25rem;
+            overflow-x: auto;
+            font-size: 0.875rem;
+            line-height: 1.7;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 1.5rem 0;
+        }
+        .prose pre code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            background: transparent !important;
+            padding: 0;
+                    color: #abb2bf;
+        }
+        /* Override highlight.js theme background to match Bauhaus charcoal */
+        .hljs {
+            background: #2C2C2C !important;
+            color: #abb2bf !important;
+            border-radius: 0 !important;
+        }
+
+        /* ── Inline code: charcoal bg, yellow text, no border-radius ── */
+        .prose code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.85em;
+        }
+        .prose :not(pre) > code {
+            background-color: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2em 0.45em;
+            border-radius: 0;
+        }
+
+        /* ── Step-code: same charcoal/yellow style for UI path chips ── */
+        .step-code {
+            background: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2rem 0.5rem;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            border-radius: 0;
+        }
+
+        /* ── Tables: no border-radius, charcoal header ── */
+        .prose table { width: 100%; border-collapse: collapse; }
+        .prose th {
+            background-color: #2C2C2C;
+            color: #ffffff;
+            font-weight: 600;
+            text-align: left;
+            padding: 0.75rem 1rem;
+            border-bottom: 2px solid #2C2C2C;
+            border-radius: 0;
+        }
+        .prose td { padding: 0.75rem 1rem; border-bottom: 1px solid #e5e5e5; }
+        .prose tr:hover { background-color: #fafafa; }
+
+        /* ── Blockquote: Bauhaus style — border-4 yellow, square, no left-only border ── */
+        .prose blockquote {
+            border: 4px solid #F1BC1B;
+            background-color: #ffffff;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+            border-radius: 0;
+        }
+        .prose blockquote p { margin: 0; }
+
+        /* ── Lists: hexagon bullets ── */
+        .prose ul { list-style: none; padding-left: 0; }
+        .prose ul li {
+            position: relative;
+            padding-left: 1.75rem;
+            margin-bottom: 0.4rem;
+            line-height: 1.7;
+        }
+        .prose ul li::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0.45em;
+            width: 10px;
+            height: 10px;
+            background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 2L21 7V17L12 22L3 17V7L12 2Z' stroke='%23F26423' stroke-width='2.5' stroke-linejoin='miter'/%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+        .prose ol { list-style-type: decimal; padding-left: 1.5rem; }
+        .prose li { margin-bottom: 0.4rem; }
+
+        /* ── Headings ── */
+        .prose h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            padding-top: 1.5rem;
+            border-top: 4px solid #F1BC1B;
+            color: #2C2C2C;
+        }
+        .prose h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+            color: #2C2C2C;
+        }
+        .prose h4 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #2C2C2C;
+        }
+        .prose p { margin-bottom: 1rem; line-height: 1.75; }
+        .prose a { color: #D4551A; text-decoration: none; }
+        .prose a:hover { color: #e34613; text-decoration: underline; }
+        .prose hr { border: none; border-top: 1px solid #e5e5e5; margin: 2rem 0; }
+
+        /* ── Callout boxes: Bauhaus — border-4 yellow, white bg, icon + title ── */
+        .callout-box {
+            background-color: #ffffff;
+            border: 4px solid #F1BC1B;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+        }
+        .callout-warning {
+            border-color: #D4551A;
+        }
+        .callout-important {
+            border-color: #2C2C2C;
+        }
+        .callout-box .callout-inner {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+        .callout-box .callout-title {
+            font-weight: 600;
+            color: #2C2C2C;
+            margin-bottom: 0.25rem;
+        }
+        .callout-box .callout-body {
+            font-size: 0.875rem;
+            line-height: 1.6;
+            color: rgba(44,44,44,0.85);
+        }
+
+        
+    
+        /* Code block copy button */
+        .code-wrapper {
+            position: relative;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            font-family: 'Inter Tight', system-ui, sans-serif;
+            background: rgba(255,255,255,0.1);
+            color: #abb2bf;
+            border: 1px solid rgba(255,255,255,0.15);
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.15s ease, background 0.15s ease;
+            z-index: 10;
+            line-height: 1.4;
+            border-radius: 4px;
+            user-select: none;
+        }
+        .code-wrapper:hover .copy-btn {
+            opacity: 1;
+        }
+        .copy-btn:hover,
+        .copy-btn:focus {
+            background: rgba(255,255,255,0.2);
+            color: #ffffff;
+            outline: 2px solid #D4551A;
+            outline-offset: 1px;
+        }
+        .copy-btn.copied {
+            color: #98c379;
+            background: rgba(152, 195, 121, 0.15);
+            opacity: 1;
+        }
+    
+        /* Right-hand TOC sidebar */
+        .toc-sidebar {
+            width: 14rem;
+            flex-shrink: 0;
+        }
+        .toc-sidebar a {
+            display: block;
+            padding: 0.375rem 0;
+            font-size: 0.8125rem;
+            line-height: 1.4;
+            color: #6b7280;
+            text-decoration: none;
+            transition: color 0.15s ease;
+            border-left: 2px solid transparent;
+            padding-left: 0.75rem;
+        }
+        .toc-sidebar a:hover {
+            color: #111827;
+        }
+        .toc-sidebar a.toc-active {
+            color: #ea580c;
+            border-left-color: #ea580c;
+            font-weight: 500;
+        }
+        .toc-sidebar a.toc-h3 {
+            padding-left: 1.5rem;
+            font-size: 0.75rem;
+        }
+        .toc-sidebar .toc-back-to-top {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e5e7eb;
+        }
+        .toc-sidebar .toc-back-to-top a {
+            border-left: none;
+            padding-left: 0;
+            font-weight: 500;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .toc-sidebar .toc-back-to-top a:hover {
+            color: #ea580c;
+        }
+    </style>
+</head>
+
+<body class="font-sans bg-off-white text-charcoal">
+
+    <!-- Shared header — single source of truth -->
+    <script src="includes/header.js"></script>
+
+    <!-- Breadcrumb — orange › separators -->
+    <div class="bg-white border-b border-gray-100">
+        <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <div class="flex items-center gap-2 text-sm flex-wrap">
+                <a href="index.html" class="text-orange hover:text-orange-600 transition-colors no-underline">Home</a> <span class="text-orange font-medium">›</span> <a href="modules.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">Modules</a> <span class="text-orange font-medium">›</span> <a href="module-quote.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">Quote</a> <span class="text-orange font-medium">›</span> <span class="text-charcoal font-medium">Magento_Quote Performance</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="flex gap-8">
+
+            <!-- Left Sidebar (desktop) -->
+            <aside class="hidden lg:block w-64 flex-shrink-0">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4">Quote Module</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="module-quote-overview.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Overview</a></li>
+<li class="pl-0"><a href="module-quote-architecture.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Architecture</a></li>
+<li class="pl-0"><a href="module-quote-execution-flows.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Execution Flows</a></li>
+<li class="pl-0"><a href="module-quote-plugins-and-observers.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Plugins & Observers</a></li>
+<li class="pl-0"><a href="module-quote-integrations.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Integrations</a></li>
+<li class="pl-0"><a href="module-quote-anti-patterns.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Anti-Patterns</a></li>
+<li class="pl-0"><a href="module-quote-performance.html" class="block px-3 py-2 text-sm text-orange font-semibold bg-orange-50 border-l-4 border-orange pl-2 transition-colors no-underline">Performance</a></li>
+<li class="pl-0"><a href="module-quote-known-issues.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Known Issues</a></li>
+<li class="pl-0"><a href="module-quote-version-compatibility.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Version Compatibility</a></li>
+</ul>
+<h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4 mt-8">Other Modules</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="module-catalog.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Catalog</a></li>
+<li class="pl-0"><a href="module-checkout.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Checkout</a></li>
+<li class="pl-0"><a href="module-customer.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Customer</a></li>
+<li class="pl-0"><a href="module-sales.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Sales</a></li>
+</ul>
+                </div>
+            </aside>
+
+            <!-- Article — square corners, border-t-4 orange accent -->
+            <main id="main-content" class="flex-1 min-w-0">
+                <article class="bg-white shadow-sm border border-gray-100 border-t-4 border-t-orange p-8 md:p-12">
+                    <!-- Title block -->
+                    <div class="mb-8">
+                        <span class="inline-block px-3 py-1.5 text-xs font-medium bg-yellow-50 text-yellow-800 border border-yellow-200">Performance</span>
+                        <h1 class="text-3xl md:text-4xl font-extrabold text-charcoal mt-3 mb-3">Magento_Quote Performance</h1>
+                        <p class="text-charcoal-300 text-lg mb-4">Magento_Quote Performance</p>
+                        <!-- Meta pills -->
+                        <div class="flex flex-wrap gap-2"><span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-charcoal text-white">Magento 2.4.7+</span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-charcoal-50 text-charcoal border border-charcoal-100">Magento_Quote</span></div>
+                    </div>
+
+                    <hr class="border-0 border-t border-gray-100 mb-8">
+
+                    <!-- Content -->
+                    <div class="prose max-w-none">
+                        <h1 id="magento_quote-performance-optimization">Magento_Quote Performance Optimization</h1>
+<h2 id="overview">Overview</h2>
+<p>This document provides comprehensive performance optimization strategies for the Magento_Quote module, covering cart operations, totals calculation, database queries, caching, and scalability patterns for high-traffic stores.</p>
+<p><strong>Target Version:</strong> Magento 2.4.7+ | Adobe Commerce &amp; Open Source
+<strong>PHP Version:</strong> 8.2+</p>
+<hr />
+<h2 id="performance-baseline">Performance Baseline</h2>
+<h3 id="typical-cart-operation-timings-single-item">Typical Cart Operation Timings (Single Item)</h3>
+<div class="overflow-x-auto my-6 border border-gray-200"><table class="min-w-full">
+<thead>
+<tr>
+<th>Operation</th>
+<th>Time (ms)</th>
+<th>Database Queries</th>
+<th>Cache Impact</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Load Quote</td>
+<td>5-15</td>
+<td>3-5</td>
+<td>Read from session</td>
+</tr>
+<tr>
+<td>Add Item</td>
+<td>50-100</td>
+<td>8-12</td>
+<td>Invalidate cart section</td>
+</tr>
+<tr>
+<td>Update Quantity</td>
+<td>40-80</td>
+<td>6-10</td>
+<td>Invalidate cart section</td>
+</tr>
+<tr>
+<td>Apply Coupon</td>
+<td>60-120</td>
+<td>10-15</td>
+<td>Invalidate cart section</td>
+</tr>
+<tr>
+<td>Totals Collection</td>
+<td>30-80</td>
+<td>5-10</td>
+<td>No FPC impact</td>
+</tr>
+<tr>
+<td>Place Order</td>
+<td>200-500</td>
+<td>25-40</td>
+<td>No FPC impact</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="large-cart-performance-100-items">Large Cart Performance (100+ Items)</h3>
+<div class="overflow-x-auto my-6 border border-gray-200"><table class="min-w-full">
+<thead>
+<tr>
+<th>Operation</th>
+<th>Time (ms)</th>
+<th>Scaling Factor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Load Quote</td>
+<td>50-150</td>
+<td>Linear O(n)</td>
+</tr>
+<tr>
+<td>Totals Collection</td>
+<td>500-2000</td>
+<td>O(n * m) collectors</td>
+</tr>
+<tr>
+<td>Apply Discount</td>
+<td>800-3000</td>
+<td>O(n * rules)</td>
+</tr>
+<tr>
+<td>Place Order</td>
+<td>2000-8000</td>
+<td>Linear O(n)</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="1-database-optimization">1. Database Optimization</h2>
+<h3 id="11-essential-indexes">1.1 Essential Indexes</h3>
+<p>Ensure these indexes exist for optimal quote queries:</p>
+<pre><code class="language-sql">-- Quote table indexes
+ALTER TABLE quote
+    ADD INDEX idx_customer_active (customer_id, is_active, store_id),
+    ADD INDEX idx_updated_at (updated_at),
+    ADD INDEX idx_reserved_order (reserved_order_id);
+
+-- Quote item indexes
+ALTER TABLE quote_item
+    ADD INDEX idx_quote_id (quote_id),
+    ADD INDEX idx_product_id (product_id),
+    ADD INDEX idx_sku (sku);
+
+-- Quote address indexes
+ALTER TABLE quote_address
+    ADD INDEX idx_quote_id (quote_id),
+    ADD INDEX idx_customer_address_id (customer_address_id);
+
+-- Quote payment indexes
+ALTER TABLE quote_payment
+    ADD INDEX idx_quote_id (quote_id);
+
+-- Quote ID mask indexes (guest carts)
+ALTER TABLE quote_id_mask
+    ADD UNIQUE INDEX idx_masked_id (masked_id),
+    ADD INDEX idx_quote_id (quote_id);
+</code></pre>
+<p><strong>Verification:</strong></p>
+<pre><code class="language-sql">-- Check if indexes exist
+SHOW INDEX FROM quote WHERE Key_name = 'idx_customer_active';
+SHOW INDEX FROM quote_item WHERE Key_name = 'idx_quote_id';
+</code></pre>
+<h3 id="12-query-optimization">1.2 Query Optimization</h3>
+<h4 id="avoid-select">Avoid SELECT *</h4>
+<pre><code class="language-php">&lt;?php
+// BAD - Loads all columns
+$collection = $this-&gt;quoteCollectionFactory-&gt;create();
+$quotes = $collection-&gt;getItems();
+
+// GOOD - Load only needed columns
+$collection = $this-&gt;quoteCollectionFactory-&gt;create();
+$collection-&gt;addFieldToSelect(['entity_id', 'customer_id', 'items_count', 'grand_total']);
+$quotes = $collection-&gt;getItems();
+</code></pre>
+<h4 id="use-batch-loading">Use Batch Loading</h4>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Service;
+
+use Magento\Quote\Model\ResourceModel\Quote\CollectionFactory;
+
+/**
+ * Batch load quotes with items
+ */
+class BatchQuoteLoaderService
+{
+    public function __construct(
+        private readonly CollectionFactory $quoteCollectionFactory
+    ) {}
+
+    /**
+     * Load multiple quotes with items in single query
+     *
+     * @param array $quoteIds
+     * @return array
+     */
+    public function loadQuotesWithItems(array $quoteIds): array
+    {
+        $collection = $this-&gt;quoteCollectionFactory-&gt;create();
+        $collection-&gt;addFieldToFilter('entity_id', ['in' =&gt; $quoteIds]);
+
+        // OPTIMIZATION: Eager load items to avoid N+1 queries
+        foreach ($collection as $quote) {
+            $quote-&gt;getItemsCollection(); // Loads all items in single query per quote
+        }
+
+        return $collection-&gt;getItems();
+    }
+}
+</code></pre>
+<h3 id="13-connection-pooling">1.3 Connection Pooling</h3>
+<p>Configure persistent database connections:</p>
+<pre><code class="language-php">// app/etc/env.php
+return [
+    'db' =&gt; [
+        'connection' =&gt; [
+            'default' =&gt; [
+                'host' =&gt; 'localhost',
+                'dbname' =&gt; 'magento',
+                'username' =&gt; 'magento',
+                'password' =&gt; 'password',
+                'model' =&gt; 'mysql4',
+                'engine' =&gt; 'innodb',
+                'initStatements' =&gt; 'SET NAMES utf8;',
+                'active' =&gt; '1',
+                'persistent' =&gt; '1', // Enable persistent connections
+                'driver_options' =&gt; [
+                    PDO::MYSQL_ATTR_LOCAL_INFILE =&gt; 1,
+                    PDO::ATTR_EMULATE_PREPARES =&gt; false
+                ]
+            ]
+        ]
+    ]
+];
+</code></pre>
+<hr />
+<h2 id="2-totals-calculation-optimization">2. Totals Calculation Optimization</h2>
+<h3 id="21-collector-ordering">2.1 Collector Ordering</h3>
+<p>Optimize collector execution order to minimize redundant calculations:</p>
+<pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;config xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+        xsi:noNamespaceSchemaLocation=&quot;urn:magento:module:Magento_Sales:etc/sales.xsd&quot;&gt;
+    &lt;section name=&quot;quote&quot;&gt;
+        &lt;group name=&quot;totals&quot;&gt;
+            &lt;!-- Optimal execution order --&gt;
+            &lt;item name=&quot;subtotal&quot; instance=&quot;Magento\Quote\Model\Quote\Address\Total\Subtotal&quot; sort_order=&quot;100&quot;/&gt;
+            &lt;item name=&quot;shipping&quot; instance=&quot;Magento\Quote\Model\Quote\Address\Total\Shipping&quot; sort_order=&quot;200&quot;/&gt;
+            &lt;!-- Custom collectors between 200-300 if they affect tax calculation --&gt;
+            &lt;item name=&quot;tax&quot; instance=&quot;Magento\Tax\Model\Sales\Total\Quote\Tax&quot; sort_order=&quot;300&quot;/&gt;
+            &lt;item name=&quot;discount&quot; instance=&quot;Magento\SalesRule\Model\Quote\Discount&quot; sort_order=&quot;400&quot;/&gt;
+            &lt;!-- Grand total must be last --&gt;
+            &lt;item name=&quot;grand_total&quot; instance=&quot;Magento\Quote\Model\Quote\Address\Total\Grand&quot; sort_order=&quot;500&quot;/&gt;
+        &lt;/group&gt;
+    &lt;/section&gt;
+&lt;/config&gt;
+</code></pre>
+<h3 id="22-conditional-collector-execution">2.2 Conditional Collector Execution</h3>
+<p>Skip expensive collectors when not needed:</p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Model\Quote\Address\Total;
+
+use Magento\Quote\Model\Quote;
+use Magento\Quote\Api\Data\ShippingAssignmentInterface;
+use Magento\Quote\Model\Quote\Address\Total;
+
+/**
+ * Optimized custom fee collector
+ */
+class CustomFee extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
+{
+    protected string $_code = 'custom_fee';
+
+    public function __construct(
+        private readonly \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
+    ) {}
+
+    public function collect(
+        Quote $quote,
+        ShippingAssignmentInterface $shippingAssignment,
+        Total $total
+    ): self {
+        parent::collect($quote, $shippingAssignment, $total);
+
+        // OPTIMIZATION: Skip if feature disabled
+        if (!$this-&gt;scopeConfig-&gt;isSetFlag('vendor/custom_fee/enabled')) {
+            return $this;
+        }
+
+        // OPTIMIZATION: Skip if virtual quote (no shipping)
+        if ($quote-&gt;isVirtual()) {
+            return $this;
+        }
+
+        // OPTIMIZATION: Skip if no items
+        $items = $shippingAssignment-&gt;getItems();
+        if (!count($items)) {
+            return $this;
+        }
+
+        // Calculate fee only if necessary
+        $fee = $this-&gt;calculateFee($total);
+
+        $total-&gt;setTotalAmount($this-&gt;getCode(), $fee);
+        $total-&gt;setBaseTotalAmount($this-&gt;getCode(), $fee);
+
+        return $this;
+    }
+
+    /**
+     * Lazy calculation - only when needed
+     */
+    private function calculateFee(Total $total): float
+    {
+        // Expensive calculation here
+        return 10.00;
+    }
+}
+</code></pre>
+<h3 id="23-totals-caching">2.3 Totals Caching</h3>
+<p>Cache totals for read-heavy scenarios:</p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Plugin\Quote;
+
+use Magento\Quote\Model\Quote;
+use Magento\Quote\Model\Quote\TotalsCollector;
+use Magento\Quote\Model\Quote\Address\Total;
+
+/**
+ * Cache quote totals
+ */
+class CacheTotalsExtend
+{
+    private const CACHE_LIFETIME = 300; // 5 minutes
+    private const CACHE_TAG = 'quote_totals';
+
+    public function __construct(
+        private readonly \Magento\Framework\App\CacheInterface $cache,
+        private readonly \Magento\Framework\Serialize\SerializerInterface $serializer
+    ) {}
+
+    /**
+     * Cache totals collection result
+     *
+     * @param TotalsCollector $subject
+     * @param callable $proceed
+     * @param Quote $quote
+     * @return Total
+     */
+    public function aroundCollect(
+        TotalsCollector $subject,
+        callable $proceed,
+        Quote $quote
+    ): Total {
+        // Generate cache key based on quote state
+        $cacheKey = $this-&gt;getCacheKey($quote);
+
+        // Try cache first
+        $cachedData = $this-&gt;cache-&gt;load($cacheKey);
+        if ($cachedData) {
+            return $this-&gt;serializer-&gt;unserialize($cachedData);
+        }
+
+        // Calculate totals
+        $totals = $proceed($quote);
+
+        // Cache result
+        $this-&gt;cache-&gt;save(
+            $this-&gt;serializer-&gt;serialize($totals),
+            $cacheKey,
+            [self::CACHE_TAG, 'quote_' . $quote-&gt;getId()],
+            self::CACHE_LIFETIME
+        );
+
+        return $totals;
+    }
+
+    /**
+     * Generate cache key from quote state
+     *
+     * @param Quote $quote
+     * @return string
+     */
+    private function getCacheKey(Quote $quote): string
+    {
+        $keyData = [
+            'quote_id' =&gt; $quote-&gt;getId(),
+            'updated_at' =&gt; $quote-&gt;getUpdatedAt(),
+            'items_count' =&gt; $quote-&gt;getItemsCount(),
+            'coupon_code' =&gt; $quote-&gt;getCouponCode(),
+            'customer_group_id' =&gt; $quote-&gt;getCustomerGroupId(),
+            'store_id' =&gt; $quote-&gt;getStoreId()
+        ];
+
+        return self::CACHE_TAG . '_' . md5($this-&gt;serializer-&gt;serialize($keyData));
+    }
+}
+</code></pre>
+<p><strong>Configuration:</strong></p>
+<pre><code class="language-xml">&lt;type name=&quot;Magento\Quote\Model\Quote\TotalsCollector&quot;&gt;
+    &lt;plugin name=&quot;vendor_cache_totals&quot;
+            type=&quot;Vendor\Module\Plugin\Quote\CacheTotalsExtend&quot;
+            sortOrder=&quot;10&quot;/&gt;
+&lt;/type&gt;
+</code></pre>
+<hr />
+<h2 id="3-caching-strategies">3. Caching Strategies</h2>
+<h3 id="31-full-page-cache-fpc-exclusions">3.1 Full Page Cache (FPC) Exclusions</h3>
+<p>Cart data is customer-specific and must be excluded from FPC:</p>
+<pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;page xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+      xsi:noNamespaceSchemaLocation=&quot;urn:magento:framework:View/Layout/etc/page_configuration.xsd&quot;&gt;
+    &lt;body&gt;
+        &lt;!-- Cart block excluded from FPC --&gt;
+        &lt;referenceBlock name=&quot;minicart&quot;&gt;
+            &lt;arguments&gt;
+                &lt;argument name=&quot;cache_lifetime&quot; xsi:type=&quot;null&quot;/&gt;
+                &lt;argument name=&quot;cache_key&quot; xsi:type=&quot;null&quot;/&gt;
+            &lt;/arguments&gt;
+        &lt;/referenceBlock&gt;
+    &lt;/body&gt;
+&lt;/page&gt;
+</code></pre>
+<h3 id="32-customer-section-data">3.2 Customer Section Data</h3>
+<p>Use section data for dynamic cart updates without full page reload:</p>
+<pre><code class="language-javascript">// Load cart data via section API
+require(['Magento_Customer/js/customer-data'], function (customerData) {
+    var cart = customerData.get('cart');
+
+    // Subscribe to changes
+    cart.subscribe(function (updatedCart) {
+        console.log('Cart updated:', updatedCart);
+        console.log('Items count:', updatedCart.summary_count);
+        console.log('Subtotal:', updatedCart.subtotal);
+    });
+
+    // Trigger reload
+    customerData.reload(['cart']);
+});
+</code></pre>
+<p><strong>Backend Implementation:</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Magento\Checkout\CustomerData;
+
+use Magento\Customer\CustomerData\SectionSourceInterface;
+
+/**
+ * Cart section data provider
+ */
+class Cart implements SectionSourceInterface
+{
+    public function __construct(
+        private readonly \Magento\Checkout\Model\Session $checkoutSession,
+        private readonly \Magento\Checkout\Helper\Data $checkoutHelper
+    ) {}
+
+    /**
+     * Get cart section data
+     *
+     * OPTIMIZATION: Return minimal data, defer heavy calculations
+     *
+     * @return array
+     */
+    public function getSectionData(): array
+    {
+        $quote = $this-&gt;checkoutSession-&gt;getQuote();
+
+        if (!$quote-&gt;getId()) {
+            return [
+                'summary_count' =&gt; 0,
+                'subtotal' =&gt; 0,
+                'items' =&gt; []
+            ];
+        }
+
+        // Return lightweight data
+        return [
+            'summary_count' =&gt; $quote-&gt;getItemsQty(),
+            'subtotal' =&gt; $quote-&gt;getSubtotal(),
+            'subtotal_formatted' =&gt; $this-&gt;checkoutHelper-&gt;formatPrice($quote-&gt;getSubtotal()),
+            'items' =&gt; $this-&gt;getItemsData($quote), // Only summary, not full item data
+            'extra_actions' =&gt; $this-&gt;checkoutHelper-&gt;getCartExtraActions()
+        ];
+    }
+
+    /**
+     * Get minimal item data
+     *
+     * @param \Magento\Quote\Model\Quote $quote
+     * @return array
+     */
+    private function getItemsData(\Magento\Quote\Model\Quote $quote): array
+    {
+        $items = [];
+        foreach ($quote-&gt;getAllVisibleItems() as $item) {
+            $items[] = [
+                'item_id' =&gt; $item-&gt;getId(),
+                'product_name' =&gt; $item-&gt;getName(),
+                'qty' =&gt; $item-&gt;getQty(),
+                'product_price_value' =&gt; $item-&gt;getPrice()
+            ];
+        }
+        return $items;
+    }
+}
+</code></pre>
+<h3 id="33-redis-session-storage">3.3 Redis Session Storage</h3>
+<p>Use Redis for session storage to improve quote access performance:</p>
+<pre><code class="language-php">// app/etc/env.php
+return [
+    'session' =&gt; [
+        'save' =&gt; 'redis',
+        'redis' =&gt; [
+            'host' =&gt; '127.0.0.1',
+            'port' =&gt; '6379',
+            'password' =&gt; '',
+            'timeout' =&gt; '2.5',
+            'persistent_identifier' =&gt; '',
+            'database' =&gt; '2',
+            'compression_threshold' =&gt; '2048',
+            'compression_library' =&gt; 'gzip',
+            'log_level' =&gt; '4',
+            'max_concurrency' =&gt; '20',
+            'break_after_frontend' =&gt; '5',
+            'break_after_adminhtml' =&gt; '30',
+            'first_lifetime' =&gt; '600',
+            'bot_first_lifetime' =&gt; '60',
+            'bot_lifetime' =&gt; '7200',
+            'disable_locking' =&gt; '0',
+            'min_lifetime' =&gt; '60',
+            'max_lifetime' =&gt; '2592000'
+        ]
+    ]
+];
+</code></pre>
+<hr />
+<h2 id="4-query-reduction-techniques">4. Query Reduction Techniques</h2>
+<h3 id="41-lazy-loading-prevention">4.1 Lazy Loading Prevention</h3>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Service;
+
+use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Catalog\Model\ResourceModel\Product\CollectionFactory;
+
+/**
+ * Eager load products to prevent N+1 queries
+ */
+class OptimizedCartLoaderService
+{
+    public function __construct(
+        private readonly CartRepositoryInterface $cartRepository,
+        private readonly CollectionFactory $productCollectionFactory
+    ) {}
+
+    /**
+     * Load quote with all related data in minimal queries
+     *
+     * @param int $quoteId
+     * @return \Magento\Quote\Api\Data\CartInterface
+     */
+    public function loadQuoteOptimized(int $quoteId): \Magento\Quote\Api\Data\CartInterface
+    {
+        // Load quote (1 query)
+        $quote = $this-&gt;cartRepository-&gt;get($quoteId);
+
+        // Collect all product IDs (1 query for items)
+        $productIds = [];
+        foreach ($quote-&gt;getAllItems() as $item) {
+            $productIds[] = $item-&gt;getProductId();
+        }
+
+        // Eager load all products (1 query)
+        if (!empty($productIds)) {
+            $productCollection = $this-&gt;productCollectionFactory-&gt;create();
+            $productCollection-&gt;addFieldToFilter('entity_id', ['in' =&gt; $productIds]);
+            $productCollection-&gt;addAttributeToSelect(['name', 'sku', 'price', 'image']);
+            $products = $productCollection-&gt;getItems();
+
+            // Attach products to items (no additional queries)
+            foreach ($quote-&gt;getAllItems() as $item) {
+                if (isset($products[$item-&gt;getProductId()])) {
+                    $item-&gt;setProduct($products[$item-&gt;getProductId()]);
+                }
+            }
+        }
+
+        // Total queries: 3 (quote, items, products) instead of 1 + N
+        return $quote;
+    }
+}
+</code></pre>
+<h3 id="42-collection-optimization">4.2 Collection Optimization</h3>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Service;
+
+use Magento\Quote\Model\ResourceModel\Quote\CollectionFactory;
+
+/**
+ * Optimized quote collection loading
+ */
+class QuoteCollectionService
+{
+    public function __construct(
+        private readonly CollectionFactory $quoteCollectionFactory
+    ) {}
+
+    /**
+     * Load active customer quotes efficiently
+     *
+     * @param int $customerId
+     * @return array
+     */
+    public function getActiveQuotes(int $customerId): array
+    {
+        $collection = $this-&gt;quoteCollectionFactory-&gt;create();
+
+        // OPTIMIZATION: Filter at database level
+        $collection-&gt;addFieldToFilter('customer_id', $customerId);
+        $collection-&gt;addFieldToFilter('is_active', 1);
+
+        // OPTIMIZATION: Select only needed fields
+        $collection-&gt;addFieldToSelect([
+            'entity_id',
+            'created_at',
+            'updated_at',
+            'items_count',
+            'items_qty',
+            'grand_total',
+            'store_id'
+        ]);
+
+        // OPTIMIZATION: Limit results
+        $collection-&gt;setPageSize(10);
+        $collection-&gt;setCurPage(1);
+
+        // OPTIMIZATION: Order by most recent
+        $collection-&gt;setOrder('updated_at', 'DESC');
+
+        return $collection-&gt;getItems();
+    }
+}
+</code></pre>
+<hr />
+<h2 id="5-large-cart-optimization">5. Large Cart Optimization</h2>
+<h3 id="51-item-pagination">5.1 Item Pagination</h3>
+<p>For carts with 100+ items, paginate item display:</p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Block\Cart;
+
+use Magento\Framework\View\Element\Template;
+
+/**
+ * Paginated cart items display
+ */
+class Items extends Template
+{
+    private const ITEMS_PER_PAGE = 20;
+
+    public function __construct(
+        Template\Context $context,
+        private readonly \Magento\Checkout\Model\Session $checkoutSession,
+        array $data = []
+    ) {
+        parent::__construct($context, $data);
+    }
+
+    /**
+     * Get items for current page
+     *
+     * @return array
+     */
+    public function getItems(): array
+    {
+        $quote = $this-&gt;checkoutSession-&gt;getQuote();
+        $allItems = $quote-&gt;getAllVisibleItems();
+
+        $currentPage = (int)$this-&gt;getRequest()-&gt;getParam('p', 1);
+        $offset = ($currentPage - 1) * self::ITEMS_PER_PAGE;
+
+        return array_slice($allItems, $offset, self::ITEMS_PER_PAGE);
+    }
+
+    /**
+     * Get total pages
+     *
+     * @return int
+     */
+    public function getTotalPages(): int
+    {
+        $quote = $this-&gt;checkoutSession-&gt;getQuote();
+        $totalItems = $quote-&gt;getItemsCount();
+
+        return (int)ceil($totalItems / self::ITEMS_PER_PAGE);
+    }
+}
+</code></pre>
+<h3 id="52-async-totals-calculation">5.2 Async Totals Calculation</h3>
+<p>Calculate totals asynchronously for very large carts:</p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Service;
+
+use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Framework\MessageQueue\PublisherInterface;
+
+/**
+ * Async totals calculation for large carts
+ */
+class AsyncTotalsService
+{
+    private const LARGE_CART_THRESHOLD = 50;
+
+    public function __construct(
+        private readonly CartRepositoryInterface $cartRepository,
+        private readonly PublisherInterface $publisher
+    ) {}
+
+    /**
+     * Calculate totals async if cart is large
+     *
+     * @param int $quoteId
+     * @return bool True if calculated sync, false if queued
+     */
+    public function calculateTotals(int $quoteId): bool
+    {
+        $quote = $this-&gt;cartRepository-&gt;get($quoteId);
+
+        if ($quote-&gt;getItemsCount() &lt; self::LARGE_CART_THRESHOLD) {
+            // Small cart - calculate synchronously
+            $quote-&gt;collectTotals();
+            $this-&gt;cartRepository-&gt;save($quote);
+            return true;
+        }
+
+        // Large cart - queue for async processing
+        $this-&gt;publisher-&gt;publish('quote.totals.calculate', json_encode([
+            'quote_id' =&gt; $quoteId
+        ]));
+
+        return false;
+    }
+}
+</code></pre>
+<p><strong>Message Queue Consumer:</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Model\MessageQueue;
+
+use Magento\Quote\Api\CartRepositoryInterface;
+
+/**
+ * Process async totals calculation
+ */
+class TotalsCalculationConsumer
+{
+    public function __construct(
+        private readonly CartRepositoryInterface $cartRepository,
+        private readonly \Psr\Log\LoggerInterface $logger
+    ) {}
+
+    /**
+     * Process message
+     *
+     * @param string $message
+     * @return void
+     */
+    public function process(string $message): void
+    {
+        $data = json_decode($message, true);
+        $quoteId = $data['quote_id'];
+
+        try {
+            $quote = $this-&gt;cartRepository-&gt;get($quoteId);
+            $quote-&gt;collectTotals();
+            $this-&gt;cartRepository-&gt;save($quote);
+
+            $this-&gt;logger-&gt;info('Async totals calculated', ['quote_id' =&gt; $quoteId]);
+        } catch (\Exception $e) {
+            $this-&gt;logger-&gt;error('Async totals calculation failed', [
+                'quote_id' =&gt; $quoteId,
+                'error' =&gt; $e-&gt;getMessage()
+            ]);
+        }
+    }
+}
+</code></pre>
+<hr />
+<h2 id="6-scaling-strategies">6. Scaling Strategies</h2>
+<h3 id="61-read-replicas">6.1 Read Replicas</h3>
+<p>Offload quote reads to database replicas:</p>
+<pre><code class="language-php">// app/etc/env.php
+return [
+    'db' =&gt; [
+        'connection' =&gt; [
+            'default' =&gt; [
+                'host' =&gt; 'db-master.example.com',
+                'dbname' =&gt; 'magento',
+                'username' =&gt; 'magento',
+                'password' =&gt; 'password',
+                'active' =&gt; '1'
+            ],
+            'checkout' =&gt; [
+                'host' =&gt; 'db-replica-checkout.example.com',
+                'dbname' =&gt; 'magento',
+                'username' =&gt; 'magento_read',
+                'password' =&gt; 'password',
+                'active' =&gt; '1'
+            ]
+        ],
+        'slave_connection' =&gt; [
+            'checkout' =&gt; [
+                'host' =&gt; 'db-replica-checkout.example.com',
+                'dbname' =&gt; 'magento',
+                'username' =&gt; 'magento_read',
+                'password' =&gt; 'password',
+                'active' =&gt; '1'
+            ]
+        ]
+    ],
+    'resource' =&gt; [
+        'default_setup' =&gt; [
+            'connection' =&gt; 'default'
+        ],
+        'checkout' =&gt; [
+            'connection' =&gt; 'checkout'
+        ]
+    ]
+];
+</code></pre>
+<h3 id="62-horizontal-scaling-with-sticky-sessions">6.2 Horizontal Scaling with Sticky Sessions</h3>
+<p>For multi-server deployments, use sticky sessions to keep customer on same server:</p>
+<p><strong>Nginx Configuration:</strong></p>
+<pre><code class="language-nginx">upstream backend {
+    ip_hash; # Sticky sessions based on IP
+    server app1.example.com:9000;
+    server app2.example.com:9000;
+    server app3.example.com:9000;
+}
+
+server {
+    location / {
+        fastcgi_pass backend;
+        # ... other config
+    }
+}
+</code></pre>
+<p><strong>Alternative: Redis Session Sharing:</strong></p>
+<p>All servers share Redis for session storage (configured in section 3.3).</p>
+<hr />
+<h2 id="7-monitoring-and-profiling">7. Monitoring and Profiling</h2>
+<h3 id="71-query-logging">7.1 Query Logging</h3>
+<p>Enable slow query log for quote operations:</p>
+<pre><code class="language-sql">-- MySQL configuration
+SET GLOBAL slow_query_log = 'ON';
+SET GLOBAL long_query_time = 0.5; -- Log queries &gt; 500ms
+SET GLOBAL log_queries_not_using_indexes = 'ON';
+</code></pre>
+<h3 id="72-new-relic-instrumentation">7.2 New Relic Instrumentation</h3>
+<p>Add custom transactions for quote operations:</p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Plugin\Quote;
+
+use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Quote\Api\Data\CartInterface;
+
+/**
+ * New Relic instrumentation
+ */
+class NewRelicMonitoringExtend
+{
+    /**
+     * Monitor quote save performance
+     *
+     * @param CartRepositoryInterface $subject
+     * @param callable $proceed
+     * @param CartInterface $quote
+     * @return void
+     */
+    public function aroundSave(
+        CartRepositoryInterface $subject,
+        callable $proceed,
+        CartInterface $quote
+    ): void {
+        if (extension_loaded('newrelic')) {
+            newrelic_start_transaction(ini_get('newrelic.appname'));
+            newrelic_name_transaction('quote/save');
+
+            newrelic_add_custom_parameter('quote_id', $quote-&gt;getId());
+            newrelic_add_custom_parameter('items_count', $quote-&gt;getItemsCount());
+            newrelic_add_custom_parameter('grand_total', $quote-&gt;getGrandTotal());
+        }
+
+        $startTime = microtime(true);
+
+        try {
+            $proceed($quote);
+        } finally {
+            $executionTime = (microtime(true) - $startTime) * 1000; // Convert to ms
+
+            if (extension_loaded('newrelic')) {
+                newrelic_custom_metric('Custom/Quote/Save/Duration', $executionTime);
+                newrelic_end_transaction();
+            }
+        }
+    }
+}
+</code></pre>
+<h3 id="73-performance-metrics-collection">7.3 Performance Metrics Collection</h3>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Model\Metrics;
+
+/**
+ * Collect quote performance metrics
+ */
+class QuoteMetricsCollector
+{
+    private array $metrics = [];
+
+    public function __construct(
+        private readonly \Psr\Log\LoggerInterface $logger
+    ) {}
+
+    /**
+     * Record metric
+     *
+     * @param string $operation
+     * @param float $duration
+     * @param array $context
+     * @return void
+     */
+    public function record(string $operation, float $duration, array $context = []): void
+    {
+        $this-&gt;metrics[] = [
+            'operation' =&gt; $operation,
+            'duration_ms' =&gt; round($duration * 1000, 2),
+            'context' =&gt; $context,
+            'timestamp' =&gt; time()
+        ];
+
+        // Log slow operations
+        if ($duration &gt; 1.0) { // &gt; 1 second
+            $this-&gt;logger-&gt;warning('Slow quote operation detected', [
+                'operation' =&gt; $operation,
+                'duration_ms' =&gt; round($duration * 1000, 2),
+                'context' =&gt; $context
+            ]);
+        }
+    }
+
+    /**
+     * Get collected metrics
+     *
+     * @return array
+     */
+    public function getMetrics(): array
+    {
+        return $this-&gt;metrics;
+    }
+
+    /**
+     * Clear metrics
+     *
+     * @return void
+     */
+    public function clear(): void
+    {
+        $this-&gt;metrics = [];
+    }
+}
+</code></pre>
+<hr />
+<h2 id="8-best-practices-summary">8. Best Practices Summary</h2>
+<h3 id="dos">Do's</h3>
+<ol>
+<li><strong>Use Repository Pattern</strong> - Always use <code>CartRepositoryInterface</code> for persistence</li>
+<li><strong>Batch Operations</strong> - Group multiple item additions before <code>collectTotals()</code></li>
+<li><strong>Eager Load</strong> - Preload related data to avoid N+1 queries</li>
+<li><strong>Index Properly</strong> - Ensure database indexes on frequently queried columns</li>
+<li><strong>Cache Aggressively</strong> - Cache totals, section data, and expensive calculations</li>
+<li><strong>Monitor Queries</strong> - Track slow queries and optimize them</li>
+<li><strong>Test at Scale</strong> - Performance test with 100+ items in cart</li>
+</ol>
+<h3 id="donts">Don'ts</h3>
+<ol>
+<li><strong>Don't Call collectTotals() Multiple Times</strong> - Batch changes first</li>
+<li>**Don't Use SELECT *** - Load only needed columns</li>
+<li><strong>Don't Bypass Repositories</strong> - Avoid direct model save()</li>
+<li><strong>Don't Load Full Collections</strong> - Use pagination and filtering</li>
+<li><strong>Don't Trust Client Data</strong> - Always validate server-side</li>
+<li><strong>Don't Block on Heavy Operations</strong> - Use async processing for large carts</li>
+<li><strong>Don't Ignore Indexes</strong> - Missing indexes cause table scans</li>
+</ol>
+<hr />
+<h2 id="9-performance-checklist">9. Performance Checklist</h2>
+<h3 id="pre-production">Pre-Production</h3>
+<ul>
+<li>[ ] Database indexes created and verified</li>
+<li>[ ] Redis configured for sessions and cache</li>
+<li>[ ] Slow query log enabled</li>
+<li>[ ] New Relic or equivalent APM configured</li>
+<li>[ ] Load testing performed with realistic cart sizes</li>
+<li>[ ] Totals collectors have optimal sort_order</li>
+<li>[ ] Custom collectors skip when not needed</li>
+<li>[ ] Section data returns minimal payload</li>
+<li>[ ] Query count verified for key operations</li>
+</ul>
+<h3 id="monitoring">Monitoring</h3>
+<ul>
+<li>[ ] Track average cart operation times</li>
+<li>[ ] Monitor database query count per request</li>
+<li>[ ] Alert on slow totals collection (&gt; 500ms)</li>
+<li>[ ] Monitor cart abandonment rate</li>
+<li>[ ] Track large cart frequency (100+ items)</li>
+<li>[ ] Monitor Redis memory usage</li>
+<li>[ ] Track session storage performance</li>
+</ul>
+<hr />
+<p><strong>Assumptions:</strong>
+- Magento 2.4.7+ with PHP 8.2+
+- MySQL 8.0+ or MariaDB 10.6+
+- Redis 6.0+ for session and cache
+- Multiple application servers for scaling
+- CDN for static content</p>
+<p><strong>Why This Approach:</strong>
+Performance optimization requires measurement-driven decisions. Caching strategies prevent redundant calculations. Database optimization reduces query overhead. Monitoring enables proactive issue detection.</p>
+<p><strong>Security Impact:</strong>
+- Caching must not expose customer data
+- Session sharing requires secure Redis configuration
+- Monitoring should not log sensitive data
+- Read replicas must enforce same access controls</p>
+<p><strong>Performance Impact:</strong>
+- Proper indexing: 50-80% faster queries
+- Redis sessions: 30-50% faster quote access
+- Totals caching: 60-90% faster on repeated access
+- Eager loading: 40-70% reduction in query count</p>
+<p><strong>Backward Compatibility:</strong>
+Performance optimizations should be transparent to API consumers. Caching must invalidate correctly. Async processing requires fallback for real-time needs.</p>
+<p><strong>Tests to Add:</strong>
+- Performance benchmarks for key operations
+- Load tests with 100+ items in cart
+- Cache invalidation tests
+- Query count assertions
+- Scalability tests with concurrent users</p>
+<p><strong>Docs to Update:</strong>
+- Performance tuning guide
+- Infrastructure requirements
+- Monitoring dashboard setup
+- Scaling architecture diagrams</p>
+                    </div>
+                </article>
+            </main>
+            <!-- Right Sidebar: On This Page (desktop) -->
+            <aside class="toc-sidebar hidden xl:block" aria-label="On this page">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-semibold text-gray-900 uppercase tracking-wider mb-4 mt-0">On this page</h3>
+                    <nav id="toc-nav" class="space-y-0" aria-label="Table of contents"></nav>
+                    <div class="toc-back-to-top">
+                        <a href="#">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+                            </svg>
+                            Back to top
+                        </a>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- ================================================================
+         FOOTER — matches module-catalog.html multi-column layout exactly
+         ================================================================ -->
+    <footer class="relative pt-12 bg-white border-t border-charcoal mt-16">
+        <div class="max-w-screen-2xl mx-auto w-full px-4 sm:px-6 lg:px-8">
+            <div>
+                <a href="index.html" class="inline-flex items-center no-underline">
+                    <svg width="30" height="33" viewBox="0 0 30 33" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Magento Association logo" role="img">
+                        <path d="M0 4.06492H29.6763V31.8882C29.6763 32.502 29.1713 33 28.5487 33H1.12762C0.505079 33 0 32.502 0 31.8882V4.06492Z" fill="#34323A"/>
+                        <path d="M1.26857 0H28.4078C29.1066 0 29.6763 0.561678 29.6763 1.25075V4.06492H0V1.25075C0 0.561678 0.569682 0 1.26857 0Z" fill="#C9C9C9"/>
+                        <path d="M2.37269 3.0458C2.94031 3.0458 3.40046 2.59211 3.40046 2.03246C3.40046 1.47281 2.94031 1.01913 2.37269 1.01913C1.80506 1.01913 1.34491 1.47281 1.34491 2.03246C1.34491 2.59211 1.80506 3.0458 2.37269 3.0458Z" fill="#848484"/>
+                        <path d="M5.28571 3.0458C5.85334 3.0458 6.31349 2.59211 6.31349 2.03246C6.31349 1.47281 5.85334 1.01913 5.28571 1.01913C4.71809 1.01913 4.25793 1.47281 4.25793 2.03246C4.25793 2.59211 4.71809 3.0458 5.28571 3.0458Z" fill="#848484"/>
+                        <path d="M14.7883 7.46973L4.90405 13.0923V24.349L7.54104 25.8487V14.5978L14.7883 10.4692L22.0415 14.5978V25.8487L24.6785 24.349V13.0923L14.7883 7.46973Z" fill="#F1BC1B"/>
+                        <path d="M16.0862 26.2367L14.7883 26.9779L13.4492 26.2135V14.233L10.178 16.0975V27.3485L13.4492 29.213L14.7883 29.9773L16.0862 29.2362L19.4045 27.3485V16.0975L16.0862 14.2098V26.2367Z" fill="#F1BC1B"/>
+                    </svg>
+                    <span class="ml-3 text-xl font-bold text-charcoal">Developer Documentation</span>
+                </a>
+            </div>
+
+            <div class="grid grid-cols-12 md:gap-x-8 gap-y-12 lg:mt-12">
+                <div class="col-span-12 lg:col-span-4">
+                    <p class="hidden lg:block text-xs text-charcoal sm:text-sm">Comprehensive developer documentation for Magento 2.4.7+ — tutorials, architecture deep dives, module references, and production-ready patterns built by the community, for the community.</p>
+                    <ul class="mt-6 hidden lg:flex items-center gap-3">
+                        <li class="pl-0">
+                            <a href="https://github.com/magento/magento2" class="p-2 md:p-0" aria-label="GitHub">
+                                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                                </svg>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Guides</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="tutorials.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Tutorials</a></li>
+                            <li class="pl-0"><a href="how-to-guides.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">How-To Guides</a></li>
+                            <li class="pl-0"><a href="architecture.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Architecture</a></li>
+                            <li class="pl-0"><a href="learning-paths.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Learning Paths</a></li>
+                            <li class="pl-0"><a href="references.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">References</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Modules</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="module-catalog.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Catalog</a></li>
+                            <li class="pl-0"><a href="module-checkout.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Checkout</a></li>
+                            <li class="pl-0"><a href="module-sales.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Sales</a></li>
+                            <li class="pl-0"><a href="module-customer.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Customer</a></li>
+                            <li class="pl-0"><a href="module-quote.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Quote</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Community</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Magento Community</a></li>
+                            <li class="pl-0"><a href="https://magento.stackexchange.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Stack Exchange</a></li>
+                            <li class="pl-0"><a href="https://marketplace.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Marketplace</a></li>
+                            <li class="pl-0"><a href="https://github.com/magento/magento2" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">GitHub</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Support</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://github.com/magento/magento2/issues" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Report Issues</a></li>
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Community Resources</a></li>
+                            <li class="pl-0"><a href="https://developer.adobe.com/commerce/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Adobe Commerce Docs</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-12 border-t pt-6 pb-16 border-charcoal">
+                <p class="text-xs text-charcoal">
+                    &copy; 2026 Magento 2 Developer Documentation. Magento&reg; is a registered trademark of Adobe Inc.
+                </p>
+                <p class="mt-6 text-xs text-charcoal">
+                    This documentation provides guidance for Magento 2 developers and extension builders. For merchant documentation, visit the <a href="index.html" class="text-orange hover:text-orange-600 transition-colors">merchant documentation</a>.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Initialize highlight.js -->
+    <script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('pre code').forEach(function (el) {
+        hljs.highlightElement(el);
+    });
+    document.querySelectorAll('pre').forEach(function (pre) {
+        if (pre.parentNode.classList && pre.parentNode.classList.contains('code-wrapper')) return;
+        var wrapper = document.createElement('div');
+        wrapper.className = 'code-wrapper';
+        pre.parentNode.insertBefore(wrapper, pre);
+        wrapper.appendChild(pre);
+        var btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.setAttribute('type', 'button');
+        btn.setAttribute('aria-label', 'Copy code to clipboard');
+        btn.setAttribute('title', 'Copy');
+        btn.textContent = 'Copy';
+        wrapper.appendChild(btn);
+        btn.addEventListener('click', function () {
+            var code = pre.querySelector('code');
+            var text = code ? (code.innerText || code.textContent) : (pre.innerText || pre.textContent);
+            navigator.clipboard.writeText(text).then(function () {
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            }).catch(function () {
+                var range = document.createRange();
+                range.selectNode(code || pre);
+                window.getSelection().removeAllRanges();
+                window.getSelection().addRange(range);
+                document.execCommand('copy');
+                window.getSelection().removeAllRanges();
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            });
+        });
+    });
+});
+</script>
+
+
+<script>
+(function() {
+    var nav = document.getElementById('toc-nav');
+    if (!nav) return;
+    var article = document.getElementById('main-content');
+    if (!article) return;
+    var headings = article.querySelectorAll('h2[id], h3[id]');
+    if (headings.length < 3) {
+        // Hide the entire TOC sidebar if fewer than 3 headings
+        var sidebar = nav.closest('.toc-sidebar');
+        if (sidebar) sidebar.style.display = 'none';
+        return;
+    }
+    var ids = [];
+    headings.forEach(function(h) {
+        var a = document.createElement('a');
+        a.href = '#' + h.id;
+        a.textContent = h.textContent.replace(/^#+\s*/, '').replace(/\s+/g, ' ').trim();
+        if (h.tagName === 'H3') a.classList.add('toc-h3');
+        nav.appendChild(a);
+        ids.push(h.id);
+    });
+    // Scroll-spy with IntersectionObserver
+    var links = nav.querySelectorAll('a');
+    var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                links.forEach(function(l) { l.classList.remove('toc-active'); });
+                var active = nav.querySelector('a[href="#' + entry.target.id + '"]');
+                if (active) active.classList.add('toc-active');
+            }
+        });
+    }, { rootMargin: '-80px 0px -70% 0px', threshold: 0 });
+    headings.forEach(function(h) { observer.observe(h); });
+})();
+</script>
+</body>
+</html>

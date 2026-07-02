@@ -1,0 +1,1625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Store Configuration Mastery — Magento 2 Developer Documentation</title>
+    <meta name="description" content="Deep dive into Magento's website/store/store view hierarchy, scope-aware configuration, multi-store themes, URL management, and performance optimization.">
+
+    <!-- Google Fonts: Inter Tight only. Courier New used for code. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Highlight.js: syntax highlighting for code blocks -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/php.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/ini.min.js"></script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        charcoal: {
+                            DEFAULT: '#2c2c2c', 50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6',
+                            300: '#6B6B6B', 400: '#474747', 500: '#2c2c2c', 600: '#262626',
+                            700: '#202020', 800: '#1c1c1c', 900: '#191919', 950: '#121212'
+                        },
+                        orange: {
+                            DEFAULT: '#D4551A', 50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad',
+                            300: '#f9ae78', 400: '#f58242', 500: '#f26423', 600: '#e34613',
+                            700: '#bc3312', 800: '#962a16', 900: '#792515', 950: '#411009'
+                        },
+                        yellow: {
+                            DEFAULT: '#B8860B', 50: '#fffdeb', 100: '#fdf9c8', 200: '#fbf38c',
+                            300: '#f8e651', 400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a',
+                            700: '#b1670c', 800: '#8f5111', 900: '#764311', 950: '#442204'
+                        },
+                        'off-white': '#FAFAFA',
+                    },
+                    fontFamily: {
+                        sans: ['Inter Tight', 'system-ui', '-apple-system', 'sans-serif'],
+                        mono: ['Courier New', 'Courier', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* ── Force light mode ── */
+        :root { color-scheme: light only; }
+
+        [x-cloak] { display: none !important; }
+
+        /* ── Scroll offset for sticky header ── */
+        .prose h2, .prose h3 { scroll-margin-top: 5rem; }
+
+        /* ── Code blocks: Bauhaus charcoal bg, no border-radius, highlight.js override ── */
+        .prose pre {
+            background-color: #2C2C2C !important;
+            border-radius: 0 !important;
+            padding: 1.25rem;
+            overflow-x: auto;
+            font-size: 0.875rem;
+            line-height: 1.7;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 1.5rem 0;
+        }
+        .prose pre code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            background: transparent !important;
+            padding: 0;
+                    color: #abb2bf;
+        }
+        /* Override highlight.js theme background to match Bauhaus charcoal */
+        .hljs {
+            background: #2C2C2C !important;
+            color: #abb2bf !important;
+            border-radius: 0 !important;
+        }
+
+        /* ── Inline code: charcoal bg, yellow text, no border-radius ── */
+        .prose code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.85em;
+        }
+        .prose :not(pre) > code {
+            background-color: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2em 0.45em;
+            border-radius: 0;
+        }
+
+        /* ── Step-code: same charcoal/yellow style for UI path chips ── */
+        .step-code {
+            background: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2rem 0.5rem;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            border-radius: 0;
+        }
+
+        /* ── Tables: no border-radius, charcoal header ── */
+        .prose table { width: 100%; border-collapse: collapse; }
+        .prose th {
+            background-color: #2C2C2C;
+            color: #ffffff;
+            font-weight: 600;
+            text-align: left;
+            padding: 0.75rem 1rem;
+            border-bottom: 2px solid #2C2C2C;
+            border-radius: 0;
+        }
+        .prose td { padding: 0.75rem 1rem; border-bottom: 1px solid #e5e5e5; }
+        .prose tr:hover { background-color: #fafafa; }
+
+        /* ── Blockquote: Bauhaus style — border-4 yellow, square, no left-only border ── */
+        .prose blockquote {
+            border: 4px solid #F1BC1B;
+            background-color: #ffffff;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+            border-radius: 0;
+        }
+        .prose blockquote p { margin: 0; }
+
+        /* ── Lists: hexagon bullets ── */
+        .prose ul { list-style: none; padding-left: 0; }
+        .prose ul li {
+            position: relative;
+            padding-left: 1.75rem;
+            margin-bottom: 0.4rem;
+            line-height: 1.7;
+        }
+        .prose ul li::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0.45em;
+            width: 10px;
+            height: 10px;
+            background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 2L21 7V17L12 22L3 17V7L12 2Z' stroke='%23F26423' stroke-width='2.5' stroke-linejoin='miter'/%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+        .prose ol { list-style-type: decimal; padding-left: 1.5rem; }
+        .prose li { margin-bottom: 0.4rem; }
+
+        /* ── Headings ── */
+        .prose h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            padding-top: 1.5rem;
+            border-top: 4px solid #F1BC1B;
+            color: #2C2C2C;
+        }
+        .prose h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+            color: #2C2C2C;
+        }
+        .prose h4 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #2C2C2C;
+        }
+        .prose p { margin-bottom: 1rem; line-height: 1.75; }
+        .prose a { color: #D4551A; text-decoration: none; }
+        .prose a:hover { color: #e34613; text-decoration: underline; }
+        .prose hr { border: none; border-top: 1px solid #e5e5e5; margin: 2rem 0; }
+
+        /* ── Callout boxes: Bauhaus — border-4 yellow, white bg, icon + title ── */
+        .callout-box {
+            background-color: #ffffff;
+            border: 4px solid #F1BC1B;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+        }
+        .callout-warning {
+            border-color: #D4551A;
+        }
+        .callout-important {
+            border-color: #2C2C2C;
+        }
+        .callout-box .callout-inner {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+        .callout-box .callout-title {
+            font-weight: 600;
+            color: #2C2C2C;
+            margin-bottom: 0.25rem;
+        }
+        .callout-box .callout-body {
+            font-size: 0.875rem;
+            line-height: 1.6;
+            color: rgba(44,44,44,0.85);
+        }
+
+        
+    
+        /* Code block copy button */
+        .code-wrapper {
+            position: relative;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            font-family: 'Inter Tight', system-ui, sans-serif;
+            background: rgba(255,255,255,0.1);
+            color: #abb2bf;
+            border: 1px solid rgba(255,255,255,0.15);
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.15s ease, background 0.15s ease;
+            z-index: 10;
+            line-height: 1.4;
+            border-radius: 4px;
+            user-select: none;
+        }
+        .code-wrapper:hover .copy-btn {
+            opacity: 1;
+        }
+        .copy-btn:hover,
+        .copy-btn:focus {
+            background: rgba(255,255,255,0.2);
+            color: #ffffff;
+            outline: 2px solid #D4551A;
+            outline-offset: 1px;
+        }
+        .copy-btn.copied {
+            color: #98c379;
+            background: rgba(152, 195, 121, 0.15);
+            opacity: 1;
+        }
+    
+        /* Right-hand TOC sidebar */
+        .toc-sidebar {
+            width: 14rem;
+            flex-shrink: 0;
+        }
+        .toc-sidebar a {
+            display: block;
+            padding: 0.375rem 0;
+            font-size: 0.8125rem;
+            line-height: 1.4;
+            color: #6b7280;
+            text-decoration: none;
+            transition: color 0.15s ease;
+            border-left: 2px solid transparent;
+            padding-left: 0.75rem;
+        }
+        .toc-sidebar a:hover {
+            color: #111827;
+        }
+        .toc-sidebar a.toc-active {
+            color: #ea580c;
+            border-left-color: #ea580c;
+            font-weight: 500;
+        }
+        .toc-sidebar a.toc-h3 {
+            padding-left: 1.5rem;
+            font-size: 0.75rem;
+        }
+        .toc-sidebar .toc-back-to-top {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e5e7eb;
+        }
+        .toc-sidebar .toc-back-to-top a {
+            border-left: none;
+            padding-left: 0;
+            font-weight: 500;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .toc-sidebar .toc-back-to-top a:hover {
+            color: #ea580c;
+        }
+    </style>
+</head>
+
+<body class="font-sans bg-off-white text-charcoal">
+
+    <!-- Shared header — single source of truth -->
+    <script src="includes/header.js"></script>
+
+    <!-- Breadcrumb — orange › separators -->
+    <div class="bg-white border-b border-gray-100">
+        <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <div class="flex items-center gap-2 text-sm flex-wrap">
+                <a href="index.html" class="text-orange hover:text-orange-600 transition-colors no-underline">Home</a> <span class="text-orange font-medium">›</span> <a href="index.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">Guides</a> <span class="text-orange font-medium">›</span> <a href="how-to-guides.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">How-To Guides</a> <span class="text-orange font-medium">›</span> <span class="text-charcoal font-medium">Multi-Store Configuration Mastery</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="flex gap-8">
+
+            <!-- Left Sidebar (desktop) -->
+            <aside class="hidden lg:block w-64 flex-shrink-0">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4">How-To Guides</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="guide-howto-admin-ui-components.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Building Admin UI Components in ...</a></li>
+<li class="pl-0"><a href="guide-howto-cicd-deployment.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">CI/CD Deployment Pipelines for M...</a></li>
+<li class="pl-0"><a href="guide-howto-cron-jobs.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Cron Jobs Implementation: Buildi...</a></li>
+<li class="pl-0"><a href="guide-howto-email-templates.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Email Templates Customization</a></li>
+<li class="pl-0"><a href="guide-howto-erp-integration.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">ERP Integration Patterns for Mag...</a></li>
+<li class="pl-0"><a href="guide-howto-full-page-cache-strategy.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Full Page Cache Strategy for Hig...</a></li>
+<li class="pl-0"><a href="guide-howto-import-export.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Import/Export System Deep Dive</a></li>
+<li class="pl-0"><a href="guide-howto-layout-xml-deep-dive.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Layout XML Deep Dive: Mastering ...</a></li>
+<li class="pl-0"><a href="guide-howto-multi-store-setup.html" class="block px-3 py-2 text-sm text-orange font-semibold bg-orange-50 border-l-4 border-orange pl-2 transition-colors no-underline">Multi-Store Configuration Mastery</a></li>
+<li class="pl-0"><a href="guide-howto-security-checklist.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Security Checklist for Custom Mo...</a></li>
+<li class="pl-0"><a href="guide-howto-testing-strategies.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Comprehensive Testing Strategies...</a></li>
+</ul>
+<h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4 mt-8">Guide Sections</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="tutorials.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Tutorials</a></li>
+<li class="pl-0"><a href="how-to-guides.html" class="block px-3 py-2 text-sm text-orange font-semibold bg-orange-50 border-l-4 border-orange pl-2 transition-colors no-underline">How-To Guides</a></li>
+<li class="pl-0"><a href="architecture.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Architecture</a></li>
+<li class="pl-0"><a href="references.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">References</a></li>
+</ul>
+                </div>
+            </aside>
+
+            <!-- Article — square corners, border-t-4 orange accent -->
+            <main id="main-content" class="flex-1 min-w-0">
+                <article class="bg-white shadow-sm border border-gray-100 border-t-4 border-t-orange p-8 md:p-12">
+                    <!-- Title block -->
+                    <div class="mb-8">
+                        <span class="inline-block px-3 py-1.5 text-xs font-medium bg-yellow-50 text-yellow-800 border border-yellow-200">How-To</span>
+                        <h1 class="text-3xl md:text-4xl font-extrabold text-charcoal mt-3 mb-3">Multi-Store Configuration Mastery</h1>
+                        <p class="text-charcoal-300 text-lg mb-4">Deep dive into Magento's website/store/store view hierarchy, scope-aware configuration, multi-store themes, URL management, and performance optimization.</p>
+                        <!-- Meta pills -->
+                        <div class="flex flex-wrap gap-2"><span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-yellow-50 text-yellow-800"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>Advanced</span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-orange-50 text-orange-700"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>50 minutes</span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-charcoal text-white">Magento 2.4.7+</span></div>
+                    </div>
+
+                    <hr class="border-0 border-t border-gray-100 mb-8">
+
+                    <!-- Content -->
+                    <div class="prose max-w-none">
+                        <h1 id="multi-store-configuration-mastery">Multi-Store Configuration Mastery</h1>
+<h2 id="overview">Overview</h2>
+<p>Magento's multi-store architecture enables running multiple brands, locales, or customer segments from a single installation. Understanding the website/store/store view hierarchy and scope-aware configuration is essential for enterprise deployments.</p>
+<p><strong>What you'll learn:</strong>
+- Website/Store/Store View hierarchy and scope inheritance
+- Scope-aware configuration for modules and system settings
+- Multi-store theme architecture and template fallback
+- URL rewrite strategies for store-specific routes
+- Shared vs separate catalog strategies
+- Performance optimization for multi-store environments
+- Database and Redis configuration for scale
+- CLI commands for store management</p>
+<p><strong>Prerequisites:</strong>
+- Magento 2.4.7+ (Adobe Commerce or Open Source)
+- Advanced understanding of Magento configuration system
+- Experience with themes and layout XML
+- Knowledge of URL rewriting and routing
+- Familiarity with caching strategies and indexers</p>
+<hr />
+<h2 id="store-hierarchy-architecture">Store Hierarchy Architecture</h2>
+<h3 id="three-tier-hierarchy">Three-Tier Hierarchy</h3>
+<pre><code>Global
+  ├── Website 1 (example.com)
+  │   ├── Store Group 1 (Main Store)
+  │   │   ├── Store View 1 (English)
+  │   │   ├── Store View 2 (Spanish)
+  │   │   └── Store View 3 (French)
+  │   └── Store Group 2 (Wholesale)
+  │       ├── Store View 4 (B2B English)
+  │       └── Store View 5 (B2B German)
+  └── Website 2 (brand2.com)
+      └── Store Group 3 (Brand Store)
+          ├── Store View 6 (English)
+          └── Store View 7 (Spanish)
+</code></pre>
+<h3 id="scope-levels">Scope Levels</h3>
+<ol>
+<li><strong>Global</strong>: Default configuration applied to all websites</li>
+<li><strong>Website</strong>: Shared customer accounts, order numbers, payment methods</li>
+<li><strong>Store</strong>: Shared root category, pricing, promotions</li>
+<li><strong>Store View</strong>: Locale-specific content, translations, CMS pages</li>
+</ol>
+<h3 id="scope-inheritance">Scope Inheritance</h3>
+<p>Configuration values cascade from Global → Website → Store → Store View. Lower scopes override higher scopes.</p>
+<pre><code>Global: tax_calculation/algorithm = &quot;TOTAL_BASE&quot;
+  └→ Website US: tax_calculation/algorithm = &quot;TOTAL_BASE&quot; (inherited)
+      └→ Store California: tax_calculation/algorithm = &quot;ROW_BASE&quot; (overridden)
+          └→ Store View EN-US: tax_calculation/algorithm = &quot;ROW_BASE&quot; (inherited)
+</code></pre>
+<hr />
+<h2 id="creating-multi-store-structure">Creating Multi-Store Structure</h2>
+<h3 id="admin-configuration">Admin Configuration</h3>
+<p><strong>Stores → All Stores → Create Website/Store/Store View</strong></p>
+<pre><code>Website: &quot;Europe Region&quot;
+  Code: europe
+  Sort Order: 10
+
+Store Group: &quot;European Main Store&quot;
+  Website: Europe Region
+  Root Category: Default Category
+  Default Store View: Europe EN
+
+Store View: &quot;Europe English&quot;
+  Store: European Main Store
+  Code: europe_en
+  Status: Enabled
+  Sort Order: 10
+
+Store View: &quot;Europe German&quot;
+  Store: European Main Store
+  Code: europe_de
+  Status: Enabled
+  Sort Order: 20
+</code></pre>
+<h3 id="programmatic-store-creation">Programmatic Store Creation</h3>
+<p><strong>File</strong>: <code>Vendor/MultiStore/Setup/Patch/Data/CreateStoreStructure.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\MultiStore\Setup\Patch\Data;
+
+use Magento\Framework\Setup\Patch\DataPatchInterface;
+use Magento\Store\Model\GroupFactory;
+use Magento\Store\Model\ResourceModel\Group as GroupResource;
+use Magento\Store\Model\ResourceModel\Store as StoreResource;
+use Magento\Store\Model\ResourceModel\Website as WebsiteResource;
+use Magento\Store\Model\StoreFactory;
+use Magento\Store\Model\WebsiteFactory;
+
+class CreateStoreStructure implements DataPatchInterface
+{
+    public function __construct(
+        private readonly WebsiteFactory $websiteFactory,
+        private readonly WebsiteResource $websiteResource,
+        private readonly GroupFactory $groupFactory,
+        private readonly GroupResource $groupResource,
+        private readonly StoreFactory $storeFactory,
+        private readonly StoreResource $storeResource
+    ) {
+    }
+
+    public function apply(): self
+    {
+        // Create Website
+        $website = $this-&gt;websiteFactory-&gt;create();
+        $website-&gt;setCode('europe')
+            -&gt;setName('Europe Region')
+            -&gt;setSortOrder(10)
+            -&gt;setIsDefault(0);
+
+        $this-&gt;websiteResource-&gt;save($website);
+
+        // Create Store Group
+        $group = $this-&gt;groupFactory-&gt;create();
+        $group-&gt;setWebsiteId($website-&gt;getId())
+            -&gt;setName('European Main Store')
+            -&gt;setRootCategoryId(2) // Default category
+            -&gt;setDefaultStoreId(0);
+
+        $this-&gt;groupResource-&gt;save($group);
+
+        // Create Store Views
+        $storeViews = [
+            [
+                'code' =&gt; 'europe_en',
+                'name' =&gt; 'Europe English',
+                'sort_order' =&gt; 10,
+                'is_active' =&gt; 1,
+            ],
+            [
+                'code' =&gt; 'europe_de',
+                'name' =&gt; 'Europe German',
+                'sort_order' =&gt; 20,
+                'is_active' =&gt; 1,
+            ],
+        ];
+
+        $firstStoreId = null;
+
+        foreach ($storeViews as $storeData) {
+            $store = $this-&gt;storeFactory-&gt;create();
+            $store-&gt;setCode($storeData['code'])
+                -&gt;setName($storeData['name'])
+                -&gt;setWebsiteId($website-&gt;getId())
+                -&gt;setGroupId($group-&gt;getId())
+                -&gt;setSortOrder($storeData['sort_order'])
+                -&gt;setIsActive($storeData['is_active']);
+
+            $this-&gt;storeResource-&gt;save($store);
+
+            if ($firstStoreId === null) {
+                $firstStoreId = $store-&gt;getId();
+            }
+        }
+
+        // Set default store for group
+        if ($firstStoreId) {
+            $group-&gt;setDefaultStoreId($firstStoreId);
+            $this-&gt;groupResource-&gt;save($group);
+        }
+
+        return $this;
+    }
+
+    public static function getDependencies(): array
+    {
+        return [];
+    }
+
+    public function getAliases(): array
+    {
+        return [];
+    }
+}
+</code></pre>
+<hr />
+<h2 id="scope-aware-configuration">Scope-Aware Configuration</h2>
+<h3 id="system-configuration-with-scope">System Configuration with Scope</h3>
+<p><strong>File</strong>: <code>Vendor/MultiStore/etc/adminhtml/system.xml</code></p>
+<pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;config xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+        xsi:noNamespaceSchemaLocation=&quot;urn:magento:module:Magento_Config:etc/system_file.xsd&quot;&gt;
+    &lt;system&gt;
+        &lt;section id=&quot;multistore_config&quot; translate=&quot;label&quot; sortOrder=&quot;500&quot; showInDefault=&quot;1&quot; showInWebsite=&quot;1&quot; showInStore=&quot;1&quot;&gt;
+            &lt;label&gt;Multi-Store Settings&lt;/label&gt;
+            &lt;tab&gt;general&lt;/tab&gt;
+            &lt;resource&gt;Vendor_MultiStore::config&lt;/resource&gt;
+
+            &lt;group id=&quot;regional&quot; translate=&quot;label&quot; sortOrder=&quot;10&quot; showInDefault=&quot;1&quot; showInWebsite=&quot;1&quot; showInStore=&quot;1&quot;&gt;
+                &lt;label&gt;Regional Settings&lt;/label&gt;
+
+                &lt;!-- Global, Website, and Store scope --&gt;
+                &lt;field id=&quot;currency_code&quot; translate=&quot;label comment&quot; type=&quot;select&quot; sortOrder=&quot;10&quot; showInDefault=&quot;1&quot; showInWebsite=&quot;1&quot; showInStore=&quot;0&quot;&gt;
+                    &lt;label&gt;Default Currency&lt;/label&gt;
+                    &lt;source_model&gt;Magento\Config\Model\Config\Source\Locale\Currency&lt;/source_model&gt;
+                    &lt;config_path&gt;multistore_config/regional/currency_code&lt;/config_path&gt;
+                    &lt;comment&gt;Configured at website level&lt;/comment&gt;
+                &lt;/field&gt;
+
+                &lt;!-- Store view specific --&gt;
+                &lt;field id=&quot;locale&quot; translate=&quot;label comment&quot; type=&quot;select&quot; sortOrder=&quot;20&quot; showInDefault=&quot;1&quot; showInWebsite=&quot;1&quot; showInStore=&quot;1&quot;&gt;
+                    &lt;label&gt;Locale&lt;/label&gt;
+                    &lt;source_model&gt;Magento\Config\Model\Config\Source\Locale&lt;/source_model&gt;
+                    &lt;config_path&gt;multistore_config/regional/locale&lt;/config_path&gt;
+                    &lt;comment&gt;Configured per store view&lt;/comment&gt;
+                &lt;/field&gt;
+
+                &lt;!-- Website only --&gt;
+                &lt;field id=&quot;tax_region&quot; translate=&quot;label&quot; type=&quot;text&quot; sortOrder=&quot;30&quot; showInDefault=&quot;0&quot; showInWebsite=&quot;1&quot; showInStore=&quot;0&quot;&gt;
+                    &lt;label&gt;Tax Region Code&lt;/label&gt;
+                    &lt;config_path&gt;multistore_config/regional/tax_region&lt;/config_path&gt;
+                    &lt;comment&gt;Only available at website scope&lt;/comment&gt;
+                &lt;/field&gt;
+            &lt;/group&gt;
+        &lt;/section&gt;
+    &lt;/system&gt;
+&lt;/config&gt;
+</code></pre>
+<h3 id="reading-scope-aware-configuration">Reading Scope-Aware Configuration</h3>
+<p><strong>File</strong>: <code>Vendor/MultiStore/Model/Config.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\MultiStore\Model;
+
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Store\Model\ScopeInterface;
+use Magento\Store\Model\StoreManagerInterface;
+
+class Config
+{
+    private const XML_PATH_CURRENCY = 'multistore_config/regional/currency_code';
+    private const XML_PATH_LOCALE = 'multistore_config/regional/locale';
+    private const XML_PATH_TAX_REGION = 'multistore_config/regional/tax_region';
+
+    public function __construct(
+        private readonly ScopeConfigInterface $scopeConfig,
+        private readonly StoreManagerInterface $storeManager
+    ) {
+    }
+
+    /**
+     * Get currency for current website
+     */
+    public function getCurrency(?int $websiteId = null): string
+    {
+        if ($websiteId === null) {
+            $websiteId = (int)$this-&gt;storeManager-&gt;getWebsite()-&gt;getId();
+        }
+
+        return (string)$this-&gt;scopeConfig-&gt;getValue(
+            self::XML_PATH_CURRENCY,
+            ScopeInterface::SCOPE_WEBSITE,
+            $websiteId
+        );
+    }
+
+    /**
+     * Get locale for current store view
+     */
+    public function getLocale(?int $storeId = null): string
+    {
+        if ($storeId === null) {
+            $storeId = (int)$this-&gt;storeManager-&gt;getStore()-&gt;getId();
+        }
+
+        return (string)$this-&gt;scopeConfig-&gt;getValue(
+            self::XML_PATH_LOCALE,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+    }
+
+    /**
+     * Get tax region for website
+     */
+    public function getTaxRegion(?int $websiteId = null): ?string
+    {
+        if ($websiteId === null) {
+            $websiteId = (int)$this-&gt;storeManager-&gt;getWebsite()-&gt;getId();
+        }
+
+        $value = $this-&gt;scopeConfig-&gt;getValue(
+            self::XML_PATH_TAX_REGION,
+            ScopeInterface::SCOPE_WEBSITE,
+            $websiteId
+        );
+
+        return $value ? (string)$value : null;
+    }
+
+    /**
+     * Check if value is overridden at store level
+     */
+    public function isStoreOverridden(string $path, int $storeId): bool
+    {
+        $storeValue = $this-&gt;scopeConfig-&gt;getValue(
+            $path,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+
+        $websiteValue = $this-&gt;scopeConfig-&gt;getValue(
+            $path,
+            ScopeInterface::SCOPE_WEBSITE,
+            $this-&gt;storeManager-&gt;getStore($storeId)-&gt;getWebsiteId()
+        );
+
+        return $storeValue !== $websiteValue;
+    }
+}
+</code></pre>
+<h3 id="saving-configuration-at-different-scopes">Saving Configuration at Different Scopes</h3>
+<p><strong>File</strong>: <code>Vendor/MultiStore/Model/ConfigWriter.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\MultiStore\Model;
+
+use Magento\Framework\App\Config\Storage\WriterInterface;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+
+class ConfigWriter
+{
+    public function __construct(
+        private readonly WriterInterface $configWriter
+    ) {
+    }
+
+    /**
+     * Save config at global scope
+     */
+    public function saveGlobal(string $path, string $value): void
+    {
+        $this-&gt;configWriter-&gt;save(
+            $path,
+            $value,
+            ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
+            0
+        );
+    }
+
+    /**
+     * Save config at website scope
+     */
+    public function saveWebsite(string $path, string $value, int $websiteId): void
+    {
+        $this-&gt;configWriter-&gt;save(
+            $path,
+            $value,
+            \Magento\Store\Model\ScopeInterface::SCOPE_WEBSITES,
+            $websiteId
+        );
+    }
+
+    /**
+     * Save config at store scope
+     */
+    public function saveStore(string $path, string $value, int $storeId): void
+    {
+        $this-&gt;configWriter-&gt;save(
+            $path,
+            $value,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORES,
+            $storeId
+        );
+    }
+
+    /**
+     * Delete config (revert to parent scope)
+     */
+    public function deleteStore(string $path, int $storeId): void
+    {
+        $this-&gt;configWriter-&gt;delete(
+            $path,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORES,
+            $storeId
+        );
+    }
+}
+</code></pre>
+<hr />
+<h2 id="multi-store-themes">Multi-Store Themes</h2>
+<h3 id="theme-configuration-per-store-view">Theme Configuration Per Store View</h3>
+<p><strong>Stores → Configuration → Design → Theme</strong></p>
+<pre><code>Scope: Default Config
+  Applied Theme: Magento/luma
+
+Scope: Europe English
+  Applied Theme: Vendor/europe-theme
+
+Scope: Europe German
+  Applied Theme: Vendor/europe-theme-de
+</code></pre>
+<h3 id="theme-fallback-hierarchy">Theme Fallback Hierarchy</h3>
+<pre><code>Vendor/europe-theme-de
+  └→ Vendor/europe-theme
+      └→ Magento/luma
+          └→ Magento/blank
+</code></pre>
+<h3 id="store-specific-templates">Store-Specific Templates</h3>
+<p><strong>File</strong>: <code>app/design/frontend/Vendor/europe-theme/Magento_Catalog/templates/product/view/addtocart.phtml</code></p>
+<pre><code class="language-php">&lt;?php
+/**
+ * Store-specific add to cart template
+ * @var \Magento\Catalog\Block\Product\View $block
+ */
+
+$storeCode = $block-&gt;getStoreManager()-&gt;getStore()-&gt;getCode();
+?&gt;
+
+&lt;div class=&quot;product-add-form&quot; data-store=&quot;&lt;?= $escaper-&gt;escapeHtml($storeCode) ?&gt;&quot;&gt;
+    &lt;?php if ($storeCode === 'europe_de'): ?&gt;
+        &lt;!-- German-specific content --&gt;
+        &lt;button type=&quot;submit&quot; class=&quot;action primary tocart&quot;&gt;
+            In den Warenkorb
+        &lt;/button&gt;
+    &lt;?php elseif ($storeCode === 'europe_en'): ?&gt;
+        &lt;!-- English-specific content --&gt;
+        &lt;button type=&quot;submit&quot; class=&quot;action primary tocart&quot;&gt;
+            Add to Cart
+        &lt;/button&gt;
+    &lt;?php else: ?&gt;
+        &lt;!-- Default --&gt;
+        &lt;button type=&quot;submit&quot; class=&quot;action primary tocart&quot;&gt;
+            &lt;?= $escaper-&gt;escapeHtml(__('Add to Cart')) ?&gt;
+        &lt;/button&gt;
+    &lt;?php endif; ?&gt;
+&lt;/div&gt;
+</code></pre>
+<h3 id="dynamic-theme-switching">Dynamic Theme Switching</h3>
+<p><strong>File</strong>: <code>Vendor/MultiStore/Plugin/Theme/View/Design/ThemeExtend.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\MultiStore\Plugin\Theme\View\Design;
+
+use Magento\Framework\View\DesignInterface;
+use Magento\Store\Model\StoreManagerInterface;
+
+class ThemeExtend
+{
+    private const STORE_THEME_MAP = [
+        'europe_en' =&gt; 'Vendor/europe-theme',
+        'europe_de' =&gt; 'Vendor/europe-theme-de',
+        'us_store' =&gt; 'Vendor/us-theme',
+    ];
+
+    public function __construct(
+        private readonly StoreManagerInterface $storeManager
+    ) {
+    }
+
+    /**
+     * Override theme based on store code
+     */
+    public function afterGetConfigurationDesignTheme(
+        DesignInterface $subject,
+        $result
+    ) {
+        $storeCode = $this-&gt;storeManager-&gt;getStore()-&gt;getCode();
+
+        if (isset(self::STORE_THEME_MAP[$storeCode])) {
+            return self::STORE_THEME_MAP[$storeCode];
+        }
+
+        return $result;
+    }
+}
+</code></pre>
+<hr />
+<h2 id="url-management">URL Management</h2>
+<h3 id="base-url-configuration">Base URL Configuration</h3>
+<p><strong>File</strong>: <code>app/etc/config.php</code> or <strong>Stores → Configuration → Web → Base URLs</strong></p>
+<pre><code class="language-php">&lt;?php
+return [
+    'system' =&gt; [
+        'default' =&gt; [
+            'web' =&gt; [
+                'unsecure' =&gt; [
+                    'base_url' =&gt; 'https://default.example.com/',
+                ],
+                'secure' =&gt; [
+                    'base_url' =&gt; 'https://default.example.com/',
+                ]
+            ]
+        ],
+        'websites' =&gt; [
+            'europe' =&gt; [
+                'web' =&gt; [
+                    'unsecure' =&gt; [
+                        'base_url' =&gt; 'https://europe.example.com/',
+                    ],
+                    'secure' =&gt; [
+                        'base_url' =&gt; 'https://europe.example.com/',
+                    ]
+                ]
+            ],
+            'us' =&gt; [
+                'web' =&gt; [
+                    'unsecure' =&gt; [
+                        'base_url' =&gt; 'https://us.example.com/',
+                    ],
+                    'secure' =&gt; [
+                        'base_url' =&gt; 'https://us.example.com/',
+                    ]
+                ]
+            ]
+        ],
+        'stores' =&gt; [
+            'europe_en' =&gt; [
+                'web' =&gt; [
+                    'unsecure' =&gt; [
+                        'base_url' =&gt; 'https://europe.example.com/en/',
+                    ]
+                ]
+            ],
+            'europe_de' =&gt; [
+                'web' =&gt; [
+                    'unsecure' =&gt; [
+                        'base_url' =&gt; 'https://europe.example.com/de/',
+                    ]
+                ]
+            ]
+        ]
+    ]
+];
+</code></pre>
+<h3 id="server-configuration-nginx">Server Configuration (Nginx)</h3>
+<p><strong>File</strong>: <code>/etc/nginx/sites-available/magento-multistore</code></p>
+<pre><code class="language-nginx">upstream fastcgi_backend {
+    server unix:/run/php/php8.2-fpm.sock;
+}
+
+# Europe Website
+server {
+    listen 80;
+    server_name europe.example.com;
+
+    set $MAGE_RUN_CODE europe;
+    set $MAGE_RUN_TYPE website;
+
+    root /var/www/magento/pub;
+    index index.php;
+
+    location / {
+        try_files $uri $uri/ /index.php?$args;
+    }
+
+    location ~ \.php$ {
+        fastcgi_pass fastcgi_backend;
+        fastcgi_index index.php;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_param MAGE_RUN_CODE $MAGE_RUN_CODE;
+        fastcgi_param MAGE_RUN_TYPE $MAGE_RUN_TYPE;
+        include fastcgi_params;
+    }
+}
+
+# US Website
+server {
+    listen 80;
+    server_name us.example.com;
+
+    set $MAGE_RUN_CODE us;
+    set $MAGE_RUN_TYPE website;
+
+    root /var/www/magento/pub;
+    index index.php;
+
+    location / {
+        try_files $uri $uri/ /index.php?$args;
+    }
+
+    location ~ \.php$ {
+        fastcgi_pass fastcgi_backend;
+        fastcgi_index index.php;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_param MAGE_RUN_CODE $MAGE_RUN_CODE;
+        fastcgi_param MAGE_RUN_TYPE $MAGE_RUN_TYPE;
+        include fastcgi_params;
+    }
+}
+
+# Store view by URL path
+map $request_uri $store_code {
+    ~^/en/ europe_en;
+    ~^/de/ europe_de;
+    default europe_en;
+}
+</code></pre>
+<h3 id="store-specific-url-rewrites">Store-Specific URL Rewrites</h3>
+<p><strong>File</strong>: <code>Vendor/MultiStore/Observer/CustomUrlRewrite.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\MultiStore\Observer;
+
+use Magento\Framework\Event\Observer;
+use Magento\Framework\Event\ObserverInterface;
+use Magento\UrlRewrite\Model\UrlRewriteFactory;
+use Magento\UrlRewrite\Model\ResourceModel\UrlRewrite as UrlRewriteResource;
+use Magento\Store\Model\StoreManagerInterface;
+
+class CustomUrlRewrite implements ObserverInterface
+{
+    public function __construct(
+        private readonly UrlRewriteFactory $urlRewriteFactory,
+        private readonly UrlRewriteResource $urlRewriteResource,
+        private readonly StoreManagerInterface $storeManager
+    ) {
+    }
+
+    /**
+     * Create store-specific URL rewrite
+     */
+    public function execute(Observer $observer): void
+    {
+        $product = $observer-&gt;getEvent()-&gt;getProduct();
+
+        foreach ($this-&gt;storeManager-&gt;getStores() as $store) {
+            $urlRewrite = $this-&gt;urlRewriteFactory-&gt;create();
+
+            $requestPath = $this-&gt;generateRequestPath($product, $store);
+
+            $urlRewrite-&gt;setStoreId($store-&gt;getId())
+                -&gt;setEntityType('product')
+                -&gt;setEntityId($product-&gt;getId())
+                -&gt;setRequestPath($requestPath)
+                -&gt;setTargetPath('catalog/product/view/id/' . $product-&gt;getId())
+                -&gt;setIsAutogenerated(1);
+
+            $this-&gt;urlRewriteResource-&gt;save($urlRewrite);
+        }
+    }
+
+    private function generateRequestPath($product, $store): string
+    {
+        // Store-specific URL logic
+        $urlKey = $product-&gt;getUrlKey();
+        $storeCode = $store-&gt;getCode();
+
+        return match ($storeCode) {
+            'europe_de' =&gt; 'produkt/' . $urlKey . '.html',
+            'europe_fr' =&gt; 'produit/' . $urlKey . '.html',
+            default =&gt; 'product/' . $urlKey . '.html',
+        };
+    }
+}
+</code></pre>
+<hr />
+<h2 id="shared-vs-separate-catalogs">Shared vs Separate Catalogs</h2>
+<h3 id="shared-catalog-single-root-category">Shared Catalog (Single Root Category)</h3>
+<pre><code>Website 1: example.com
+  Store Group: Main Store (Root Category: Default)
+    Store View: English
+    Store View: Spanish
+
+Website 2: wholesale.example.com
+  Store Group: B2B Store (Root Category: Default)
+    Store View: B2B English
+</code></pre>
+<p><strong>Use case:</strong> Same products, different pricing or display</p>
+<h3 id="separate-catalogs-different-root-categories">Separate Catalogs (Different Root Categories)</h3>
+<pre><code>Website 1: example.com
+  Store Group: Retail (Root Category: Retail Catalog)
+    Store View: English
+
+Website 2: wholesale.example.com
+  Store Group: Wholesale (Root Category: Wholesale Catalog)
+    Store View: B2B English
+</code></pre>
+<p><strong>Use case:</strong> Completely different product assortments</p>
+<h3 id="store-specific-product-visibility">Store-Specific Product Visibility</h3>
+<p><strong>File</strong>: <code>Vendor/MultiStore/Plugin/Catalog/Product/VisibilityExtend.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\MultiStore\Plugin\Catalog\Product;
+
+use Magento\Catalog\Model\ResourceModel\Product\Collection;
+use Magento\Store\Model\StoreManagerInterface;
+
+class VisibilityExtend
+{
+    public function __construct(
+        private readonly StoreManagerInterface $storeManager
+    ) {
+    }
+
+    /**
+     * Filter products by store-specific attribute
+     */
+    public function afterAddStoreFilter(
+        Collection $subject,
+        Collection $result
+    ): Collection {
+        $storeId = $this-&gt;storeManager-&gt;getStore()-&gt;getId();
+
+        // Add custom store visibility filter
+        $result-&gt;addAttributeToFilter('store_visibility', [
+            ['finset' =&gt; $storeId],
+            ['null' =&gt; true]
+        ]);
+
+        return $result;
+    }
+}
+</code></pre>
+<h3 id="store-specific-pricing">Store-Specific Pricing</h3>
+<p><strong>File</strong>: <code>Vendor/MultiStore/Pricing/Price/StorePrice.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\MultiStore\Pricing\Price;
+
+use Magento\Catalog\Model\Product;
+use Magento\Framework\Pricing\Price\AbstractPrice;
+use Magento\Store\Model\StoreManagerInterface;
+
+class StorePrice extends AbstractPrice
+{
+    public function __construct(
+        Product $saleableItem,
+        $quantity,
+        \Magento\Framework\Pricing\Adjustment\CalculatorInterface $calculator,
+        \Magento\Framework\Pricing\PriceCurrencyInterface $priceCurrency,
+        private readonly StoreManagerInterface $storeManager
+    ) {
+        parent::__construct($saleableItem, $quantity, $calculator, $priceCurrency);
+    }
+
+    /**
+     * Get price value based on store
+     */
+    public function getValue(): float
+    {
+        $storeId = (int)$this-&gt;storeManager-&gt;getStore()-&gt;getId();
+        $basePrice = (float)$this-&gt;product-&gt;getPrice();
+
+        // Apply store-specific pricing logic
+        return match ($storeId) {
+            2 =&gt; $basePrice * 1.2, // Europe store: +20%
+            3 =&gt; $basePrice * 0.9, // Wholesale: -10%
+            default =&gt; $basePrice,
+        };
+    }
+}
+</code></pre>
+<hr />
+<h2 id="performance-optimization">Performance Optimization</h2>
+<h3 id="redis-configuration-for-multi-store">Redis Configuration for Multi-Store</h3>
+<p><strong>File</strong>: <code>app/etc/env.php</code></p>
+<pre><code class="language-php">&lt;?php
+return [
+    'cache' =&gt; [
+        'frontend' =&gt; [
+            'default' =&gt; [
+                'backend' =&gt; 'Cm_Cache_Backend_Redis',
+                'backend_options' =&gt; [
+                    'server' =&gt; '127.0.0.1',
+                    'port' =&gt; '6379',
+                    'database' =&gt; '0',
+                    'compress_data' =&gt; '1',
+                    'persistent' =&gt; '',
+                ]
+            ],
+            'page_cache' =&gt; [
+                'backend' =&gt; 'Cm_Cache_Backend_Redis',
+                'backend_options' =&gt; [
+                    'server' =&gt; '127.0.0.1',
+                    'port' =&gt; '6379',
+                    'database' =&gt; '1',
+                    'compress_data' =&gt; '0',
+                    'persistent' =&gt; '',
+                ]
+            ]
+        ]
+    ],
+    'session' =&gt; [
+        'save' =&gt; 'redis',
+        'redis' =&gt; [
+            'host' =&gt; '127.0.0.1',
+            'port' =&gt; '6379',
+            'database' =&gt; '2',
+            'persistent_identifier' =&gt; 'sess-db2',
+        ]
+    ]
+];
+</code></pre>
+<h3 id="store-specific-cache-tags">Store-Specific Cache Tags</h3>
+<p><strong>File</strong>: <code>Vendor/MultiStore/Model/Cache/Type/StoreCache.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\MultiStore\Model\Cache\Type;
+
+use Magento\Framework\App\Cache\Type\FrontendPool;
+use Magento\Framework\Cache\Frontend\Decorator\TagScope;
+
+class StoreCache extends TagScope
+{
+    public const TYPE_IDENTIFIER = 'multistore_cache';
+    public const CACHE_TAG = 'MULTISTORE';
+
+    public function __construct(FrontendPool $cacheFrontendPool)
+    {
+        parent::__construct(
+            $cacheFrontendPool-&gt;get(self::TYPE_IDENTIFIER),
+            self::CACHE_TAG
+        );
+    }
+}
+</code></pre>
+<p><strong>Usage:</strong></p>
+<pre><code class="language-php">&lt;?php
+// Cache with store-specific tag
+$cacheKey = 'custom_data_store_' . $storeId;
+$cacheTags = [
+    \Vendor\MultiStore\Model\Cache\Type\StoreCache::CACHE_TAG,
+    'store_' . $storeId
+];
+
+$cache-&gt;save($data, $cacheKey, $cacheTags, 3600);
+
+// Clear cache for specific store
+$cache-&gt;clean(\Zend_Cache::CLEANING_MODE_MATCHING_TAG, ['store_' . $storeId]);
+</code></pre>
+<h3 id="database-optimization">Database Optimization</h3>
+<p><strong>Separate indexers by store:</strong></p>
+<pre><code class="language-bash"># Reindex specific store
+bin/magento indexer:reindex --store=europe_en
+
+# Status per store
+bin/magento indexer:status --store=europe_en
+</code></pre>
+<p><strong>Optimize queries with store filters:</strong></p>
+<pre><code class="language-php">&lt;?php
+// Always add store filter early in query
+$collection-&gt;addStoreFilter($storeId)
+    -&gt;addAttributeToSelect('*')
+    -&gt;addAttributeToFilter('status', 1);
+
+// NOT
+$collection-&gt;addAttributeToSelect('*')
+    -&gt;addAttributeToFilter('status', 1)
+    -&gt;addStoreFilter($storeId); // Filter applied after loading all attributes
+</code></pre>
+<hr />
+<h2 id="cli-store-management">CLI Store Management</h2>
+<h3 id="useful-commands">Useful Commands</h3>
+<pre><code class="language-bash"># List all stores
+bin/magento store:list
+
+# List all websites
+bin/magento store:website:list
+
+# Create store view
+# Note: store:view:create is not a core Magento CLI command.
+# Create store views through the Admin Panel: Stores &gt; All Stores &gt; Create Store View.
+# Or use the REST API:
+# curl -X POST https://your-store.test/rest/V1/store/storeViews \
+#   -H &quot;Authorization: Bearer {token}&quot; \
+#   -H &quot;Content-Type: application/json&quot; \
+#   -d '{&quot;store_view&quot;: {&quot;code&quot;: &quot;europe_it&quot;, &quot;name&quot;: &quot;Europe Italian&quot;, &quot;website_id&quot;: 2, &quot;store_group_id&quot;: 2}}'
+
+# Set base URLs
+bin/magento setup:store-config:set \
+    --base-url=&quot;https://italy.example.com/&quot; \
+    --base-url-secure=&quot;https://italy.example.com/&quot; \
+    --store=europe_it
+
+# Deploy static content for specific stores
+bin/magento setup:static-content:deploy en_US de_DE -s europe_en,europe_de
+
+# Clear cache for specific store
+bin/magento cache:clean --store=europe_en
+</code></pre>
+<hr />
+<h2 id="testing-multi-store-functionality">Testing Multi-Store Functionality</h2>
+<h3 id="unit-test">Unit Test</h3>
+<p><strong>File</strong>: <code>Vendor/MultiStore/Test/Unit/Model/ConfigTest.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\MultiStore\Test\Unit\Model;
+
+use PHPUnit\Framework\TestCase;
+use Vendor\MultiStore\Model\Config;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Store\Model\StoreManagerInterface;
+
+class ConfigTest extends TestCase
+{
+    private Config $config;
+    private $scopeConfig;
+    private $storeManager;
+
+    protected function setUp(): void
+    {
+        $this-&gt;scopeConfig = $this-&gt;createMock(ScopeConfigInterface::class);
+        $this-&gt;storeManager = $this-&gt;createMock(StoreManagerInterface::class);
+
+        $this-&gt;config = new Config(
+            $this-&gt;scopeConfig,
+            $this-&gt;storeManager
+        );
+    }
+
+    public function testGetCurrencyReturnsWebsiteScopedValue(): void
+    {
+        $websiteId = 2;
+        $expectedCurrency = 'EUR';
+
+        $website = $this-&gt;createMock(\Magento\Store\Api\Data\WebsiteInterface::class);
+        $website-&gt;method('getId')-&gt;willReturn($websiteId);
+
+        $this-&gt;storeManager-&gt;method('getWebsite')-&gt;willReturn($website);
+
+        $this-&gt;scopeConfig-&gt;expects($this-&gt;once())
+            -&gt;method('getValue')
+            -&gt;with(
+                $this-&gt;equalTo('multistore_config/regional/currency_code'),
+                $this-&gt;equalTo(\Magento\Store\Model\ScopeInterface::SCOPE_WEBSITE),
+                $this-&gt;equalTo($websiteId)
+            )
+            -&gt;willReturn($expectedCurrency);
+
+        $result = $this-&gt;config-&gt;getCurrency();
+
+        $this-&gt;assertEquals($expectedCurrency, $result);
+    }
+}
+</code></pre>
+<h3 id="integration-test">Integration Test</h3>
+<p><strong>File</strong>: <code>Vendor/MultiStore/Test/Integration/Model/StoreConfigTest.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\MultiStore\Test\Integration\Model;
+
+use Magento\TestFramework\Helper\Bootstrap;
+use PHPUnit\Framework\TestCase;
+
+class StoreConfigTest extends TestCase
+{
+    private $objectManager;
+
+    protected function setUp(): void
+    {
+        $this-&gt;objectManager = Bootstrap::getObjectManager();
+    }
+
+    /**
+     * @magentoDataFixture Magento/Store/_files/second_website_with_two_stores.php
+     * @magentoConfigFixture default_store multistore_config/regional/currency_code USD
+     * @magentoConfigFixture fixture_second_store multistore_config/regional/currency_code EUR
+     */
+    public function testStoreSpecificConfiguration(): void
+    {
+        $config = $this-&gt;objectManager-&gt;get(\Vendor\MultiStore\Model\Config::class);
+
+        $storeManager = $this-&gt;objectManager-&gt;get(\Magento\Store\Model\StoreManagerInterface::class);
+        $defaultStore = $storeManager-&gt;getStore('default');
+        $secondStore = $storeManager-&gt;getStore('fixture_second_store');
+
+        // Test default store
+        $storeManager-&gt;setCurrentStore($defaultStore-&gt;getId());
+        $this-&gt;assertEquals('USD', $config-&gt;getCurrency());
+
+        // Test second store
+        $storeManager-&gt;setCurrentStore($secondStore-&gt;getId());
+        $this-&gt;assertEquals('EUR', $config-&gt;getCurrency());
+    }
+}
+</code></pre>
+<hr />
+<h2 id="summary">Summary</h2>
+<p><strong>Key Takeaways:</strong>
+- Three-tier hierarchy: Global → Website → Store → Store View
+- Configuration cascades with scope inheritance; lower scopes override higher
+- Themes can be assigned per store view with fallback chain
+- Base URLs configured per website/store for domain/path-based separation
+- Shared catalogs use same root category; separate catalogs use different roots
+- Store-specific caching, indexing, and database optimization critical for performance
+- MAGE_RUN_CODE and MAGE_RUN_TYPE server variables determine store context</p>
+<hr />
+<h2 id="assumptions">Assumptions</h2>
+<ul>
+<li><strong>Magento Version:</strong> 2.4.7+ (Adobe Commerce or Open Source)</li>
+<li><strong>PHP Version:</strong> 8.2+ with sufficient memory for multi-store operations</li>
+<li><strong>Web Server:</strong> Nginx or Apache with virtual host or path-based routing</li>
+<li><strong>Redis:</strong> Configured for cache, session, and page cache</li>
+<li><strong>Database:</strong> MySQL 8.0+ with optimized configuration for multi-store queries</li>
+</ul>
+<h2 id="why-this-approach">Why This Approach</h2>
+<ul>
+<li><strong>Hierarchical Scopes:</strong> Clean separation of concerns (global defaults, regional settings, locale-specific content)</li>
+<li><strong>Configuration Inheritance:</strong> DRY principle for shared settings with store-specific overrides</li>
+<li><strong>Theme Fallback:</strong> Reusability of base themes with store-specific customizations</li>
+<li><strong>URL Flexibility:</strong> Domain, subdomain, or path-based store identification</li>
+<li><strong>Performance:</strong> Store-specific caching and indexing reduce overhead</li>
+</ul>
+<h2 id="security-impact">Security Impact</h2>
+<ul>
+<li><strong>Store Isolation:</strong> Customers, orders, and sessions isolated by website</li>
+<li><strong>ACL:</strong> Admin users can be restricted to specific websites/stores</li>
+<li><strong>Base URLs:</strong> HTTPS enforcement per store; mixed content warnings avoided</li>
+<li><strong>CSRF:</strong> Form keys scoped to store to prevent cross-store attacks</li>
+<li><strong>Secrets:</strong> Store credentials (API keys, payment configs) isolated by scope</li>
+</ul>
+<h2 id="performance-impact">Performance Impact</h2>
+<ul>
+<li><strong>FPC:</strong> Store-specific cache entries multiply storage requirements</li>
+<li><strong>Database:</strong> Store filters on collections critical for query performance</li>
+<li><strong>Indexers:</strong> Store-specific reindexing reduces full reindex time</li>
+<li><strong>Redis:</strong> Separate databases for cache/session prevent key collisions</li>
+<li><strong>Static Content:</strong> Deploy per locale/theme to minimize asset size</li>
+</ul>
+<h2 id="backward-compatibility">Backward Compatibility</h2>
+<ul>
+<li><strong>Store Structure:</strong> Adding stores/websites doesn't break existing configuration</li>
+<li><strong>Scope Changes:</strong> Changing scope of config field requires migration script</li>
+<li><strong>URL Changes:</strong> URL rewrites preserve SEO when migrating to new base URLs</li>
+<li><strong>Theme Changes:</strong> Theme inheritance ensures compatibility with parent theme updates</li>
+</ul>
+<h2 id="tests-to-add">Tests to Add</h2>
+<p><strong>Unit Tests:</strong></p>
+<pre><code class="language-php">testScopeInheritance()
+testStoreSpecificConfig()
+testThemeFallback()
+</code></pre>
+<p><strong>Integration Tests:</strong></p>
+<pre><code class="language-php">testMultiStoreCheckout()
+testStoreSpecificPricing()
+testCrossStor eNavigation()
+</code></pre>
+<p><strong>Load Tests:</strong></p>
+<pre><code class="language-bash"># Test multi-store performance under load
+ab -n 10000 -c 100 https://europe.example.com/
+ab -n 10000 -c 100 https://us.example.com/
+</code></pre>
+<h2 id="docs-to-update">Docs to Update</h2>
+<ul>
+<li><strong>README.md:</strong> Multi-store setup instructions, server configuration</li>
+<li><strong>docs/STORES.md:</strong> Store hierarchy diagram, scope reference</li>
+<li><strong>docs/DEPLOYMENT.md:</strong> Static content deployment strategies per store</li>
+<li><strong>Admin User Guide:</strong> Screenshots of store creation, theme assignment, base URL configuration</li>
+</ul>
+<h2 id="related-documentation">Related Documentation</h2>
+<h3 id="related-guides">Related Guides</h3>
+<ul>
+<li><a href="full-page-cache-strategy.md">Full Page Cache Strategy for High-Performance Magento</a></li>
+<li><a href="../explanations/eav-system.md">EAV System Architecture: Understanding Entity-Attribute-Value in Magento 2</a></li>
+</ul>
+<h3 id="related-module-documentation">Related Module Documentation</h3>
+<ul>
+<li><a href="../../modules/catalog/README.md">Magento_Catalog Overview</a></li>
+<li><a href="../../modules/customer/README.md">Magento_Customer Overview</a></li>
+</ul>
+                    </div>
+                </article>
+            </main>
+            <!-- Right Sidebar: On This Page (desktop) -->
+            <aside class="toc-sidebar hidden xl:block" aria-label="On this page">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-semibold text-gray-900 uppercase tracking-wider mb-4 mt-0">On this page</h3>
+                    <nav id="toc-nav" class="space-y-0" aria-label="Table of contents"></nav>
+                    <div class="toc-back-to-top">
+                        <a href="#">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+                            </svg>
+                            Back to top
+                        </a>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- ================================================================
+         FOOTER — matches module-catalog.html multi-column layout exactly
+         ================================================================ -->
+    <footer class="relative pt-12 bg-white border-t border-charcoal mt-16">
+        <div class="max-w-screen-2xl mx-auto w-full px-4 sm:px-6 lg:px-8">
+            <div>
+                <a href="index.html" class="inline-flex items-center no-underline">
+                    <svg width="30" height="33" viewBox="0 0 30 33" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Magento Association logo" role="img">
+                        <path d="M0 4.06492H29.6763V31.8882C29.6763 32.502 29.1713 33 28.5487 33H1.12762C0.505079 33 0 32.502 0 31.8882V4.06492Z" fill="#34323A"/>
+                        <path d="M1.26857 0H28.4078C29.1066 0 29.6763 0.561678 29.6763 1.25075V4.06492H0V1.25075C0 0.561678 0.569682 0 1.26857 0Z" fill="#C9C9C9"/>
+                        <path d="M2.37269 3.0458C2.94031 3.0458 3.40046 2.59211 3.40046 2.03246C3.40046 1.47281 2.94031 1.01913 2.37269 1.01913C1.80506 1.01913 1.34491 1.47281 1.34491 2.03246C1.34491 2.59211 1.80506 3.0458 2.37269 3.0458Z" fill="#848484"/>
+                        <path d="M5.28571 3.0458C5.85334 3.0458 6.31349 2.59211 6.31349 2.03246C6.31349 1.47281 5.85334 1.01913 5.28571 1.01913C4.71809 1.01913 4.25793 1.47281 4.25793 2.03246C4.25793 2.59211 4.71809 3.0458 5.28571 3.0458Z" fill="#848484"/>
+                        <path d="M14.7883 7.46973L4.90405 13.0923V24.349L7.54104 25.8487V14.5978L14.7883 10.4692L22.0415 14.5978V25.8487L24.6785 24.349V13.0923L14.7883 7.46973Z" fill="#F1BC1B"/>
+                        <path d="M16.0862 26.2367L14.7883 26.9779L13.4492 26.2135V14.233L10.178 16.0975V27.3485L13.4492 29.213L14.7883 29.9773L16.0862 29.2362L19.4045 27.3485V16.0975L16.0862 14.2098V26.2367Z" fill="#F1BC1B"/>
+                    </svg>
+                    <span class="ml-3 text-xl font-bold text-charcoal">Developer Documentation</span>
+                </a>
+            </div>
+
+            <div class="grid grid-cols-12 md:gap-x-8 gap-y-12 lg:mt-12">
+                <div class="col-span-12 lg:col-span-4">
+                    <p class="hidden lg:block text-xs text-charcoal sm:text-sm">Comprehensive developer documentation for Magento 2.4.7+ — tutorials, architecture deep dives, module references, and production-ready patterns built by the community, for the community.</p>
+                    <ul class="mt-6 hidden lg:flex items-center gap-3">
+                        <li class="pl-0">
+                            <a href="https://github.com/magento/magento2" class="p-2 md:p-0" aria-label="GitHub">
+                                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                                </svg>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Guides</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="tutorials.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Tutorials</a></li>
+                            <li class="pl-0"><a href="how-to-guides.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">How-To Guides</a></li>
+                            <li class="pl-0"><a href="architecture.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Architecture</a></li>
+                            <li class="pl-0"><a href="learning-paths.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Learning Paths</a></li>
+                            <li class="pl-0"><a href="references.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">References</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Modules</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="module-catalog.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Catalog</a></li>
+                            <li class="pl-0"><a href="module-checkout.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Checkout</a></li>
+                            <li class="pl-0"><a href="module-sales.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Sales</a></li>
+                            <li class="pl-0"><a href="module-customer.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Customer</a></li>
+                            <li class="pl-0"><a href="module-quote.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Quote</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Community</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Magento Community</a></li>
+                            <li class="pl-0"><a href="https://magento.stackexchange.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Stack Exchange</a></li>
+                            <li class="pl-0"><a href="https://marketplace.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Marketplace</a></li>
+                            <li class="pl-0"><a href="https://github.com/magento/magento2" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">GitHub</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Support</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://github.com/magento/magento2/issues" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Report Issues</a></li>
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Community Resources</a></li>
+                            <li class="pl-0"><a href="https://developer.adobe.com/commerce/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Adobe Commerce Docs</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-12 border-t pt-6 pb-16 border-charcoal">
+                <p class="text-xs text-charcoal">
+                    &copy; 2026 Magento 2 Developer Documentation. Magento&reg; is a registered trademark of Adobe Inc.
+                </p>
+                <p class="mt-6 text-xs text-charcoal">
+                    This documentation provides guidance for Magento 2 developers and extension builders. For merchant documentation, visit the <a href="index.html" class="text-orange hover:text-orange-600 transition-colors">merchant documentation</a>.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Initialize highlight.js -->
+    <script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('pre code').forEach(function (el) {
+        hljs.highlightElement(el);
+    });
+    document.querySelectorAll('pre').forEach(function (pre) {
+        if (pre.parentNode.classList && pre.parentNode.classList.contains('code-wrapper')) return;
+        var wrapper = document.createElement('div');
+        wrapper.className = 'code-wrapper';
+        pre.parentNode.insertBefore(wrapper, pre);
+        wrapper.appendChild(pre);
+        var btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.setAttribute('type', 'button');
+        btn.setAttribute('aria-label', 'Copy code to clipboard');
+        btn.setAttribute('title', 'Copy');
+        btn.textContent = 'Copy';
+        wrapper.appendChild(btn);
+        btn.addEventListener('click', function () {
+            var code = pre.querySelector('code');
+            var text = code ? (code.innerText || code.textContent) : (pre.innerText || pre.textContent);
+            navigator.clipboard.writeText(text).then(function () {
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            }).catch(function () {
+                var range = document.createRange();
+                range.selectNode(code || pre);
+                window.getSelection().removeAllRanges();
+                window.getSelection().addRange(range);
+                document.execCommand('copy');
+                window.getSelection().removeAllRanges();
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            });
+        });
+    });
+});
+</script>
+
+
+<script>
+(function() {
+    var nav = document.getElementById('toc-nav');
+    if (!nav) return;
+    var article = document.getElementById('main-content');
+    if (!article) return;
+    var headings = article.querySelectorAll('h2[id], h3[id]');
+    if (headings.length < 3) {
+        // Hide the entire TOC sidebar if fewer than 3 headings
+        var sidebar = nav.closest('.toc-sidebar');
+        if (sidebar) sidebar.style.display = 'none';
+        return;
+    }
+    var ids = [];
+    headings.forEach(function(h) {
+        var a = document.createElement('a');
+        a.href = '#' + h.id;
+        a.textContent = h.textContent.replace(/^#+\s*/, '').replace(/\s+/g, ' ').trim();
+        if (h.tagName === 'H3') a.classList.add('toc-h3');
+        nav.appendChild(a);
+        ids.push(h.id);
+    });
+    // Scroll-spy with IntersectionObserver
+    var links = nav.querySelectorAll('a');
+    var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                links.forEach(function(l) { l.classList.remove('toc-active'); });
+                var active = nav.querySelector('a[href="#' + entry.target.id + '"]');
+                if (active) active.classList.add('toc-active');
+            }
+        });
+    }, { rootMargin: '-80px 0px -70% 0px', threshold: 0 });
+    headings.forEach(function(h) { observer.observe(h); });
+})();
+</script>
+</body>
+</html>

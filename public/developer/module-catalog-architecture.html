@@ -1,0 +1,1557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magento_Catalog Architecture — Magento 2 Developer Documentation</title>
+    <meta name="description" content="Magento_Catalog Architecture">
+
+    <!-- Google Fonts: Inter Tight only. Courier New used for code. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Highlight.js: syntax highlighting for code blocks -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/php.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/ini.min.js"></script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        charcoal: {
+                            DEFAULT: '#2c2c2c', 50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6',
+                            300: '#6B6B6B', 400: '#474747', 500: '#2c2c2c', 600: '#262626',
+                            700: '#202020', 800: '#1c1c1c', 900: '#191919', 950: '#121212'
+                        },
+                        orange: {
+                            DEFAULT: '#D4551A', 50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad',
+                            300: '#f9ae78', 400: '#f58242', 500: '#f26423', 600: '#e34613',
+                            700: '#bc3312', 800: '#962a16', 900: '#792515', 950: '#411009'
+                        },
+                        yellow: {
+                            DEFAULT: '#B8860B', 50: '#fffdeb', 100: '#fdf9c8', 200: '#fbf38c',
+                            300: '#f8e651', 400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a',
+                            700: '#b1670c', 800: '#8f5111', 900: '#764311', 950: '#442204'
+                        },
+                        'off-white': '#FAFAFA',
+                    },
+                    fontFamily: {
+                        sans: ['Inter Tight', 'system-ui', '-apple-system', 'sans-serif'],
+                        mono: ['Courier New', 'Courier', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* ── Force light mode ── */
+        :root { color-scheme: light only; }
+
+        [x-cloak] { display: none !important; }
+
+        /* ── Scroll offset for sticky header ── */
+        .prose h2, .prose h3 { scroll-margin-top: 5rem; }
+
+        /* ── Code blocks: Bauhaus charcoal bg, no border-radius, highlight.js override ── */
+        .prose pre {
+            background-color: #2C2C2C !important;
+            border-radius: 0 !important;
+            padding: 1.25rem;
+            overflow-x: auto;
+            font-size: 0.875rem;
+            line-height: 1.7;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 1.5rem 0;
+        }
+        .prose pre code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            background: transparent !important;
+            padding: 0;
+                    color: #abb2bf;
+        }
+        /* Override highlight.js theme background to match Bauhaus charcoal */
+        .hljs {
+            background: #2C2C2C !important;
+            color: #abb2bf !important;
+            border-radius: 0 !important;
+        }
+
+        /* ── Inline code: charcoal bg, yellow text, no border-radius ── */
+        .prose code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.85em;
+        }
+        .prose :not(pre) > code {
+            background-color: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2em 0.45em;
+            border-radius: 0;
+        }
+
+        /* ── Step-code: same charcoal/yellow style for UI path chips ── */
+        .step-code {
+            background: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2rem 0.5rem;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            border-radius: 0;
+        }
+
+        /* ── Tables: no border-radius, charcoal header ── */
+        .prose table { width: 100%; border-collapse: collapse; }
+        .prose th {
+            background-color: #2C2C2C;
+            color: #ffffff;
+            font-weight: 600;
+            text-align: left;
+            padding: 0.75rem 1rem;
+            border-bottom: 2px solid #2C2C2C;
+            border-radius: 0;
+        }
+        .prose td { padding: 0.75rem 1rem; border-bottom: 1px solid #e5e5e5; }
+        .prose tr:hover { background-color: #fafafa; }
+
+        /* ── Blockquote: Bauhaus style — border-4 yellow, square, no left-only border ── */
+        .prose blockquote {
+            border: 4px solid #F1BC1B;
+            background-color: #ffffff;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+            border-radius: 0;
+        }
+        .prose blockquote p { margin: 0; }
+
+        /* ── Lists: hexagon bullets ── */
+        .prose ul { list-style: none; padding-left: 0; }
+        .prose ul li {
+            position: relative;
+            padding-left: 1.75rem;
+            margin-bottom: 0.4rem;
+            line-height: 1.7;
+        }
+        .prose ul li::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0.45em;
+            width: 10px;
+            height: 10px;
+            background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 2L21 7V17L12 22L3 17V7L12 2Z' stroke='%23F26423' stroke-width='2.5' stroke-linejoin='miter'/%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+        .prose ol { list-style-type: decimal; padding-left: 1.5rem; }
+        .prose li { margin-bottom: 0.4rem; }
+
+        /* ── Headings ── */
+        .prose h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            padding-top: 1.5rem;
+            border-top: 4px solid #F1BC1B;
+            color: #2C2C2C;
+        }
+        .prose h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+            color: #2C2C2C;
+        }
+        .prose h4 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #2C2C2C;
+        }
+        .prose p { margin-bottom: 1rem; line-height: 1.75; }
+        .prose a { color: #D4551A; text-decoration: none; }
+        .prose a:hover { color: #e34613; text-decoration: underline; }
+        .prose hr { border: none; border-top: 1px solid #e5e5e5; margin: 2rem 0; }
+
+        /* ── Callout boxes: Bauhaus — border-4 yellow, white bg, icon + title ── */
+        .callout-box {
+            background-color: #ffffff;
+            border: 4px solid #F1BC1B;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+        }
+        .callout-warning {
+            border-color: #D4551A;
+        }
+        .callout-important {
+            border-color: #2C2C2C;
+        }
+        .callout-box .callout-inner {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+        .callout-box .callout-title {
+            font-weight: 600;
+            color: #2C2C2C;
+            margin-bottom: 0.25rem;
+        }
+        .callout-box .callout-body {
+            font-size: 0.875rem;
+            line-height: 1.6;
+            color: rgba(44,44,44,0.85);
+        }
+
+        
+    
+        /* Code block copy button */
+        .code-wrapper {
+            position: relative;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            font-family: 'Inter Tight', system-ui, sans-serif;
+            background: rgba(255,255,255,0.1);
+            color: #abb2bf;
+            border: 1px solid rgba(255,255,255,0.15);
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.15s ease, background 0.15s ease;
+            z-index: 10;
+            line-height: 1.4;
+            border-radius: 4px;
+            user-select: none;
+        }
+        .code-wrapper:hover .copy-btn {
+            opacity: 1;
+        }
+        .copy-btn:hover,
+        .copy-btn:focus {
+            background: rgba(255,255,255,0.2);
+            color: #ffffff;
+            outline: 2px solid #D4551A;
+            outline-offset: 1px;
+        }
+        .copy-btn.copied {
+            color: #98c379;
+            background: rgba(152, 195, 121, 0.15);
+            opacity: 1;
+        }
+    
+        /* Right-hand TOC sidebar */
+        .toc-sidebar {
+            width: 14rem;
+            flex-shrink: 0;
+        }
+        .toc-sidebar a {
+            display: block;
+            padding: 0.375rem 0;
+            font-size: 0.8125rem;
+            line-height: 1.4;
+            color: #6b7280;
+            text-decoration: none;
+            transition: color 0.15s ease;
+            border-left: 2px solid transparent;
+            padding-left: 0.75rem;
+        }
+        .toc-sidebar a:hover {
+            color: #111827;
+        }
+        .toc-sidebar a.toc-active {
+            color: #ea580c;
+            border-left-color: #ea580c;
+            font-weight: 500;
+        }
+        .toc-sidebar a.toc-h3 {
+            padding-left: 1.5rem;
+            font-size: 0.75rem;
+        }
+        .toc-sidebar .toc-back-to-top {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e5e7eb;
+        }
+        .toc-sidebar .toc-back-to-top a {
+            border-left: none;
+            padding-left: 0;
+            font-weight: 500;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .toc-sidebar .toc-back-to-top a:hover {
+            color: #ea580c;
+        }
+    </style>
+</head>
+
+<body class="font-sans bg-off-white text-charcoal">
+
+    <!-- Shared header — single source of truth -->
+    <script src="includes/header.js"></script>
+
+    <!-- Breadcrumb — orange › separators -->
+    <div class="bg-white border-b border-gray-100">
+        <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <div class="flex items-center gap-2 text-sm flex-wrap">
+                <a href="index.html" class="text-orange hover:text-orange-600 transition-colors no-underline">Home</a> <span class="text-orange font-medium">›</span> <a href="modules.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">Modules</a> <span class="text-orange font-medium">›</span> <a href="module-catalog.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">Catalog</a> <span class="text-orange font-medium">›</span> <span class="text-charcoal font-medium">Magento_Catalog Architecture</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="flex gap-8">
+
+            <!-- Left Sidebar (desktop) -->
+            <aside class="hidden lg:block w-64 flex-shrink-0">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4">Catalog Module</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="module-catalog-overview.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Overview</a></li>
+<li class="pl-0"><a href="module-catalog-architecture.html" class="block px-3 py-2 text-sm text-orange font-semibold bg-orange-50 border-l-4 border-orange pl-2 transition-colors no-underline">Architecture</a></li>
+<li class="pl-0"><a href="module-catalog-execution-flows.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Execution Flows</a></li>
+<li class="pl-0"><a href="module-catalog-plugins-and-observers.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Plugins & Observers</a></li>
+<li class="pl-0"><a href="module-catalog-integrations.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Integrations</a></li>
+<li class="pl-0"><a href="module-catalog-anti-patterns.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Anti-Patterns</a></li>
+<li class="pl-0"><a href="module-catalog-performance.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Performance</a></li>
+<li class="pl-0"><a href="module-catalog-known-issues.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Known Issues</a></li>
+<li class="pl-0"><a href="module-catalog-version-compatibility.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Version Compatibility</a></li>
+</ul>
+<h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4 mt-8">Other Modules</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="module-checkout.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Checkout</a></li>
+<li class="pl-0"><a href="module-customer.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Customer</a></li>
+<li class="pl-0"><a href="module-quote.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Quote</a></li>
+<li class="pl-0"><a href="module-sales.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Sales</a></li>
+</ul>
+                </div>
+            </aside>
+
+            <!-- Article — square corners, border-t-4 orange accent -->
+            <main id="main-content" class="flex-1 min-w-0">
+                <article class="bg-white shadow-sm border border-gray-100 border-t-4 border-t-orange p-8 md:p-12">
+                    <!-- Title block -->
+                    <div class="mb-8">
+                        <span class="inline-block px-3 py-1.5 text-xs font-medium bg-charcoal-50 text-charcoal border border-charcoal-100">Architecture</span>
+                        <h1 class="text-3xl md:text-4xl font-extrabold text-charcoal mt-3 mb-3">Magento_Catalog Architecture</h1>
+                        <p class="text-charcoal-300 text-lg mb-4">Magento_Catalog Architecture</p>
+                        <!-- Meta pills -->
+                        <div class="flex flex-wrap gap-2"><span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-charcoal text-white">Magento 2.4.7+</span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-charcoal-50 text-charcoal border border-charcoal-100">Magento_Catalog</span></div>
+                    </div>
+
+                    <hr class="border-0 border-t border-gray-100 mb-8">
+
+                    <!-- Content -->
+                    <div class="prose max-w-none">
+                        <h1 id="magento_catalog-architecture">Magento_Catalog Architecture</h1>
+<h2 id="overview">Overview</h2>
+<p>The <code>Magento_Catalog</code> module implements a sophisticated multi-layered architecture combining Entity-Attribute-Value (EAV) flexibility with repository patterns, service contracts, and domain-driven design principles. This document details the architectural patterns, database schema, key classes, and design decisions that enable extensible product and category management.</p>
+<p><strong>Target Version</strong>: Magento 2.4.7+ / PHP 8.2+</p>
+<h2 id="architectural-layers">Architectural Layers</h2>
+<h3 id="1-service-contract-layer-api">1. Service Contract Layer (API)</h3>
+<p>Service contracts define the public API surface and ensure backward compatibility across versions. All external integrations should use these interfaces.</p>
+<h4 id="core-repository-interfaces">Core Repository Interfaces</h4>
+<pre><code class="language-php">namespace Magento\Catalog\Api;
+
+interface ProductRepositoryInterface
+{
+    /**
+     * @param \Magento\Catalog\Api\Data\ProductInterface $product
+     * @param bool $saveOptions
+     * @return \Magento\Catalog\Api\Data\ProductInterface
+     * @throws \Magento\Framework\Exception\CouldNotSaveException
+     */
+    public function save(
+        \Magento\Catalog\Api\Data\ProductInterface $product,
+        $saveOptions = false
+    );
+
+    /**
+     * @param string $sku
+     * @param bool $editMode
+     * @param int|null $storeId
+     * @param bool $forceReload
+     * @return \Magento\Catalog\Api\Data\ProductInterface
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     */
+    public function get($sku, $editMode = false, $storeId = null, $forceReload = false);
+
+    /**
+     * @param \Magento\Catalog\Api\Data\ProductInterface $product
+     * @return bool
+     * @throws \Magento\Framework\Exception\StateException
+     */
+    public function delete(\Magento\Catalog\Api\Data\ProductInterface $product);
+
+    /**
+     * @param string $sku
+     * @return bool
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @throws \Magento\Framework\Exception\StateException
+     */
+    public function deleteById($sku);
+
+    /**
+     * @param \Magento\Framework\Api\SearchCriteriaInterface $searchCriteria
+     * @return \Magento\Catalog\Api\Data\ProductSearchResultsInterface
+     */
+    public function getList(\Magento\Framework\Api\SearchCriteriaInterface $searchCriteria);
+}
+</code></pre>
+<h4 id="data-transfer-objects-dtos">Data Transfer Objects (DTOs)</h4>
+<pre><code class="language-php">namespace Magento\Catalog\Api\Data;
+
+interface ProductInterface extends \Magento\Framework\Api\CustomAttributesDataInterface
+{
+    const SKU = 'sku';
+    const NAME = 'name';
+    const PRICE = 'price';
+    const TYPE_ID = 'type_id';
+    const ATTRIBUTE_SET_ID = 'attribute_set_id';
+    const STATUS = 'status';
+    const VISIBILITY = 'visibility';
+
+    /**
+     * @return string
+     */
+    public function getSku();
+
+    /**
+     * @param string $sku
+     * @return $this
+     */
+    public function setSku($sku);
+
+    /**
+     * @return string
+     */
+    public function getName();
+
+    /**
+     * @param string $name
+     * @return $this
+     */
+    public function setName($name);
+
+    /**
+     * @return float
+     */
+    public function getPrice();
+
+    /**
+     * @param float $price
+     * @return $this
+     */
+    public function setPrice($price);
+
+    // ... additional getters/setters
+}
+</code></pre>
+<h4 id="search-criteria-example">Search Criteria Example</h4>
+<pre><code class="language-php">use Magento\Catalog\Api\ProductRepositoryInterface;
+use Magento\Framework\Api\SearchCriteriaBuilder;
+use Magento\Framework\Api\FilterBuilder;
+use Magento\Framework\Api\SortOrderBuilder;
+
+class ProductSearchService
+{
+    public function __construct(
+        private readonly ProductRepositoryInterface $productRepository,
+        private readonly SearchCriteriaBuilder $searchCriteriaBuilder,
+        private readonly FilterBuilder $filterBuilder,
+        private readonly SortOrderBuilder $sortOrderBuilder
+    ) {}
+
+    public function findExpensiveProducts(float $minPrice): array
+    {
+        // Build price filter
+        $priceFilter = $this-&gt;filterBuilder
+            -&gt;setField('price')
+            -&gt;setValue($minPrice)
+            -&gt;setConditionType('gteq')
+            -&gt;create();
+
+        // Build status filter (enabled only)
+        $statusFilter = $this-&gt;filterBuilder
+            -&gt;setField('status')
+            -&gt;setValue(\Magento\Catalog\Model\Product\Attribute\Source\Status::STATUS_ENABLED)
+            -&gt;setConditionType('eq')
+            -&gt;create();
+
+        // Build sort order
+        $sortOrder = $this-&gt;sortOrderBuilder
+            -&gt;setField('price')
+            -&gt;setDirection(\Magento\Framework\Api\SortOrder::SORT_DESC)
+            -&gt;create();
+
+        // Build search criteria
+        $searchCriteria = $this-&gt;searchCriteriaBuilder
+            -&gt;addFilters([$priceFilter])
+            -&gt;addFilters([$statusFilter])
+            -&gt;addSortOrder($sortOrder)
+            -&gt;setPageSize(20)
+            -&gt;setCurrentPage(1)
+            -&gt;create();
+
+        $searchResults = $this-&gt;productRepository-&gt;getList($searchCriteria);
+        return $searchResults-&gt;getItems();
+    }
+}
+</code></pre>
+<h3 id="2-domain-model-layer">2. Domain Model Layer</h3>
+<p>Domain models encapsulate business logic and data access. The catalog module uses both active record patterns (Model) and repository patterns.</p>
+<h4 id="product-model-architecture">Product Model Architecture</h4>
+<pre><code class="language-php">namespace Magento\Catalog\Model;
+
+class Product extends \Magento\Catalog\Model\AbstractModel implements
+    \Magento\Catalog\Api\Data\ProductInterface,
+    \Magento\Framework\DataObject\IdentityInterface
+{
+    // Cache tags for FPC invalidation
+    const CACHE_TAG = 'cat_p';
+
+    protected $_eventPrefix = 'catalog_product';
+    protected $_eventObject = 'product';
+    protected $_cacheTag = false; // Not set by default; uses CACHE_TAG constant
+
+    /**
+     * Product type instance
+     */
+    protected $_typeInstance = null;
+
+    /**
+     * Product options
+     */
+    protected $_options = [];
+
+    /**
+     * Get product type instance
+     */
+    public function getTypeInstance()
+    {
+        if ($this-&gt;_typeInstance === null) {
+            $this-&gt;_typeInstance = $this-&gt;_typeInstanceFactory-&gt;create($this);
+        }
+        return $this-&gt;_typeInstance;
+    }
+
+    /**
+     * Get final price with catalog rules applied
+     */
+    public function getFinalPrice($qty = null)
+    {
+        return $this-&gt;getPriceInfo()
+            -&gt;getPrice('final_price')
+            -&gt;getAmount()
+            -&gt;getValue();
+    }
+
+    // EAV-specific methods
+    protected function _construct()
+    {
+        $this-&gt;_init(\Magento\Catalog\Model\ResourceModel\Product::class);
+    }
+
+    public function getIdentities()
+    {
+        $identities = [self::CACHE_TAG . '_' . $this-&gt;getId()];
+
+        if (!$this-&gt;getId()) {
+            return $identities;
+        }
+
+        // Add category identities for cache invalidation
+        foreach ($this-&gt;getCategoryIds() as $categoryId) {
+            $identities[] = \Magento\Catalog\Model\Category::CACHE_TAG . '_' . $categoryId;
+        }
+
+        return $identities;
+    }
+}
+</code></pre>
+<h4 id="product-type-architecture">Product Type Architecture</h4>
+<p>Product types follow a strategy pattern:</p>
+<pre><code class="language-php">namespace Magento\Catalog\Model\Product\Type;
+
+abstract class AbstractType
+{
+    /**
+     * Check if product is composite (has children)
+     */
+    abstract public function isComposite($product);
+
+    /**
+     * Prepare product for cart
+     */
+    abstract public function prepareForCart(\Magento\Framework\DataObject $buyRequest, $product);
+
+    /**
+     * Check if product can be configured
+     */
+    public function canConfigure($product)
+    {
+        return false;
+    }
+
+    /**
+     * Process configuration for product
+     */
+    public function processConfiguration(
+        \Magento\Framework\DataObject $buyRequest,
+        $product,
+        $processMode = self::PROCESS_MODE_LITE
+    ) {
+        return [];
+    }
+}
+</code></pre>
+<h4 id="category-model-with-mptt-nested-set">Category Model with MPTT (Nested Set)</h4>
+<pre><code class="language-php">namespace Magento\Catalog\Model;
+
+class Category extends \Magento\Catalog\Model\AbstractModel implements
+    \Magento\Catalog\Api\Data\CategoryInterface,
+    \Magento\Framework\DataObject\IdentityInterface
+{
+    const CACHE_TAG = 'cat_c';
+    const TREE_ROOT_ID = 1;
+
+    /**
+     * Get category path (IDs from root to current)
+     */
+    public function getPath()
+    {
+        return $this-&gt;getData('path');
+    }
+
+    /**
+     * Get parent category IDs
+     */
+    public function getParentIds()
+    {
+        return array_diff($this-&gt;getPathIds(), [$this-&gt;getId()]);
+    }
+
+    /**
+     * Get all children IDs (recursive)
+     */
+    public function getAllChildren($asArray = false)
+    {
+        $children = $this-&gt;getResource()-&gt;getAllChildren($this);
+
+        if ($asArray) {
+            return explode(',', $children);
+        }
+
+        return $children;
+    }
+
+    /**
+     * Move category to new parent
+     */
+    public function move($parentId, $afterCategoryId)
+    {
+        $parent = $this-&gt;categoryRepository-&gt;get($parentId);
+        $this-&gt;getResource()-&gt;changeParent($this, $parent, $afterCategoryId);
+        return $this;
+    }
+}
+</code></pre>
+<h3 id="3-resource-model-layer-data-access">3. Resource Model Layer (Data Access)</h3>
+<p>Resource models handle database operations, including EAV complexity.</p>
+<h4 id="product-resource-model">Product Resource Model</h4>
+<pre><code class="language-php">namespace Magento\Catalog\Model\ResourceModel;
+
+class Product extends \Magento\Catalog\Model\ResourceModel\AbstractResource
+{
+    /**
+     * Main entity table
+     */
+    protected $_entityTable = 'catalog_product_entity';
+
+    /**
+     * Load product by SKU
+     */
+    public function getIdBySku($sku)
+    {
+        $connection = $this-&gt;getConnection();
+        $select = $connection-&gt;select()
+            -&gt;from($this-&gt;getEntityTable(), 'entity_id')
+            -&gt;where('sku = :sku');
+
+        return $connection-&gt;fetchOne($select, ['sku' =&gt; $sku]);
+    }
+
+    /**
+     * Get product websites
+     */
+    public function getWebsiteIds($product)
+    {
+        $connection = $this-&gt;getConnection();
+        $select = $connection-&gt;select()
+            -&gt;from($this-&gt;getTable('catalog_product_website'), 'website_id')
+            -&gt;where('product_id = ?', $product-&gt;getId());
+
+        return $connection-&gt;fetchCol($select);
+    }
+
+    /**
+     * Save product-category relations
+     */
+    public function saveCategoryIds($product)
+    {
+        $categoryIds = $product-&gt;getCategoryIds();
+        $oldCategoryIds = $this-&gt;getCategoryIds($product);
+
+        $insert = array_diff($categoryIds, $oldCategoryIds);
+        $delete = array_diff($oldCategoryIds, $categoryIds);
+
+        $connection = $this-&gt;getConnection();
+
+        if (!empty($delete)) {
+            $connection-&gt;delete(
+                $this-&gt;getTable('catalog_category_product'),
+                ['product_id = ?' =&gt; $product-&gt;getId(), 'category_id IN (?)' =&gt; $delete]
+            );
+        }
+
+        if (!empty($insert)) {
+            $data = [];
+            foreach ($insert as $categoryId) {
+                $data[] = [
+                    'category_id' =&gt; $categoryId,
+                    'product_id' =&gt; $product-&gt;getId(),
+                    'position' =&gt; 0
+                ];
+            }
+            $connection-&gt;insertMultiple($this-&gt;getTable('catalog_category_product'), $data);
+        }
+
+        return $this;
+    }
+}
+</code></pre>
+<h4 id="category-resource-with-tree-operations">Category Resource with Tree Operations</h4>
+<pre><code class="language-php">namespace Magento\Catalog\Model\ResourceModel\Category;
+
+class Tree extends \Magento\Catalog\Model\ResourceModel\Category
+{
+    /**
+     * Move category in tree structure
+     */
+    public function changeParent($category, $newParent, $afterCategoryId = null)
+    {
+        $childrenIds = $this-&gt;getAllChildren($category);
+        $connection = $this-&gt;getConnection();
+
+        $connection-&gt;beginTransaction();
+
+        try {
+            // Update path for moved category and children
+            $newPath = $newParent-&gt;getPath() . '/' . $category-&gt;getId();
+            $oldPath = $category-&gt;getPath();
+
+            // Update category
+            $connection-&gt;update(
+                $this-&gt;getEntityTable(),
+                ['path' =&gt; $newPath, 'parent_id' =&gt; $newParent-&gt;getId()],
+                ['entity_id = ?' =&gt; $category-&gt;getId()]
+            );
+
+            // Update children paths
+            foreach ($childrenIds as $childId) {
+                $childPath = $connection-&gt;fetchOne(
+                    $connection-&gt;select()
+                        -&gt;from($this-&gt;getEntityTable(), 'path')
+                        -&gt;where('entity_id = ?', $childId)
+                );
+
+                $newChildPath = str_replace($oldPath, $newPath, $childPath);
+                $connection-&gt;update(
+                    $this-&gt;getEntityTable(),
+                    ['path' =&gt; $newChildPath],
+                    ['entity_id = ?' =&gt; $childId]
+                );
+            }
+
+            $connection-&gt;commit();
+        } catch (\Exception $e) {
+            $connection-&gt;rollBack();
+            throw $e;
+        }
+
+        return $this;
+    }
+}
+</code></pre>
+<h3 id="4-repository-implementation-layer">4. Repository Implementation Layer</h3>
+<p>Repositories implement service contracts and provide caching, validation, and event dispatching.</p>
+<pre><code class="language-php">namespace Magento\Catalog\Model;
+
+class ProductRepository implements \Magento\Catalog\Api\ProductRepositoryInterface
+{
+    private array $instances = [];
+    private array $instancesById = [];
+
+    public function __construct(
+        private readonly ProductFactory $productFactory,
+        private readonly Product\Initialization\Helper\ProductLinks $linkInitializer,
+        private readonly Product\Gallery\Processor $mediaGalleryProcessor,
+        private readonly \Magento\Store\Model\StoreManagerInterface $storeManager,
+        private readonly \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder,
+        private readonly CollectionProcessorInterface $collectionProcessor,
+        private readonly \Magento\Catalog\Model\ResourceModel\Product\CollectionFactory $collectionFactory
+    ) {}
+
+    public function get($sku, $editMode = false, $storeId = null, $forceReload = false)
+    {
+        $cacheKey = $this-&gt;getCacheKey([$editMode, $storeId]);
+
+        if (!isset($this-&gt;instances[$sku][$cacheKey]) || $forceReload) {
+            $product = $this-&gt;productFactory-&gt;create();
+
+            $productId = $this-&gt;resourceModel-&gt;getIdBySku($sku);
+            if (!$productId) {
+                throw new NoSuchEntityException(
+                    __(&quot;The product that was requested doesn't exist. Verify the product and try again.&quot;)
+                );
+            }
+
+            if ($editMode) {
+                $product-&gt;setData('_edit_mode', true);
+            }
+
+            if ($storeId !== null) {
+                $product-&gt;setData('store_id', $storeId);
+            } else {
+                $storeId = $this-&gt;storeManager-&gt;getStore()-&gt;getId();
+            }
+
+            $product-&gt;load($productId);
+            $this-&gt;instances[$sku][$cacheKey] = $product;
+            $this-&gt;instancesById[$product-&gt;getId()][$cacheKey] = $product;
+        }
+
+        return $this-&gt;instances[$sku][$cacheKey];
+    }
+
+    public function save(\Magento\Catalog\Api\Data\ProductInterface $product, $saveOptions = false)
+    {
+        $tierPrices = $product-&gt;getData('tier_price');
+
+        try {
+            // Validate SKU uniqueness
+            $existingProduct = $this-&gt;get($product-&gt;getSku());
+            if ($existingProduct-&gt;getId() &amp;&amp; $existingProduct-&gt;getId() != $product-&gt;getId()) {
+                throw new \Magento\Framework\Exception\CouldNotSaveException(
+                    __('A product with the SKU &quot;%1&quot; already exists.', $product-&gt;getSku())
+                );
+            }
+        } catch (NoSuchEntityException $e) {
+            // SKU is unique, proceed
+        }
+
+        $this-&gt;resourceModel-&gt;save($product);
+
+        // Save tier prices
+        if ($tierPrices !== null) {
+            $product-&gt;setData('tier_price', $tierPrices);
+            $this-&gt;tierPriceManagement-&gt;update($product);
+        }
+
+        // Clear cache
+        unset($this-&gt;instances[$product-&gt;getSku()]);
+        unset($this-&gt;instancesById[$product-&gt;getId()]);
+
+        return $this-&gt;get($product-&gt;getSku(), false, $product-&gt;getStoreId());
+    }
+
+    public function getList(\Magento\Framework\Api\SearchCriteriaInterface $searchCriteria)
+    {
+        $collection = $this-&gt;collectionFactory-&gt;create();
+        $this-&gt;collectionProcessor-&gt;process($searchCriteria, $collection);
+
+        $searchResults = $this-&gt;searchResultsFactory-&gt;create();
+        $searchResults-&gt;setSearchCriteria($searchCriteria);
+        $searchResults-&gt;setItems($collection-&gt;getItems());
+        $searchResults-&gt;setTotalCount($collection-&gt;getSize());
+
+        return $searchResults;
+    }
+
+    private function getCacheKey(array $data): string
+    {
+        return sha1(serialize($data));
+    }
+}
+</code></pre>
+<h2 id="database-schema">Database Schema</h2>
+<h3 id="core-product-tables">Core Product Tables</h3>
+<h4 id="catalog_product_entity-main-product-table">catalog_product_entity (Main Product Table)</h4>
+<pre><code class="language-sql">CREATE TABLE `catalog_product_entity` (
+  `entity_id` int unsigned NOT NULL AUTO_INCREMENT,
+  `attribute_set_id` smallint unsigned NOT NULL DEFAULT '0',
+  `type_id` varchar(32) NOT NULL DEFAULT 'simple',
+  `sku` varchar(64) DEFAULT NULL,
+  `has_options` smallint NOT NULL DEFAULT '0',
+  `required_options` smallint unsigned NOT NULL DEFAULT '0',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`entity_id`),
+  UNIQUE KEY `CATALOG_PRODUCT_ENTITY_SKU` (`sku`),
+  KEY `CATALOG_PRODUCT_ENTITY_ATTRIBUTE_SET_ID` (`attribute_set_id`),
+  KEY `CATALOG_PRODUCT_ENTITY_TYPE_ID` (`type_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+</code></pre>
+<h4 id="eav-attribute-value-tables">EAV Attribute Value Tables</h4>
+<p>Products use typed EAV tables for attribute storage:</p>
+<ul>
+<li><code>catalog_product_entity_varchar</code>: Text values (&lt; 255 chars)</li>
+<li><code>catalog_product_entity_text</code>: Long text values</li>
+<li><code>catalog_product_entity_int</code>: Integer values and select options</li>
+<li><code>catalog_product_entity_decimal</code>: Decimal values (price, weight)</li>
+<li><code>catalog_product_entity_datetime</code>: Date/time values</li>
+</ul>
+<pre><code class="language-sql">CREATE TABLE `catalog_product_entity_varchar` (
+  `value_id` int NOT NULL AUTO_INCREMENT,
+  `attribute_id` smallint unsigned NOT NULL,
+  `store_id` smallint unsigned NOT NULL DEFAULT '0',
+  `entity_id` int unsigned NOT NULL,
+  `value` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`value_id`),
+  UNIQUE KEY `CATALOG_PRODUCT_ENTITY_VARCHAR_ENTITY_ID_ATTRIBUTE_ID_STORE_ID`
+    (`entity_id`,`attribute_id`,`store_id`),
+  KEY `CATALOG_PRODUCT_ENTITY_VARCHAR_ATTRIBUTE_ID` (`attribute_id`),
+  KEY `CATALOG_PRODUCT_ENTITY_VARCHAR_STORE_ID` (`store_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+</code></pre>
+<h4 id="catalog_product_website-multi-website-assignment">catalog_product_website (Multi-Website Assignment)</h4>
+<pre><code class="language-sql">CREATE TABLE `catalog_product_website` (
+  `product_id` int unsigned NOT NULL,
+  `website_id` smallint unsigned NOT NULL,
+  PRIMARY KEY (`product_id`,`website_id`),
+  KEY `CATALOG_PRODUCT_WEBSITE_WEBSITE_ID` (`website_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+</code></pre>
+<h3 id="category-tables">Category Tables</h3>
+<h4 id="catalog_category_entity-main-category-table-with-mptt">catalog_category_entity (Main Category Table with MPTT)</h4>
+<pre><code class="language-sql">CREATE TABLE `catalog_category_entity` (
+  `entity_id` int unsigned NOT NULL AUTO_INCREMENT,
+  `attribute_set_id` smallint unsigned NOT NULL DEFAULT '0',
+  `parent_id` int unsigned NOT NULL DEFAULT '0',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `path` varchar(255) NOT NULL,
+  `position` int NOT NULL,
+  `level` int NOT NULL DEFAULT '0',
+  `children_count` int NOT NULL,
+  PRIMARY KEY (`entity_id`),
+  KEY `CATALOG_CATEGORY_ENTITY_LEVEL` (`level`),
+  KEY `CATALOG_CATEGORY_ENTITY_PATH` (`path`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+</code></pre>
+<p>The <code>path</code> field implements Modified Preorder Tree Traversal:
+- Format: <code>1/2/5/12</code> (IDs from root to current category)
+- Enables efficient tree queries
+- <code>level</code> indicates depth (root = 0, immediate children = 1)</p>
+<h4 id="catalog_category_product-product-category-relations">catalog_category_product (Product-Category Relations)</h4>
+<pre><code class="language-sql">CREATE TABLE `catalog_category_product` (
+  `category_id` int unsigned NOT NULL DEFAULT '0',
+  `product_id` int unsigned NOT NULL DEFAULT '0',
+  `position` int NOT NULL DEFAULT '0',
+  PRIMARY KEY (`category_id`,`product_id`),
+  KEY `CATALOG_CATEGORY_PRODUCT_PRODUCT_ID` (`product_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+</code></pre>
+<h3 id="relationship-tables">Relationship Tables</h3>
+<h4 id="catalog_product_link-related-upsell-cross-sell">catalog_product_link (Related, Upsell, Cross-sell)</h4>
+<pre><code class="language-sql">CREATE TABLE `catalog_product_link` (
+  `link_id` int unsigned NOT NULL AUTO_INCREMENT,
+  `product_id` int unsigned NOT NULL DEFAULT '0',
+  `linked_product_id` int unsigned NOT NULL DEFAULT '0',
+  `link_type_id` smallint unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`link_id`),
+  UNIQUE KEY `CATALOG_PRODUCT_LINK_PRODUCT_ID_LINKED_PRODUCT_ID_LINK_TYPE_ID`
+    (`product_id`,`linked_product_id`,`link_type_id`),
+  KEY `CATALOG_PRODUCT_LINK_LINKED_PRODUCT_ID` (`linked_product_id`),
+  KEY `CATALOG_PRODUCT_LINK_LINK_TYPE_ID` (`link_type_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+</code></pre>
+<p>Link types:
+- <code>1</code>: Related Products
+- <code>4</code>: Upsell Products
+- <code>5</code>: Cross-sell Products</p>
+<h3 id="index-tables-performance">Index Tables (Performance)</h3>
+<h4 id="catalog_product_index_price-pre-calculated-prices">catalog_product_index_price (Pre-calculated Prices)</h4>
+<pre><code class="language-sql">CREATE TABLE `catalog_product_index_price` (
+  `entity_id` int unsigned NOT NULL,
+  `customer_group_id` int unsigned NOT NULL,
+  `website_id` smallint unsigned NOT NULL,
+  `tax_class_id` smallint unsigned DEFAULT '0',
+  `price` decimal(20,6) DEFAULT NULL,
+  `final_price` decimal(20,6) DEFAULT NULL,
+  `min_price` decimal(20,6) NOT NULL,
+  `max_price` decimal(20,6) NOT NULL,
+  `tier_price` decimal(20,6) DEFAULT NULL,
+  PRIMARY KEY (`entity_id`,`customer_group_id`,`website_id`),
+  KEY `CATALOG_PRODUCT_INDEX_PRICE_CUSTOMER_GROUP_ID` (`customer_group_id`),
+  KEY `CATALOG_PRODUCT_INDEX_PRICE_WEBSITE_ID` (`website_id`),
+  KEY `CATALOG_PRODUCT_INDEX_PRICE_MIN_PRICE` (`min_price`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+</code></pre>
+<p>Populated by <code>catalog_product_price</code> indexer for fast price queries with catalog rules applied.</p>
+<h4 id="catalog_category_product_index-category-product-denormalized">catalog_category_product_index (Category-Product Denormalized)</h4>
+<pre><code class="language-sql">CREATE TABLE `catalog_category_product_index` (
+  `category_id` int unsigned NOT NULL DEFAULT '0',
+  `product_id` int unsigned NOT NULL DEFAULT '0',
+  `position` int DEFAULT NULL,
+  `is_parent` smallint unsigned NOT NULL DEFAULT '0',
+  `store_id` smallint unsigned NOT NULL DEFAULT '0',
+  `visibility` smallint unsigned NOT NULL,
+  PRIMARY KEY (`category_id`,`product_id`,`store_id`),
+  KEY `CATALOG_CATEGORY_PRODUCT_INDEX_PRODUCT_ID_STORE_ID_CATEGORY_ID_VISIBILITY`
+    (`product_id`,`store_id`,`category_id`,`visibility`),
+  KEY `CATALOG_CATEGORY_PRODUCT_INDEX_STORE_ID` (`store_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+</code></pre>
+<h2 id="key-classes-and-their-responsibilities">Key Classes and Their Responsibilities</h2>
+<h3 id="product-management">Product Management</h3>
+<div class="overflow-x-auto my-6 border border-gray-200"><table class="min-w-full">
+<thead>
+<tr>
+<th>Class</th>
+<th>Responsibility</th>
+<th>Layer</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Magento\Catalog\Api\ProductRepositoryInterface</code></td>
+<td>Product CRUD service contract</td>
+<td>API</td>
+</tr>
+<tr>
+<td><code>Magento\Catalog\Model\ProductRepository</code></td>
+<td>Repository implementation with caching</td>
+<td>Domain</td>
+</tr>
+<tr>
+<td><code>Magento\Catalog\Model\Product</code></td>
+<td>Product domain model</td>
+<td>Domain</td>
+</tr>
+<tr>
+<td><code>Magento\Catalog\Model\ResourceModel\Product</code></td>
+<td>Database operations for products</td>
+<td>Data Access</td>
+</tr>
+<tr>
+<td><code>Magento\Catalog\Model\Product\Type\AbstractType</code></td>
+<td>Product type strategy base</td>
+<td>Domain</td>
+</tr>
+<tr>
+<td><code>Magento\Catalog\Model\Product\Type\Simple</code></td>
+<td>Simple product type implementation</td>
+<td>Domain</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="category-management">Category Management</h3>
+<div class="overflow-x-auto my-6 border border-gray-200"><table class="min-w-full">
+<thead>
+<tr>
+<th>Class</th>
+<th>Responsibility</th>
+<th>Layer</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Magento\Catalog\Api\CategoryRepositoryInterface</code></td>
+<td>Category CRUD service contract</td>
+<td>API</td>
+</tr>
+<tr>
+<td><code>Magento\Catalog\Model\CategoryRepository</code></td>
+<td>Repository implementation</td>
+<td>Domain</td>
+</tr>
+<tr>
+<td><code>Magento\Catalog\Model\Category</code></td>
+<td>Category domain model with tree logic</td>
+<td>Domain</td>
+</tr>
+<tr>
+<td><code>Magento\Catalog\Model\ResourceModel\Category\Tree</code></td>
+<td>Tree structure operations</td>
+<td>Data Access</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="attribute-management">Attribute Management</h3>
+<div class="overflow-x-auto my-6 border border-gray-200"><table class="min-w-full">
+<thead>
+<tr>
+<th>Class</th>
+<th>Responsibility</th>
+<th>Layer</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Magento\Catalog\Api\ProductAttributeRepositoryInterface</code></td>
+<td>Attribute metadata service contract</td>
+<td>API</td>
+</tr>
+<tr>
+<td><code>Magento\Catalog\Model\ResourceModel\Eav\Attribute</code></td>
+<td>Product attribute model</td>
+<td>Domain</td>
+</tr>
+<tr>
+<td><code>Magento\Eav\Model\Entity\Attribute\Set</code></td>
+<td>Attribute set management</td>
+<td>Domain</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="pricing">Pricing</h3>
+<div class="overflow-x-auto my-6 border border-gray-200"><table class="min-w-full">
+<thead>
+<tr>
+<th>Class</th>
+<th>Responsibility</th>
+<th>Layer</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Magento\Catalog\Pricing\Price\FinalPrice</code></td>
+<td>Calculate final price with rules</td>
+<td>Domain</td>
+</tr>
+<tr>
+<td><code>Magento\Catalog\Pricing\Price\RegularPrice</code></td>
+<td>Base price calculation</td>
+<td>Domain</td>
+</tr>
+<tr>
+<td><code>Magento\Catalog\Pricing\Price\TierPrice</code></td>
+<td>Tier pricing calculation</td>
+<td>Domain</td>
+</tr>
+<tr>
+<td><code>Magento\Catalog\Model\Product\PriceModifier\Composite</code></td>
+<td>Price modification orchestration</td>
+<td>Domain</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="media-gallery">Media Gallery</h3>
+<div class="overflow-x-auto my-6 border border-gray-200"><table class="min-w-full">
+<thead>
+<tr>
+<th>Class</th>
+<th>Responsibility</th>
+<th>Layer</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Magento\Catalog\Model\Product\Gallery\Processor</code></td>
+<td>Image processing and storage</td>
+<td>Domain</td>
+</tr>
+<tr>
+<td><code>Magento\Catalog\Api\ProductAttributeMediaGalleryManagementInterface</code></td>
+<td>Gallery API contract</td>
+<td>API</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="dependency-graph">Dependency Graph</h2>
+<pre><code>Magento_Catalog depends on:
+├── Magento_Store (Multi-store scoping)
+├── Magento_Eav (Attribute system)
+├── Magento_Customer (Customer groups for pricing)
+├── Magento_Backend (Admin UI)
+├── Magento_Theme (Frontend rendering)
+├── Magento_MediaStorage (Media handling)
+├── Magento_Indexer (Index management)
+├── Magento_UrlRewrite (SEO URLs)
+├── Magento_Msrp (Manufacturer Suggested Retail Price)
+└── Magento_CatalogUrlRewrite (URL generation)
+
+Modules that depend on Magento_Catalog:
+├── Magento_CatalogInventory (Stock management - deprecated)
+├── Magento_InventoryCatalog (MSI integration)
+├── Magento_CatalogRule (Promotional pricing)
+├── Magento_CatalogSearch (Search layer)
+├── Magento_Quote (Shopping cart)
+├── Magento_Sales (Order processing)
+├── Magento_ConfigurableProduct (Configurable products)
+├── Magento_Bundle (Bundle products)
+├── Magento_GroupedProduct (Grouped products)
+├── Magento_Downloadable (Downloadable products)
+└── Magento_GiftCard (Adobe Commerce only)
+</code></pre>
+<h2 id="extension-points">Extension Points</h2>
+<h3 id="plugins-preferred">Plugins (Preferred)</h3>
+<p>Intercept public methods on repositories, models, and services:</p>
+<pre><code class="language-php">namespace Vendor\Module\Plugin;
+
+class ProductRepositoryPlugin
+{
+    /**
+     * Before save - validate custom business rules
+     */
+    public function beforeSave(
+        \Magento\Catalog\Api\ProductRepositoryInterface $subject,
+        \Magento\Catalog\Api\Data\ProductInterface $product,
+        $saveOptions = false
+    ) {
+        // Custom validation logic
+        if ($product-&gt;getCustomAttribute('vendor_id') === null) {
+            throw new \Magento\Framework\Exception\ValidatorException(
+                __('Vendor ID is required')
+            );
+        }
+
+        return [$product, $saveOptions];
+    }
+
+    /**
+     * After get - add custom data
+     */
+    public function afterGet(
+        \Magento\Catalog\Api\ProductRepositoryInterface $subject,
+        \Magento\Catalog\Api\Data\ProductInterface $result
+    ) {
+        // Enrich product with custom data
+        $extensionAttributes = $result-&gt;getExtensionAttributes();
+        $extensionAttributes-&gt;setVendorName($this-&gt;getVendorName($result));
+        $result-&gt;setExtensionAttributes($extensionAttributes);
+
+        return $result;
+    }
+}
+</code></pre>
+<h3 id="observers-event-driven">Observers (Event-Driven)</h3>
+<p>Key catalog events:</p>
+<pre><code class="language-php">// Product events
+catalog_product_save_before
+catalog_product_save_after
+catalog_product_delete_before
+catalog_product_delete_after
+catalog_product_load_after
+catalog_product_collection_load_after
+
+// Category events
+catalog_category_save_before
+catalog_category_save_after
+catalog_category_delete_before
+catalog_category_delete_after
+catalog_category_move_after  // dispatched by CatalogUrlRewrite, not Catalog; no _before event
+
+// Attribute events
+catalog_product_attribute_update_before
+catalog_entity_attribute_save_after
+</code></pre>
+<p>Example observer:</p>
+<pre><code class="language-php">namespace Vendor\Module\Observer;
+
+use Magento\Framework\Event\ObserverInterface;
+
+class ProductSaveAfterObserver implements ObserverInterface
+{
+    public function execute(\Magento\Framework\Event\Observer $observer)
+    {
+        /** @var \Magento\Catalog\Model\Product $product */
+        $product = $observer-&gt;getEvent()-&gt;getProduct();
+
+        // Custom logic after product save
+        $this-&gt;logger-&gt;info('Product saved: ' . $product-&gt;getSku());
+    }
+}
+</code></pre>
+<h3 id="custom-product-types">Custom Product Types</h3>
+<p>Extend <code>\Magento\Catalog\Model\Product\Type\AbstractType</code>:</p>
+<pre><code class="language-php">namespace Vendor\Module\Model\Product\Type;
+
+class Subscription extends \Magento\Catalog\Model\Product\Type\Virtual
+{
+    const TYPE_CODE = 'subscription';
+
+    public function deleteTypeSpecificData(\Magento\Catalog\Model\Product $product)
+    {
+        // Cleanup subscription-specific data
+    }
+
+    public function beforeSave($product)
+    {
+        parent::beforeSave($product);
+        // Subscription-specific validation
+        return $this;
+    }
+}
+</code></pre>
+<p>Register in <code>etc/product_types.xml</code>:</p>
+<pre><code class="language-xml">&lt;config xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+        xsi:noNamespaceSchemaLocation=&quot;urn:magento:module:Magento_Catalog:etc/product_types.xsd&quot;&gt;
+    &lt;type name=&quot;subscription&quot; label=&quot;Subscription Product&quot; modelInstance=&quot;Vendor\Module\Model\Product\Type\Subscription&quot;
+          indexPriority=&quot;50&quot; sortOrder=&quot;100&quot; isQty=&quot;false&quot;&gt;
+        &lt;priceModel instance=&quot;Vendor\Module\Model\Product\Type\Subscription\Price&quot;/&gt;
+    &lt;/type&gt;
+&lt;/config&gt;
+</code></pre>
+<h2 id="design-patterns-used">Design Patterns Used</h2>
+<ol>
+<li><strong>Repository Pattern</strong>: <code>ProductRepository</code>, <code>CategoryRepository</code></li>
+<li><strong>Factory Pattern</strong>: <code>ProductFactory</code>, <code>CategoryFactory</code></li>
+<li><strong>Strategy Pattern</strong>: Product types (<code>AbstractType</code> implementations)</li>
+<li><strong>Observer Pattern</strong>: Event system for extensibility</li>
+<li><strong>Proxy Pattern</strong>: Lazy loading of related entities</li>
+<li><strong>Composite Pattern</strong>: Price modifiers and calculations</li>
+<li><strong>Builder Pattern</strong>: <code>SearchCriteriaBuilder</code>, <code>FilterBuilder</code></li>
+<li><strong>Data Mapper Pattern</strong>: Resource models for ORM</li>
+</ol>
+<hr />
+<p><strong>Assumptions:</strong>
+- Magento 2.4.7+ with MSI enabled
+- PHP 8.2+ with typed properties
+- Elasticsearch/OpenSearch for catalog search
+- Redis for cache backend</p>
+<p><strong>Why this approach:</strong>
+Service contracts provide API stability across versions. Repository pattern with caching improves performance. EAV system enables flexible attribute management without schema migrations.</p>
+<p><strong>Security impact:</strong>
+All repository methods validate ACL when called from admin context. Extension attributes provide safe data enrichment without modifying core contracts. Event observers should validate permissions before executing sensitive operations.</p>
+<p><strong>Performance impact:</strong>
+Repository instances cache prevents duplicate loads. Index tables eliminate EAV joins on frontend. Category tree uses MPTT for efficient queries. Price index pre-calculates final prices with catalog rules applied.</p>
+<p><strong>Backward compatibility:</strong>
+Service contracts (API interfaces) are BC-stable within major versions. Plugin points on public methods are safe. Direct model usage may break across versions—always use repositories.</p>
+<p><strong>Tests to add:</strong>
+- Unit tests for repository implementations with mocked dependencies
+- Integration tests for CRUD operations with fixtures
+- API-functional tests for REST/GraphQL endpoints
+- Database schema validation tests</p>
+<p><strong>Docs to update:</strong>
+- ARCHITECTURE.md (this file) when significant structural changes occur
+- Add sequence diagrams for complex flows in EXECUTION_FLOWS.md
+- Update VERSION_COMPATIBILITY.md when API changes happen</p>
+                    </div>
+                </article>
+            </main>
+            <!-- Right Sidebar: On This Page (desktop) -->
+            <aside class="toc-sidebar hidden xl:block" aria-label="On this page">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-semibold text-gray-900 uppercase tracking-wider mb-4 mt-0">On this page</h3>
+                    <nav id="toc-nav" class="space-y-0" aria-label="Table of contents"></nav>
+                    <div class="toc-back-to-top">
+                        <a href="#">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+                            </svg>
+                            Back to top
+                        </a>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- ================================================================
+         FOOTER — matches module-catalog.html multi-column layout exactly
+         ================================================================ -->
+    <footer class="relative pt-12 bg-white border-t border-charcoal mt-16">
+        <div class="max-w-screen-2xl mx-auto w-full px-4 sm:px-6 lg:px-8">
+            <div>
+                <a href="index.html" class="inline-flex items-center no-underline">
+                    <svg width="30" height="33" viewBox="0 0 30 33" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Magento Association logo" role="img">
+                        <path d="M0 4.06492H29.6763V31.8882C29.6763 32.502 29.1713 33 28.5487 33H1.12762C0.505079 33 0 32.502 0 31.8882V4.06492Z" fill="#34323A"/>
+                        <path d="M1.26857 0H28.4078C29.1066 0 29.6763 0.561678 29.6763 1.25075V4.06492H0V1.25075C0 0.561678 0.569682 0 1.26857 0Z" fill="#C9C9C9"/>
+                        <path d="M2.37269 3.0458C2.94031 3.0458 3.40046 2.59211 3.40046 2.03246C3.40046 1.47281 2.94031 1.01913 2.37269 1.01913C1.80506 1.01913 1.34491 1.47281 1.34491 2.03246C1.34491 2.59211 1.80506 3.0458 2.37269 3.0458Z" fill="#848484"/>
+                        <path d="M5.28571 3.0458C5.85334 3.0458 6.31349 2.59211 6.31349 2.03246C6.31349 1.47281 5.85334 1.01913 5.28571 1.01913C4.71809 1.01913 4.25793 1.47281 4.25793 2.03246C4.25793 2.59211 4.71809 3.0458 5.28571 3.0458Z" fill="#848484"/>
+                        <path d="M14.7883 7.46973L4.90405 13.0923V24.349L7.54104 25.8487V14.5978L14.7883 10.4692L22.0415 14.5978V25.8487L24.6785 24.349V13.0923L14.7883 7.46973Z" fill="#F1BC1B"/>
+                        <path d="M16.0862 26.2367L14.7883 26.9779L13.4492 26.2135V14.233L10.178 16.0975V27.3485L13.4492 29.213L14.7883 29.9773L16.0862 29.2362L19.4045 27.3485V16.0975L16.0862 14.2098V26.2367Z" fill="#F1BC1B"/>
+                    </svg>
+                    <span class="ml-3 text-xl font-bold text-charcoal">Developer Documentation</span>
+                </a>
+            </div>
+
+            <div class="grid grid-cols-12 md:gap-x-8 gap-y-12 lg:mt-12">
+                <div class="col-span-12 lg:col-span-4">
+                    <p class="hidden lg:block text-xs text-charcoal sm:text-sm">Comprehensive developer documentation for Magento 2.4.7+ — tutorials, architecture deep dives, module references, and production-ready patterns built by the community, for the community.</p>
+                    <ul class="mt-6 hidden lg:flex items-center gap-3">
+                        <li class="pl-0">
+                            <a href="https://github.com/magento/magento2" class="p-2 md:p-0" aria-label="GitHub">
+                                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                                </svg>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Guides</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="tutorials.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Tutorials</a></li>
+                            <li class="pl-0"><a href="how-to-guides.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">How-To Guides</a></li>
+                            <li class="pl-0"><a href="architecture.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Architecture</a></li>
+                            <li class="pl-0"><a href="learning-paths.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Learning Paths</a></li>
+                            <li class="pl-0"><a href="references.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">References</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Modules</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="module-catalog.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Catalog</a></li>
+                            <li class="pl-0"><a href="module-checkout.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Checkout</a></li>
+                            <li class="pl-0"><a href="module-sales.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Sales</a></li>
+                            <li class="pl-0"><a href="module-customer.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Customer</a></li>
+                            <li class="pl-0"><a href="module-quote.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Quote</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Community</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Magento Community</a></li>
+                            <li class="pl-0"><a href="https://magento.stackexchange.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Stack Exchange</a></li>
+                            <li class="pl-0"><a href="https://marketplace.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Marketplace</a></li>
+                            <li class="pl-0"><a href="https://github.com/magento/magento2" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">GitHub</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Support</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://github.com/magento/magento2/issues" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Report Issues</a></li>
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Community Resources</a></li>
+                            <li class="pl-0"><a href="https://developer.adobe.com/commerce/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Adobe Commerce Docs</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-12 border-t pt-6 pb-16 border-charcoal">
+                <p class="text-xs text-charcoal">
+                    &copy; 2026 Magento 2 Developer Documentation. Magento&reg; is a registered trademark of Adobe Inc.
+                </p>
+                <p class="mt-6 text-xs text-charcoal">
+                    This documentation provides guidance for Magento 2 developers and extension builders. For merchant documentation, visit the <a href="index.html" class="text-orange hover:text-orange-600 transition-colors">merchant documentation</a>.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Initialize highlight.js -->
+    <script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('pre code').forEach(function (el) {
+        hljs.highlightElement(el);
+    });
+    document.querySelectorAll('pre').forEach(function (pre) {
+        if (pre.parentNode.classList && pre.parentNode.classList.contains('code-wrapper')) return;
+        var wrapper = document.createElement('div');
+        wrapper.className = 'code-wrapper';
+        pre.parentNode.insertBefore(wrapper, pre);
+        wrapper.appendChild(pre);
+        var btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.setAttribute('type', 'button');
+        btn.setAttribute('aria-label', 'Copy code to clipboard');
+        btn.setAttribute('title', 'Copy');
+        btn.textContent = 'Copy';
+        wrapper.appendChild(btn);
+        btn.addEventListener('click', function () {
+            var code = pre.querySelector('code');
+            var text = code ? (code.innerText || code.textContent) : (pre.innerText || pre.textContent);
+            navigator.clipboard.writeText(text).then(function () {
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            }).catch(function () {
+                var range = document.createRange();
+                range.selectNode(code || pre);
+                window.getSelection().removeAllRanges();
+                window.getSelection().addRange(range);
+                document.execCommand('copy');
+                window.getSelection().removeAllRanges();
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            });
+        });
+    });
+});
+</script>
+
+
+<script>
+(function() {
+    var nav = document.getElementById('toc-nav');
+    if (!nav) return;
+    var article = document.getElementById('main-content');
+    if (!article) return;
+    var headings = article.querySelectorAll('h2[id], h3[id]');
+    if (headings.length < 3) {
+        // Hide the entire TOC sidebar if fewer than 3 headings
+        var sidebar = nav.closest('.toc-sidebar');
+        if (sidebar) sidebar.style.display = 'none';
+        return;
+    }
+    var ids = [];
+    headings.forEach(function(h) {
+        var a = document.createElement('a');
+        a.href = '#' + h.id;
+        a.textContent = h.textContent.replace(/^#+\s*/, '').replace(/\s+/g, ' ').trim();
+        if (h.tagName === 'H3') a.classList.add('toc-h3');
+        nav.appendChild(a);
+        ids.push(h.id);
+    });
+    // Scroll-spy with IntersectionObserver
+    var links = nav.querySelectorAll('a');
+    var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                links.forEach(function(l) { l.classList.remove('toc-active'); });
+                var active = nav.querySelector('a[href="#' + entry.target.id + '"]');
+                if (active) active.classList.add('toc-active');
+            }
+        });
+    }, { rootMargin: '-80px 0px -70% 0px', threshold: 0 });
+    headings.forEach(function(h) { observer.observe(h); });
+})();
+</script>
+</body>
+</html>

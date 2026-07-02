@@ -1,0 +1,2017 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magento_Sales Architecture — Magento 2 Developer Documentation</title>
+    <meta name="description" content="Magento_Sales Architecture">
+
+    <!-- Google Fonts: Inter Tight only. Courier New used for code. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Highlight.js: syntax highlighting for code blocks -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/php.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/ini.min.js"></script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        charcoal: {
+                            DEFAULT: '#2c2c2c', 50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6',
+                            300: '#6B6B6B', 400: '#474747', 500: '#2c2c2c', 600: '#262626',
+                            700: '#202020', 800: '#1c1c1c', 900: '#191919', 950: '#121212'
+                        },
+                        orange: {
+                            DEFAULT: '#D4551A', 50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad',
+                            300: '#f9ae78', 400: '#f58242', 500: '#f26423', 600: '#e34613',
+                            700: '#bc3312', 800: '#962a16', 900: '#792515', 950: '#411009'
+                        },
+                        yellow: {
+                            DEFAULT: '#B8860B', 50: '#fffdeb', 100: '#fdf9c8', 200: '#fbf38c',
+                            300: '#f8e651', 400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a',
+                            700: '#b1670c', 800: '#8f5111', 900: '#764311', 950: '#442204'
+                        },
+                        'off-white': '#FAFAFA',
+                    },
+                    fontFamily: {
+                        sans: ['Inter Tight', 'system-ui', '-apple-system', 'sans-serif'],
+                        mono: ['Courier New', 'Courier', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* ── Force light mode ── */
+        :root { color-scheme: light only; }
+
+        [x-cloak] { display: none !important; }
+
+        /* ── Scroll offset for sticky header ── */
+        .prose h2, .prose h3 { scroll-margin-top: 5rem; }
+
+        /* ── Code blocks: Bauhaus charcoal bg, no border-radius, highlight.js override ── */
+        .prose pre {
+            background-color: #2C2C2C !important;
+            border-radius: 0 !important;
+            padding: 1.25rem;
+            overflow-x: auto;
+            font-size: 0.875rem;
+            line-height: 1.7;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 1.5rem 0;
+        }
+        .prose pre code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            background: transparent !important;
+            padding: 0;
+                    color: #abb2bf;
+        }
+        /* Override highlight.js theme background to match Bauhaus charcoal */
+        .hljs {
+            background: #2C2C2C !important;
+            color: #abb2bf !important;
+            border-radius: 0 !important;
+        }
+
+        /* ── Inline code: charcoal bg, yellow text, no border-radius ── */
+        .prose code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.85em;
+        }
+        .prose :not(pre) > code {
+            background-color: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2em 0.45em;
+            border-radius: 0;
+        }
+
+        /* ── Step-code: same charcoal/yellow style for UI path chips ── */
+        .step-code {
+            background: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2rem 0.5rem;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            border-radius: 0;
+        }
+
+        /* ── Tables: no border-radius, charcoal header ── */
+        .prose table { width: 100%; border-collapse: collapse; }
+        .prose th {
+            background-color: #2C2C2C;
+            color: #ffffff;
+            font-weight: 600;
+            text-align: left;
+            padding: 0.75rem 1rem;
+            border-bottom: 2px solid #2C2C2C;
+            border-radius: 0;
+        }
+        .prose td { padding: 0.75rem 1rem; border-bottom: 1px solid #e5e5e5; }
+        .prose tr:hover { background-color: #fafafa; }
+
+        /* ── Blockquote: Bauhaus style — border-4 yellow, square, no left-only border ── */
+        .prose blockquote {
+            border: 4px solid #F1BC1B;
+            background-color: #ffffff;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+            border-radius: 0;
+        }
+        .prose blockquote p { margin: 0; }
+
+        /* ── Lists: hexagon bullets ── */
+        .prose ul { list-style: none; padding-left: 0; }
+        .prose ul li {
+            position: relative;
+            padding-left: 1.75rem;
+            margin-bottom: 0.4rem;
+            line-height: 1.7;
+        }
+        .prose ul li::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0.45em;
+            width: 10px;
+            height: 10px;
+            background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 2L21 7V17L12 22L3 17V7L12 2Z' stroke='%23F26423' stroke-width='2.5' stroke-linejoin='miter'/%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+        .prose ol { list-style-type: decimal; padding-left: 1.5rem; }
+        .prose li { margin-bottom: 0.4rem; }
+
+        /* ── Headings ── */
+        .prose h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            padding-top: 1.5rem;
+            border-top: 4px solid #F1BC1B;
+            color: #2C2C2C;
+        }
+        .prose h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+            color: #2C2C2C;
+        }
+        .prose h4 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #2C2C2C;
+        }
+        .prose p { margin-bottom: 1rem; line-height: 1.75; }
+        .prose a { color: #D4551A; text-decoration: none; }
+        .prose a:hover { color: #e34613; text-decoration: underline; }
+        .prose hr { border: none; border-top: 1px solid #e5e5e5; margin: 2rem 0; }
+
+        /* ── Callout boxes: Bauhaus — border-4 yellow, white bg, icon + title ── */
+        .callout-box {
+            background-color: #ffffff;
+            border: 4px solid #F1BC1B;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+        }
+        .callout-warning {
+            border-color: #D4551A;
+        }
+        .callout-important {
+            border-color: #2C2C2C;
+        }
+        .callout-box .callout-inner {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+        .callout-box .callout-title {
+            font-weight: 600;
+            color: #2C2C2C;
+            margin-bottom: 0.25rem;
+        }
+        .callout-box .callout-body {
+            font-size: 0.875rem;
+            line-height: 1.6;
+            color: rgba(44,44,44,0.85);
+        }
+
+        
+    
+        /* Code block copy button */
+        .code-wrapper {
+            position: relative;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            font-family: 'Inter Tight', system-ui, sans-serif;
+            background: rgba(255,255,255,0.1);
+            color: #abb2bf;
+            border: 1px solid rgba(255,255,255,0.15);
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.15s ease, background 0.15s ease;
+            z-index: 10;
+            line-height: 1.4;
+            border-radius: 4px;
+            user-select: none;
+        }
+        .code-wrapper:hover .copy-btn {
+            opacity: 1;
+        }
+        .copy-btn:hover,
+        .copy-btn:focus {
+            background: rgba(255,255,255,0.2);
+            color: #ffffff;
+            outline: 2px solid #D4551A;
+            outline-offset: 1px;
+        }
+        .copy-btn.copied {
+            color: #98c379;
+            background: rgba(152, 195, 121, 0.15);
+            opacity: 1;
+        }
+    
+        /* Right-hand TOC sidebar */
+        .toc-sidebar {
+            width: 14rem;
+            flex-shrink: 0;
+        }
+        .toc-sidebar a {
+            display: block;
+            padding: 0.375rem 0;
+            font-size: 0.8125rem;
+            line-height: 1.4;
+            color: #6b7280;
+            text-decoration: none;
+            transition: color 0.15s ease;
+            border-left: 2px solid transparent;
+            padding-left: 0.75rem;
+        }
+        .toc-sidebar a:hover {
+            color: #111827;
+        }
+        .toc-sidebar a.toc-active {
+            color: #ea580c;
+            border-left-color: #ea580c;
+            font-weight: 500;
+        }
+        .toc-sidebar a.toc-h3 {
+            padding-left: 1.5rem;
+            font-size: 0.75rem;
+        }
+        .toc-sidebar .toc-back-to-top {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e5e7eb;
+        }
+        .toc-sidebar .toc-back-to-top a {
+            border-left: none;
+            padding-left: 0;
+            font-weight: 500;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .toc-sidebar .toc-back-to-top a:hover {
+            color: #ea580c;
+        }
+    </style>
+</head>
+
+<body class="font-sans bg-off-white text-charcoal">
+
+    <!-- Shared header — single source of truth -->
+    <script src="includes/header.js"></script>
+
+    <!-- Breadcrumb — orange › separators -->
+    <div class="bg-white border-b border-gray-100">
+        <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <div class="flex items-center gap-2 text-sm flex-wrap">
+                <a href="index.html" class="text-orange hover:text-orange-600 transition-colors no-underline">Home</a> <span class="text-orange font-medium">›</span> <a href="modules.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">Modules</a> <span class="text-orange font-medium">›</span> <a href="module-sales.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">Sales</a> <span class="text-orange font-medium">›</span> <span class="text-charcoal font-medium">Magento_Sales Architecture</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="flex gap-8">
+
+            <!-- Left Sidebar (desktop) -->
+            <aside class="hidden lg:block w-64 flex-shrink-0">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4">Sales Module</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="module-sales-overview.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Overview</a></li>
+<li class="pl-0"><a href="module-sales-architecture.html" class="block px-3 py-2 text-sm text-orange font-semibold bg-orange-50 border-l-4 border-orange pl-2 transition-colors no-underline">Architecture</a></li>
+<li class="pl-0"><a href="module-sales-execution-flows.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Execution Flows</a></li>
+<li class="pl-0"><a href="module-sales-plugins-and-observers.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Plugins & Observers</a></li>
+<li class="pl-0"><a href="module-sales-integrations.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Integrations</a></li>
+<li class="pl-0"><a href="module-sales-anti-patterns.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Anti-Patterns</a></li>
+<li class="pl-0"><a href="module-sales-performance.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Performance</a></li>
+<li class="pl-0"><a href="module-sales-known-issues.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Known Issues</a></li>
+<li class="pl-0"><a href="module-sales-version-compatibility.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Version Compatibility</a></li>
+</ul>
+<h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4 mt-8">Other Modules</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="module-catalog.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Catalog</a></li>
+<li class="pl-0"><a href="module-checkout.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Checkout</a></li>
+<li class="pl-0"><a href="module-customer.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Customer</a></li>
+<li class="pl-0"><a href="module-quote.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Quote</a></li>
+</ul>
+                </div>
+            </aside>
+
+            <!-- Article — square corners, border-t-4 orange accent -->
+            <main id="main-content" class="flex-1 min-w-0">
+                <article class="bg-white shadow-sm border border-gray-100 border-t-4 border-t-orange p-8 md:p-12">
+                    <!-- Title block -->
+                    <div class="mb-8">
+                        <span class="inline-block px-3 py-1.5 text-xs font-medium bg-charcoal-50 text-charcoal border border-charcoal-100">Architecture</span>
+                        <h1 class="text-3xl md:text-4xl font-extrabold text-charcoal mt-3 mb-3">Magento_Sales Architecture</h1>
+                        <p class="text-charcoal-300 text-lg mb-4">Magento_Sales Architecture</p>
+                        <!-- Meta pills -->
+                        <div class="flex flex-wrap gap-2"><span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-charcoal text-white">Magento 2.4.7+</span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-charcoal-50 text-charcoal border border-charcoal-100">Magento_Sales</span></div>
+                    </div>
+
+                    <hr class="border-0 border-t border-gray-100 mb-8">
+
+                    <!-- Content -->
+                    <div class="prose max-w-none">
+                        <h1 id="magento_sales-architecture">Magento_Sales Architecture</h1>
+<h2 id="architectural-overview">Architectural Overview</h2>
+<p>The Magento_Sales module implements a sophisticated domain-driven design with clear separation between data access, business logic, and presentation layers. The architecture follows SOLID principles with extensive use of service contracts, repository patterns, and event-driven communication.</p>
+<h2 id="core-architectural-patterns">Core Architectural Patterns</h2>
+<h3 id="service-contract-layer">Service Contract Layer</h3>
+<p>The Sales module exposes all operations through well-defined service contracts in the <code>Magento\Sales\Api</code> namespace. This provides API stability and enables:</p>
+<ul>
+<li><strong>Version compatibility</strong>: Internal implementation changes without breaking clients</li>
+<li><strong>Web API exposure</strong>: Automatic REST/SOAP endpoint generation</li>
+<li><strong>Plugin interception</strong>: Extension points at service boundaries</li>
+<li><strong>Type safety</strong>: Strong contracts for all operations</li>
+</ul>
+<h3 id="repository-pattern">Repository Pattern</h3>
+<p>All entity persistence operations go through repository interfaces:</p>
+<pre><code class="language-php">&lt;?php
+namespace Magento\Sales\Model;
+
+use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Model\ResourceModel\Order as OrderResource;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Exception\CouldNotSaveException;
+
+/**
+ * Order repository implementation
+ *
+ * Handles CRUD operations with proper exception handling and extension attributes
+ */
+class OrderRepository implements OrderRepositoryInterface
+{
+    private array $registry = [];
+
+    public function __construct(
+        private OrderFactory $orderFactory,
+        private OrderResource $orderResource,
+        private \Magento\Sales\Api\Data\OrderSearchResultInterfaceFactory $searchResultFactory,
+        private \Magento\Framework\Api\SearchCriteria\CollectionProcessorInterface $collectionProcessor,
+        private \Magento\Sales\Model\ResourceModel\Order\CollectionFactory $orderCollectionFactory,
+        private \Magento\Sales\Api\Data\OrderExtensionFactory $orderExtensionFactory
+    ) {}
+
+    /**
+     * Load order by ID with identity map pattern
+     *
+     * @param int $id
+     * @return OrderInterface
+     * @throws NoSuchEntityException
+     */
+    public function get($id)
+    {
+        if (isset($this-&gt;registry[$id])) {
+            return $this-&gt;registry[$id];
+        }
+
+        $order = $this-&gt;orderFactory-&gt;create();
+        $this-&gt;orderResource-&gt;load($order, $id);
+
+        if (!$order-&gt;getEntityId()) {
+            throw new NoSuchEntityException(
+                __('The entity that was requested doesn\'t exist. Verify the entity and try again.')
+            );
+        }
+
+        $this-&gt;registry[$id] = $order;
+        return $order;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function save(\Magento\Sales\Api\Data\OrderInterface $entity)
+    {
+        try {
+            $this-&gt;orderResource-&gt;save($entity);
+            unset($this-&gt;registry[$entity-&gt;getEntityId()]);
+        } catch (\Exception $e) {
+            throw new CouldNotSaveException(
+                __('Could not save the order: %1', $e-&gt;getMessage()),
+                $e
+            );
+        }
+
+        return $entity;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getList(\Magento\Framework\Api\SearchCriteriaInterface $searchCriteria)
+    {
+        $collection = $this-&gt;orderCollectionFactory-&gt;create();
+        $this-&gt;collectionProcessor-&gt;process($searchCriteria, $collection);
+
+        $searchResults = $this-&gt;searchResultFactory-&gt;create();
+        $searchResults-&gt;setSearchCriteria($searchCriteria);
+        $searchResults-&gt;setItems($collection-&gt;getItems());
+        $searchResults-&gt;setTotalCount($collection-&gt;getSize());
+
+        return $searchResults;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function delete(\Magento\Sales\Api\Data\OrderInterface $entity)
+    {
+        try {
+            $this-&gt;orderResource-&gt;delete($entity);
+            unset($this-&gt;registry[$entity-&gt;getEntityId()]);
+        } catch (\Exception $e) {
+            throw new \Magento\Framework\Exception\CouldNotDeleteException(
+                __('Could not delete the order: %1', $e-&gt;getMessage())
+            );
+        }
+
+        return true;
+    }
+}
+</code></pre>
+<h3 id="entity-attribute-value-eav-vs-flat-tables">Entity-Attribute-Value (EAV) vs Flat Tables</h3>
+<p>Sales entities use <strong>flat table architecture</strong> (not EAV) for performance:</p>
+<pre><code class="language-sql">-- Order table structure (flat)
+CREATE TABLE sales_order (
+    entity_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    state VARCHAR(32),
+    status VARCHAR(32),
+    customer_id INT UNSIGNED,
+    base_grand_total DECIMAL(20,4),
+    grand_total DECIMAL(20,4),
+    base_currency_code VARCHAR(3),
+    order_currency_code VARCHAR(3),
+    store_id SMALLINT UNSIGNED,
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP,
+    -- ... 100+ columns for all order attributes
+    PRIMARY KEY (entity_id),
+    INDEX (state),
+    INDEX (status),
+    INDEX (customer_id),
+    INDEX (created_at),
+    INDEX (increment_id),
+    CONSTRAINT FK_SALES_ORDER_CUSTOMER_ID FOREIGN KEY (customer_id)
+        REFERENCES customer_entity(entity_id) ON DELETE SET NULL
+);
+</code></pre>
+<p>This flat structure provides:
+- <strong>Fast reads</strong>: Single table query without joins
+- <strong>Simple indexing</strong>: Direct column indexes
+- <strong>No attribute loading overhead</strong>: All data in one row
+- <strong>Grid performance</strong>: Optimized for admin grids</p>
+<h2 id="domain-model-architecture">Domain Model Architecture</h2>
+<h3 id="order-aggregate-root">Order Aggregate Root</h3>
+<p>The Order is the aggregate root containing all related entities:</p>
+<pre><code class="language-php">&lt;?php
+namespace Magento\Sales\Model;
+
+use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Framework\Model\AbstractModel;
+
+/**
+ * Order entity aggregate root
+ *
+ * Contains all order-related entities and enforces business invariants
+ */
+class Order extends AbstractModel implements OrderInterface
+{
+    const STATE_NEW = 'new';
+    const STATE_PENDING_PAYMENT = 'pending_payment';
+    const STATE_PROCESSING = 'processing';
+    const STATE_COMPLETE = 'complete';
+    const STATE_CLOSED = 'closed';
+    const STATE_CANCELED = 'canceled';
+    const STATE_HOLDED = 'holded';
+    const STATE_PAYMENT_REVIEW = 'payment_review';
+
+    /**
+     * Order items collection
+     *
+     * @var \Magento\Sales\Model\ResourceModel\Order\Item\Collection|null
+     */
+    private ?\Magento\Sales\Model\ResourceModel\Order\Item\Collection $items = null;
+
+    /**
+     * Order addresses collection
+     *
+     * @var \Magento\Sales\Model\ResourceModel\Order\Address\Collection|null
+     */
+    private ?\Magento\Sales\Model\ResourceModel\Order\Address\Collection $addresses = null;
+
+    /**
+     * Order payment
+     *
+     * @var Order\Payment|null
+     */
+    private ?Order\Payment $payment = null;
+
+    /**
+     * Order status history collection
+     *
+     * @var \Magento\Sales\Model\ResourceModel\Order\Status\History\Collection|null
+     */
+    private ?\Magento\Sales\Model\ResourceModel\Order\Status\History\Collection $statusHistory = null;
+
+    /**
+     * Initialize resource model
+     */
+    protected function _construct(): void
+    {
+        $this-&gt;_init(\Magento\Sales\Model\ResourceModel\Order::class);
+    }
+
+    /**
+     * Get all order items (lazy load)
+     *
+     * @return \Magento\Sales\Model\Order\Item[]
+     */
+    public function getAllItems(): array
+    {
+        if ($this-&gt;items === null) {
+            $this-&gt;items = $this-&gt;getItemsCollection();
+        }
+
+        return $this-&gt;items-&gt;getItems();
+    }
+
+    /**
+     * Get items collection
+     *
+     * @return \Magento\Sales\Model\ResourceModel\Order\Item\Collection
+     */
+    public function getItemsCollection(): \Magento\Sales\Model\ResourceModel\Order\Item\Collection
+    {
+        if ($this-&gt;items === null) {
+            $this-&gt;items = $this-&gt;_orderItemCollectionFactory-&gt;create()
+                -&gt;setOrderFilter($this);
+        }
+
+        return $this-&gt;items;
+    }
+
+    /**
+     * Get order payment
+     *
+     * @return Order\Payment
+     */
+    public function getPayment(): Order\Payment
+    {
+        if ($this-&gt;payment === null) {
+            $this-&gt;payment = $this-&gt;_paymentFactory-&gt;create()
+                -&gt;setOrder($this);
+
+            $this-&gt;_orderResource-&gt;loadOrderPayment($this-&gt;payment, $this-&gt;getId());
+        }
+
+        return $this-&gt;payment;
+    }
+
+    /**
+     * Get billing address
+     *
+     * @return Order\Address|null
+     */
+    public function getBillingAddress(): ?Order\Address
+    {
+        foreach ($this-&gt;getAddressesCollection() as $address) {
+            if ($address-&gt;getAddressType() === Order\Address::TYPE_BILLING) {
+                return $address;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Get shipping address
+     *
+     * @return Order\Address|null
+     */
+    public function getShippingAddress(): ?Order\Address
+    {
+        foreach ($this-&gt;getAddressesCollection() as $address) {
+            if ($address-&gt;getAddressType() === Order\Address::TYPE_SHIPPING) {
+                return $address;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Can cancel order (business rule enforcement)
+     *
+     * @return bool
+     */
+    public function canCancel(): bool
+    {
+        if ($this-&gt;getState() === self::STATE_CANCELED ||
+            $this-&gt;getState() === self::STATE_COMPLETE ||
+            $this-&gt;getState() === self::STATE_CLOSED) {
+            return false;
+        }
+
+        if ($this-&gt;getActionFlag(self::ACTION_FLAG_CANCEL) === false) {
+            return false;
+        }
+
+        // Check if all items can be canceled
+        foreach ($this-&gt;getAllItems() as $item) {
+            if (!$item-&gt;canCancel()) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Can create invoice (business rule enforcement)
+     *
+     * @return bool
+     */
+    public function canInvoice(): bool
+    {
+        if ($this-&gt;getState() === self::STATE_CANCELED ||
+            $this-&gt;getState() === self::STATE_COMPLETE ||
+            $this-&gt;getState() === self::STATE_CLOSED) {
+            return false;
+        }
+
+        if ($this-&gt;getActionFlag(self::ACTION_FLAG_INVOICE) === false) {
+            return false;
+        }
+
+        // Check if any items can be invoiced
+        foreach ($this-&gt;getAllItems() as $item) {
+            if ($item-&gt;getQtyToInvoice() &gt; 0 &amp;&amp; !$item-&gt;getLockedDoInvoice()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Can create shipment (business rule enforcement)
+     *
+     * @return bool
+     */
+    public function canShip(): bool
+    {
+        if ($this-&gt;getState() === self::STATE_CANCELED ||
+            $this-&gt;getState() === self::STATE_COMPLETE ||
+            $this-&gt;getState() === self::STATE_CLOSED ||
+            $this-&gt;getState() === self::STATE_HOLDED) {
+            return false;
+        }
+
+        if ($this-&gt;getIsVirtual()) {
+            return false;
+        }
+
+        if ($this-&gt;getActionFlag(self::ACTION_FLAG_SHIP) === false) {
+            return false;
+        }
+
+        // Check if any items can be shipped
+        foreach ($this-&gt;getAllItems() as $item) {
+            if ($item-&gt;getQtyToShip() &gt; 0 &amp;&amp; !$item-&gt;getIsVirtual()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Can create credit memo (business rule enforcement)
+     *
+     * @return bool
+     */
+    public function canCreditmemo(): bool
+    {
+        if ($this-&gt;getState() === self::STATE_CANCELED ||
+            $this-&gt;getState() === self::STATE_CLOSED ||
+            $this-&gt;getState() === self::STATE_HOLDED) {
+            return false;
+        }
+
+        if ($this-&gt;getActionFlag(self::ACTION_FLAG_CREDITMEMO) === false) {
+            return false;
+        }
+
+        // Must have invoices to refund
+        if ($this-&gt;getTotalInvoiced() &lt;= 0) {
+            return false;
+        }
+
+        // Check if any items can be refunded
+        foreach ($this-&gt;getAllItems() as $item) {
+            if ($item-&gt;getQtyToRefund() &gt; 0) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+}
+</code></pre>
+<h3 id="state-machine-pattern">State Machine Pattern</h3>
+<p>Order state transitions are controlled through a state machine:</p>
+<pre><code class="language-php">&lt;?php
+namespace Magento\Sales\Model\Order;
+
+/**
+ * Order state machine configuration
+ */
+class Config
+{
+    /**
+     * Statuses per state
+     *
+     * @var array
+     */
+    private array $stateStatuses = [
+        Order::STATE_NEW =&gt; ['pending'],
+        Order::STATE_PENDING_PAYMENT =&gt; ['pending_payment'],
+        Order::STATE_PROCESSING =&gt; ['processing', 'fraud'],
+        Order::STATE_COMPLETE =&gt; ['complete'],
+        Order::STATE_CLOSED =&gt; ['closed'],
+        Order::STATE_CANCELED =&gt; ['canceled'],
+        Order::STATE_HOLDED =&gt; ['holded'],
+        Order::STATE_PAYMENT_REVIEW =&gt; ['payment_review']
+    ];
+
+    /**
+     * Get available states for order
+     *
+     * @return array
+     */
+    public function getStates(): array
+    {
+        return [
+            Order::STATE_NEW =&gt; __('New'),
+            Order::STATE_PENDING_PAYMENT =&gt; __('Pending Payment'),
+            Order::STATE_PROCESSING =&gt; __('Processing'),
+            Order::STATE_COMPLETE =&gt; __('Complete'),
+            Order::STATE_CLOSED =&gt; __('Closed'),
+            Order::STATE_CANCELED =&gt; __('Canceled'),
+            Order::STATE_HOLDED =&gt; __('On Hold'),
+            Order::STATE_PAYMENT_REVIEW =&gt; __('Payment Review')
+        ];
+    }
+
+}
+</code></pre>
+<div class="callout-box"><div class="callout-inner"><svg class="w-5 h-5 text-orange flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg><div><p class="callout-title">Note</p><div class="callout-body"><p> The <code>Config</code> class does not have an <code>isTransitionAllowed()</code> method. State transitions are enforced implicitly by the Order model's business methods (<code>canCancel()</code>, <code>canInvoice()</code>, <code>canShip()</code>, etc.), each of which checks the current state against allowed conditions. The following table shows the valid state transitions:</p>
+<div class="overflow-x-auto my-6 border border-gray-200"><table class="min-w-full">
+<thead>
+<tr>
+<th>From State</th>
+<th>Allowed Transitions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>new</code></td>
+<td><code>pending_payment</code>, <code>processing</code>, <code>canceled</code>, <code>holded</code></td>
+</tr>
+<tr>
+<td><code>pending_payment</code></td>
+<td><code>processing</code>, <code>canceled</code>, <code>holded</code></td>
+</tr>
+<tr>
+<td><code>processing</code></td>
+<td><code>complete</code>, <code>closed</code>, <code>canceled</code>, <code>holded</code></td>
+</tr>
+<tr>
+<td><code>holded</code></td>
+<td><code>processing</code>, <code>canceled</code></td>
+</tr>
+<tr>
+<td><code>payment_review</code></td>
+<td><code>processing</code>, <code>canceled</code></td>
+</tr>
+<tr>
+<td><code>complete</code></td>
+<td><code>closed</code></td>
+</tr>
+<tr>
+<td><code>closed</code></td>
+<td>(terminal)</td>
+</tr>
+<tr>
+<td><code>canceled</code></td>
+<td>(terminal)</td>
+</tr>
+</tbody>
+</table></div></div></div></div></div>
+<h3 id="order-state-vs-status">Order State vs Status</h3>
+<p>Critical distinction in Sales architecture:</p>
+<p><strong>State</strong> (8 core states, non-extensible):
+- System-level workflow state
+- Controls what operations are possible (can invoice, can ship, etc.)
+- Hard-coded in business logic
+- Examples: <code>new</code>, <code>processing</code>, <code>complete</code>, <code>canceled</code></p>
+<p><strong>Status</strong> (unlimited custom statuses):
+- Merchant-facing display label
+- Maps to a state
+- Extensible via UI and code
+- Examples: <code>pending</code>, <code>processing</code>, <code>complete</code>, <code>suspected_fraud</code>, <code>awaiting_approval</code></p>
+<pre><code class="language-php">&lt;?php
+// Status to state mapping
+$statusStateMap = [
+    'pending' =&gt; Order::STATE_NEW,
+    'pending_payment' =&gt; Order::STATE_PENDING_PAYMENT,
+    'processing' =&gt; Order::STATE_PROCESSING,
+    'suspected_fraud' =&gt; Order::STATE_PROCESSING, // Custom status
+    'awaiting_approval' =&gt; Order::STATE_PROCESSING, // Custom status
+    'complete' =&gt; Order::STATE_COMPLETE,
+    'closed' =&gt; Order::STATE_CLOSED,
+    'canceled' =&gt; Order::STATE_CANCELED,
+    'holded' =&gt; Order::STATE_HOLDED,
+    'payment_review' =&gt; Order::STATE_PAYMENT_REVIEW
+];
+</code></pre>
+<h2 id="invoice-architecture">Invoice Architecture</h2>
+<h3 id="invoice-entity-model">Invoice Entity Model</h3>
+<pre><code class="language-php">&lt;?php
+namespace Magento\Sales\Model\Order;
+
+use Magento\Sales\Api\Data\InvoiceInterface;
+
+/**
+ * Invoice entity
+ *
+ * Represents a payment request for an order or partial order
+ */
+class Invoice extends \Magento\Framework\Model\AbstractModel implements InvoiceInterface
+{
+    const STATE_OPEN = 1;
+    const STATE_PAID = 2;
+    const STATE_CANCELED = 3;
+
+    const CAPTURE_ONLINE = 'online';
+    const CAPTURE_OFFLINE = 'offline';
+    const NOT_CAPTURE = 'not_capture';
+
+    /**
+     * Parent order
+     *
+     * @var \Magento\Sales\Model\Order
+     */
+    private \Magento\Sales\Model\Order $order;
+
+    /**
+     * Invoice items collection
+     *
+     * @var \Magento\Sales\Model\ResourceModel\Order\Invoice\Item\Collection
+     */
+    private $items;
+
+    /**
+     * Register invoice (prepare for save)
+     *
+     * Calculates totals and updates order
+     *
+     * @return $this
+     */
+    public function register(): self
+    {
+        if ($this-&gt;getId()) {
+            throw new \Magento\Framework\Exception\LocalizedException(
+                __('Cannot register an existing invoice.')
+            );
+        }
+
+        // Calculate totals
+        $this-&gt;collectTotals();
+
+        // Update order totals
+        $order = $this-&gt;getOrder();
+        $order-&gt;setTotalInvoiced(
+            $order-&gt;getTotalInvoiced() + $this-&gt;getGrandTotal()
+        );
+        $order-&gt;setBaseTotalInvoiced(
+            $order-&gt;getBaseTotalInvoiced() + $this-&gt;getBaseGrandTotal()
+        );
+
+        // Update order items
+        foreach ($this-&gt;getAllItems() as $item) {
+            $orderItem = $item-&gt;getOrderItem();
+            $orderItem-&gt;setQtyInvoiced(
+                $orderItem-&gt;getQtyInvoiced() + $item-&gt;getQty()
+            );
+        }
+
+        return $this;
+    }
+
+    /**
+     * Pay invoice (capture payment)
+     *
+     * @return $this
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
+    public function pay(): self
+    {
+        if ($this-&gt;getState() !== self::STATE_OPEN) {
+            throw new \Magento\Framework\Exception\LocalizedException(
+                __('Invoice is not in open state.')
+            );
+        }
+
+        $order = $this-&gt;getOrder();
+        $payment = $order-&gt;getPayment();
+
+        if ($this-&gt;getRequestedCaptureCase() === self::CAPTURE_ONLINE) {
+            // Capture payment online
+            $payment-&gt;capture($this);
+        }
+
+        $this-&gt;setState(self::STATE_PAID);
+
+        // Update order amounts paid
+        $order-&gt;setTotalPaid(
+            $order-&gt;getTotalPaid() + $this-&gt;getGrandTotal()
+        );
+        $order-&gt;setBaseTotalPaid(
+            $order-&gt;getBaseTotalPaid() + $this-&gt;getBaseGrandTotal()
+        );
+
+        return $this;
+    }
+
+    /**
+     * Cancel invoice
+     *
+     * @return $this
+     */
+    public function cancel(): self
+    {
+        if ($this-&gt;getState() === self::STATE_CANCELED) {
+            return $this;
+        }
+
+        $this-&gt;setState(self::STATE_CANCELED);
+
+        $order = $this-&gt;getOrder();
+
+        // Revert order totals
+        $order-&gt;setTotalInvoiced(
+            $order-&gt;getTotalInvoiced() - $this-&gt;getGrandTotal()
+        );
+        $order-&gt;setBaseTotalInvoiced(
+            $order-&gt;getBaseTotalInvoiced() - $this-&gt;getBaseGrandTotal()
+        );
+
+        // Revert order item quantities
+        foreach ($this-&gt;getAllItems() as $item) {
+            $orderItem = $item-&gt;getOrderItem();
+            $orderItem-&gt;setQtyInvoiced(
+                $orderItem-&gt;getQtyInvoiced() - $item-&gt;getQty()
+            );
+        }
+
+        return $this;
+    }
+
+    /**
+     * Collect invoice totals
+     *
+     * @return $this
+     */
+    public function collectTotals(): self
+    {
+        // Note: Invoice total collection uses the TotalCollectorList
+        // (configured in di.xml), not events. There are no
+        // sales_order_invoice_collect_totals_before/after events in core.
+
+        // Collect totals from items
+        $subtotal = 0;
+        $baseSubtotal = 0;
+        $taxAmount = 0;
+        $baseTaxAmount = 0;
+
+        foreach ($this-&gt;getAllItems() as $item) {
+            $subtotal += $item-&gt;getRowTotal();
+            $baseSubtotal += $item-&gt;getBaseRowTotal();
+            $taxAmount += $item-&gt;getTaxAmount();
+            $baseTaxAmount += $item-&gt;getBaseTaxAmount();
+        }
+
+        $this-&gt;setSubtotal($subtotal);
+        $this-&gt;setBaseSubtotal($baseSubtotal);
+        $this-&gt;setTaxAmount($taxAmount);
+        $this-&gt;setBaseTaxAmount($baseTaxAmount);
+
+        // Calculate grand total
+        $grandTotal = $subtotal + $taxAmount + $this-&gt;getShippingAmount()
+            - $this-&gt;getDiscountAmount();
+        $baseGrandTotal = $baseSubtotal + $baseTaxAmount + $this-&gt;getBaseShippingAmount()
+            - $this-&gt;getBaseDiscountAmount();
+
+        $this-&gt;setGrandTotal($grandTotal);
+        $this-&gt;setBaseGrandTotal($baseGrandTotal);
+
+        return $this;
+    }
+}
+</code></pre>
+<h3 id="invoice-service-layer">Invoice Service Layer</h3>
+<pre><code class="language-php">&lt;?php
+namespace Magento\Sales\Model\Service;
+
+use Magento\Sales\Api\InvoiceManagementInterface;
+use Magento\Sales\Api\InvoiceRepositoryInterface;
+use Magento\Sales\Model\Order\Invoice;
+
+/**
+ * Invoice management service
+ *
+ * High-level operations for invoice handling
+ */
+class InvoiceService implements InvoiceManagementInterface
+{
+    public function __construct(
+        private InvoiceRepositoryInterface $invoiceRepository,
+        private \Magento\Sales\Model\Order\Email\Sender\InvoiceSender $invoiceSender,
+        private \Psr\Log\LoggerInterface $logger
+    ) {}
+
+    /**
+     * Capture invoice payment
+     *
+     * @param int $id Invoice ID
+     * @return string Transaction ID
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
+    public function setCapture($id): string
+    {
+        $invoice = $this-&gt;invoiceRepository-&gt;get($id);
+
+        if ($invoice-&gt;getState() !== Invoice::STATE_OPEN) {
+            throw new \Magento\Framework\Exception\LocalizedException(
+                __('Invoice is not in open state.')
+            );
+        }
+
+        $invoice-&gt;pay();
+        $this-&gt;invoiceRepository-&gt;save($invoice);
+
+        return $invoice-&gt;getOrder()-&gt;getPayment()-&gt;getLastTransId();
+    }
+
+    /**
+     * Void invoice
+     *
+     * @param int $id Invoice ID
+     * @return bool
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
+    public function setVoid($id): bool
+    {
+        $invoice = $this-&gt;invoiceRepository-&gt;get($id);
+
+        if ($invoice-&gt;getState() === Invoice::STATE_PAID) {
+            // Void payment
+            $invoice-&gt;getOrder()-&gt;getPayment()-&gt;void($invoice);
+        }
+
+        $invoice-&gt;cancel();
+        $this-&gt;invoiceRepository-&gt;save($invoice);
+
+        return true;
+    }
+
+    /**
+     * Notify customer about invoice
+     *
+     * @param int $id Invoice ID
+     * @return bool
+     */
+    public function notify($id): bool
+    {
+        $invoice = $this-&gt;invoiceRepository-&gt;get($id);
+
+        try {
+            $this-&gt;invoiceSender-&gt;send($invoice);
+            return true;
+        } catch (\Exception $e) {
+            $this-&gt;logger-&gt;error('Failed to send invoice email: ' . $e-&gt;getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Get invoice comments
+     *
+     * @param int $id Invoice ID
+     * @return \Magento\Sales\Api\Data\InvoiceCommentSearchResultInterface
+     */
+    public function getCommentsList($id)
+    {
+        $invoice = $this-&gt;invoiceRepository-&gt;get($id);
+        return $invoice-&gt;getCommentsCollection();
+    }
+}
+</code></pre>
+<h2 id="shipment-architecture">Shipment Architecture</h2>
+<h3 id="shipment-entity-and-tracking">Shipment Entity and Tracking</h3>
+<pre><code class="language-php">&lt;?php
+namespace Magento\Sales\Model\Order;
+
+use Magento\Sales\Api\Data\ShipmentInterface;
+
+/**
+ * Shipment entity
+ *
+ * Represents physical shipment of order items
+ */
+class Shipment extends \Magento\Framework\Model\AbstractModel implements ShipmentInterface
+{
+    /**
+     * Shipment items
+     *
+     * @var \Magento\Sales\Model\ResourceModel\Order\Shipment\Item\Collection
+     */
+    private $items;
+
+    /**
+     * Tracking numbers
+     *
+     * @var \Magento\Sales\Model\ResourceModel\Order\Shipment\Track\Collection
+     */
+    private $tracks;
+
+    /**
+     * Register shipment (prepare for save)
+     *
+     * @return $this
+     */
+    public function register(): self
+    {
+        if ($this-&gt;getId()) {
+            throw new \Magento\Framework\Exception\LocalizedException(
+                __('Cannot register an existing shipment.')
+            );
+        }
+
+        $order = $this-&gt;getOrder();
+
+        // Update order items
+        foreach ($this-&gt;getAllItems() as $item) {
+            $orderItem = $item-&gt;getOrderItem();
+            $orderItem-&gt;setQtyShipped(
+                $orderItem-&gt;getQtyShipped() + $item-&gt;getQty()
+            );
+        }
+
+        // Update order state if fully shipped
+        if ($this-&gt;isOrderFullyShipped($order)) {
+            $order-&gt;setState(\Magento\Sales\Model\Order::STATE_COMPLETE)
+                -&gt;setStatus($order-&gt;getConfig()-&gt;getStateDefaultStatus(
+                    \Magento\Sales\Model\Order::STATE_COMPLETE
+                ));
+        }
+
+        return $this;
+    }
+
+    /**
+     * Add tracking number
+     *
+     * @param \Magento\Sales\Model\Order\Shipment\Track $track
+     * @return $this
+     */
+    public function addTrack(Shipment\Track $track): self
+    {
+        $track-&gt;setShipment($this)
+            -&gt;setOrderId($this-&gt;getOrderId());
+
+        if (!$track-&gt;getId()) {
+            $this-&gt;getTracksCollection()-&gt;addItem($track);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Get all tracking numbers
+     *
+     * @return \Magento\Sales\Model\Order\Shipment\Track[]
+     */
+    public function getAllTracks(): array
+    {
+        return $this-&gt;getTracksCollection()-&gt;getItems();
+    }
+
+    /**
+     * Check if order is fully shipped
+     *
+     * @param \Magento\Sales\Model\Order $order
+     * @return bool
+     */
+    private function isOrderFullyShipped(\Magento\Sales\Model\Order $order): bool
+    {
+        foreach ($order-&gt;getAllItems() as $item) {
+            if ($item-&gt;getIsVirtual()) {
+                continue;
+            }
+
+            if ($item-&gt;getQtyToShip() &gt; 0) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+}
+</code></pre>
+<h3 id="shipment-tracking">Shipment Tracking</h3>
+<pre><code class="language-php">&lt;?php
+namespace Magento\Sales\Model\Order\Shipment;
+
+/**
+ * Shipment tracking information
+ */
+class Track extends \Magento\Framework\Model\AbstractModel
+{
+    /**
+     * Add tracking number to shipment
+     *
+     * @param string $carrier
+     * @param string $title
+     * @param string $trackNumber
+     * @return $this
+     */
+    public function addData(string $carrier, string $title, string $trackNumber): self
+    {
+        $this-&gt;setCarrierCode($carrier)
+            -&gt;setTitle($title)
+            -&gt;setTrackNumber($trackNumber);
+
+        return $this;
+    }
+
+    /**
+     * Get tracking URL
+     *
+     * @return string|false
+     */
+    public function getNumberDetail()
+    {
+        $carrierInstance = $this-&gt;_carrierFactory-&gt;create(
+            $this-&gt;getCarrierCode(),
+            $this-&gt;getStoreId()
+        );
+
+        if (!$carrierInstance) {
+            $custom = new \Magento\Framework\DataObject();
+            $custom-&gt;setTracking($this-&gt;getTrackNumber());
+            $custom-&gt;setCarrierTitle($this-&gt;getTitle());
+            return $custom;
+        }
+
+        $carrierInstance-&gt;setStore($this-&gt;getStoreId());
+        $trackingInfo = $carrierInstance-&gt;getTrackingInfo($this-&gt;getTrackNumber());
+
+        return $trackingInfo;
+    }
+}
+</code></pre>
+<h2 id="credit-memo-architecture">Credit Memo Architecture</h2>
+<h3 id="credit-memo-entity">Credit Memo Entity</h3>
+<pre><code class="language-php">&lt;?php
+namespace Magento\Sales\Model\Order;
+
+use Magento\Sales\Api\Data\CreditmemoInterface;
+
+/**
+ * Credit memo entity (refund)
+ */
+class Creditmemo extends \Magento\Framework\Model\AbstractModel implements CreditmemoInterface
+{
+    const STATE_OPEN = 1;
+    const STATE_REFUNDED = 2;
+    const STATE_CANCELED = 3;
+
+    /**
+     * Register credit memo (prepare for save)
+     *
+     * @return $this
+     */
+    public function register(): self
+    {
+        if ($this-&gt;getId()) {
+            throw new \Magento\Framework\Exception\LocalizedException(
+                __('Cannot register an existing credit memo.')
+            );
+        }
+
+        // Collect totals
+        $this-&gt;collectTotals();
+
+        $order = $this-&gt;getOrder();
+
+        // Update order totals
+        $order-&gt;setTotalRefunded(
+            $order-&gt;getTotalRefunded() + $this-&gt;getGrandTotal()
+        );
+        $order-&gt;setBaseTotalRefunded(
+            $order-&gt;getBaseTotalRefunded() + $this-&gt;getBaseGrandTotal()
+        );
+
+        // Update order items
+        foreach ($this-&gt;getAllItems() as $item) {
+            $orderItem = $item-&gt;getOrderItem();
+            $orderItem-&gt;setQtyRefunded(
+                $orderItem-&gt;getQtyRefunded() + $item-&gt;getQty()
+            );
+
+            // Return to stock if requested
+            if ($item-&gt;getBackToStock()) {
+                $this-&gt;returnItemToStock($item);
+            }
+        }
+
+        // Process refund
+        if ($this-&gt;getInvoice() &amp;&amp; $this-&gt;getInvoice()-&gt;getTransactionId()) {
+            $order-&gt;getPayment()-&gt;refund($this);
+        }
+
+        // Update order state
+        $this-&gt;updateOrderState($order);
+
+        return $this;
+    }
+
+    /**
+     * Update order state after credit memo
+     *
+     * @param \Magento\Sales\Model\Order $order
+     * @return void
+     */
+    private function updateOrderState(\Magento\Sales\Model\Order $order): void
+    {
+        // Check if order is fully refunded
+        if ($this-&gt;isOrderFullyRefunded($order)) {
+            $order-&gt;setState(\Magento\Sales\Model\Order::STATE_CLOSED)
+                -&gt;setStatus($order-&gt;getConfig()-&gt;getStateDefaultStatus(
+                    \Magento\Sales\Model\Order::STATE_CLOSED
+                ));
+        }
+    }
+
+    /**
+     * Check if order is fully refunded
+     *
+     * @param \Magento\Sales\Model\Order $order
+     * @return bool
+     */
+    private function isOrderFullyRefunded(\Magento\Sales\Model\Order $order): bool
+    {
+        $precision = 0.0001;
+        return abs($order-&gt;getTotalInvoiced() - $order-&gt;getTotalRefunded()) &lt; $precision;
+    }
+
+    /**
+     * Return item to stock
+     *
+     * @param Creditmemo\Item $item
+     * @return void
+     */
+    private function returnItemToStock(Creditmemo\Item $item): void
+    {
+        $this-&gt;_stockManagement-&gt;backItemQty(
+            $item-&gt;getProductId(),
+            $item-&gt;getQty(),
+            $item-&gt;getOrderItem()-&gt;getStore()-&gt;getWebsiteId()
+        );
+    }
+
+    /**
+     * Collect credit memo totals
+     *
+     * @return $this
+     */
+    public function collectTotals(): self
+    {
+        // Note: Credit memo total collection uses the TotalCollectorList
+        // (configured in di.xml), not events. There are no
+        // sales_order_creditmemo_collect_totals_before/after events in core.
+
+        // Collect totals from items
+        $subtotal = 0;
+        $baseSubtotal = 0;
+        $taxAmount = 0;
+        $baseTaxAmount = 0;
+
+        foreach ($this-&gt;getAllItems() as $item) {
+            $subtotal += $item-&gt;getRowTotal();
+            $baseSubtotal += $item-&gt;getBaseRowTotal();
+            $taxAmount += $item-&gt;getTaxAmount();
+            $baseTaxAmount += $item-&gt;getBaseTaxAmount();
+        }
+
+        $this-&gt;setSubtotal($subtotal);
+        $this-&gt;setBaseSubtotal($baseSubtotal);
+        $this-&gt;setTaxAmount($taxAmount);
+        $this-&gt;setBaseTaxAmount($baseTaxAmount);
+
+        // Calculate grand total with adjustments
+        $grandTotal = $subtotal + $taxAmount + $this-&gt;getShippingAmount()
+            - $this-&gt;getDiscountAmount()
+            + $this-&gt;getAdjustmentPositive()
+            - $this-&gt;getAdjustmentNegative();
+
+        $baseGrandTotal = $baseSubtotal + $baseTaxAmount + $this-&gt;getBaseShippingAmount()
+            - $this-&gt;getBaseDiscountAmount()
+            + $this-&gt;getBaseAdjustmentPositive()
+            - $this-&gt;getBaseAdjustmentNegative();
+
+        $this-&gt;setGrandTotal($grandTotal);
+        $this-&gt;setBaseGrandTotal($baseGrandTotal);
+
+        return $this;
+    }
+}
+</code></pre>
+<h2 id="order-grid-architecture">Order Grid Architecture</h2>
+<h3 id="grid-indexer">Grid Indexer</h3>
+<p>The order grid uses a separate flat table for performance:</p>
+<pre><code class="language-php">&lt;?php
+namespace Magento\Sales\Model\ResourceModel\Grid;
+
+/**
+ * Order grid indexer
+ *
+ * Maintains sales_order_grid table for fast admin queries
+ */
+class Collection extends \Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult
+{
+    /**
+     * Initialize grid collection
+     */
+    protected function _initSelect()
+    {
+        $this-&gt;getSelect()-&gt;from(['main_table' =&gt; $this-&gt;getMainTable()]);
+
+        // Add additional fields
+        $this-&gt;addFilterToMap('created_at', 'main_table.created_at');
+        $this-&gt;addFilterToMap('status', 'main_table.status');
+        $this-&gt;addFilterToMap('base_grand_total', 'main_table.base_grand_total');
+        $this-&gt;addFilterToMap('grand_total', 'main_table.grand_total');
+        $this-&gt;addFilterToMap('increment_id', 'main_table.increment_id');
+        $this-&gt;addFilterToMap('billing_name', 'main_table.billing_name');
+        $this-&gt;addFilterToMap('shipping_name', 'main_table.shipping_name');
+
+        return $this;
+    }
+}
+</code></pre>
+<h3 id="grid-update-mechanism">Grid Update Mechanism</h3>
+<pre><code class="language-php">&lt;?php
+namespace Magento\Sales\Model\ResourceModel\Grid;
+
+/**
+ * Update order grid on order changes
+ */
+class OrderGridRefresh
+{
+    public function __construct(
+        private \Magento\Framework\App\ResourceConnection $resourceConnection
+    ) {}
+
+    /**
+     * Refresh grid row for order
+     *
+     * @param int $orderId
+     * @return void
+     */
+    public function refresh(int $orderId): void
+    {
+        $connection = $this-&gt;resourceConnection-&gt;getConnection();
+        $gridTable = $this-&gt;resourceConnection-&gt;getTableName('sales_order_grid');
+        $orderTable = $this-&gt;resourceConnection-&gt;getTableName('sales_order');
+        $orderAddressTable = $this-&gt;resourceConnection-&gt;getTableName('sales_order_address');
+
+        // Delete existing grid row
+        $connection-&gt;delete($gridTable, ['entity_id = ?' =&gt; $orderId]);
+
+        // Insert updated grid row
+        $select = $connection-&gt;select()
+            -&gt;from(['main_table' =&gt; $orderTable], [
+                'entity_id',
+                'status',
+                'store_id',
+                'store_name',
+                'customer_id',
+                'base_grand_total',
+                'base_total_paid',
+                'grand_total',
+                'total_paid',
+                'increment_id',
+                'base_currency_code',
+                'order_currency_code',
+                'shipping_name' =&gt; new \Zend_Db_Expr('NULL'),
+                'billing_name' =&gt; new \Zend_Db_Expr('NULL'),
+                'created_at',
+                'updated_at',
+            ]);
+
+        // Add billing name
+        $billingAddress = $connection-&gt;select()
+            -&gt;from($orderAddressTable, [
+                'order_id',
+                'billing_name' =&gt; new \Zend_Db_Expr(
+                    &quot;CONCAT_WS(' ', firstname, middlename, lastname)&quot;
+                )
+            ])
+            -&gt;where('address_type = ?', 'billing');
+
+        $select-&gt;joinLeft(
+            ['billing' =&gt; new \Zend_Db_Expr('(' . $billingAddress . ')')],
+            'main_table.entity_id = billing.order_id',
+            ['billing_name']
+        );
+
+        // Add shipping name
+        $shippingAddress = $connection-&gt;select()
+            -&gt;from($orderAddressTable, [
+                'order_id',
+                'shipping_name' =&gt; new \Zend_Db_Expr(
+                    &quot;CONCAT_WS(' ', firstname, middlename, lastname)&quot;
+                )
+            ])
+            -&gt;where('address_type = ?', 'shipping');
+
+        $select-&gt;joinLeft(
+            ['shipping' =&gt; new \Zend_Db_Expr('(' . $shippingAddress . ')')],
+            'main_table.entity_id = shipping.order_id',
+            ['shipping_name']
+        );
+
+        $select-&gt;where('main_table.entity_id = ?', $orderId);
+
+        $connection-&gt;query(
+            $connection-&gt;insertFromSelect($select, $gridTable)
+        );
+    }
+}
+</code></pre>
+<h2 id="transaction-management">Transaction Management</h2>
+<h3 id="database-transactions">Database Transactions</h3>
+<pre><code class="language-php">&lt;?php
+namespace Magento\Sales\Model\Service;
+
+use Magento\Sales\Api\OrderManagementInterface;
+use Magento\Framework\DB\TransactionFactory;
+
+/**
+ * Order service with transaction handling
+ */
+class OrderService implements OrderManagementInterface
+{
+    public function __construct(
+        private TransactionFactory $transactionFactory,
+        private \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
+        private \Psr\Log\LoggerInterface $logger
+    ) {}
+
+    /**
+     * Place order with transaction
+     *
+     * @param \Magento\Quote\Api\Data\CartInterface $quote
+     * @return \Magento\Sales\Api\Data\OrderInterface
+     * @throws \Exception
+     */
+    public function place(\Magento\Quote\Api\Data\CartInterface $quote): \Magento\Sales\Api\Data\OrderInterface
+    {
+        $transaction = $this-&gt;transactionFactory-&gt;create();
+
+        try {
+            // Convert quote to order
+            $order = $this-&gt;quoteManagement-&gt;submit($quote);
+
+            // Add related entities to transaction
+            $transaction-&gt;addObject($order);
+
+            if ($order-&gt;getShippingAddress()) {
+                $transaction-&gt;addObject($order-&gt;getShippingAddress());
+            }
+
+            if ($order-&gt;getBillingAddress()) {
+                $transaction-&gt;addObject($order-&gt;getBillingAddress());
+            }
+
+            foreach ($order-&gt;getAllItems() as $item) {
+                $transaction-&gt;addObject($item);
+            }
+
+            if ($order-&gt;getPayment()) {
+                $transaction-&gt;addObject($order-&gt;getPayment());
+            }
+
+            // Save all entities in one transaction
+            $transaction-&gt;save();
+
+            $this-&gt;logger-&gt;info('Order placed successfully', [
+                'order_id' =&gt; $order-&gt;getEntityId(),
+                'increment_id' =&gt; $order-&gt;getIncrementId()
+            ]);
+
+            return $order;
+
+        } catch (\Exception $e) {
+            $this-&gt;logger-&gt;error('Order placement failed', [
+                'quote_id' =&gt; $quote-&gt;getId(),
+                'error' =&gt; $e-&gt;getMessage()
+            ]);
+
+            throw $e;
+        }
+    }
+}
+</code></pre>
+<h2 id="extension-attributes">Extension Attributes</h2>
+<h3 id="order-extension-attributes">Order Extension Attributes</h3>
+<pre><code class="language-xml">&lt;!-- etc/extension_attributes.xml --&gt;
+&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;config xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+        xsi:noNamespaceSchemaLocation=&quot;urn:magento:framework:Api/etc/extension_attributes.xsd&quot;&gt;
+    &lt;extension_attributes for=&quot;Magento\Sales\Api\Data\OrderInterface&quot;&gt;
+        &lt;attribute code=&quot;shipping_assignments&quot; type=&quot;Magento\Sales\Api\Data\ShippingAssignmentInterface[]&quot;/&gt;
+        &lt;attribute code=&quot;payment_additional_info&quot; type=&quot;Magento\Payment\Api\Data\PaymentAdditionalInfoInterface[]&quot;/&gt;
+        &lt;attribute code=&quot;applied_taxes&quot; type=&quot;Magento\Tax\Api\Data\OrderTaxDetailsAppliedTaxInterface[]&quot;/&gt;
+        &lt;attribute code=&quot;item_applied_taxes&quot; type=&quot;Magento\Tax\Api\Data\OrderTaxDetailsItemInterface[]&quot;/&gt;
+        &lt;attribute code=&quot;converting_from_quote&quot; type=&quot;boolean&quot;/&gt;
+        &lt;attribute code=&quot;gift_message&quot; type=&quot;Magento\GiftMessage\Api\Data\MessageInterface&quot;/&gt;
+    &lt;/extension_attributes&gt;
+
+    &lt;extension_attributes for=&quot;Magento\Sales\Api\Data\OrderItemInterface&quot;&gt;
+        &lt;attribute code=&quot;gift_message&quot; type=&quot;Magento\GiftMessage\Api\Data\MessageInterface&quot;/&gt;
+        &lt;attribute code=&quot;applied_taxes&quot; type=&quot;Magento\Tax\Api\Data\OrderTaxDetailsItemInterface[]&quot;/&gt;
+    &lt;/extension_attributes&gt;
+&lt;/config&gt;
+</code></pre>
+<h3 id="loading-extension-attributes">Loading Extension Attributes</h3>
+<pre><code class="language-php">&lt;?php
+namespace Vendor\Module\Plugin\Sales\Api;
+
+use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
+
+/**
+ * Plugin to load custom extension attributes
+ */
+class OrderRepositoryExtend
+{
+    public function __construct(
+        private \Vendor\Module\Api\CustomDataRepositoryInterface $customDataRepository,
+        private \Magento\Sales\Api\Data\OrderExtensionFactory $orderExtensionFactory
+    ) {}
+
+    /**
+     * Load extension attributes after order get
+     *
+     * @param OrderRepositoryInterface $subject
+     * @param OrderInterface $order
+     * @return OrderInterface
+     */
+    public function afterGet(
+        OrderRepositoryInterface $subject,
+        OrderInterface $order
+    ): OrderInterface {
+        $this-&gt;loadExtensionAttributes($order);
+        return $order;
+    }
+
+    /**
+     * Load extension attributes after order list
+     *
+     * @param OrderRepositoryInterface $subject
+     * @param \Magento\Sales\Api\Data\OrderSearchResultInterface $searchResult
+     * @return \Magento\Sales\Api\Data\OrderSearchResultInterface
+     */
+    public function afterGetList(
+        OrderRepositoryInterface $subject,
+        \Magento\Sales\Api\Data\OrderSearchResultInterface $searchResult
+    ): \Magento\Sales\Api\Data\OrderSearchResultInterface {
+        foreach ($searchResult-&gt;getItems() as $order) {
+            $this-&gt;loadExtensionAttributes($order);
+        }
+
+        return $searchResult;
+    }
+
+    /**
+     * Load custom extension attributes
+     *
+     * @param OrderInterface $order
+     * @return void
+     */
+    private function loadExtensionAttributes(OrderInterface $order): void
+    {
+        $extensionAttributes = $order-&gt;getExtensionAttributes()
+            ?? $this-&gt;orderExtensionFactory-&gt;create();
+
+        // Load custom data
+        $customData = $this-&gt;customDataRepository-&gt;getByOrderId($order-&gt;getEntityId());
+        $extensionAttributes-&gt;setCustomData($customData);
+
+        $order-&gt;setExtensionAttributes($extensionAttributes);
+    }
+}
+</code></pre>
+<hr />
+<p><strong>Assumptions:</strong>
+- Adobe Commerce 2.4.7+ with PHP 8.2+
+- MySQL 8.0+ for database operations
+- Service contract interfaces are stable across minor versions
+- Extension attributes follow framework conventions</p>
+<p><strong>Why This Approach:</strong>
+- Service contracts provide API stability and web API exposure
+- Repository pattern enables caching and identity map
+- Flat tables for orders provide optimal grid performance
+- State machine enforces business rules consistently
+- Transaction management ensures data integrity
+- Extension attributes enable non-invasive customization</p>
+<p><strong>Security Impact:</strong>
+- All service operations protected by ACL resources
+- Repository layer validates entity ownership (customer context)
+- PII data (addresses, payment info) handled with encryption at rest
+- API endpoints require authentication tokens
+- Admin operations require admin session and CSRF tokens</p>
+<p><strong>Performance Impact:</strong>
+- Order grid uses flat table with indexes (sub-second queries for millions of orders)
+- Identity map in repositories prevents duplicate database queries
+- Extension attributes lazy-loaded only when accessed
+- Grid indexer can run async to avoid blocking order saves
+- Collection queries use proper joins to avoid N+1 problems</p>
+<p><strong>Backward Compatibility:</strong>
+- Service contract interfaces stable; internal implementations can change
+- Extension attributes don't modify core tables
+- Plugins at service layer don't break with core updates
+- Database schema changes through declarative schema (backwards compatible)</p>
+<p><strong>Tests to Add:</strong>
+- Unit tests: State transitions, business rules (canInvoice, canShip, etc.)
+- Integration tests: Repository operations, transaction handling
+- API tests: REST/GraphQL endpoint contracts
+- Functional tests: End-to-end order lifecycle workflows</p>
+<p><strong>Docs to Update:</strong>
+- README.md: High-level service contract usage examples
+- EXECUTION_FLOWS.md: Detailed workflow diagrams with this architecture
+- Extension attributes usage guide for third-party developers</p>
+                    </div>
+                </article>
+            </main>
+            <!-- Right Sidebar: On This Page (desktop) -->
+            <aside class="toc-sidebar hidden xl:block" aria-label="On this page">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-semibold text-gray-900 uppercase tracking-wider mb-4 mt-0">On this page</h3>
+                    <nav id="toc-nav" class="space-y-0" aria-label="Table of contents"></nav>
+                    <div class="toc-back-to-top">
+                        <a href="#">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+                            </svg>
+                            Back to top
+                        </a>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- ================================================================
+         FOOTER — matches module-catalog.html multi-column layout exactly
+         ================================================================ -->
+    <footer class="relative pt-12 bg-white border-t border-charcoal mt-16">
+        <div class="max-w-screen-2xl mx-auto w-full px-4 sm:px-6 lg:px-8">
+            <div>
+                <a href="index.html" class="inline-flex items-center no-underline">
+                    <svg width="30" height="33" viewBox="0 0 30 33" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Magento Association logo" role="img">
+                        <path d="M0 4.06492H29.6763V31.8882C29.6763 32.502 29.1713 33 28.5487 33H1.12762C0.505079 33 0 32.502 0 31.8882V4.06492Z" fill="#34323A"/>
+                        <path d="M1.26857 0H28.4078C29.1066 0 29.6763 0.561678 29.6763 1.25075V4.06492H0V1.25075C0 0.561678 0.569682 0 1.26857 0Z" fill="#C9C9C9"/>
+                        <path d="M2.37269 3.0458C2.94031 3.0458 3.40046 2.59211 3.40046 2.03246C3.40046 1.47281 2.94031 1.01913 2.37269 1.01913C1.80506 1.01913 1.34491 1.47281 1.34491 2.03246C1.34491 2.59211 1.80506 3.0458 2.37269 3.0458Z" fill="#848484"/>
+                        <path d="M5.28571 3.0458C5.85334 3.0458 6.31349 2.59211 6.31349 2.03246C6.31349 1.47281 5.85334 1.01913 5.28571 1.01913C4.71809 1.01913 4.25793 1.47281 4.25793 2.03246C4.25793 2.59211 4.71809 3.0458 5.28571 3.0458Z" fill="#848484"/>
+                        <path d="M14.7883 7.46973L4.90405 13.0923V24.349L7.54104 25.8487V14.5978L14.7883 10.4692L22.0415 14.5978V25.8487L24.6785 24.349V13.0923L14.7883 7.46973Z" fill="#F1BC1B"/>
+                        <path d="M16.0862 26.2367L14.7883 26.9779L13.4492 26.2135V14.233L10.178 16.0975V27.3485L13.4492 29.213L14.7883 29.9773L16.0862 29.2362L19.4045 27.3485V16.0975L16.0862 14.2098V26.2367Z" fill="#F1BC1B"/>
+                    </svg>
+                    <span class="ml-3 text-xl font-bold text-charcoal">Developer Documentation</span>
+                </a>
+            </div>
+
+            <div class="grid grid-cols-12 md:gap-x-8 gap-y-12 lg:mt-12">
+                <div class="col-span-12 lg:col-span-4">
+                    <p class="hidden lg:block text-xs text-charcoal sm:text-sm">Comprehensive developer documentation for Magento 2.4.7+ — tutorials, architecture deep dives, module references, and production-ready patterns built by the community, for the community.</p>
+                    <ul class="mt-6 hidden lg:flex items-center gap-3">
+                        <li class="pl-0">
+                            <a href="https://github.com/magento/magento2" class="p-2 md:p-0" aria-label="GitHub">
+                                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                                </svg>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Guides</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="tutorials.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Tutorials</a></li>
+                            <li class="pl-0"><a href="how-to-guides.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">How-To Guides</a></li>
+                            <li class="pl-0"><a href="architecture.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Architecture</a></li>
+                            <li class="pl-0"><a href="learning-paths.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Learning Paths</a></li>
+                            <li class="pl-0"><a href="references.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">References</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Modules</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="module-catalog.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Catalog</a></li>
+                            <li class="pl-0"><a href="module-checkout.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Checkout</a></li>
+                            <li class="pl-0"><a href="module-sales.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Sales</a></li>
+                            <li class="pl-0"><a href="module-customer.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Customer</a></li>
+                            <li class="pl-0"><a href="module-quote.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Quote</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Community</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Magento Community</a></li>
+                            <li class="pl-0"><a href="https://magento.stackexchange.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Stack Exchange</a></li>
+                            <li class="pl-0"><a href="https://marketplace.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Marketplace</a></li>
+                            <li class="pl-0"><a href="https://github.com/magento/magento2" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">GitHub</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Support</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://github.com/magento/magento2/issues" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Report Issues</a></li>
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Community Resources</a></li>
+                            <li class="pl-0"><a href="https://developer.adobe.com/commerce/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Adobe Commerce Docs</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-12 border-t pt-6 pb-16 border-charcoal">
+                <p class="text-xs text-charcoal">
+                    &copy; 2026 Magento 2 Developer Documentation. Magento&reg; is a registered trademark of Adobe Inc.
+                </p>
+                <p class="mt-6 text-xs text-charcoal">
+                    This documentation provides guidance for Magento 2 developers and extension builders. For merchant documentation, visit the <a href="index.html" class="text-orange hover:text-orange-600 transition-colors">merchant documentation</a>.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Initialize highlight.js -->
+    <script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('pre code').forEach(function (el) {
+        hljs.highlightElement(el);
+    });
+    document.querySelectorAll('pre').forEach(function (pre) {
+        if (pre.parentNode.classList && pre.parentNode.classList.contains('code-wrapper')) return;
+        var wrapper = document.createElement('div');
+        wrapper.className = 'code-wrapper';
+        pre.parentNode.insertBefore(wrapper, pre);
+        wrapper.appendChild(pre);
+        var btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.setAttribute('type', 'button');
+        btn.setAttribute('aria-label', 'Copy code to clipboard');
+        btn.setAttribute('title', 'Copy');
+        btn.textContent = 'Copy';
+        wrapper.appendChild(btn);
+        btn.addEventListener('click', function () {
+            var code = pre.querySelector('code');
+            var text = code ? (code.innerText || code.textContent) : (pre.innerText || pre.textContent);
+            navigator.clipboard.writeText(text).then(function () {
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            }).catch(function () {
+                var range = document.createRange();
+                range.selectNode(code || pre);
+                window.getSelection().removeAllRanges();
+                window.getSelection().addRange(range);
+                document.execCommand('copy');
+                window.getSelection().removeAllRanges();
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            });
+        });
+    });
+});
+</script>
+
+
+<script>
+(function() {
+    var nav = document.getElementById('toc-nav');
+    if (!nav) return;
+    var article = document.getElementById('main-content');
+    if (!article) return;
+    var headings = article.querySelectorAll('h2[id], h3[id]');
+    if (headings.length < 3) {
+        // Hide the entire TOC sidebar if fewer than 3 headings
+        var sidebar = nav.closest('.toc-sidebar');
+        if (sidebar) sidebar.style.display = 'none';
+        return;
+    }
+    var ids = [];
+    headings.forEach(function(h) {
+        var a = document.createElement('a');
+        a.href = '#' + h.id;
+        a.textContent = h.textContent.replace(/^#+\s*/, '').replace(/\s+/g, ' ').trim();
+        if (h.tagName === 'H3') a.classList.add('toc-h3');
+        nav.appendChild(a);
+        ids.push(h.id);
+    });
+    // Scroll-spy with IntersectionObserver
+    var links = nav.querySelectorAll('a');
+    var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                links.forEach(function(l) { l.classList.remove('toc-active'); });
+                var active = nav.querySelector('a[href="#' + entry.target.id + '"]');
+                if (active) active.classList.add('toc-active');
+            }
+        });
+    }, { rootMargin: '-80px 0px -70% 0px', threshold: 0 });
+    headings.forEach(function(h) { observer.observe(h); });
+})();
+</script>
+</body>
+</html>

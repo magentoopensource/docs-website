@@ -1,0 +1,1420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magento_Catalog Plugins & Observers — Magento 2 Developer Documentation</title>
+    <meta name="description" content="Magento_Catalog Plugins & Observers">
+
+    <!-- Google Fonts: Inter Tight only. Courier New used for code. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Highlight.js: syntax highlighting for code blocks -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/php.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/ini.min.js"></script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        charcoal: {
+                            DEFAULT: '#2c2c2c', 50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6',
+                            300: '#6B6B6B', 400: '#474747', 500: '#2c2c2c', 600: '#262626',
+                            700: '#202020', 800: '#1c1c1c', 900: '#191919', 950: '#121212'
+                        },
+                        orange: {
+                            DEFAULT: '#D4551A', 50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad',
+                            300: '#f9ae78', 400: '#f58242', 500: '#f26423', 600: '#e34613',
+                            700: '#bc3312', 800: '#962a16', 900: '#792515', 950: '#411009'
+                        },
+                        yellow: {
+                            DEFAULT: '#B8860B', 50: '#fffdeb', 100: '#fdf9c8', 200: '#fbf38c',
+                            300: '#f8e651', 400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a',
+                            700: '#b1670c', 800: '#8f5111', 900: '#764311', 950: '#442204'
+                        },
+                        'off-white': '#FAFAFA',
+                    },
+                    fontFamily: {
+                        sans: ['Inter Tight', 'system-ui', '-apple-system', 'sans-serif'],
+                        mono: ['Courier New', 'Courier', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* ── Force light mode ── */
+        :root { color-scheme: light only; }
+
+        [x-cloak] { display: none !important; }
+
+        /* ── Scroll offset for sticky header ── */
+        .prose h2, .prose h3 { scroll-margin-top: 5rem; }
+
+        /* ── Code blocks: Bauhaus charcoal bg, no border-radius, highlight.js override ── */
+        .prose pre {
+            background-color: #2C2C2C !important;
+            border-radius: 0 !important;
+            padding: 1.25rem;
+            overflow-x: auto;
+            font-size: 0.875rem;
+            line-height: 1.7;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 1.5rem 0;
+        }
+        .prose pre code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            background: transparent !important;
+            padding: 0;
+                    color: #abb2bf;
+        }
+        /* Override highlight.js theme background to match Bauhaus charcoal */
+        .hljs {
+            background: #2C2C2C !important;
+            color: #abb2bf !important;
+            border-radius: 0 !important;
+        }
+
+        /* ── Inline code: charcoal bg, yellow text, no border-radius ── */
+        .prose code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.85em;
+        }
+        .prose :not(pre) > code {
+            background-color: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2em 0.45em;
+            border-radius: 0;
+        }
+
+        /* ── Step-code: same charcoal/yellow style for UI path chips ── */
+        .step-code {
+            background: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2rem 0.5rem;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            border-radius: 0;
+        }
+
+        /* ── Tables: no border-radius, charcoal header ── */
+        .prose table { width: 100%; border-collapse: collapse; }
+        .prose th {
+            background-color: #2C2C2C;
+            color: #ffffff;
+            font-weight: 600;
+            text-align: left;
+            padding: 0.75rem 1rem;
+            border-bottom: 2px solid #2C2C2C;
+            border-radius: 0;
+        }
+        .prose td { padding: 0.75rem 1rem; border-bottom: 1px solid #e5e5e5; }
+        .prose tr:hover { background-color: #fafafa; }
+
+        /* ── Blockquote: Bauhaus style — border-4 yellow, square, no left-only border ── */
+        .prose blockquote {
+            border: 4px solid #F1BC1B;
+            background-color: #ffffff;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+            border-radius: 0;
+        }
+        .prose blockquote p { margin: 0; }
+
+        /* ── Lists: hexagon bullets ── */
+        .prose ul { list-style: none; padding-left: 0; }
+        .prose ul li {
+            position: relative;
+            padding-left: 1.75rem;
+            margin-bottom: 0.4rem;
+            line-height: 1.7;
+        }
+        .prose ul li::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0.45em;
+            width: 10px;
+            height: 10px;
+            background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 2L21 7V17L12 22L3 17V7L12 2Z' stroke='%23F26423' stroke-width='2.5' stroke-linejoin='miter'/%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+        .prose ol { list-style-type: decimal; padding-left: 1.5rem; }
+        .prose li { margin-bottom: 0.4rem; }
+
+        /* ── Headings ── */
+        .prose h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            padding-top: 1.5rem;
+            border-top: 4px solid #F1BC1B;
+            color: #2C2C2C;
+        }
+        .prose h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+            color: #2C2C2C;
+        }
+        .prose h4 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #2C2C2C;
+        }
+        .prose p { margin-bottom: 1rem; line-height: 1.75; }
+        .prose a { color: #D4551A; text-decoration: none; }
+        .prose a:hover { color: #e34613; text-decoration: underline; }
+        .prose hr { border: none; border-top: 1px solid #e5e5e5; margin: 2rem 0; }
+
+        /* ── Callout boxes: Bauhaus — border-4 yellow, white bg, icon + title ── */
+        .callout-box {
+            background-color: #ffffff;
+            border: 4px solid #F1BC1B;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+        }
+        .callout-warning {
+            border-color: #D4551A;
+        }
+        .callout-important {
+            border-color: #2C2C2C;
+        }
+        .callout-box .callout-inner {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+        .callout-box .callout-title {
+            font-weight: 600;
+            color: #2C2C2C;
+            margin-bottom: 0.25rem;
+        }
+        .callout-box .callout-body {
+            font-size: 0.875rem;
+            line-height: 1.6;
+            color: rgba(44,44,44,0.85);
+        }
+
+        
+    
+        /* Code block copy button */
+        .code-wrapper {
+            position: relative;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            font-family: 'Inter Tight', system-ui, sans-serif;
+            background: rgba(255,255,255,0.1);
+            color: #abb2bf;
+            border: 1px solid rgba(255,255,255,0.15);
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.15s ease, background 0.15s ease;
+            z-index: 10;
+            line-height: 1.4;
+            border-radius: 4px;
+            user-select: none;
+        }
+        .code-wrapper:hover .copy-btn {
+            opacity: 1;
+        }
+        .copy-btn:hover,
+        .copy-btn:focus {
+            background: rgba(255,255,255,0.2);
+            color: #ffffff;
+            outline: 2px solid #D4551A;
+            outline-offset: 1px;
+        }
+        .copy-btn.copied {
+            color: #98c379;
+            background: rgba(152, 195, 121, 0.15);
+            opacity: 1;
+        }
+    
+        /* Right-hand TOC sidebar */
+        .toc-sidebar {
+            width: 14rem;
+            flex-shrink: 0;
+        }
+        .toc-sidebar a {
+            display: block;
+            padding: 0.375rem 0;
+            font-size: 0.8125rem;
+            line-height: 1.4;
+            color: #6b7280;
+            text-decoration: none;
+            transition: color 0.15s ease;
+            border-left: 2px solid transparent;
+            padding-left: 0.75rem;
+        }
+        .toc-sidebar a:hover {
+            color: #111827;
+        }
+        .toc-sidebar a.toc-active {
+            color: #ea580c;
+            border-left-color: #ea580c;
+            font-weight: 500;
+        }
+        .toc-sidebar a.toc-h3 {
+            padding-left: 1.5rem;
+            font-size: 0.75rem;
+        }
+        .toc-sidebar .toc-back-to-top {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e5e7eb;
+        }
+        .toc-sidebar .toc-back-to-top a {
+            border-left: none;
+            padding-left: 0;
+            font-weight: 500;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .toc-sidebar .toc-back-to-top a:hover {
+            color: #ea580c;
+        }
+    </style>
+</head>
+
+<body class="font-sans bg-off-white text-charcoal">
+
+    <!-- Shared header — single source of truth -->
+    <script src="includes/header.js"></script>
+
+    <!-- Breadcrumb — orange › separators -->
+    <div class="bg-white border-b border-gray-100">
+        <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <div class="flex items-center gap-2 text-sm flex-wrap">
+                <a href="index.html" class="text-orange hover:text-orange-600 transition-colors no-underline">Home</a> <span class="text-orange font-medium">›</span> <a href="modules.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">Modules</a> <span class="text-orange font-medium">›</span> <a href="module-catalog.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">Catalog</a> <span class="text-orange font-medium">›</span> <span class="text-charcoal font-medium">Magento_Catalog Plugins & Observers</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="flex gap-8">
+
+            <!-- Left Sidebar (desktop) -->
+            <aside class="hidden lg:block w-64 flex-shrink-0">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4">Catalog Module</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="module-catalog-overview.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Overview</a></li>
+<li class="pl-0"><a href="module-catalog-architecture.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Architecture</a></li>
+<li class="pl-0"><a href="module-catalog-execution-flows.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Execution Flows</a></li>
+<li class="pl-0"><a href="module-catalog-plugins-and-observers.html" class="block px-3 py-2 text-sm text-orange font-semibold bg-orange-50 border-l-4 border-orange pl-2 transition-colors no-underline">Plugins & Observers</a></li>
+<li class="pl-0"><a href="module-catalog-integrations.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Integrations</a></li>
+<li class="pl-0"><a href="module-catalog-anti-patterns.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Anti-Patterns</a></li>
+<li class="pl-0"><a href="module-catalog-performance.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Performance</a></li>
+<li class="pl-0"><a href="module-catalog-known-issues.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Known Issues</a></li>
+<li class="pl-0"><a href="module-catalog-version-compatibility.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Version Compatibility</a></li>
+</ul>
+<h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4 mt-8">Other Modules</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="module-checkout.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Checkout</a></li>
+<li class="pl-0"><a href="module-customer.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Customer</a></li>
+<li class="pl-0"><a href="module-quote.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Quote</a></li>
+<li class="pl-0"><a href="module-sales.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Sales</a></li>
+</ul>
+                </div>
+            </aside>
+
+            <!-- Article — square corners, border-t-4 orange accent -->
+            <main id="main-content" class="flex-1 min-w-0">
+                <article class="bg-white shadow-sm border border-gray-100 border-t-4 border-t-orange p-8 md:p-12">
+                    <!-- Title block -->
+                    <div class="mb-8">
+                        <span class="inline-block px-3 py-1.5 text-xs font-medium bg-yellow-50 text-yellow-800 border border-yellow-200">Extension Points</span>
+                        <h1 class="text-3xl md:text-4xl font-extrabold text-charcoal mt-3 mb-3">Magento_Catalog Plugins & Observers</h1>
+                        <p class="text-charcoal-300 text-lg mb-4">Magento_Catalog Plugins & Observers</p>
+                        <!-- Meta pills -->
+                        <div class="flex flex-wrap gap-2"><span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-charcoal text-white">Magento 2.4.7+</span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-charcoal-50 text-charcoal border border-charcoal-100">Magento_Catalog</span></div>
+                    </div>
+
+                    <hr class="border-0 border-t border-gray-100 mb-8">
+
+                    <!-- Content -->
+                    <div class="prose max-w-none">
+                        <h1 id="magento_catalog-plugins-and-observers">Magento_Catalog Plugins and Observers</h1>
+<h2 id="overview">Overview</h2>
+<p>This document catalogs all significant plugin points and observer events in the Magento_Catalog module. Understanding these extension points is critical for safely extending catalog functionality without modifying core code.</p>
+<p><strong>Target Version</strong>: Magento 2.4.7+ / PHP 8.2+</p>
+<h2 id="plugin-architecture">Plugin Architecture</h2>
+<p>Plugins (interceptors) allow you to intercept public method calls and modify arguments, behavior, or results without inheritance.</p>
+<h3 id="plugin-types">Plugin Types</h3>
+<ul>
+<li><strong>before</strong>: Modify method arguments before execution</li>
+<li><strong>after</strong>: Modify method result after execution</li>
+<li><strong>around</strong>: Full control - wrap entire method</li>
+</ul>
+<h3 id="best-practices">Best Practices</h3>
+<ol>
+<li><strong>Prefer plugins over preferences</strong> (rewrites)</li>
+<li><strong>Keep plugins lightweight</strong> - avoid heavy computation</li>
+<li><strong>Use specific method interception</strong> - avoid generic <code>around</code> when <code>before</code>/<code>after</code> suffice</li>
+<li><strong>Document plugin chain order</strong> - <code>sortOrder</code> matters when multiple plugins target same method</li>
+<li><strong>Never modify constructor signatures</strong> - plugins cannot intercept <code>__construct()</code></li>
+</ol>
+<h2 id="critical-plugin-points">Critical Plugin Points</h2>
+<h3 id="1-productrepositoryinterface">1. ProductRepositoryInterface</h3>
+<h4 id="save">save()</h4>
+<p><strong>Use Cases</strong>: Validation, data enrichment, external system sync, logging</p>
+<pre><code class="language-php">namespace Vendor\Module\Plugin\Catalog\Api;
+
+class ProductRepositoryPlugin
+{
+    public function __construct(
+        private readonly \Psr\Log\LoggerInterface $logger,
+        private readonly \Vendor\Module\Service\ProductValidator $validator
+    ) {}
+
+    /**
+     * Validate product data before save
+     */
+    public function beforeSave(
+        \Magento\Catalog\Api\ProductRepositoryInterface $subject,
+        \Magento\Catalog\Api\Data\ProductInterface $product,
+        $saveOptions = false
+    ): array {
+        // Custom validation
+        if (!$this-&gt;validator-&gt;validate($product)) {
+            throw new \Magento\Framework\Exception\ValidatorException(
+                __('Product validation failed: %1', $this-&gt;validator-&gt;getErrors())
+            );
+        }
+
+        // Enrich product data
+        if (!$product-&gt;getMetaDescription()) {
+            $product-&gt;setMetaDescription(substr($product-&gt;getDescription(), 0, 160));
+        }
+
+        return [$product, $saveOptions];
+    }
+
+    /**
+     * Sync product to external system after save
+     */
+    public function afterSave(
+        \Magento\Catalog\Api\ProductRepositoryInterface $subject,
+        \Magento\Catalog\Api\Data\ProductInterface $result
+    ): \Magento\Catalog\Api\Data\ProductInterface {
+        try {
+            $this-&gt;externalSystemSync-&gt;syncProduct($result);
+        } catch (\Exception $e) {
+            $this-&gt;logger-&gt;error('External sync failed: ' . $e-&gt;getMessage());
+            // Don't break save operation
+        }
+
+        return $result;
+    }
+
+    /**
+     * Add transaction logging
+     */
+    public function aroundSave(
+        \Magento\Catalog\Api\ProductRepositoryInterface $subject,
+        callable $proceed,
+        \Magento\Catalog\Api\Data\ProductInterface $product,
+        $saveOptions = false
+    ): \Magento\Catalog\Api\Data\ProductInterface {
+        $startTime = microtime(true);
+        $originalSku = $product-&gt;getOrigData('sku') ?: 'new';
+
+        try {
+            $result = $proceed($product, $saveOptions);
+
+            $this-&gt;logger-&gt;info('Product saved', [
+                'sku' =&gt; $result-&gt;getSku(),
+                'original_sku' =&gt; $originalSku,
+                'duration_ms' =&gt; (microtime(true) - $startTime) * 1000
+            ]);
+
+            return $result;
+        } catch (\Exception $e) {
+            $this-&gt;logger-&gt;error('Product save failed', [
+                'sku' =&gt; $product-&gt;getSku(),
+                'error' =&gt; $e-&gt;getMessage()
+            ]);
+            throw $e;
+        }
+    }
+}
+</code></pre>
+<p><strong>Configuration</strong> (<code>di.xml</code>):</p>
+<pre><code class="language-xml">&lt;type name=&quot;Magento\Catalog\Api\ProductRepositoryInterface&quot;&gt;
+    &lt;plugin name=&quot;vendor_module_product_repository_plugin&quot;
+            type=&quot;Vendor\Module\Plugin\Catalog\Api\ProductRepositoryPlugin&quot;
+            sortOrder=&quot;10&quot;/&gt;
+&lt;/type&gt;
+</code></pre>
+<h4 id="get-getlist">get() / getList()</h4>
+<p><strong>Use Cases</strong>: Data enrichment, access control, custom filtering</p>
+<pre><code class="language-php">namespace Vendor\Module\Plugin\Catalog\Api;
+
+class ProductRepositoryGetPlugin
+{
+    /**
+     * Add extension attributes after get
+     */
+    public function afterGet(
+        \Magento\Catalog\Api\ProductRepositoryInterface $subject,
+        \Magento\Catalog\Api\Data\ProductInterface $result
+    ): \Magento\Catalog\Api\Data\ProductInterface {
+        $extensionAttributes = $result-&gt;getExtensionAttributes();
+
+        if ($extensionAttributes === null) {
+            $extensionAttributes = $this-&gt;extensionAttributesFactory-&gt;create();
+        }
+
+        // Add custom data
+        $vendorInfo = $this-&gt;vendorRepository-&gt;getByProductId($result-&gt;getId());
+        $extensionAttributes-&gt;setVendorInfo($vendorInfo);
+
+        $result-&gt;setExtensionAttributes($extensionAttributes);
+
+        return $result;
+    }
+
+    /**
+     * Filter results by custom criteria
+     */
+    public function afterGetList(
+        \Magento\Catalog\Api\ProductRepositoryInterface $subject,
+        \Magento\Catalog\Api\Data\ProductSearchResultsInterface $searchResults
+    ): \Magento\Catalog\Api\Data\ProductSearchResultsInterface {
+        $items = $searchResults-&gt;getItems();
+
+        // Apply custom business logic filtering
+        $filteredItems = array_filter($items, function ($product) {
+            return $this-&gt;accessControl-&gt;canViewProduct($product);
+        });
+
+        $searchResults-&gt;setItems($filteredItems);
+        $searchResults-&gt;setTotalCount(count($filteredItems));
+
+        return $searchResults;
+    }
+}
+</code></pre>
+<h3 id="2-categoryrepositoryinterface">2. CategoryRepositoryInterface</h3>
+<h4 id="save_1">save()</h4>
+<p><strong>Use Cases</strong>: URL validation, automatic slug generation, hierarchy validation</p>
+<pre><code class="language-php">namespace Vendor\Module\Plugin\Catalog\Api;
+
+class CategoryRepositoryPlugin
+{
+    /**
+     * Validate category data before save
+     */
+    public function beforeSave(
+        \Magento\Catalog\Api\CategoryRepositoryInterface $subject,
+        \Magento\Catalog\Api\Data\CategoryInterface $category
+    ): array {
+        // Ensure URL key is set
+        if (!$category-&gt;getUrlKey()) {
+            $urlKey = $this-&gt;urlKeyGenerator-&gt;generate($category-&gt;getName());
+            $category-&gt;setUrlKey($urlKey);
+        }
+
+        // Validate parent exists
+        if ($category-&gt;getParentId()) {
+            try {
+                $parent = $subject-&gt;get($category-&gt;getParentId());
+            } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
+                throw new \Magento\Framework\Exception\ValidatorException(
+                    __('Parent category does not exist')
+                );
+            }
+        }
+
+        return [$category];
+    }
+
+    /**
+     * Update sitemap after category save
+     */
+    public function afterSave(
+        \Magento\Catalog\Api\CategoryRepositoryInterface $subject,
+        \Magento\Catalog\Api\Data\CategoryInterface $result
+    ): \Magento\Catalog\Api\Data\CategoryInterface {
+        $this-&gt;sitemapUpdater-&gt;addCategory($result);
+        return $result;
+    }
+}
+</code></pre>
+<h3 id="3-product-model">3. Product Model</h3>
+<h4 id="getprice-getfinalprice">getPrice() / getFinalPrice()</h4>
+<p><strong>Use Cases</strong>: Custom pricing logic, B2B pricing, dynamic pricing</p>
+<pre><code class="language-php">namespace Vendor\Module\Plugin\Catalog\Model;
+
+class ProductPricePlugin
+{
+    /**
+     * Apply custom pricing for B2B customers
+     */
+    public function afterGetFinalPrice(
+        \Magento\Catalog\Model\Product $subject,
+        $result
+    ): float {
+        if ($this-&gt;customerSession-&gt;isLoggedIn()) {
+            $customer = $this-&gt;customerSession-&gt;getCustomer();
+
+            if ($customer-&gt;getCustomAttribute('is_b2b_customer')) {
+                $b2bDiscount = (float) $customer-&gt;getCustomAttribute('discount_percentage')-&gt;getValue();
+                $result = $result * (1 - $b2bDiscount / 100);
+            }
+        }
+
+        return $result;
+    }
+}
+</code></pre>
+<h3 id="4-product-collection">4. Product Collection</h3>
+<h4 id="addattributetoselect">addAttributeToSelect()</h4>
+<p><strong>Use Cases</strong>: Optimize attribute loading, conditional attribute selection</p>
+<pre><code class="language-php">namespace Vendor\Module\Plugin\Catalog\Model\ResourceModel\Product;
+
+class CollectionPlugin
+{
+    /**
+     * Always load critical custom attributes
+     */
+    public function afterAddAttributeToSelect(
+        \Magento\Catalog\Model\ResourceModel\Product\Collection $subject,
+        $result,
+        $attribute,
+        $joinType = false
+    ) {
+        // Ensure critical attributes are always loaded
+        $criticalAttributes = ['vendor_id', 'vendor_sku', 'sourcing_status'];
+
+        foreach ($criticalAttributes as $attr) {
+            if (!isset($subject-&gt;getSelect()-&gt;getPart(\Zend_Db_Select::COLUMNS)[$attr])) {
+                $subject-&gt;addAttributeToSelect($attr, $joinType);
+            }
+        }
+
+        return $result;
+    }
+}
+</code></pre>
+<h3 id="5-url-rewrite-management">5. URL Rewrite Management</h3>
+<h4 id="getproductrequestpath">getProductRequestPath()</h4>
+<p><strong>Use Cases</strong>: Custom URL structure, multilingual URLs, shortened URLs</p>
+<pre><code class="language-php">namespace Vendor\Module\Plugin\CatalogUrlRewrite\Model;
+
+class ProductUrlPathGeneratorPlugin
+{
+    /**
+     * Customize product URL format
+     */
+    public function afterGetUrlPath(
+        \Magento\CatalogUrlRewrite\Model\ProductUrlPathGenerator $subject,
+        $result,
+        $product,
+        $category = null
+    ): string {
+        // Add category path only for specific attribute sets
+        if ($category &amp;&amp; in_array($product-&gt;getAttributeSetId(), [4, 5, 6])) {
+            return $category-&gt;getUrlPath() . '/' . $product-&gt;getUrlKey();
+        }
+
+        // Short URLs for other products
+        return $product-&gt;getUrlKey();
+    }
+}
+</code></pre>
+<h2 id="observer-events">Observer Events</h2>
+<h3 id="product-events">Product Events</h3>
+<h4 id="catalog_product_save_before">catalog_product_save_before</h4>
+<p><strong>Dispatched</strong>: Before product is saved to database
+<strong>Event Object</strong>: <code>product</code> (Magento\Catalog\Model\Product)</p>
+<p><strong>Use Cases</strong>: Validation, data normalization, logging</p>
+<pre><code class="language-php">namespace Vendor\Module\Observer;
+
+use Magento\Framework\Event\Observer;
+use Magento\Framework\Event\ObserverInterface;
+
+class ProductSaveBeforeObserver implements ObserverInterface
+{
+    public function execute(Observer $observer): void
+    {
+        /** @var \Magento\Catalog\Model\Product $product */
+        $product = $observer-&gt;getEvent()-&gt;getProduct();
+
+        // Auto-generate SKU if empty
+        if (!$product-&gt;getSku()) {
+            $product-&gt;setSku($this-&gt;skuGenerator-&gt;generate($product));
+        }
+
+        // Normalize data
+        $product-&gt;setName(ucwords(strtolower($product-&gt;getName())));
+
+        // Set default values
+        if (!$product-&gt;getData('vendor_id')) {
+            $product-&gt;setData('vendor_id', $this-&gt;config-&gt;getDefaultVendorId());
+        }
+    }
+}
+</code></pre>
+<p><strong>Configuration</strong> (<code>events.xml</code>):</p>
+<pre><code class="language-xml">&lt;config xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+        xsi:noNamespaceSchemaLocation=&quot;urn:magento:framework:Event/etc/events.xsd&quot;&gt;
+    &lt;event name=&quot;catalog_product_save_before&quot;&gt;
+        &lt;observer name=&quot;vendor_module_product_save_before&quot;
+                  instance=&quot;Vendor\Module\Observer\ProductSaveBeforeObserver&quot;/&gt;
+    &lt;/event&gt;
+&lt;/config&gt;
+</code></pre>
+<h4 id="catalog_product_save_after">catalog_product_save_after</h4>
+<p><strong>Dispatched</strong>: After product is saved to database
+<strong>Event Object</strong>: <code>product</code> (Magento\Catalog\Model\Product)</p>
+<p><strong>Use Cases</strong>: Indexing, cache clearing, external sync, notifications</p>
+<pre><code class="language-php">namespace Vendor\Module\Observer;
+
+use Magento\Framework\Event\Observer;
+use Magento\Framework\Event\ObserverInterface;
+
+class ProductSaveAfterObserver implements ObserverInterface
+{
+    public function __construct(
+        private readonly \Vendor\Module\Service\SearchIndexer $searchIndexer,
+        private readonly \Vendor\Module\Service\NotificationService $notificationService,
+        private readonly \Psr\Log\LoggerInterface $logger
+    ) {}
+
+    public function execute(Observer $observer): void
+    {
+        /** @var \Magento\Catalog\Model\Product $product */
+        $product = $observer-&gt;getEvent()-&gt;getProduct();
+
+        try {
+            // Update custom search index
+            $this-&gt;searchIndexer-&gt;indexProduct($product);
+
+            // Notify relevant parties of changes
+            if ($product-&gt;dataHasChangedFor('price')) {
+                $this-&gt;notificationService-&gt;notifyPriceChange($product);
+            }
+
+            if ($product-&gt;dataHasChangedFor('qty')) {
+                $this-&gt;notificationService-&gt;notifyStockChange($product);
+            }
+        } catch (\Exception $e) {
+            $this-&gt;logger-&gt;error('Product save after observer failed: ' . $e-&gt;getMessage());
+        }
+    }
+}
+</code></pre>
+<h4 id="catalog_product_delete_before">catalog_product_delete_before</h4>
+<p><strong>Dispatched</strong>: Before product is deleted
+<strong>Event Object</strong>: <code>product</code> (Magento\Catalog\Model\Product)</p>
+<p><strong>Use Cases</strong>: Cascade deletion, archive data, prevent deletion</p>
+<pre><code class="language-php">namespace Vendor\Module\Observer;
+
+use Magento\Framework\Event\Observer;
+use Magento\Framework\Event\ObserverInterface;
+
+class ProductDeleteBeforeObserver implements ObserverInterface
+{
+    /**
+     * Archive product before deletion
+     */
+    public function execute(Observer $observer): void
+    {
+        /** @var \Magento\Catalog\Model\Product $product */
+        $product = $observer-&gt;getEvent()-&gt;getProduct();
+
+        // Archive product data
+        $this-&gt;archiveService-&gt;archiveProduct($product);
+
+        // Prevent deletion of products with active orders
+        if ($this-&gt;orderChecker-&gt;hasActiveOrders($product)) {
+            throw new \Magento\Framework\Exception\LocalizedException(
+                __('Cannot delete product with active orders. Disable it instead.')
+            );
+        }
+    }
+}
+</code></pre>
+<h4 id="catalog_product_delete_after">catalog_product_delete_after</h4>
+<p><strong>Dispatched</strong>: After product is deleted
+<strong>Event Object</strong>: <code>product</code> (Magento\Catalog\Model\Product)</p>
+<p><strong>Use Cases</strong>: Cleanup, external system updates</p>
+<pre><code class="language-php">namespace Vendor\Module\Observer;
+
+class ProductDeleteAfterObserver implements ObserverInterface
+{
+    public function execute(Observer $observer): void
+    {
+        /** @var \Magento\Catalog\Model\Product $product */
+        $product = $observer-&gt;getEvent()-&gt;getProduct();
+
+        // Clean up related custom data
+        $this-&gt;customDataCleaner-&gt;cleanupProductData($product-&gt;getId());
+
+        // Remove from external systems
+        $this-&gt;externalSystemSync-&gt;removeProduct($product-&gt;getSku());
+    }
+}
+</code></pre>
+<h4 id="catalog_product_load_after">catalog_product_load_after</h4>
+<p><strong>Dispatched</strong>: After product is loaded from database
+<strong>Event Object</strong>: <code>product</code> (Magento\Catalog\Model\Product)</p>
+<p><strong>Use Cases</strong>: Data enrichment, dynamic attribute population</p>
+<pre><code class="language-php">namespace Vendor\Module\Observer;
+
+class ProductLoadAfterObserver implements ObserverInterface
+{
+    /**
+     * Enrich product with custom data after load
+     */
+    public function execute(Observer $observer): void
+    {
+        /** @var \Magento\Catalog\Model\Product $product */
+        $product = $observer-&gt;getEvent()-&gt;getProduct();
+
+        // Add real-time inventory from external warehouse
+        if ($product-&gt;getTypeId() === 'simple') {
+            $externalQty = $this-&gt;warehouseApi-&gt;getQuantity($product-&gt;getSku());
+            $product-&gt;setData('warehouse_qty', $externalQty);
+        }
+
+        // Calculate dynamic shipping estimate
+        $product-&gt;setData('estimated_delivery', $this-&gt;shippingEstimator-&gt;estimate($product));
+    }
+}
+</code></pre>
+<h4 id="catalog_product_collection_load_after">catalog_product_collection_load_after</h4>
+<p><strong>Dispatched</strong>: After product collection is loaded
+<strong>Event Object</strong>: <code>collection</code> (Magento\Catalog\Model\ResourceModel\Product\Collection)</p>
+<p><strong>Use Cases</strong>: Batch data enrichment, collection filtering</p>
+<pre><code class="language-php">namespace Vendor\Module\Observer;
+
+class ProductCollectionLoadAfterObserver implements ObserverInterface
+{
+    /**
+     * Enrich entire collection with custom data
+     */
+    public function execute(Observer $observer): void
+    {
+        /** @var \Magento\Catalog\Model\ResourceModel\Product\Collection $collection */
+        $collection = $observer-&gt;getEvent()-&gt;getCollection();
+
+        // Batch load related custom data
+        $productIds = $collection-&gt;getAllIds();
+        $vendorData = $this-&gt;vendorRepository-&gt;getByProductIds($productIds);
+
+        foreach ($collection as $product) {
+            if (isset($vendorData[$product-&gt;getId()])) {
+                $product-&gt;setData('vendor_info', $vendorData[$product-&gt;getId()]);
+            }
+        }
+    }
+}
+</code></pre>
+<h4 id="catalog_product_get_final_price">catalog_product_get_final_price</h4>
+<p><strong>Dispatched</strong>: During final price calculation
+<strong>Event Object</strong>: <code>product</code> (Magento\Catalog\Model\Product), <code>qty</code></p>
+<p><strong>Use Cases</strong>: Custom pricing logic, dynamic discounts</p>
+<pre><code class="language-php">namespace Vendor\Module\Observer;
+
+class ProductGetFinalPriceObserver implements ObserverInterface
+{
+    /**
+     * Apply custom pricing rules
+     */
+    public function execute(Observer $observer): void
+    {
+        /** @var \Magento\Catalog\Model\Product $product */
+        $product = $observer-&gt;getEvent()-&gt;getProduct();
+        $qty = $observer-&gt;getEvent()-&gt;getQty();
+
+        $finalPrice = $product-&gt;getData('final_price');
+
+        // Apply flash sale discount
+        if ($this-&gt;flashSaleService-&gt;isActive($product)) {
+            $discount = $this-&gt;flashSaleService-&gt;getDiscount($product);
+            $finalPrice = $finalPrice * (1 - $discount / 100);
+        }
+
+        // Apply loyalty program discount
+        if ($this-&gt;customerSession-&gt;isLoggedIn()) {
+            $loyaltyDiscount = $this-&gt;loyaltyService-&gt;getProductDiscount(
+                $product,
+                $this-&gt;customerSession-&gt;getCustomerId()
+            );
+            $finalPrice = $finalPrice * (1 - $loyaltyDiscount / 100);
+        }
+
+        $product-&gt;setData('final_price', $finalPrice);
+    }
+}
+</code></pre>
+<h3 id="category-events">Category Events</h3>
+<h4 id="catalog_category_save_before">catalog_category_save_before</h4>
+<p><strong>Dispatched</strong>: Before category is saved
+<strong>Event Object</strong>: <code>category</code> (Magento\Catalog\Model\Category)</p>
+<p><strong>Use Cases</strong>: Validation, URL key generation, hierarchy checks</p>
+<pre><code class="language-php">namespace Vendor\Module\Observer;
+
+class CategorySaveBeforeObserver implements ObserverInterface
+{
+    public function execute(Observer $observer): void
+    {
+        /** @var \Magento\Catalog\Model\Category $category */
+        $category = $observer-&gt;getEvent()-&gt;getCategory();
+
+        // Generate URL key if missing
+        if (!$category-&gt;getUrlKey()) {
+            $urlKey = $this-&gt;urlKeyGenerator-&gt;generate($category-&gt;getName());
+            $category-&gt;setUrlKey($urlKey);
+        }
+
+        // Validate max depth
+        if ($category-&gt;getLevel() &gt; $this-&gt;config-&gt;getMaxCategoryDepth()) {
+            throw new \Magento\Framework\Exception\ValidatorException(
+                __('Category depth exceeds maximum allowed level')
+            );
+        }
+    }
+}
+</code></pre>
+<h4 id="catalog_category_save_after">catalog_category_save_after</h4>
+<p><strong>Dispatched</strong>: After category is saved
+<strong>Event Object</strong>: <code>category</code> (Magento\Catalog\Model\Category)</p>
+<p><strong>Use Cases</strong>: Cache invalidation, search reindex, sitemap update</p>
+<pre><code class="language-php">namespace Vendor\Module\Observer;
+
+class CategorySaveAfterObserver implements ObserverInterface
+{
+    public function execute(Observer $observer): void
+    {
+        /** @var \Magento\Catalog\Model\Category $category */
+        $category = $observer-&gt;getEvent()-&gt;getCategory();
+
+        // Invalidate navigation cache
+        $this-&gt;cacheManager-&gt;clean([
+            \Magento\Catalog\Model\Category::CACHE_TAG,
+            'catalog_navigation'
+        ]);
+
+        // Update sitemap
+        $this-&gt;sitemapGenerator-&gt;regenerate();
+    }
+}
+</code></pre>
+<h4 id="catalog_category_move_after">catalog_category_move_after</h4>
+<div class="callout-box"><div class="callout-inner"><svg class="w-5 h-5 text-orange flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg><div><p class="callout-title">Note</p><div class="callout-body"><p> There is no <code>catalog_category_move_before</code> event in core Magento.
+Only <code>catalog_category_move_after</code> exists, dispatched by <code>CatalogUrlRewrite</code> module
+after a category tree move completes. To validate moves before they happen,
+use a plugin on <code>\Magento\Catalog\Model\ResourceModel\Category::changeParent()</code>.</p></div></div></div></div>
+<p><strong>Dispatched</strong>: After category is moved in tree
+<strong>Event Objects</strong>: <code>category_id</code>, <code>prev_parent</code>, <code>parent_id</code></p>
+<h3 id="attribute-events">Attribute Events</h3>
+<h4 id="catalog_entity_attribute_save_after">catalog_entity_attribute_save_after</h4>
+<p><strong>Dispatched</strong>: After product/category attribute is saved
+<strong>Event Object</strong>: <code>attribute</code> (Magento\Catalog\Model\ResourceModel\Eav\Attribute)</p>
+<p><strong>Use Cases</strong>: Index updates, cache clearing</p>
+<pre><code class="language-php">namespace Vendor\Module\Observer;
+
+class AttributeSaveAfterObserver implements ObserverInterface
+{
+    public function execute(Observer $observer): void
+    {
+        /** @var \Magento\Catalog\Model\ResourceModel\Eav\Attribute $attribute */
+        $attribute = $observer-&gt;getEvent()-&gt;getAttribute();
+
+        // If attribute became searchable, reindex
+        if ($attribute-&gt;dataHasChangedFor('is_searchable') &amp;&amp; $attribute-&gt;getIsSearchable()) {
+            $this-&gt;indexerRegistry-&gt;get('catalogsearch_fulltext')-&gt;invalidate();
+        }
+
+        // If attribute became filterable, update layered nav
+        if ($attribute-&gt;dataHasChangedFor('is_filterable')) {
+            $this-&gt;cacheManager-&gt;clean(['layered_navigation']);
+        }
+    }
+}
+</code></pre>
+<h3 id="importexport-events">Import/Export Events</h3>
+<h4 id="catalog_product_import_bunch_save_after">catalog_product_import_bunch_save_after</h4>
+<p><strong>Dispatched</strong>: After a batch of products is imported
+<strong>Event Objects</strong>: <code>bunch</code>, <code>adapter</code></p>
+<p><strong>Use Cases</strong>: Post-import processing, data validation</p>
+<pre><code class="language-php">namespace Vendor\Module\Observer;
+
+class ProductImportAfterObserver implements ObserverInterface
+{
+    public function execute(Observer $observer): void
+    {
+        $bunch = $observer-&gt;getEvent()-&gt;getBunch();
+        $adapter = $observer-&gt;getEvent()-&gt;getAdapter();
+
+        // Process imported products
+        foreach ($bunch as $rowData) {
+            if (isset($rowData['sku'])) {
+                $this-&gt;postImportProcessor-&gt;process($rowData['sku']);
+            }
+        }
+    }
+}
+</code></pre>
+<h2 id="complete-event-reference">Complete Event Reference</h2>
+<h3 id="product-events_1">Product Events</h3>
+<div class="overflow-x-auto my-6 border border-gray-200"><table class="min-w-full">
+<thead>
+<tr>
+<th>Event Name</th>
+<th>When Dispatched</th>
+<th>Event Data</th>
+<th>Common Use Cases</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>catalog_product_new_action</code></td>
+<td>Product created via admin</td>
+<td><code>product</code></td>
+<td>Welcome emails, notifications</td>
+</tr>
+<tr>
+<td><code>catalog_product_save_before</code></td>
+<td>Before save</td>
+<td><code>product</code></td>
+<td>Validation, data normalization</td>
+</tr>
+<tr>
+<td><code>catalog_product_save_after</code></td>
+<td>After save</td>
+<td><code>product</code></td>
+<td>Indexing, external sync</td>
+</tr>
+<tr>
+<td><code>catalog_product_save_commit_after</code></td>
+<td>After DB commit</td>
+<td><code>product</code></td>
+<td>Final cleanup, notifications</td>
+</tr>
+<tr>
+<td><code>catalog_product_delete_before</code></td>
+<td>Before deletion</td>
+<td><code>product</code></td>
+<td>Archive, validation</td>
+</tr>
+<tr>
+<td><code>catalog_product_delete_after</code></td>
+<td>After deletion</td>
+<td><code>product</code></td>
+<td>Cleanup</td>
+</tr>
+<tr>
+<td><code>catalog_product_delete_commit_after</code></td>
+<td>After DB commit</td>
+<td><code>product</code></td>
+<td>Final cleanup</td>
+</tr>
+<tr>
+<td><code>catalog_product_load_after</code></td>
+<td>After load</td>
+<td><code>product</code></td>
+<td>Data enrichment</td>
+</tr>
+<tr>
+<td><code>catalog_product_get_final_price</code></td>
+<td>Price calculation</td>
+<td><code>product</code>, <code>qty</code></td>
+<td>Custom pricing</td>
+</tr>
+<tr>
+<td><code>catalog_product_collection_load_after</code></td>
+<td>After collection load</td>
+<td><code>collection</code></td>
+<td>Batch enrichment</td>
+</tr>
+<tr>
+<td><code>catalog_product_attribute_update_before</code></td>
+<td>Mass attribute update</td>
+<td><code>attributes_data</code>, <code>product_ids</code></td>
+<td>Validation</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="category-events_1">Category Events</h3>
+<div class="overflow-x-auto my-6 border border-gray-200"><table class="min-w-full">
+<thead>
+<tr>
+<th>Event Name</th>
+<th>When Dispatched</th>
+<th>Event Data</th>
+<th>Common Use Cases</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>catalog_category_save_before</code></td>
+<td>Before save</td>
+<td><code>category</code></td>
+<td>Validation, URL generation</td>
+</tr>
+<tr>
+<td><code>catalog_category_save_after</code></td>
+<td>After save</td>
+<td><code>category</code></td>
+<td>Cache clear, sitemap</td>
+</tr>
+<tr>
+<td><code>catalog_category_save_commit_after</code></td>
+<td>After DB commit</td>
+<td><code>category</code></td>
+<td>Final operations</td>
+</tr>
+<tr>
+<td><code>catalog_category_delete_before</code></td>
+<td>Before deletion</td>
+<td><code>category</code></td>
+<td>Validation</td>
+</tr>
+<tr>
+<td><code>catalog_category_delete_after</code></td>
+<td>After deletion</td>
+<td><code>category</code></td>
+<td>Cleanup</td>
+</tr>
+<tr>
+<td><code>catalog_category_move_after</code></td>
+<td>After tree move (CatalogUrlRewrite)</td>
+<td><code>category_id</code>, <code>prev_parent</code>, <code>parent_id</code></td>
+<td>URL regeneration</td>
+</tr>
+<tr>
+<td><code>catalog_category_tree_init_inactive_category_ids</code></td>
+<td>Building tree</td>
+<td><code>tree</code></td>
+<td>Custom filtering</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="configuration">Configuration</h3>
+<p><strong>events.xml</strong> (Global scope):</p>
+<pre><code class="language-xml">&lt;config xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+        xsi:noNamespaceSchemaLocation=&quot;urn:magento:framework:Event/etc/events.xsd&quot;&gt;
+    &lt;event name=&quot;catalog_product_save_after&quot;&gt;
+        &lt;observer name=&quot;vendor_module_product_observer&quot;
+                  instance=&quot;Vendor\Module\Observer\ProductSaveAfterObserver&quot;/&gt;
+    &lt;/event&gt;
+&lt;/config&gt;
+</code></pre>
+<p><strong>di.xml</strong> (Plugin configuration):</p>
+<pre><code class="language-xml">&lt;config xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+        xsi:noNamespaceSchemaLocation=&quot;urn:magento:framework:ObjectManager/etc/config.xsd&quot;&gt;
+    &lt;type name=&quot;Magento\Catalog\Api\ProductRepositoryInterface&quot;&gt;
+        &lt;plugin name=&quot;vendor_module_product_plugin&quot;
+                type=&quot;Vendor\Module\Plugin\Catalog\Api\ProductRepositoryPlugin&quot;
+                sortOrder=&quot;10&quot;
+                disabled=&quot;false&quot;/&gt;
+    &lt;/type&gt;
+&lt;/config&gt;
+</code></pre>
+<h2 id="plugin-vs-observer-decision-matrix">Plugin vs Observer Decision Matrix</h2>
+<div class="overflow-x-auto my-6 border border-gray-200"><table class="min-w-full">
+<thead>
+<tr>
+<th>Scenario</th>
+<th>Use Plugin</th>
+<th>Use Observer</th>
+<th>Reason</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Modify method arguments</td>
+<td>Yes</td>
+<td>No</td>
+<td>Plugins intercept methods</td>
+</tr>
+<tr>
+<td>Modify method return value</td>
+<td>Yes</td>
+<td>No</td>
+<td>Plugins have direct access</td>
+</tr>
+<tr>
+<td>React to completed action</td>
+<td>No</td>
+<td>Yes</td>
+<td>Observers handle notifications</td>
+</tr>
+<tr>
+<td>Prevent method execution</td>
+<td>Yes (around)</td>
+<td>No</td>
+<td>Plugins control flow</td>
+</tr>
+<tr>
+<td>Multiple independent reactions</td>
+<td>No</td>
+<td>Yes</td>
+<td>Observers decouple logic</td>
+</tr>
+<tr>
+<td>Performance critical path</td>
+<td>Yes</td>
+<td>Maybe</td>
+<td>Plugins are slightly faster</td>
+</tr>
+<tr>
+<td>Need transaction rollback capability</td>
+<td>No</td>
+<td>Yes</td>
+<td>Observers within transaction</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<p><strong>Assumptions:</strong>
+- Magento 2.4.7+ with service contracts
+- PSR-3 logging available
+- Custom modules follow Magento coding standards</p>
+<p><strong>Why this approach:</strong>
+Plugins provide type-safe method interception. Observers enable event-driven decoupling. Both preserve upgrade path vs preferences/rewrites.</p>
+<p><strong>Security impact:</strong>
+Plugins on repositories should validate ACL if implementing authorization. Observers should not bypass security checks in product save flow.</p>
+<p><strong>Performance impact:</strong>
+Each plugin adds method call overhead (~0.1ms). Observers in save flow execute synchronously - keep lightweight. Consider message queues for heavy processing.</p>
+<p><strong>Backward compatibility:</strong>
+Plugins on service contracts (repositories) are BC-safe. Plugins on models may break if method signatures change. Observers are BC-safe as long as event data structure is maintained.</p>
+<p><strong>Tests to add:</strong>
+- Unit tests for plugin methods with mocked subjects
+- Integration tests verifying plugin execution in full flow
+- Observer tests with event dispatching
+- Performance tests measuring plugin overhead</p>
+<p><strong>Docs to update:</strong>
+- PLUGINS_AND_OBSERVERS.md (this file) when adding significant new extension points
+- Create visual plugin chain diagrams for complex scenarios
+- Document breaking changes in VERSION_COMPATIBILITY.md</p>
+                    </div>
+                </article>
+            </main>
+            <!-- Right Sidebar: On This Page (desktop) -->
+            <aside class="toc-sidebar hidden xl:block" aria-label="On this page">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-semibold text-gray-900 uppercase tracking-wider mb-4 mt-0">On this page</h3>
+                    <nav id="toc-nav" class="space-y-0" aria-label="Table of contents"></nav>
+                    <div class="toc-back-to-top">
+                        <a href="#">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+                            </svg>
+                            Back to top
+                        </a>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- ================================================================
+         FOOTER — matches module-catalog.html multi-column layout exactly
+         ================================================================ -->
+    <footer class="relative pt-12 bg-white border-t border-charcoal mt-16">
+        <div class="max-w-screen-2xl mx-auto w-full px-4 sm:px-6 lg:px-8">
+            <div>
+                <a href="index.html" class="inline-flex items-center no-underline">
+                    <svg width="30" height="33" viewBox="0 0 30 33" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Magento Association logo" role="img">
+                        <path d="M0 4.06492H29.6763V31.8882C29.6763 32.502 29.1713 33 28.5487 33H1.12762C0.505079 33 0 32.502 0 31.8882V4.06492Z" fill="#34323A"/>
+                        <path d="M1.26857 0H28.4078C29.1066 0 29.6763 0.561678 29.6763 1.25075V4.06492H0V1.25075C0 0.561678 0.569682 0 1.26857 0Z" fill="#C9C9C9"/>
+                        <path d="M2.37269 3.0458C2.94031 3.0458 3.40046 2.59211 3.40046 2.03246C3.40046 1.47281 2.94031 1.01913 2.37269 1.01913C1.80506 1.01913 1.34491 1.47281 1.34491 2.03246C1.34491 2.59211 1.80506 3.0458 2.37269 3.0458Z" fill="#848484"/>
+                        <path d="M5.28571 3.0458C5.85334 3.0458 6.31349 2.59211 6.31349 2.03246C6.31349 1.47281 5.85334 1.01913 5.28571 1.01913C4.71809 1.01913 4.25793 1.47281 4.25793 2.03246C4.25793 2.59211 4.71809 3.0458 5.28571 3.0458Z" fill="#848484"/>
+                        <path d="M14.7883 7.46973L4.90405 13.0923V24.349L7.54104 25.8487V14.5978L14.7883 10.4692L22.0415 14.5978V25.8487L24.6785 24.349V13.0923L14.7883 7.46973Z" fill="#F1BC1B"/>
+                        <path d="M16.0862 26.2367L14.7883 26.9779L13.4492 26.2135V14.233L10.178 16.0975V27.3485L13.4492 29.213L14.7883 29.9773L16.0862 29.2362L19.4045 27.3485V16.0975L16.0862 14.2098V26.2367Z" fill="#F1BC1B"/>
+                    </svg>
+                    <span class="ml-3 text-xl font-bold text-charcoal">Developer Documentation</span>
+                </a>
+            </div>
+
+            <div class="grid grid-cols-12 md:gap-x-8 gap-y-12 lg:mt-12">
+                <div class="col-span-12 lg:col-span-4">
+                    <p class="hidden lg:block text-xs text-charcoal sm:text-sm">Comprehensive developer documentation for Magento 2.4.7+ — tutorials, architecture deep dives, module references, and production-ready patterns built by the community, for the community.</p>
+                    <ul class="mt-6 hidden lg:flex items-center gap-3">
+                        <li class="pl-0">
+                            <a href="https://github.com/magento/magento2" class="p-2 md:p-0" aria-label="GitHub">
+                                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                                </svg>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Guides</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="tutorials.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Tutorials</a></li>
+                            <li class="pl-0"><a href="how-to-guides.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">How-To Guides</a></li>
+                            <li class="pl-0"><a href="architecture.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Architecture</a></li>
+                            <li class="pl-0"><a href="learning-paths.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Learning Paths</a></li>
+                            <li class="pl-0"><a href="references.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">References</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Modules</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="module-catalog.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Catalog</a></li>
+                            <li class="pl-0"><a href="module-checkout.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Checkout</a></li>
+                            <li class="pl-0"><a href="module-sales.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Sales</a></li>
+                            <li class="pl-0"><a href="module-customer.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Customer</a></li>
+                            <li class="pl-0"><a href="module-quote.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Quote</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Community</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Magento Community</a></li>
+                            <li class="pl-0"><a href="https://magento.stackexchange.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Stack Exchange</a></li>
+                            <li class="pl-0"><a href="https://marketplace.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Marketplace</a></li>
+                            <li class="pl-0"><a href="https://github.com/magento/magento2" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">GitHub</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Support</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://github.com/magento/magento2/issues" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Report Issues</a></li>
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Community Resources</a></li>
+                            <li class="pl-0"><a href="https://developer.adobe.com/commerce/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Adobe Commerce Docs</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-12 border-t pt-6 pb-16 border-charcoal">
+                <p class="text-xs text-charcoal">
+                    &copy; 2026 Magento 2 Developer Documentation. Magento&reg; is a registered trademark of Adobe Inc.
+                </p>
+                <p class="mt-6 text-xs text-charcoal">
+                    This documentation provides guidance for Magento 2 developers and extension builders. For merchant documentation, visit the <a href="index.html" class="text-orange hover:text-orange-600 transition-colors">merchant documentation</a>.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Initialize highlight.js -->
+    <script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('pre code').forEach(function (el) {
+        hljs.highlightElement(el);
+    });
+    document.querySelectorAll('pre').forEach(function (pre) {
+        if (pre.parentNode.classList && pre.parentNode.classList.contains('code-wrapper')) return;
+        var wrapper = document.createElement('div');
+        wrapper.className = 'code-wrapper';
+        pre.parentNode.insertBefore(wrapper, pre);
+        wrapper.appendChild(pre);
+        var btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.setAttribute('type', 'button');
+        btn.setAttribute('aria-label', 'Copy code to clipboard');
+        btn.setAttribute('title', 'Copy');
+        btn.textContent = 'Copy';
+        wrapper.appendChild(btn);
+        btn.addEventListener('click', function () {
+            var code = pre.querySelector('code');
+            var text = code ? (code.innerText || code.textContent) : (pre.innerText || pre.textContent);
+            navigator.clipboard.writeText(text).then(function () {
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            }).catch(function () {
+                var range = document.createRange();
+                range.selectNode(code || pre);
+                window.getSelection().removeAllRanges();
+                window.getSelection().addRange(range);
+                document.execCommand('copy');
+                window.getSelection().removeAllRanges();
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            });
+        });
+    });
+});
+</script>
+
+
+<script>
+(function() {
+    var nav = document.getElementById('toc-nav');
+    if (!nav) return;
+    var article = document.getElementById('main-content');
+    if (!article) return;
+    var headings = article.querySelectorAll('h2[id], h3[id]');
+    if (headings.length < 3) {
+        // Hide the entire TOC sidebar if fewer than 3 headings
+        var sidebar = nav.closest('.toc-sidebar');
+        if (sidebar) sidebar.style.display = 'none';
+        return;
+    }
+    var ids = [];
+    headings.forEach(function(h) {
+        var a = document.createElement('a');
+        a.href = '#' + h.id;
+        a.textContent = h.textContent.replace(/^#+\s*/, '').replace(/\s+/g, ' ').trim();
+        if (h.tagName === 'H3') a.classList.add('toc-h3');
+        nav.appendChild(a);
+        ids.push(h.id);
+    });
+    // Scroll-spy with IntersectionObserver
+    var links = nav.querySelectorAll('a');
+    var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                links.forEach(function(l) { l.classList.remove('toc-active'); });
+                var active = nav.querySelector('a[href="#' + entry.target.id + '"]');
+                if (active) active.classList.add('toc-active');
+            }
+        });
+    }, { rootMargin: '-80px 0px -70% 0px', threshold: 0 });
+    headings.forEach(function(h) { observer.observe(h); });
+})();
+</script>
+</body>
+</html>

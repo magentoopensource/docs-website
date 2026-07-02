@@ -1,0 +1,1723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magento_Checkout Architecture — Magento 2 Developer Documentation</title>
+    <meta name="description" content="Magento_Checkout Architecture">
+
+    <!-- Google Fonts: Inter Tight only. Courier New used for code. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Highlight.js: syntax highlighting for code blocks -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/php.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/ini.min.js"></script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        charcoal: {
+                            DEFAULT: '#2c2c2c', 50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6',
+                            300: '#6B6B6B', 400: '#474747', 500: '#2c2c2c', 600: '#262626',
+                            700: '#202020', 800: '#1c1c1c', 900: '#191919', 950: '#121212'
+                        },
+                        orange: {
+                            DEFAULT: '#D4551A', 50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad',
+                            300: '#f9ae78', 400: '#f58242', 500: '#f26423', 600: '#e34613',
+                            700: '#bc3312', 800: '#962a16', 900: '#792515', 950: '#411009'
+                        },
+                        yellow: {
+                            DEFAULT: '#B8860B', 50: '#fffdeb', 100: '#fdf9c8', 200: '#fbf38c',
+                            300: '#f8e651', 400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a',
+                            700: '#b1670c', 800: '#8f5111', 900: '#764311', 950: '#442204'
+                        },
+                        'off-white': '#FAFAFA',
+                    },
+                    fontFamily: {
+                        sans: ['Inter Tight', 'system-ui', '-apple-system', 'sans-serif'],
+                        mono: ['Courier New', 'Courier', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* ── Force light mode ── */
+        :root { color-scheme: light only; }
+
+        [x-cloak] { display: none !important; }
+
+        /* ── Scroll offset for sticky header ── */
+        .prose h2, .prose h3 { scroll-margin-top: 5rem; }
+
+        /* ── Code blocks: Bauhaus charcoal bg, no border-radius, highlight.js override ── */
+        .prose pre {
+            background-color: #2C2C2C !important;
+            border-radius: 0 !important;
+            padding: 1.25rem;
+            overflow-x: auto;
+            font-size: 0.875rem;
+            line-height: 1.7;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 1.5rem 0;
+        }
+        .prose pre code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            background: transparent !important;
+            padding: 0;
+                    color: #abb2bf;
+        }
+        /* Override highlight.js theme background to match Bauhaus charcoal */
+        .hljs {
+            background: #2C2C2C !important;
+            color: #abb2bf !important;
+            border-radius: 0 !important;
+        }
+
+        /* ── Inline code: charcoal bg, yellow text, no border-radius ── */
+        .prose code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.85em;
+        }
+        .prose :not(pre) > code {
+            background-color: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2em 0.45em;
+            border-radius: 0;
+        }
+
+        /* ── Step-code: same charcoal/yellow style for UI path chips ── */
+        .step-code {
+            background: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2rem 0.5rem;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            border-radius: 0;
+        }
+
+        /* ── Tables: no border-radius, charcoal header ── */
+        .prose table { width: 100%; border-collapse: collapse; }
+        .prose th {
+            background-color: #2C2C2C;
+            color: #ffffff;
+            font-weight: 600;
+            text-align: left;
+            padding: 0.75rem 1rem;
+            border-bottom: 2px solid #2C2C2C;
+            border-radius: 0;
+        }
+        .prose td { padding: 0.75rem 1rem; border-bottom: 1px solid #e5e5e5; }
+        .prose tr:hover { background-color: #fafafa; }
+
+        /* ── Blockquote: Bauhaus style — border-4 yellow, square, no left-only border ── */
+        .prose blockquote {
+            border: 4px solid #F1BC1B;
+            background-color: #ffffff;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+            border-radius: 0;
+        }
+        .prose blockquote p { margin: 0; }
+
+        /* ── Lists: hexagon bullets ── */
+        .prose ul { list-style: none; padding-left: 0; }
+        .prose ul li {
+            position: relative;
+            padding-left: 1.75rem;
+            margin-bottom: 0.4rem;
+            line-height: 1.7;
+        }
+        .prose ul li::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0.45em;
+            width: 10px;
+            height: 10px;
+            background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 2L21 7V17L12 22L3 17V7L12 2Z' stroke='%23F26423' stroke-width='2.5' stroke-linejoin='miter'/%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+        .prose ol { list-style-type: decimal; padding-left: 1.5rem; }
+        .prose li { margin-bottom: 0.4rem; }
+
+        /* ── Headings ── */
+        .prose h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            padding-top: 1.5rem;
+            border-top: 4px solid #F1BC1B;
+            color: #2C2C2C;
+        }
+        .prose h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+            color: #2C2C2C;
+        }
+        .prose h4 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #2C2C2C;
+        }
+        .prose p { margin-bottom: 1rem; line-height: 1.75; }
+        .prose a { color: #D4551A; text-decoration: none; }
+        .prose a:hover { color: #e34613; text-decoration: underline; }
+        .prose hr { border: none; border-top: 1px solid #e5e5e5; margin: 2rem 0; }
+
+        /* ── Callout boxes: Bauhaus — border-4 yellow, white bg, icon + title ── */
+        .callout-box {
+            background-color: #ffffff;
+            border: 4px solid #F1BC1B;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+        }
+        .callout-warning {
+            border-color: #D4551A;
+        }
+        .callout-important {
+            border-color: #2C2C2C;
+        }
+        .callout-box .callout-inner {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+        .callout-box .callout-title {
+            font-weight: 600;
+            color: #2C2C2C;
+            margin-bottom: 0.25rem;
+        }
+        .callout-box .callout-body {
+            font-size: 0.875rem;
+            line-height: 1.6;
+            color: rgba(44,44,44,0.85);
+        }
+
+        
+    
+        /* Code block copy button */
+        .code-wrapper {
+            position: relative;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            font-family: 'Inter Tight', system-ui, sans-serif;
+            background: rgba(255,255,255,0.1);
+            color: #abb2bf;
+            border: 1px solid rgba(255,255,255,0.15);
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.15s ease, background 0.15s ease;
+            z-index: 10;
+            line-height: 1.4;
+            border-radius: 4px;
+            user-select: none;
+        }
+        .code-wrapper:hover .copy-btn {
+            opacity: 1;
+        }
+        .copy-btn:hover,
+        .copy-btn:focus {
+            background: rgba(255,255,255,0.2);
+            color: #ffffff;
+            outline: 2px solid #D4551A;
+            outline-offset: 1px;
+        }
+        .copy-btn.copied {
+            color: #98c379;
+            background: rgba(152, 195, 121, 0.15);
+            opacity: 1;
+        }
+    
+        /* Right-hand TOC sidebar */
+        .toc-sidebar {
+            width: 14rem;
+            flex-shrink: 0;
+        }
+        .toc-sidebar a {
+            display: block;
+            padding: 0.375rem 0;
+            font-size: 0.8125rem;
+            line-height: 1.4;
+            color: #6b7280;
+            text-decoration: none;
+            transition: color 0.15s ease;
+            border-left: 2px solid transparent;
+            padding-left: 0.75rem;
+        }
+        .toc-sidebar a:hover {
+            color: #111827;
+        }
+        .toc-sidebar a.toc-active {
+            color: #ea580c;
+            border-left-color: #ea580c;
+            font-weight: 500;
+        }
+        .toc-sidebar a.toc-h3 {
+            padding-left: 1.5rem;
+            font-size: 0.75rem;
+        }
+        .toc-sidebar .toc-back-to-top {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e5e7eb;
+        }
+        .toc-sidebar .toc-back-to-top a {
+            border-left: none;
+            padding-left: 0;
+            font-weight: 500;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .toc-sidebar .toc-back-to-top a:hover {
+            color: #ea580c;
+        }
+    </style>
+</head>
+
+<body class="font-sans bg-off-white text-charcoal">
+
+    <!-- Shared header — single source of truth -->
+    <script src="includes/header.js"></script>
+
+    <!-- Breadcrumb — orange › separators -->
+    <div class="bg-white border-b border-gray-100">
+        <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <div class="flex items-center gap-2 text-sm flex-wrap">
+                <a href="index.html" class="text-orange hover:text-orange-600 transition-colors no-underline">Home</a> <span class="text-orange font-medium">›</span> <a href="modules.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">Modules</a> <span class="text-orange font-medium">›</span> <a href="module-checkout.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">Checkout</a> <span class="text-orange font-medium">›</span> <span class="text-charcoal font-medium">Magento_Checkout Architecture</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="flex gap-8">
+
+            <!-- Left Sidebar (desktop) -->
+            <aside class="hidden lg:block w-64 flex-shrink-0">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4">Checkout Module</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="module-checkout-overview.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Overview</a></li>
+<li class="pl-0"><a href="module-checkout-architecture.html" class="block px-3 py-2 text-sm text-orange font-semibold bg-orange-50 border-l-4 border-orange pl-2 transition-colors no-underline">Architecture</a></li>
+<li class="pl-0"><a href="module-checkout-execution-flows.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Execution Flows</a></li>
+<li class="pl-0"><a href="module-checkout-plugins-and-observers.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Plugins & Observers</a></li>
+<li class="pl-0"><a href="module-checkout-integrations.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Integrations</a></li>
+<li class="pl-0"><a href="module-checkout-anti-patterns.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Anti-Patterns</a></li>
+<li class="pl-0"><a href="module-checkout-performance.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Performance</a></li>
+<li class="pl-0"><a href="module-checkout-known-issues.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Known Issues</a></li>
+<li class="pl-0"><a href="module-checkout-version-compatibility.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Version Compatibility</a></li>
+</ul>
+<h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4 mt-8">Other Modules</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="module-catalog.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Catalog</a></li>
+<li class="pl-0"><a href="module-customer.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Customer</a></li>
+<li class="pl-0"><a href="module-quote.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Quote</a></li>
+<li class="pl-0"><a href="module-sales.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Sales</a></li>
+</ul>
+                </div>
+            </aside>
+
+            <!-- Article — square corners, border-t-4 orange accent -->
+            <main id="main-content" class="flex-1 min-w-0">
+                <article class="bg-white shadow-sm border border-gray-100 border-t-4 border-t-orange p-8 md:p-12">
+                    <!-- Title block -->
+                    <div class="mb-8">
+                        <span class="inline-block px-3 py-1.5 text-xs font-medium bg-charcoal-50 text-charcoal border border-charcoal-100">Architecture</span>
+                        <h1 class="text-3xl md:text-4xl font-extrabold text-charcoal mt-3 mb-3">Magento_Checkout Architecture</h1>
+                        <p class="text-charcoal-300 text-lg mb-4">Magento_Checkout Architecture</p>
+                        <!-- Meta pills -->
+                        <div class="flex flex-wrap gap-2"><span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-charcoal text-white">Magento 2.4.7+</span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-charcoal-50 text-charcoal border border-charcoal-100">Magento_Checkout</span></div>
+                    </div>
+
+                    <hr class="border-0 border-t border-gray-100 mb-8">
+
+                    <!-- Content -->
+                    <div class="prose max-w-none">
+                        <h1 id="magento_checkout-architecture">Magento_Checkout Architecture</h1>
+<h2 id="architectural-overview">Architectural Overview</h2>
+<p>The <code>Magento_Checkout</code> module implements a <strong>multi-layered, component-based architecture</strong> that separates business logic, data persistence, and presentation concerns. The architecture follows SOLID principles and leverages Magento's service contract pattern to provide a stable API for both frontend checkout UI and headless/API-based implementations.</p>
+<p><strong>Core Architectural Patterns:</strong></p>
+<ol>
+<li><strong>Service Layer</strong> - Service contracts define stable APIs for checkout operations</li>
+<li><strong>UI Component Architecture</strong> - Knockout.js components render dynamic checkout UI</li>
+<li><strong>Session-Based State</strong> - Checkout session maintains quote and customer state across requests</li>
+<li><strong>Event-Driven Extension</strong> - Observers and plugins enable customization without core modifications</li>
+<li><strong>Multi-Step Workflow</strong> - Step-based architecture with validation at each stage</li>
+</ol>
+<hr />
+<h2 id="layer-architecture">Layer Architecture</h2>
+<h3 id="1-service-contract-layer-api">1. Service Contract Layer (API)</h3>
+<p>The service contract layer defines the public API for checkout operations. These interfaces provide BC-guaranteed contracts for both REST/GraphQL APIs and internal Magento modules.</p>
+<h4 id="primary-service-contracts">Primary Service Contracts</h4>
+<p><strong><code>\Magento\Checkout\Api\PaymentInformationManagementInterface</code></strong></p>
+<p>Handles payment information and order placement for authenticated customers:</p>
+<pre><code class="language-php">namespace Magento\Checkout\Api;
+
+use Magento\Quote\Api\Data\PaymentInterface;
+use Magento\Quote\Api\Data\AddressInterface;
+
+interface PaymentInformationManagementInterface
+{
+    /**
+     * Actual 2.4.7 signatures — no PHP return types or typed params
+     */
+
+    /**
+     * @param int $cartId
+     * @param \Magento\Quote\Api\Data\PaymentInterface $paymentMethod
+     * @param \Magento\Quote\Api\Data\AddressInterface|null $billingAddress
+     * @return int Order ID
+     */
+    public function savePaymentInformationAndPlaceOrder(
+        $cartId,
+        \Magento\Quote\Api\Data\PaymentInterface $paymentMethod,
+        \Magento\Quote\Api\Data\AddressInterface $billingAddress = null
+    );
+
+    /**
+     * @param int $cartId
+     * @param \Magento\Quote\Api\Data\PaymentInterface $paymentMethod
+     * @param \Magento\Quote\Api\Data\AddressInterface|null $billingAddress
+     * @return int
+     */
+    public function savePaymentInformation(
+        $cartId,
+        \Magento\Quote\Api\Data\PaymentInterface $paymentMethod,
+        \Magento\Quote\Api\Data\AddressInterface $billingAddress = null
+    );
+
+    /**
+     * @param int $cartId
+     * @return \Magento\Checkout\Api\Data\PaymentDetailsInterface
+     */
+    public function getPaymentInformation($cartId);
+}
+</code></pre>
+<p><strong>Implementation:</strong></p>
+<pre><code class="language-php">namespace Magento\Checkout\Model;
+
+use Magento\Checkout\Api\PaymentInformationManagementInterface;
+use Magento\Quote\Api\Data\PaymentInterface;
+use Magento\Quote\Api\Data\AddressInterface;
+use Magento\Framework\Exception\CouldNotSaveException;
+use Magento\Quote\Api\CartManagementInterface;
+use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Quote\Api\BillingAddressManagementInterface;
+use Magento\Quote\Api\PaymentMethodManagementInterface;
+
+class PaymentInformationManagement implements PaymentInformationManagementInterface
+{
+    public function __construct(
+        private readonly BillingAddressManagementInterface $billingAddressManagement,
+        private readonly PaymentMethodManagementInterface $paymentMethodManagement,
+        private readonly CartManagementInterface $cartManagement,
+        private readonly CartRepositoryInterface $cartRepository,
+        private readonly PaymentDetailsFactory $paymentDetailsFactory,
+        private readonly \Psr\Log\LoggerInterface $logger
+    ) {}
+
+    /**
+     * {@inheritdoc}
+     */
+    public function savePaymentInformationAndPlaceOrder(
+        $cartId,
+        \Magento\Quote\Api\Data\PaymentInterface $paymentMethod,
+        \Magento\Quote\Api\Data\AddressInterface $billingAddress = null
+    ) {
+        try {
+            // Save payment information first
+            $this-&gt;savePaymentInformation($cartId, $paymentMethod, $billingAddress);
+
+            // Place order
+            $orderId = $this-&gt;cartManagement-&gt;placeOrder($cartId);
+
+            if (!$orderId) {
+                throw new CouldNotSaveException(
+                    __('A server error stopped your order from being placed. Please try again.')
+                );
+            }
+
+            return $orderId;
+
+        } catch (\Exception $e) {
+            $this-&gt;logger-&gt;critical($e);
+            throw new CouldNotSaveException(
+                __('A server error stopped your order from being placed. Please try again.'),
+                $e
+            );
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function savePaymentInformation(
+        $cartId,
+        \Magento\Quote\Api\Data\PaymentInterface $paymentMethod,
+        \Magento\Quote\Api\Data\AddressInterface $billingAddress = null
+    ) {
+        // Set billing address if provided
+        if ($billingAddress) {
+            $billingAddress-&gt;setCustomerAddressId(null);
+            $this-&gt;billingAddressManagement-&gt;assign($cartId, $billingAddress);
+        }
+
+        // Set payment method
+        $this-&gt;paymentMethodManagement-&gt;set($cartId, $paymentMethod);
+
+        return $cartId;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getPaymentInformation($cartId)
+    {
+        $quote = $this-&gt;cartRepository-&gt;getActive($cartId);
+
+        $paymentDetails = $this-&gt;paymentDetailsFactory-&gt;create();
+        $paymentDetails-&gt;setPaymentMethods($this-&gt;paymentMethodManagement-&gt;getList($cartId));
+        $paymentDetails-&gt;setTotals($quote-&gt;getTotals());
+
+        return $paymentDetails;
+    }
+}
+</code></pre>
+<p><strong><code>\Magento\Checkout\Api\ShippingInformationManagementInterface</code></strong></p>
+<p>Manages shipping address and method selection:</p>
+<pre><code class="language-php">namespace Magento\Checkout\Api;
+
+use Magento\Checkout\Api\Data\ShippingInformationInterface;
+
+interface ShippingInformationManagementInterface
+{
+    /**
+     * Save shipping information and calculate totals
+     *
+     * @param int $cartId
+     * @param ShippingInformationInterface $addressInformation
+     * @return \Magento\Checkout\Api\Data\PaymentDetailsInterface
+     * @throws \Magento\Framework\Exception\InputException
+     * @throws \Magento\Framework\Exception\StateException
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     */
+    public function saveAddressInformation(
+        int $cartId,
+        ShippingInformationInterface $addressInformation
+    ): Data\PaymentDetailsInterface;
+}
+</code></pre>
+<p><strong>Implementation with Validation:</strong></p>
+<pre><code class="language-php">namespace Magento\Checkout\Model;
+
+use Magento\Checkout\Api\ShippingInformationManagementInterface;
+use Magento\Checkout\Api\Data\ShippingInformationInterface;
+use Magento\Framework\Exception\InputException;
+use Magento\Framework\Exception\StateException;
+use Magento\Framework\Exception\NoSuchEntityException;
+
+class ShippingInformationManagement implements ShippingInformationManagementInterface
+{
+    public function __construct(
+        private readonly \Magento\Quote\Api\CartRepositoryInterface $quoteRepository,
+        private readonly \Magento\Customer\Api\AddressRepositoryInterface $addressRepository,
+        private readonly PaymentDetailsFactory $paymentDetailsFactory,
+        private readonly \Magento\Quote\Model\QuoteAddressValidator $addressValidator,
+        private readonly \Psr\Log\LoggerInterface $logger,
+        private readonly \Magento\Quote\Api\Data\CartExtensionFactory $cartExtensionFactory,
+        private readonly \Magento\Quote\Model\Quote\TotalsCollector $totalsCollector
+    ) {}
+
+    /**
+     * {@inheritdoc}
+     */
+    public function saveAddressInformation(
+        int $cartId,
+        ShippingInformationInterface $addressInformation
+    ): \Magento\Checkout\Api\Data\PaymentDetailsInterface {
+
+        $quote = $this-&gt;quoteRepository-&gt;getActive($cartId);
+
+        if ($quote-&gt;isVirtual()) {
+            throw new NoSuchEntityException(
+                __('Cart contains virtual product(s) only. Shipping address is not applicable.')
+            );
+        }
+
+        $shippingAddress = $addressInformation-&gt;getShippingAddress();
+        $billingAddress = $addressInformation-&gt;getBillingAddress();
+
+        // Validate shipping address
+        $this-&gt;validateAddress($shippingAddress);
+
+        // Set shipping address
+        $shippingAddress-&gt;setCustomerAddressId(null);
+        $quote-&gt;setShippingAddress($shippingAddress);
+
+        // Set shipping method
+        $carrierCode = $addressInformation-&gt;getShippingCarrierCode();
+        $methodCode = $addressInformation-&gt;getShippingMethodCode();
+        $quote-&gt;getShippingAddress()-&gt;setShippingMethod($carrierCode . '_' . $methodCode);
+
+        // Set billing address if provided
+        if ($billingAddress) {
+            $billingAddress-&gt;setCustomerAddressId(null);
+            $quote-&gt;setBillingAddress($billingAddress);
+        }
+
+        // Collect totals
+        $quote-&gt;setTotalsCollectedFlag(false);
+        $quote-&gt;collectTotals();
+
+        // Save quote
+        $this-&gt;quoteRepository-&gt;save($quote);
+
+        // Return payment details
+        $paymentDetails = $this-&gt;paymentDetailsFactory-&gt;create();
+        $paymentDetails-&gt;setPaymentMethods($this-&gt;getPaymentMethods($quote));
+        $paymentDetails-&gt;setTotals($quote-&gt;getTotals());
+
+        return $paymentDetails;
+    }
+
+    /**
+     * Validate address
+     *
+     * @param \Magento\Quote\Api\Data\AddressInterface $address
+     * @return void
+     * @throws InputException
+     */
+    private function validateAddress(\Magento\Quote\Api\Data\AddressInterface $address): void
+    {
+        $errors = $this-&gt;addressValidator-&gt;validate($address);
+        if ($errors) {
+            throw new InputException(
+                __('Unable to save address. Please check input data. %1', implode(' ', $errors))
+            );
+        }
+    }
+
+    /**
+     * Get available payment methods for quote
+     *
+     * @param \Magento\Quote\Model\Quote $quote
+     * @return \Magento\Quote\Api\Data\PaymentMethodInterface[]
+     */
+    private function getPaymentMethods(\Magento\Quote\Model\Quote $quote): array
+    {
+        $paymentMethods = [];
+        $methods = $quote-&gt;getPayment()-&gt;getAvailableMethods();
+
+        foreach ($methods as $method) {
+            $paymentMethods[] = $method;
+        }
+
+        return $paymentMethods;
+    }
+}
+</code></pre>
+<h4 id="data-transfer-objects-dtos">Data Transfer Objects (DTOs)</h4>
+<p><strong><code>\Magento\Checkout\Api\Data\ShippingInformationInterface</code></strong></p>
+<pre><code class="language-php">namespace Magento\Checkout\Api\Data;
+
+use Magento\Quote\Api\Data\AddressInterface;
+
+interface ShippingInformationInterface
+{
+    /**
+     * Actual 2.4.7 signatures — no PHP return types or typed params
+     */
+
+    /** @return \Magento\Quote\Api\Data\AddressInterface */
+    public function getShippingAddress();
+
+    /** @return $this */
+    public function setShippingAddress(\Magento\Quote\Api\Data\AddressInterface $address);
+
+    /** @return \Magento\Quote\Api\Data\AddressInterface|null */
+    public function getBillingAddress();
+
+    /** @return $this */
+    public function setBillingAddress(\Magento\Quote\Api\Data\AddressInterface $address);
+
+    /** @return string */
+    public function getShippingCarrierCode();
+
+    /** @return $this */
+    public function setShippingCarrierCode($code);
+
+    /** @return string */
+    public function getShippingMethodCode();
+
+    /** @return $this */
+    public function setShippingMethodCode($code);
+}
+</code></pre>
+<p><strong>Implementation (Model):</strong></p>
+<pre><code class="language-php">namespace Magento\Checkout\Model;
+
+use Magento\Checkout\Api\Data\ShippingInformationInterface;
+use Magento\Quote\Api\Data\AddressInterface;
+use Magento\Framework\Model\AbstractExtensibleModel;
+
+class ShippingInformation extends AbstractExtensibleModel implements ShippingInformationInterface
+{
+    private const SHIPPING_ADDRESS = 'shipping_address';
+    private const BILLING_ADDRESS = 'billing_address';
+    private const SHIPPING_CARRIER_CODE = 'shipping_carrier_code';
+    private const SHIPPING_METHOD_CODE = 'shipping_method_code';
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getShippingAddress()
+    {
+        return $this-&gt;getData(self::SHIPPING_ADDRESS);
+    }
+
+    /** {@inheritdoc} */
+    public function setShippingAddress(\Magento\Quote\Api\Data\AddressInterface $address)
+    {
+        return $this-&gt;setData(self::SHIPPING_ADDRESS, $address);
+    }
+
+    /** {@inheritdoc} */
+    public function getBillingAddress()
+    {
+        return $this-&gt;getData(self::BILLING_ADDRESS);
+    }
+
+    /** {@inheritdoc} */
+    public function setBillingAddress(\Magento\Quote\Api\Data\AddressInterface $address)
+    {
+        return $this-&gt;setData(self::BILLING_ADDRESS, $address);
+    }
+
+    /** {@inheritdoc} */
+    public function getShippingCarrierCode()
+    {
+        return $this-&gt;getData(self::SHIPPING_CARRIER_CODE) ?? '';
+    }
+
+    /** {@inheritdoc} */
+    public function setShippingCarrierCode($code)
+    {
+        return $this-&gt;setData(self::SHIPPING_CARRIER_CODE, $code);
+    }
+
+    /** {@inheritdoc} */
+    public function getShippingMethodCode()
+    {
+        return $this-&gt;getData(self::SHIPPING_METHOD_CODE) ?? '';
+    }
+
+    /** {@inheritdoc} */
+    public function setShippingMethodCode($code)
+    {
+        return $this-&gt;setData(self::SHIPPING_METHOD_CODE, $code);
+    }
+}
+</code></pre>
+<hr />
+<h3 id="2-business-logic-layer-model">2. Business Logic Layer (Model)</h3>
+<p>The model layer implements core checkout business logic, including quote management, session handling, and checkout type determination.</p>
+<h4 id="checkout-session">Checkout Session</h4>
+<p><strong><code>\Magento\Checkout\Model\Session</code></strong></p>
+<p>The checkout session maintains state across requests and provides access to the active quote:</p>
+<pre><code class="language-php">namespace Magento\Checkout\Model;
+
+use Magento\Framework\Session\SessionManager;
+use Magento\Quote\Api\Data\CartInterface;
+use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
+
+class Session extends SessionManager
+{
+    private const QUOTE_ID_KEY = 'quote_id';
+    private const LAST_ORDER_ID_KEY = 'last_order_id';
+    private const LAST_SUCCESS_QUOTE_ID_KEY = 'last_success_quote_id';
+    private const LAST_REAL_ORDER_ID_KEY = 'last_real_order_id';
+
+    /**
+     * @var CartInterface|null
+     */
+    protected $_quote;
+
+    /**
+     * @var bool
+     */
+    protected $_loadInactive = false;
+
+    public function __construct(
+        private readonly CartRepositoryInterface $quoteRepository,
+        private readonly \Magento\Quote\Model\QuoteFactory $quoteFactory,
+        private readonly \Magento\Customer\Model\Session $customerSession,
+        private readonly \Magento\Store\Model\StoreManagerInterface $storeManager,
+        // ... parent constructor parameters
+    ) {
+        parent::__construct(...);
+    }
+
+    /**
+     * Get checkout quote instance
+     *
+     * @return CartInterface
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
+     */
+    public function getQuote(): CartInterface
+    {
+        if ($this-&gt;_quote === null) {
+            $this-&gt;_quote = $this-&gt;loadQuote();
+        }
+        return $this-&gt;_quote;
+    }
+
+    /**
+     * Load quote from repository
+     *
+     * @return CartInterface
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
+     */
+    private function loadQuote(): CartInterface
+    {
+        $quoteId = $this-&gt;getQuoteId();
+
+        if ($quoteId) {
+            try {
+                $quote = $this-&gt;_loadInactive
+                    ? $this-&gt;quoteRepository-&gt;get($quoteId)
+                    : $this-&gt;quoteRepository-&gt;getActive($quoteId);
+
+                // Validate quote belongs to current customer
+                if ($this-&gt;customerSession-&gt;isLoggedIn()) {
+                    if ((int)$quote-&gt;getCustomerId() !== (int)$this-&gt;customerSession-&gt;getCustomerId()) {
+                        $quote = $this-&gt;createNewQuote();
+                    }
+                }
+
+                return $quote;
+
+            } catch (NoSuchEntityException $e) {
+                $this-&gt;setQuoteId(null);
+            }
+        }
+
+        // Create new quote if none exists
+        return $this-&gt;createNewQuote();
+    }
+
+    /**
+     * Create new quote instance
+     *
+     * @return CartInterface
+     */
+    private function createNewQuote(): CartInterface
+    {
+        $quote = $this-&gt;quoteFactory-&gt;create();
+        $quote-&gt;setStoreId($this-&gt;storeManager-&gt;getStore()-&gt;getId());
+
+        if ($this-&gt;customerSession-&gt;isLoggedIn()) {
+            $quote-&gt;setCustomerId($this-&gt;customerSession-&gt;getCustomerId());
+            $quote-&gt;setCustomerGroupId($this-&gt;customerSession-&gt;getCustomerGroupId());
+        }
+
+        return $quote;
+    }
+
+    /**
+     * Get quote ID from session
+     *
+     * @return int|null
+     */
+    public function getQuoteId(): ?int
+    {
+        return $this-&gt;getData(self::QUOTE_ID_KEY);
+    }
+
+    /**
+     * Set quote ID in session
+     *
+     * @param int|null $quoteId
+     * @return $this
+     */
+    public function setQuoteId(?int $quoteId): self
+    {
+        $this-&gt;setData(self::QUOTE_ID_KEY, $quoteId);
+        return $this;
+    }
+
+    /**
+     * Replace existing quote with new one
+     *
+     * @param CartInterface $quote
+     * @return $this
+     */
+    public function replaceQuote(CartInterface $quote): self
+    {
+        $this-&gt;_quote = $quote;
+        $this-&gt;setQuoteId($quote-&gt;getId());
+        return $this;
+    }
+
+    /**
+     * Clear checkout session
+     *
+     * @return $this
+     */
+    public function clearQuote(): self
+    {
+        $this-&gt;_quote = null;
+        $this-&gt;setQuoteId(null);
+        return $this;
+    }
+
+    /**
+     * Get last order ID
+     *
+     * @return int|null
+     */
+    public function getLastOrderId(): ?int
+    {
+        return $this-&gt;getData(self::LAST_ORDER_ID_KEY);
+    }
+
+    /**
+     * Set last order ID
+     *
+     * @param int $orderId
+     * @return $this
+     */
+    public function setLastOrderId(int $orderId): self
+    {
+        $this-&gt;setData(self::LAST_ORDER_ID_KEY, $orderId);
+        return $this;
+    }
+
+    /**
+     * Get last real order ID (increment ID)
+     *
+     * @return string|null
+     */
+    public function getLastRealOrderId(): ?string
+    {
+        return $this-&gt;getData(self::LAST_REAL_ORDER_ID_KEY);
+    }
+
+    /**
+     * Set last real order ID
+     *
+     * @param string $orderIncrementId
+     * @return $this
+     */
+    public function setLastRealOrderId(string $orderIncrementId): self
+    {
+        $this-&gt;setData(self::LAST_REAL_ORDER_ID_KEY, $orderIncrementId);
+        return $this;
+    }
+
+    /**
+     * Allow loading inactive quotes
+     *
+     * @param bool $load
+     * @return $this
+     */
+    public function setLoadInactive(bool $load = true): self
+    {
+        $this-&gt;_loadInactive = $load;
+        return $this;
+    }
+}
+</code></pre>
+<h4 id="checkout-type-resolver">Checkout Type Resolver</h4>
+<p>Determines whether checkout is guest or registered:</p>
+<pre><code class="language-php">namespace Magento\Checkout\Model;
+
+use Magento\Quote\Api\Data\CartInterface;
+use Magento\Customer\Model\Session as CustomerSession;
+
+// Note: CheckoutTypeResolver is NOT a real Magento class. Guest checkout
+// logic is handled by \Magento\Checkout\Helper\Data::isAllowedGuestCheckout().
+// The example below shows the conceptual logic:
+class GuestCheckoutHelper
+{
+    public function __construct(
+        private readonly CustomerSession $customerSession,
+        private readonly \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
+    ) {}
+
+    /**
+     * Check if guest checkout is allowed (conceptual example)
+     *
+     * @param CartInterface $quote
+     * @return bool
+     * @see \Magento\Checkout\Helper\Data::isAllowedGuestCheckout()
+     */
+    public function isGuestCheckoutAllowed(CartInterface $quote): bool
+    {
+        // Check if customer is logged in
+        if ($this-&gt;customerSession-&gt;isLoggedIn()) {
+            return false;
+        }
+
+        // Check if guest checkout is enabled globally
+        if (!$this-&gt;scopeConfig-&gt;isSetFlag(
+            'checkout/options/guest_checkout',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        )) {
+            return false;
+        }
+
+        // Check if any product in quote disallows guest checkout
+        foreach ($quote-&gt;getAllItems() as $item) {
+            $product = $item-&gt;getProduct();
+            if ($product &amp;&amp; !$product-&gt;getAllowGuestCheckout()) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Check if registration is required
+     *
+     * @param CartInterface $quote
+     * @return bool
+     */
+    public function isRegistrationRequired(CartInterface $quote): bool
+    {
+        return !$this-&gt;isGuestCheckoutAllowed($quote)
+            &amp;&amp; !$this-&gt;customerSession-&gt;isLoggedIn();
+    }
+}
+</code></pre>
+<hr />
+<h3 id="3-ui-component-layer-view">3. UI Component Layer (View)</h3>
+<p>The UI component layer implements the frontend checkout interface using Knockout.js components and RequireJS modules.</p>
+<h4 id="checkout-ui-component-structure">Checkout UI Component Structure</h4>
+<p>The checkout page is structured as nested UI components defined in layout XML:</p>
+<p><strong><code>checkout_index_index.xml</code></strong></p>
+<pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;page xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+      layout=&quot;1column&quot;
+      xsi:noNamespaceSchemaLocation=&quot;urn:magento:framework:View/Layout/etc/page_configuration.xsd&quot;&gt;
+    &lt;update handle=&quot;checkout_cart_item_renderers&quot;/&gt;
+    &lt;body&gt;
+        &lt;referenceBlock name=&quot;content&quot;&gt;
+            &lt;block name=&quot;checkout.root&quot;
+                   template=&quot;Magento_Checkout::onepage.phtml&quot;
+                   class=&quot;Magento\Checkout\Block\Onepage&quot;
+                   cacheable=&quot;false&quot;&gt;
+                &lt;arguments&gt;
+                    &lt;argument name=&quot;jsLayout&quot; xsi:type=&quot;array&quot;&gt;
+                        &lt;item name=&quot;components&quot; xsi:type=&quot;array&quot;&gt;
+                            &lt;item name=&quot;checkout&quot; xsi:type=&quot;array&quot;&gt;
+                                &lt;item name=&quot;component&quot; xsi:type=&quot;string&quot;&gt;
+                                    Magento_Checkout/js/view/checkout
+                                &lt;/item&gt;
+                                &lt;item name=&quot;config&quot; xsi:type=&quot;array&quot;&gt;
+                                    &lt;item name=&quot;template&quot; xsi:type=&quot;string&quot;&gt;
+                                        Magento_Checkout/checkout
+                                    &lt;/item&gt;
+                                &lt;/item&gt;
+                                &lt;item name=&quot;children&quot; xsi:type=&quot;array&quot;&gt;
+                                    &lt;!-- Sidebar component --&gt;
+                                    &lt;item name=&quot;sidebar&quot; xsi:type=&quot;array&quot;&gt;
+                                        &lt;item name=&quot;component&quot; xsi:type=&quot;string&quot;&gt;
+                                            Magento_Checkout/js/view/sidebar
+                                        &lt;/item&gt;
+                                        &lt;item name=&quot;children&quot; xsi:type=&quot;array&quot;&gt;
+                                            &lt;item name=&quot;summary&quot; xsi:type=&quot;array&quot;&gt;
+                                                &lt;item name=&quot;component&quot; xsi:type=&quot;string&quot;&gt;
+                                                    Magento_Checkout/js/view/summary
+                                                &lt;/item&gt;
+                                            &lt;/item&gt;
+                                        &lt;/item&gt;
+                                    &lt;/item&gt;
+                                    &lt;!-- Steps component --&gt;
+                                    &lt;item name=&quot;steps&quot; xsi:type=&quot;array&quot;&gt;
+                                        &lt;item name=&quot;component&quot; xsi:type=&quot;string&quot;&gt;
+                                            uiComponent
+                                        &lt;/item&gt;
+                                        &lt;item name=&quot;children&quot; xsi:type=&quot;array&quot;&gt;
+                                            &lt;!-- Shipping step --&gt;
+                                            &lt;item name=&quot;shipping-step&quot; xsi:type=&quot;array&quot;&gt;
+                                                &lt;item name=&quot;component&quot; xsi:type=&quot;string&quot;&gt;
+                                                    Magento_Checkout/js/view/shipping
+                                                &lt;/item&gt;
+                                                &lt;item name=&quot;sortOrder&quot; xsi:type=&quot;string&quot;&gt;1&lt;/item&gt;
+                                            &lt;/item&gt;
+                                            &lt;!-- Payment step --&gt;
+                                            &lt;item name=&quot;billing-step&quot; xsi:type=&quot;array&quot;&gt;
+                                                &lt;item name=&quot;component&quot; xsi:type=&quot;string&quot;&gt;
+                                                    Magento_Checkout/js/view/billing
+                                                &lt;/item&gt;
+                                                &lt;item name=&quot;sortOrder&quot; xsi:type=&quot;string&quot;&gt;2&lt;/item&gt;
+                                            &lt;/item&gt;
+                                        &lt;/item&gt;
+                                    &lt;/item&gt;
+                                &lt;/item&gt;
+                            &lt;/item&gt;
+                        &lt;/item&gt;
+                    &lt;/argument&gt;
+                &lt;/arguments&gt;
+            &lt;/block&gt;
+        &lt;/referenceBlock&gt;
+    &lt;/body&gt;
+&lt;/page&gt;
+</code></pre>
+<h4 id="checkout-step-component">Checkout Step Component</h4>
+<p><strong><code>Magento_Checkout/js/view/shipping.js</code></strong></p>
+<pre><code class="language-javascript">define([
+    'ko',
+    'uiComponent',
+    'underscore',
+    'Magento_Checkout/js/model/step-navigator',
+    'Magento_Checkout/js/model/quote',
+    'Magento_Checkout/js/action/set-shipping-information',
+    'Magento_Checkout/js/model/shipping-service'
+], function (
+    ko,
+    Component,
+    _,
+    stepNavigator,
+    quote,
+    setShippingInformationAction,
+    shippingService
+) {
+    'use strict';
+
+    return Component.extend({
+        defaults: {
+            template: 'Magento_Checkout/shipping',
+            shippingFormTemplate: 'Magento_Checkout/shipping-address/form',
+            shippingMethodListTemplate: 'Magento_Checkout/shipping-address/shipping-method-list',
+            shippingMethodItemTemplate: 'Magento_Checkout/shipping-address/shipping-method-item'
+        },
+
+        visible: ko.observable(true),
+        errorValidationMessage: ko.observable(false),
+
+        /**
+         * Initialize component
+         */
+        initialize: function () {
+            this._super();
+
+            // Register step in step navigator
+            stepNavigator.registerStep(
+                'shipping',
+                null,
+                'Shipping',
+                this.visible,
+                _.bind(this.navigate, this),
+                this.sortOrder
+            );
+
+            return this;
+        },
+
+        /**
+         * Navigate to this step
+         */
+        navigate: function () {
+            this.visible(true);
+        },
+
+        /**
+         * Navigate to next step
+         */
+        navigateToNextStep: function () {
+            if (this.validateShippingInformation()) {
+                setShippingInformationAction().done(
+                    function () {
+                        stepNavigator.next();
+                    }
+                );
+            }
+        },
+
+        /**
+         * Validate shipping information
+         *
+         * @returns {Boolean}
+         */
+        validateShippingInformation: function () {
+            var shippingAddress = quote.shippingAddress();
+            var shippingMethod = quote.shippingMethod();
+
+            if (!shippingAddress) {
+                this.errorValidationMessage('Please specify a shipping address.');
+                return false;
+            }
+
+            if (!shippingMethod) {
+                this.errorValidationMessage('Please specify a shipping method.');
+                return false;
+            }
+
+            // Validate address fields
+            if (!shippingAddress.firstname) {
+                this.errorValidationMessage('First name is required.');
+                return false;
+            }
+
+            if (!shippingAddress.lastname) {
+                this.errorValidationMessage('Last name is required.');
+                return false;
+            }
+
+            if (!shippingAddress.street || !shippingAddress.street[0]) {
+                this.errorValidationMessage('Street address is required.');
+                return false;
+            }
+
+            if (!shippingAddress.city) {
+                this.errorValidationMessage('City is required.');
+                return false;
+            }
+
+            if (!shippingAddress.postcode) {
+                this.errorValidationMessage('Postal code is required.');
+                return false;
+            }
+
+            if (!shippingAddress.countryId) {
+                this.errorValidationMessage('Country is required.');
+                return false;
+            }
+
+            return true;
+        },
+
+        /**
+         * Get shipping rates
+         *
+         * @returns {Array}
+         */
+        getShippingRates: function () {
+            return shippingService.getShippingRates();
+        }
+    });
+});
+</code></pre>
+<h4 id="configuration-provider">Configuration Provider</h4>
+<p>Injects backend data into frontend checkout components:</p>
+<pre><code class="language-php">namespace Magento\Checkout\Model;
+
+use Magento\Checkout\Model\ConfigProviderInterface;
+use Magento\Checkout\Model\Session as CheckoutSession;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Store\Model\ScopeInterface;
+
+class DefaultConfigProvider implements ConfigProviderInterface
+{
+    public function __construct(
+        private readonly CheckoutSession $checkoutSession,
+        private readonly ScopeConfigInterface $scopeConfig,
+        private readonly \Magento\Customer\Model\Session $customerSession,
+        private readonly \Magento\Quote\Api\PaymentMethodManagementInterface $paymentMethodManagement,
+        private readonly \Magento\Checkout\Model\Cart\ImageProvider $imageProvider
+    ) {}
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getConfig(): array
+    {
+        $quote = $this-&gt;checkoutSession-&gt;getQuote();
+        $quoteId = $quote-&gt;getId();
+
+        $output = [
+            'quoteData' =&gt; [
+                'entity_id' =&gt; $quoteId,
+                'store_id' =&gt; $quote-&gt;getStoreId(),
+                'customer_id' =&gt; $quote-&gt;getCustomerId(),
+                'items_count' =&gt; $quote-&gt;getItemsCount(),
+                'items_qty' =&gt; $quote-&gt;getItemsQty(),
+                'grand_total' =&gt; $quote-&gt;getGrandTotal(),
+                'base_grand_total' =&gt; $quote-&gt;getBaseGrandTotal(),
+                'base_currency_code' =&gt; $quote-&gt;getBaseCurrencyCode(),
+                'quote_currency_code' =&gt; $quote-&gt;getQuoteCurrencyCode(),
+            ],
+            'quoteItemData' =&gt; $this-&gt;getQuoteItemData($quote),
+            'isCustomerLoggedIn' =&gt; $this-&gt;customerSession-&gt;isLoggedIn(),
+            'selectedShippingMethod' =&gt; $this-&gt;getSelectedShippingMethod($quote),
+            'storeCode' =&gt; $quote-&gt;getStore()-&gt;getCode(),
+            'totalsData' =&gt; $quote-&gt;getTotals(),
+            'paymentMethods' =&gt; $this-&gt;getPaymentMethods($quoteId),
+            'checkoutUrl' =&gt; $this-&gt;scopeConfig-&gt;getValue(
+                'checkout/options/onepage_checkout_enabled',
+                ScopeInterface::SCOPE_STORE
+            ) ? '/checkout' : '/checkout/multishipping',
+        ];
+
+        return $output;
+    }
+
+    /**
+     * Get quote item data with images
+     *
+     * @param \Magento\Quote\Model\Quote $quote
+     * @return array
+     */
+    private function getQuoteItemData(\Magento\Quote\Model\Quote $quote): array
+    {
+        $items = [];
+        foreach ($quote-&gt;getAllVisibleItems() as $item) {
+            $items[] = [
+                'item_id' =&gt; $item-&gt;getId(),
+                'name' =&gt; $item-&gt;getName(),
+                'qty' =&gt; $item-&gt;getQty(),
+                'price' =&gt; $item-&gt;getPrice(),
+                'product_type' =&gt; $item-&gt;getProductType(),
+                'thumbnail' =&gt; $this-&gt;imageProvider-&gt;getImage($item)-&gt;getImageUrl(),
+            ];
+        }
+        return $items;
+    }
+
+    /**
+     * Get selected shipping method
+     *
+     * @param \Magento\Quote\Model\Quote $quote
+     * @return string|null
+     */
+    private function getSelectedShippingMethod(\Magento\Quote\Model\Quote $quote): ?string
+    {
+        $shippingMethod = $quote-&gt;getShippingAddress()-&gt;getShippingMethod();
+        return $shippingMethod ?: null;
+    }
+
+    /**
+     * Get available payment methods
+     *
+     * @param int $quoteId
+     * @return array
+     */
+    private function getPaymentMethods(int $quoteId): array
+    {
+        $paymentMethods = [];
+        $methods = $this-&gt;paymentMethodManagement-&gt;getList($quoteId);
+
+        foreach ($methods as $method) {
+            $paymentMethods[] = [
+                'code' =&gt; $method-&gt;getCode(),
+                'title' =&gt; $method-&gt;getTitle(),
+            ];
+        }
+
+        return $paymentMethods;
+    }
+}
+</code></pre>
+<hr />
+<h3 id="4-data-persistence-layer">4. Data Persistence Layer</h3>
+<h4 id="quote-address-management">Quote Address Management</h4>
+<p>Shipping and billing addresses are stored in <code>quote_address</code> table:</p>
+<pre><code class="language-php">namespace Magento\Quote\Model\ResourceModel\Quote;
+
+use Magento\Framework\Model\ResourceModel\Db\AbstractDb;
+
+class Address extends AbstractDb
+{
+    /**
+     * Initialize resource model
+     *
+     * @return void
+     */
+    protected function _construct(): void
+    {
+        $this-&gt;_init('quote_address', 'address_id');
+    }
+
+    /**
+     * Save address with items
+     *
+     * @param \Magento\Quote\Model\Quote\Address $address
+     * @return $this
+     */
+    protected function _afterSave(\Magento\Framework\Model\AbstractModel $address): self
+    {
+        parent::_afterSave($address);
+
+        // Save address items
+        foreach ($address-&gt;getAllItems() as $item) {
+            $item-&gt;setParentId($address-&gt;getId());
+            $item-&gt;save();
+        }
+
+        // Save shipping rates
+        foreach ($address-&gt;getAllShippingRates() as $rate) {
+            $rate-&gt;setAddressId($address-&gt;getId());
+            $rate-&gt;save();
+        }
+
+        return $this;
+    }
+}
+</code></pre>
+<hr />
+<h2 id="component-communication-patterns">Component Communication Patterns</h2>
+<h3 id="1-event-bus-pattern">1. Event Bus Pattern</h3>
+<p>Checkout components communicate via Knockout.js observables and custom events:</p>
+<pre><code class="language-javascript">define([
+    'ko',
+    'Magento_Checkout/js/model/quote'
+], function (ko, quote) {
+    'use strict';
+
+    // Subscribe to shipping address changes
+    quote.shippingAddress.subscribe(function (newAddress) {
+        console.log('Shipping address changed:', newAddress);
+        // Trigger recalculation of shipping methods
+    });
+
+    // Subscribe to totals changes
+    quote.totals.subscribe(function (newTotals) {
+        console.log('Totals updated:', newTotals);
+    });
+});
+</code></pre>
+<h3 id="2-action-pattern">2. Action Pattern</h3>
+<p>Actions encapsulate API calls and state updates:</p>
+<pre><code class="language-javascript">define([
+    'Magento_Checkout/js/model/quote',
+    'Magento_Checkout/js/model/url-builder',
+    'mage/storage',
+    'Magento_Checkout/js/model/error-processor',
+    'Magento_Customer/js/model/customer',
+    'Magento_Checkout/js/model/full-screen-loader'
+], function (
+    quote,
+    urlBuilder,
+    storage,
+    errorProcessor,
+    customer,
+    fullScreenLoader
+) {
+    'use strict';
+
+    return function (messageContainer) {
+        var serviceUrl,
+            payload;
+
+        payload = {
+            addressInformation: {
+                shipping_address: quote.shippingAddress(),
+                billing_address: quote.billingAddress(),
+                shipping_method_code: quote.shippingMethod().method_code,
+                shipping_carrier_code: quote.shippingMethod().carrier_code
+            }
+        };
+
+        if (customer.isLoggedIn()) {
+            serviceUrl = urlBuilder.createUrl('/carts/mine/shipping-information', {});
+        } else {
+            serviceUrl = urlBuilder.createUrl('/guest-carts/:cartId/shipping-information', {
+                cartId: quote.getQuoteId()
+            });
+        }
+
+        fullScreenLoader.startLoader();
+
+        return storage.post(
+            serviceUrl,
+            JSON.stringify(payload)
+        ).done(function (response) {
+            quote.setTotals(response.totals);
+            quote.setPaymentMethods(response.payment_methods);
+            fullScreenLoader.stopLoader();
+        }).fail(function (response) {
+            errorProcessor.process(response, messageContainer);
+            fullScreenLoader.stopLoader();
+        });
+    };
+});
+</code></pre>
+<hr />
+<h2 id="assumptions">Assumptions</h2>
+<ul>
+<li><strong>Target Platform</strong>: Adobe Commerce &amp; Magento Open Source 2.4.7+</li>
+<li><strong>PHP Version</strong>: 8.1, 8.2, 8.3</li>
+<li><strong>Frontend</strong>: Luma theme with Knockout.js UI components</li>
+<li><strong>Session Storage</strong>: Redis or database (production should use Redis)</li>
+<li><strong>Areas</strong>: Frontend (checkout UI), webapi_rest (API), webapi_graphql (GraphQL)</li>
+</ul>
+<h2 id="why-this-architecture">Why This Architecture</h2>
+<p>The multi-layered architecture with service contracts provides:</p>
+<ul>
+<li><strong>API Stability</strong>: Service contracts guarantee BC across versions</li>
+<li><strong>Separation of Concerns</strong>: Business logic, data persistence, and UI are decoupled</li>
+<li><strong>Testability</strong>: Each layer can be unit tested in isolation</li>
+<li><strong>Extensibility</strong>: Plugins, observers, and UI component layout allow customization</li>
+<li><strong>Headless Support</strong>: Same service contracts work for Luma, PWA Studio, and custom frontends</li>
+</ul>
+<h2 id="security-impact">Security Impact</h2>
+<ul>
+<li><strong>Quote Validation</strong>: All service contracts validate quote ownership before operations</li>
+<li><strong>CSRF Protection</strong>: Form keys required for all POST requests</li>
+<li><strong>Input Validation</strong>: DTOs validated via <code>\Magento\Framework\Validator\Factory</code></li>
+<li><strong>XSS Prevention</strong>: Knockout.js auto-escapes bindings; manual escaping via <code>$escaper</code></li>
+<li><strong>Session Hijacking</strong>: Session regeneration on customer login</li>
+</ul>
+<h2 id="performance-impact">Performance Impact</h2>
+<ul>
+<li><strong>No FPC</strong>: Checkout pages excluded from Full Page Cache</li>
+<li><strong>Session I/O</strong>: Heavy session usage; Redis critical for production</li>
+<li><strong>API Calls</strong>: Each step makes API call to save data and calculate totals</li>
+<li><strong>JavaScript Bundle</strong>: ~500KB for checkout components; consider RequireJS optimization</li>
+<li><strong>Database Queries</strong>: Quote totals collection triggers multiple queries; use query profiling</li>
+</ul>
+<h2 id="backward-compatibility">Backward Compatibility</h2>
+<ul>
+<li><strong>Service Contracts</strong>: All interfaces in <code>Api/</code> namespace are BC-guaranteed</li>
+<li><strong>UI Components</strong>: Layout XML modifications are BC-safe</li>
+<li><strong>Plugins</strong>: Prefer plugins on service contracts over model classes</li>
+<li><strong>Extension Attributes</strong>: Use extension attributes for adding data to DTOs</li>
+</ul>
+<h2 id="tests-to-add">Tests to Add</h2>
+<ol>
+<li><strong>Unit Tests</strong>: Mock dependencies, test service contract implementations</li>
+<li><strong>Integration Tests</strong>: Test quote manipulation with fixtures</li>
+<li><strong>API Tests</strong>: Test REST/GraphQL endpoints with WebAPI framework</li>
+<li><strong>JavaScript Tests</strong>: Jasmine tests for UI components</li>
+<li><strong>MFTF Tests</strong>: End-to-end checkout flow</li>
+</ol>
+<h2 id="documentation-to-update">Documentation to Update</h2>
+<ul>
+<li><strong>Architecture Diagram</strong>: Component interaction flow</li>
+<li><strong>Service Contract Documentation</strong>: Method signatures, return types, exceptions</li>
+<li><strong>UI Component Guide</strong>: How to add custom checkout step</li>
+<li><strong>API Documentation</strong>: REST/GraphQL schema</li>
+</ul>
+                    </div>
+                </article>
+            </main>
+            <!-- Right Sidebar: On This Page (desktop) -->
+            <aside class="toc-sidebar hidden xl:block" aria-label="On this page">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-semibold text-gray-900 uppercase tracking-wider mb-4 mt-0">On this page</h3>
+                    <nav id="toc-nav" class="space-y-0" aria-label="Table of contents"></nav>
+                    <div class="toc-back-to-top">
+                        <a href="#">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+                            </svg>
+                            Back to top
+                        </a>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- ================================================================
+         FOOTER — matches module-catalog.html multi-column layout exactly
+         ================================================================ -->
+    <footer class="relative pt-12 bg-white border-t border-charcoal mt-16">
+        <div class="max-w-screen-2xl mx-auto w-full px-4 sm:px-6 lg:px-8">
+            <div>
+                <a href="index.html" class="inline-flex items-center no-underline">
+                    <svg width="30" height="33" viewBox="0 0 30 33" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Magento Association logo" role="img">
+                        <path d="M0 4.06492H29.6763V31.8882C29.6763 32.502 29.1713 33 28.5487 33H1.12762C0.505079 33 0 32.502 0 31.8882V4.06492Z" fill="#34323A"/>
+                        <path d="M1.26857 0H28.4078C29.1066 0 29.6763 0.561678 29.6763 1.25075V4.06492H0V1.25075C0 0.561678 0.569682 0 1.26857 0Z" fill="#C9C9C9"/>
+                        <path d="M2.37269 3.0458C2.94031 3.0458 3.40046 2.59211 3.40046 2.03246C3.40046 1.47281 2.94031 1.01913 2.37269 1.01913C1.80506 1.01913 1.34491 1.47281 1.34491 2.03246C1.34491 2.59211 1.80506 3.0458 2.37269 3.0458Z" fill="#848484"/>
+                        <path d="M5.28571 3.0458C5.85334 3.0458 6.31349 2.59211 6.31349 2.03246C6.31349 1.47281 5.85334 1.01913 5.28571 1.01913C4.71809 1.01913 4.25793 1.47281 4.25793 2.03246C4.25793 2.59211 4.71809 3.0458 5.28571 3.0458Z" fill="#848484"/>
+                        <path d="M14.7883 7.46973L4.90405 13.0923V24.349L7.54104 25.8487V14.5978L14.7883 10.4692L22.0415 14.5978V25.8487L24.6785 24.349V13.0923L14.7883 7.46973Z" fill="#F1BC1B"/>
+                        <path d="M16.0862 26.2367L14.7883 26.9779L13.4492 26.2135V14.233L10.178 16.0975V27.3485L13.4492 29.213L14.7883 29.9773L16.0862 29.2362L19.4045 27.3485V16.0975L16.0862 14.2098V26.2367Z" fill="#F1BC1B"/>
+                    </svg>
+                    <span class="ml-3 text-xl font-bold text-charcoal">Developer Documentation</span>
+                </a>
+            </div>
+
+            <div class="grid grid-cols-12 md:gap-x-8 gap-y-12 lg:mt-12">
+                <div class="col-span-12 lg:col-span-4">
+                    <p class="hidden lg:block text-xs text-charcoal sm:text-sm">Comprehensive developer documentation for Magento 2.4.7+ — tutorials, architecture deep dives, module references, and production-ready patterns built by the community, for the community.</p>
+                    <ul class="mt-6 hidden lg:flex items-center gap-3">
+                        <li class="pl-0">
+                            <a href="https://github.com/magento/magento2" class="p-2 md:p-0" aria-label="GitHub">
+                                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                                </svg>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Guides</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="tutorials.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Tutorials</a></li>
+                            <li class="pl-0"><a href="how-to-guides.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">How-To Guides</a></li>
+                            <li class="pl-0"><a href="architecture.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Architecture</a></li>
+                            <li class="pl-0"><a href="learning-paths.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Learning Paths</a></li>
+                            <li class="pl-0"><a href="references.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">References</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Modules</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="module-catalog.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Catalog</a></li>
+                            <li class="pl-0"><a href="module-checkout.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Checkout</a></li>
+                            <li class="pl-0"><a href="module-sales.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Sales</a></li>
+                            <li class="pl-0"><a href="module-customer.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Customer</a></li>
+                            <li class="pl-0"><a href="module-quote.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Quote</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Community</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Magento Community</a></li>
+                            <li class="pl-0"><a href="https://magento.stackexchange.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Stack Exchange</a></li>
+                            <li class="pl-0"><a href="https://marketplace.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Marketplace</a></li>
+                            <li class="pl-0"><a href="https://github.com/magento/magento2" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">GitHub</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Support</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://github.com/magento/magento2/issues" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Report Issues</a></li>
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Community Resources</a></li>
+                            <li class="pl-0"><a href="https://developer.adobe.com/commerce/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Adobe Commerce Docs</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-12 border-t pt-6 pb-16 border-charcoal">
+                <p class="text-xs text-charcoal">
+                    &copy; 2026 Magento 2 Developer Documentation. Magento&reg; is a registered trademark of Adobe Inc.
+                </p>
+                <p class="mt-6 text-xs text-charcoal">
+                    This documentation provides guidance for Magento 2 developers and extension builders. For merchant documentation, visit the <a href="index.html" class="text-orange hover:text-orange-600 transition-colors">merchant documentation</a>.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Initialize highlight.js -->
+    <script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('pre code').forEach(function (el) {
+        hljs.highlightElement(el);
+    });
+    document.querySelectorAll('pre').forEach(function (pre) {
+        if (pre.parentNode.classList && pre.parentNode.classList.contains('code-wrapper')) return;
+        var wrapper = document.createElement('div');
+        wrapper.className = 'code-wrapper';
+        pre.parentNode.insertBefore(wrapper, pre);
+        wrapper.appendChild(pre);
+        var btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.setAttribute('type', 'button');
+        btn.setAttribute('aria-label', 'Copy code to clipboard');
+        btn.setAttribute('title', 'Copy');
+        btn.textContent = 'Copy';
+        wrapper.appendChild(btn);
+        btn.addEventListener('click', function () {
+            var code = pre.querySelector('code');
+            var text = code ? (code.innerText || code.textContent) : (pre.innerText || pre.textContent);
+            navigator.clipboard.writeText(text).then(function () {
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            }).catch(function () {
+                var range = document.createRange();
+                range.selectNode(code || pre);
+                window.getSelection().removeAllRanges();
+                window.getSelection().addRange(range);
+                document.execCommand('copy');
+                window.getSelection().removeAllRanges();
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            });
+        });
+    });
+});
+</script>
+
+
+<script>
+(function() {
+    var nav = document.getElementById('toc-nav');
+    if (!nav) return;
+    var article = document.getElementById('main-content');
+    if (!article) return;
+    var headings = article.querySelectorAll('h2[id], h3[id]');
+    if (headings.length < 3) {
+        // Hide the entire TOC sidebar if fewer than 3 headings
+        var sidebar = nav.closest('.toc-sidebar');
+        if (sidebar) sidebar.style.display = 'none';
+        return;
+    }
+    var ids = [];
+    headings.forEach(function(h) {
+        var a = document.createElement('a');
+        a.href = '#' + h.id;
+        a.textContent = h.textContent.replace(/^#+\s*/, '').replace(/\s+/g, ' ').trim();
+        if (h.tagName === 'H3') a.classList.add('toc-h3');
+        nav.appendChild(a);
+        ids.push(h.id);
+    });
+    // Scroll-spy with IntersectionObserver
+    var links = nav.querySelectorAll('a');
+    var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                links.forEach(function(l) { l.classList.remove('toc-active'); });
+                var active = nav.querySelector('a[href="#' + entry.target.id + '"]');
+                if (active) active.classList.add('toc-active');
+            }
+        });
+    }, { rootMargin: '-80px 0px -70% 0px', threshold: 0 });
+    headings.forEach(function(h) { observer.observe(h); });
+})();
+</script>
+</body>
+</html>

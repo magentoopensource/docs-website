@@ -1,0 +1,1879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magento_Sales Execution Flows — Magento 2 Developer Documentation</title>
+    <meta name="description" content="Magento_Sales Execution Flows">
+
+    <!-- Google Fonts: Inter Tight only. Courier New used for code. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Highlight.js: syntax highlighting for code blocks -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/php.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/ini.min.js"></script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        charcoal: {
+                            DEFAULT: '#2c2c2c', 50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6',
+                            300: '#6B6B6B', 400: '#474747', 500: '#2c2c2c', 600: '#262626',
+                            700: '#202020', 800: '#1c1c1c', 900: '#191919', 950: '#121212'
+                        },
+                        orange: {
+                            DEFAULT: '#D4551A', 50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad',
+                            300: '#f9ae78', 400: '#f58242', 500: '#f26423', 600: '#e34613',
+                            700: '#bc3312', 800: '#962a16', 900: '#792515', 950: '#411009'
+                        },
+                        yellow: {
+                            DEFAULT: '#B8860B', 50: '#fffdeb', 100: '#fdf9c8', 200: '#fbf38c',
+                            300: '#f8e651', 400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a',
+                            700: '#b1670c', 800: '#8f5111', 900: '#764311', 950: '#442204'
+                        },
+                        'off-white': '#FAFAFA',
+                    },
+                    fontFamily: {
+                        sans: ['Inter Tight', 'system-ui', '-apple-system', 'sans-serif'],
+                        mono: ['Courier New', 'Courier', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* ── Force light mode ── */
+        :root { color-scheme: light only; }
+
+        [x-cloak] { display: none !important; }
+
+        /* ── Scroll offset for sticky header ── */
+        .prose h2, .prose h3 { scroll-margin-top: 5rem; }
+
+        /* ── Code blocks: Bauhaus charcoal bg, no border-radius, highlight.js override ── */
+        .prose pre {
+            background-color: #2C2C2C !important;
+            border-radius: 0 !important;
+            padding: 1.25rem;
+            overflow-x: auto;
+            font-size: 0.875rem;
+            line-height: 1.7;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 1.5rem 0;
+        }
+        .prose pre code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            background: transparent !important;
+            padding: 0;
+                    color: #abb2bf;
+        }
+        /* Override highlight.js theme background to match Bauhaus charcoal */
+        .hljs {
+            background: #2C2C2C !important;
+            color: #abb2bf !important;
+            border-radius: 0 !important;
+        }
+
+        /* ── Inline code: charcoal bg, yellow text, no border-radius ── */
+        .prose code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.85em;
+        }
+        .prose :not(pre) > code {
+            background-color: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2em 0.45em;
+            border-radius: 0;
+        }
+
+        /* ── Step-code: same charcoal/yellow style for UI path chips ── */
+        .step-code {
+            background: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2rem 0.5rem;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            border-radius: 0;
+        }
+
+        /* ── Tables: no border-radius, charcoal header ── */
+        .prose table { width: 100%; border-collapse: collapse; }
+        .prose th {
+            background-color: #2C2C2C;
+            color: #ffffff;
+            font-weight: 600;
+            text-align: left;
+            padding: 0.75rem 1rem;
+            border-bottom: 2px solid #2C2C2C;
+            border-radius: 0;
+        }
+        .prose td { padding: 0.75rem 1rem; border-bottom: 1px solid #e5e5e5; }
+        .prose tr:hover { background-color: #fafafa; }
+
+        /* ── Blockquote: Bauhaus style — border-4 yellow, square, no left-only border ── */
+        .prose blockquote {
+            border: 4px solid #F1BC1B;
+            background-color: #ffffff;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+            border-radius: 0;
+        }
+        .prose blockquote p { margin: 0; }
+
+        /* ── Lists: hexagon bullets ── */
+        .prose ul { list-style: none; padding-left: 0; }
+        .prose ul li {
+            position: relative;
+            padding-left: 1.75rem;
+            margin-bottom: 0.4rem;
+            line-height: 1.7;
+        }
+        .prose ul li::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0.45em;
+            width: 10px;
+            height: 10px;
+            background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 2L21 7V17L12 22L3 17V7L12 2Z' stroke='%23F26423' stroke-width='2.5' stroke-linejoin='miter'/%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+        .prose ol { list-style-type: decimal; padding-left: 1.5rem; }
+        .prose li { margin-bottom: 0.4rem; }
+
+        /* ── Headings ── */
+        .prose h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            padding-top: 1.5rem;
+            border-top: 4px solid #F1BC1B;
+            color: #2C2C2C;
+        }
+        .prose h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+            color: #2C2C2C;
+        }
+        .prose h4 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #2C2C2C;
+        }
+        .prose p { margin-bottom: 1rem; line-height: 1.75; }
+        .prose a { color: #D4551A; text-decoration: none; }
+        .prose a:hover { color: #e34613; text-decoration: underline; }
+        .prose hr { border: none; border-top: 1px solid #e5e5e5; margin: 2rem 0; }
+
+        /* ── Callout boxes: Bauhaus — border-4 yellow, white bg, icon + title ── */
+        .callout-box {
+            background-color: #ffffff;
+            border: 4px solid #F1BC1B;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+        }
+        .callout-warning {
+            border-color: #D4551A;
+        }
+        .callout-important {
+            border-color: #2C2C2C;
+        }
+        .callout-box .callout-inner {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+        .callout-box .callout-title {
+            font-weight: 600;
+            color: #2C2C2C;
+            margin-bottom: 0.25rem;
+        }
+        .callout-box .callout-body {
+            font-size: 0.875rem;
+            line-height: 1.6;
+            color: rgba(44,44,44,0.85);
+        }
+
+        
+    
+        /* Code block copy button */
+        .code-wrapper {
+            position: relative;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            font-family: 'Inter Tight', system-ui, sans-serif;
+            background: rgba(255,255,255,0.1);
+            color: #abb2bf;
+            border: 1px solid rgba(255,255,255,0.15);
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.15s ease, background 0.15s ease;
+            z-index: 10;
+            line-height: 1.4;
+            border-radius: 4px;
+            user-select: none;
+        }
+        .code-wrapper:hover .copy-btn {
+            opacity: 1;
+        }
+        .copy-btn:hover,
+        .copy-btn:focus {
+            background: rgba(255,255,255,0.2);
+            color: #ffffff;
+            outline: 2px solid #D4551A;
+            outline-offset: 1px;
+        }
+        .copy-btn.copied {
+            color: #98c379;
+            background: rgba(152, 195, 121, 0.15);
+            opacity: 1;
+        }
+    
+        /* Right-hand TOC sidebar */
+        .toc-sidebar {
+            width: 14rem;
+            flex-shrink: 0;
+        }
+        .toc-sidebar a {
+            display: block;
+            padding: 0.375rem 0;
+            font-size: 0.8125rem;
+            line-height: 1.4;
+            color: #6b7280;
+            text-decoration: none;
+            transition: color 0.15s ease;
+            border-left: 2px solid transparent;
+            padding-left: 0.75rem;
+        }
+        .toc-sidebar a:hover {
+            color: #111827;
+        }
+        .toc-sidebar a.toc-active {
+            color: #ea580c;
+            border-left-color: #ea580c;
+            font-weight: 500;
+        }
+        .toc-sidebar a.toc-h3 {
+            padding-left: 1.5rem;
+            font-size: 0.75rem;
+        }
+        .toc-sidebar .toc-back-to-top {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e5e7eb;
+        }
+        .toc-sidebar .toc-back-to-top a {
+            border-left: none;
+            padding-left: 0;
+            font-weight: 500;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .toc-sidebar .toc-back-to-top a:hover {
+            color: #ea580c;
+        }
+    </style>
+</head>
+
+<body class="font-sans bg-off-white text-charcoal">
+
+    <!-- Shared header — single source of truth -->
+    <script src="includes/header.js"></script>
+
+    <!-- Breadcrumb — orange › separators -->
+    <div class="bg-white border-b border-gray-100">
+        <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <div class="flex items-center gap-2 text-sm flex-wrap">
+                <a href="index.html" class="text-orange hover:text-orange-600 transition-colors no-underline">Home</a> <span class="text-orange font-medium">›</span> <a href="modules.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">Modules</a> <span class="text-orange font-medium">›</span> <a href="module-sales.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">Sales</a> <span class="text-orange font-medium">›</span> <span class="text-charcoal font-medium">Magento_Sales Execution Flows</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="flex gap-8">
+
+            <!-- Left Sidebar (desktop) -->
+            <aside class="hidden lg:block w-64 flex-shrink-0">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4">Sales Module</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="module-sales-overview.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Overview</a></li>
+<li class="pl-0"><a href="module-sales-architecture.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Architecture</a></li>
+<li class="pl-0"><a href="module-sales-execution-flows.html" class="block px-3 py-2 text-sm text-orange font-semibold bg-orange-50 border-l-4 border-orange pl-2 transition-colors no-underline">Execution Flows</a></li>
+<li class="pl-0"><a href="module-sales-plugins-and-observers.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Plugins & Observers</a></li>
+<li class="pl-0"><a href="module-sales-integrations.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Integrations</a></li>
+<li class="pl-0"><a href="module-sales-anti-patterns.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Anti-Patterns</a></li>
+<li class="pl-0"><a href="module-sales-performance.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Performance</a></li>
+<li class="pl-0"><a href="module-sales-known-issues.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Known Issues</a></li>
+<li class="pl-0"><a href="module-sales-version-compatibility.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Version Compatibility</a></li>
+</ul>
+<h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4 mt-8">Other Modules</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="module-catalog.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Catalog</a></li>
+<li class="pl-0"><a href="module-checkout.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Checkout</a></li>
+<li class="pl-0"><a href="module-customer.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Customer</a></li>
+<li class="pl-0"><a href="module-quote.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Quote</a></li>
+</ul>
+                </div>
+            </aside>
+
+            <!-- Article — square corners, border-t-4 orange accent -->
+            <main id="main-content" class="flex-1 min-w-0">
+                <article class="bg-white shadow-sm border border-gray-100 border-t-4 border-t-orange p-8 md:p-12">
+                    <!-- Title block -->
+                    <div class="mb-8">
+                        <span class="inline-block px-3 py-1.5 text-xs font-medium bg-orange-50 text-orange-700 border border-orange-200">Execution Flows</span>
+                        <h1 class="text-3xl md:text-4xl font-extrabold text-charcoal mt-3 mb-3">Magento_Sales Execution Flows</h1>
+                        <p class="text-charcoal-300 text-lg mb-4">Magento_Sales Execution Flows</p>
+                        <!-- Meta pills -->
+                        <div class="flex flex-wrap gap-2"><span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-charcoal text-white">Magento 2.4.7+</span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-charcoal-50 text-charcoal border border-charcoal-100">Magento_Sales</span></div>
+                    </div>
+
+                    <hr class="border-0 border-t border-gray-100 mb-8">
+
+                    <!-- Content -->
+                    <div class="prose max-w-none">
+                        <h1 id="magento_sales-execution-flows">Magento_Sales Execution Flows</h1>
+<h2 id="overview">Overview</h2>
+<p>This document details the complete execution flows for order management operations in Magento_Sales, including order placement, invoice creation, shipment processing, credit memo generation, and order cancellation. Each flow includes the complete call stack, event dispatches, database operations, and extension points.</p>
+<h2 id="order-placement-flow">Order Placement Flow</h2>
+<h3 id="flow-diagram-text-representation">Flow Diagram (Text Representation)</h3>
+<pre><code>[Quote Submission]
+    ↓
+[QuoteManagement::submit()]
+    ↓
+[Event: sales_model_service_quote_submit_before]
+    ↓
+[Order Creation from Quote]
+    ↓
+[OrderManagement::place()]
+    ↓
+[Payment Authorization]
+    ↓
+[Event: sales_order_place_before]
+    ↓
+[Transaction Begin]
+    ↓
+[Save Order + Items + Addresses + Payment]
+    ↓
+[Transaction Commit]
+    ↓
+[Event: sales_order_place_after]
+    ↓
+[Quote Deactivation]
+    ↓
+[Send Order Confirmation Email]
+    ↓
+[Order Grid Update]
+    ↓
+[Return Order Object]
+</code></pre>
+<h3 id="detailed-execution-flow">Detailed Execution Flow</h3>
+<h4 id="1-quote-submission-entry-point">1. Quote Submission Entry Point</h4>
+<pre><code class="language-php">&lt;?php
+namespace Magento\Quote\Model;
+
+use Magento\Quote\Api\CartManagementInterface;
+use Magento\Sales\Api\Data\OrderInterface;
+
+/**
+ * Quote submission to order
+ */
+class QuoteManagement implements CartManagementInterface
+{
+    public function __construct(
+        private \Magento\Framework\Event\ManagerInterface $eventManager,
+        private \Magento\Quote\Model\QuoteValidator $quoteValidator,
+        private \Magento\Sales\Model\OrderFactory $orderFactory,
+        private \Magento\Quote\Model\Quote\Address\ToOrder $quoteAddressToOrder,
+        private \Magento\Quote\Model\Quote\Address\ToOrderAddress $quoteAddressToOrderAddress,
+        private \Magento\Quote\Model\Quote\Payment\ToOrderPayment $quotePaymentToOrderPayment,
+        private \Magento\Quote\Model\Quote\Item\ToOrderItem $quoteItemToOrderItem,
+        private \Magento\Sales\Api\OrderManagementInterface $orderManagement,
+        private \Magento\Framework\DB\TransactionFactory $transactionFactory
+    ) {}
+
+    /**
+     * Submit quote and create order
+     *
+     * Full execution flow with all steps
+     *
+     * @param int $cartId
+     * @param \Magento\Quote\Api\Data\PaymentInterface $payment
+     * @return OrderInterface
+     * @throws \Exception
+     */
+    public function placeOrder($cartId, $payment = null)
+    {
+        // Step 1: Load and validate quote
+        $quote = $this-&gt;quoteRepository-&gt;getActive($cartId);
+
+        if ($quote-&gt;getCheckoutMethod() === null) {
+            $quote-&gt;setCheckoutMethod(self::METHOD_GUEST);
+        }
+
+        // Step 2: Set payment method
+        if ($payment) {
+            $quote-&gt;getPayment()-&gt;importData($payment-&gt;getData());
+        }
+
+        // Step 3: Collect totals (final calculation)
+        $quote-&gt;collectTotals();
+
+        // Step 4: Validate quote
+        $this-&gt;quoteValidator-&gt;validateBeforeSubmit($quote);
+
+        // Step 5: Dispatch pre-submit event
+        $this-&gt;eventManager-&gt;dispatch(
+            'sales_model_service_quote_submit_before',
+            ['order' =&gt; null, 'quote' =&gt; $quote]
+        );
+
+        // Step 6: Convert quote to order
+        $order = $this-&gt;submit($quote);
+
+        return $order;
+    }
+
+    /**
+     * Submit quote (internal conversion logic)
+     *
+     * @param \Magento\Quote\Model\Quote $quote
+     * @return OrderInterface
+     * @throws \Exception
+     */
+    protected function submit(\Magento\Quote\Model\Quote $quote): OrderInterface
+    {
+        // Step 1: Convert quote data to order
+        $order = $this-&gt;orderFactory-&gt;create();
+
+        // Step 2: Copy quote data to order
+        $this-&gt;quoteAddressToOrder-&gt;convert($quote, $order);
+
+        // Step 3: Set order status
+        $order-&gt;setStatus(
+            $order-&gt;getConfig()-&gt;getStateDefaultStatus(\Magento\Sales\Model\Order::STATE_NEW)
+        );
+        $order-&gt;setState(\Magento\Sales\Model\Order::STATE_NEW);
+
+        // Step 4: Convert addresses
+        if ($quote-&gt;getBillingAddress()) {
+            $billingAddress = $this-&gt;quoteAddressToOrderAddress-&gt;convert(
+                $quote-&gt;getBillingAddress()
+            );
+            $billingAddress-&gt;setAddressType(\Magento\Sales\Model\Order\Address::TYPE_BILLING);
+            $order-&gt;setBillingAddress($billingAddress);
+        }
+
+        if ($quote-&gt;getShippingAddress()) {
+            $shippingAddress = $this-&gt;quoteAddressToOrderAddress-&gt;convert(
+                $quote-&gt;getShippingAddress()
+            );
+            $shippingAddress-&gt;setAddressType(\Magento\Sales\Model\Order\Address::TYPE_SHIPPING);
+            $order-&gt;setShippingAddress($shippingAddress);
+        }
+
+        // Step 5: Convert payment
+        $payment = $this-&gt;quotePaymentToOrderPayment-&gt;convert($quote-&gt;getPayment());
+        $order-&gt;setPayment($payment);
+
+        // Step 6: Convert items
+        foreach ($quote-&gt;getAllVisibleItems() as $quoteItem) {
+            $orderItem = $this-&gt;quoteItemToOrderItem-&gt;convert($quoteItem);
+            $order-&gt;addItem($orderItem);
+        }
+
+        // Step 7: Place order (authorize payment and save)
+        $order = $this-&gt;orderManagement-&gt;place($order);
+
+        // Step 8: Deactivate quote
+        $quote-&gt;setIsActive(false);
+        $this-&gt;quoteRepository-&gt;save($quote);
+
+        // Step 9: Dispatch after-submit event
+        $this-&gt;eventManager-&gt;dispatch(
+            'sales_model_service_quote_submit_success',
+            ['order' =&gt; $order, 'quote' =&gt; $quote]
+        );
+
+        return $order;
+    }
+}
+</code></pre>
+<h4 id="2-order-management-place">2. Order Management Place</h4>
+<pre><code class="language-php">&lt;?php
+namespace Magento\Sales\Model\Service;
+
+use Magento\Sales\Api\OrderManagementInterface;
+use Magento\Sales\Api\Data\OrderInterface;
+
+/**
+ * Order management service - place operation
+ */
+class OrderService implements OrderManagementInterface
+{
+    public function __construct(
+        private \Magento\Framework\Event\ManagerInterface $eventManager,
+        private \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
+        private \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender,
+        private \Magento\Framework\DB\TransactionFactory $transactionFactory,
+        private \Psr\Log\LoggerInterface $logger
+    ) {}
+
+    /**
+     * Place order
+     *
+     * @param OrderInterface $order
+     * @return OrderInterface
+     * @throws \Exception
+     */
+    public function place(\Magento\Sales\Api\Data\OrderInterface $order)
+    {
+        // Step 1: Dispatch before place event
+        $this-&gt;eventManager-&gt;dispatch(
+            'sales_order_place_before',
+            ['order' =&gt; $order]
+        );
+
+        // Step 2: Begin database transaction
+        $transaction = $this-&gt;transactionFactory-&gt;create();
+
+        try {
+            // Step 3: Process payment (authorize)
+            $payment = $order-&gt;getPayment();
+            $payment-&gt;place();
+
+            // Step 4: Set initial order state based on payment
+            if ($payment-&gt;getIsTransactionPending()) {
+                $order-&gt;setState(\Magento\Sales\Model\Order::STATE_PAYMENT_REVIEW);
+                $order-&gt;setStatus($order-&gt;getConfig()-&gt;getStateDefaultStatus(
+                    \Magento\Sales\Model\Order::STATE_PAYMENT_REVIEW
+                ));
+            } else {
+                $order-&gt;setState(\Magento\Sales\Model\Order::STATE_PROCESSING);
+                $order-&gt;setStatus($order-&gt;getConfig()-&gt;getStateDefaultStatus(
+                    \Magento\Sales\Model\Order::STATE_PROCESSING
+                ));
+            }
+
+            // Step 5: Add all related entities to transaction
+            $transaction-&gt;addObject($order);
+            $transaction-&gt;addObject($order-&gt;getPayment());
+
+            foreach ($order-&gt;getAddresses() as $address) {
+                $transaction-&gt;addObject($address);
+            }
+
+            foreach ($order-&gt;getAllItems() as $item) {
+                $transaction-&gt;addObject($item);
+            }
+
+            // Step 6: Save all entities atomically
+            $transaction-&gt;save();
+
+            // Step 7: Dispatch after place event
+            $this-&gt;eventManager-&gt;dispatch(
+                'sales_order_place_after',
+                ['order' =&gt; $order]
+            );
+
+            // Step 8: Send order confirmation email
+            try {
+                $this-&gt;orderSender-&gt;send($order);
+            } catch (\Exception $e) {
+                $this-&gt;logger-&gt;error('Failed to send order confirmation email', [
+                    'order_id' =&gt; $order-&gt;getEntityId(),
+                    'error' =&gt; $e-&gt;getMessage()
+                ]);
+            }
+
+            // Step 9: Update order grid
+            $this-&gt;updateOrderGrid($order);
+
+            $this-&gt;logger-&gt;info('Order placed successfully', [
+                'order_id' =&gt; $order-&gt;getEntityId(),
+                'increment_id' =&gt; $order-&gt;getIncrementId(),
+                'state' =&gt; $order-&gt;getState(),
+                'status' =&gt; $order-&gt;getStatus()
+            ]);
+
+            return $order;
+
+        } catch (\Exception $e) {
+            // Rollback on any error
+            $this-&gt;logger-&gt;error('Order placement failed', [
+                'order_data' =&gt; $order-&gt;getData(),
+                'error' =&gt; $e-&gt;getMessage(),
+                'trace' =&gt; $e-&gt;getTraceAsString()
+            ]);
+
+            throw $e;
+        }
+    }
+
+    /**
+     * Update order grid table
+     *
+     * @param OrderInterface $order
+     * @return void
+     */
+    private function updateOrderGrid(OrderInterface $order): void
+    {
+        // Grid updates are handled automatically by the sales_order_save_after
+        // event via Magento\Sales\Model\ResourceModel\Grid. No separate
+        // grid-specific event exists in core Magento.
+        $this-&gt;gridAggregator-&gt;refreshByOrderId($order-&gt;getEntityId());
+    }
+}
+</code></pre>
+<h4 id="3-payment-authorization-flow">3. Payment Authorization Flow</h4>
+<pre><code class="language-php">&lt;?php
+namespace Magento\Sales\Model\Order;
+
+/**
+ * Order payment authorization
+ */
+class Payment extends \Magento\Payment\Model\Info
+{
+    /**
+     * Place payment (authorize funds)
+     *
+     * @return $this
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
+    public function place(): self
+    {
+        $this-&gt;_eventManager-&gt;dispatch(
+            'sales_order_payment_place_start',
+            ['payment' =&gt; $this]
+        );
+
+        $order = $this-&gt;getOrder();
+        $methodInstance = $this-&gt;getMethodInstance();
+
+        // Step 1: Set amount to authorize
+        $this-&gt;setAmountOrdered($order-&gt;getTotalDue());
+        $this-&gt;setBaseAmountOrdered($order-&gt;getBaseTotalDue());
+
+        // Step 2: Authorize payment
+        try {
+            $methodInstance-&gt;authorize($this, $order-&gt;getBaseTotalDue());
+
+            // Step 3: Create authorization transaction
+            if ($this-&gt;getTransactionId()) {
+                $transaction = $this-&gt;_transactionFactory-&gt;create();
+                $transaction-&gt;setOrderPaymentObject($this)
+                    -&gt;setTxnId($this-&gt;getTransactionId())
+                    -&gt;setTxnType(\Magento\Sales\Model\Order\Payment\Transaction::TYPE_AUTH)
+                    -&gt;setIsClosed(0);
+
+                $this-&gt;addTransaction($transaction);
+            }
+
+        } catch (\Exception $e) {
+            $this-&gt;logger-&gt;error('Payment authorization failed', [
+                'order_id' =&gt; $order-&gt;getEntityId(),
+                'payment_method' =&gt; $methodInstance-&gt;getCode(),
+                'error' =&gt; $e-&gt;getMessage()
+            ]);
+
+            throw new \Magento\Framework\Exception\LocalizedException(
+                __('Payment authorization failed: %1', $e-&gt;getMessage())
+            );
+        }
+
+        $this-&gt;_eventManager-&gt;dispatch(
+            'sales_order_payment_place_end',
+            ['payment' =&gt; $this]
+        );
+
+        return $this;
+    }
+}
+</code></pre>
+<h3 id="key-events-dispatched">Key Events Dispatched</h3>
+<div class="overflow-x-auto my-6 border border-gray-200"><table class="min-w-full">
+<thead>
+<tr>
+<th>Event Name</th>
+<th>When Fired</th>
+<th>Observer Use Cases</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sales_model_service_quote_submit_before</code></td>
+<td>Before quote conversion</td>
+<td>Final quote validation, modify quote data</td>
+</tr>
+<tr>
+<td><code>sales_order_place_before</code></td>
+<td>Before order save</td>
+<td>Inventory reservation, fraud checks</td>
+</tr>
+<tr>
+<td><code>sales_order_place_after</code></td>
+<td>After order saved</td>
+<td>ERP sync, warehouse notification, external APIs</td>
+</tr>
+<tr>
+<td><code>sales_model_service_quote_submit_success</code></td>
+<td>After successful order creation</td>
+<td>Analytics, affiliate tracking</td>
+</tr>
+<tr>
+<td><code>sales_order_payment_place_start</code></td>
+<td>Before payment authorization</td>
+<td>Payment validation</td>
+</tr>
+<tr>
+<td><code>sales_order_payment_place_end</code></td>
+<td>After payment authorized</td>
+<td>Payment logging, fraud detection</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="database-operations">Database Operations</h3>
+<h4 id="tables-modified-during-order-placement">Tables Modified During Order Placement</h4>
+<ol>
+<li><strong>sales_order</strong>: Order record created</li>
+<li><strong>sales_order_item</strong>: One row per order item</li>
+<li><strong>sales_order_address</strong>: Billing and shipping addresses</li>
+<li><strong>sales_order_payment</strong>: Payment information</li>
+<li><strong>sales_order_status_history</strong>: Initial status history entry</li>
+<li><strong>sales_payment_transaction</strong>: Authorization transaction</li>
+<li><strong>sales_order_grid</strong>: Grid index entry</li>
+<li><strong>quote</strong>: Quote set to inactive</li>
+<li><strong>inventory_reservation</strong> (if MSI enabled): Inventory reserved</li>
+</ol>
+<h2 id="invoice-creation-flow">Invoice Creation Flow</h2>
+<h3 id="flow-diagram">Flow Diagram</h3>
+<pre><code>[Invoice Request]
+    ↓
+[Validate Order Can Invoice]
+    ↓
+[Create Invoice Entity]
+    ↓
+[Add Invoice Items]
+    ↓
+[Collect Invoice Totals]
+    ↓
+[Register Invoice]
+    ↓
+[Event: sales_order_invoice_register]
+    ↓
+[Payment Capture]
+    ↓
+[Event: sales_order_invoice_pay]
+    ↓
+[Transaction Begin]
+    ↓
+[Save Invoice + Update Order]
+    ↓
+[Transaction Commit]
+    ↓
+[Event: sales_order_invoice_save_after]
+    ↓
+[Send Invoice Email]
+    ↓
+[Update Order State]
+</code></pre>
+<h3 id="detailed-implementation">Detailed Implementation</h3>
+<pre><code class="language-php">&lt;?php
+namespace Magento\Sales\Model\Service;
+
+use Magento\Sales\Api\InvoiceManagementInterface;
+use Magento\Sales\Api\Data\InvoiceInterface;
+
+/**
+ * Invoice creation service
+ */
+class InvoiceService
+{
+    public function __construct(
+        private \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
+        private \Magento\Sales\Model\Order\InvoiceFactory $invoiceFactory,
+        private \Magento\Sales\Api\InvoiceRepositoryInterface $invoiceRepository,
+        private \Magento\Sales\Model\Order\Email\Sender\InvoiceSender $invoiceSender,
+        private \Magento\Framework\DB\TransactionFactory $transactionFactory,
+        private \Magento\Framework\Event\ManagerInterface $eventManager,
+        private \Psr\Log\LoggerInterface $logger
+    ) {}
+
+    /**
+     * Create invoice for order
+     *
+     * @param int $orderId
+     * @param array $items Item ID =&gt; Qty to invoice
+     * @param bool $capture Capture payment online
+     * @param bool $notify Send customer notification
+     * @return InvoiceInterface
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
+    public function createInvoice(
+        int $orderId,
+        array $items = [],
+        bool $capture = true,
+        bool $notify = true
+    ): InvoiceInterface {
+        // Step 1: Load order
+        $order = $this-&gt;orderRepository-&gt;get($orderId);
+
+        // Step 2: Validate can invoice
+        if (!$order-&gt;canInvoice()) {
+            throw new \Magento\Framework\Exception\LocalizedException(
+                __('The order does not allow creating an invoice.')
+            );
+        }
+
+        // Step 3: Create invoice
+        $invoice = $this-&gt;invoiceFactory-&gt;create();
+        $invoice-&gt;setOrder($order);
+
+        // Step 4: Add items to invoice
+        if (empty($items)) {
+            // Full invoice - all remaining items
+            foreach ($order-&gt;getAllItems() as $orderItem) {
+                if ($orderItem-&gt;getQtyToInvoice() &gt; 0 &amp;&amp; !$orderItem-&gt;getIsVirtual()) {
+                    $invoiceItem = $this-&gt;invoiceItemFactory-&gt;create();
+                    $invoiceItem-&gt;setOrderItem($orderItem);
+                    $invoiceItem-&gt;setQty($orderItem-&gt;getQtyToInvoice());
+                    $invoice-&gt;addItem($invoiceItem);
+                }
+            }
+        } else {
+            // Partial invoice - specified items
+            foreach ($items as $itemId =&gt; $qty) {
+                $orderItem = $order-&gt;getItemById($itemId);
+
+                if (!$orderItem) {
+                    throw new \Magento\Framework\Exception\LocalizedException(
+                        __('Order item %1 not found.', $itemId)
+                    );
+                }
+
+                if ($qty &gt; $orderItem-&gt;getQtyToInvoice()) {
+                    throw new \Magento\Framework\Exception\LocalizedException(
+                        __('Invalid quantity to invoice for item %1.', $itemId)
+                    );
+                }
+
+                $invoiceItem = $this-&gt;invoiceItemFactory-&gt;create();
+                $invoiceItem-&gt;setOrderItem($orderItem);
+                $invoiceItem-&gt;setQty($qty);
+                $invoice-&gt;addItem($invoiceItem);
+            }
+        }
+
+        // Step 5: Set capture mode
+        if ($capture) {
+            $invoice-&gt;setRequestedCaptureCase(\Magento\Sales\Model\Order\Invoice::CAPTURE_ONLINE);
+        } else {
+            $invoice-&gt;setRequestedCaptureCase(\Magento\Sales\Model\Order\Invoice::NOT_CAPTURE);
+        }
+
+        // Step 6: Collect totals
+        $invoice-&gt;collectTotals();
+
+        // Step 7: Register invoice
+        $invoice-&gt;register();
+
+        // Step 8: Dispatch register event
+        $this-&gt;eventManager-&gt;dispatch(
+            'sales_order_invoice_register',
+            ['invoice' =&gt; $invoice, 'order' =&gt; $order]
+        );
+
+        // Step 9: Begin transaction
+        $transaction = $this-&gt;transactionFactory-&gt;create();
+        $transaction-&gt;addObject($invoice);
+        $transaction-&gt;addObject($order);
+
+        try {
+            // Step 10: Capture payment if requested
+            if ($capture) {
+                $invoice-&gt;pay();
+
+                $this-&gt;eventManager-&gt;dispatch(
+                    'sales_order_invoice_pay',
+                    ['invoice' =&gt; $invoice, 'order' =&gt; $order]
+                );
+            }
+
+            // Step 11: Save invoice and order
+            $transaction-&gt;save();
+
+            // Step 12: Dispatch after save event
+            $this-&gt;eventManager-&gt;dispatch(
+                'sales_order_invoice_save_after',
+                ['invoice' =&gt; $invoice]
+            );
+
+            // Step 13: Send notification email
+            if ($notify) {
+                try {
+                    $this-&gt;invoiceSender-&gt;send($invoice);
+                } catch (\Exception $e) {
+                    $this-&gt;logger-&gt;error('Failed to send invoice email', [
+                        'invoice_id' =&gt; $invoice-&gt;getEntityId(),
+                        'error' =&gt; $e-&gt;getMessage()
+                    ]);
+                }
+            }
+
+            // Step 14: Update order state
+            $this-&gt;updateOrderState($order);
+
+            $this-&gt;logger-&gt;info('Invoice created successfully', [
+                'invoice_id' =&gt; $invoice-&gt;getEntityId(),
+                'order_id' =&gt; $order-&gt;getEntityId(),
+                'increment_id' =&gt; $invoice-&gt;getIncrementId(),
+                'grand_total' =&gt; $invoice-&gt;getGrandTotal(),
+                'captured' =&gt; $capture
+            ]);
+
+            return $invoice;
+
+        } catch (\Exception $e) {
+            $this-&gt;logger-&gt;error('Invoice creation failed', [
+                'order_id' =&gt; $orderId,
+                'error' =&gt; $e-&gt;getMessage(),
+                'trace' =&gt; $e-&gt;getTraceAsString()
+            ]);
+
+            throw new \Magento\Framework\Exception\LocalizedException(
+                __('Could not create invoice: %1', $e-&gt;getMessage()),
+                $e
+            );
+        }
+    }
+
+    /**
+     * Update order state after invoice
+     *
+     * @param \Magento\Sales\Model\Order $order
+     * @return void
+     */
+    private function updateOrderState(\Magento\Sales\Model\Order $order): void
+    {
+        // Check if order is fully invoiced
+        $totalInvoiced = 0;
+        foreach ($order-&gt;getAllItems() as $item) {
+            $totalInvoiced += $item-&gt;getQtyInvoiced();
+        }
+
+        $totalOrdered = 0;
+        foreach ($order-&gt;getAllItems() as $item) {
+            $totalOrdered += $item-&gt;getQtyOrdered();
+        }
+
+        if ($totalInvoiced &gt;= $totalOrdered) {
+            // Order is fully invoiced
+            if ($order-&gt;canShip()) {
+                // Has items to ship - keep in processing
+                $order-&gt;setState(\Magento\Sales\Model\Order::STATE_PROCESSING);
+            } else {
+                // Nothing to ship - mark complete
+                $order-&gt;setState(\Magento\Sales\Model\Order::STATE_COMPLETE);
+                $order-&gt;setStatus($order-&gt;getConfig()-&gt;getStateDefaultStatus(
+                    \Magento\Sales\Model\Order::STATE_COMPLETE
+                ));
+            }
+        }
+
+        $this-&gt;orderRepository-&gt;save($order);
+    }
+}
+</code></pre>
+<h3 id="key-events-for-invoice">Key Events for Invoice</h3>
+<div class="overflow-x-auto my-6 border border-gray-200"><table class="min-w-full">
+<thead>
+<tr>
+<th>Event Name</th>
+<th>When Fired</th>
+<th>Use Cases</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sales_order_invoice_register</code></td>
+<td>After invoice registered, before save</td>
+<td>Modify invoice data, add custom fees</td>
+</tr>
+<tr>
+<td><code>sales_order_invoice_pay</code></td>
+<td>After payment captured</td>
+<td>Payment logging, accounting sync</td>
+</tr>
+<tr>
+<td><code>sales_order_invoice_save_after</code></td>
+<td>After invoice saved</td>
+<td>External system notification, analytics</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="shipment-creation-flow">Shipment Creation Flow</h2>
+<h3 id="flow-diagram_1">Flow Diagram</h3>
+<pre><code>[Shipment Request]
+    ↓
+[Validate Order Can Ship]
+    ↓
+[Create Shipment Entity]
+    ↓
+[Add Shipment Items]
+    ↓
+[Add Tracking Information]
+    ↓
+[Register Shipment]
+    ↓
+[Transaction Begin]
+    ↓
+[Save Shipment + Update Order]
+    ↓
+[Transaction Commit]
+    ↓
+[Event: sales_order_shipment_save_after]
+    ↓
+[Send Shipment Email]
+    ↓
+[Update Order State]
+</code></pre>
+<h3 id="implementation">Implementation</h3>
+<pre><code class="language-php">&lt;?php
+namespace Magento\Sales\Model\Service;
+
+/**
+ * Shipment creation service
+ */
+class ShipmentService
+{
+    public function __construct(
+        private \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
+        private \Magento\Sales\Model\Order\ShipmentFactory $shipmentFactory,
+        private \Magento\Sales\Model\Order\Shipment\TrackFactory $trackFactory,
+        private \Magento\Sales\Api\ShipmentRepositoryInterface $shipmentRepository,
+        private \Magento\Sales\Model\Order\Email\Sender\ShipmentSender $shipmentSender,
+        private \Magento\Framework\DB\TransactionFactory $transactionFactory,
+        private \Magento\Framework\Event\ManagerInterface $eventManager,
+        private \Psr\Log\LoggerInterface $logger
+    ) {}
+
+    /**
+     * Create shipment for order
+     *
+     * @param int $orderId
+     * @param array $items Item ID =&gt; Qty to ship
+     * @param array $tracking Tracking information
+     * @param bool $notify Send notification
+     * @return \Magento\Sales\Api\Data\ShipmentInterface
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
+    public function createShipment(
+        int $orderId,
+        array $items = [],
+        array $tracking = [],
+        bool $notify = true
+    ): \Magento\Sales\Api\Data\ShipmentInterface {
+        // Step 1: Load order
+        $order = $this-&gt;orderRepository-&gt;get($orderId);
+
+        // Step 2: Validate can ship
+        if (!$order-&gt;canShip()) {
+            throw new \Magento\Framework\Exception\LocalizedException(
+                __('The order does not allow creating a shipment.')
+            );
+        }
+
+        // Step 3: Create shipment
+        $shipment = $this-&gt;shipmentFactory-&gt;create($order, $items);
+
+        if (!$shipment-&gt;getTotalQty()) {
+            throw new \Magento\Framework\Exception\LocalizedException(
+                __('Cannot create shipment without products.')
+            );
+        }
+
+        // Step 4: Add tracking information
+        foreach ($tracking as $trackData) {
+            $track = $this-&gt;trackFactory-&gt;create();
+            $track-&gt;setNumber($trackData['number'] ?? '')
+                -&gt;setCarrierCode($trackData['carrier_code'] ?? '')
+                -&gt;setTitle($trackData['title'] ?? '');
+
+            $shipment-&gt;addTrack($track);
+        }
+
+        // Step 5: Register shipment
+        $shipment-&gt;register();
+
+        // Step 6: Begin transaction
+        // Note: Unlike invoices, shipments do not dispatch a register event in core Magento.
+        $transaction = $this-&gt;transactionFactory-&gt;create();
+        $transaction-&gt;addObject($shipment);
+        $transaction-&gt;addObject($order);
+
+        try {
+            // Step 8: Save shipment and order
+            $transaction-&gt;save();
+
+            // Step 9: Dispatch after save event
+            $this-&gt;eventManager-&gt;dispatch(
+                'sales_order_shipment_save_after',
+                ['shipment' =&gt; $shipment]
+            );
+
+            // Step 10: Send notification email
+            if ($notify) {
+                try {
+                    $this-&gt;shipmentSender-&gt;send($shipment);
+                } catch (\Exception $e) {
+                    $this-&gt;logger-&gt;error('Failed to send shipment email', [
+                        'shipment_id' =&gt; $shipment-&gt;getEntityId(),
+                        'error' =&gt; $e-&gt;getMessage()
+                    ]);
+                }
+            }
+
+            // Step 11: Update order state
+            $this-&gt;updateOrderState($order);
+
+            $this-&gt;logger-&gt;info('Shipment created successfully', [
+                'shipment_id' =&gt; $shipment-&gt;getEntityId(),
+                'order_id' =&gt; $order-&gt;getEntityId(),
+                'increment_id' =&gt; $shipment-&gt;getIncrementId(),
+                'total_qty' =&gt; $shipment-&gt;getTotalQty()
+            ]);
+
+            return $shipment;
+
+        } catch (\Exception $e) {
+            $this-&gt;logger-&gt;error('Shipment creation failed', [
+                'order_id' =&gt; $orderId,
+                'error' =&gt; $e-&gt;getMessage()
+            ]);
+
+            throw new \Magento\Framework\Exception\LocalizedException(
+                __('Could not create shipment: %1', $e-&gt;getMessage())
+            );
+        }
+    }
+
+    /**
+     * Update order state after shipment
+     *
+     * @param \Magento\Sales\Model\Order $order
+     * @return void
+     */
+    private function updateOrderState(\Magento\Sales\Model\Order $order): void
+    {
+        // Check if order is fully shipped
+        $allShipped = true;
+        foreach ($order-&gt;getAllItems() as $item) {
+            if ($item-&gt;getIsVirtual()) {
+                continue;
+            }
+
+            if ($item-&gt;getQtyToShip() &gt; 0) {
+                $allShipped = false;
+                break;
+            }
+        }
+
+        if ($allShipped) {
+            // Check if fully invoiced
+            $allInvoiced = true;
+            foreach ($order-&gt;getAllItems() as $item) {
+                if ($item-&gt;getQtyToInvoice() &gt; 0) {
+                    $allInvoiced = false;
+                    break;
+                }
+            }
+
+            if ($allInvoiced) {
+                // Fully shipped and invoiced - complete
+                $order-&gt;setState(\Magento\Sales\Model\Order::STATE_COMPLETE);
+                $order-&gt;setStatus($order-&gt;getConfig()-&gt;getStateDefaultStatus(
+                    \Magento\Sales\Model\Order::STATE_COMPLETE
+                ));
+            }
+        }
+
+        $this-&gt;orderRepository-&gt;save($order);
+    }
+}
+</code></pre>
+<h3 id="key-events-for-shipment">Key Events for Shipment</h3>
+<div class="overflow-x-auto my-6 border border-gray-200"><table class="min-w-full">
+<thead>
+<tr>
+<th>Event Name</th>
+<th>When Fired</th>
+<th>Use Cases</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sales_order_shipment_save_after</code></td>
+<td>After shipment saved</td>
+<td>Shipping label generation, carrier API, inventory updates</td>
+</tr>
+<tr>
+<td><code>sales_order_shipment_track_save_after</code></td>
+<td>After tracking saved</td>
+<td>Customer notification with tracking</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="credit-memo-refund-flow">Credit Memo (Refund) Flow</h2>
+<h3 id="flow-diagram_2">Flow Diagram</h3>
+<pre><code>[Credit Memo Request]
+    ↓
+[Validate Order Can Refund]
+    ↓
+[Create Credit Memo Entity]
+    ↓
+[Add Credit Memo Items]
+    ↓
+[Apply Adjustments]
+    ↓
+[Collect Totals]
+    ↓
+[Register Credit Memo]
+    ↓
+[Process Refund (Online/Offline)]
+    ↓
+[Return Items to Stock (optional)]
+    ↓
+[Transaction Begin]
+    ↓
+[Save Credit Memo + Update Order]
+    ↓
+[Transaction Commit]
+    ↓
+[Event: sales_order_creditmemo_save_after]
+    ↓
+[Send Credit Memo Email]
+    ↓
+[Update Order State]
+</code></pre>
+<h3 id="implementation_1">Implementation</h3>
+<pre><code class="language-php">&lt;?php
+namespace Magento\Sales\Model\Service;
+
+/**
+ * Credit memo creation service
+ */
+class CreditmemoService
+{
+    public function __construct(
+        private \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
+        private \Magento\Sales\Model\Order\CreditmemoFactory $creditmemoFactory,
+        private \Magento\Sales\Api\CreditmemoRepositoryInterface $creditmemoRepository,
+        private \Magento\Sales\Model\Order\Email\Sender\CreditmemoSender $creditmemoSender,
+        private \Magento\Framework\DB\TransactionFactory $transactionFactory,
+        private \Magento\Framework\Event\ManagerInterface $eventManager,
+        private \Magento\CatalogInventory\Api\StockManagementInterface $stockManagement,
+        private \Psr\Log\LoggerInterface $logger
+    ) {}
+
+    /**
+     * Create credit memo for order
+     *
+     * @param int $orderId
+     * @param array $items Item ID =&gt; Qty to refund
+     * @param float $adjustmentPositive Adjustment refund
+     * @param float $adjustmentNegative Adjustment fee
+     * @param float $shippingAmount Shipping refund amount
+     * @param bool $returnToStock Return items to stock
+     * @param bool $refundOnline Process refund through payment gateway
+     * @param bool $notify Send notification
+     * @return \Magento\Sales\Api\Data\CreditmemoInterface
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
+    public function createCreditmemo(
+        int $orderId,
+        array $items = [],
+        float $adjustmentPositive = 0.0,
+        float $adjustmentNegative = 0.0,
+        float $shippingAmount = 0.0,
+        bool $returnToStock = false,
+        bool $refundOnline = true,
+        bool $notify = true
+    ): \Magento\Sales\Api\Data\CreditmemoInterface {
+        // Step 1: Load order
+        $order = $this-&gt;orderRepository-&gt;get($orderId);
+
+        // Step 2: Validate can refund
+        if (!$order-&gt;canCreditmemo()) {
+            throw new \Magento\Framework\Exception\LocalizedException(
+                __('The order does not allow creating a credit memo.')
+            );
+        }
+
+        // Step 3: Create credit memo
+        $creditmemo = $this-&gt;creditmemoFactory-&gt;createByOrder($order, [
+            'items' =&gt; $items,
+            'adjustment_positive' =&gt; $adjustmentPositive,
+            'adjustment_negative' =&gt; $adjustmentNegative,
+            'shipping_amount' =&gt; $shippingAmount
+        ]);
+
+        // Step 4: Set return to stock flag
+        if ($returnToStock) {
+            foreach ($creditmemo-&gt;getAllItems() as $item) {
+                $item-&gt;setBackToStock(true);
+            }
+        }
+
+        // Step 5: Collect totals
+        $creditmemo-&gt;collectTotals();
+
+        // Step 6: Register credit memo
+        $creditmemo-&gt;register();
+
+        // Step 7: Begin transaction
+        // Note: The core event is adminhtml_sales_order_creditmemo_register_before
+        // (admin area only). There is no generic sales_order_creditmemo_register event.
+        $transaction = $this-&gt;transactionFactory-&gt;create();
+        $transaction-&gt;addObject($creditmemo);
+        $transaction-&gt;addObject($order);
+
+        try {
+            // Step 9: Process refund
+            if ($refundOnline &amp;&amp; $creditmemo-&gt;getInvoice()) {
+                $creditmemo-&gt;setState(\Magento\Sales\Model\Order\Creditmemo::STATE_REFUNDED);
+                $order-&gt;getPayment()-&gt;refund($creditmemo);
+
+                $this-&gt;eventManager-&gt;dispatch(
+                    'sales_order_creditmemo_refund',
+                    ['creditmemo' =&gt; $creditmemo, 'order' =&gt; $order]
+                );
+            }
+
+            // Step 10: Return items to stock
+            if ($returnToStock) {
+                foreach ($creditmemo-&gt;getAllItems() as $item) {
+                    $this-&gt;stockManagement-&gt;backItemQty(
+                        $item-&gt;getProductId(),
+                        $item-&gt;getQty(),
+                        $order-&gt;getStore()-&gt;getWebsiteId()
+                    );
+                }
+            }
+
+            // Step 11: Save credit memo and order
+            $transaction-&gt;save();
+
+            // Step 12: Dispatch after save event
+            $this-&gt;eventManager-&gt;dispatch(
+                'sales_order_creditmemo_save_after',
+                ['creditmemo' =&gt; $creditmemo]
+            );
+
+            // Step 13: Send notification email
+            if ($notify) {
+                try {
+                    $this-&gt;creditmemoSender-&gt;send($creditmemo);
+                } catch (\Exception $e) {
+                    $this-&gt;logger-&gt;error('Failed to send credit memo email', [
+                        'creditmemo_id' =&gt; $creditmemo-&gt;getEntityId(),
+                        'error' =&gt; $e-&gt;getMessage()
+                    ]);
+                }
+            }
+
+            // Step 14: Update order state
+            $this-&gt;updateOrderState($order);
+
+            $this-&gt;logger-&gt;info('Credit memo created successfully', [
+                'creditmemo_id' =&gt; $creditmemo-&gt;getEntityId(),
+                'order_id' =&gt; $order-&gt;getEntityId(),
+                'increment_id' =&gt; $creditmemo-&gt;getIncrementId(),
+                'grand_total' =&gt; $creditmemo-&gt;getGrandTotal(),
+                'refunded_online' =&gt; $refundOnline
+            ]);
+
+            return $creditmemo;
+
+        } catch (\Exception $e) {
+            $this-&gt;logger-&gt;error('Credit memo creation failed', [
+                'order_id' =&gt; $orderId,
+                'error' =&gt; $e-&gt;getMessage()
+            ]);
+
+            throw new \Magento\Framework\Exception\LocalizedException(
+                __('Could not create credit memo: %1', $e-&gt;getMessage())
+            );
+        }
+    }
+
+    /**
+     * Update order state after credit memo
+     *
+     * @param \Magento\Sales\Model\Order $order
+     * @return void
+     */
+    private function updateOrderState(\Magento\Sales\Model\Order $order): void
+    {
+        // Check if order is fully refunded
+        $precision = 0.0001;
+        $fullyRefunded = abs(
+            $order-&gt;getTotalInvoiced() - $order-&gt;getTotalRefunded()
+        ) &lt; $precision;
+
+        if ($fullyRefunded) {
+            $order-&gt;setState(\Magento\Sales\Model\Order::STATE_CLOSED);
+            $order-&gt;setStatus($order-&gt;getConfig()-&gt;getStateDefaultStatus(
+                \Magento\Sales\Model\Order::STATE_CLOSED
+            ));
+        }
+
+        $this-&gt;orderRepository-&gt;save($order);
+    }
+}
+</code></pre>
+<h3 id="key-events-for-credit-memo">Key Events for Credit Memo</h3>
+<div class="overflow-x-auto my-6 border border-gray-200"><table class="min-w-full">
+<thead>
+<tr>
+<th>Event Name</th>
+<th>When Fired</th>
+<th>Use Cases</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>adminhtml_sales_order_creditmemo_register_before</code></td>
+<td>Before credit memo registered (admin only)</td>
+<td>Modify refund data</td>
+</tr>
+<tr>
+<td><code>sales_order_creditmemo_refund</code></td>
+<td>After online refund processed</td>
+<td>Payment logging</td>
+</tr>
+<tr>
+<td><code>sales_order_creditmemo_save_after</code></td>
+<td>After credit memo saved</td>
+<td>Accounting sync, inventory updates</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="order-cancellation-flow">Order Cancellation Flow</h2>
+<h3 id="implementation_2">Implementation</h3>
+<pre><code class="language-php">&lt;?php
+namespace Magento\Sales\Model\Service;
+
+/**
+ * Order cancellation service
+ */
+class OrderCancellationService
+{
+    public function __construct(
+        private \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
+        private \Magento\Sales\Api\OrderManagementInterface $orderManagement,
+        private \Magento\Framework\Event\ManagerInterface $eventManager,
+        private \Magento\CatalogInventory\Api\StockManagementInterface $stockManagement,
+        private \Psr\Log\LoggerInterface $logger
+    ) {}
+
+    /**
+     * Cancel order
+     *
+     * @param int $orderId
+     * @param string $reason Cancellation reason
+     * @return bool
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
+    public function cancel(int $orderId, string $reason = ''): bool
+    {
+        // Step 1: Load order
+        $order = $this-&gt;orderRepository-&gt;get($orderId);
+
+        // Step 2: Validate can cancel
+        if (!$order-&gt;canCancel()) {
+            throw new \Magento\Framework\Exception\LocalizedException(
+                __('The order cannot be canceled.')
+            );
+        }
+
+        // Step 3: Validate cancellation prerequisites
+        // Note: Magento core does not dispatch a before-cancel event.
+        // The order_cancel_after event fires after cancellation completes.
+
+        try {
+            // Step 4: Cancel payment
+            $order-&gt;getPayment()-&gt;cancel();
+
+            // Step 5: Cancel all items
+            foreach ($order-&gt;getAllItems() as $item) {
+                $item-&gt;cancel();
+            }
+
+            // Step 6: Return inventory
+            foreach ($order-&gt;getAllItems() as $item) {
+                if (!$item-&gt;getIsVirtual()) {
+                    $this-&gt;stockManagement-&gt;backItemQty(
+                        $item-&gt;getProductId(),
+                        $item-&gt;getQtyOrdered() - $item-&gt;getQtyRefunded() - $item-&gt;getQtyCanceled(),
+                        $order-&gt;getStore()-&gt;getWebsiteId()
+                    );
+                }
+            }
+
+            // Step 7: Update order state
+            $order-&gt;setState(\Magento\Sales\Model\Order::STATE_CANCELED);
+            $order-&gt;setStatus($order-&gt;getConfig()-&gt;getStateDefaultStatus(
+                \Magento\Sales\Model\Order::STATE_CANCELED
+            ));
+
+            // Step 8: Add status history
+            if ($reason) {
+                $order-&gt;addStatusHistoryComment($reason, false);
+            }
+
+            // Step 9: Save order
+            $this-&gt;orderRepository-&gt;save($order);
+
+            // Step 10: Dispatch after cancel event
+            $this-&gt;eventManager-&gt;dispatch(
+                'order_cancel_after',
+                ['order' =&gt; $order]
+            );
+
+            $this-&gt;logger-&gt;info('Order canceled successfully', [
+                'order_id' =&gt; $order-&gt;getEntityId(),
+                'increment_id' =&gt; $order-&gt;getIncrementId(),
+                'reason' =&gt; $reason
+            ]);
+
+            return true;
+
+        } catch (\Exception $e) {
+            $this-&gt;logger-&gt;error('Order cancellation failed', [
+                'order_id' =&gt; $orderId,
+                'error' =&gt; $e-&gt;getMessage()
+            ]);
+
+            throw new \Magento\Framework\Exception\LocalizedException(
+                __('Could not cancel order: %1', $e-&gt;getMessage())
+            );
+        }
+    }
+}
+</code></pre>
+<h2 id="performance-optimization-patterns">Performance Optimization Patterns</h2>
+<h3 id="eager-loading-collections">Eager Loading Collections</h3>
+<pre><code class="language-php">&lt;?php
+// Bad: N+1 query problem
+foreach ($orders as $order) {
+    $items = $order-&gt;getAllItems(); // Separate query per order
+    $payment = $order-&gt;getPayment(); // Separate query per order
+}
+
+// Good: Eager load with joins
+$orderCollection = $this-&gt;orderCollectionFactory-&gt;create();
+$orderCollection-&gt;addFieldToFilter('customer_id', $customerId)
+    -&gt;setOrder('created_at', 'DESC')
+    -&gt;setPageSize(20);
+
+// Join related data
+$orderCollection-&gt;getSelect()
+    -&gt;joinLeft(
+        ['payment' =&gt; 'sales_order_payment'],
+        'main_table.entity_id = payment.parent_id',
+        ['method', 'last_trans_id']
+    )
+    -&gt;joinLeft(
+        ['item' =&gt; 'sales_order_item'],
+        'main_table.entity_id = item.order_id',
+        []
+    );
+
+foreach ($orderCollection as $order) {
+    // Data already loaded, no additional queries
+}
+</code></pre>
+<h3 id="batch-processing">Batch Processing</h3>
+<pre><code class="language-php">&lt;?php
+// Process multiple orders efficiently
+public function processOrders(array $orderIds): void
+{
+    $connection = $this-&gt;resourceConnection-&gt;getConnection();
+
+    // Batch update
+    $connection-&gt;update(
+        $this-&gt;resourceConnection-&gt;getTableName('sales_order'),
+        ['status' =&gt; 'processed', 'updated_at' =&gt; new \Zend_Db_Expr('NOW()')],
+        ['entity_id IN (?)' =&gt; $orderIds]
+    );
+
+    // Dispatch custom event for batch (not a core Magento event;
+    // define in your module's events.xml if needed)
+    $this-&gt;eventManager-&gt;dispatch(
+        'custom_sales_order_batch_processed',
+        ['order_ids' =&gt; $orderIds]
+    );
+}
+</code></pre>
+<hr />
+<p><strong>Assumptions:</strong>
+- Adobe Commerce 2.4.7+ with PHP 8.2+
+- All examples use service contracts for upgrade safety
+- Events follow Magento naming conventions
+- Transaction handling ensures data integrity</p>
+<p><strong>Why This Approach:</strong>
+- Complete visibility into execution flow for debugging
+- Event-driven architecture enables extension without core modification
+- Transaction boundaries prevent partial saves
+- State validation prevents invalid operations</p>
+<p><strong>Security Impact:</strong>
+- All operations require proper authorization (ACL for admin, customer authentication for frontend)
+- Payment operations use secure gateway communication
+- Sensitive data logged only in debug mode with masking</p>
+<p><strong>Performance Impact:</strong>
+- Each flow optimized for minimal database queries
+- Grid updates can be async to avoid blocking
+- Batch operations for multiple entities reduce overhead
+- Collection queries use proper indexes</p>
+<p><strong>Backward Compatibility:</strong>
+- Service contract interfaces stable across minor versions
+- Event names and payloads maintained
+- Plugin interception points preserved
+- Database transactions ensure rollback on errors</p>
+<p><strong>Tests to Add:</strong>
+- Integration tests for complete flows (quote to order, order to invoice)
+- Unit tests for state validation logic
+- Functional tests for multi-step processes
+- Performance tests for batch operations</p>
+<p><strong>Docs to Update:</strong>
+- ARCHITECTURE.md: Reference these flows
+- PLUGINS_AND_OBSERVERS.md: Document all events
+- PERFORMANCE.md: Include optimization patterns</p>
+                    </div>
+                </article>
+            </main>
+            <!-- Right Sidebar: On This Page (desktop) -->
+            <aside class="toc-sidebar hidden xl:block" aria-label="On this page">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-semibold text-gray-900 uppercase tracking-wider mb-4 mt-0">On this page</h3>
+                    <nav id="toc-nav" class="space-y-0" aria-label="Table of contents"></nav>
+                    <div class="toc-back-to-top">
+                        <a href="#">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+                            </svg>
+                            Back to top
+                        </a>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- ================================================================
+         FOOTER — matches module-catalog.html multi-column layout exactly
+         ================================================================ -->
+    <footer class="relative pt-12 bg-white border-t border-charcoal mt-16">
+        <div class="max-w-screen-2xl mx-auto w-full px-4 sm:px-6 lg:px-8">
+            <div>
+                <a href="index.html" class="inline-flex items-center no-underline">
+                    <svg width="30" height="33" viewBox="0 0 30 33" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Magento Association logo" role="img">
+                        <path d="M0 4.06492H29.6763V31.8882C29.6763 32.502 29.1713 33 28.5487 33H1.12762C0.505079 33 0 32.502 0 31.8882V4.06492Z" fill="#34323A"/>
+                        <path d="M1.26857 0H28.4078C29.1066 0 29.6763 0.561678 29.6763 1.25075V4.06492H0V1.25075C0 0.561678 0.569682 0 1.26857 0Z" fill="#C9C9C9"/>
+                        <path d="M2.37269 3.0458C2.94031 3.0458 3.40046 2.59211 3.40046 2.03246C3.40046 1.47281 2.94031 1.01913 2.37269 1.01913C1.80506 1.01913 1.34491 1.47281 1.34491 2.03246C1.34491 2.59211 1.80506 3.0458 2.37269 3.0458Z" fill="#848484"/>
+                        <path d="M5.28571 3.0458C5.85334 3.0458 6.31349 2.59211 6.31349 2.03246C6.31349 1.47281 5.85334 1.01913 5.28571 1.01913C4.71809 1.01913 4.25793 1.47281 4.25793 2.03246C4.25793 2.59211 4.71809 3.0458 5.28571 3.0458Z" fill="#848484"/>
+                        <path d="M14.7883 7.46973L4.90405 13.0923V24.349L7.54104 25.8487V14.5978L14.7883 10.4692L22.0415 14.5978V25.8487L24.6785 24.349V13.0923L14.7883 7.46973Z" fill="#F1BC1B"/>
+                        <path d="M16.0862 26.2367L14.7883 26.9779L13.4492 26.2135V14.233L10.178 16.0975V27.3485L13.4492 29.213L14.7883 29.9773L16.0862 29.2362L19.4045 27.3485V16.0975L16.0862 14.2098V26.2367Z" fill="#F1BC1B"/>
+                    </svg>
+                    <span class="ml-3 text-xl font-bold text-charcoal">Developer Documentation</span>
+                </a>
+            </div>
+
+            <div class="grid grid-cols-12 md:gap-x-8 gap-y-12 lg:mt-12">
+                <div class="col-span-12 lg:col-span-4">
+                    <p class="hidden lg:block text-xs text-charcoal sm:text-sm">Comprehensive developer documentation for Magento 2.4.7+ — tutorials, architecture deep dives, module references, and production-ready patterns built by the community, for the community.</p>
+                    <ul class="mt-6 hidden lg:flex items-center gap-3">
+                        <li class="pl-0">
+                            <a href="https://github.com/magento/magento2" class="p-2 md:p-0" aria-label="GitHub">
+                                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                                </svg>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Guides</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="tutorials.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Tutorials</a></li>
+                            <li class="pl-0"><a href="how-to-guides.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">How-To Guides</a></li>
+                            <li class="pl-0"><a href="architecture.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Architecture</a></li>
+                            <li class="pl-0"><a href="learning-paths.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Learning Paths</a></li>
+                            <li class="pl-0"><a href="references.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">References</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Modules</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="module-catalog.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Catalog</a></li>
+                            <li class="pl-0"><a href="module-checkout.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Checkout</a></li>
+                            <li class="pl-0"><a href="module-sales.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Sales</a></li>
+                            <li class="pl-0"><a href="module-customer.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Customer</a></li>
+                            <li class="pl-0"><a href="module-quote.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Quote</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Community</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Magento Community</a></li>
+                            <li class="pl-0"><a href="https://magento.stackexchange.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Stack Exchange</a></li>
+                            <li class="pl-0"><a href="https://marketplace.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Marketplace</a></li>
+                            <li class="pl-0"><a href="https://github.com/magento/magento2" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">GitHub</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Support</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://github.com/magento/magento2/issues" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Report Issues</a></li>
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Community Resources</a></li>
+                            <li class="pl-0"><a href="https://developer.adobe.com/commerce/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Adobe Commerce Docs</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-12 border-t pt-6 pb-16 border-charcoal">
+                <p class="text-xs text-charcoal">
+                    &copy; 2026 Magento 2 Developer Documentation. Magento&reg; is a registered trademark of Adobe Inc.
+                </p>
+                <p class="mt-6 text-xs text-charcoal">
+                    This documentation provides guidance for Magento 2 developers and extension builders. For merchant documentation, visit the <a href="index.html" class="text-orange hover:text-orange-600 transition-colors">merchant documentation</a>.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Initialize highlight.js -->
+    <script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('pre code').forEach(function (el) {
+        hljs.highlightElement(el);
+    });
+    document.querySelectorAll('pre').forEach(function (pre) {
+        if (pre.parentNode.classList && pre.parentNode.classList.contains('code-wrapper')) return;
+        var wrapper = document.createElement('div');
+        wrapper.className = 'code-wrapper';
+        pre.parentNode.insertBefore(wrapper, pre);
+        wrapper.appendChild(pre);
+        var btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.setAttribute('type', 'button');
+        btn.setAttribute('aria-label', 'Copy code to clipboard');
+        btn.setAttribute('title', 'Copy');
+        btn.textContent = 'Copy';
+        wrapper.appendChild(btn);
+        btn.addEventListener('click', function () {
+            var code = pre.querySelector('code');
+            var text = code ? (code.innerText || code.textContent) : (pre.innerText || pre.textContent);
+            navigator.clipboard.writeText(text).then(function () {
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            }).catch(function () {
+                var range = document.createRange();
+                range.selectNode(code || pre);
+                window.getSelection().removeAllRanges();
+                window.getSelection().addRange(range);
+                document.execCommand('copy');
+                window.getSelection().removeAllRanges();
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            });
+        });
+    });
+});
+</script>
+
+
+<script>
+(function() {
+    var nav = document.getElementById('toc-nav');
+    if (!nav) return;
+    var article = document.getElementById('main-content');
+    if (!article) return;
+    var headings = article.querySelectorAll('h2[id], h3[id]');
+    if (headings.length < 3) {
+        // Hide the entire TOC sidebar if fewer than 3 headings
+        var sidebar = nav.closest('.toc-sidebar');
+        if (sidebar) sidebar.style.display = 'none';
+        return;
+    }
+    var ids = [];
+    headings.forEach(function(h) {
+        var a = document.createElement('a');
+        a.href = '#' + h.id;
+        a.textContent = h.textContent.replace(/^#+\s*/, '').replace(/\s+/g, ' ').trim();
+        if (h.tagName === 'H3') a.classList.add('toc-h3');
+        nav.appendChild(a);
+        ids.push(h.id);
+    });
+    // Scroll-spy with IntersectionObserver
+    var links = nav.querySelectorAll('a');
+    var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                links.forEach(function(l) { l.classList.remove('toc-active'); });
+                var active = nav.querySelector('a[href="#' + entry.target.id + '"]');
+                if (active) active.classList.add('toc-active');
+            }
+        });
+    }, { rootMargin: '-80px 0px -70% 0px', threshold: 0 });
+    headings.forEach(function(h) { observer.observe(h); });
+})();
+</script>
+</body>
+</html>

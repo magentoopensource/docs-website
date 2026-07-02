@@ -1,0 +1,2376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom Payment Method Development: Building Secure Payment Integrations — Magento 2 Developer Documentation</title>
+    <meta name="description" content="Complete guide to developing custom payment methods in Magento 2: gateway architecture, payment adapter implementation, vault integration, refunds, void operations, testing strategies, and PCI compliance">
+
+    <!-- Google Fonts: Inter Tight only. Courier New used for code. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Highlight.js: syntax highlighting for code blocks -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/php.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/ini.min.js"></script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        charcoal: {
+                            DEFAULT: '#2c2c2c', 50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6',
+                            300: '#6B6B6B', 400: '#474747', 500: '#2c2c2c', 600: '#262626',
+                            700: '#202020', 800: '#1c1c1c', 900: '#191919', 950: '#121212'
+                        },
+                        orange: {
+                            DEFAULT: '#D4551A', 50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad',
+                            300: '#f9ae78', 400: '#f58242', 500: '#f26423', 600: '#e34613',
+                            700: '#bc3312', 800: '#962a16', 900: '#792515', 950: '#411009'
+                        },
+                        yellow: {
+                            DEFAULT: '#B8860B', 50: '#fffdeb', 100: '#fdf9c8', 200: '#fbf38c',
+                            300: '#f8e651', 400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a',
+                            700: '#b1670c', 800: '#8f5111', 900: '#764311', 950: '#442204'
+                        },
+                        'off-white': '#FAFAFA',
+                    },
+                    fontFamily: {
+                        sans: ['Inter Tight', 'system-ui', '-apple-system', 'sans-serif'],
+                        mono: ['Courier New', 'Courier', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* ── Force light mode ── */
+        :root { color-scheme: light only; }
+
+        [x-cloak] { display: none !important; }
+
+        /* ── Scroll offset for sticky header ── */
+        .prose h2, .prose h3 { scroll-margin-top: 5rem; }
+
+        /* ── Code blocks: Bauhaus charcoal bg, no border-radius, highlight.js override ── */
+        .prose pre {
+            background-color: #2C2C2C !important;
+            border-radius: 0 !important;
+            padding: 1.25rem;
+            overflow-x: auto;
+            font-size: 0.875rem;
+            line-height: 1.7;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 1.5rem 0;
+        }
+        .prose pre code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            background: transparent !important;
+            padding: 0;
+                    color: #abb2bf;
+        }
+        /* Override highlight.js theme background to match Bauhaus charcoal */
+        .hljs {
+            background: #2C2C2C !important;
+            color: #abb2bf !important;
+            border-radius: 0 !important;
+        }
+
+        /* ── Inline code: charcoal bg, yellow text, no border-radius ── */
+        .prose code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.85em;
+        }
+        .prose :not(pre) > code {
+            background-color: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2em 0.45em;
+            border-radius: 0;
+        }
+
+        /* ── Step-code: same charcoal/yellow style for UI path chips ── */
+        .step-code {
+            background: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2rem 0.5rem;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            border-radius: 0;
+        }
+
+        /* ── Tables: no border-radius, charcoal header ── */
+        .prose table { width: 100%; border-collapse: collapse; }
+        .prose th {
+            background-color: #2C2C2C;
+            color: #ffffff;
+            font-weight: 600;
+            text-align: left;
+            padding: 0.75rem 1rem;
+            border-bottom: 2px solid #2C2C2C;
+            border-radius: 0;
+        }
+        .prose td { padding: 0.75rem 1rem; border-bottom: 1px solid #e5e5e5; }
+        .prose tr:hover { background-color: #fafafa; }
+
+        /* ── Blockquote: Bauhaus style — border-4 yellow, square, no left-only border ── */
+        .prose blockquote {
+            border: 4px solid #F1BC1B;
+            background-color: #ffffff;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+            border-radius: 0;
+        }
+        .prose blockquote p { margin: 0; }
+
+        /* ── Lists: hexagon bullets ── */
+        .prose ul { list-style: none; padding-left: 0; }
+        .prose ul li {
+            position: relative;
+            padding-left: 1.75rem;
+            margin-bottom: 0.4rem;
+            line-height: 1.7;
+        }
+        .prose ul li::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0.45em;
+            width: 10px;
+            height: 10px;
+            background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 2L21 7V17L12 22L3 17V7L12 2Z' stroke='%23F26423' stroke-width='2.5' stroke-linejoin='miter'/%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+        .prose ol { list-style-type: decimal; padding-left: 1.5rem; }
+        .prose li { margin-bottom: 0.4rem; }
+
+        /* ── Headings ── */
+        .prose h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            padding-top: 1.5rem;
+            border-top: 4px solid #F1BC1B;
+            color: #2C2C2C;
+        }
+        .prose h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+            color: #2C2C2C;
+        }
+        .prose h4 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #2C2C2C;
+        }
+        .prose p { margin-bottom: 1rem; line-height: 1.75; }
+        .prose a { color: #D4551A; text-decoration: none; }
+        .prose a:hover { color: #e34613; text-decoration: underline; }
+        .prose hr { border: none; border-top: 1px solid #e5e5e5; margin: 2rem 0; }
+
+        /* ── Callout boxes: Bauhaus — border-4 yellow, white bg, icon + title ── */
+        .callout-box {
+            background-color: #ffffff;
+            border: 4px solid #F1BC1B;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+        }
+        .callout-warning {
+            border-color: #D4551A;
+        }
+        .callout-important {
+            border-color: #2C2C2C;
+        }
+        .callout-box .callout-inner {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+        .callout-box .callout-title {
+            font-weight: 600;
+            color: #2C2C2C;
+            margin-bottom: 0.25rem;
+        }
+        .callout-box .callout-body {
+            font-size: 0.875rem;
+            line-height: 1.6;
+            color: rgba(44,44,44,0.85);
+        }
+
+        
+    
+        /* Code block copy button */
+        .code-wrapper {
+            position: relative;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            font-family: 'Inter Tight', system-ui, sans-serif;
+            background: rgba(255,255,255,0.1);
+            color: #abb2bf;
+            border: 1px solid rgba(255,255,255,0.15);
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.15s ease, background 0.15s ease;
+            z-index: 10;
+            line-height: 1.4;
+            border-radius: 4px;
+            user-select: none;
+        }
+        .code-wrapper:hover .copy-btn {
+            opacity: 1;
+        }
+        .copy-btn:hover,
+        .copy-btn:focus {
+            background: rgba(255,255,255,0.2);
+            color: #ffffff;
+            outline: 2px solid #D4551A;
+            outline-offset: 1px;
+        }
+        .copy-btn.copied {
+            color: #98c379;
+            background: rgba(152, 195, 121, 0.15);
+            opacity: 1;
+        }
+    
+        /* Right-hand TOC sidebar */
+        .toc-sidebar {
+            width: 14rem;
+            flex-shrink: 0;
+        }
+        .toc-sidebar a {
+            display: block;
+            padding: 0.375rem 0;
+            font-size: 0.8125rem;
+            line-height: 1.4;
+            color: #6b7280;
+            text-decoration: none;
+            transition: color 0.15s ease;
+            border-left: 2px solid transparent;
+            padding-left: 0.75rem;
+        }
+        .toc-sidebar a:hover {
+            color: #111827;
+        }
+        .toc-sidebar a.toc-active {
+            color: #ea580c;
+            border-left-color: #ea580c;
+            font-weight: 500;
+        }
+        .toc-sidebar a.toc-h3 {
+            padding-left: 1.5rem;
+            font-size: 0.75rem;
+        }
+        .toc-sidebar .toc-back-to-top {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e5e7eb;
+        }
+        .toc-sidebar .toc-back-to-top a {
+            border-left: none;
+            padding-left: 0;
+            font-weight: 500;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .toc-sidebar .toc-back-to-top a:hover {
+            color: #ea580c;
+        }
+    </style>
+</head>
+
+<body class="font-sans bg-off-white text-charcoal">
+
+    <!-- Shared header — single source of truth -->
+    <script src="includes/header.js"></script>
+
+    <!-- Breadcrumb — orange › separators -->
+    <div class="bg-white border-b border-gray-100">
+        <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <div class="flex items-center gap-2 text-sm flex-wrap">
+                <a href="index.html" class="text-orange hover:text-orange-600 transition-colors no-underline">Home</a> <span class="text-orange font-medium">›</span> <a href="index.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">Guides</a> <span class="text-orange font-medium">›</span> <a href="tutorials.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">Tutorials</a> <span class="text-orange font-medium">›</span> <span class="text-charcoal font-medium">Custom Payment Method Development: Building Secure Payment Integrations</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="flex gap-8">
+
+            <!-- Left Sidebar (desktop) -->
+            <aside class="hidden lg:block w-64 flex-shrink-0">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4">Tutorials</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="guide-tutorial-custom-payment-method.html" class="block px-3 py-2 text-sm text-orange font-semibold bg-orange-50 border-l-4 border-orange pl-2 transition-colors no-underline">Custom Payment Method Developmen...</a></li>
+<li class="pl-0"><a href="guide-tutorial-custom-shipping-method.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Custom Shipping Method Developme...</a></li>
+<li class="pl-0"><a href="guide-tutorial-declarative-schema-data-patches.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Declarative Schema & Data Patche...</a></li>
+<li class="pl-0"><a href="guide-tutorial-docker-development-environment.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Docker Development Environment S...</a></li>
+<li class="pl-0"><a href="guide-tutorial-plugin-system-deep-dive.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Plugin System Deep Dive: Masteri...</a></li>
+<li class="pl-0"><a href="guide-tutorial-product-types.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Product Types Development</a></li>
+</ul>
+<h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4 mt-8">Guide Sections</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="tutorials.html" class="block px-3 py-2 text-sm text-orange font-semibold bg-orange-50 border-l-4 border-orange pl-2 transition-colors no-underline">Tutorials</a></li>
+<li class="pl-0"><a href="how-to-guides.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">How-To Guides</a></li>
+<li class="pl-0"><a href="architecture.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Architecture</a></li>
+<li class="pl-0"><a href="references.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">References</a></li>
+</ul>
+                </div>
+            </aside>
+
+            <!-- Article — square corners, border-t-4 orange accent -->
+            <main id="main-content" class="flex-1 min-w-0">
+                <article class="bg-white shadow-sm border border-gray-100 border-t-4 border-t-orange p-8 md:p-12">
+                    <!-- Title block -->
+                    <div class="mb-8">
+                        <span class="inline-block px-3 py-1.5 text-xs font-medium bg-orange-50 text-orange-700 border border-orange-200">Tutorial</span>
+                        <h1 class="text-3xl md:text-4xl font-extrabold text-charcoal mt-3 mb-3">Custom Payment Method Development: Building Secure Payment Integrations</h1>
+                        <p class="text-charcoal-300 text-lg mb-4">Complete guide to developing custom payment methods in Magento 2: gateway architecture, payment adapter implementation, vault integration, refunds, void operations, testing strategies, and PCI compliance</p>
+                        <!-- Meta pills -->
+                        <div class="flex flex-wrap gap-2"><span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-yellow-50 text-yellow-800"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>Advanced</span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-orange-50 text-orange-700"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>90 minutes</span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-charcoal text-white">Magento 2.4.7+</span></div>
+                    </div>
+
+                    <hr class="border-0 border-t border-gray-100 mb-8">
+
+                    <!-- Content -->
+                    <div class="prose max-w-none">
+                        <h1 id="custom-payment-method-development-building-secure-payment-integrations">Custom Payment Method Development: Building Secure Payment Integrations</h1>
+<h2 id="learning-objectives">Learning Objectives</h2>
+<p>By completing this tutorial, you will:</p>
+<ul>
+<li>Understand Magento 2's payment gateway architecture and payment facade pattern</li>
+<li>Implement a complete custom payment method with gateway commands</li>
+<li>Build payment adapters for third-party payment processors</li>
+<li>Integrate vault (tokenization) for stored payment methods</li>
+<li>Implement refund, void, and capture operations correctly</li>
+<li>Handle payment authorization and settlement flows</li>
+<li>Implement proper error handling and transaction logging</li>
+<li>Follow PCI compliance requirements for payment data handling</li>
+<li>Write comprehensive tests for payment methods</li>
+<li>Deploy payment methods securely to production</li>
+</ul>
+<h2 id="introduction">Introduction</h2>
+<p>Payment method development in Magento 2 requires careful attention to security, compliance, and reliability. Unlike other extensions, payment methods handle sensitive financial data and must be implemented with rigorous standards.</p>
+<h3 id="payment-gateway-architecture">Payment Gateway Architecture</h3>
+<p>Magento 2 uses a <strong>gateway-based architecture</strong> that separates payment operations into discrete, testable command classes:</p>
+<ul>
+<li><strong>Gateway Commands</strong>: Authorization, capture, sale, refund, void, cancel</li>
+<li><strong>Request Builders</strong>: Construct API requests from order/payment data</li>
+<li><strong>Handlers</strong>: Process gateway responses and update payment/order state</li>
+<li><strong>Validators</strong>: Validate responses and ensure data integrity</li>
+<li><strong>Adapters</strong>: Abstract third-party gateway client libraries</li>
+</ul>
+<p>This architecture provides:
+- <strong>Separation of concerns</strong>: Each operation is isolated
+- <strong>Testability</strong>: Commands can be unit tested independently
+- <strong>Reusability</strong>: Request builders and handlers are shared across commands
+- <strong>Flexibility</strong>: Easy to add new operations or modify existing ones</p>
+<h3 id="payment-method-vs-payment-gateway">Payment Method vs Payment Gateway</h3>
+<p><strong>Payment Method</strong>: The customer-facing payment option (e.g., "Credit Card", "PayPal Express")
+<strong>Payment Gateway</strong>: The backend service that processes transactions (e.g., Stripe API, Braintree SDK)</p>
+<p>One gateway can support multiple payment methods (e.g., Braintree supports cards, PayPal, Venmo).</p>
+<h3 id="pci-compliance-overview">PCI Compliance Overview</h3>
+<p><strong>PCI DSS</strong> (Payment Card Industry Data Security Standard) governs how cardholder data is stored, transmitted, and processed.</p>
+<p><strong>Key principles for Magento developers:</strong>
+- <strong>Never store</strong> CVV/CVC codes (prohibited by PCI)
+- <strong>Never store</strong> full card numbers (use tokenization)
+- <strong>Use HTTPS</strong> for all payment communication
+- <strong>Validate input</strong> to prevent injection attacks
+- <strong>Log sanitized data</strong> only (mask card numbers, omit CVV)
+- <strong>Use gateway-hosted forms</strong> or tokenization to minimize PCI scope</p>
+<p><strong>SAQ A-EP</strong> (Self-Assessment Questionnaire) is the most common level for Magento merchants using payment gateways that host the payment form or tokenize cards before submission.</p>
+<h2 id="payment-method-structure">Payment Method Structure</h2>
+<h3 id="module-structure">Module Structure</h3>
+<p>A complete payment method module includes:</p>
+<pre><code>Vendor/PaymentGateway/
+├── registration.php
+├── composer.json
+├── etc/
+│   ├── module.xml
+│   ├── config.xml                    # Default configuration
+│   ├── adminhtml/
+│   │   └── system.xml                # Admin configuration fields
+│   └── di.xml                        # Gateway command pool, virtual types
+├── Gateway/
+│   ├── Config/                       # Gateway configuration reader
+│   │   └── Config.php
+│   ├── Http/
+│   │   ├── Client/                   # HTTP client adapter
+│   │   │   └── ClientAdapter.php
+│   │   └── TransferFactory.php       # HTTP transfer object factory
+│   ├── Request/                      # Request builders
+│   │   ├── AuthorizationRequest.php
+│   │   ├── CaptureRequest.php
+│   │   ├── RefundRequest.php
+│   │   └── VoidRequest.php
+│   ├── Response/                     # Response handlers
+│   │   ├── TransactionIdHandler.php
+│   │   ├── CardDetailsHandler.php
+│   │   └── VaultDetailsHandler.php
+│   ├── Validator/                    # Response validators
+│   │   ├── ResponseCodeValidator.php
+│   │   └── GeneralResponseValidator.php
+│   ├── Command/                      # Gateway commands (optional explicit classes)
+│   │   └── CaptureStrategyCommand.php
+│   └── ErrorMapper.php               # Map gateway errors to Magento messages
+├── Model/
+│   ├── Ui/
+│   │   └── ConfigProvider.php        # Frontend configuration provider
+│   └── Adminhtml/
+│       └── Source/
+│           └── PaymentAction.php     # Payment action options
+├── Observer/
+│   └── DataAssignObserver.php        # Assign additional payment data
+└── view/
+    ├── frontend/
+    │   ├── layout/
+    │   │   └── checkout_index_index.xml
+    │   ├── web/
+    │   │   ├── js/
+    │   │   │   └── view/payment/
+    │   │   │       └── method-renderer.js  # Knockout payment renderer
+    │   │   └── template/payment/
+    │   │       └── form.html                # Payment form template
+    │   └── requirejs-config.js
+    └── adminhtml/
+        └── templates/
+            └── info.phtml                     # Admin payment info display
+</code></pre>
+<h3 id="module-registration-and-dependencies">Module Registration and Dependencies</h3>
+<p><strong>registration.php</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+use Magento\Framework\Component\ComponentRegistrar;
+
+ComponentRegistrar::register(
+    ComponentRegistrar::MODULE,
+    'Vendor_PaymentGateway',
+    __DIR__
+);
+</code></pre>
+<p><strong>composer.json</strong></p>
+<pre><code class="language-json">{
+    &quot;name&quot;: &quot;vendor/magento2-payment-gateway&quot;,
+    &quot;description&quot;: &quot;Custom payment gateway integration for Magento 2&quot;,
+    &quot;type&quot;: &quot;magento2-module&quot;,
+    &quot;version&quot;: &quot;1.0.0&quot;,
+    &quot;license&quot;: &quot;proprietary&quot;,
+    &quot;require&quot;: {
+        &quot;php&quot;: &quot;~8.2.0||~8.3.0&quot;,
+        &quot;magento/framework&quot;: &quot;^103.0&quot;,
+        &quot;magento/module-payment&quot;: &quot;^100.4&quot;,
+        &quot;magento/module-checkout&quot;: &quot;^100.4&quot;,
+        &quot;magento/module-quote&quot;: &quot;^101.2&quot;,
+        &quot;magento/module-sales&quot;: &quot;^103.0&quot;,
+        &quot;magento/module-vault&quot;: &quot;^101.2&quot;,
+        &quot;guzzlehttp/guzzle&quot;: &quot;^7.5&quot;
+    },
+    &quot;autoload&quot;: {
+        &quot;files&quot;: [
+            &quot;registration.php&quot;
+        ],
+        &quot;psr-4&quot;: {
+            &quot;Vendor\\PaymentGateway\\&quot;: &quot;&quot;
+        }
+    }
+}
+</code></pre>
+<p><strong>etc/module.xml</strong></p>
+<pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;config xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+        xsi:noNamespaceSchemaLocation=&quot;urn:magento:framework:Module/etc/module.xsd&quot;&gt;
+    &lt;module name=&quot;Vendor_PaymentGateway&quot;&gt;
+        &lt;sequence&gt;
+            &lt;module name=&quot;Magento_Payment&quot;/&gt;
+            &lt;module name=&quot;Magento_Checkout&quot;/&gt;
+            &lt;module name=&quot;Magento_Vault&quot;/&gt;
+            &lt;module name=&quot;Magento_Sales&quot;/&gt;
+        &lt;/sequence&gt;
+    &lt;/module&gt;
+&lt;/config&gt;
+</code></pre>
+<h3 id="payment-method-configuration">Payment Method Configuration</h3>
+<p><strong>etc/config.xml</strong></p>
+<pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;config xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+        xsi:noNamespaceSchemaLocation=&quot;urn:magento:module:Magento_Store:etc/config.xsd&quot;&gt;
+    &lt;default&gt;
+        &lt;payment&gt;
+            &lt;vendor_gateway&gt;
+                &lt;active&gt;0&lt;/active&gt;
+                &lt;model&gt;VendorGatewayFacade&lt;/model&gt;
+                &lt;title&gt;Credit Card (Custom Gateway)&lt;/title&gt;
+                &lt;payment_action&gt;authorize&lt;/payment_action&gt;
+                &lt;can_authorize&gt;1&lt;/can_authorize&gt;
+                &lt;can_capture&gt;1&lt;/can_capture&gt;
+                &lt;can_void&gt;1&lt;/can_void&gt;
+                &lt;can_refund&gt;1&lt;/can_refund&gt;
+                &lt;can_cancel&gt;1&lt;/can_cancel&gt;
+                &lt;can_use_checkout&gt;1&lt;/can_use_checkout&gt;
+                &lt;can_use_internal&gt;1&lt;/can_use_internal&gt;
+                &lt;can_capture_partial&gt;1&lt;/can_capture_partial&gt;
+                &lt;can_refund_partial_per_invoice&gt;1&lt;/can_refund_partial_per_invoice&gt;
+                &lt;is_gateway&gt;1&lt;/is_gateway&gt;
+                &lt;order_status&gt;pending&lt;/order_status&gt;
+                &lt;sort_order&gt;10&lt;/sort_order&gt;
+                &lt;debugReplaceKeys&gt;api_key,api_secret,card_number,cvv&lt;/debugReplaceKeys&gt;
+                &lt;paymentInfoKeys&gt;cc_type,cc_last4,cc_exp_month,cc_exp_year&lt;/paymentInfoKeys&gt;
+            &lt;/vendor_gateway&gt;
+        &lt;/payment&gt;
+    &lt;/default&gt;
+&lt;/config&gt;
+</code></pre>
+<p><strong>Configuration flags explained:</strong></p>
+<ul>
+<li><code>payment_action</code>: <code>authorize</code> (auth only), <code>authorize_capture</code> (sale), <code>order</code> (async)</li>
+<li><code>can_authorize</code>: Supports authorization without capture</li>
+<li><code>can_capture</code>: Supports capturing authorized amounts</li>
+<li><code>can_void</code>: Can void authorized (uncaptured) transactions</li>
+<li><code>can_refund</code>: Can refund captured amounts</li>
+<li><code>can_capture_partial</code>: Supports partial captures</li>
+<li><code>can_refund_partial_per_invoice</code>: Supports partial refunds per invoice</li>
+<li><code>is_gateway</code>: Uses gateway command architecture</li>
+<li><code>debugReplaceKeys</code>: Keys to mask in debug logs (PCI compliance)</li>
+<li><code>paymentInfoKeys</code>: Data to store in <code>sales_order_payment.additional_information</code></li>
+</ul>
+<h3 id="admin-configuration">Admin Configuration</h3>
+<p><strong>etc/adminhtml/system.xml</strong></p>
+<pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;config xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+        xsi:noNamespaceSchemaLocation=&quot;urn:magento:module:Magento_Config:etc/system_file.xsd&quot;&gt;
+    &lt;system&gt;
+        &lt;section id=&quot;payment&quot;&gt;
+            &lt;group id=&quot;vendor_gateway&quot; translate=&quot;label&quot; type=&quot;text&quot; sortOrder=&quot;100&quot; showInDefault=&quot;1&quot; showInWebsite=&quot;1&quot; showInStore=&quot;1&quot;&gt;
+                &lt;label&gt;Custom Payment Gateway&lt;/label&gt;
+                &lt;field id=&quot;active&quot; translate=&quot;label&quot; type=&quot;select&quot; sortOrder=&quot;10&quot; showInDefault=&quot;1&quot; showInWebsite=&quot;1&quot; showInStore=&quot;0&quot;&gt;
+                    &lt;label&gt;Enabled&lt;/label&gt;
+                    &lt;source_model&gt;Magento\Config\Model\Config\Source\Yesno&lt;/source_model&gt;
+                &lt;/field&gt;
+                &lt;field id=&quot;title&quot; translate=&quot;label&quot; type=&quot;text&quot; sortOrder=&quot;20&quot; showInDefault=&quot;1&quot; showInWebsite=&quot;1&quot; showInStore=&quot;1&quot;&gt;
+                    &lt;label&gt;Title&lt;/label&gt;
+                &lt;/field&gt;
+                &lt;field id=&quot;payment_action&quot; translate=&quot;label&quot; type=&quot;select&quot; sortOrder=&quot;30&quot; showInDefault=&quot;1&quot; showInWebsite=&quot;1&quot; showInStore=&quot;0&quot;&gt;
+                    &lt;label&gt;Payment Action&lt;/label&gt;
+                    &lt;source_model&gt;Vendor\PaymentGateway\Model\Adminhtml\Source\PaymentAction&lt;/source_model&gt;
+                &lt;/field&gt;
+                &lt;field id=&quot;api_endpoint&quot; translate=&quot;label&quot; type=&quot;select&quot; sortOrder=&quot;40&quot; showInDefault=&quot;1&quot; showInWebsite=&quot;1&quot; showInStore=&quot;0&quot;&gt;
+                    &lt;label&gt;API Endpoint&lt;/label&gt;
+                    &lt;source_model&gt;Vendor\PaymentGateway\Model\Adminhtml\Source\Environment&lt;/source_model&gt;
+                &lt;/field&gt;
+                &lt;field id=&quot;api_key&quot; translate=&quot;label&quot; type=&quot;obscure&quot; sortOrder=&quot;50&quot; showInDefault=&quot;1&quot; showInWebsite=&quot;1&quot; showInStore=&quot;0&quot;&gt;
+                    &lt;label&gt;API Key&lt;/label&gt;
+                    &lt;backend_model&gt;Magento\Config\Model\Config\Backend\Encrypted&lt;/backend_model&gt;
+                &lt;/field&gt;
+                &lt;field id=&quot;api_secret&quot; translate=&quot;label&quot; type=&quot;obscure&quot; sortOrder=&quot;60&quot; showInDefault=&quot;1&quot; showInWebsite=&quot;1&quot; showInStore=&quot;0&quot;&gt;
+                    &lt;label&gt;API Secret&lt;/label&gt;
+                    &lt;backend_model&gt;Magento\Config\Model\Config\Backend\Encrypted&lt;/backend_model&gt;
+                &lt;/field&gt;
+                &lt;field id=&quot;debug&quot; translate=&quot;label&quot; type=&quot;select&quot; sortOrder=&quot;70&quot; showInDefault=&quot;1&quot; showInWebsite=&quot;1&quot; showInStore=&quot;0&quot;&gt;
+                    &lt;label&gt;Debug Mode&lt;/label&gt;
+                    &lt;source_model&gt;Magento\Config\Model\Config\Source\Yesno&lt;/source_model&gt;
+                &lt;/field&gt;
+                &lt;field id=&quot;allowspecific&quot; translate=&quot;label&quot; type=&quot;allowspecific&quot; sortOrder=&quot;80&quot; showInDefault=&quot;1&quot; showInWebsite=&quot;1&quot; showInStore=&quot;0&quot;&gt;
+                    &lt;label&gt;Payment from Applicable Countries&lt;/label&gt;
+                    &lt;source_model&gt;Magento\Payment\Model\Config\Source\Allspecificcountries&lt;/source_model&gt;
+                &lt;/field&gt;
+                &lt;field id=&quot;specificcountry&quot; translate=&quot;label&quot; type=&quot;multiselect&quot; sortOrder=&quot;90&quot; showInDefault=&quot;1&quot; showInWebsite=&quot;1&quot; showInStore=&quot;0&quot;&gt;
+                    &lt;label&gt;Payment from Specific Countries&lt;/label&gt;
+                    &lt;source_model&gt;Magento\Directory\Model\Config\Source\Country&lt;/source_model&gt;
+                    &lt;can_be_empty&gt;1&lt;/can_be_empty&gt;
+                &lt;/field&gt;
+                &lt;field id=&quot;min_order_total&quot; translate=&quot;label&quot; type=&quot;text&quot; sortOrder=&quot;100&quot; showInDefault=&quot;1&quot; showInWebsite=&quot;1&quot; showInStore=&quot;0&quot;&gt;
+                    &lt;label&gt;Minimum Order Total&lt;/label&gt;
+                &lt;/field&gt;
+                &lt;field id=&quot;max_order_total&quot; translate=&quot;label&quot; type=&quot;text&quot; sortOrder=&quot;110&quot; showInDefault=&quot;1&quot; showInWebsite=&quot;1&quot; showInStore=&quot;0&quot;&gt;
+                    &lt;label&gt;Maximum Order Total&lt;/label&gt;
+                &lt;/field&gt;
+                &lt;field id=&quot;sort_order&quot; translate=&quot;label&quot; type=&quot;text&quot; sortOrder=&quot;120&quot; showInDefault=&quot;1&quot; showInWebsite=&quot;1&quot; showInStore=&quot;0&quot;&gt;
+                    &lt;label&gt;Sort Order&lt;/label&gt;
+                &lt;/field&gt;
+            &lt;/group&gt;
+        &lt;/section&gt;
+    &lt;/system&gt;
+&lt;/config&gt;
+</code></pre>
+<p><strong>Security notes:</strong>
+- API credentials use <code>type="obscure"</code> and <code>backend_model="Magento\Config\Model\Config\Backend\Encrypted"</code>
+- Credentials are encrypted in the database using Magento's encryption key (<code>app/etc/env.php</code>)
+- Never expose credentials in frontend code or logs</p>
+<h2 id="gateway-command-architecture">Gateway Command Architecture</h2>
+<h3 id="dependency-injection-configuration">Dependency Injection Configuration</h3>
+<p>The core of the payment gateway is configured via <code>di.xml</code> using virtual types.</p>
+<p><strong>etc/di.xml</strong> (Part 1: Facade and Command Pool)</p>
+<pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;config xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+        xsi:noNamespaceSchemaLocation=&quot;urn:magento:framework:ObjectManager/etc/config.xsd&quot;&gt;
+
+    &lt;!-- Payment Method Facade --&gt;
+    &lt;virtualType name=&quot;VendorGatewayFacade&quot; type=&quot;Magento\Payment\Model\Method\Adapter&quot;&gt;
+        &lt;arguments&gt;
+            &lt;argument name=&quot;code&quot; xsi:type=&quot;const&quot;&gt;Vendor\PaymentGateway\Gateway\Config\Config::CODE&lt;/argument&gt;
+            &lt;argument name=&quot;formBlockType&quot; xsi:type=&quot;string&quot;&gt;Magento\Payment\Block\Form\Cc&lt;/argument&gt;
+            &lt;argument name=&quot;infoBlockType&quot; xsi:type=&quot;string&quot;&gt;Vendor\PaymentGateway\Block\Info&lt;/argument&gt;
+            &lt;argument name=&quot;valueHandlerPool&quot; xsi:type=&quot;object&quot;&gt;VendorGatewayValueHandlerPool&lt;/argument&gt;
+            &lt;argument name=&quot;commandPool&quot; xsi:type=&quot;object&quot;&gt;VendorGatewayCommandPool&lt;/argument&gt;
+            &lt;argument name=&quot;validatorPool&quot; xsi:type=&quot;object&quot;&gt;VendorGatewayValidatorPool&lt;/argument&gt;
+        &lt;/arguments&gt;
+    &lt;/virtualType&gt;
+
+    &lt;!-- Command Pool --&gt;
+    &lt;virtualType name=&quot;VendorGatewayCommandPool&quot; type=&quot;Magento\Payment\Gateway\Command\CommandPool&quot;&gt;
+        &lt;arguments&gt;
+            &lt;argument name=&quot;commands&quot; xsi:type=&quot;array&quot;&gt;
+                &lt;item name=&quot;authorize&quot; xsi:type=&quot;string&quot;&gt;VendorGatewayAuthorizeCommand&lt;/item&gt;
+                &lt;item name=&quot;capture&quot; xsi:type=&quot;string&quot;&gt;VendorGatewayCaptureStrategyCommand&lt;/item&gt;
+                &lt;item name=&quot;sale&quot; xsi:type=&quot;string&quot;&gt;VendorGatewaySaleCommand&lt;/item&gt;
+                &lt;item name=&quot;void&quot; xsi:type=&quot;string&quot;&gt;VendorGatewayVoidCommand&lt;/item&gt;
+                &lt;item name=&quot;refund&quot; xsi:type=&quot;string&quot;&gt;VendorGatewayRefundCommand&lt;/item&gt;
+                &lt;item name=&quot;cancel&quot; xsi:type=&quot;string&quot;&gt;VendorGatewayVoidCommand&lt;/item&gt;
+                &lt;item name=&quot;vault_authorize&quot; xsi:type=&quot;string&quot;&gt;VendorGatewayVaultAuthorizeCommand&lt;/item&gt;
+                &lt;item name=&quot;vault_sale&quot; xsi:type=&quot;string&quot;&gt;VendorGatewayVaultSaleCommand&lt;/item&gt;
+            &lt;/argument&gt;
+        &lt;/arguments&gt;
+    &lt;/virtualType&gt;
+
+    &lt;!-- Authorize Command --&gt;
+    &lt;virtualType name=&quot;VendorGatewayAuthorizeCommand&quot; type=&quot;Magento\Payment\Gateway\Command\GatewayCommand&quot;&gt;
+        &lt;arguments&gt;
+            &lt;argument name=&quot;requestBuilder&quot; xsi:type=&quot;object&quot;&gt;VendorGatewayAuthorizationRequest&lt;/argument&gt;
+            &lt;argument name=&quot;transferFactory&quot; xsi:type=&quot;object&quot;&gt;Vendor\PaymentGateway\Gateway\Http\TransferFactory&lt;/argument&gt;
+            &lt;argument name=&quot;client&quot; xsi:type=&quot;object&quot;&gt;Vendor\PaymentGateway\Gateway\Http\Client\TransactionAuthorize&lt;/argument&gt;
+            &lt;argument name=&quot;handler&quot; xsi:type=&quot;object&quot;&gt;VendorGatewayAuthorizationHandler&lt;/argument&gt;
+            &lt;argument name=&quot;validator&quot; xsi:type=&quot;object&quot;&gt;VendorGatewayResponseValidator&lt;/argument&gt;
+        &lt;/arguments&gt;
+    &lt;/virtualType&gt;
+
+    &lt;!-- Sale Command (Authorize + Capture in one call) --&gt;
+    &lt;virtualType name=&quot;VendorGatewaySaleCommand&quot; type=&quot;VendorGatewayAuthorizeCommand&quot;&gt;
+        &lt;arguments&gt;
+            &lt;argument name=&quot;requestBuilder&quot; xsi:type=&quot;object&quot;&gt;VendorGatewaySaleRequest&lt;/argument&gt;
+        &lt;/arguments&gt;
+    &lt;/virtualType&gt;
+
+    &lt;!-- Capture Strategy Command --&gt;
+    &lt;virtualType name=&quot;VendorGatewayCaptureStrategyCommand&quot; type=&quot;Vendor\PaymentGateway\Gateway\Command\CaptureStrategyCommand&quot;&gt;
+        &lt;arguments&gt;
+            &lt;argument name=&quot;commandPool&quot; xsi:type=&quot;object&quot;&gt;VendorGatewayCommandPool&lt;/argument&gt;
+        &lt;/arguments&gt;
+    &lt;/virtualType&gt;
+
+    &lt;!-- Void Command --&gt;
+    &lt;virtualType name=&quot;VendorGatewayVoidCommand&quot; type=&quot;Magento\Payment\Gateway\Command\GatewayCommand&quot;&gt;
+        &lt;arguments&gt;
+            &lt;argument name=&quot;requestBuilder&quot; xsi:type=&quot;object&quot;&gt;VendorGatewayVoidRequest&lt;/argument&gt;
+            &lt;argument name=&quot;transferFactory&quot; xsi:type=&quot;object&quot;&gt;Vendor\PaymentGateway\Gateway\Http\TransferFactory&lt;/argument&gt;
+            &lt;argument name=&quot;client&quot; xsi:type=&quot;object&quot;&gt;Vendor\PaymentGateway\Gateway\Http\Client\TransactionVoid&lt;/argument&gt;
+            &lt;argument name=&quot;handler&quot; xsi:type=&quot;object&quot;&gt;VendorGatewayVoidHandler&lt;/argument&gt;
+            &lt;argument name=&quot;validator&quot; xsi:type=&quot;object&quot;&gt;VendorGatewayResponseValidator&lt;/argument&gt;
+        &lt;/arguments&gt;
+    &lt;/virtualType&gt;
+
+    &lt;!-- Refund Command --&gt;
+    &lt;virtualType name=&quot;VendorGatewayRefundCommand&quot; type=&quot;Magento\Payment\Gateway\Command\GatewayCommand&quot;&gt;
+        &lt;arguments&gt;
+            &lt;argument name=&quot;requestBuilder&quot; xsi:type=&quot;object&quot;&gt;VendorGatewayRefundRequest&lt;/argument&gt;
+            &lt;argument name=&quot;transferFactory&quot; xsi:type=&quot;object&quot;&gt;Vendor\PaymentGateway\Gateway\Http\TransferFactory&lt;/argument&gt;
+            &lt;argument name=&quot;client&quot; xsi:type=&quot;object&quot;&gt;Vendor\PaymentGateway\Gateway\Http\Client\TransactionRefund&lt;/argument&gt;
+            &lt;argument name=&quot;handler&quot; xsi:type=&quot;object&quot;&gt;VendorGatewayRefundHandler&lt;/argument&gt;
+            &lt;argument name=&quot;validator&quot; xsi:type=&quot;object&quot;&gt;VendorGatewayResponseValidator&lt;/argument&gt;
+        &lt;/arguments&gt;
+    &lt;/virtualType&gt;
+
+&lt;/config&gt;
+</code></pre>
+<h3 id="capture-strategy-command">Capture Strategy Command</h3>
+<p>Magento's capture operation has two modes:
+1. <strong>Capture</strong> (post-authorization): Capture a previously authorized transaction
+2. <strong>Sale</strong>: Authorize and capture in one operation (if no prior authorization exists)</p>
+<p><strong>Gateway/Command/CaptureStrategyCommand.php</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\PaymentGateway\Gateway\Command;
+
+use Magento\Payment\Gateway\Command\CommandPoolInterface;
+use Magento\Payment\Gateway\CommandInterface;
+use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
+use Magento\Payment\Gateway\Helper\SubjectReader;
+use Magento\Sales\Model\Order\Payment;
+
+/**
+ * Determines whether to execute 'sale' or 'capture' command based on payment state
+ */
+class CaptureStrategyCommand implements CommandInterface
+{
+    private const SALE = 'sale';
+    private const CAPTURE = 'capture';
+
+    public function __construct(
+        private readonly CommandPoolInterface $commandPool
+    ) {}
+
+    /**
+     * @param array $commandSubject
+     * @return void
+     * @throws \Magento\Payment\Gateway\Command\CommandException
+     */
+    public function execute(array $commandSubject): void
+    {
+        /** @var PaymentDataObjectInterface $paymentDO */
+        $paymentDO = SubjectReader::readPayment($commandSubject);
+
+        /** @var Payment $payment */
+        $payment = $paymentDO-&gt;getPayment();
+
+        // If no transaction ID exists, this is a sale (authorize + capture)
+        // If transaction ID exists, this is capturing a previous authorization
+        $command = $payment-&gt;getAuthorizationTransaction()
+            ? self::CAPTURE
+            : self::SALE;
+
+        $this-&gt;commandPool-&gt;get($command)-&gt;execute($commandSubject);
+    }
+}
+</code></pre>
+<p><strong>Why this pattern?</strong></p>
+<p>When admin clicks "Invoice" in order view:
+- If payment was <strong>authorized</strong> → execute <code>capture</code> (capture the authorization)
+- If payment is new (no authorization) → execute <code>sale</code> (auth + capture in one API call)</p>
+<h2 id="request-builders">Request Builders</h2>
+<p>Request builders construct the payload sent to the payment gateway. They read data from the payment object, order, quote, and configuration.</p>
+<p><strong>Gateway/Request/AuthorizationRequest.php</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\PaymentGateway\Gateway\Request;
+
+use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
+use Magento\Payment\Gateway\Helper\SubjectReader;
+use Magento\Payment\Gateway\Request\BuilderInterface;
+use Magento\Sales\Model\Order\Payment;
+use Vendor\PaymentGateway\Gateway\Config\Config;
+
+/**
+ * Builds authorization request payload
+ */
+class AuthorizationRequest implements BuilderInterface
+{
+    public function __construct(
+        private readonly Config $config
+    ) {}
+
+    /**
+     * @param array $buildSubject
+     * @return array
+     */
+    public function build(array $buildSubject): array
+    {
+        /** @var PaymentDataObjectInterface $paymentDO */
+        $paymentDO = SubjectReader::readPayment($buildSubject);
+
+        /** @var Payment $payment */
+        $payment = $paymentDO-&gt;getPayment();
+        $order = $paymentDO-&gt;getOrder();
+        $amount = SubjectReader::readAmount($buildSubject);
+
+        return [
+            'transaction_type' =&gt; 'authorize',
+            'merchant_id' =&gt; $this-&gt;config-&gt;getMerchantId(),
+            'amount' =&gt; $this-&gt;formatAmount($amount),
+            'currency' =&gt; $order-&gt;getCurrencyCode(),
+            'order_id' =&gt; $order-&gt;getOrderIncrementId(),
+            'card_number' =&gt; $payment-&gt;getAdditionalInformation('cc_number'),
+            'card_exp_month' =&gt; $payment-&gt;getCcExpMonth(),
+            'card_exp_year' =&gt; $payment-&gt;getCcExpYear(),
+            'card_cvv' =&gt; $payment-&gt;getCcCid(),
+            'billing_address' =&gt; $this-&gt;buildAddress($order-&gt;getBillingAddress()),
+            'customer_email' =&gt; $order-&gt;getBillingAddress()-&gt;getEmail(),
+            'customer_ip' =&gt; $order-&gt;getRemoteIp(),
+        ];
+    }
+
+    /**
+     * Format amount to gateway format (e.g., 10.00 -&gt; 1000 for cents-based gateways)
+     */
+    private function formatAmount(float $amount): int
+    {
+        return (int) round($amount * 100);
+    }
+
+    /**
+     * Build address array from order address
+     */
+    private function buildAddress(\Magento\Payment\Gateway\Data\AddressAdapterInterface $address): array
+    {
+        return [
+            'first_name' =&gt; $address-&gt;getFirstname(),
+            'last_name' =&gt; $address-&gt;getLastname(),
+            'address_line1' =&gt; $address-&gt;getStreetLine1(),
+            'address_line2' =&gt; $address-&gt;getStreetLine2(),
+            'city' =&gt; $address-&gt;getCity(),
+            'state' =&gt; $address-&gt;getRegionCode(),
+            'postal_code' =&gt; $address-&gt;getPostcode(),
+            'country' =&gt; $address-&gt;getCountryId(),
+        ];
+    }
+}
+</code></pre>
+<p><strong>Critical security note:</strong></p>
+<p>In production, <strong>never send raw card data</strong> to your server. Use one of these approaches:</p>
+<ol>
+<li><strong>Gateway-hosted tokenization</strong>: Customer enters card on gateway's iframe/redirect, returns token</li>
+<li><strong>JavaScript tokenization</strong>: Use gateway's JS SDK to tokenize card in browser before form submission</li>
+<li><strong>Direct API tokenization</strong>: Only for PCI-compliant servers (requires SAQ D)</li>
+</ol>
+<p><strong>Modified approach for tokenization:</strong></p>
+<pre><code class="language-php">// Instead of reading raw card data, read the token:
+'payment_token' =&gt; $payment-&gt;getAdditionalInformation('payment_token'),
+
+// Remove these lines (never send raw card data):
+// 'card_number' =&gt; $payment-&gt;getAdditionalInformation('cc_number'),
+// 'card_cvv' =&gt; $payment-&gt;getCcCid(),
+</code></pre>
+<h3 id="composite-request-builders">Composite Request Builders</h3>
+<p>For complex requests, use composite builders that delegate to specialized builders.</p>
+<p><strong>etc/di.xml</strong> (Request Builder Composition)</p>
+<pre><code class="language-xml">&lt;virtualType name=&quot;VendorGatewayAuthorizationRequest&quot; type=&quot;Magento\Payment\Gateway\Request\BuilderComposite&quot;&gt;
+    &lt;arguments&gt;
+        &lt;argument name=&quot;builders&quot; xsi:type=&quot;array&quot;&gt;
+            &lt;item name=&quot;transaction&quot; xsi:type=&quot;string&quot;&gt;Vendor\PaymentGateway\Gateway\Request\TransactionDataBuilder&lt;/item&gt;
+            &lt;item name=&quot;customer&quot; xsi:type=&quot;string&quot;&gt;Vendor\PaymentGateway\Gateway\Request\CustomerDataBuilder&lt;/item&gt;
+            &lt;item name=&quot;payment&quot; xsi:type=&quot;string&quot;&gt;Vendor\PaymentGateway\Gateway\Request\PaymentDataBuilder&lt;/item&gt;
+            &lt;item name=&quot;address&quot; xsi:type=&quot;string&quot;&gt;Vendor\PaymentGateway\Gateway\Request\AddressDataBuilder&lt;/item&gt;
+            &lt;item name=&quot;vault&quot; xsi:type=&quot;string&quot;&gt;Vendor\PaymentGateway\Gateway\Request\VaultDataBuilder&lt;/item&gt;
+        &lt;/argument&gt;
+    &lt;/arguments&gt;
+&lt;/virtualType&gt;
+</code></pre>
+<p>Each builder handles one concern:
+- <code>TransactionDataBuilder</code>: Transaction type, amount, currency, order ID
+- <code>CustomerDataBuilder</code>: Customer email, IP, user agent
+- <code>PaymentDataBuilder</code>: Payment token, card type, card metadata
+- <code>AddressDataBuilder</code>: Billing/shipping addresses
+- <code>VaultDataBuilder</code>: Tokenization flags for vault integration</p>
+<h2 id="response-handlers">Response Handlers</h2>
+<p>Response handlers process the gateway's response and update Magento's payment and order state.</p>
+<p><strong>Gateway/Response/TransactionIdHandler.php</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\PaymentGateway\Gateway\Response;
+
+use Magento\Payment\Gateway\Helper\SubjectReader;
+use Magento\Payment\Gateway\Response\HandlerInterface;
+use Magento\Sales\Model\Order\Payment;
+
+/**
+ * Handles transaction ID from gateway response
+ */
+class TransactionIdHandler implements HandlerInterface
+{
+    /**
+     * @param array $handlingSubject
+     * @param array $response
+     * @return void
+     */
+    public function handle(array $handlingSubject, array $response): void
+    {
+        $paymentDO = SubjectReader::readPayment($handlingSubject);
+
+        /** @var Payment $payment */
+        $payment = $paymentDO-&gt;getPayment();
+
+        // Set transaction ID (critical for capture, void, refund operations)
+        $payment-&gt;setTransactionId($response['transaction_id']);
+
+        // Set whether transaction is closed (cannot be modified further)
+        $payment-&gt;setIsTransactionClosed(false);
+
+        // Store raw gateway response for debugging
+        $payment-&gt;setTransactionAdditionalInfo(
+            Payment::TRANSACTION_RAW_DETAILS,
+            $response
+        );
+    }
+}
+</code></pre>
+<p><strong>Gateway/Response/CardDetailsHandler.php</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\PaymentGateway\Gateway\Response;
+
+use Magento\Payment\Gateway\Helper\SubjectReader;
+use Magento\Payment\Gateway\Response\HandlerInterface;
+use Magento\Sales\Model\Order\Payment;
+
+/**
+ * Stores card metadata (last4, type, expiration) from gateway response
+ */
+class CardDetailsHandler implements HandlerInterface
+{
+    /**
+     * @param array $handlingSubject
+     * @param array $response
+     * @return void
+     */
+    public function handle(array $handlingSubject, array $response): void
+    {
+        $paymentDO = SubjectReader::readPayment($handlingSubject);
+
+        /** @var Payment $payment */
+        $payment = $paymentDO-&gt;getPayment();
+
+        // Store card details for display in admin and customer account
+        $payment-&gt;setCcLast4($response['card']['last4']);
+        $payment-&gt;setCcType($this-&gt;mapCardType($response['card']['brand']));
+        $payment-&gt;setCcExpMonth($response['card']['exp_month']);
+        $payment-&gt;setCcExpYear($response['card']['exp_year']);
+
+        // Store additional info (merchant-safe data only, no PCI data)
+        $payment-&gt;setAdditionalInformation('card_bin', $response['card']['bin']);
+        $payment-&gt;setAdditionalInformation('card_country', $response['card']['country']);
+        $payment-&gt;setAdditionalInformation('card_funding', $response['card']['funding']); // credit/debit/prepaid
+    }
+
+    /**
+     * Map gateway card brand to Magento card type
+     */
+    private function mapCardType(string $brand): string
+    {
+        return match (strtolower($brand)) {
+            'visa' =&gt; 'VI',
+            'mastercard', 'master' =&gt; 'MC',
+            'amex', 'american express' =&gt; 'AE',
+            'discover' =&gt; 'DI',
+            'jcb' =&gt; 'JCB',
+            'diners', 'diners club' =&gt; 'DN',
+            default =&gt; 'OT',
+        };
+    }
+}
+</code></pre>
+<p><strong>Composite Response Handler</strong> (etc/di.xml)</p>
+<pre><code class="language-xml">&lt;virtualType name=&quot;VendorGatewayAuthorizationHandler&quot; type=&quot;Magento\Payment\Gateway\Response\HandlerChain&quot;&gt;
+    &lt;arguments&gt;
+        &lt;argument name=&quot;handlers&quot; xsi:type=&quot;array&quot;&gt;
+            &lt;item name=&quot;transaction_id&quot; xsi:type=&quot;string&quot;&gt;Vendor\PaymentGateway\Gateway\Response\TransactionIdHandler&lt;/item&gt;
+            &lt;item name=&quot;card_details&quot; xsi:type=&quot;string&quot;&gt;Vendor\PaymentGateway\Gateway\Response\CardDetailsHandler&lt;/item&gt;
+            &lt;item name=&quot;vault_details&quot; xsi:type=&quot;string&quot;&gt;Vendor\PaymentGateway\Gateway\Response\VaultDetailsHandler&lt;/item&gt;
+            &lt;item name=&quot;fraud_details&quot; xsi:type=&quot;string&quot;&gt;Vendor\PaymentGateway\Gateway\Response\FraudDetailsHandler&lt;/item&gt;
+        &lt;/argument&gt;
+    &lt;/arguments&gt;
+&lt;/virtualType&gt;
+</code></pre>
+<h2 id="response-validators">Response Validators</h2>
+<p>Validators ensure the gateway response is valid before handlers process it. If validation fails, the payment is declined.</p>
+<p><strong>Gateway/Validator/ResponseCodeValidator.php</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\PaymentGateway\Gateway\Validator;
+
+use Magento\Payment\Gateway\Helper\SubjectReader;
+use Magento\Payment\Gateway\Validator\AbstractValidator;
+use Magento\Payment\Gateway\Validator\ResultInterface;
+use Magento\Payment\Gateway\Validator\ResultInterfaceFactory;
+
+/**
+ * Validates gateway response code
+ */
+class ResponseCodeValidator extends AbstractValidator
+{
+    private const SUCCESS_CODES = ['approved', 'authorized'];
+
+    public function __construct(
+        ResultInterfaceFactory $resultFactory
+    ) {
+        parent::__construct($resultFactory);
+    }
+
+    /**
+     * @param array $validationSubject
+     * @return ResultInterface
+     */
+    public function validate(array $validationSubject): ResultInterface
+    {
+        $response = SubjectReader::readResponse($validationSubject);
+
+        $isValid = isset($response['status'])
+            &amp;&amp; in_array(strtolower($response['status']), self::SUCCESS_CODES, true);
+
+        $errorMessages = [];
+
+        if (!$isValid) {
+            $errorMessages[] = $response['message'] ?? __('Payment gateway rejected the transaction.');
+        }
+
+        return $this-&gt;createResult($isValid, $errorMessages);
+    }
+}
+</code></pre>
+<p><strong>Gateway/Validator/GeneralResponseValidator.php</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\PaymentGateway\Gateway\Validator;
+
+use Magento\Payment\Gateway\Helper\SubjectReader;
+use Magento\Payment\Gateway\Validator\AbstractValidator;
+use Magento\Payment\Gateway\Validator\ResultInterface;
+use Magento\Payment\Gateway\Validator\ResultInterfaceFactory;
+
+/**
+ * Validates general response structure and required fields
+ */
+class GeneralResponseValidator extends AbstractValidator
+{
+    private const REQUIRED_FIELDS = [
+        'status',
+        'transaction_id',
+        'amount',
+    ];
+
+    public function __construct(
+        ResultInterfaceFactory $resultFactory
+    ) {
+        parent::__construct($resultFactory);
+    }
+
+    /**
+     * @param array $validationSubject
+     * @return ResultInterface
+     */
+    public function validate(array $validationSubject): ResultInterface
+    {
+        $response = SubjectReader::readResponse($validationSubject);
+
+        $isValid = true;
+        $errorMessages = [];
+
+        // Check required fields
+        foreach (self::REQUIRED_FIELDS as $field) {
+            if (!isset($response[$field])) {
+                $isValid = false;
+                $errorMessages[] = __('Missing required field: %1', $field);
+            }
+        }
+
+        // Validate amount matches (prevent response tampering)
+        if (isset($response['amount'])) {
+            $requestAmount = SubjectReader::readAmount($validationSubject);
+            $responseAmount = $response['amount'] / 100; // Convert cents to dollars
+
+            if (abs($requestAmount - $responseAmount) &gt; 0.01) {
+                $isValid = false;
+                $errorMessages[] = __('Amount mismatch: requested %1, received %2', $requestAmount, $responseAmount);
+            }
+        }
+
+        return $this-&gt;createResult($isValid, $errorMessages);
+    }
+}
+</code></pre>
+<p><strong>Validator Pool</strong> (etc/di.xml)</p>
+<pre><code class="language-xml">&lt;virtualType name=&quot;VendorGatewayValidatorPool&quot; type=&quot;Magento\Payment\Gateway\Validator\ValidatorPool&quot;&gt;
+    &lt;arguments&gt;
+        &lt;argument name=&quot;validators&quot; xsi:type=&quot;array&quot;&gt;
+            &lt;item name=&quot;country&quot; xsi:type=&quot;string&quot;&gt;VendorGatewayCountryValidator&lt;/item&gt;
+            &lt;item name=&quot;currency&quot; xsi:type=&quot;string&quot;&gt;VendorGatewayCurrencyValidator&lt;/item&gt;
+        &lt;/argument&gt;
+    &lt;/arguments&gt;
+&lt;/virtualType&gt;
+
+&lt;virtualType name=&quot;VendorGatewayResponseValidator&quot; type=&quot;Magento\Payment\Gateway\Validator\ValidatorComposite&quot;&gt;
+    &lt;arguments&gt;
+        &lt;argument name=&quot;validators&quot; xsi:type=&quot;array&quot;&gt;
+            &lt;item name=&quot;general&quot; xsi:type=&quot;string&quot;&gt;Vendor\PaymentGateway\Gateway\Validator\GeneralResponseValidator&lt;/item&gt;
+            &lt;item name=&quot;response_code&quot; xsi:type=&quot;string&quot;&gt;Vendor\PaymentGateway\Gateway\Validator\ResponseCodeValidator&lt;/item&gt;
+        &lt;/argument&gt;
+    &lt;/arguments&gt;
+&lt;/virtualType&gt;
+</code></pre>
+<h2 id="http-client-adapter">HTTP Client Adapter</h2>
+<p>The HTTP client adapter abstracts the gateway's HTTP API client.</p>
+<p><strong>Gateway/Http/Client/TransactionAuthorize.php</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\PaymentGateway\Gateway\Http\Client;
+
+use Magento\Payment\Gateway\Http\ClientInterface;
+use Magento\Payment\Gateway\Http\TransferInterface;
+use Psr\Log\LoggerInterface;
+use Vendor\PaymentGateway\Gateway\Config\Config;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
+
+/**
+ * HTTP client for authorization requests
+ */
+class TransactionAuthorize implements ClientInterface
+{
+    public function __construct(
+        private readonly Config $config,
+        private readonly LoggerInterface $logger,
+        private readonly Client $httpClient
+    ) {}
+
+    /**
+     * @param TransferInterface $transferObject
+     * @return array
+     * @throws \Magento\Payment\Gateway\Http\ClientException
+     */
+    public function placeRequest(TransferInterface $transferObject): array
+    {
+        $request = $transferObject-&gt;getBody();
+
+        try {
+            $response = $this-&gt;httpClient-&gt;post(
+                $this-&gt;config-&gt;getApiEndpoint() . '/authorize',
+                [
+                    'json' =&gt; $request,
+                    'headers' =&gt; [
+                        'Authorization' =&gt; 'Bearer ' . $this-&gt;config-&gt;getApiKey(),
+                        'Content-Type' =&gt; 'application/json',
+                        'X-API-Version' =&gt; '2024-01-01',
+                    ],
+                    'timeout' =&gt; 30,
+                ]
+            );
+
+            $body = (string) $response-&gt;getBody();
+            $result = json_decode($body, true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new \RuntimeException('Invalid JSON response from gateway');
+            }
+
+            $this-&gt;logTransaction($request, $result);
+
+            return $result;
+
+        } catch (GuzzleException $e) {
+            $this-&gt;logger-&gt;critical('Payment gateway request failed', [
+                'exception' =&gt; $e-&gt;getMessage(),
+                'request' =&gt; $this-&gt;sanitizeLogData($request),
+            ]);
+
+            // Return error response in expected format
+            return [
+                'status' =&gt; 'error',
+                'message' =&gt; __('Payment gateway is unavailable. Please try again later.'),
+                'error_code' =&gt; 'gateway_unavailable',
+            ];
+        }
+    }
+
+    /**
+     * Log transaction details (sanitized)
+     */
+    private function logTransaction(array $request, array $response): void
+    {
+        if (!$this-&gt;config-&gt;isDebugEnabled()) {
+            return;
+        }
+
+        $this-&gt;logger-&gt;debug('Payment Gateway Transaction', [
+            'request' =&gt; $this-&gt;sanitizeLogData($request),
+            'response' =&gt; $this-&gt;sanitizeLogData($response),
+        ]);
+    }
+
+    /**
+     * Sanitize sensitive data for logging (PCI compliance)
+     */
+    private function sanitizeLogData(array $data): array
+    {
+        $sanitized = $data;
+
+        $sensitiveKeys = [
+            'card_number',
+            'card_cvv',
+            'cvv',
+            'api_key',
+            'api_secret',
+            'authorization',
+            'payment_token',
+        ];
+
+        foreach ($sensitiveKeys as $key) {
+            if (isset($sanitized[$key])) {
+                $sanitized[$key] = '***REDACTED***';
+            }
+        }
+
+        // Mask card number if present (show only last 4)
+        if (isset($data['card_number']) &amp;&amp; strlen($data['card_number']) &gt;= 4) {
+            $sanitized['card_number'] = 'XXXX-XXXX-XXXX-' . substr($data['card_number'], -4);
+        }
+
+        return $sanitized;
+    }
+}
+</code></pre>
+<p><strong>Gateway/Http/TransferFactory.php</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\PaymentGateway\Gateway\Http;
+
+use Magento\Payment\Gateway\Http\TransferBuilder;
+use Magento\Payment\Gateway\Http\TransferFactoryInterface;
+use Magento\Payment\Gateway\Http\TransferInterface;
+use Vendor\PaymentGateway\Gateway\Config\Config;
+
+/**
+ * Transfer factory for HTTP requests
+ */
+class TransferFactory implements TransferFactoryInterface
+{
+    public function __construct(
+        private readonly TransferBuilder $transferBuilder,
+        private readonly Config $config
+    ) {}
+
+    /**
+     * @param array $request
+     * @return TransferInterface
+     */
+    public function create(array $request): TransferInterface
+    {
+        return $this-&gt;transferBuilder
+            -&gt;setBody($request)
+            -&gt;setMethod('POST')
+            -&gt;setHeaders([
+                'Content-Type' =&gt; 'application/json',
+                'Authorization' =&gt; 'Bearer ' . $this-&gt;config-&gt;getApiKey(),
+            ])
+            -&gt;setUri($this-&gt;config-&gt;getApiEndpoint())
+            -&gt;build();
+    }
+}
+</code></pre>
+<h2 id="vault-integration-tokenization">Vault Integration (Tokenization)</h2>
+<p>Vault integration allows customers to save payment methods for future use. This requires tokenizing card data with the gateway and storing the token in Magento's vault.</p>
+<h3 id="vault-configuration">Vault Configuration</h3>
+<p><strong>etc/config.xml</strong> (add to payment section)</p>
+<pre><code class="language-xml">&lt;vendor_gateway_vault&gt;
+    &lt;model&gt;VendorGatewayVaultFacade&lt;/model&gt;
+    &lt;title&gt;Stored Payment Methods&lt;/title&gt;
+&lt;/vendor_gateway_vault&gt;
+</code></pre>
+<p><strong>etc/di.xml</strong> (Vault Configuration)</p>
+<pre><code class="language-xml">&lt;!-- Vault Facade --&gt;
+&lt;virtualType name=&quot;VendorGatewayVaultFacade&quot; type=&quot;Magento\Vault\Model\Method\Vault&quot;&gt;
+    &lt;arguments&gt;
+        &lt;argument name=&quot;config&quot; xsi:type=&quot;object&quot;&gt;Vendor\PaymentGateway\Gateway\Config\Config&lt;/argument&gt;
+        &lt;argument name=&quot;valueHandlerPool&quot; xsi:type=&quot;object&quot;&gt;VendorGatewayVaultValueHandlerPool&lt;/argument&gt;
+        &lt;argument name=&quot;vaultProvider&quot; xsi:type=&quot;object&quot;&gt;VendorGatewayFacade&lt;/argument&gt;
+        &lt;argument name=&quot;code&quot; xsi:type=&quot;const&quot;&gt;Vendor\PaymentGateway\Gateway\Config\Config::CODE_VAULT&lt;/argument&gt;
+    &lt;/arguments&gt;
+&lt;/virtualType&gt;
+
+&lt;!-- Vault Value Handler Pool --&gt;
+&lt;virtualType name=&quot;VendorGatewayVaultValueHandlerPool&quot; type=&quot;Magento\Payment\Gateway\Config\ValueHandlerPool&quot;&gt;
+    &lt;arguments&gt;
+        &lt;argument name=&quot;handlers&quot; xsi:type=&quot;array&quot;&gt;
+            &lt;item name=&quot;default&quot; xsi:type=&quot;string&quot;&gt;VendorGatewayVaultConfigValueHandler&lt;/item&gt;
+        &lt;/argument&gt;
+    &lt;/arguments&gt;
+&lt;/virtualType&gt;
+
+&lt;virtualType name=&quot;VendorGatewayVaultConfigValueHandler&quot; type=&quot;Magento\Payment\Gateway\Config\ConfigValueHandler&quot;&gt;
+    &lt;arguments&gt;
+        &lt;argument name=&quot;configInterface&quot; xsi:type=&quot;object&quot;&gt;Vendor\PaymentGateway\Gateway\Config\Config&lt;/argument&gt;
+    &lt;/arguments&gt;
+&lt;/virtualType&gt;
+</code></pre>
+<h3 id="vault-response-handler">Vault Response Handler</h3>
+<p><strong>Gateway/Response/VaultDetailsHandler.php</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\PaymentGateway\Gateway\Response;
+
+use Magento\Payment\Gateway\Helper\SubjectReader;
+use Magento\Payment\Gateway\Response\HandlerInterface;
+use Magento\Sales\Model\Order\Payment;
+use Magento\Vault\Api\Data\PaymentTokenInterface;
+use Magento\Vault\Api\Data\PaymentTokenInterfaceFactory;
+use Magento\Vault\Model\PaymentTokenManagement;
+
+/**
+ * Handles vault tokenization from gateway response
+ */
+class VaultDetailsHandler implements HandlerInterface
+{
+    public function __construct(
+        private readonly PaymentTokenInterfaceFactory $paymentTokenFactory,
+        private readonly PaymentTokenManagement $paymentTokenManagement
+    ) {}
+
+    /**
+     * @param array $handlingSubject
+     * @param array $response
+     * @return void
+     */
+    public function handle(array $handlingSubject, array $response): void
+    {
+        $paymentDO = SubjectReader::readPayment($handlingSubject);
+
+        /** @var Payment $payment */
+        $payment = $paymentDO-&gt;getPayment();
+
+        // Check if customer requested to save payment method
+        $saveCard = $payment-&gt;getAdditionalInformation('is_active_payment_token_enabler');
+
+        if (!$saveCard || !isset($response['payment_token'])) {
+            return;
+        }
+
+        // Create payment token
+        /** @var PaymentTokenInterface $paymentToken */
+        $paymentToken = $this-&gt;paymentTokenFactory-&gt;create();
+
+        $paymentToken-&gt;setGatewayToken($response['payment_token']);
+        $paymentToken-&gt;setExpiresAt($this-&gt;getExpirationDate($response['card']['exp_year'], $response['card']['exp_month']));
+        $paymentToken-&gt;setTokenDetails($this-&gt;convertDetailsToJSON([
+            'type' =&gt; $payment-&gt;getCcType(),
+            'maskedCC' =&gt; $payment-&gt;getCcLast4(),
+            'expirationDate' =&gt; sprintf(
+                '%02d/%04d',
+                $response['card']['exp_month'],
+                $response['card']['exp_year']
+            ),
+        ]));
+
+        // Link payment token to payment
+        $extensionAttributes = $payment-&gt;getExtensionAttributes();
+        $extensionAttributes-&gt;setVaultPaymentToken($paymentToken);
+    }
+
+    /**
+     * Get expiration date for vault token
+     */
+    private function getExpirationDate(int $year, int $month): string
+    {
+        $expDate = new \DateTime(
+            sprintf('%d-%02d-01 00:00:00', $year, $month),
+            new \DateTimeZone('UTC')
+        );
+        $expDate-&gt;add(new \DateInterval('P1M'));
+
+        return $expDate-&gt;format('Y-m-d 00:00:00');
+    }
+
+    /**
+     * Convert payment token details to JSON
+     */
+    private function convertDetailsToJSON(array $details): string
+    {
+        $json = json_encode($details);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new \RuntimeException('Failed to encode payment token details');
+        }
+
+        return $json;
+    }
+}
+</code></pre>
+<h3 id="vault-authorize-command">Vault Authorize Command</h3>
+<p>When a customer uses a saved payment method, Magento executes the <code>vault_authorize</code> or <code>vault_sale</code> command.</p>
+<p><strong>Gateway/Request/VaultAuthorizationRequest.php</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\PaymentGateway\Gateway\Request;
+
+use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
+use Magento\Payment\Gateway\Helper\SubjectReader;
+use Magento\Payment\Gateway\Request\BuilderInterface;
+use Magento\Vault\Model\PaymentToken;
+use Vendor\PaymentGateway\Gateway\Config\Config;
+
+/**
+ * Builds authorization request for vault payments
+ */
+class VaultAuthorizationRequest implements BuilderInterface
+{
+    public function __construct(
+        private readonly Config $config
+    ) {}
+
+    /**
+     * @param array $buildSubject
+     * @return array
+     */
+    public function build(array $buildSubject): array
+    {
+        /** @var PaymentDataObjectInterface $paymentDO */
+        $paymentDO = SubjectReader::readPayment($buildSubject);
+
+        $payment = $paymentDO-&gt;getPayment();
+        $order = $paymentDO-&gt;getOrder();
+        $amount = SubjectReader::readAmount($buildSubject);
+
+        // Get payment token from extension attributes
+        $extensionAttributes = $payment-&gt;getExtensionAttributes();
+        $paymentToken = $extensionAttributes-&gt;getVaultPaymentToken();
+
+        if (!$paymentToken instanceof PaymentToken) {
+            throw new \RuntimeException('Payment token not found for vault payment');
+        }
+
+        return [
+            'transaction_type' =&gt; 'authorize',
+            'merchant_id' =&gt; $this-&gt;config-&gt;getMerchantId(),
+            'amount' =&gt; (int) round($amount * 100),
+            'currency' =&gt; $order-&gt;getCurrencyCode(),
+            'order_id' =&gt; $order-&gt;getOrderIncrementId(),
+            'payment_token' =&gt; $paymentToken-&gt;getGatewayToken(), // Use saved token
+            'customer_email' =&gt; $order-&gt;getBillingAddress()-&gt;getEmail(),
+            'customer_ip' =&gt; $order-&gt;getRemoteIp(),
+        ];
+    }
+}
+</code></pre>
+<p><strong>etc/di.xml</strong> (Vault Commands)</p>
+<pre><code class="language-xml">&lt;!-- Vault Authorize Command --&gt;
+&lt;virtualType name=&quot;VendorGatewayVaultAuthorizeCommand&quot; type=&quot;Magento\Payment\Gateway\Command\GatewayCommand&quot;&gt;
+    &lt;arguments&gt;
+        &lt;argument name=&quot;requestBuilder&quot; xsi:type=&quot;object&quot;&gt;VendorGatewayVaultAuthorizationRequest&lt;/argument&gt;
+        &lt;argument name=&quot;transferFactory&quot; xsi:type=&quot;object&quot;&gt;Vendor\PaymentGateway\Gateway\Http\TransferFactory&lt;/argument&gt;
+        &lt;argument name=&quot;client&quot; xsi:type=&quot;object&quot;&gt;Vendor\PaymentGateway\Gateway\Http\Client\TransactionAuthorize&lt;/argument&gt;
+        &lt;argument name=&quot;handler&quot; xsi:type=&quot;object&quot;&gt;VendorGatewayAuthorizationHandler&lt;/argument&gt;
+        &lt;argument name=&quot;validator&quot; xsi:type=&quot;object&quot;&gt;VendorGatewayResponseValidator&lt;/argument&gt;
+    &lt;/arguments&gt;
+&lt;/virtualType&gt;
+
+&lt;!-- Vault Sale Command --&gt;
+&lt;virtualType name=&quot;VendorGatewayVaultSaleCommand&quot; type=&quot;VendorGatewayVaultAuthorizeCommand&quot;&gt;
+    &lt;arguments&gt;
+        &lt;argument name=&quot;requestBuilder&quot; xsi:type=&quot;object&quot;&gt;VendorGatewayVaultSaleRequest&lt;/argument&gt;
+    &lt;/arguments&gt;
+&lt;/virtualType&gt;
+</code></pre>
+<h2 id="refund-and-void-operations">Refund and Void Operations</h2>
+<h3 id="refund-request-and-handler">Refund Request and Handler</h3>
+<p><strong>Gateway/Request/RefundRequest.php</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\PaymentGateway\Gateway\Request;
+
+use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
+use Magento\Payment\Gateway\Helper\SubjectReader;
+use Magento\Payment\Gateway\Request\BuilderInterface;
+use Magento\Sales\Model\Order\Payment;
+use Vendor\PaymentGateway\Gateway\Config\Config;
+
+/**
+ * Builds refund request payload
+ */
+class RefundRequest implements BuilderInterface
+{
+    public function __construct(
+        private readonly Config $config
+    ) {}
+
+    /**
+     * @param array $buildSubject
+     * @return array
+     */
+    public function build(array $buildSubject): array
+    {
+        /** @var PaymentDataObjectInterface $paymentDO */
+        $paymentDO = SubjectReader::readPayment($buildSubject);
+
+        /** @var Payment $payment */
+        $payment = $paymentDO-&gt;getPayment();
+        $amount = SubjectReader::readAmount($buildSubject);
+
+        // Get parent transaction (the capture/sale transaction to refund)
+        $parentTransactionId = $payment-&gt;getParentTransactionId();
+
+        if (!$parentTransactionId) {
+            throw new \RuntimeException('Parent transaction ID not found for refund');
+        }
+
+        return [
+            'transaction_type' =&gt; 'refund',
+            'merchant_id' =&gt; $this-&gt;config-&gt;getMerchantId(),
+            'transaction_id' =&gt; $parentTransactionId,
+            'amount' =&gt; (int) round($amount * 100),
+            'reason' =&gt; $payment-&gt;getCreditmemo()-&gt;getCustomerNote() ?? 'Refund requested by merchant',
+        ];
+    }
+}
+</code></pre>
+<p><strong>Gateway/Response/RefundHandler.php</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\PaymentGateway\Gateway\Response;
+
+use Magento\Payment\Gateway\Helper\SubjectReader;
+use Magento\Payment\Gateway\Response\HandlerInterface;
+use Magento\Sales\Model\Order\Payment;
+
+/**
+ * Handles refund response
+ */
+class RefundHandler implements HandlerInterface
+{
+    /**
+     * @param array $handlingSubject
+     * @param array $response
+     * @return void
+     */
+    public function handle(array $handlingSubject, array $response): void
+    {
+        $paymentDO = SubjectReader::readPayment($handlingSubject);
+
+        /** @var Payment $payment */
+        $payment = $paymentDO-&gt;getPayment();
+
+        // Set refund transaction ID
+        $payment-&gt;setTransactionId($response['refund_id']);
+
+        // Refund transaction is closed (cannot be modified)
+        $payment-&gt;setIsTransactionClosed(true);
+        $payment-&gt;setShouldCloseParentTransaction(true);
+
+        // Store refund details
+        $payment-&gt;setTransactionAdditionalInfo(
+            Payment::TRANSACTION_RAW_DETAILS,
+            [
+                'refund_id' =&gt; $response['refund_id'],
+                'refund_amount' =&gt; $response['amount'] / 100,
+                'refund_date' =&gt; $response['refunded_at'],
+                'reason' =&gt; $response['reason'] ?? null,
+            ]
+        );
+    }
+}
+</code></pre>
+<h3 id="void-request-and-handler">Void Request and Handler</h3>
+<p>Void operations cancel an authorization before capture. Once a transaction is captured, you cannot void it (you must refund instead).</p>
+<p><strong>Gateway/Request/VoidRequest.php</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\PaymentGateway\Gateway\Request;
+
+use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
+use Magento\Payment\Gateway\Helper\SubjectReader;
+use Magento\Payment\Gateway\Request\BuilderInterface;
+use Magento\Sales\Model\Order\Payment;
+use Vendor\PaymentGateway\Gateway\Config\Config;
+
+/**
+ * Builds void request payload
+ */
+class VoidRequest implements BuilderInterface
+{
+    public function __construct(
+        private readonly Config $config
+    ) {}
+
+    /**
+     * @param array $buildSubject
+     * @return array
+     */
+    public function build(array $buildSubject): array
+    {
+        /** @var PaymentDataObjectInterface $paymentDO */
+        $paymentDO = SubjectReader::readPayment($buildSubject);
+
+        /** @var Payment $payment */
+        $payment = $paymentDO-&gt;getPayment();
+
+        // Get authorization transaction to void
+        $authTransactionId = $payment-&gt;getParentTransactionId() ?: $payment-&gt;getLastTransId();
+
+        if (!$authTransactionId) {
+            throw new \RuntimeException('Authorization transaction ID not found for void');
+        }
+
+        return [
+            'transaction_type' =&gt; 'void',
+            'merchant_id' =&gt; $this-&gt;config-&gt;getMerchantId(),
+            'transaction_id' =&gt; $authTransactionId,
+        ];
+    }
+}
+</code></pre>
+<p><strong>Gateway/Response/VoidHandler.php</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\PaymentGateway\Gateway\Response;
+
+use Magento\Payment\Gateway\Helper\SubjectReader;
+use Magento\Payment\Gateway\Response\HandlerInterface;
+use Magento\Sales\Model\Order\Payment;
+
+/**
+ * Handles void response
+ */
+class VoidHandler implements HandlerInterface
+{
+    /**
+     * @param array $handlingSubject
+     * @param array $response
+     * @return void
+     */
+    public function handle(array $handlingSubject, array $response): void
+    {
+        $paymentDO = SubjectReader::readPayment($handlingSubject);
+
+        /** @var Payment $payment */
+        $payment = $paymentDO-&gt;getPayment();
+
+        // Set void transaction ID
+        $payment-&gt;setTransactionId($response['void_id']);
+
+        // Void transaction is closed
+        $payment-&gt;setIsTransactionClosed(true);
+        $payment-&gt;setShouldCloseParentTransaction(true);
+
+        // Store void details
+        $payment-&gt;setTransactionAdditionalInfo(
+            Payment::TRANSACTION_RAW_DETAILS,
+            [
+                'void_id' =&gt; $response['void_id'],
+                'voided_at' =&gt; $response['voided_at'],
+                'original_transaction_id' =&gt; $response['original_transaction_id'],
+            ]
+        );
+    }
+}
+</code></pre>
+<h2 id="testing-payment-methods">Testing Payment Methods</h2>
+<h3 id="unit-tests">Unit Tests</h3>
+<p><strong>Test/Unit/Gateway/Request/AuthorizationRequestTest.php</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\PaymentGateway\Test\Unit\Gateway\Request;
+
+use Magento\Payment\Gateway\Data\OrderAdapterInterface;
+use Magento\Payment\Gateway\Data\PaymentDataObject;
+use Magento\Sales\Model\Order\Payment;
+use PHPUnit\Framework\TestCase;
+use Vendor\PaymentGateway\Gateway\Config\Config;
+use Vendor\PaymentGateway\Gateway\Request\AuthorizationRequest;
+
+class AuthorizationRequestTest extends TestCase
+{
+    private AuthorizationRequest $builder;
+    private Config $config;
+
+    protected function setUp(): void
+    {
+        $this-&gt;config = $this-&gt;createMock(Config::class);
+        $this-&gt;builder = new AuthorizationRequest($this-&gt;config);
+    }
+
+    public function testBuildReturnsCorrectStructure(): void
+    {
+        $this-&gt;config-&gt;method('getMerchantId')-&gt;willReturn('test_merchant_123');
+
+        $payment = $this-&gt;createMock(Payment::class);
+        $payment-&gt;method('getAdditionalInformation')-&gt;willReturn('tok_test123');
+        $payment-&gt;method('getCcExpMonth')-&gt;willReturn('12');
+        $payment-&gt;method('getCcExpYear')-&gt;willReturn('2025');
+
+        $order = $this-&gt;createMock(OrderAdapterInterface::class);
+        $order-&gt;method('getOrderIncrementId')-&gt;willReturn('000000001');
+        $order-&gt;method('getCurrencyCode')-&gt;willReturn('USD');
+
+        $paymentDO = new PaymentDataObject($order, $payment);
+
+        $buildSubject = [
+            'payment' =&gt; $paymentDO,
+            'amount' =&gt; 100.50,
+        ];
+
+        $result = $this-&gt;builder-&gt;build($buildSubject);
+
+        $this-&gt;assertEquals('authorize', $result['transaction_type']);
+        $this-&gt;assertEquals('test_merchant_123', $result['merchant_id']);
+        $this-&gt;assertEquals(10050, $result['amount']); // 100.50 * 100 cents
+        $this-&gt;assertEquals('USD', $result['currency']);
+        $this-&gt;assertEquals('000000001', $result['order_id']);
+    }
+}
+</code></pre>
+<h3 id="integration-tests">Integration Tests</h3>
+<p><strong>Test/Integration/Model/PaymentTest.php</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\PaymentGateway\Test\Integration\Model;
+
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Payment\Gateway\Command\CommandPoolInterface;
+use Magento\Payment\Model\Method\Adapter;
+use Magento\Quote\Model\Quote;
+use Magento\TestFramework\Helper\Bootstrap;
+use PHPUnit\Framework\TestCase;
+
+/**
+ * @magentoAppArea frontend
+ */
+class PaymentTest extends TestCase
+{
+    private Adapter $paymentMethod;
+    private CommandPoolInterface $commandPool;
+
+    protected function setUp(): void
+    {
+        $objectManager = Bootstrap::getObjectManager();
+        $this-&gt;paymentMethod = $objectManager-&gt;get('VendorGatewayFacade');
+        $this-&gt;commandPool = $objectManager-&gt;get('VendorGatewayCommandPool');
+    }
+
+    /**
+     * @magentoConfigFixture current_store payment/vendor_gateway/active 1
+     * @magentoConfigFixture current_store payment/vendor_gateway/api_key test_key
+     */
+    public function testPaymentMethodIsAvailable(): void
+    {
+        /** @var Quote $quote */
+        $quote = Bootstrap::getObjectManager()-&gt;create(Quote::class);
+        $quote-&gt;setStoreId(1);
+        $quote-&gt;setGrandTotal(100.00);
+
+        $this-&gt;assertTrue($this-&gt;paymentMethod-&gt;isAvailable($quote));
+    }
+
+    public function testCommandPoolHasRequiredCommands(): void
+    {
+        $requiredCommands = ['authorize', 'capture', 'void', 'refund', 'sale'];
+
+        foreach ($requiredCommands as $command) {
+            $this-&gt;assertNotNull(
+                $this-&gt;commandPool-&gt;get($command),
+                &quot;Command '$command' is missing from command pool&quot;
+            );
+        }
+    }
+
+    /**
+     * @magentoDataFixture Magento/Sales/_files/order.php
+     */
+    public function testAuthorizeCommand(): void
+    {
+        $objectManager = Bootstrap::getObjectManager();
+
+        /** @var \Magento\Sales\Model\Order $order */
+        $order = $objectManager-&gt;create(\Magento\Sales\Model\Order::class);
+        $order-&gt;loadByIncrementId('100000001');
+
+        $payment = $order-&gt;getPayment();
+        $payment-&gt;setMethod('vendor_gateway');
+        $payment-&gt;setAdditionalInformation('payment_token', 'tok_test123');
+
+        try {
+            $this-&gt;paymentMethod-&gt;authorize($payment, 100.00);
+            $this-&gt;assertNotEmpty($payment-&gt;getTransactionId());
+        } catch (LocalizedException $e) {
+            // Expected if gateway is not accessible in test environment
+            $this-&gt;markTestSkipped('Gateway not accessible: ' . $e-&gt;getMessage());
+        }
+    }
+}
+</code></pre>
+<h3 id="mock-gateway-for-testing">Mock Gateway for Testing</h3>
+<p>For automated testing, implement a mock gateway that simulates responses.</p>
+<p><strong>Gateway/Http/Client/MockClient.php</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\PaymentGateway\Gateway\Http\Client;
+
+use Magento\Payment\Gateway\Http\ClientInterface;
+use Magento\Payment\Gateway\Http\TransferInterface;
+
+/**
+ * Mock client for testing (used when debug mode is enabled in test environment)
+ */
+class MockClient implements ClientInterface
+{
+    /**
+     * @param TransferInterface $transferObject
+     * @return array
+     */
+    public function placeRequest(TransferInterface $transferObject): array
+    {
+        $request = $transferObject-&gt;getBody();
+
+        return match ($request['transaction_type']) {
+            'authorize' =&gt; [
+                'status' =&gt; 'authorized',
+                'transaction_id' =&gt; 'mock_txn_' . uniqid(),
+                'amount' =&gt; $request['amount'],
+                'currency' =&gt; $request['currency'],
+                'card' =&gt; [
+                    'last4' =&gt; '4242',
+                    'brand' =&gt; 'visa',
+                    'exp_month' =&gt; $request['card_exp_month'] ?? '12',
+                    'exp_year' =&gt; $request['card_exp_year'] ?? '2025',
+                    'bin' =&gt; '424242',
+                    'country' =&gt; 'US',
+                    'funding' =&gt; 'credit',
+                ],
+                'payment_token' =&gt; 'mock_tok_' . uniqid(),
+            ],
+            'void' =&gt; [
+                'status' =&gt; 'voided',
+                'void_id' =&gt; 'mock_void_' . uniqid(),
+                'voided_at' =&gt; date('Y-m-d H:i:s'),
+                'original_transaction_id' =&gt; $request['transaction_id'],
+            ],
+            'refund' =&gt; [
+                'status' =&gt; 'refunded',
+                'refund_id' =&gt; 'mock_refund_' . uniqid(),
+                'amount' =&gt; $request['amount'],
+                'refunded_at' =&gt; date('Y-m-d H:i:s'),
+                'reason' =&gt; $request['reason'] ?? null,
+            ],
+            default =&gt; [
+                'status' =&gt; 'error',
+                'message' =&gt; 'Unknown transaction type',
+            ],
+        };
+    }
+}
+</code></pre>
+<p><strong>etc/di.xml</strong> (Mock Client for Testing)</p>
+<pre><code class="language-xml">&lt;!-- Use mock client in test environment --&gt;
+&lt;type name=&quot;Vendor\PaymentGateway\Gateway\Http\Client\TransactionAuthorize&quot;&gt;
+    &lt;arguments&gt;
+        &lt;argument name=&quot;httpClient&quot; xsi:type=&quot;object&quot;&gt;Vendor\PaymentGateway\Gateway\Http\Client\MockClient&lt;/argument&gt;
+    &lt;/arguments&gt;
+&lt;/type&gt;
+</code></pre>
+<h2 id="pci-compliance-and-security">PCI Compliance and Security</h2>
+<h3 id="never-store-these">Never Store These</h3>
+<p><strong>Prohibited by PCI DSS:</strong>
+- Full card number (PAN) - Use tokenization
+- CVV/CVC/CID codes - Never store, even encrypted
+- Full magnetic stripe data</p>
+<p><strong>Allowed (with encryption):</strong>
+- Card last 4 digits
+- Expiration date
+- Cardholder name
+- Payment token (from gateway)</p>
+<h3 id="secure-configuration-storage">Secure Configuration Storage</h3>
+<pre><code class="language-xml">&lt;!-- etc/adminhtml/system.xml --&gt;
+&lt;field id=&quot;api_key&quot; translate=&quot;label&quot; type=&quot;obscure&quot; sortOrder=&quot;50&quot; showInDefault=&quot;1&quot; showInWebsite=&quot;1&quot; showInStore=&quot;0&quot;&gt;
+    &lt;label&gt;API Key&lt;/label&gt;
+    &lt;backend_model&gt;Magento\Config\Model\Config\Backend\Encrypted&lt;/backend_model&gt;
+    &lt;config_path&gt;payment/vendor_gateway/api_key&lt;/config_path&gt;
+&lt;/field&gt;
+</code></pre>
+<p>Credentials are encrypted using <code>Magento\Framework\Encryption\EncryptorInterface</code> with the key from <code>app/etc/env.php</code>.</p>
+<h3 id="input-validation">Input Validation</h3>
+<pre><code class="language-php">// Validate card number format (if handling raw cards)
+if (!preg_match('/^[0-9]{13,19}$/', $cardNumber)) {
+    throw new LocalizedException(__('Invalid card number format'));
+}
+
+// Validate CVV
+if (!preg_match('/^[0-9]{3,4}$/', $cvv)) {
+    throw new LocalizedException(__('Invalid CVV format'));
+}
+
+// Validate expiration
+if ($year &lt; date('Y') || ($year == date('Y') &amp;&amp; $month &lt; date('m'))) {
+    throw new LocalizedException(__('Card has expired'));
+}
+</code></pre>
+<h3 id="https-enforcement">HTTPS Enforcement</h3>
+<pre><code class="language-php">// In ConfigProvider or validator
+if (!$this-&gt;request-&gt;isSecure()) {
+    throw new LocalizedException(__('Payment information must be transmitted securely'));
+}
+</code></pre>
+<h3 id="log-sanitization">Log Sanitization</h3>
+<pre><code class="language-php">// Always sanitize logs
+private function sanitizeLogData(array $data): array
+{
+    $sensitiveKeys = [
+        'card_number',
+        'card_cvv',
+        'cvv',
+        'api_key',
+        'api_secret',
+        'authorization',
+        'payment_token',
+    ];
+
+    foreach ($sensitiveKeys as $key) {
+        if (isset($data[$key])) {
+            $data[$key] = '***REDACTED***';
+        }
+    }
+
+    return $data;
+}
+</code></pre>
+<h3 id="frontend-security">Frontend Security</h3>
+<p><strong>Never send raw card data to your server:</strong></p>
+<pre><code class="language-javascript">// BAD: Sending raw card data to Magento server
+var payload = {
+    card_number: cardNumber,
+    cvv: cvv,
+    exp_month: expMonth,
+    exp_year: expYear
+};
+
+// GOOD: Tokenize in browser using gateway's SDK
+gatewaySDK.tokenize({
+    card_number: cardNumber,
+    cvv: cvv,
+    exp_month: expMonth,
+    exp_year: expYear
+}).then(function(token) {
+    // Send only the token to Magento
+    var payload = {
+        payment_token: token.id
+    };
+});
+</code></pre>
+<h2 id="deployment-and-production-considerations">Deployment and Production Considerations</h2>
+<h3 id="configuration-checklist">Configuration Checklist</h3>
+<p>Before deploying to production:</p>
+<ol>
+<li><strong>Credentials</strong></li>
+<li>Switch from sandbox to production API endpoint</li>
+<li>Use production API keys (never commit to repository)</li>
+<li>
+<p>Rotate test credentials</p>
+</li>
+<li>
+<p><strong>Debug Mode</strong></p>
+</li>
+<li>Disable debug logging in production</li>
+<li>
+<p>Implement proper error handling (log internally, show generic messages to customers)</p>
+</li>
+<li>
+<p><strong>Testing</strong></p>
+</li>
+<li>Run full payment flow tests (authorize, capture, void, refund)</li>
+<li>Test vault functionality</li>
+<li>Test declined transactions</li>
+<li>
+<p>Test 3D Secure flows (if applicable)</p>
+</li>
+<li>
+<p><strong>Monitoring</strong></p>
+</li>
+<li>Set up alerts for payment failures</li>
+<li>Monitor transaction success rates</li>
+<li>Track authorization vs capture ratios</li>
+<li>
+<p>Monitor refund/void patterns</p>
+</li>
+<li>
+<p><strong>Compliance</strong></p>
+</li>
+<li>Complete PCI SAQ (Self-Assessment Questionnaire)</li>
+<li>Implement security patches promptly</li>
+<li>Review logs for PCI-prohibited data</li>
+<li>Ensure HTTPS is enforced</li>
+</ol>
+<h3 id="error-handling">Error Handling</h3>
+<pre><code class="language-php">// Gateway/ErrorMapper.php
+class ErrorMapper
+{
+    private const ERROR_CODES = [
+        'card_declined' =&gt; 'Your card was declined. Please use a different payment method.',
+        'insufficient_funds' =&gt; 'Your card has insufficient funds.',
+        'expired_card' =&gt; 'Your card has expired.',
+        'invalid_cvv' =&gt; 'The CVV code is invalid.',
+        'invalid_expiry' =&gt; 'The expiration date is invalid.',
+        'processing_error' =&gt; 'An error occurred processing your payment. Please try again.',
+    ];
+
+    public function getMessageForCode(string $code): string
+    {
+        return self::ERROR_CODES[$code] ?? self::ERROR_CODES['processing_error'];
+    }
+}
+</code></pre>
+<h3 id="performance-optimization">Performance Optimization</h3>
+<p><strong>Timeout Configuration:</strong></p>
+<pre><code class="language-php">// HTTP client timeout should balance reliability vs performance
+'timeout' =&gt; 30, // 30 seconds for payment operations
+'connect_timeout' =&gt; 5, // 5 seconds to establish connection
+</code></pre>
+<p><strong>Caching:</strong></p>
+<p>Never cache payment credentials or transaction data. Do cache:
+- Gateway configuration (API endpoints, merchant ID)
+- Card type mappings
+- Country/currency validators</p>
+<h3 id="transaction-state-management">Transaction State Management</h3>
+<p><strong>Authorization flow:</strong>
+1. Customer places order → Order status: <code>pending</code>
+2. Authorization succeeds → Order status: <code>processing</code>, Payment: authorized
+3. Invoice created → Payment: captured, Order status: <code>processing</code> or <code>complete</code></p>
+<p><strong>Failure handling:</strong>
+- Authorization fails → Order canceled, inventory restored
+- Capture fails → Order remains authorized, manual intervention required
+- Refund fails → Log error, notify merchant, investigate gateway</p>
+<hr />
+<h2 id="assumptions">Assumptions</h2>
+<ul>
+<li><strong>Target versions</strong>: Magento 2.4.7+, PHP 8.2+</li>
+<li><strong>Payment gateway</strong>: REST API with JSON payloads (adapt for SOAP/XML if needed)</li>
+<li><strong>Tokenization</strong>: Gateway provides tokenization API (required for PCI compliance)</li>
+<li><strong>Environment</strong>: Production deployment requires PCI SAQ completion</li>
+</ul>
+<h2 id="why-this-approach">Why This Approach</h2>
+<p><strong>Gateway architecture</strong>: Separates concerns, enables testing, follows Magento best practices</p>
+<p><strong>Vault integration</strong>: Required for recurring payments, subscriptions, and improved checkout UX</p>
+<p><strong>Capture strategy command</strong>: Handles both sale (authorize+capture) and deferred capture flows</p>
+<p><strong>Mock client</strong>: Enables automated testing without live gateway access</p>
+<p><strong>Sanitized logging</strong>: PCI compliance and debugging balance</p>
+<h2 id="security-impact">Security Impact</h2>
+<p><strong>Critical security requirements:</strong>
+- Never store CVV codes (PCI prohibited)
+- Use tokenization to avoid storing full card numbers
+- Encrypt API credentials in database
+- Sanitize all payment logs
+- Enforce HTTPS for all payment operations
+- Validate all input data (card numbers, CVV, expiration)
+- Implement rate limiting on payment endpoints (not shown, requires Magento security extension or WAF)</p>
+<p><strong>Authorization requirements:</strong>
+- Payment methods are available to all authenticated customers
+- Admin refund/void operations require <code>Magento_Sales::sales_invoice</code> and <code>Magento_Sales::creditmemo</code> ACL permissions</p>
+<p><strong>CSRF protection:</strong>
+- All admin payment operations (capture, refund, void) are protected by Magento's form key mechanism
+- Frontend checkout uses CSRF tokens automatically</p>
+<h2 id="performance-impact">Performance Impact</h2>
+<p><strong>Cacheability:</strong>
+- Payment configuration is cacheable (config cache)
+- Payment forms are not cached (contain order-specific data)
+- Vault tokens are cached per customer (improves checkout performance)</p>
+<p><strong>Database impact:</strong>
+- Each transaction creates records in <code>sales_payment_transaction</code>, <code>sales_order_payment</code>
+- Vault tokens stored in <code>vault_payment_token</code>, <code>vault_payment_token_order_payment_link</code>
+- Properly indexed tables ensure fast transaction lookups</p>
+<p><strong>API latency:</strong>
+- Payment authorization: 500-2000ms (external gateway call)
+- Capture/void/refund: 500-1500ms (external gateway call)
+- Vault token creation: +200ms (database write)
+- Use async capture for large merchants (not shown, requires message queue)</p>
+<p><strong>Core Web Vitals impact:</strong>
+- Payment form rendering: Minimal (static template)
+- Payment submission: Blocks order placement (unavoidable)
+- Use loading indicators and prevent double-submission</p>
+<h2 id="backward-compatibility">Backward Compatibility</h2>
+<p><strong>API stability:</strong>
+- Gateway command interfaces are stable in Magento 2.4.x
+- Vault interfaces are stable in Magento 2.4.x
+- Payment method configuration structure is stable</p>
+<p><strong>Database schema:</strong>
+- Declarative schema ensures safe upgrades
+- No direct SQL queries (uses service contracts)</p>
+<p><strong>Upgrade path:</strong>
+- Magento 2.4.7 → 2.4.8: No breaking changes expected
+- Magento 2.4.x → 2.5.0: Monitor deprecation notices in gateway interfaces</p>
+<p><strong>Migration considerations:</strong>
+- Moving from legacy payment method to gateway architecture requires refactoring
+- Vault tokens are not backward compatible with legacy saved cards (re-tokenization required)</p>
+<h2 id="tests-to-add">Tests to Add</h2>
+<p><strong>Unit tests:</strong>
+- Request builders (all commands)
+- Response handlers (all operations)
+- Validators (response structure, amount matching)
+- Error mapper</p>
+<p><strong>Integration tests:</strong>
+- Payment method availability
+- Authorization flow
+- Capture flow (sale and deferred)
+- Void operation
+- Refund operation (full and partial)
+- Vault save and reuse
+- Multi-currency support</p>
+<p><strong>Functional tests (MFTF):</strong>
+- Complete checkout with credit card
+- Saved payment method checkout
+- Admin capture invoice
+- Admin refund credit memo
+- Admin void order
+- Declined card handling</p>
+<p><strong>API tests:</strong>
+- REST API order placement with payment method
+- GraphQL checkout with payment method</p>
+<p><strong>Security tests:</strong>
+- CVV not logged or stored
+- API credentials encrypted in database
+- Payment logs sanitized
+- HTTPS enforcement</p>
+<h2 id="documentation-to-update">Documentation to Update</h2>
+<p><strong>Merchant documentation:</strong>
+- <code>README.md</code>: Installation, configuration, API credential setup
+- <code>CONFIGURATION.md</code>: Admin settings explanation
+- <code>TROUBLESHOOTING.md</code>: Common errors and resolutions</p>
+<p><strong>Developer documentation:</strong>
+- <code>ARCHITECTURE.md</code>: Gateway architecture, command flow, extension points
+- <code>API.md</code>: Gateway API client adapter interface
+- <code>TESTING.md</code>: How to run tests, mock gateway usage
+- <code>SECURITY.md</code>: PCI compliance requirements, security audit checklist</p>
+<p><strong>Admin user guide:</strong>
+- How to configure payment method
+- How to process refunds
+- How to void orders
+- Troubleshooting declined transactions</p>
+<p><strong>Code comments:</strong>
+- Inline docblocks for all classes (already shown in examples)
+- XML configuration comments for complex virtual types</p>
+<h2 id="related-documentation">Related Documentation</h2>
+<h3 id="related-guides">Related Guides</h3>
+<ul>
+<li><a href="custom-shipping-method.md">Custom Shipping Method Development: Building Flexible Shipping Solutions</a></li>
+<li><a href="../explanations/service-contracts-repositories.md">Service Contracts vs Repositories in Magento 2</a></li>
+<li><a href="../how-to/security-checklist.md">Security Checklist for Custom Modules</a></li>
+<li><a href="../how-to/testing-strategies.md">Comprehensive Testing Strategies for Magento 2</a></li>
+</ul>
+<h3 id="related-module-documentation">Related Module Documentation</h3>
+<ul>
+<li><a href="../../modules/checkout/README.md">Magento_Checkout Overview</a></li>
+<li><a href="../../modules/sales/README.md">Magento_Sales Overview</a></li>
+<li><a href="../../modules/quote/README.md">Magento_Quote Overview</a></li>
+</ul>
+                    </div>
+                </article>
+            </main>
+            <!-- Right Sidebar: On This Page (desktop) -->
+            <aside class="toc-sidebar hidden xl:block" aria-label="On this page">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-semibold text-gray-900 uppercase tracking-wider mb-4 mt-0">On this page</h3>
+                    <nav id="toc-nav" class="space-y-0" aria-label="Table of contents"></nav>
+                    <div class="toc-back-to-top">
+                        <a href="#">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+                            </svg>
+                            Back to top
+                        </a>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- ================================================================
+         FOOTER — matches module-catalog.html multi-column layout exactly
+         ================================================================ -->
+    <footer class="relative pt-12 bg-white border-t border-charcoal mt-16">
+        <div class="max-w-screen-2xl mx-auto w-full px-4 sm:px-6 lg:px-8">
+            <div>
+                <a href="index.html" class="inline-flex items-center no-underline">
+                    <svg width="30" height="33" viewBox="0 0 30 33" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Magento Association logo" role="img">
+                        <path d="M0 4.06492H29.6763V31.8882C29.6763 32.502 29.1713 33 28.5487 33H1.12762C0.505079 33 0 32.502 0 31.8882V4.06492Z" fill="#34323A"/>
+                        <path d="M1.26857 0H28.4078C29.1066 0 29.6763 0.561678 29.6763 1.25075V4.06492H0V1.25075C0 0.561678 0.569682 0 1.26857 0Z" fill="#C9C9C9"/>
+                        <path d="M2.37269 3.0458C2.94031 3.0458 3.40046 2.59211 3.40046 2.03246C3.40046 1.47281 2.94031 1.01913 2.37269 1.01913C1.80506 1.01913 1.34491 1.47281 1.34491 2.03246C1.34491 2.59211 1.80506 3.0458 2.37269 3.0458Z" fill="#848484"/>
+                        <path d="M5.28571 3.0458C5.85334 3.0458 6.31349 2.59211 6.31349 2.03246C6.31349 1.47281 5.85334 1.01913 5.28571 1.01913C4.71809 1.01913 4.25793 1.47281 4.25793 2.03246C4.25793 2.59211 4.71809 3.0458 5.28571 3.0458Z" fill="#848484"/>
+                        <path d="M14.7883 7.46973L4.90405 13.0923V24.349L7.54104 25.8487V14.5978L14.7883 10.4692L22.0415 14.5978V25.8487L24.6785 24.349V13.0923L14.7883 7.46973Z" fill="#F1BC1B"/>
+                        <path d="M16.0862 26.2367L14.7883 26.9779L13.4492 26.2135V14.233L10.178 16.0975V27.3485L13.4492 29.213L14.7883 29.9773L16.0862 29.2362L19.4045 27.3485V16.0975L16.0862 14.2098V26.2367Z" fill="#F1BC1B"/>
+                    </svg>
+                    <span class="ml-3 text-xl font-bold text-charcoal">Developer Documentation</span>
+                </a>
+            </div>
+
+            <div class="grid grid-cols-12 md:gap-x-8 gap-y-12 lg:mt-12">
+                <div class="col-span-12 lg:col-span-4">
+                    <p class="hidden lg:block text-xs text-charcoal sm:text-sm">Comprehensive developer documentation for Magento 2.4.7+ — tutorials, architecture deep dives, module references, and production-ready patterns built by the community, for the community.</p>
+                    <ul class="mt-6 hidden lg:flex items-center gap-3">
+                        <li class="pl-0">
+                            <a href="https://github.com/magento/magento2" class="p-2 md:p-0" aria-label="GitHub">
+                                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                                </svg>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Guides</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="tutorials.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Tutorials</a></li>
+                            <li class="pl-0"><a href="how-to-guides.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">How-To Guides</a></li>
+                            <li class="pl-0"><a href="architecture.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Architecture</a></li>
+                            <li class="pl-0"><a href="learning-paths.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Learning Paths</a></li>
+                            <li class="pl-0"><a href="references.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">References</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Modules</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="module-catalog.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Catalog</a></li>
+                            <li class="pl-0"><a href="module-checkout.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Checkout</a></li>
+                            <li class="pl-0"><a href="module-sales.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Sales</a></li>
+                            <li class="pl-0"><a href="module-customer.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Customer</a></li>
+                            <li class="pl-0"><a href="module-quote.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Quote</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Community</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Magento Community</a></li>
+                            <li class="pl-0"><a href="https://magento.stackexchange.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Stack Exchange</a></li>
+                            <li class="pl-0"><a href="https://marketplace.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Marketplace</a></li>
+                            <li class="pl-0"><a href="https://github.com/magento/magento2" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">GitHub</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Support</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://github.com/magento/magento2/issues" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Report Issues</a></li>
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Community Resources</a></li>
+                            <li class="pl-0"><a href="https://developer.adobe.com/commerce/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Adobe Commerce Docs</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-12 border-t pt-6 pb-16 border-charcoal">
+                <p class="text-xs text-charcoal">
+                    &copy; 2026 Magento 2 Developer Documentation. Magento&reg; is a registered trademark of Adobe Inc.
+                </p>
+                <p class="mt-6 text-xs text-charcoal">
+                    This documentation provides guidance for Magento 2 developers and extension builders. For merchant documentation, visit the <a href="index.html" class="text-orange hover:text-orange-600 transition-colors">merchant documentation</a>.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Initialize highlight.js -->
+    <script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('pre code').forEach(function (el) {
+        hljs.highlightElement(el);
+    });
+    document.querySelectorAll('pre').forEach(function (pre) {
+        if (pre.parentNode.classList && pre.parentNode.classList.contains('code-wrapper')) return;
+        var wrapper = document.createElement('div');
+        wrapper.className = 'code-wrapper';
+        pre.parentNode.insertBefore(wrapper, pre);
+        wrapper.appendChild(pre);
+        var btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.setAttribute('type', 'button');
+        btn.setAttribute('aria-label', 'Copy code to clipboard');
+        btn.setAttribute('title', 'Copy');
+        btn.textContent = 'Copy';
+        wrapper.appendChild(btn);
+        btn.addEventListener('click', function () {
+            var code = pre.querySelector('code');
+            var text = code ? (code.innerText || code.textContent) : (pre.innerText || pre.textContent);
+            navigator.clipboard.writeText(text).then(function () {
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            }).catch(function () {
+                var range = document.createRange();
+                range.selectNode(code || pre);
+                window.getSelection().removeAllRanges();
+                window.getSelection().addRange(range);
+                document.execCommand('copy');
+                window.getSelection().removeAllRanges();
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            });
+        });
+    });
+});
+</script>
+
+
+<script>
+(function() {
+    var nav = document.getElementById('toc-nav');
+    if (!nav) return;
+    var article = document.getElementById('main-content');
+    if (!article) return;
+    var headings = article.querySelectorAll('h2[id], h3[id]');
+    if (headings.length < 3) {
+        // Hide the entire TOC sidebar if fewer than 3 headings
+        var sidebar = nav.closest('.toc-sidebar');
+        if (sidebar) sidebar.style.display = 'none';
+        return;
+    }
+    var ids = [];
+    headings.forEach(function(h) {
+        var a = document.createElement('a');
+        a.href = '#' + h.id;
+        a.textContent = h.textContent.replace(/^#+\s*/, '').replace(/\s+/g, ' ').trim();
+        if (h.tagName === 'H3') a.classList.add('toc-h3');
+        nav.appendChild(a);
+        ids.push(h.id);
+    });
+    // Scroll-spy with IntersectionObserver
+    var links = nav.querySelectorAll('a');
+    var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                links.forEach(function(l) { l.classList.remove('toc-active'); });
+                var active = nav.querySelector('a[href="#' + entry.target.id + '"]');
+                if (active) active.classList.add('toc-active');
+            }
+        });
+    }, { rootMargin: '-80px 0px -70% 0px', threshold: 0 });
+    headings.forEach(function(h) { observer.observe(h); });
+})();
+</script>
+</body>
+</html>

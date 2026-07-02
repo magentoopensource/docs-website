@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magento_Sales — Magento 2 Developer Documentation</title>
+    <meta name="description" content="Comprehensive order lifecycle management — invoice generation, shipment processing, and credit memo handling from quote conversion through order fulfillment and post-sales operations.">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&family=JetBrains+Mono&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        charcoal: {
+                            DEFAULT: '#2c2c2c',
+                            50: '#f1f1f1',
+                            100: '#d9d9d9',
+                            200: '#b6b6b6',
+                            300: '#6B6B6B',
+                            400: '#474747',
+                            500: '#2c2c2c',
+                            600: '#262626',
+                            700: '#202020',
+                            800: '#1c1c1c',
+                            900: '#191919',
+                            950: '#121212'
+                        },
+                        orange: {
+                            DEFAULT: '#D4551A',
+                            50: '#fef5ee',
+                            100: '#fee9d6',
+                            200: '#fbd0ad',
+                            300: '#f9ae78',
+                            400: '#f58242',
+                            500: '#f26423',
+                            600: '#e34613',
+                            700: '#bc3312',
+                            800: '#962a16',
+                            900: '#792515',
+                            950: '#411009'
+                        },
+                        yellow: {
+                            DEFAULT: '#B8860B',
+                            50: '#fffdeb',
+                            100: '#fdf9c8',
+                            200: '#fbf38c',
+                            300: '#f8e651',
+                            400: '#f7d728',
+                            500: '#f1bc1b',
+                            600: '#d5900a',
+                            700: '#b1670c',
+                            800: '#8f5111',
+                            900: '#764311',
+                            950: '#442204'
+                        },
+                        'off-white': '#FAFAFA',
+                    },
+                    fontFamily: {
+                        sans: ['Inter Tight', 'system-ui', '-apple-system', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style>
+        [x-cloak] { display: none !important; }
+    </style>
+</head>
+
+<body class="font-sans bg-off-white text-charcoal">
+
+    <!-- Header -->
+    <!-- Shared header — single source of truth -->
+    <script src="includes/header.js"></script>
+
+    <!-- Page Header -->
+    <section class="bg-white border-b border-gray-200">
+        <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+            <nav class="mb-6">
+                <ol class="flex items-center gap-2 text-sm text-charcoal-300">
+                    <li><a href="index.html" class="hover:text-orange transition-colors no-underline">Home</a></li>
+                    <li class="before:content-['/'] before:mx-2"><a href="modules.html" class="hover:text-orange transition-colors no-underline">Modules</a></li>
+                    <li class="before:content-['/'] before:mx-2">Magento_Sales</li>
+                </ol>
+            </nav>
+
+            <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold leading-none text-charcoal">
+                Magento_Sales
+            </h1>
+            <p class="mt-6 text-lg sm:text-xl font-medium leading-relaxed text-charcoal-300 max-w-3xl">
+                Comprehensive order lifecycle management — invoice generation, shipment processing, and credit memo handling from quote conversion through order fulfillment and post-sales operations.
+            </p>
+
+            <div class="flex flex-wrap gap-4 mt-8">
+                <span class="inline-flex items-center gap-2 bg-charcoal text-white px-4 py-2 text-sm font-mono">
+                    Magento\Sales
+                </span>
+                <span class="inline-flex items-center gap-2 bg-orange-50 text-orange-700 px-4 py-2 text-sm font-medium">
+                    2.4.7+
+                </span>
+                <span class="inline-flex items-center gap-2 bg-charcoal-50 text-charcoal px-4 py-2 text-sm font-medium">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    9 Documents
+                </span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick Nav -->
+    <nav class="sticky top-16 z-40 bg-white border-b border-gray-200 shadow-sm">
+        <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center gap-8 h-12 overflow-x-auto text-sm font-medium">
+                <a href="#core" class="text-charcoal-300 hover:text-orange transition-colors no-underline whitespace-nowrap">Core</a>
+                <a href="#extension-points" class="text-charcoal-300 hover:text-orange transition-colors no-underline whitespace-nowrap">Extension Points</a>
+                <a href="#quality" class="text-charcoal-300 hover:text-orange transition-colors no-underline whitespace-nowrap">Quality &amp; Maintenance</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Core Documentation -->
+    <section id="core" class="py-16 bg-off-white">
+        <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="mb-10">
+                <h2 class="text-2xl sm:text-3xl font-bold text-charcoal">Core Documentation</h2>
+                <p class="mt-2 text-charcoal-300">Architecture, data models, and execution flows that define the Sales module.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+                <!-- Overview -->
+                <a href="module-sales-overview.html" class="group block bg-white border-2 border-gray-200 border-t-4 border-t-orange hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 no-underline">
+                    <div class="p-6 sm:p-8">
+                        <div class="flex items-center gap-3 mb-4">
+                            <svg class="w-6 h-6 text-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                            <span class="text-xs font-medium bg-orange-50 text-orange-700 px-2 py-1">Core</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-charcoal group-hover:text-orange transition-colors mb-3">Overview</h3>
+                        <p class="text-sm text-charcoal-300 leading-relaxed">
+                            Order state machine (new, processing, complete, closed, canceled), invoice management, shipment processing, credit memo handling, admin order grid.
+                        </p>
+                        <div class="flex flex-wrap gap-2 mt-4">
+                            <span class="text-xs text-charcoal-300 bg-charcoal-50 px-2 py-1">State Machine</span>
+                            <span class="text-xs text-charcoal-300 bg-charcoal-50 px-2 py-1">Invoices</span>
+                            <span class="text-xs text-charcoal-300 bg-charcoal-50 px-2 py-1">Shipments</span>
+                        </div>
+                        <span class="mt-6 text-sm font-medium text-orange group-hover:translate-x-1 transition-transform inline-flex items-center gap-1">
+                            Read document <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                        </span>
+                    </div>
+                </a>
+
+                <!-- Architecture -->
+                <a href="module-sales-architecture.html" class="group block bg-white border-2 border-gray-200 border-t-4 border-t-orange hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 no-underline">
+                    <div class="p-6 sm:p-8">
+                        <div class="flex items-center gap-3 mb-4">
+                            <svg class="w-6 h-6 text-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                            <span class="text-xs font-medium bg-orange-50 text-orange-700 px-2 py-1">Core</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-charcoal group-hover:text-orange transition-colors mb-3">Architecture</h3>
+                        <p class="text-sm text-charcoal-300 leading-relaxed">
+                            Order entity hierarchy, sales sequence tables, increment ID generation, order/invoice/shipment/creditmemo service contracts, repository pattern implementation.
+                        </p>
+                        <div class="flex flex-wrap gap-2 mt-4">
+                            <span class="text-xs text-charcoal-300 bg-charcoal-50 px-2 py-1">Entity Hierarchy</span>
+                            <span class="text-xs text-charcoal-300 bg-charcoal-50 px-2 py-1">Sequence Tables</span>
+                            <span class="text-xs text-charcoal-300 bg-charcoal-50 px-2 py-1">Repositories</span>
+                        </div>
+                        <span class="mt-6 text-sm font-medium text-orange group-hover:translate-x-1 transition-transform inline-flex items-center gap-1">
+                            Read document <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                        </span>
+                    </div>
+                </a>
+
+                <!-- Execution Flows -->
+                <a href="module-sales-execution-flows.html" class="group block bg-white border-2 border-gray-200 border-t-4 border-t-orange hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 no-underline">
+                    <div class="p-6 sm:p-8">
+                        <div class="flex items-center gap-3 mb-4">
+                            <svg class="w-6 h-6 text-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                            <span class="text-xs font-medium bg-orange-50 text-orange-700 px-2 py-1">Core</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-charcoal group-hover:text-orange transition-colors mb-3">Execution Flows</h3>
+                        <p class="text-sm text-charcoal-300 leading-relaxed">
+                            Quote-to-order conversion pipeline, invoice capture flow, shipment creation with tracking, credit memo refund processing, order status transition sequences.
+                        </p>
+                        <div class="flex flex-wrap gap-2 mt-4">
+                            <span class="text-xs text-charcoal-300 bg-charcoal-50 px-2 py-1">Quote-to-Order</span>
+                            <span class="text-xs text-charcoal-300 bg-charcoal-50 px-2 py-1">Invoice Capture</span>
+                            <span class="text-xs text-charcoal-300 bg-charcoal-50 px-2 py-1">Refunds</span>
+                        </div>
+                        <span class="mt-6 text-sm font-medium text-orange group-hover:translate-x-1 transition-transform inline-flex items-center gap-1">
+                            Read document <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                        </span>
+                    </div>
+                </a>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Extension Points -->
+    <section id="extension-points" class="py-16 bg-white">
+        <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="mb-10">
+                <h2 class="text-2xl sm:text-3xl font-bold text-charcoal">Extension Points</h2>
+                <p class="mt-2 text-charcoal-300">Plugins, observers, events, and integration patterns for extending Sales behavior.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                <!-- Plugins & Observers -->
+                <a href="module-sales-plugins-and-observers.html" class="group block bg-white border-2 border-gray-200 border-t-4 border-t-yellow-500 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 no-underline">
+                    <div class="p-6 sm:p-8">
+                        <div class="flex items-center gap-3 mb-4">
+                            <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z"/></svg>
+                            <span class="text-xs font-medium bg-yellow-50 text-yellow-800 px-2 py-1">Extension</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-charcoal group-hover:text-orange transition-colors mb-3">Plugins &amp; Observers</h3>
+                        <p class="text-sm text-charcoal-300 leading-relaxed">
+                            Plugins on OrderManagement::place(), InvoiceService::prepareInvoice(). Events: sales_order_save_after, sales_order_invoice_pay, sales_order_shipment_save_after. Order state change hooks.
+                        </p>
+                        <div class="flex flex-wrap gap-2 mt-4">
+                            <span class="text-xs text-charcoal-300 bg-charcoal-50 px-2 py-1 font-mono">sales_order_save_after</span>
+                            <span class="text-xs text-charcoal-300 bg-charcoal-50 px-2 py-1 font-mono">sales_order_invoice_pay</span>
+                        </div>
+                        <span class="mt-6 text-sm font-medium text-orange group-hover:translate-x-1 transition-transform inline-flex items-center gap-1">
+                            Read document <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                        </span>
+                    </div>
+                </a>
+
+                <!-- Integrations -->
+                <a href="module-sales-integrations.html" class="group block bg-white border-2 border-gray-200 border-t-4 border-t-yellow-500 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 no-underline">
+                    <div class="p-6 sm:p-8">
+                        <div class="flex items-center gap-3 mb-4">
+                            <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+                            <span class="text-xs font-medium bg-yellow-50 text-yellow-800 px-2 py-1">Extension</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-charcoal group-hover:text-orange transition-colors mb-3">Integrations</h3>
+                        <p class="text-sm text-charcoal-300 leading-relaxed">
+                            Dependencies on Quote, Customer, Payment, Tax, Catalog modules. ERP/WMS integration patterns. Order export APIs (REST/GraphQL). Payment gateway capture/refund coordination.
+                        </p>
+                        <div class="flex flex-wrap gap-2 mt-4">
+                            <span class="text-xs text-charcoal-300 bg-charcoal-50 px-2 py-1">REST API</span>
+                            <span class="text-xs text-charcoal-300 bg-charcoal-50 px-2 py-1">GraphQL</span>
+                            <span class="text-xs text-charcoal-300 bg-charcoal-50 px-2 py-1">ERP/WMS</span>
+                        </div>
+                        <span class="mt-6 text-sm font-medium text-orange group-hover:translate-x-1 transition-transform inline-flex items-center gap-1">
+                            Read document <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                        </span>
+                    </div>
+                </a>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Quality & Maintenance -->
+    <section id="quality" class="py-16 bg-off-white">
+        <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="mb-10">
+                <h2 class="text-2xl sm:text-3xl font-bold text-charcoal">Quality &amp; Maintenance</h2>
+                <p class="mt-2 text-charcoal-300">Anti-patterns, known issues, version compatibility, and performance optimization.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                <!-- Anti-Patterns -->
+                <a href="module-sales-anti-patterns.html" class="group block bg-white border-2 border-gray-200 border-t-4 border-t-charcoal hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 no-underline">
+                    <div class="p-6 sm:p-8">
+                        <div class="flex items-center gap-3 mb-4">
+                            <svg class="w-6 h-6 text-charcoal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/></svg>
+                            <span class="text-xs font-medium bg-charcoal-50 text-charcoal-400 px-2 py-1">Quality</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-charcoal group-hover:text-orange transition-colors mb-3">Anti-Patterns</h3>
+                        <p class="text-sm text-charcoal-300 leading-relaxed">
+                            Direct order state manipulation, bypassing OrderManagementInterface, loading full order collections for reporting, incorrect use of order comments for business logic.
+                        </p>
+                        <div class="flex flex-wrap gap-2 mt-4">
+                            <span class="text-xs text-charcoal-300 bg-charcoal-50 px-2 py-1">State Bypass</span>
+                            <span class="text-xs text-charcoal-300 bg-charcoal-50 px-2 py-1">Collection Misuse</span>
+                        </div>
+                        <span class="mt-6 text-sm font-medium text-orange group-hover:translate-x-1 transition-transform inline-flex items-center gap-1">
+                            Read document <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                        </span>
+                    </div>
+                </a>
+
+                <!-- Known Issues -->
+                <a href="module-sales-known-issues.html" class="group block bg-white border-2 border-gray-200 border-t-4 border-t-charcoal hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 no-underline">
+                    <div class="p-6 sm:p-8">
+                        <div class="flex items-center gap-3 mb-4">
+                            <svg class="w-6 h-6 text-charcoal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            <span class="text-xs font-medium bg-charcoal-50 text-charcoal-400 px-2 py-1">Quality</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-charcoal group-hover:text-orange transition-colors mb-3">Known Issues</h3>
+                        <p class="text-sm text-charcoal-300 leading-relaxed">
+                            Concurrent invoice creation race conditions, partial shipment quantity validation, credit memo adjustment calculation edge cases, increment ID gaps.
+                        </p>
+                        <div class="flex flex-wrap gap-2 mt-4">
+                            <span class="text-xs text-charcoal-300 bg-charcoal-50 px-2 py-1">Race Conditions</span>
+                            <span class="text-xs text-charcoal-300 bg-charcoal-50 px-2 py-1">ID Gaps</span>
+                        </div>
+                        <span class="mt-6 text-sm font-medium text-orange group-hover:translate-x-1 transition-transform inline-flex items-center gap-1">
+                            Read document <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                        </span>
+                    </div>
+                </a>
+
+                <!-- Version Compatibility -->
+                <a href="module-sales-version-compatibility.html" class="group block bg-white border-2 border-gray-200 border-t-4 border-t-charcoal hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 no-underline">
+                    <div class="p-6 sm:p-8">
+                        <div class="flex items-center gap-3 mb-4">
+                            <svg class="w-6 h-6 text-charcoal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/></svg>
+                            <span class="text-xs font-medium bg-charcoal-50 text-charcoal-400 px-2 py-1">Quality</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-charcoal group-hover:text-orange transition-colors mb-3">Version Compatibility</h3>
+                        <p class="text-sm text-charcoal-300 leading-relaxed">
+                            OrderManagementInterface parameter changes, deprecated order grid collection methods, async order operations introduced in 2.4.x.
+                        </p>
+                        <div class="flex flex-wrap gap-2 mt-4">
+                            <span class="text-xs text-charcoal-300 bg-charcoal-50 px-2 py-1">API Changes</span>
+                            <span class="text-xs text-charcoal-300 bg-charcoal-50 px-2 py-1">Deprecations</span>
+                        </div>
+                        <span class="mt-6 text-sm font-medium text-orange group-hover:translate-x-1 transition-transform inline-flex items-center gap-1">
+                            Read document <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                        </span>
+                    </div>
+                </a>
+
+                <!-- Performance -->
+                <a href="module-sales-performance.html" class="group block bg-white border-2 border-gray-200 border-t-4 border-t-charcoal hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 no-underline">
+                    <div class="p-6 sm:p-8">
+                        <div class="flex items-center gap-3 mb-4">
+                            <svg class="w-6 h-6 text-charcoal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                            <span class="text-xs font-medium bg-charcoal-50 text-charcoal-400 px-2 py-1">Quality</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-charcoal group-hover:text-orange transition-colors mb-3">Performance</h3>
+                        <p class="text-sm text-charcoal-300 leading-relaxed">
+                            Order grid optimization, sales flat tables indexing, batch invoice/shipment processing, sales report aggregation tuning.
+                        </p>
+                        <div class="flex flex-wrap gap-2 mt-4">
+                            <span class="text-xs text-charcoal-300 bg-charcoal-50 px-2 py-1">Grid Optimization</span>
+                            <span class="text-xs text-charcoal-300 bg-charcoal-50 px-2 py-1">Batch Processing</span>
+                        </div>
+                        <span class="mt-6 text-sm font-medium text-orange group-hover:translate-x-1 transition-transform inline-flex items-center gap-1">
+                            Read document <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                        </span>
+                    </div>
+                </a>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Related Modules -->
+    <section class="py-16 bg-white border-t border-gray-200">
+        <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-2xl sm:text-3xl font-bold text-charcoal mb-8">Related Modules</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+
+                <!-- Catalog -->
+                <a href="module-catalog.html" class="group block bg-off-white border-2 border-gray-200 border-l-4 border-l-orange hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 no-underline">
+                    <div class="p-6">
+                        <h3 class="text-lg font-bold text-charcoal group-hover:text-orange transition-colors">Magento_Catalog</h3>
+                        <p class="mt-2 text-sm text-charcoal-300">Product and category management, EAV attributes, pricing, and URL rewrites.</p>
+                        <span class="mt-4 text-sm font-medium text-orange group-hover:translate-x-1 transition-transform inline-flex items-center gap-1">
+                            Explore <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                        </span>
+                    </div>
+                </a>
+
+                <!-- Checkout -->
+                <a href="module-checkout.html" class="group block bg-off-white border-2 border-gray-200 border-l-4 border-l-orange hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 no-underline">
+                    <div class="p-6">
+                        <h3 class="text-lg font-bold text-charcoal group-hover:text-orange transition-colors">Magento_Checkout</h3>
+                        <p class="mt-2 text-sm text-charcoal-300">Multi-step checkout SPA, payment processing, shipping steps, and order placement.</p>
+                        <span class="mt-4 text-sm font-medium text-orange group-hover:translate-x-1 transition-transform inline-flex items-center gap-1">
+                            Explore <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                        </span>
+                    </div>
+                </a>
+
+                <!-- Customer -->
+                <a href="module-customer.html" class="group block bg-off-white border-2 border-gray-200 border-l-4 border-l-orange hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 no-underline">
+                    <div class="p-6">
+                        <h3 class="text-lg font-bold text-charcoal group-hover:text-orange transition-colors">Magento_Customer</h3>
+                        <p class="mt-2 text-sm text-charcoal-300">Registration, authentication, account management, addresses, and customer groups.</p>
+                        <span class="mt-4 text-sm font-medium text-orange group-hover:translate-x-1 transition-transform inline-flex items-center gap-1">
+                            Explore <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                        </span>
+                    </div>
+                </a>
+
+                <!-- Quote -->
+                <a href="module-quote.html" class="group block bg-off-white border-2 border-gray-200 border-l-4 border-l-orange hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 no-underline">
+                    <div class="p-6">
+                        <h3 class="text-lg font-bold text-charcoal group-hover:text-orange transition-colors">Magento_Quote</h3>
+                        <p class="mt-2 text-sm text-charcoal-300">Shopping cart, quote lifecycle, totals calculation, and quote-to-order conversion.</p>
+                        <span class="mt-4 text-sm font-medium text-orange group-hover:translate-x-1 transition-transform inline-flex items-center gap-1">
+                            Explore <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                        </span>
+                    </div>
+                </a>
+
+            </div>
+
+            <!-- Back to Modules -->
+            <div class="mt-12 pt-8 border-t border-gray-200">
+                <a href="modules.html" class="inline-flex items-center gap-2 text-sm font-medium text-orange hover:text-orange-600 transition-colors no-underline">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                    Back to all modules
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="relative pt-12 bg-white border-t border-charcoal">
+        <div class="max-w-screen-2xl mx-auto w-full px-4 sm:px-6 lg:px-8">
+            <div>
+                <a href="index.html" class="inline-flex items-center no-underline">
+                    <svg width="30" height="33" viewBox="0 0 30 33" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Magento Association logo" role="img">
+                        <path d="M0 4.06492H29.6763V31.8882C29.6763 32.502 29.1713 33 28.5487 33H1.12762C0.505079 33 0 32.502 0 31.8882V4.06492Z" fill="#34323A"/>
+                        <path d="M1.26857 0H28.4078C29.1066 0 29.6763 0.561678 29.6763 1.25075V4.06492H0V1.25075C0 0.561678 0.569682 0 1.26857 0Z" fill="#C9C9C9"/>
+                        <path d="M2.37269 3.0458C2.94031 3.0458 3.40046 2.59211 3.40046 2.03246C3.40046 1.47281 2.94031 1.01913 2.37269 1.01913C1.80506 1.01913 1.34491 1.47281 1.34491 2.03246C1.34491 2.59211 1.80506 3.0458 2.37269 3.0458Z" fill="#848484"/>
+                        <path d="M5.28571 3.0458C5.85334 3.0458 6.31349 2.59211 6.31349 2.03246C6.31349 1.47281 5.85334 1.01913 5.28571 1.01913C4.71809 1.01913 4.25793 1.47281 4.25793 2.03246C4.25793 2.59211 4.71809 3.0458 5.28571 3.0458Z" fill="#848484"/>
+                        <path d="M14.7883 7.46973L4.90405 13.0923V24.349L7.54104 25.8487V14.5978L14.7883 10.4692L22.0415 14.5978V25.8487L24.6785 24.349V13.0923L14.7883 7.46973Z" fill="#F1BC1B"/>
+                        <path d="M16.0862 26.2367L14.7883 26.9779L13.4492 26.2135V14.233L10.178 16.0975V27.3485L13.4492 29.213L14.7883 29.9773L16.0862 29.2362L19.4045 27.3485V16.0975L16.0862 14.2098V26.2367Z" fill="#F1BC1B"/>
+                    </svg>
+                    <span class="ml-3 text-xl font-bold text-charcoal">Developer Documentation</span>
+                </a>
+            </div>
+
+            <div class="grid grid-cols-12 md:gap-x-8 gap-y-12 lg:mt-12">
+                <div class="col-span-12 lg:col-span-4">
+                    <p class="hidden lg:block text-xs text-charcoal sm:text-sm">Comprehensive developer documentation for Magento 2.4.7+ — tutorials, architecture deep dives, module references, and production-ready patterns built by the community, for the community.</p>
+                    <ul class="mt-6 hidden lg:flex items-center gap-3">
+                        <li class="pl-0">
+                            <a href="https://github.com/magento/magento2" class="p-2 md:p-0" aria-label="GitHub">
+                                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                                </svg>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Guides</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="tutorials.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Tutorials</a></li>
+                            <li class="pl-0"><a href="how-to-guides.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">How-To Guides</a></li>
+                            <li class="pl-0"><a href="architecture.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Architecture</a></li>
+                            <li class="pl-0"><a href="learning-paths.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Learning Paths</a></li>
+                            <li class="pl-0"><a href="references.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">References</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Modules</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="module-catalog.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Catalog</a></li>
+                            <li class="pl-0"><a href="module-checkout.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Checkout</a></li>
+                            <li class="pl-0"><a href="module-sales.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Sales</a></li>
+                            <li class="pl-0"><a href="module-customer.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Customer</a></li>
+                            <li class="pl-0"><a href="module-quote.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Quote</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Community</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Magento Community</a></li>
+                            <li class="pl-0"><a href="https://magento.stackexchange.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Stack Exchange</a></li>
+                            <li class="pl-0"><a href="https://marketplace.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Marketplace</a></li>
+                            <li class="pl-0"><a href="https://github.com/magento/magento2" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">GitHub</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Support</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://github.com/magento/magento2/issues" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Report Issues</a></li>
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Community Resources</a></li>
+                            <li class="pl-0"><a href="https://developer.adobe.com/commerce/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Adobe Commerce Docs</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-12 border-t pt-6 pb-16 border-charcoal">
+                <p class="text-xs text-charcoal">
+                    &copy; 2026 Magento 2 Developer Documentation. Magento&reg; is a registered trademark of Adobe Inc.
+                </p>
+                <p class="mt-6 text-xs text-charcoal">
+                    This documentation provides guidance for Magento 2 developers and extension builders. For merchant documentation, visit the <a href="index.html" class="text-orange hover:text-orange-500 transition-colors">merchant documentation</a>.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

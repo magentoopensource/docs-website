@@ -1,0 +1,1539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Indexer System Deep Dive: Understanding Magento 2's Data Indexing Architecture — Magento 2 Developer Documentation</title>
+    <meta name="description" content="Comprehensive explanation of Magento 2's indexer system: Mview architecture, changelog tables, creating custom indexers, partial vs full reindex, optimization strategies, scheduled vs real-time indexing, and debugging index issues">
+
+    <!-- Google Fonts: Inter Tight only. Courier New used for code. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Highlight.js: syntax highlighting for code blocks -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/php.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/ini.min.js"></script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        charcoal: {
+                            DEFAULT: '#2c2c2c', 50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6',
+                            300: '#6B6B6B', 400: '#474747', 500: '#2c2c2c', 600: '#262626',
+                            700: '#202020', 800: '#1c1c1c', 900: '#191919', 950: '#121212'
+                        },
+                        orange: {
+                            DEFAULT: '#D4551A', 50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad',
+                            300: '#f9ae78', 400: '#f58242', 500: '#f26423', 600: '#e34613',
+                            700: '#bc3312', 800: '#962a16', 900: '#792515', 950: '#411009'
+                        },
+                        yellow: {
+                            DEFAULT: '#B8860B', 50: '#fffdeb', 100: '#fdf9c8', 200: '#fbf38c',
+                            300: '#f8e651', 400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a',
+                            700: '#b1670c', 800: '#8f5111', 900: '#764311', 950: '#442204'
+                        },
+                        'off-white': '#FAFAFA',
+                    },
+                    fontFamily: {
+                        sans: ['Inter Tight', 'system-ui', '-apple-system', 'sans-serif'],
+                        mono: ['Courier New', 'Courier', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* ── Force light mode ── */
+        :root { color-scheme: light only; }
+
+        [x-cloak] { display: none !important; }
+
+        /* ── Scroll offset for sticky header ── */
+        .prose h2, .prose h3 { scroll-margin-top: 5rem; }
+
+        /* ── Code blocks: Bauhaus charcoal bg, no border-radius, highlight.js override ── */
+        .prose pre {
+            background-color: #2C2C2C !important;
+            border-radius: 0 !important;
+            padding: 1.25rem;
+            overflow-x: auto;
+            font-size: 0.875rem;
+            line-height: 1.7;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 1.5rem 0;
+        }
+        .prose pre code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            background: transparent !important;
+            padding: 0;
+                    color: #abb2bf;
+        }
+        /* Override highlight.js theme background to match Bauhaus charcoal */
+        .hljs {
+            background: #2C2C2C !important;
+            color: #abb2bf !important;
+            border-radius: 0 !important;
+        }
+
+        /* ── Inline code: charcoal bg, yellow text, no border-radius ── */
+        .prose code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.85em;
+        }
+        .prose :not(pre) > code {
+            background-color: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2em 0.45em;
+            border-radius: 0;
+        }
+
+        /* ── Step-code: same charcoal/yellow style for UI path chips ── */
+        .step-code {
+            background: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2rem 0.5rem;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            border-radius: 0;
+        }
+
+        /* ── Tables: no border-radius, charcoal header ── */
+        .prose table { width: 100%; border-collapse: collapse; }
+        .prose th {
+            background-color: #2C2C2C;
+            color: #ffffff;
+            font-weight: 600;
+            text-align: left;
+            padding: 0.75rem 1rem;
+            border-bottom: 2px solid #2C2C2C;
+            border-radius: 0;
+        }
+        .prose td { padding: 0.75rem 1rem; border-bottom: 1px solid #e5e5e5; }
+        .prose tr:hover { background-color: #fafafa; }
+
+        /* ── Blockquote: Bauhaus style — border-4 yellow, square, no left-only border ── */
+        .prose blockquote {
+            border: 4px solid #F1BC1B;
+            background-color: #ffffff;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+            border-radius: 0;
+        }
+        .prose blockquote p { margin: 0; }
+
+        /* ── Lists: hexagon bullets ── */
+        .prose ul { list-style: none; padding-left: 0; }
+        .prose ul li {
+            position: relative;
+            padding-left: 1.75rem;
+            margin-bottom: 0.4rem;
+            line-height: 1.7;
+        }
+        .prose ul li::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0.45em;
+            width: 10px;
+            height: 10px;
+            background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 2L21 7V17L12 22L3 17V7L12 2Z' stroke='%23F26423' stroke-width='2.5' stroke-linejoin='miter'/%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+        .prose ol { list-style-type: decimal; padding-left: 1.5rem; }
+        .prose li { margin-bottom: 0.4rem; }
+
+        /* ── Headings ── */
+        .prose h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            padding-top: 1.5rem;
+            border-top: 4px solid #F1BC1B;
+            color: #2C2C2C;
+        }
+        .prose h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+            color: #2C2C2C;
+        }
+        .prose h4 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #2C2C2C;
+        }
+        .prose p { margin-bottom: 1rem; line-height: 1.75; }
+        .prose a { color: #D4551A; text-decoration: none; }
+        .prose a:hover { color: #e34613; text-decoration: underline; }
+        .prose hr { border: none; border-top: 1px solid #e5e5e5; margin: 2rem 0; }
+
+        /* ── Callout boxes: Bauhaus — border-4 yellow, white bg, icon + title ── */
+        .callout-box {
+            background-color: #ffffff;
+            border: 4px solid #F1BC1B;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+        }
+        .callout-warning {
+            border-color: #D4551A;
+        }
+        .callout-important {
+            border-color: #2C2C2C;
+        }
+        .callout-box .callout-inner {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+        .callout-box .callout-title {
+            font-weight: 600;
+            color: #2C2C2C;
+            margin-bottom: 0.25rem;
+        }
+        .callout-box .callout-body {
+            font-size: 0.875rem;
+            line-height: 1.6;
+            color: rgba(44,44,44,0.85);
+        }
+
+        
+    
+        /* Code block copy button */
+        .code-wrapper {
+            position: relative;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            font-family: 'Inter Tight', system-ui, sans-serif;
+            background: rgba(255,255,255,0.1);
+            color: #abb2bf;
+            border: 1px solid rgba(255,255,255,0.15);
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.15s ease, background 0.15s ease;
+            z-index: 10;
+            line-height: 1.4;
+            border-radius: 4px;
+            user-select: none;
+        }
+        .code-wrapper:hover .copy-btn {
+            opacity: 1;
+        }
+        .copy-btn:hover,
+        .copy-btn:focus {
+            background: rgba(255,255,255,0.2);
+            color: #ffffff;
+            outline: 2px solid #D4551A;
+            outline-offset: 1px;
+        }
+        .copy-btn.copied {
+            color: #98c379;
+            background: rgba(152, 195, 121, 0.15);
+            opacity: 1;
+        }
+    
+        /* Right-hand TOC sidebar */
+        .toc-sidebar {
+            width: 14rem;
+            flex-shrink: 0;
+        }
+        .toc-sidebar a {
+            display: block;
+            padding: 0.375rem 0;
+            font-size: 0.8125rem;
+            line-height: 1.4;
+            color: #6b7280;
+            text-decoration: none;
+            transition: color 0.15s ease;
+            border-left: 2px solid transparent;
+            padding-left: 0.75rem;
+        }
+        .toc-sidebar a:hover {
+            color: #111827;
+        }
+        .toc-sidebar a.toc-active {
+            color: #ea580c;
+            border-left-color: #ea580c;
+            font-weight: 500;
+        }
+        .toc-sidebar a.toc-h3 {
+            padding-left: 1.5rem;
+            font-size: 0.75rem;
+        }
+        .toc-sidebar .toc-back-to-top {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e5e7eb;
+        }
+        .toc-sidebar .toc-back-to-top a {
+            border-left: none;
+            padding-left: 0;
+            font-weight: 500;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .toc-sidebar .toc-back-to-top a:hover {
+            color: #ea580c;
+        }
+    </style>
+</head>
+
+<body class="font-sans bg-off-white text-charcoal">
+
+    <!-- Shared header — single source of truth -->
+    <script src="includes/header.js"></script>
+
+    <!-- Breadcrumb — orange › separators -->
+    <div class="bg-white border-b border-gray-100">
+        <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <div class="flex items-center gap-2 text-sm flex-wrap">
+                <a href="index.html" class="text-orange hover:text-orange-600 transition-colors no-underline">Home</a> <span class="text-orange font-medium">›</span> <a href="index.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">Guides</a> <span class="text-orange font-medium">›</span> <a href="architecture.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">Architecture</a> <span class="text-orange font-medium">›</span> <span class="text-charcoal font-medium">Indexer System Deep Dive: Understanding Magento 2's Data Indexing Architecture</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="flex gap-8">
+
+            <!-- Left Sidebar (desktop) -->
+            <aside class="hidden lg:block w-64 flex-shrink-0">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4">Architecture</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="guide-explanation-b2b-features.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">B2B Features Development</a></li>
+<li class="pl-0"><a href="guide-explanation-eav-system.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">EAV System Architecture: Underst...</a></li>
+<li class="pl-0"><a href="guide-explanation-graphql-resolver-patterns.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">GraphQL Resolver Patterns in Mag...</a></li>
+<li class="pl-0"><a href="guide-explanation-indexer-system.html" class="block px-3 py-2 text-sm text-orange font-semibold bg-orange-50 border-l-4 border-orange pl-2 transition-colors no-underline">Indexer System Deep Dive: Unders...</a></li>
+<li class="pl-0"><a href="guide-explanation-message-queue-architecture.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Message Queue Architecture in Ma...</a></li>
+<li class="pl-0"><a href="guide-explanation-service-contracts-repositories.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Service Contracts vs Repositorie...</a></li>
+</ul>
+<h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4 mt-8">Guide Sections</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="tutorials.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Tutorials</a></li>
+<li class="pl-0"><a href="how-to-guides.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">How-To Guides</a></li>
+<li class="pl-0"><a href="architecture.html" class="block px-3 py-2 text-sm text-orange font-semibold bg-orange-50 border-l-4 border-orange pl-2 transition-colors no-underline">Architecture</a></li>
+<li class="pl-0"><a href="references.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">References</a></li>
+</ul>
+                </div>
+            </aside>
+
+            <!-- Article — square corners, border-t-4 orange accent -->
+            <main id="main-content" class="flex-1 min-w-0">
+                <article class="bg-white shadow-sm border border-gray-100 border-t-4 border-t-orange p-8 md:p-12">
+                    <!-- Title block -->
+                    <div class="mb-8">
+                        <span class="inline-block px-3 py-1.5 text-xs font-medium bg-charcoal-50 text-charcoal border border-charcoal-100">Explanation</span>
+                        <h1 class="text-3xl md:text-4xl font-extrabold text-charcoal mt-3 mb-3">Indexer System Deep Dive: Understanding Magento 2's Data Indexing Architecture</h1>
+                        <p class="text-charcoal-300 text-lg mb-4">Comprehensive explanation of Magento 2's indexer system: Mview architecture, changelog tables, creating custom indexers, partial vs full reindex, optimization strategies, scheduled vs real-time indexing, and debugging index issues</p>
+                        <!-- Meta pills -->
+                        <div class="flex flex-wrap gap-2"><span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-yellow-50 text-yellow-800"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>Advanced</span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-orange-50 text-orange-700"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>90 minutes</span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-charcoal text-white">Magento 2.4.7+</span></div>
+                    </div>
+
+                    <hr class="border-0 border-t border-gray-100 mb-8">
+
+                    <!-- Content -->
+                    <div class="prose max-w-none">
+                        <h1 id="indexer-system-deep-dive-understanding-magento-2s-data-indexing-architecture">Indexer System Deep Dive: Understanding Magento 2's Data Indexing Architecture</h1>
+<h2 id="learning-objectives">Learning Objectives</h2>
+<p>By completing this guide, you will:</p>
+<ul>
+<li>Understand Magento 2's indexer architecture and the Mview (Materialized View) framework</li>
+<li>Master changelog tables and MySQL triggers for incremental indexing</li>
+<li>Create custom indexers with proper dependency management</li>
+<li>Distinguish between full reindex, partial reindex, and update on save</li>
+<li>Optimize index performance for large catalogs</li>
+<li>Choose between scheduled and real-time (update on save) indexing modes</li>
+<li>Debug index-related issues and inconsistencies</li>
+<li>Monitor and maintain index health in production environments</li>
+</ul>
+<h2 id="introduction">Introduction</h2>
+<p>Magento 2's indexer system is a <strong>denormalization engine</strong> that transforms normalized database data into optimized flat structures for fast read operations. Without indexing, every product list page would require hundreds of database queries across EAV tables, categories, inventory, and prices.</p>
+<h3 id="why-indexing-is-critical">Why Indexing is Critical</h3>
+<p><strong>Performance impact:</strong>
+- <strong>Without indexes</strong>: Product list query with 100 products = 500+ queries
+- <strong>With indexes</strong>: Same query = 1-2 queries to flat index tables</p>
+<p><strong>Real-world example:</strong>
+- Category page loads in 200ms with indexes
+- Same page loads in 5-10 seconds without indexes (timeout)</p>
+<h3 id="core-indexers-in-magento-2">Core Indexers in Magento 2</h3>
+<div class="overflow-x-auto my-6 border border-gray-200"><table class="min-w-full">
+<thead>
+<tr>
+<th>Indexer</th>
+<th>Purpose</th>
+<th>Index Tables</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>catalog_product_attribute</strong></td>
+<td>Product EAV attributes flattened for layered navigation</td>
+<td><code>catalog_product_index_eav_*</code></td>
+</tr>
+<tr>
+<td><strong>catalog_product_price</strong></td>
+<td>Product final prices (tier pricing, special prices, customer groups)</td>
+<td><code>catalog_product_index_price*</code></td>
+</tr>
+<tr>
+<td><strong>catalog_category_product</strong></td>
+<td>Product-category associations with position</td>
+<td><code>catalog_category_product_index*</code></td>
+</tr>
+<tr>
+<td><strong>cataloginventory_stock</strong></td>
+<td>Stock status (in stock/out of stock) per source</td>
+<td><code>cataloginventory_stock_status</code></td>
+</tr>
+<tr>
+<td><strong>catalogsearch_fulltext</strong></td>
+<td>Elasticsearch/OpenSearch product search index</td>
+<td>External search engine</td>
+</tr>
+<tr>
+<td><strong>catalog_product_flat</strong></td>
+<td>All product attributes in single table (deprecated)</td>
+<td><code>catalog_product_flat_*</code></td>
+</tr>
+<tr>
+<td><strong>customer_grid</strong></td>
+<td>Customer list for admin grid</td>
+<td><code>customer_grid_flat</code></td>
+</tr>
+<tr>
+<td><strong>design_config_grid</strong></td>
+<td>Design configuration for admin</td>
+<td><code>design_config_grid_flat</code></td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="indexer-architecture">Indexer Architecture</h2>
+<h3 id="components-overview">Components Overview</h3>
+<pre><code>Source Data (EAV, Relations)
+  ↓
+Changelog Tables (track changes via triggers)
+  ↓
+Mview (Materialized View Framework)
+  ↓
+Indexer Action Classes (execute reindex logic)
+  ↓
+Index Tables (denormalized data)
+  ↓
+Frontend Queries (fast reads)
+</code></pre>
+<h3 id="mview-materialized-view-framework">Mview (Materialized View) Framework</h3>
+<p><strong>Mview</strong> is Magento's framework for managing incremental index updates using changelog tables and database triggers.</p>
+<p><strong>Key concepts:</strong>
+- <strong>Changelog table</strong>: Records which entity IDs changed since last reindex
+- <strong>Subscription</strong>: Links a changelog to an index table
+- <strong>Version</strong>: Tracks last processed changelog record
+- <strong>Trigger</strong>: MySQL trigger that writes to changelog on data changes</p>
+<p><strong>Mview flow:</strong>
+1. Entity changes (product save, stock update) → MySQL trigger fires
+2. Trigger writes entity ID to changelog table (<code>*_cl</code> tables)
+3. Cron job (<code>indexer_update_all_views</code>) processes changelog
+4. Indexer reads changed IDs from changelog
+5. Indexer reindexes only changed entities (partial reindex)
+6. Version ID updated to mark changelog as processed</p>
+<p><strong>Advantages:</strong>
+- <strong>Incremental updates</strong>: Only reindex changed entities
+- <strong>Decoupled</strong>: Source data changes don't block index updates
+- <strong>Scheduled</strong>: Index updates run via cron, not inline during admin saves</p>
+<h2 id="changelog-tables-and-triggers">Changelog Tables and Triggers</h2>
+<h3 id="changelog-table-structure">Changelog Table Structure</h3>
+<p>Every Mview-enabled indexer has a changelog table with this structure:</p>
+<pre><code class="language-sql">CREATE TABLE `catalog_category_product_cl` (
+  `version_id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Version ID',
+  `entity_id` INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Entity ID (product_id)',
+  PRIMARY KEY (`version_id`),
+  KEY `IDX_CATALOG_CATEGORY_PRODUCT_CL_ENTITY_ID` (`entity_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='catalog_category_product_cl';
+</code></pre>
+<p><strong>Fields:</strong>
+- <code>version_id</code>: Auto-increment primary key tracking changelog entry order
+- <code>entity_id</code>: ID of changed entity (e.g., product_id, category_id)</p>
+<p><strong>Key characteristics:</strong>
+- Lightweight (2 columns only)
+- Fast inserts (triggered on every entity change)
+- No foreign keys (performance optimization)</p>
+<h3 id="mysql-triggers">MySQL Triggers</h3>
+<p>Magento creates triggers on source tables that write to changelog tables.</p>
+<p><strong>Example trigger for <code>catalog_category_product</code>:</strong></p>
+<pre><code class="language-sql">CREATE TRIGGER trg_catalog_category_product_after_insert
+AFTER INSERT ON catalog_category_product
+FOR EACH ROW
+BEGIN
+    INSERT IGNORE INTO catalog_category_product_cl (entity_id) VALUES (NEW.product_id);
+END;
+
+CREATE TRIGGER trg_catalog_category_product_after_update
+AFTER UPDATE ON catalog_category_product
+FOR EACH ROW
+BEGIN
+    INSERT IGNORE INTO catalog_category_product_cl (entity_id) VALUES (NEW.product_id);
+END;
+
+CREATE TRIGGER trg_catalog_category_product_after_delete
+AFTER DELETE ON catalog_category_product
+FOR EACH ROW
+BEGIN
+    INSERT IGNORE INTO catalog_category_product_cl (entity_id) VALUES (OLD.product_id);
+END;
+</code></pre>
+<p><strong>Trigger behavior:</strong>
+- <code>INSERT IGNORE</code>: Prevents duplicate entries (same entity ID already in changelog)
+- Writes happen <strong>after</strong> main table modification (consistent state)
+- Performance impact: &lt;1ms per trigger (acceptable overhead)</p>
+<h3 id="viewing-changelog-data">Viewing Changelog Data</h3>
+<pre><code class="language-bash"># Count pending changelog entries
+mysql&gt; SELECT COUNT(*) FROM catalog_category_product_cl;
+
+# View recent changes
+mysql&gt; SELECT * FROM catalog_category_product_cl ORDER BY version_id DESC LIMIT 100;
+
+# Find all changelog tables
+mysql&gt; SHOW TABLES LIKE '%_cl';
+</code></pre>
+<h2 id="indexer-modes">Indexer Modes</h2>
+<p>Magento indexers support two modes:</p>
+<h3 id="1-update-on-save-real-time">1. Update on Save (Real-time)</h3>
+<p><strong>Behavior:</strong>
+- Index updates <strong>immediately</strong> when entity is saved
+- No changelog tables used
+- Synchronous operation (blocks admin save)</p>
+<p><strong>Configuration:</strong></p>
+<pre><code class="language-bash">bin/magento indexer:set-mode realtime catalog_product_price
+</code></pre>
+<p><strong>Use cases:</strong>
+- Small catalogs (&lt;5,000 products)
+- Real-time price/stock accuracy required
+- Low admin save frequency</p>
+<p><strong>Drawbacks:</strong>
+- Admin product save can take 5-10+ seconds
+- Concurrent saves cause bottlenecks
+- High database load during business hours</p>
+<h3 id="2-update-by-schedule-scheduled">2. Update by Schedule (Scheduled)</h3>
+<p><strong>Behavior:</strong>
+- Changes tracked in changelog tables via triggers
+- Index updates via cron job (<code>indexer_update_all_views</code>)
+- Asynchronous operation (non-blocking saves)</p>
+<p><strong>Configuration:</strong></p>
+<pre><code class="language-bash">bin/magento indexer:set-mode schedule catalog_product_price
+</code></pre>
+<p><strong>Cron job:</strong></p>
+<pre><code class="language-xml">&lt;!-- vendor/magento/module-indexer/etc/crontab.xml --&gt;
+&lt;job name=&quot;indexer_update_all_views&quot; instance=&quot;Magento\Indexer\Cron\UpdateMview&quot; method=&quot;execute&quot;&gt;
+    &lt;schedule&gt;* * * * *&lt;/schedule&gt;&lt;!-- Every minute --&gt;
+&lt;/job&gt;
+</code></pre>
+<p><strong>Use cases:</strong>
+- Medium to large catalogs (5,000+ products)
+- High admin save frequency
+- Production environments (recommended)</p>
+<p><strong>Advantages:</strong>
+- Fast admin saves (&lt;1 second)
+- Controlled resource usage (cron handles load)
+- Scales to millions of products</p>
+<p><strong>Drawbacks:</strong>
+- Index updates delayed by cron frequency (up to 1 minute)
+- Requires working cron jobs</p>
+<h3 id="mode-comparison">Mode Comparison</h3>
+<div class="overflow-x-auto my-6 border border-gray-200"><table class="min-w-full">
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Update on Save</th>
+<th>Update by Schedule</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Admin save time</strong></td>
+<td>Slow (5-10s)</td>
+<td>Fast (&lt;1s)</td>
+</tr>
+<tr>
+<td><strong>Index freshness</strong></td>
+<td>Immediate</td>
+<td>1-minute delay</td>
+</tr>
+<tr>
+<td><strong>Database load</strong></td>
+<td>Spiky (during saves)</td>
+<td>Steady (via cron)</td>
+</tr>
+<tr>
+<td><strong>Scalability</strong></td>
+<td>Poor</td>
+<td>Excellent</td>
+</tr>
+<tr>
+<td><strong>Production use</strong></td>
+<td>Not recommended</td>
+<td>Recommended</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Best practice:</strong> Use <strong>scheduled mode</strong> in production, <strong>realtime mode</strong> only for development/testing.</p>
+<h2 id="creating-a-custom-indexer">Creating a Custom Indexer</h2>
+<p>Let's create a custom indexer that maintains a denormalized table of products with their final prices and stock status for fast API responses.</p>
+<h3 id="step-1-define-indexer-configuration">Step 1: Define Indexer Configuration</h3>
+<p><strong>etc/indexer.xml</strong></p>
+<pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;config xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+        xsi:noNamespaceSchemaLocation=&quot;urn:magento:framework:Indexer/etc/indexer.xsd&quot;&gt;
+    &lt;indexer id=&quot;vendor_custom_product_data&quot;
+             view_id=&quot;vendor_custom_product_data&quot;
+             class=&quot;Vendor\Module\Model\Indexer\ProductData&quot;
+             primary=&quot;product_id&quot;&gt;
+        &lt;title translate=&quot;true&quot;&gt;Custom Product Data Index&lt;/title&gt;
+        &lt;description translate=&quot;true&quot;&gt;Maintains denormalized product data for fast API access&lt;/description&gt;
+
+        &lt;!-- Dependencies: Reindex this indexer when these indexers run --&gt;
+        &lt;depends&gt;
+            &lt;indexer id=&quot;catalog_product_price&quot;/&gt;
+            &lt;indexer id=&quot;cataloginventory_stock&quot;/&gt;
+        &lt;/depends&gt;
+    &lt;/indexer&gt;
+&lt;/config&gt;
+</code></pre>
+<p><strong>Configuration fields:</strong>
+- <code>id</code>: Unique indexer identifier
+- <code>view_id</code>: Mview subscription ID (links to mview.xml)
+- <code>class</code>: Indexer action class implementing <code>ActionInterface</code>
+- <code>primary</code>: Primary key column in index table
+- <code>depends</code>: Indexers that should trigger this indexer's reindex</p>
+<h3 id="step-2-define-mview-subscription">Step 2: Define Mview Subscription</h3>
+<p><strong>etc/mview.xml</strong></p>
+<pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;config xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+        xsi:noNamespaceSchemaLocation=&quot;urn:magento:framework:Mview/etc/mview.xsd&quot;&gt;
+    &lt;view id=&quot;vendor_custom_product_data&quot;
+          class=&quot;Vendor\Module\Model\Indexer\ProductData&quot;
+          group=&quot;indexer&quot;&gt;
+
+        &lt;!-- Changelog table --&gt;
+        &lt;subscriptions&gt;
+            &lt;!-- Track product changes --&gt;
+            &lt;table name=&quot;catalog_product_entity&quot; entity_column=&quot;entity_id&quot;/&gt;
+
+            &lt;!-- Track price changes --&gt;
+            &lt;table name=&quot;catalog_product_entity_decimal&quot; entity_column=&quot;entity_id&quot;&gt;
+                &lt;column name=&quot;attribute_id&quot;/&gt;&lt;!-- Only track specific attributes --&gt;
+            &lt;/table&gt;
+
+            &lt;!-- Track stock changes --&gt;
+            &lt;table name=&quot;cataloginventory_stock_item&quot; entity_column=&quot;product_id&quot;/&gt;
+
+            &lt;!-- Track category assignments --&gt;
+            &lt;table name=&quot;catalog_category_product&quot; entity_column=&quot;product_id&quot;/&gt;
+        &lt;/subscriptions&gt;
+    &lt;/view&gt;
+&lt;/config&gt;
+</code></pre>
+<p><strong>Subscription configuration:</strong>
+- <code>table name</code>: Source table to track changes on
+- <code>entity_column</code>: Column containing the entity ID to write to changelog
+- <code>column</code>: Filter triggers to specific columns (optional)</p>
+<p><strong>Generated changelog table</strong>: <code>vendor_custom_product_data_cl</code></p>
+<h3 id="step-3-create-index-table-schema">Step 3: Create Index Table Schema</h3>
+<p><strong>etc/db_schema.xml</strong></p>
+<pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;schema xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+        xsi:noNamespaceSchemaLocation=&quot;urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd&quot;&gt;
+    &lt;table name=&quot;vendor_custom_product_data_index&quot; resource=&quot;default&quot; engine=&quot;innodb&quot; comment=&quot;Custom Product Data Index&quot;&gt;
+        &lt;column xsi:type=&quot;int&quot; name=&quot;product_id&quot; unsigned=&quot;true&quot; nullable=&quot;false&quot; comment=&quot;Product ID&quot;/&gt;
+        &lt;column xsi:type=&quot;varchar&quot; name=&quot;sku&quot; nullable=&quot;false&quot; length=&quot;64&quot; comment=&quot;SKU&quot;/&gt;
+        &lt;column xsi:type=&quot;varchar&quot; name=&quot;name&quot; nullable=&quot;false&quot; length=&quot;255&quot; comment=&quot;Product Name&quot;/&gt;
+        &lt;column xsi:type=&quot;decimal&quot; name=&quot;price&quot; scale=&quot;4&quot; precision=&quot;20&quot; unsigned=&quot;false&quot; nullable=&quot;false&quot; default=&quot;0&quot; comment=&quot;Final Price&quot;/&gt;
+        &lt;column xsi:type=&quot;int&quot; name=&quot;qty&quot; unsigned=&quot;true&quot; nullable=&quot;false&quot; default=&quot;0&quot; comment=&quot;Stock Quantity&quot;/&gt;
+        &lt;column xsi:type=&quot;smallint&quot; name=&quot;is_in_stock&quot; unsigned=&quot;true&quot; nullable=&quot;false&quot; default=&quot;0&quot; comment=&quot;Stock Status&quot;/&gt;
+        &lt;column xsi:type=&quot;int&quot; name=&quot;category_id&quot; unsigned=&quot;true&quot; nullable=&quot;true&quot; comment=&quot;Primary Category ID&quot;/&gt;
+        &lt;column xsi:type=&quot;timestamp&quot; name=&quot;updated_at&quot; on_update=&quot;true&quot; nullable=&quot;false&quot; default=&quot;CURRENT_TIMESTAMP&quot; comment=&quot;Last Updated&quot;/&gt;
+
+        &lt;constraint xsi:type=&quot;primary&quot; referenceId=&quot;PRIMARY&quot;&gt;
+            &lt;column name=&quot;product_id&quot;/&gt;
+        &lt;/constraint&gt;
+
+        &lt;index referenceId=&quot;VENDOR_CUSTOM_PRODUCT_DATA_INDEX_SKU&quot; indexType=&quot;btree&quot;&gt;
+            &lt;column name=&quot;sku&quot;/&gt;
+        &lt;/index&gt;
+
+        &lt;index referenceId=&quot;VENDOR_CUSTOM_PRODUCT_DATA_INDEX_IS_IN_STOCK&quot; indexType=&quot;btree&quot;&gt;
+            &lt;column name=&quot;is_in_stock&quot;/&gt;
+        &lt;/index&gt;
+
+        &lt;index referenceId=&quot;VENDOR_CUSTOM_PRODUCT_DATA_INDEX_CATEGORY_ID&quot; indexType=&quot;btree&quot;&gt;
+            &lt;column name=&quot;category_id&quot;/&gt;
+        &lt;/index&gt;
+    &lt;/table&gt;
+&lt;/schema&gt;
+</code></pre>
+<p><strong>Index table design principles:</strong>
+- <strong>Denormalized</strong>: All data in single table (no joins required)
+- <strong>Primary key</strong>: Entity ID for fast lookups
+- <strong>Indexes</strong>: Cover query patterns (SKU lookup, stock filtering, category filtering)
+- <strong>Updated timestamp</strong>: Track index freshness</p>
+<h3 id="step-4-implement-indexer-action-class">Step 4: Implement Indexer Action Class</h3>
+<p><strong>Model/Indexer/ProductData.php</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Model\Indexer;
+
+use Magento\Framework\App\ResourceConnection;
+use Magento\Framework\DB\Adapter\AdapterInterface;
+use Magento\Framework\Indexer\ActionInterface;
+use Magento\Framework\Mview\ActionInterface as MviewActionInterface;
+
+/**
+ * Custom product data indexer
+ */
+class ProductData implements ActionInterface, MviewActionInterface
+{
+    private const INDEX_TABLE = 'vendor_custom_product_data_index';
+
+    public function __construct(
+        private readonly ResourceConnection $resourceConnection,
+        private readonly ProductDataBuilder $dataBuilder
+    ) {}
+
+    /**
+     * Execute full reindex
+     *
+     * @return void
+     */
+    public function executeFull(): void
+    {
+        $connection = $this-&gt;getConnection();
+
+        // Truncate index table for clean rebuild
+        $connection-&gt;truncateTable($this-&gt;getIndexTable());
+
+        // Fetch all product data
+        $data = $this-&gt;dataBuilder-&gt;buildAllData();
+
+        // Insert in batches
+        $this-&gt;insertBatch($connection, $data);
+    }
+
+    /**
+     * Execute partial reindex for specific product IDs
+     *
+     * @param array $ids Product IDs to reindex
+     * @return void
+     */
+    public function executeList(array $ids): void
+    {
+        if (empty($ids)) {
+            return;
+        }
+
+        $connection = $this-&gt;getConnection();
+
+        // Delete existing records for these IDs
+        $connection-&gt;delete(
+            $this-&gt;getIndexTable(),
+            ['product_id IN (?)' =&gt; $ids]
+        );
+
+        // Fetch data for specified IDs
+        $data = $this-&gt;dataBuilder-&gt;buildData($ids);
+
+        // Insert updated data
+        $this-&gt;insertBatch($connection, $data);
+    }
+
+    /**
+     * Execute partial reindex for single product ID
+     *
+     * @param int $id Product ID
+     * @return void
+     */
+    public function executeRow($id): void
+    {
+        $this-&gt;executeList([$id]);
+    }
+
+    /**
+     * Execute incremental reindex based on changelog
+     *
+     * @param int[] $ids Changed entity IDs from changelog
+     * @return void
+     */
+    public function execute($ids): void
+    {
+        $this-&gt;executeList($ids);
+    }
+
+    /**
+     * Insert data in batches for memory efficiency
+     */
+    private function insertBatch(AdapterInterface $connection, array $data, int $batchSize = 1000): void
+    {
+        $batch = [];
+
+        foreach ($data as $row) {
+            $batch[] = $row;
+
+            if (count($batch) &gt;= $batchSize) {
+                $connection-&gt;insertMultiple($this-&gt;getIndexTable(), $batch);
+                $batch = [];
+            }
+        }
+
+        if (!empty($batch)) {
+            $connection-&gt;insertMultiple($this-&gt;getIndexTable(), $batch);
+        }
+    }
+
+    /**
+     * Get database connection
+     */
+    private function getConnection(): AdapterInterface
+    {
+        return $this-&gt;resourceConnection-&gt;getConnection();
+    }
+
+    /**
+     * Get index table name
+     */
+    private function getIndexTable(): string
+    {
+        return $this-&gt;resourceConnection-&gt;getTableName(self::INDEX_TABLE);
+    }
+}
+</code></pre>
+<p><strong>Indexer interface requirements:</strong></p>
+<ul>
+<li><code>ActionInterface::executeFull()</code>: Full reindex (all entities)</li>
+<li><code>ActionInterface::executeList(array $ids)</code>: Partial reindex (specific IDs)</li>
+<li><code>ActionInterface::executeRow($id)</code>: Reindex single entity</li>
+<li><code>MviewActionInterface::execute($ids)</code>: Incremental reindex from changelog</li>
+</ul>
+<h3 id="step-5-implement-data-builder">Step 5: Implement Data Builder</h3>
+<p><strong>Model/Indexer/ProductDataBuilder.php</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Model\Indexer;
+
+use Magento\Catalog\Api\Data\ProductInterface;
+use Magento\Catalog\Model\ResourceModel\Product\CollectionFactory;
+use Magento\CatalogInventory\Api\StockRegistryInterface;
+use Magento\Framework\Pricing\PriceCurrencyInterface;
+use Magento\Store\Model\StoreManagerInterface;
+
+/**
+ * Build index data from source tables
+ */
+class ProductDataBuilder
+{
+    public function __construct(
+        private readonly CollectionFactory $productCollectionFactory,
+        private readonly StockRegistryInterface $stockRegistry,
+        private readonly PriceCurrencyInterface $priceCurrency,
+        private readonly StoreManagerInterface $storeManager
+    ) {}
+
+    /**
+     * Build data for all products
+     *
+     * @return array
+     */
+    public function buildAllData(): array
+    {
+        $collection = $this-&gt;productCollectionFactory-&gt;create();
+        $collection-&gt;addAttributeToSelect(['sku', 'name', 'price']);
+
+        $data = [];
+
+        foreach ($collection as $product) {
+            $data[] = $this-&gt;buildProductData($product);
+        }
+
+        return $data;
+    }
+
+    /**
+     * Build data for specific product IDs
+     *
+     * @param array $ids
+     * @return array
+     */
+    public function buildData(array $ids): array
+    {
+        $collection = $this-&gt;productCollectionFactory-&gt;create();
+        $collection-&gt;addAttributeToSelect(['sku', 'name', 'price']);
+        $collection-&gt;addIdFilter($ids);
+
+        $data = [];
+
+        foreach ($collection as $product) {
+            $data[] = $this-&gt;buildProductData($product);
+        }
+
+        return $data;
+    }
+
+    /**
+     * Build index data for single product
+     */
+    private function buildProductData(ProductInterface $product): array
+    {
+        $stockItem = $this-&gt;stockRegistry-&gt;getStockItem($product-&gt;getId());
+
+        return [
+            'product_id' =&gt; $product-&gt;getId(),
+            'sku' =&gt; $product-&gt;getSku(),
+            'name' =&gt; $product-&gt;getName(),
+            'price' =&gt; $product-&gt;getFinalPrice(),
+            'qty' =&gt; $stockItem-&gt;getQty(),
+            'is_in_stock' =&gt; $stockItem-&gt;getIsInStock() ? 1 : 0,
+            'category_id' =&gt; $this-&gt;getPrimaryCategory($product),
+            'updated_at' =&gt; date('Y-m-d H:i:s'),
+        ];
+    }
+
+    /**
+     * Get product's primary category ID
+     */
+    private function getPrimaryCategory(ProductInterface $product): ?int
+    {
+        $categoryIds = $product-&gt;getCategoryIds();
+
+        return !empty($categoryIds) ? (int) $categoryIds[0] : null;
+    }
+}
+</code></pre>
+<p><strong>Data builder responsibilities:</strong>
+- Query source tables (EAV, stock, categories)
+- Transform data into index table format
+- Handle missing data gracefully
+- Optimize queries (load collections, not individual products)</p>
+<h3 id="step-6-run-indexer">Step 6: Run Indexer</h3>
+<pre><code class="language-bash"># Reindex custom indexer
+bin/magento indexer:reindex vendor_custom_product_data
+
+# Check status
+bin/magento indexer:status vendor_custom_product_data
+
+# Set to scheduled mode
+bin/magento indexer:set-mode schedule vendor_custom_product_data
+
+# Reset indexer (clears version, forces full reindex on next run)
+bin/magento indexer:reset vendor_custom_product_data
+</code></pre>
+<h2 id="full-reindex-vs-partial-reindex">Full Reindex vs Partial Reindex</h2>
+<h3 id="full-reindex">Full Reindex</h3>
+<p><strong>When it runs:</strong>
+- Manual: <code>bin/magento indexer:reindex</code>
+- Indexer is invalid/reset: First cron run after reset
+- Dependency triggers full reindex: When dependent indexer runs full reindex</p>
+<p><strong>Process:</strong>
+1. Truncate index table
+2. Rebuild from scratch (all entities)
+3. Mark indexer as valid</p>
+<p><strong>Duration:</strong>
+- Small catalogs (&lt;10k products): 1-5 minutes
+- Large catalogs (100k+ products): 10-60+ minutes</p>
+<p><strong>Use cases:</strong>
+- After major data imports
+- Index corruption detected
+- Structural changes to index logic</p>
+<h3 id="partial-reindex">Partial Reindex</h3>
+<p><strong>When it runs:</strong>
+- Scheduled mode: Every cron run (processes changelog)
+- Update on save: After entity save</p>
+<p><strong>Process:</strong>
+1. Read changed entity IDs from changelog
+2. Delete existing index records for those IDs
+3. Rebuild index records for those IDs only
+4. Update changelog version</p>
+<p><strong>Duration:</strong>
+- Typically &lt;1 second (processes 100-1000 entities)</p>
+<p><strong>Use cases:</strong>
+- Normal operations (product saves, stock updates)
+- Price changes
+- Category assignments</p>
+<h3 id="performance-comparison">Performance Comparison</h3>
+<div class="overflow-x-auto my-6 border border-gray-200"><table class="min-w-full">
+<thead>
+<tr>
+<th>Catalog Size</th>
+<th>Full Reindex</th>
+<th>Partial Reindex (100 products)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>10,000 products</td>
+<td>2 minutes</td>
+<td>&lt;1 second</td>
+</tr>
+<tr>
+<td>50,000 products</td>
+<td>10 minutes</td>
+<td>&lt;1 second</td>
+</tr>
+<tr>
+<td>100,000 products</td>
+<td>30 minutes</td>
+<td>1-2 seconds</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Key takeaway:</strong> Partial reindex scales independently of catalog size (only reindexes changed entities).</p>
+<h2 id="index-optimization-strategies">Index Optimization Strategies</h2>
+<h3 id="1-optimize-index-table-structure">1. Optimize Index Table Structure</h3>
+<p><strong>Use appropriate column types:</strong></p>
+<pre><code class="language-sql">-- GOOD: INT for IDs (4 bytes)
+product_id INT UNSIGNED NOT NULL
+
+-- BAD: VARCHAR for IDs (overhead)
+product_id VARCHAR(255) NOT NULL
+</code></pre>
+<p><strong>Add covering indexes for common queries:</strong></p>
+<pre><code class="language-sql">-- Query: SELECT * FROM index WHERE category_id = 5 AND is_in_stock = 1
+CREATE INDEX idx_category_stock ON vendor_custom_product_data_index(category_id, is_in_stock);
+</code></pre>
+<p><strong>Use composite indexes for multi-column filters:</strong></p>
+<pre><code class="language-sql">-- Covers: WHERE is_in_stock = 1 AND price BETWEEN 10 AND 50
+CREATE INDEX idx_stock_price ON vendor_custom_product_data_index(is_in_stock, price);
+</code></pre>
+<h3 id="2-batch-processing">2. Batch Processing</h3>
+<p><strong>Insert in batches (1000-5000 rows per batch):</strong></p>
+<pre><code class="language-php">private function insertBatch(array $data, int $batchSize = 1000): void
+{
+    $batches = array_chunk($data, $batchSize);
+
+    foreach ($batches as $batch) {
+        $this-&gt;getConnection()-&gt;insertMultiple($this-&gt;getIndexTable(), $batch);
+    }
+}
+</code></pre>
+<p><strong>Process changelog in chunks:</strong></p>
+<pre><code class="language-php">public function execute($ids): void
+{
+    // Process in chunks to avoid memory issues
+    $chunks = array_chunk($ids, 1000);
+
+    foreach ($chunks as $chunk) {
+        $this-&gt;executeList($chunk);
+    }
+}
+</code></pre>
+<h3 id="3-optimize-queries">3. Optimize Queries</h3>
+<p><strong>Use direct SQL instead of collections:</strong></p>
+<pre><code class="language-php">// GOOD: Single query with joins
+$select = $connection-&gt;select()
+    -&gt;from(['e' =&gt; 'catalog_product_entity'], ['entity_id', 'sku'])
+    -&gt;joinLeft(['v' =&gt; 'catalog_product_entity_varchar'], 'v.entity_id = e.entity_id AND v.attribute_id = :nameAttrId', ['value'])
+    -&gt;where('e.entity_id IN (?)', $ids);
+
+$data = $connection-&gt;fetchAll($select);
+
+// BAD: N+1 queries via collection iteration
+foreach ($collection as $product) {
+    $name = $product-&gt;getName(); // Loads attribute separately
+}
+</code></pre>
+<p><strong>Use <code>INSERT ... ON DUPLICATE KEY UPDATE</code> for upserts:</strong></p>
+<pre><code class="language-php">$connection-&gt;insertOnDuplicate(
+    $this-&gt;getIndexTable(),
+    $data,
+    ['price', 'qty', 'is_in_stock', 'updated_at'] // Update these columns on conflict
+);
+</code></pre>
+<h3 id="4-parallel-indexing">4. Parallel Indexing</h3>
+<p>For very large catalogs, process different stores/websites in parallel:</p>
+<pre><code class="language-php">// Split indexing by store
+public function executeFull(): void
+{
+    $stores = $this-&gt;storeManager-&gt;getStores();
+
+    foreach ($stores as $store) {
+        $this-&gt;reindexStore($store-&gt;getId());
+    }
+}
+</code></pre>
+<h3 id="5-disable-indexes-during-full-reindex">5. Disable Indexes During Full Reindex</h3>
+<p>For MySQL, disable indexes during bulk inserts, then rebuild:</p>
+<pre><code class="language-php">public function executeFull(): void
+{
+    $connection = $this-&gt;getConnection();
+    $table = $this-&gt;getIndexTable();
+
+    // Disable keys for faster inserts
+    $connection-&gt;disableTableKeys($table);
+
+    // Insert data
+    $this-&gt;insertBatch($connection, $data);
+
+    // Re-enable keys (rebuilds indexes)
+    $connection-&gt;enableTableKeys($table);
+}
+</code></pre>
+<p><strong>Performance gain:</strong> 50-70% faster bulk inserts on large datasets.</p>
+<h2 id="debugging-index-issues">Debugging Index Issues</h2>
+<h3 id="common-issues-and-solutions">Common Issues and Solutions</h3>
+<h4 id="1-indexer-stuck-in-processing-state">1. Indexer Stuck in "Processing" State</h4>
+<p><strong>Symptom:</strong></p>
+<pre><code class="language-bash">bin/magento indexer:status
+# Shows: Processing
+</code></pre>
+<p><strong>Cause:</strong> Indexer process killed or crashed mid-execution</p>
+<p><strong>Solution:</strong></p>
+<pre><code class="language-bash"># Reset indexer state
+bin/magento indexer:reset vendor_custom_product_data
+
+# Reindex
+bin/magento indexer:reindex vendor_custom_product_data
+</code></pre>
+<h4 id="2-changelog-growing-indefinitely">2. Changelog Growing Indefinitely</h4>
+<p><strong>Symptom:</strong></p>
+<pre><code class="language-sql">SELECT COUNT(*) FROM vendor_custom_product_data_cl;
+-- Returns millions of rows
+</code></pre>
+<p><strong>Cause:</strong> Cron not running or indexer disabled</p>
+<p><strong>Check cron:</strong></p>
+<pre><code class="language-bash"># View last cron execution
+SELECT * FROM cron_schedule WHERE job_code = 'indexer_update_all_views' ORDER BY executed_at DESC LIMIT 10;
+</code></pre>
+<p><strong>Solution:</strong>
+- Ensure cron is running: <code>ps aux | grep cron</code>
+- Check Magento cron schedule: <code>bin/magento cron:run</code> (or inspect the <code>cron_schedule</code> table directly; <code>cron:status</code> does not exist in core)
+- Manually trigger indexer: <code>bin/magento indexer:reindex</code></p>
+<h4 id="3-index-data-inconsistent-with-source-data">3. Index Data Inconsistent with Source Data</h4>
+<p><strong>Symptom:</strong> Frontend shows outdated prices or stock</p>
+<p><strong>Cause:</strong>
+- Triggers not created (installation issue)
+- Index table corrupted
+- Partial reindex missing entities</p>
+<p><strong>Check triggers:</strong></p>
+<pre><code class="language-sql">SHOW TRIGGERS LIKE 'catalog_product_entity';
+</code></pre>
+<p><strong>Solution:</strong></p>
+<pre><code class="language-bash"># Reset and full reindex
+bin/magento indexer:reset vendor_custom_product_data
+bin/magento indexer:reindex vendor_custom_product_data
+
+# Recreate triggers if missing
+bin/magento setup:upgrade
+</code></pre>
+<h4 id="4-indexer-performance-degradation">4. Indexer Performance Degradation</h4>
+<p><strong>Symptom:</strong> Reindex takes progressively longer over time</p>
+<p><strong>Causes:</strong>
+- Changelog table fragmentation
+- Missing indexes on source tables
+- Inefficient queries</p>
+<p><strong>Analyze changelog:</strong></p>
+<pre><code class="language-sql">ANALYZE TABLE vendor_custom_product_data_cl;
+OPTIMIZE TABLE vendor_custom_product_data_cl;
+</code></pre>
+<p><strong>Add indexes to source tables:</strong></p>
+<pre><code class="language-sql">-- Check slow query log for missing indexes
+SHOW INDEXES FROM catalog_product_entity;
+</code></pre>
+<p><strong>Profile indexer:</strong></p>
+<pre><code class="language-bash"># Enable query profiling
+mysql&gt; SET profiling = 1;
+
+# Run reindex
+bin/magento indexer:reindex vendor_custom_product_data
+
+# View query times
+mysql&gt; SHOW PROFILES;
+mysql&gt; SHOW PROFILE FOR QUERY 5;
+</code></pre>
+<h3 id="debugging-tools">Debugging Tools</h3>
+<p><strong>1. Indexer status table:</strong></p>
+<pre><code class="language-sql">SELECT * FROM indexer_state;
+</code></pre>
+<p><strong>Columns:</strong>
+- <code>state_id</code>: Indexer ID
+- <code>status</code>: <code>valid</code>, <code>invalid</code>, <code>working</code>
+- <code>updated</code>: Last reindex time</p>
+<p><strong>2. Mview state table:</strong></p>
+<pre><code class="language-sql">SELECT * FROM mview_state;
+</code></pre>
+<p><strong>Columns:</strong>
+- <code>view_id</code>: Mview subscription ID
+- <code>mode</code>: <code>enabled</code> or <code>disabled</code>
+- <code>status</code>: <code>idle</code>, <code>working</code>, <code>suspended</code>
+- <code>updated</code>: Last update time
+- <code>version_id</code>: Last processed changelog version</p>
+<p><strong>3. Changelog version tracking:</strong></p>
+<pre><code class="language-sql">-- Check last processed version
+SELECT version_id FROM mview_state WHERE view_id = 'vendor_custom_product_data';
+
+-- Check latest changelog version
+SELECT MAX(version_id) FROM vendor_custom_product_data_cl;
+
+-- Pending changelog entries
+SELECT COUNT(*) FROM vendor_custom_product_data_cl WHERE version_id &gt; (SELECT version_id FROM mview_state WHERE view_id = 'vendor_custom_product_data');
+</code></pre>
+<h2 id="production-monitoring">Production Monitoring</h2>
+<h3 id="key-metrics-to-monitor">Key Metrics to Monitor</h3>
+<p><strong>1. Index validity:</strong></p>
+<pre><code class="language-bash"># Alert if any indexer is invalid for &gt;5 minutes
+bin/magento indexer:status | grep -i invalid
+</code></pre>
+<p><strong>2. Changelog size:</strong></p>
+<pre><code class="language-sql">-- Alert if changelog has &gt;10,000 pending entries
+SELECT
+    cl.table_name,
+    COUNT(*) as pending_entries
+FROM information_schema.tables cl
+WHERE cl.table_name LIKE '%_cl'
+GROUP BY cl.table_name;
+</code></pre>
+<p><strong>3. Reindex duration:</strong></p>
+<pre><code class="language-sql">-- Track reindex duration via custom logging
+SELECT
+    indexer_id,
+    AVG(duration_seconds) as avg_duration,
+    MAX(duration_seconds) as max_duration
+FROM custom_indexer_log
+WHERE created_at &gt; DATE_SUB(NOW(), INTERVAL 7 DAY)
+GROUP BY indexer_id;
+</code></pre>
+<p><strong>4. Cron execution:</strong></p>
+<pre><code class="language-sql">-- Alert if indexer cron hasn't run in 5+ minutes
+SELECT MAX(executed_at)
+FROM cron_schedule
+WHERE job_code = 'indexer_update_all_views'
+  AND status = 'success';
+</code></pre>
+<h3 id="index-maintenance-schedule">Index Maintenance Schedule</h3>
+<p><strong>Daily:</strong>
+- Monitor indexer status (all valid)
+- Check changelog sizes (not growing indefinitely)
+- Review slow query log for index-related queries</p>
+<p><strong>Weekly:</strong>
+- Analyze/optimize index tables
+- Review indexer performance metrics
+- Check for orphaned changelog entries</p>
+<p><strong>Monthly:</strong>
+- Full reindex during maintenance window
+- Rebuild index table statistics
+- Review and optimize index table structure</p>
+<hr />
+<h2 id="assumptions">Assumptions</h2>
+<ul>
+<li><strong>Target versions</strong>: Magento 2.4.7+, PHP 8.2+, MySQL 8.0+</li>
+<li><strong>Deployment</strong>: Production environment with working cron jobs</li>
+<li><strong>Catalog size</strong>: Examples assume medium to large catalogs (10k-100k products)</li>
+<li><strong>Infrastructure</strong>: Dedicated database server with adequate resources</li>
+</ul>
+<h2 id="why-this-approach">Why This Approach</h2>
+<p><strong>Mview framework</strong>: Standard Magento 2 approach, compatible with core indexers</p>
+<p><strong>Changelog tables</strong>: Decouple data changes from index updates, enable async processing</p>
+<p><strong>Scheduled mode</strong>: Production best practice, scales to large catalogs</p>
+<p><strong>Batch processing</strong>: Memory-efficient, handles large datasets without exhausting resources</p>
+<p><strong>Direct SQL queries</strong>: Faster than ORM for bulk operations</p>
+<h2 id="security-impact">Security Impact</h2>
+<p><strong>Authorization:</strong> Indexer management requires CLI access or <code>Magento_Indexer::manage</code> ACL in admin</p>
+<p><strong>Data exposure:</strong> Index tables should not contain sensitive data (PII, payment info)</p>
+<p><strong>SQL injection:</strong> All queries use prepared statements and parameter binding</p>
+<p><strong>Trigger security:</strong> Triggers created by Magento setup, not user input</p>
+<h2 id="performance-impact">Performance Impact</h2>
+<p><strong>Cacheability:</strong>
+- Index tables are read-heavy (cached in MySQL buffer pool)
+- Index updates do not invalidate FPC (index data not directly exposed to frontend)
+- Consider query cache for read-only replicas</p>
+<p><strong>Database impact:</strong>
+- Triggers: &lt;1ms overhead per write operation
+- Changelog inserts: Minimal (2-column table, no foreign keys)
+- Full reindex: High database load (run during maintenance windows)
+- Partial reindex: Low database load (targeted updates)</p>
+<p><strong>Indexer performance:</strong>
+- Partial reindex (1000 products): 1-2 seconds
+- Full reindex (100k products): 30-60 minutes
+- Optimized full reindex (parallel, batch): 10-20 minutes</p>
+<p><strong>Core Web Vitals impact:</strong>
+- <strong>Indirect improvement</strong>: Faster product list queries improve LCP
+- Direct impact: Reducing product list query time from 5s to 200ms improves TTFB and LCP</p>
+<h2 id="backward-compatibility">Backward Compatibility</h2>
+<p><strong>API stability:</strong>
+- <code>ActionInterface</code> is stable across Magento 2.4.x
+- <code>MviewActionInterface</code> is stable
+- Indexer XML schema is stable</p>
+<p><strong>Database schema:</strong>
+- Index tables use declarative schema (safe upgrades)
+- Changelog tables created by Mview framework
+- Triggers recreated on <code>setup:upgrade</code></p>
+<p><strong>Upgrade path:</strong>
+- Magento 2.4.7 → 2.4.8: Full reindex recommended after upgrade
+- Magento 2.4.x → 2.5.0: Monitor for Mview framework changes</p>
+<h2 id="tests-to-add">Tests to Add</h2>
+<p><strong>Unit tests:</strong>
+- Indexer action methods (executeFull, executeList, executeRow)
+- Data builder logic (buildData, buildAllData)
+- Batch processing (insertBatch)</p>
+<p><strong>Integration tests:</strong>
+- Full reindex creates correct data
+- Partial reindex updates only changed entities
+- Changelog triggers write correctly
+- Mview processes changelog correctly
+- Dependencies trigger reindex</p>
+<p><strong>Functional tests (MFTF):</strong>
+- Admin reindex via System &gt; Index Management
+- Indexer mode change (realtime ↔ schedule)
+- Index status display</p>
+<p><strong>Performance tests:</strong>
+- Reindex duration for 10k, 50k, 100k products
+- Partial reindex duration for 100, 1000 changed products
+- Changelog processing rate (entities per second)</p>
+<h2 id="documentation-to-update">Documentation to Update</h2>
+<p><strong>Developer documentation:</strong>
+- <code>README.md</code>: Custom indexer overview
+- <code>ARCHITECTURE.md</code>: Indexer architecture diagram, Mview flow
+- <code>PERFORMANCE.md</code>: Index optimization strategies
+- <code>TROUBLESHOOTING.md</code>: Common index issues and solutions</p>
+<p><strong>Operations documentation:</strong>
+- Index monitoring setup
+- Cron job configuration
+- Production reindex schedule
+- Disaster recovery (index corruption)</p>
+<p><strong>Code comments:</strong>
+- Inline documentation for complex SQL queries
+- Indexer action class docblocks
+- Data builder transformation logic</p>
+<h2 id="related-documentation">Related Documentation</h2>
+<h3 id="related-guides">Related Guides</h3>
+<ul>
+<li><a href="eav-system.md">EAV System Architecture: Understanding Entity-Attribute-Value in Magento 2</a></li>
+<li><a href="../how-to/cron-jobs.md">Cron Jobs Implementation: Building Reliable Scheduled Tasks in Magento 2</a></li>
+<li><a href="../how-to/full-page-cache-strategy.md">Full Page Cache Strategy for High-Performance Magento</a></li>
+</ul>
+<h3 id="related-module-documentation">Related Module Documentation</h3>
+<ul>
+<li><a href="../../modules/catalog/README.md">Magento_Catalog Overview</a></li>
+<li><a href="../../modules/sales/README.md">Magento_Sales Overview</a></li>
+</ul>
+                    </div>
+                </article>
+            </main>
+            <!-- Right Sidebar: On This Page (desktop) -->
+            <aside class="toc-sidebar hidden xl:block" aria-label="On this page">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-semibold text-gray-900 uppercase tracking-wider mb-4 mt-0">On this page</h3>
+                    <nav id="toc-nav" class="space-y-0" aria-label="Table of contents"></nav>
+                    <div class="toc-back-to-top">
+                        <a href="#">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+                            </svg>
+                            Back to top
+                        </a>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- ================================================================
+         FOOTER — matches module-catalog.html multi-column layout exactly
+         ================================================================ -->
+    <footer class="relative pt-12 bg-white border-t border-charcoal mt-16">
+        <div class="max-w-screen-2xl mx-auto w-full px-4 sm:px-6 lg:px-8">
+            <div>
+                <a href="index.html" class="inline-flex items-center no-underline">
+                    <svg width="30" height="33" viewBox="0 0 30 33" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Magento Association logo" role="img">
+                        <path d="M0 4.06492H29.6763V31.8882C29.6763 32.502 29.1713 33 28.5487 33H1.12762C0.505079 33 0 32.502 0 31.8882V4.06492Z" fill="#34323A"/>
+                        <path d="M1.26857 0H28.4078C29.1066 0 29.6763 0.561678 29.6763 1.25075V4.06492H0V1.25075C0 0.561678 0.569682 0 1.26857 0Z" fill="#C9C9C9"/>
+                        <path d="M2.37269 3.0458C2.94031 3.0458 3.40046 2.59211 3.40046 2.03246C3.40046 1.47281 2.94031 1.01913 2.37269 1.01913C1.80506 1.01913 1.34491 1.47281 1.34491 2.03246C1.34491 2.59211 1.80506 3.0458 2.37269 3.0458Z" fill="#848484"/>
+                        <path d="M5.28571 3.0458C5.85334 3.0458 6.31349 2.59211 6.31349 2.03246C6.31349 1.47281 5.85334 1.01913 5.28571 1.01913C4.71809 1.01913 4.25793 1.47281 4.25793 2.03246C4.25793 2.59211 4.71809 3.0458 5.28571 3.0458Z" fill="#848484"/>
+                        <path d="M14.7883 7.46973L4.90405 13.0923V24.349L7.54104 25.8487V14.5978L14.7883 10.4692L22.0415 14.5978V25.8487L24.6785 24.349V13.0923L14.7883 7.46973Z" fill="#F1BC1B"/>
+                        <path d="M16.0862 26.2367L14.7883 26.9779L13.4492 26.2135V14.233L10.178 16.0975V27.3485L13.4492 29.213L14.7883 29.9773L16.0862 29.2362L19.4045 27.3485V16.0975L16.0862 14.2098V26.2367Z" fill="#F1BC1B"/>
+                    </svg>
+                    <span class="ml-3 text-xl font-bold text-charcoal">Developer Documentation</span>
+                </a>
+            </div>
+
+            <div class="grid grid-cols-12 md:gap-x-8 gap-y-12 lg:mt-12">
+                <div class="col-span-12 lg:col-span-4">
+                    <p class="hidden lg:block text-xs text-charcoal sm:text-sm">Comprehensive developer documentation for Magento 2.4.7+ — tutorials, architecture deep dives, module references, and production-ready patterns built by the community, for the community.</p>
+                    <ul class="mt-6 hidden lg:flex items-center gap-3">
+                        <li class="pl-0">
+                            <a href="https://github.com/magento/magento2" class="p-2 md:p-0" aria-label="GitHub">
+                                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                                </svg>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Guides</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="tutorials.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Tutorials</a></li>
+                            <li class="pl-0"><a href="how-to-guides.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">How-To Guides</a></li>
+                            <li class="pl-0"><a href="architecture.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Architecture</a></li>
+                            <li class="pl-0"><a href="learning-paths.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Learning Paths</a></li>
+                            <li class="pl-0"><a href="references.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">References</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Modules</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="module-catalog.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Catalog</a></li>
+                            <li class="pl-0"><a href="module-checkout.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Checkout</a></li>
+                            <li class="pl-0"><a href="module-sales.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Sales</a></li>
+                            <li class="pl-0"><a href="module-customer.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Customer</a></li>
+                            <li class="pl-0"><a href="module-quote.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Quote</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Community</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Magento Community</a></li>
+                            <li class="pl-0"><a href="https://magento.stackexchange.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Stack Exchange</a></li>
+                            <li class="pl-0"><a href="https://marketplace.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Marketplace</a></li>
+                            <li class="pl-0"><a href="https://github.com/magento/magento2" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">GitHub</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Support</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://github.com/magento/magento2/issues" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Report Issues</a></li>
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Community Resources</a></li>
+                            <li class="pl-0"><a href="https://developer.adobe.com/commerce/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Adobe Commerce Docs</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-12 border-t pt-6 pb-16 border-charcoal">
+                <p class="text-xs text-charcoal">
+                    &copy; 2026 Magento 2 Developer Documentation. Magento&reg; is a registered trademark of Adobe Inc.
+                </p>
+                <p class="mt-6 text-xs text-charcoal">
+                    This documentation provides guidance for Magento 2 developers and extension builders. For merchant documentation, visit the <a href="index.html" class="text-orange hover:text-orange-600 transition-colors">merchant documentation</a>.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Initialize highlight.js -->
+    <script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('pre code').forEach(function (el) {
+        hljs.highlightElement(el);
+    });
+    document.querySelectorAll('pre').forEach(function (pre) {
+        if (pre.parentNode.classList && pre.parentNode.classList.contains('code-wrapper')) return;
+        var wrapper = document.createElement('div');
+        wrapper.className = 'code-wrapper';
+        pre.parentNode.insertBefore(wrapper, pre);
+        wrapper.appendChild(pre);
+        var btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.setAttribute('type', 'button');
+        btn.setAttribute('aria-label', 'Copy code to clipboard');
+        btn.setAttribute('title', 'Copy');
+        btn.textContent = 'Copy';
+        wrapper.appendChild(btn);
+        btn.addEventListener('click', function () {
+            var code = pre.querySelector('code');
+            var text = code ? (code.innerText || code.textContent) : (pre.innerText || pre.textContent);
+            navigator.clipboard.writeText(text).then(function () {
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            }).catch(function () {
+                var range = document.createRange();
+                range.selectNode(code || pre);
+                window.getSelection().removeAllRanges();
+                window.getSelection().addRange(range);
+                document.execCommand('copy');
+                window.getSelection().removeAllRanges();
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            });
+        });
+    });
+});
+</script>
+
+
+<script>
+(function() {
+    var nav = document.getElementById('toc-nav');
+    if (!nav) return;
+    var article = document.getElementById('main-content');
+    if (!article) return;
+    var headings = article.querySelectorAll('h2[id], h3[id]');
+    if (headings.length < 3) {
+        // Hide the entire TOC sidebar if fewer than 3 headings
+        var sidebar = nav.closest('.toc-sidebar');
+        if (sidebar) sidebar.style.display = 'none';
+        return;
+    }
+    var ids = [];
+    headings.forEach(function(h) {
+        var a = document.createElement('a');
+        a.href = '#' + h.id;
+        a.textContent = h.textContent.replace(/^#+\s*/, '').replace(/\s+/g, ' ').trim();
+        if (h.tagName === 'H3') a.classList.add('toc-h3');
+        nav.appendChild(a);
+        ids.push(h.id);
+    });
+    // Scroll-spy with IntersectionObserver
+    var links = nav.querySelectorAll('a');
+    var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                links.forEach(function(l) { l.classList.remove('toc-active'); });
+                var active = nav.querySelector('a[href="#' + entry.target.id + '"]');
+                if (active) active.classList.add('toc-active');
+            }
+        });
+    }, { rootMargin: '-80px 0px -70% 0px', threshold: 0 });
+    headings.forEach(function(h) { observer.observe(h); });
+})();
+</script>
+</body>
+</html>

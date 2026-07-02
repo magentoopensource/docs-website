@@ -1,0 +1,1420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magento_Customer Architecture — Magento 2 Developer Documentation</title>
+    <meta name="description" content="Magento_Customer Architecture">
+
+    <!-- Google Fonts: Inter Tight only. Courier New used for code. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Highlight.js: syntax highlighting for code blocks -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/php.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/ini.min.js"></script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        charcoal: {
+                            DEFAULT: '#2c2c2c', 50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6',
+                            300: '#6B6B6B', 400: '#474747', 500: '#2c2c2c', 600: '#262626',
+                            700: '#202020', 800: '#1c1c1c', 900: '#191919', 950: '#121212'
+                        },
+                        orange: {
+                            DEFAULT: '#D4551A', 50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad',
+                            300: '#f9ae78', 400: '#f58242', 500: '#f26423', 600: '#e34613',
+                            700: '#bc3312', 800: '#962a16', 900: '#792515', 950: '#411009'
+                        },
+                        yellow: {
+                            DEFAULT: '#B8860B', 50: '#fffdeb', 100: '#fdf9c8', 200: '#fbf38c',
+                            300: '#f8e651', 400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a',
+                            700: '#b1670c', 800: '#8f5111', 900: '#764311', 950: '#442204'
+                        },
+                        'off-white': '#FAFAFA',
+                    },
+                    fontFamily: {
+                        sans: ['Inter Tight', 'system-ui', '-apple-system', 'sans-serif'],
+                        mono: ['Courier New', 'Courier', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* ── Force light mode ── */
+        :root { color-scheme: light only; }
+
+        [x-cloak] { display: none !important; }
+
+        /* ── Scroll offset for sticky header ── */
+        .prose h2, .prose h3 { scroll-margin-top: 5rem; }
+
+        /* ── Code blocks: Bauhaus charcoal bg, no border-radius, highlight.js override ── */
+        .prose pre {
+            background-color: #2C2C2C !important;
+            border-radius: 0 !important;
+            padding: 1.25rem;
+            overflow-x: auto;
+            font-size: 0.875rem;
+            line-height: 1.7;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 1.5rem 0;
+        }
+        .prose pre code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            background: transparent !important;
+            padding: 0;
+                    color: #abb2bf;
+        }
+        /* Override highlight.js theme background to match Bauhaus charcoal */
+        .hljs {
+            background: #2C2C2C !important;
+            color: #abb2bf !important;
+            border-radius: 0 !important;
+        }
+
+        /* ── Inline code: charcoal bg, yellow text, no border-radius ── */
+        .prose code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.85em;
+        }
+        .prose :not(pre) > code {
+            background-color: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2em 0.45em;
+            border-radius: 0;
+        }
+
+        /* ── Step-code: same charcoal/yellow style for UI path chips ── */
+        .step-code {
+            background: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2rem 0.5rem;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            border-radius: 0;
+        }
+
+        /* ── Tables: no border-radius, charcoal header ── */
+        .prose table { width: 100%; border-collapse: collapse; }
+        .prose th {
+            background-color: #2C2C2C;
+            color: #ffffff;
+            font-weight: 600;
+            text-align: left;
+            padding: 0.75rem 1rem;
+            border-bottom: 2px solid #2C2C2C;
+            border-radius: 0;
+        }
+        .prose td { padding: 0.75rem 1rem; border-bottom: 1px solid #e5e5e5; }
+        .prose tr:hover { background-color: #fafafa; }
+
+        /* ── Blockquote: Bauhaus style — border-4 yellow, square, no left-only border ── */
+        .prose blockquote {
+            border: 4px solid #F1BC1B;
+            background-color: #ffffff;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+            border-radius: 0;
+        }
+        .prose blockquote p { margin: 0; }
+
+        /* ── Lists: hexagon bullets ── */
+        .prose ul { list-style: none; padding-left: 0; }
+        .prose ul li {
+            position: relative;
+            padding-left: 1.75rem;
+            margin-bottom: 0.4rem;
+            line-height: 1.7;
+        }
+        .prose ul li::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0.45em;
+            width: 10px;
+            height: 10px;
+            background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 2L21 7V17L12 22L3 17V7L12 2Z' stroke='%23F26423' stroke-width='2.5' stroke-linejoin='miter'/%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+        .prose ol { list-style-type: decimal; padding-left: 1.5rem; }
+        .prose li { margin-bottom: 0.4rem; }
+
+        /* ── Headings ── */
+        .prose h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            padding-top: 1.5rem;
+            border-top: 4px solid #F1BC1B;
+            color: #2C2C2C;
+        }
+        .prose h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+            color: #2C2C2C;
+        }
+        .prose h4 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #2C2C2C;
+        }
+        .prose p { margin-bottom: 1rem; line-height: 1.75; }
+        .prose a { color: #D4551A; text-decoration: none; }
+        .prose a:hover { color: #e34613; text-decoration: underline; }
+        .prose hr { border: none; border-top: 1px solid #e5e5e5; margin: 2rem 0; }
+
+        /* ── Callout boxes: Bauhaus — border-4 yellow, white bg, icon + title ── */
+        .callout-box {
+            background-color: #ffffff;
+            border: 4px solid #F1BC1B;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+        }
+        .callout-warning {
+            border-color: #D4551A;
+        }
+        .callout-important {
+            border-color: #2C2C2C;
+        }
+        .callout-box .callout-inner {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+        .callout-box .callout-title {
+            font-weight: 600;
+            color: #2C2C2C;
+            margin-bottom: 0.25rem;
+        }
+        .callout-box .callout-body {
+            font-size: 0.875rem;
+            line-height: 1.6;
+            color: rgba(44,44,44,0.85);
+        }
+
+        
+    
+        /* Code block copy button */
+        .code-wrapper {
+            position: relative;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            font-family: 'Inter Tight', system-ui, sans-serif;
+            background: rgba(255,255,255,0.1);
+            color: #abb2bf;
+            border: 1px solid rgba(255,255,255,0.15);
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.15s ease, background 0.15s ease;
+            z-index: 10;
+            line-height: 1.4;
+            border-radius: 4px;
+            user-select: none;
+        }
+        .code-wrapper:hover .copy-btn {
+            opacity: 1;
+        }
+        .copy-btn:hover,
+        .copy-btn:focus {
+            background: rgba(255,255,255,0.2);
+            color: #ffffff;
+            outline: 2px solid #D4551A;
+            outline-offset: 1px;
+        }
+        .copy-btn.copied {
+            color: #98c379;
+            background: rgba(152, 195, 121, 0.15);
+            opacity: 1;
+        }
+    
+        /* Right-hand TOC sidebar */
+        .toc-sidebar {
+            width: 14rem;
+            flex-shrink: 0;
+        }
+        .toc-sidebar a {
+            display: block;
+            padding: 0.375rem 0;
+            font-size: 0.8125rem;
+            line-height: 1.4;
+            color: #6b7280;
+            text-decoration: none;
+            transition: color 0.15s ease;
+            border-left: 2px solid transparent;
+            padding-left: 0.75rem;
+        }
+        .toc-sidebar a:hover {
+            color: #111827;
+        }
+        .toc-sidebar a.toc-active {
+            color: #ea580c;
+            border-left-color: #ea580c;
+            font-weight: 500;
+        }
+        .toc-sidebar a.toc-h3 {
+            padding-left: 1.5rem;
+            font-size: 0.75rem;
+        }
+        .toc-sidebar .toc-back-to-top {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e5e7eb;
+        }
+        .toc-sidebar .toc-back-to-top a {
+            border-left: none;
+            padding-left: 0;
+            font-weight: 500;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .toc-sidebar .toc-back-to-top a:hover {
+            color: #ea580c;
+        }
+    </style>
+</head>
+
+<body class="font-sans bg-off-white text-charcoal">
+
+    <!-- Shared header — single source of truth -->
+    <script src="includes/header.js"></script>
+
+    <!-- Breadcrumb — orange › separators -->
+    <div class="bg-white border-b border-gray-100">
+        <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <div class="flex items-center gap-2 text-sm flex-wrap">
+                <a href="index.html" class="text-orange hover:text-orange-600 transition-colors no-underline">Home</a> <span class="text-orange font-medium">›</span> <a href="modules.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">Modules</a> <span class="text-orange font-medium">›</span> <a href="module-customer.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">Customer</a> <span class="text-orange font-medium">›</span> <span class="text-charcoal font-medium">Magento_Customer Architecture</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="flex gap-8">
+
+            <!-- Left Sidebar (desktop) -->
+            <aside class="hidden lg:block w-64 flex-shrink-0">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4">Customer Module</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="module-customer-overview.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Overview</a></li>
+<li class="pl-0"><a href="module-customer-architecture.html" class="block px-3 py-2 text-sm text-orange font-semibold bg-orange-50 border-l-4 border-orange pl-2 transition-colors no-underline">Architecture</a></li>
+<li class="pl-0"><a href="module-customer-execution-flows.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Execution Flows</a></li>
+<li class="pl-0"><a href="module-customer-plugins-and-observers.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Plugins & Observers</a></li>
+<li class="pl-0"><a href="module-customer-integrations.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Integrations</a></li>
+<li class="pl-0"><a href="module-customer-anti-patterns.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Anti-Patterns</a></li>
+<li class="pl-0"><a href="module-customer-performance.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Performance</a></li>
+<li class="pl-0"><a href="module-customer-known-issues.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Known Issues</a></li>
+<li class="pl-0"><a href="module-customer-version-compatibility.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Version Compatibility</a></li>
+</ul>
+<h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4 mt-8">Other Modules</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="module-catalog.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Catalog</a></li>
+<li class="pl-0"><a href="module-checkout.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Checkout</a></li>
+<li class="pl-0"><a href="module-quote.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Quote</a></li>
+<li class="pl-0"><a href="module-sales.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Sales</a></li>
+</ul>
+                </div>
+            </aside>
+
+            <!-- Article — square corners, border-t-4 orange accent -->
+            <main id="main-content" class="flex-1 min-w-0">
+                <article class="bg-white shadow-sm border border-gray-100 border-t-4 border-t-orange p-8 md:p-12">
+                    <!-- Title block -->
+                    <div class="mb-8">
+                        <span class="inline-block px-3 py-1.5 text-xs font-medium bg-charcoal-50 text-charcoal border border-charcoal-100">Architecture</span>
+                        <h1 class="text-3xl md:text-4xl font-extrabold text-charcoal mt-3 mb-3">Magento_Customer Architecture</h1>
+                        <p class="text-charcoal-300 text-lg mb-4">Magento_Customer Architecture</p>
+                        <!-- Meta pills -->
+                        <div class="flex flex-wrap gap-2"><span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-charcoal text-white">Magento 2.4.7+</span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-charcoal-50 text-charcoal border border-charcoal-100">Magento_Customer</span></div>
+                    </div>
+
+                    <hr class="border-0 border-t border-gray-100 mb-8">
+
+                    <!-- Content -->
+                    <div class="prose max-w-none">
+                        <h1 id="magento_customer-architecture">Magento_Customer Architecture</h1>
+<h2 id="overview">Overview</h2>
+<p>The Magento_Customer module implements a sophisticated multi-layer architecture combining Entity-Attribute-Value (EAV) flexibility with strongly-typed service contracts. This design provides extensibility for custom customer fields while maintaining API stability and type safety. The architecture separates concerns across service layer (API contracts), domain layer (models and business logic), persistence layer (resource models and repositories), and presentation layer (blocks, view models, UI components).</p>
+<p>This document provides an in-depth examination of the module's architectural components, database schema, service contracts, and design patterns.</p>
+<p><strong>Target Versions:</strong> Magento 2.4.7+ / Adobe Commerce 2.4.7+ with PHP 8.2+</p>
+<hr />
+<h2 id="architectural-layers">Architectural Layers</h2>
+<h3 id="1-service-contract-layer-api">1. Service Contract Layer (API)</h3>
+<p>The service contract layer defines stable interfaces for external consumption (other modules, REST/GraphQL APIs, third-party integrations). These contracts are guaranteed to remain backward compatible within major versions.</p>
+<h4 id="core-service-contracts">Core Service Contracts</h4>
+<p><strong>CustomerRepositoryInterface</strong>
+- <strong>Purpose:</strong> CRUD operations for customer entities
+- <strong>Location:</strong> <code>Magento\Customer\Api\CustomerRepositoryInterface</code>
+- <strong>Key Methods:</strong>
+  - <code>save(CustomerInterface $customer, string $passwordHash = null): CustomerInterface</code>
+  - <code>get(string $email, int $websiteId = null): CustomerInterface</code>
+  - <code>getById(int $customerId): CustomerInterface</code>
+  - <code>getList(SearchCriteriaInterface $searchCriteria): CustomerSearchResultsInterface</code>
+  - <code>delete(CustomerInterface $customer): bool</code>
+  - <code>deleteById(int $customerId): bool</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Service;
+
+use Magento\Customer\Api\CustomerRepositoryInterface;
+use Magento\Customer\Api\Data\CustomerInterface;
+use Magento\Framework\Api\SearchCriteriaBuilder;
+use Magento\Framework\Api\SortOrderBuilder;
+
+class CustomerSearchService
+{
+    public function __construct(
+        private readonly CustomerRepositoryInterface $customerRepository,
+        private readonly SearchCriteriaBuilder $searchCriteriaBuilder,
+        private readonly SortOrderBuilder $sortOrderBuilder
+    ) {}
+
+    /**
+     * Find customers by group ID with pagination
+     *
+     * @param int $groupId
+     * @param int $pageSize
+     * @param int $currentPage
+     * @return \Magento\Customer\Api\Data\CustomerInterface[]
+     */
+    public function findByGroupId(int $groupId, int $pageSize = 20, int $currentPage = 1): array
+    {
+        $sortOrder = $this-&gt;sortOrderBuilder
+            -&gt;setField('created_at')
+            -&gt;setDirection('DESC')
+            -&gt;create();
+
+        $searchCriteria = $this-&gt;searchCriteriaBuilder
+            -&gt;addFilter('group_id', $groupId)
+            -&gt;setPageSize($pageSize)
+            -&gt;setCurrentPage($currentPage)
+            -&gt;addSortOrder($sortOrder)
+            -&gt;create();
+
+        $searchResults = $this-&gt;customerRepository-&gt;getList($searchCriteria);
+        return $searchResults-&gt;getItems();
+    }
+}
+</code></pre>
+<p><strong>AddressRepositoryInterface</strong>
+- <strong>Purpose:</strong> Manage customer addresses
+- <strong>Location:</strong> <code>Magento\Customer\Api\AddressRepositoryInterface</code>
+- <strong>Key Methods:</strong>
+  - <code>save(AddressInterface $address): AddressInterface</code>
+  - <code>getById(int $addressId): AddressInterface</code>
+  - <code>getList(SearchCriteriaInterface $searchCriteria): AddressSearchResultsInterface</code>
+  - <code>delete(AddressInterface $address): bool</code>
+  - <code>deleteById(int $addressId): bool</code></p>
+<p><strong>AccountManagementInterface</strong>
+- <strong>Purpose:</strong> High-level account operations (authentication, password management, validation)
+- <strong>Location:</strong> <code>Magento\Customer\Api\AccountManagementInterface</code>
+- <strong>Key Methods:</strong>
+  - <code>authenticate(string $username, string $password): CustomerInterface</code>
+  - <code>createAccount(CustomerInterface $customer, string $password = null, string $redirectUrl = ''): CustomerInterface</code>
+  - <code>changePassword(string $email, string $currentPassword, string $newPassword): bool</code>
+  - <code>initiatePasswordReset(string $email, string $template, int $websiteId = null): bool</code>
+  - <code>resetPassword(string $email, string $resetToken, string $newPassword): bool</code>
+  - <code>validate(CustomerInterface $customer): ValidationResultsInterface</code>
+  - <code>isEmailAvailable(string $customerEmail, int $websiteId = null): bool</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Service;
+
+use Magento\Customer\Api\AccountManagementInterface;
+use Magento\Customer\Api\Data\CustomerInterface;
+use Magento\Framework\Exception\InvalidEmailOrPasswordException;
+use Psr\Log\LoggerInterface;
+
+class CustomerAuthenticationService
+{
+    public function __construct(
+        private readonly AccountManagementInterface $accountManagement,
+        private readonly LoggerInterface $logger
+    ) {}
+
+    /**
+     * Authenticate customer and return customer data
+     *
+     * @param string $email
+     * @param string $password
+     * @return CustomerInterface|null
+     */
+    public function authenticate(string $email, string $password): ?CustomerInterface
+    {
+        try {
+            return $this-&gt;accountManagement-&gt;authenticate($email, $password);
+        } catch (InvalidEmailOrPasswordException $e) {
+            $this-&gt;logger-&gt;info('Failed authentication attempt', [
+                'email' =&gt; $email,
+                'reason' =&gt; 'invalid_credentials'
+            ]);
+            return null;
+        }
+    }
+
+    /**
+     * Check if email is available for registration
+     *
+     * @param string $email
+     * @param int $websiteId
+     * @return bool
+     */
+    public function isEmailAvailable(string $email, int $websiteId): bool
+    {
+        try {
+            return $this-&gt;accountManagement-&gt;isEmailAvailable($email, $websiteId);
+        } catch (\Exception $e) {
+            $this-&gt;logger-&gt;error('Email availability check failed', [
+                'email' =&gt; $email,
+                'error' =&gt; $e-&gt;getMessage()
+            ]);
+            return false;
+        }
+    }
+}
+</code></pre>
+<p><strong>GroupRepositoryInterface</strong>
+- <strong>Purpose:</strong> Customer group management
+- <strong>Location:</strong> <code>Magento\Customer\Api\GroupRepositoryInterface</code>
+- <strong>Key Methods:</strong>
+  - <code>save(GroupInterface $group): GroupInterface</code>
+  - <code>getById(int $id): GroupInterface</code>
+  - <code>getList(SearchCriteriaInterface $searchCriteria): GroupSearchResultsInterface</code>
+  - <code>delete(GroupInterface $group): bool</code>
+  - <code>deleteById(int $id): bool</code></p>
+<hr />
+<h3 id="2-data-interface-layer-dtos">2. Data Interface Layer (DTOs)</h3>
+<p>Data Transfer Objects provide strongly-typed structures for customer data across layers.</p>
+<p><strong>CustomerInterface</strong>
+- <strong>Location:</strong> <code>Magento\Customer\Api\Data\CustomerInterface</code>
+- <strong>Key Properties:</strong>
+  - <code>id</code> (int) - Customer entity ID
+  - <code>email</code> (string) - Primary email address (unique per website)
+  - <code>firstname</code> (string) - First name
+  - <code>lastname</code> (string) - Last name
+  - <code>middlename</code> (string, nullable) - Middle name or initial
+  - <code>prefix</code> (string, nullable) - Name prefix (Mr., Mrs., Dr.)
+  - <code>suffix</code> (string, nullable) - Name suffix (Jr., Sr., III)
+  - <code>dob</code> (string, nullable) - Date of birth (YYYY-MM-DD)
+  - <code>taxvat</code> (string, nullable) - Tax/VAT number
+  - <code>gender</code> (int, nullable) - Gender (1=Male, 2=Female, 3=Not Specified)
+  - <code>store_id</code> (int) - Store ID where customer was created
+  - <code>website_id</code> (int) - Website ID for customer account
+  - <code>addresses</code> (AddressInterface[]) - Customer addresses
+  - <code>group_id</code> (int) - Customer group ID
+  - <code>default_billing</code> (int, nullable) - Default billing address ID
+  - <code>default_shipping</code> (int, nullable) - Default shipping address ID
+  - <code>created_at</code> (string) - Account creation timestamp
+  - <code>updated_at</code> (string) - Last update timestamp
+  - <code>created_in</code> (string, nullable) - Store view name where created
+  - <code>disable_auto_group_change</code> (int) - Prevent automatic group changes
+  - <code>extension_attributes</code> (ExtensionAttributesInterface) - Custom extensions
+  - <code>custom_attributes</code> (AttributeInterface[]) - EAV custom attributes</p>
+<p><strong>AddressInterface</strong>
+- <strong>Location:</strong> <code>Magento\Customer\Api\Data\AddressInterface</code>
+- <strong>Key Properties:</strong>
+  - <code>id</code> (int) - Address entity ID
+  - <code>customer_id</code> (int) - Parent customer ID
+  - <code>region</code> (RegionInterface) - Region/state object
+  - <code>region_id</code> (int) - Region ID from directory
+  - <code>country_id</code> (string) - Two-letter country code (ISO 3166-1 alpha-2)
+  - <code>street</code> (string[]) - Street address lines (array)
+  - <code>company</code> (string, nullable) - Company name
+  - <code>telephone</code> (string) - Phone number
+  - <code>fax</code> (string, nullable) - Fax number
+  - <code>postcode</code> (string) - Postal/ZIP code
+  - <code>city</code> (string) - City name
+  - <code>firstname</code> (string) - First name
+  - <code>lastname</code> (string) - Last name
+  - <code>middlename</code> (string, nullable) - Middle name
+  - <code>prefix</code> (string, nullable) - Name prefix
+  - <code>suffix</code> (string, nullable) - Name suffix
+  - <code>vat_id</code> (string, nullable) - VAT identification number
+  - <code>default_shipping</code> (bool) - Is default shipping address
+  - <code>default_billing</code> (bool) - Is default billing address
+  - <code>custom_attributes</code> (AttributeInterface[]) - EAV custom attributes</p>
+<p><strong>Extension Attributes</strong></p>
+<p>Extension attributes allow third-party modules to add fields to data interfaces without modifying core code.</p>
+<pre><code class="language-xml">&lt;!-- etc/extension_attributes.xml --&gt;
+&lt;config xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+        xsi:noNamespaceSchemaLocation=&quot;urn:magento:framework:Api/etc/extension_attributes.xsd&quot;&gt;
+    &lt;extension_attributes for=&quot;Magento\Customer\Api\Data\CustomerInterface&quot;&gt;
+        &lt;attribute code=&quot;loyalty_points&quot; type=&quot;int&quot; /&gt;
+        &lt;attribute code=&quot;marketing_consent&quot; type=&quot;bool&quot; /&gt;
+        &lt;attribute code=&quot;preferred_store_id&quot; type=&quot;int&quot; /&gt;
+    &lt;/extension_attributes&gt;
+
+    &lt;extension_attributes for=&quot;Magento\Customer\Api\Data\AddressInterface&quot;&gt;
+        &lt;attribute code=&quot;delivery_instructions&quot; type=&quot;string&quot; /&gt;
+        &lt;attribute code=&quot;address_notes&quot; type=&quot;string&quot; /&gt;
+    &lt;/extension_attributes&gt;
+&lt;/config&gt;
+</code></pre>
+<p>Access extension attributes:</p>
+<pre><code class="language-php">&lt;?php
+$customer = $customerRepository-&gt;getById($customerId);
+$extensionAttributes = $customer-&gt;getExtensionAttributes();
+
+if ($extensionAttributes) {
+    $loyaltyPoints = $extensionAttributes-&gt;getLoyaltyPoints();
+    $marketingConsent = $extensionAttributes-&gt;getMarketingConsent();
+}
+</code></pre>
+<hr />
+<h3 id="3-domain-model-layer">3. Domain Model Layer</h3>
+<p>Domain models implement business logic and data manipulation. These are concrete implementations of the service contracts.</p>
+<p><strong>Customer Model</strong>
+- <strong>Location:</strong> <code>Magento\Customer\Model\Customer</code>
+- <strong>Purpose:</strong> EAV entity representing a customer
+- <strong>Key Methods:</strong>
+  - <code>authenticate(string $password): bool</code> - Verify password
+  - <code>setPassword(string $password): self</code> - Set new password (pre-hashed)
+  - <code>changePassword(string $newPassword): self</code> - Change password with validation
+  - <code>getName(): string</code> - Get full name
+  - <code>getDataModel(): CustomerInterface</code> - Convert to DTO
+  - <code>updateData(CustomerInterface $customer): self</code> - Update from DTO</p>
+<p><strong>Address Model</strong>
+- <strong>Location:</strong> <code>Magento\Customer\Model\Address</code>
+- <strong>Purpose:</strong> Customer address entity
+- <strong>Key Methods:</strong>
+  - <code>validate(): bool|array</code> - Validate address data
+  - <code>getDataModel(): AddressInterface</code> - Convert to DTO
+  - <code>updateData(AddressInterface $address): self</code> - Update from DTO</p>
+<p><strong>CustomerRegistry</strong>
+- <strong>Location:</strong> <code>Magento\Customer\Model\CustomerRegistry</code>
+- <strong>Purpose:</strong> In-memory cache for customer entities (prevents redundant database queries)
+- <strong>Pattern:</strong> Registry pattern with identity map</p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Service;
+
+use Magento\Customer\Model\CustomerRegistry;
+use Magento\Customer\Model\Customer;
+
+class CustomerCacheExample
+{
+    public function __construct(
+        private readonly CustomerRegistry $customerRegistry
+    ) {}
+
+    /**
+     * Retrieve customer from registry (cached) or load from database
+     *
+     * @param int $customerId
+     * @return Customer
+     */
+    public function getCustomer(int $customerId): Customer
+    {
+        // Registry checks cache first, loads from DB if not cached
+        return $this-&gt;customerRegistry-&gt;retrieve($customerId);
+    }
+
+    /**
+     * Remove customer from registry cache
+     *
+     * @param int $customerId
+     */
+    public function removeFromCache(int $customerId): void
+    {
+        $this-&gt;customerRegistry-&gt;remove($customerId);
+    }
+}
+</code></pre>
+<p><strong>Session Model</strong>
+- <strong>Location:</strong> <code>Magento\Customer\Model\Session</code>
+- <strong>Purpose:</strong> Manage customer session state
+- <strong>Key Methods:</strong>
+  - <code>loginById(int $customerId): bool</code> - Log in customer by ID
+  - <code>logout(): self</code> - End customer session
+  - <code>isLoggedIn(): bool</code> - Check authentication state
+  - <code>getCustomerId(): int|null</code> - Get current customer ID
+  - <code>getCustomer(): Customer</code> - Get current customer model
+  - <code>regenerateId(): self</code> - Prevent session fixation</p>
+<p><strong>IMPORTANT:</strong> Never use Session in service contracts or API contexts. Session is frontend-only.</p>
+<hr />
+<h3 id="4-persistence-layer">4. Persistence Layer</h3>
+<p><strong>CustomerRepository</strong>
+- <strong>Location:</strong> <code>Magento\Customer\Model\ResourceModel\CustomerRepository</code>
+- <strong>Purpose:</strong> Implementation of CustomerRepositoryInterface
+- <strong>Responsibilities:</strong>
+  - Orchestrate model hydration and persistence
+  - Trigger events (<code>customer_save_before</code>, <code>customer_save_after</code>)
+  - Validate data before save
+  - Handle search criteria and filtering</p>
+<p><strong>Customer Resource Model</strong>
+- <strong>Location:</strong> <code>Magento\Customer\Model\ResourceModel\Customer</code>
+- <strong>Purpose:</strong> Direct database operations for customer entity
+- <strong>Responsibilities:</strong>
+  - Execute SQL queries for CRUD operations
+  - Handle EAV attribute loading/saving
+  - Manage customer-website relationships</p>
+<p><strong>Customer Collection</strong>
+- <strong>Location:</strong> <code>Magento\Customer\Model\ResourceModel\Customer\Collection</code>
+- <strong>Purpose:</strong> Load multiple customer entities with filtering
+- <strong>Key Methods:</strong>
+  - <code>addFieldToFilter()</code> - Add WHERE conditions
+  - <code>addAttributeToSelect()</code> - Load specific EAV attributes
+  - <code>setPageSize()</code> / <code>setCurPage()</code> - Pagination
+  - <code>addNameToSelect()</code> - Optimized name loading
+  - <code>joinAttribute()</code> - Join additional EAV attributes</p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Model;
+
+use Magento\Customer\Model\ResourceModel\Customer\CollectionFactory;
+
+class CustomerCollectionExample
+{
+    public function __construct(
+        private readonly CollectionFactory $customerCollectionFactory
+    ) {}
+
+    /**
+     * Get customers created in the last 30 days
+     *
+     * @return \Magento\Customer\Model\ResourceModel\Customer\Collection
+     */
+    public function getRecentCustomers(): \Magento\Customer\Model\ResourceModel\Customer\Collection
+    {
+        $collection = $this-&gt;customerCollectionFactory-&gt;create();
+        $collection-&gt;addAttributeToSelect('*')
+            -&gt;addFieldToFilter('created_at', [
+                'from' =&gt; date('Y-m-d', strtotime('-30 days')),
+                'to' =&gt; date('Y-m-d'),
+                'datetime' =&gt; true
+            ])
+            -&gt;setOrder('created_at', 'DESC')
+            -&gt;setPageSize(100);
+
+        return $collection;
+    }
+}
+</code></pre>
+<hr />
+<h2 id="database-schema">Database Schema</h2>
+<h3 id="core-tables">Core Tables</h3>
+<h4 id="customer_entity">customer_entity</h4>
+<p>Primary customer entity table.</p>
+<pre><code class="language-sql">CREATE TABLE `customer_entity` (
+  `entity_id` int unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `website_id` smallint unsigned DEFAULT NULL,
+  `email` varchar(255) DEFAULT NULL,
+  `group_id` smallint unsigned NOT NULL DEFAULT 0,
+  `increment_id` varchar(50) DEFAULT NULL,
+  `store_id` smallint unsigned DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `is_active` smallint unsigned NOT NULL DEFAULT 1,
+  `disable_auto_group_change` smallint unsigned NOT NULL DEFAULT 0,
+  `created_in` varchar(255) DEFAULT NULL,
+  `prefix` varchar(40) DEFAULT NULL,
+  `firstname` varchar(255) DEFAULT NULL,
+  `middlename` varchar(255) DEFAULT NULL,
+  `lastname` varchar(255) DEFAULT NULL,
+  `suffix` varchar(40) DEFAULT NULL,
+  `dob` date DEFAULT NULL,
+  `password_hash` varchar(128) DEFAULT NULL,
+  `rp_token` varchar(128) DEFAULT NULL,
+  `rp_token_created_at` datetime DEFAULT NULL,
+  `default_billing` int unsigned DEFAULT NULL,
+  `default_shipping` int unsigned DEFAULT NULL,
+  `taxvat` varchar(50) DEFAULT NULL,
+  `confirmation` varchar(64) DEFAULT NULL,
+  `gender` smallint unsigned DEFAULT NULL,
+  `failures_num` smallint unsigned DEFAULT 0,
+  `first_failure` timestamp NULL DEFAULT NULL,
+  `lock_expires` timestamp NULL DEFAULT NULL,
+
+  KEY `CUSTOMER_ENTITY_STORE_ID` (`store_id`),
+  KEY `CUSTOMER_ENTITY_WEBSITE_ID` (`website_id`),
+  KEY `CUSTOMER_ENTITY_FIRSTNAME` (`firstname`),
+  KEY `CUSTOMER_ENTITY_LASTNAME` (`lastname`),
+  KEY `CUSTOMER_ENTITY_EMAIL` (`email`),
+  UNIQUE KEY `CUSTOMER_ENTITY_EMAIL_WEBSITE_ID` (`email`,`website_id`),
+
+  CONSTRAINT `CUSTOMER_ENTITY_STORE_ID_STORE_STORE_ID`
+    FOREIGN KEY (`store_id`) REFERENCES `store` (`store_id`) ON DELETE SET NULL,
+  CONSTRAINT `CUSTOMER_ENTITY_WEBSITE_ID_STORE_WEBSITE_WEBSITE_ID`
+    FOREIGN KEY (`website_id`) REFERENCES `store_website` (`website_id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+</code></pre>
+<p><strong>Key Indexes:</strong>
+- <strong>UNIQUE(email, website_id):</strong> Enforces email uniqueness per website
+- <strong>INDEX(website_id, store_id):</strong> Fast filtering by scope
+- <strong>INDEX(firstname, lastname):</strong> Name searches in admin grid
+- <strong>INDEX(email):</strong> Login lookups</p>
+<p><strong>Security Fields:</strong>
+- <code>password_hash</code> - Argon2 or SHA-256 hashed password
+- <code>rp_token</code> / <code>rp_token_created_at</code> - Password reset token with expiration
+- <code>failures_num</code> / <code>first_failure</code> / <code>lock_expires</code> - Account lockout protection</p>
+<h4 id="customer_address_entity">customer_address_entity</h4>
+<p>Customer addresses with support for multiple addresses per customer.</p>
+<pre><code class="language-sql">CREATE TABLE `customer_address_entity` (
+  `entity_id` int unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `increment_id` varchar(50) DEFAULT NULL,
+  `parent_id` int unsigned DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `is_active` smallint unsigned NOT NULL DEFAULT 1,
+  `city` varchar(255) DEFAULT NULL,
+  `company` varchar(255) DEFAULT NULL,
+  `country_id` varchar(255) NOT NULL,
+  `fax` varchar(255) DEFAULT NULL,
+  `firstname` varchar(255) DEFAULT NULL,
+  `lastname` varchar(255) DEFAULT NULL,
+  `middlename` varchar(255) DEFAULT NULL,
+  `postcode` varchar(255) DEFAULT NULL,
+  `prefix` varchar(40) DEFAULT NULL,
+  `region` varchar(255) DEFAULT NULL,
+  `region_id` int unsigned DEFAULT NULL,
+  `street` text,
+  `suffix` varchar(40) DEFAULT NULL,
+  `telephone` varchar(255) DEFAULT NULL,
+  `vat_id` varchar(255) DEFAULT NULL,
+  `vat_is_valid` int unsigned DEFAULT NULL,
+  `vat_request_date` varchar(255) DEFAULT NULL,
+  `vat_request_id` varchar(255) DEFAULT NULL,
+  `vat_request_success` int unsigned DEFAULT NULL,
+
+  KEY `CUSTOMER_ADDRESS_ENTITY_PARENT_ID` (`parent_id`),
+
+  CONSTRAINT `CUSTOMER_ADDRESS_ENTITY_PARENT_ID_CUSTOMER_ENTITY_ENTITY_ID`
+    FOREIGN KEY (`parent_id`) REFERENCES `customer_entity` (`entity_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+</code></pre>
+<p><strong>Key Relationships:</strong>
+- <code>parent_id</code> links to <code>customer_entity.entity_id</code>
+- Cascade delete: removing customer deletes all addresses</p>
+<h4 id="customer_group">customer_group</h4>
+<p>Defines customer segments for pricing and tax rules.</p>
+<pre><code class="language-sql">CREATE TABLE `customer_group` (
+  `customer_group_id` int unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `customer_group_code` varchar(32) NOT NULL,
+  `tax_class_id` int unsigned NOT NULL DEFAULT 0,
+
+  UNIQUE KEY `CUSTOMER_GROUP_CUSTOMER_GROUP_CODE` (`customer_group_code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+</code></pre>
+<p><strong>Default Groups:</strong></p>
+<pre><code class="language-sql">INSERT INTO customer_group VALUES
+(0, 'NOT LOGGED IN', 3),
+(1, 'General', 3),
+(2, 'Wholesale', 3),
+(3, 'Retailer', 3);
+</code></pre>
+<h4 id="customer_grid_flat">customer_grid_flat</h4>
+<p>Denormalized table for fast admin grid performance.</p>
+<pre><code class="language-sql">CREATE TABLE `customer_grid_flat` (
+  `entity_id` int unsigned NOT NULL,
+  `name` text,
+  `email` varchar(255) DEFAULT NULL,
+  `group_id` int unsigned DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `website_id` int unsigned DEFAULT NULL,
+  `confirmation` varchar(64) DEFAULT NULL,
+  `created_in` text,
+  `dob` date DEFAULT NULL,
+  `gender` int unsigned DEFAULT NULL,
+  `taxvat` varchar(50) DEFAULT NULL,
+  `lock_expires` timestamp NULL DEFAULT NULL,
+  `shipping_full` text,
+  `billing_full` text,
+  `billing_firstname` varchar(255) DEFAULT NULL,
+  `billing_lastname` varchar(255) DEFAULT NULL,
+  `billing_telephone` varchar(255) DEFAULT NULL,
+  `billing_postcode` varchar(255) DEFAULT NULL,
+  `billing_country_id` varchar(255) DEFAULT NULL,
+  `billing_region` varchar(255) DEFAULT NULL,
+  `billing_region_id` int unsigned DEFAULT NULL,
+  `billing_street` varchar(255) DEFAULT NULL,
+  `billing_city` varchar(255) DEFAULT NULL,
+  `billing_fax` varchar(255) DEFAULT NULL,
+  `billing_vat_id` varchar(255) DEFAULT NULL,
+  `billing_company` varchar(255) DEFAULT NULL,
+
+  PRIMARY KEY (`entity_id`),
+  FULLTEXT KEY `CUSTOMER_GRID_FLAT_NAME_EMAIL` (`name`,`email`),
+  KEY `CUSTOMER_GRID_FLAT_GROUP_ID` (`group_id`),
+  KEY `CUSTOMER_GRID_FLAT_CREATED_AT` (`created_at`),
+  KEY `CUSTOMER_GRID_FLAT_WEBSITE_ID` (`website_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+</code></pre>
+<p><strong>Purpose:</strong> Optimized for admin customer grid queries. Updated via indexer:</p>
+<pre><code class="language-bash">bin/magento indexer:reindex customer_grid
+</code></pre>
+<h3 id="eav-attribute-tables">EAV Attribute Tables</h3>
+<p>Customer and address entities use EAV for custom attributes.</p>
+<h4 id="customer_eav_attribute">customer_eav_attribute</h4>
+<p>Stores customer attribute metadata.</p>
+<pre><code class="language-sql">CREATE TABLE `customer_eav_attribute` (
+  `attribute_id` smallint unsigned NOT NULL,
+  `is_visible` smallint unsigned NOT NULL DEFAULT 1,
+  `input_filter` varchar(255) DEFAULT NULL,
+  `multiline_count` smallint unsigned NOT NULL DEFAULT 1,
+  `validate_rules` text,
+  `is_system` smallint unsigned NOT NULL DEFAULT 0,
+  `sort_order` int unsigned NOT NULL DEFAULT 0,
+  `data_model` varchar(255) DEFAULT NULL,
+  `is_used_in_grid` smallint unsigned NOT NULL DEFAULT 0,
+  `is_visible_in_grid` smallint unsigned NOT NULL DEFAULT 0,
+  `is_filterable_in_grid` smallint unsigned NOT NULL DEFAULT 0,
+  `is_searchable_in_grid` smallint unsigned NOT NULL DEFAULT 0,
+
+  PRIMARY KEY (`attribute_id`),
+  CONSTRAINT `CUSTOMER_EAV_ATTRIBUTE_ATTRIBUTE_ID_EAV_ATTRIBUTE_ATTRIBUTE_ID`
+    FOREIGN KEY (`attribute_id`) REFERENCES `eav_attribute` (`attribute_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+</code></pre>
+<h4 id="customer_entity_">customer_entity_*</h4>
+<p>Value tables for different attribute data types:
+- <code>customer_entity_datetime</code> - Date/time attributes
+- <code>customer_entity_decimal</code> - Numeric attributes
+- <code>customer_entity_int</code> - Integer attributes (including dropdowns)
+- <code>customer_entity_text</code> - Short text attributes
+- <code>customer_entity_varchar</code> - Variable-length text attributes</p>
+<p>Example structure (all follow same pattern):</p>
+<pre><code class="language-sql">CREATE TABLE `customer_entity_varchar` (
+  `value_id` int NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `attribute_id` smallint unsigned NOT NULL,
+  `entity_id` int unsigned NOT NULL,
+  `value` varchar(255) DEFAULT NULL,
+
+  UNIQUE KEY `CUSTOMER_ENTITY_VARCHAR_ENTITY_ID_ATTRIBUTE_ID` (`entity_id`,`attribute_id`),
+  KEY `CUSTOMER_ENTITY_VARCHAR_ATTRIBUTE_ID` (`attribute_id`),
+  KEY `CUSTOMER_ENTITY_VARCHAR_ENTITY_ID_ATTRIBUTE_ID_VALUE` (`entity_id`,`attribute_id`,`value`),
+
+  CONSTRAINT `CUSTOMER_ENTITY_VARCHAR_ENTITY_ID_CUSTOMER_ENTITY_ENTITY_ID`
+    FOREIGN KEY (`entity_id`) REFERENCES `customer_entity` (`entity_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+</code></pre>
+<hr />
+<h2 id="eav-attribute-system">EAV Attribute System</h2>
+<h3 id="adding-custom-customer-attributes">Adding Custom Customer Attributes</h3>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Setup\Patch\Data;
+
+use Magento\Customer\Model\Customer;
+use Magento\Customer\Setup\CustomerSetupFactory;
+use Magento\Eav\Model\Entity\Attribute\SetFactory as AttributeSetFactory;
+use Magento\Framework\Setup\ModuleDataSetupInterface;
+use Magento\Framework\Setup\Patch\DataPatchInterface;
+
+class AddCustomerSubscriptionTier implements DataPatchInterface
+{
+    public function __construct(
+        private readonly ModuleDataSetupInterface $moduleDataSetup,
+        private readonly CustomerSetupFactory $customerSetupFactory,
+        private readonly AttributeSetFactory $attributeSetFactory
+    ) {}
+
+    public function apply(): self
+    {
+        $customerSetup = $this-&gt;customerSetupFactory-&gt;create(['setup' =&gt; $this-&gt;moduleDataSetup]);
+
+        $customerSetup-&gt;addAttribute(
+            Customer::ENTITY,
+            'subscription_tier',
+            [
+                'type' =&gt; 'varchar',
+                'label' =&gt; 'Subscription Tier',
+                'input' =&gt; 'select',
+                'source' =&gt; \Vendor\Module\Model\Customer\Attribute\Source\SubscriptionTier::class,
+                'required' =&gt; false,
+                'visible' =&gt; true,
+                'user_defined' =&gt; true,
+                'sort_order' =&gt; 200,
+                'position' =&gt; 200,
+                'system' =&gt; false,
+                'is_used_in_grid' =&gt; true,
+                'is_visible_in_grid' =&gt; true,
+                'is_filterable_in_grid' =&gt; true,
+                'is_searchable_in_grid' =&gt; true,
+            ]
+        );
+
+        // Add attribute to default attribute set
+        $customerEntity = $customerSetup-&gt;getEavConfig()-&gt;getEntityType(Customer::ENTITY);
+        $attributeSetId = $customerEntity-&gt;getDefaultAttributeSetId();
+        $attributeSet = $this-&gt;attributeSetFactory-&gt;create();
+        $attributeGroupId = $attributeSet-&gt;getDefaultGroupId($attributeSetId);
+
+        $attribute = $customerSetup-&gt;getEavConfig()-&gt;getAttribute(Customer::ENTITY, 'subscription_tier');
+        $attribute-&gt;addData([
+            'attribute_set_id' =&gt; $attributeSetId,
+            'attribute_group_id' =&gt; $attributeGroupId,
+            'used_in_forms' =&gt; [
+                'adminhtml_customer',
+                'customer_account_edit',
+                'customer_account_create'
+            ],
+        ]);
+        $attribute-&gt;save();
+
+        return $this;
+    }
+
+    public static function getDependencies(): array
+    {
+        return [];
+    }
+
+    public function getAliases(): array
+    {
+        return [];
+    }
+}
+</code></pre>
+<h3 id="attribute-source-model">Attribute Source Model</h3>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Model\Customer\Attribute\Source;
+
+use Magento\Eav\Model\Entity\Attribute\Source\AbstractSource;
+
+class SubscriptionTier extends AbstractSource
+{
+    public const TIER_FREE = 'free';
+    public const TIER_BASIC = 'basic';
+    public const TIER_PREMIUM = 'premium';
+    public const TIER_ENTERPRISE = 'enterprise';
+
+    /**
+     * Get all options for dropdown
+     *
+     * @return array
+     */
+    public function getAllOptions(): array
+    {
+        if ($this-&gt;_options === null) {
+            $this-&gt;_options = [
+                ['label' =&gt; __('Free'), 'value' =&gt; self::TIER_FREE],
+                ['label' =&gt; __('Basic'), 'value' =&gt; self::TIER_BASIC],
+                ['label' =&gt; __('Premium'), 'value' =&gt; self::TIER_PREMIUM],
+                ['label' =&gt; __('Enterprise'), 'value' =&gt; self::TIER_ENTERPRISE],
+            ];
+        }
+        return $this-&gt;_options;
+    }
+}
+</code></pre>
+<hr />
+<h2 id="design-patterns">Design Patterns</h2>
+<h3 id="1-repository-pattern">1. Repository Pattern</h3>
+<p>Abstracts data access logic behind service contract interfaces.</p>
+<p><strong>Benefits:</strong>
+- Decouples business logic from persistence mechanism
+- Enables switching storage backends without API changes
+- Facilitates testing with mock repositories</p>
+<h3 id="2-data-transfer-object-dto-pattern">2. Data Transfer Object (DTO) Pattern</h3>
+<p>Uses data interfaces (CustomerInterface, AddressInterface) for type-safe data transfer.</p>
+<p><strong>Benefits:</strong>
+- Strong typing prevents runtime errors
+- IDE autocomplete and static analysis support
+- Clear contracts for API consumers</p>
+<h3 id="3-registry-pattern">3. Registry Pattern</h3>
+<p>CustomerRegistry maintains identity map of loaded entities.</p>
+<p><strong>Benefits:</strong>
+- Prevents redundant database queries
+- Ensures single instance per entity ID
+- Maintains consistency within request scope</p>
+<h3 id="4-eav-pattern">4. EAV Pattern</h3>
+<p>Entity-Attribute-Value for extensible customer fields.</p>
+<p><strong>Trade-offs:</strong>
+- <strong>Pro:</strong> Add fields without schema migrations
+- <strong>Pro:</strong> Flexible data model for multi-tenant scenarios
+- <strong>Con:</strong> Complex queries (multiple joins)
+- <strong>Con:</strong> Harder to index and optimize</p>
+<h3 id="5-observer-pattern">5. Observer Pattern</h3>
+<p>Event-driven extensions via <code>events.xml</code>.</p>
+<p><strong>Key Events:</strong>
+- <code>customer_register_success</code> - After registration
+- <code>customer_login</code> - After successful login
+- <code>customer_logout</code> - After logout
+- <code>customer_save_before</code> / <code>customer_save_after</code> - Around customer save
+- <code>customer_address_save_before</code> / <code>customer_address_save_after</code> - Around address save
+- <code>customer_delete_before</code> / <code>customer_delete_after</code> - Around customer deletion</p>
+<h3 id="6-plugin-pattern-interception">6. Plugin Pattern (Interception)</h3>
+<p>Modify behavior of public methods without inheritance.</p>
+<p><strong>Example:</strong> Add logging to customer authentication:</p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Plugin\Customer\Model;
+
+use Magento\Customer\Api\AccountManagementInterface;
+use Magento\Customer\Api\Data\CustomerInterface;
+use Psr\Log\LoggerInterface;
+
+class AccountManagementExtend
+{
+    public function __construct(
+        private readonly LoggerInterface $logger
+    ) {}
+
+    /**
+     * Log successful authentication
+     *
+     * @param AccountManagementInterface $subject
+     * @param CustomerInterface $result
+     * @return CustomerInterface
+     */
+    public function afterAuthenticate(
+        AccountManagementInterface $subject,
+        CustomerInterface $result
+    ): CustomerInterface {
+        $this-&gt;logger-&gt;info('Customer authenticated', [
+            'customer_id' =&gt; $result-&gt;getId(),
+            'email' =&gt; $result-&gt;getEmail()
+        ]);
+
+        return $result;
+    }
+}
+</code></pre>
+<pre><code class="language-xml">&lt;!-- etc/di.xml --&gt;
+&lt;type name=&quot;Magento\Customer\Api\AccountManagementInterface&quot;&gt;
+    &lt;plugin name=&quot;vendor_module_account_management_logger&quot;
+            type=&quot;Vendor\Module\Plugin\Customer\Model\AccountManagementExtend&quot; /&gt;
+&lt;/type&gt;
+</code></pre>
+<hr />
+<h2 id="configuration-schema">Configuration Schema</h2>
+<p>Key configuration paths in <code>core_config_data</code>:</p>
+<div class="overflow-x-auto my-6 border border-gray-200"><table class="min-w-full">
+<thead>
+<tr>
+<th>Path</th>
+<th>Type</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>customer/account_share/scope</code></td>
+<td>int</td>
+<td>0=Global, 1=Per Website</td>
+</tr>
+<tr>
+<td><code>customer/create_account/confirm</code></td>
+<td>bool</td>
+<td>Email confirmation required</td>
+</tr>
+<tr>
+<td><code>customer/create_account/email_domain</code></td>
+<td>string</td>
+<td>Allowed email domains</td>
+</tr>
+<tr>
+<td><code>customer/create_account/default_group</code></td>
+<td>int</td>
+<td>Default group for new customers</td>
+</tr>
+<tr>
+<td><code>customer/password/required_character_classes_number</code></td>
+<td>int</td>
+<td>Password complexity (0-4)</td>
+</tr>
+<tr>
+<td><code>customer/password/minimum_password_length</code></td>
+<td>int</td>
+<td>Min password length</td>
+</tr>
+<tr>
+<td><code>customer/address/street_lines</code></td>
+<td>int</td>
+<td>Number of street lines (1-4)</td>
+</tr>
+<tr>
+<td><code>customer/startup/redirect_dashboard</code></td>
+<td>bool</td>
+<td>Redirect to dashboard after login</td>
+</tr>
+<tr>
+<td><code>customer/online_customers/section_data_lifetime</code></td>
+<td>int</td>
+<td>Private content cache lifetime (seconds)</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="assumptions">Assumptions</h2>
+<ul>
+<li><strong>Target Platform:</strong> Adobe Commerce / Magento Open Source 2.4.7+</li>
+<li><strong>PHP Version:</strong> 8.2+</li>
+<li><strong>Database:</strong> MySQL 8.0+ or MariaDB 10.6+ with InnoDB storage engine</li>
+<li><strong>Scope:</strong> Single and multi-website deployments with account sharing configured appropriately</li>
+<li><strong>Authentication:</strong> Standard email/password (extensible for OAuth/SAML)</li>
+</ul>
+<h2 id="why-this-approach">Why This Approach</h2>
+<p>The Customer module's architecture balances flexibility (EAV), type safety (service contracts), and performance (indexed grid, registry caching). Service contracts ensure API stability for integrations, while EAV allows merchants to extend customer data without code modifications. The repository pattern abstracts persistence, enabling future storage backend changes (e.g., NoSQL for specific use cases) without breaking consuming code.</p>
+<h2 id="security-impact">Security Impact</h2>
+<ul>
+<li><strong>Authorization:</strong> All admin operations check ACL (<code>Magento_Customer::manage</code>, <code>Magento_Customer::customer</code>)</li>
+<li><strong>Password Storage:</strong> Argon2id (PHP 8.2+) or SHA-256 with salt</li>
+<li><strong>Session Security:</strong> <code>regenerateId()</code> called after authentication to prevent fixation</li>
+<li><strong>CSRF:</strong> All forms include form key validation</li>
+<li><strong>PII Protection:</strong> Customer data logged only when explicitly required; use data scrubbers for logs</li>
+</ul>
+<h2 id="performance-impact">Performance Impact</h2>
+<ul>
+<li><strong>FPC:</strong> Customer-specific content uses private content blocks (<code>data-bind="scope: 'customer'"</code>)</li>
+<li><strong>Database:</strong> Customer grid indexed separately; EAV queries optimized with proper indexing</li>
+<li><strong>Caching:</strong> CustomerRegistry prevents redundant loads; use <code>customer_grid_flat</code> for admin queries</li>
+<li><strong>Sessions:</strong> Redis backend recommended for horizontal scaling</li>
+</ul>
+<h2 id="backward-compatibility">Backward Compatibility</h2>
+<ul>
+<li><strong>Service Contracts:</strong> Interfaces stable within 2.4.x; new methods added to end of interface</li>
+<li><strong>Database Schema:</strong> EAV additions backward compatible; new columns added with defaults</li>
+<li><strong>Deprecations:</strong> Direct model usage (e.g., <code>Customer::load()</code>) deprecated since 2.3; use repositories</li>
+<li><strong>API Versioning:</strong> REST API versioned (<code>/V1/</code>); breaking changes require new version</li>
+</ul>
+<h2 id="tests-to-add">Tests to Add</h2>
+<ul>
+<li><strong>Unit:</strong> Repository methods, attribute source models, validation logic</li>
+<li><strong>Integration:</strong> CRUD via service contracts, EAV attribute loading, address operations</li>
+<li><strong>API:</strong> REST/GraphQL contract tests (customer CRUD, authentication, address management)</li>
+<li><strong>MFTF:</strong> Customer registration, login, profile edit, address CRUD</li>
+</ul>
+<h2 id="docs-to-update">Docs to Update</h2>
+<ul>
+<li><strong>README.md:</strong> High-level module overview</li>
+<li><strong>ARCHITECTURE.md:</strong> This document</li>
+<li><strong>EXECUTION_FLOWS.md:</strong> Registration, authentication, address management flows</li>
+<li><strong>CHANGELOG.md:</strong> Version-specific schema and API changes</li>
+</ul>
+                    </div>
+                </article>
+            </main>
+            <!-- Right Sidebar: On This Page (desktop) -->
+            <aside class="toc-sidebar hidden xl:block" aria-label="On this page">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-semibold text-gray-900 uppercase tracking-wider mb-4 mt-0">On this page</h3>
+                    <nav id="toc-nav" class="space-y-0" aria-label="Table of contents"></nav>
+                    <div class="toc-back-to-top">
+                        <a href="#">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+                            </svg>
+                            Back to top
+                        </a>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- ================================================================
+         FOOTER — matches module-catalog.html multi-column layout exactly
+         ================================================================ -->
+    <footer class="relative pt-12 bg-white border-t border-charcoal mt-16">
+        <div class="max-w-screen-2xl mx-auto w-full px-4 sm:px-6 lg:px-8">
+            <div>
+                <a href="index.html" class="inline-flex items-center no-underline">
+                    <svg width="30" height="33" viewBox="0 0 30 33" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Magento Association logo" role="img">
+                        <path d="M0 4.06492H29.6763V31.8882C29.6763 32.502 29.1713 33 28.5487 33H1.12762C0.505079 33 0 32.502 0 31.8882V4.06492Z" fill="#34323A"/>
+                        <path d="M1.26857 0H28.4078C29.1066 0 29.6763 0.561678 29.6763 1.25075V4.06492H0V1.25075C0 0.561678 0.569682 0 1.26857 0Z" fill="#C9C9C9"/>
+                        <path d="M2.37269 3.0458C2.94031 3.0458 3.40046 2.59211 3.40046 2.03246C3.40046 1.47281 2.94031 1.01913 2.37269 1.01913C1.80506 1.01913 1.34491 1.47281 1.34491 2.03246C1.34491 2.59211 1.80506 3.0458 2.37269 3.0458Z" fill="#848484"/>
+                        <path d="M5.28571 3.0458C5.85334 3.0458 6.31349 2.59211 6.31349 2.03246C6.31349 1.47281 5.85334 1.01913 5.28571 1.01913C4.71809 1.01913 4.25793 1.47281 4.25793 2.03246C4.25793 2.59211 4.71809 3.0458 5.28571 3.0458Z" fill="#848484"/>
+                        <path d="M14.7883 7.46973L4.90405 13.0923V24.349L7.54104 25.8487V14.5978L14.7883 10.4692L22.0415 14.5978V25.8487L24.6785 24.349V13.0923L14.7883 7.46973Z" fill="#F1BC1B"/>
+                        <path d="M16.0862 26.2367L14.7883 26.9779L13.4492 26.2135V14.233L10.178 16.0975V27.3485L13.4492 29.213L14.7883 29.9773L16.0862 29.2362L19.4045 27.3485V16.0975L16.0862 14.2098V26.2367Z" fill="#F1BC1B"/>
+                    </svg>
+                    <span class="ml-3 text-xl font-bold text-charcoal">Developer Documentation</span>
+                </a>
+            </div>
+
+            <div class="grid grid-cols-12 md:gap-x-8 gap-y-12 lg:mt-12">
+                <div class="col-span-12 lg:col-span-4">
+                    <p class="hidden lg:block text-xs text-charcoal sm:text-sm">Comprehensive developer documentation for Magento 2.4.7+ — tutorials, architecture deep dives, module references, and production-ready patterns built by the community, for the community.</p>
+                    <ul class="mt-6 hidden lg:flex items-center gap-3">
+                        <li class="pl-0">
+                            <a href="https://github.com/magento/magento2" class="p-2 md:p-0" aria-label="GitHub">
+                                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                                </svg>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Guides</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="tutorials.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Tutorials</a></li>
+                            <li class="pl-0"><a href="how-to-guides.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">How-To Guides</a></li>
+                            <li class="pl-0"><a href="architecture.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Architecture</a></li>
+                            <li class="pl-0"><a href="learning-paths.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Learning Paths</a></li>
+                            <li class="pl-0"><a href="references.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">References</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Modules</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="module-catalog.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Catalog</a></li>
+                            <li class="pl-0"><a href="module-checkout.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Checkout</a></li>
+                            <li class="pl-0"><a href="module-sales.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Sales</a></li>
+                            <li class="pl-0"><a href="module-customer.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Customer</a></li>
+                            <li class="pl-0"><a href="module-quote.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Quote</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Community</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Magento Community</a></li>
+                            <li class="pl-0"><a href="https://magento.stackexchange.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Stack Exchange</a></li>
+                            <li class="pl-0"><a href="https://marketplace.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Marketplace</a></li>
+                            <li class="pl-0"><a href="https://github.com/magento/magento2" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">GitHub</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Support</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://github.com/magento/magento2/issues" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Report Issues</a></li>
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Community Resources</a></li>
+                            <li class="pl-0"><a href="https://developer.adobe.com/commerce/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Adobe Commerce Docs</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-12 border-t pt-6 pb-16 border-charcoal">
+                <p class="text-xs text-charcoal">
+                    &copy; 2026 Magento 2 Developer Documentation. Magento&reg; is a registered trademark of Adobe Inc.
+                </p>
+                <p class="mt-6 text-xs text-charcoal">
+                    This documentation provides guidance for Magento 2 developers and extension builders. For merchant documentation, visit the <a href="index.html" class="text-orange hover:text-orange-600 transition-colors">merchant documentation</a>.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Initialize highlight.js -->
+    <script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('pre code').forEach(function (el) {
+        hljs.highlightElement(el);
+    });
+    document.querySelectorAll('pre').forEach(function (pre) {
+        if (pre.parentNode.classList && pre.parentNode.classList.contains('code-wrapper')) return;
+        var wrapper = document.createElement('div');
+        wrapper.className = 'code-wrapper';
+        pre.parentNode.insertBefore(wrapper, pre);
+        wrapper.appendChild(pre);
+        var btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.setAttribute('type', 'button');
+        btn.setAttribute('aria-label', 'Copy code to clipboard');
+        btn.setAttribute('title', 'Copy');
+        btn.textContent = 'Copy';
+        wrapper.appendChild(btn);
+        btn.addEventListener('click', function () {
+            var code = pre.querySelector('code');
+            var text = code ? (code.innerText || code.textContent) : (pre.innerText || pre.textContent);
+            navigator.clipboard.writeText(text).then(function () {
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            }).catch(function () {
+                var range = document.createRange();
+                range.selectNode(code || pre);
+                window.getSelection().removeAllRanges();
+                window.getSelection().addRange(range);
+                document.execCommand('copy');
+                window.getSelection().removeAllRanges();
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            });
+        });
+    });
+});
+</script>
+
+
+<script>
+(function() {
+    var nav = document.getElementById('toc-nav');
+    if (!nav) return;
+    var article = document.getElementById('main-content');
+    if (!article) return;
+    var headings = article.querySelectorAll('h2[id], h3[id]');
+    if (headings.length < 3) {
+        // Hide the entire TOC sidebar if fewer than 3 headings
+        var sidebar = nav.closest('.toc-sidebar');
+        if (sidebar) sidebar.style.display = 'none';
+        return;
+    }
+    var ids = [];
+    headings.forEach(function(h) {
+        var a = document.createElement('a');
+        a.href = '#' + h.id;
+        a.textContent = h.textContent.replace(/^#+\s*/, '').replace(/\s+/g, ' ').trim();
+        if (h.tagName === 'H3') a.classList.add('toc-h3');
+        nav.appendChild(a);
+        ids.push(h.id);
+    });
+    // Scroll-spy with IntersectionObserver
+    var links = nav.querySelectorAll('a');
+    var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                links.forEach(function(l) { l.classList.remove('toc-active'); });
+                var active = nav.querySelector('a[href="#' + entry.target.id + '"]');
+                if (active) active.classList.add('toc-active');
+            }
+        });
+    }, { rootMargin: '-80px 0px -70% 0px', threshold: 0 });
+    headings.forEach(function(h) { observer.observe(h); });
+})();
+</script>
+</body>
+</html>

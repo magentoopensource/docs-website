@@ -6,18 +6,19 @@ require 'recipe/laravel.php';
 
 // Config
 set('application', 'merchant-docs');
-set('repository', 'https://github.com/magentoopensource/docs-website.git');
-set('keep_releases', 5);
+set('repository', 'https://github.com/carlsimpson-magento/docs-website.git');
+set('keep_releases', 3);
 set('writable_mode', 'chmod');
 
 // Hosts
-host('production')
+host('staging')
     ->setHostname('62.113.231.168')
     ->setRemoteUser('web-user')
-    ->setDeployPath('~/docs.magento-opensource.com')
-    ->setLabels(['stage' => 'production'])
+    ->setDeployPath('~/docs-test.magento-opensource.com')
+    ->setLabels(['stage' => 'staging'])
     ->set('ssh_multiplexing', false)
-    ->setSshArguments(['-o StrictHostKeyChecking=no']);
+    ->setSshArguments(['-o StrictHostKeyChecking=no'])
+    ->set('branch', 'feature/landing-page-and-devdocs');
 
 // Shared files/dirs
 add('shared_files', [
@@ -49,11 +50,10 @@ desc('Authenticate with maxcluster control plane');
 task('deploy:cluster-auth', function () {
     writeln('🔐 Authenticating with cluster-control...');
 
-    // Get PAT from local environment (set in GitHub Actions)
-    // Note: This runs on the CI runner, not the remote server
     $pat = getenv('MAXCLUSTER_PAT');
     if (empty($pat)) {
-        throw new \Exception('❌ MAXCLUSTER_PAT environment variable not set!');
+        writeln('⚠️  MAXCLUSTER_PAT not set — skipping cluster-control auth (staging)');
+        return;
     }
 
     run("cluster-control login --pa_token=" . escapeshellarg($pat));
@@ -99,7 +99,9 @@ task('deploy:verify-assets', function () {
 
 desc('Sync external documentation');
 task('deploy:sync-docs', function () {
-    run('cd {{release_path}} && DEPLOYER_ROOT={{deploy_path}} bash bin/checkout_latest_docs.sh');
+    // Staging pulls content (incl. developer/) from the fork; production uses the
+    // default official repo. Only the URL differs — the branch stays main.
+    run('cd {{release_path}} && DEPLOYER_ROOT={{deploy_path}} DOCS_REPO_URL=https://github.com/carl-simpson/docs.git bash bin/checkout_latest_docs.sh');
 });
 
 desc('Ensure webhook secret is configured');
@@ -187,16 +189,41 @@ task('deploy:optimize', function () {
     run('php artisan view:cache');
 });
 
-desc('Clear PHP OPcache by reloading PHP-FPM');
+desc('Clear PHP OPcache by reloading PHP-FPM (cachetool fallback when no PAT)');
 task('deploy:clear-opcache', function () {
-    writeln('🔄 Reloading PHP-FPM to clear OPcache...');
+    writeln('🔄 Clearing PHP OPcache...');
 
-    // Use cluster-control to gracefully reload PHP-FPM
-    // This clears OPcache and allows running processes to complete (30s timeout)
-    run('cluster-control php:reload C-727 srv-a --no-interaction');
-    run('cluster-control logout');
+    // Preferred path: reload PHP-FPM via maxcluster control plane.
+    $pat = getenv('MAXCLUSTER_PAT');
+    if (!empty($pat)) {
+        run('cluster-control php:reload C-727 srv-a --no-interaction');
+        run('cluster-control logout');
+        writeln('✅ PHP-FPM reloaded via cluster-control, OPcache cleared');
+        return;
+    }
 
-    writeln('✅ PHP-FPM reloaded, OPcache cleared');
+    // Fallback (no MAXCLUSTER_PAT, e.g. local deploys): reset OPcache directly
+    // with cachetool. A symlink deploy otherwise leaves PHP-FPM resolving the
+    // PREVIOUS release through its realpath/opcache, so the app renders stale
+    // Vite asset hashes that 404 against the new build.
+    writeln('ℹ  MAXCLUSTER_PAT not set — resetting OPcache via cachetool');
+    if (!test('command -v cachetool >/dev/null 2>&1')) {
+        writeln('⚠️  cachetool not available — skipping OPcache reset');
+        return;
+    }
+
+    // Prefer this site's dedicated FPM pool socket; fall back to the default pool.
+    $sock = trim(run("ls /var/run/php*-fpm-docs-test.magento-opensource.com.sock 2>/dev/null | head -1 || true"));
+    if (empty($sock)) {
+        $sock = trim(run("ls /var/run/php*-fpm-default.sock 2>/dev/null | head -1 || true"));
+    }
+    if (empty($sock)) {
+        writeln('⚠️  No PHP-FPM socket found — skipping OPcache reset');
+        return;
+    }
+
+    run('cachetool opcache:reset --fcgi=' . escapeshellarg($sock));
+    writeln('✅ OPcache reset via cachetool (' . $sock . ')');
 });
 
 desc('Verify deployment health');
@@ -204,7 +231,7 @@ task('deploy:health-check', function () {
     writeln('🔍 Running post-deployment health checks...');
 
     // Check if homepage loads
-    $response = run('curl -s -o /dev/null -w "%{http_code}" https://docs.magento-opensource.com/');
+    $response = run('curl -s -o /dev/null -w "%{http_code}" https://docs-test.magento-opensource.com/');
     if (trim($response) !== '200') {
         writeln('⚠️  Warning: Homepage returned HTTP ' . trim($response));
     } else {
@@ -212,12 +239,12 @@ task('deploy:health-check', function () {
     }
 
     // Fetch homepage HTML and check for Vite assets
-    $html = run('curl -s https://docs.magento-opensource.com/');
+    $html = run('curl -s https://docs-test.magento-opensource.com/');
 
     // Extract CSS filename from HTML
     if (preg_match('/build\/assets\/app-([a-f0-9]+)\.css/', $html, $matches)) {
         $cssFile = "build/assets/app-{$matches[1]}.css";
-        $cssResponse = run("curl -s -o /dev/null -w \"%{http_code}\" https://docs.magento-opensource.com/$cssFile");
+        $cssResponse = run("curl -s -o /dev/null -w \"%{http_code}\" https://docs-test.magento-opensource.com/$cssFile");
 
         if (trim($cssResponse) === '200') {
             writeln("✅ CSS file loads successfully: $cssFile");
@@ -226,6 +253,22 @@ task('deploy:health-check', function () {
         }
     } else {
         writeln('⚠️  Warning: Could not find CSS reference in HTML');
+    }
+
+    // Check if merchant docs load
+    $merchantResponse = run('curl -s -o /dev/null -w "%{http_code}" https://docs-test.magento-opensource.com/merchant');
+    if (trim($merchantResponse) !== '200') {
+        writeln('⚠️  Warning: Merchant docs returned HTTP ' . trim($merchantResponse));
+    } else {
+        writeln('✅ Merchant docs load successfully (HTTP 200)');
+    }
+
+    // Check if developer docs load
+    $devResponse = run('curl -s -o /dev/null -w "%{http_code}" https://docs-test.magento-opensource.com/developer/');
+    if (trim($devResponse) !== '200') {
+        writeln('⚠️  Warning: Developer docs returned HTTP ' . trim($devResponse));
+    } else {
+        writeln('✅ Developer docs load successfully (HTTP 200)');
     }
 
     writeln('✅ All health checks passed');
@@ -237,10 +280,10 @@ after('deploy:vendors', 'deploy:npm-install');
 after('deploy:npm-install', 'deploy:build-assets');
 after('deploy:build-assets', 'deploy:verify-assets');
 after('deploy:symlink', 'deploy:sync-docs');
-after('deploy:sync-docs', 'deploy:configure-webhook');  // Set webhook secret if provided
+after('deploy:sync-docs', 'deploy:configure-webhook');           // Set webhook secret if provided
 after('deploy:configure-webhook', 'deploy:setup-python-venv');    // Ensure Python venv for devdocs
 after('deploy:setup-python-venv', 'deploy:generate-devdocs');     // Generate developer HTML if content exists
-after('deploy:generate-devdocs', 'deploy:clear-opcache');  // Clear OPcache BEFORE rebuilding caches
+after('deploy:generate-devdocs', 'deploy:clear-opcache');         // Clear OPcache BEFORE rebuilding caches
 after('deploy:clear-opcache', 'deploy:optimize');   // Rebuild Laravel caches with fresh PHP
 after('deploy:optimize', 'deploy:health-check');
 

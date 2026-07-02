@@ -1,0 +1,1859 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Building Admin UI Components in Magento 2 — Magento 2 Developer Documentation</title>
+    <meta name="description" content="Developer guide: Building Admin UI Components in Magento 2">
+
+    <!-- Google Fonts: Inter Tight only. Courier New used for code. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Highlight.js: syntax highlighting for code blocks -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/php.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/ini.min.js"></script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        charcoal: {
+                            DEFAULT: '#2c2c2c', 50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6',
+                            300: '#6B6B6B', 400: '#474747', 500: '#2c2c2c', 600: '#262626',
+                            700: '#202020', 800: '#1c1c1c', 900: '#191919', 950: '#121212'
+                        },
+                        orange: {
+                            DEFAULT: '#D4551A', 50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad',
+                            300: '#f9ae78', 400: '#f58242', 500: '#f26423', 600: '#e34613',
+                            700: '#bc3312', 800: '#962a16', 900: '#792515', 950: '#411009'
+                        },
+                        yellow: {
+                            DEFAULT: '#B8860B', 50: '#fffdeb', 100: '#fdf9c8', 200: '#fbf38c',
+                            300: '#f8e651', 400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a',
+                            700: '#b1670c', 800: '#8f5111', 900: '#764311', 950: '#442204'
+                        },
+                        'off-white': '#FAFAFA',
+                    },
+                    fontFamily: {
+                        sans: ['Inter Tight', 'system-ui', '-apple-system', 'sans-serif'],
+                        mono: ['Courier New', 'Courier', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* ── Force light mode ── */
+        :root { color-scheme: light only; }
+
+        [x-cloak] { display: none !important; }
+
+        /* ── Scroll offset for sticky header ── */
+        .prose h2, .prose h3 { scroll-margin-top: 5rem; }
+
+        /* ── Code blocks: Bauhaus charcoal bg, no border-radius, highlight.js override ── */
+        .prose pre {
+            background-color: #2C2C2C !important;
+            border-radius: 0 !important;
+            padding: 1.25rem;
+            overflow-x: auto;
+            font-size: 0.875rem;
+            line-height: 1.7;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 1.5rem 0;
+        }
+        .prose pre code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            background: transparent !important;
+            padding: 0;
+                    color: #abb2bf;
+        }
+        /* Override highlight.js theme background to match Bauhaus charcoal */
+        .hljs {
+            background: #2C2C2C !important;
+            color: #abb2bf !important;
+            border-radius: 0 !important;
+        }
+
+        /* ── Inline code: charcoal bg, yellow text, no border-radius ── */
+        .prose code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.85em;
+        }
+        .prose :not(pre) > code {
+            background-color: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2em 0.45em;
+            border-radius: 0;
+        }
+
+        /* ── Step-code: same charcoal/yellow style for UI path chips ── */
+        .step-code {
+            background: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2rem 0.5rem;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            border-radius: 0;
+        }
+
+        /* ── Tables: no border-radius, charcoal header ── */
+        .prose table { width: 100%; border-collapse: collapse; }
+        .prose th {
+            background-color: #2C2C2C;
+            color: #ffffff;
+            font-weight: 600;
+            text-align: left;
+            padding: 0.75rem 1rem;
+            border-bottom: 2px solid #2C2C2C;
+            border-radius: 0;
+        }
+        .prose td { padding: 0.75rem 1rem; border-bottom: 1px solid #e5e5e5; }
+        .prose tr:hover { background-color: #fafafa; }
+
+        /* ── Blockquote: Bauhaus style — border-4 yellow, square, no left-only border ── */
+        .prose blockquote {
+            border: 4px solid #F1BC1B;
+            background-color: #ffffff;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+            border-radius: 0;
+        }
+        .prose blockquote p { margin: 0; }
+
+        /* ── Lists: hexagon bullets ── */
+        .prose ul { list-style: none; padding-left: 0; }
+        .prose ul li {
+            position: relative;
+            padding-left: 1.75rem;
+            margin-bottom: 0.4rem;
+            line-height: 1.7;
+        }
+        .prose ul li::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0.45em;
+            width: 10px;
+            height: 10px;
+            background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 2L21 7V17L12 22L3 17V7L12 2Z' stroke='%23F26423' stroke-width='2.5' stroke-linejoin='miter'/%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+        .prose ol { list-style-type: decimal; padding-left: 1.5rem; }
+        .prose li { margin-bottom: 0.4rem; }
+
+        /* ── Headings ── */
+        .prose h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            padding-top: 1.5rem;
+            border-top: 4px solid #F1BC1B;
+            color: #2C2C2C;
+        }
+        .prose h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+            color: #2C2C2C;
+        }
+        .prose h4 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #2C2C2C;
+        }
+        .prose p { margin-bottom: 1rem; line-height: 1.75; }
+        .prose a { color: #D4551A; text-decoration: none; }
+        .prose a:hover { color: #e34613; text-decoration: underline; }
+        .prose hr { border: none; border-top: 1px solid #e5e5e5; margin: 2rem 0; }
+
+        /* ── Callout boxes: Bauhaus — border-4 yellow, white bg, icon + title ── */
+        .callout-box {
+            background-color: #ffffff;
+            border: 4px solid #F1BC1B;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+        }
+        .callout-warning {
+            border-color: #D4551A;
+        }
+        .callout-important {
+            border-color: #2C2C2C;
+        }
+        .callout-box .callout-inner {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+        .callout-box .callout-title {
+            font-weight: 600;
+            color: #2C2C2C;
+            margin-bottom: 0.25rem;
+        }
+        .callout-box .callout-body {
+            font-size: 0.875rem;
+            line-height: 1.6;
+            color: rgba(44,44,44,0.85);
+        }
+
+        
+    
+        /* Code block copy button */
+        .code-wrapper {
+            position: relative;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            font-family: 'Inter Tight', system-ui, sans-serif;
+            background: rgba(255,255,255,0.1);
+            color: #abb2bf;
+            border: 1px solid rgba(255,255,255,0.15);
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.15s ease, background 0.15s ease;
+            z-index: 10;
+            line-height: 1.4;
+            border-radius: 4px;
+            user-select: none;
+        }
+        .code-wrapper:hover .copy-btn {
+            opacity: 1;
+        }
+        .copy-btn:hover,
+        .copy-btn:focus {
+            background: rgba(255,255,255,0.2);
+            color: #ffffff;
+            outline: 2px solid #D4551A;
+            outline-offset: 1px;
+        }
+        .copy-btn.copied {
+            color: #98c379;
+            background: rgba(152, 195, 121, 0.15);
+            opacity: 1;
+        }
+    
+        /* Right-hand TOC sidebar */
+        .toc-sidebar {
+            width: 14rem;
+            flex-shrink: 0;
+        }
+        .toc-sidebar a {
+            display: block;
+            padding: 0.375rem 0;
+            font-size: 0.8125rem;
+            line-height: 1.4;
+            color: #6b7280;
+            text-decoration: none;
+            transition: color 0.15s ease;
+            border-left: 2px solid transparent;
+            padding-left: 0.75rem;
+        }
+        .toc-sidebar a:hover {
+            color: #111827;
+        }
+        .toc-sidebar a.toc-active {
+            color: #ea580c;
+            border-left-color: #ea580c;
+            font-weight: 500;
+        }
+        .toc-sidebar a.toc-h3 {
+            padding-left: 1.5rem;
+            font-size: 0.75rem;
+        }
+        .toc-sidebar .toc-back-to-top {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e5e7eb;
+        }
+        .toc-sidebar .toc-back-to-top a {
+            border-left: none;
+            padding-left: 0;
+            font-weight: 500;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .toc-sidebar .toc-back-to-top a:hover {
+            color: #ea580c;
+        }
+    </style>
+</head>
+
+<body class="font-sans bg-off-white text-charcoal">
+
+    <!-- Shared header — single source of truth -->
+    <script src="includes/header.js"></script>
+
+    <!-- Breadcrumb — orange › separators -->
+    <div class="bg-white border-b border-gray-100">
+        <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <div class="flex items-center gap-2 text-sm flex-wrap">
+                <a href="index.html" class="text-orange hover:text-orange-600 transition-colors no-underline">Home</a> <span class="text-orange font-medium">›</span> <a href="index.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">Guides</a> <span class="text-orange font-medium">›</span> <a href="how-to-guides.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">How-To Guides</a> <span class="text-orange font-medium">›</span> <span class="text-charcoal font-medium">Building Admin UI Components in Magento 2</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="flex gap-8">
+
+            <!-- Left Sidebar (desktop) -->
+            <aside class="hidden lg:block w-64 flex-shrink-0">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4">How-To Guides</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="guide-howto-admin-ui-components.html" class="block px-3 py-2 text-sm text-orange font-semibold bg-orange-50 border-l-4 border-orange pl-2 transition-colors no-underline">Building Admin UI Components in ...</a></li>
+<li class="pl-0"><a href="guide-howto-cicd-deployment.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">CI/CD Deployment Pipelines for M...</a></li>
+<li class="pl-0"><a href="guide-howto-cron-jobs.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Cron Jobs Implementation: Buildi...</a></li>
+<li class="pl-0"><a href="guide-howto-email-templates.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Email Templates Customization</a></li>
+<li class="pl-0"><a href="guide-howto-erp-integration.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">ERP Integration Patterns for Mag...</a></li>
+<li class="pl-0"><a href="guide-howto-full-page-cache-strategy.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Full Page Cache Strategy for Hig...</a></li>
+<li class="pl-0"><a href="guide-howto-import-export.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Import/Export System Deep Dive</a></li>
+<li class="pl-0"><a href="guide-howto-layout-xml-deep-dive.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Layout XML Deep Dive: Mastering ...</a></li>
+<li class="pl-0"><a href="guide-howto-multi-store-setup.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Multi-Store Configuration Mastery</a></li>
+<li class="pl-0"><a href="guide-howto-security-checklist.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Security Checklist for Custom Mo...</a></li>
+<li class="pl-0"><a href="guide-howto-testing-strategies.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Comprehensive Testing Strategies...</a></li>
+</ul>
+<h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4 mt-8">Guide Sections</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="tutorials.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Tutorials</a></li>
+<li class="pl-0"><a href="how-to-guides.html" class="block px-3 py-2 text-sm text-orange font-semibold bg-orange-50 border-l-4 border-orange pl-2 transition-colors no-underline">How-To Guides</a></li>
+<li class="pl-0"><a href="architecture.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Architecture</a></li>
+<li class="pl-0"><a href="references.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">References</a></li>
+</ul>
+                </div>
+            </aside>
+
+            <!-- Article — square corners, border-t-4 orange accent -->
+            <main id="main-content" class="flex-1 min-w-0">
+                <article class="bg-white shadow-sm border border-gray-100 border-t-4 border-t-orange p-8 md:p-12">
+                    <!-- Title block -->
+                    <div class="mb-8">
+                        <span class="inline-block px-3 py-1.5 text-xs font-medium bg-yellow-50 text-yellow-800 border border-yellow-200">How-To</span>
+                        <h1 class="text-3xl md:text-4xl font-extrabold text-charcoal mt-3 mb-3">Building Admin UI Components in Magento 2</h1>
+                        <p class="text-charcoal-300 text-lg mb-4">Developer guide: Building Admin UI Components in Magento 2</p>
+                        <!-- Meta pills -->
+                        <div class="flex flex-wrap gap-2"><span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-yellow-50 text-yellow-800"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>Advanced</span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-orange-50 text-orange-700"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>30 minutes</span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-charcoal text-white">Magento 2.4.7+</span></div>
+                    </div>
+
+                    <hr class="border-0 border-t border-gray-100 mb-8">
+
+                    <!-- Content -->
+                    <div class="prose max-w-none">
+                        <h1 id="building-admin-ui-components-in-magento-2">Building Admin UI Components in Magento 2</h1>
+<h2 id="overview">Overview</h2>
+<p>Magento's UI Component framework provides a powerful, declarative system for building admin interfaces. This guide covers admin grids, forms, data providers, mass actions, inline editing, and AJAX operations with production-ready examples.</p>
+<p><strong>What you'll learn:</strong>
+- Admin grid structure with ui_component XML
+- Admin form configuration (fieldsets, fields, data providers)
+- Mass actions implementation
+- Inline editing and custom columns
+- Custom filters and search
+- AJAX operations in admin
+- Data provider patterns and optimization</p>
+<p><strong>Prerequisites:</strong>
+- PHP 8.2+ knowledge (typed properties, interfaces)
+- Magento module structure and DI
+- Understanding of XML configuration
+- Basic JavaScript/Knockout.js knowledge</p>
+<hr />
+<h2 id="ui-component-architecture">UI Component Architecture</h2>
+<h3 id="component-hierarchy">Component Hierarchy</h3>
+<pre><code>[UI Component XML] → [Data Provider] → [Repository/Resource Model] → [Database]
+                  ↓
+              [Layout XML]
+                  ↓
+            [Template/Block]
+                  ↓
+          [JavaScript Component]
+</code></pre>
+<h3 id="core-concepts">Core Concepts</h3>
+<ol>
+<li><strong>UI Component XML:</strong> Declarative configuration for grid/form structure</li>
+<li><strong>Data Provider:</strong> Fetches and prepares data for UI components</li>
+<li><strong>Layout XML:</strong> Integrates UI component into admin page</li>
+<li><strong>JavaScript Component:</strong> Client-side behavior (KnockoutJS-based)</li>
+</ol>
+<hr />
+<h2 id="admin-grid-implementation">Admin Grid Implementation</h2>
+<h3 id="step-1-define-grid-ui-component">Step 1: Define Grid UI Component</h3>
+<p><strong>File:</strong> <code>view/adminhtml/ui_component/vendor_module_order_listing.xml</code></p>
+<pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;listing xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+         xsi:noNamespaceSchemaLocation=&quot;urn:magento:module:Magento_Ui:etc/ui_configuration.xsd&quot;&gt;
+
+    &lt;!-- Grid Settings --&gt;
+    &lt;argument name=&quot;data&quot; xsi:type=&quot;array&quot;&gt;
+        &lt;item name=&quot;js_config&quot; xsi:type=&quot;array&quot;&gt;
+            &lt;item name=&quot;provider&quot; xsi:type=&quot;string&quot;&gt;vendor_module_order_listing.vendor_module_order_listing_data_source&lt;/item&gt;
+        &lt;/item&gt;
+    &lt;/argument&gt;
+
+    &lt;!-- Data Source --&gt;
+    &lt;settings&gt;
+        &lt;buttons&gt;
+            &lt;button name=&quot;add&quot;&gt;
+                &lt;url path=&quot;*/*/new&quot;/&gt;
+                &lt;class&gt;primary&lt;/class&gt;
+                &lt;label translate=&quot;true&quot;&gt;Add New Order&lt;/label&gt;
+            &lt;/button&gt;
+        &lt;/buttons&gt;
+        &lt;spinner&gt;vendor_module_order_columns&lt;/spinner&gt;
+        &lt;deps&gt;
+            &lt;dep&gt;vendor_module_order_listing.vendor_module_order_listing_data_source&lt;/dep&gt;
+        &lt;/deps&gt;
+    &lt;/settings&gt;
+
+    &lt;!-- Data Provider --&gt;
+    &lt;dataSource name=&quot;vendor_module_order_listing_data_source&quot; component=&quot;Magento_Ui/js/grid/provider&quot;&gt;
+        &lt;settings&gt;
+            &lt;storageConfig&gt;
+                &lt;param name=&quot;indexField&quot; xsi:type=&quot;string&quot;&gt;entity_id&lt;/param&gt;
+            &lt;/storageConfig&gt;
+            &lt;updateUrl path=&quot;mui/index/render&quot;/&gt;
+        &lt;/settings&gt;
+        &lt;aclResource&gt;Vendor_Module::order_view&lt;/aclResource&gt;
+        &lt;dataProvider class=&quot;Vendor\Module\Ui\Component\Listing\DataProvider&quot; name=&quot;vendor_module_order_listing_data_source&quot;&gt;
+            &lt;settings&gt;
+                &lt;requestFieldName&gt;id&lt;/requestFieldName&gt;
+                &lt;primaryFieldName&gt;entity_id&lt;/primaryFieldName&gt;
+            &lt;/settings&gt;
+        &lt;/dataProvider&gt;
+    &lt;/dataSource&gt;
+
+    &lt;!-- Listing Toolbar --&gt;
+    &lt;listingToolbar name=&quot;listing_top&quot;&gt;
+        &lt;settings&gt;
+            &lt;sticky&gt;true&lt;/sticky&gt;
+        &lt;/settings&gt;
+
+        &lt;!-- Bookmark (saved views) --&gt;
+        &lt;bookmark name=&quot;bookmarks&quot;/&gt;
+
+        &lt;!-- Columns toggle --&gt;
+        &lt;columnsControls name=&quot;columns_controls&quot;/&gt;
+
+        &lt;!-- Full-text search --&gt;
+        &lt;filterSearch name=&quot;fulltext&quot;/&gt;
+
+        &lt;!-- Filters --&gt;
+        &lt;filters name=&quot;listing_filters&quot;&gt;
+            &lt;settings&gt;
+                &lt;templates&gt;
+                    &lt;filters&gt;
+                        &lt;select&gt;
+                            &lt;param name=&quot;template&quot; xsi:type=&quot;string&quot;&gt;ui/grid/filters/elements/ui-select&lt;/param&gt;
+                            &lt;param name=&quot;component&quot; xsi:type=&quot;string&quot;&gt;Magento_Ui/js/form/element/ui-select&lt;/param&gt;
+                        &lt;/select&gt;
+                    &lt;/filters&gt;
+                &lt;/templates&gt;
+            &lt;/settings&gt;
+
+            &lt;!-- Status filter --&gt;
+            &lt;filterSelect name=&quot;status&quot; provider=&quot;${ $.parentName }&quot;&gt;
+                &lt;settings&gt;
+                    &lt;captionValue&gt;0&lt;/captionValue&gt;
+                    &lt;options class=&quot;Vendor\Module\Model\Source\OrderStatus&quot;/&gt;
+                    &lt;label translate=&quot;true&quot;&gt;Status&lt;/label&gt;
+                    &lt;dataScope&gt;status&lt;/dataScope&gt;
+                    &lt;imports&gt;
+                        &lt;link name=&quot;visible&quot;&gt;componentType = column, index = ${ $.index }:visible&lt;/link&gt;
+                    &lt;/imports&gt;
+                &lt;/settings&gt;
+            &lt;/filterSelect&gt;
+
+            &lt;!-- Date range filter --&gt;
+            &lt;filterRange name=&quot;created_at&quot; provider=&quot;${ $.parentName }&quot;&gt;
+                &lt;settings&gt;
+                    &lt;label translate=&quot;true&quot;&gt;Created Date&lt;/label&gt;
+                    &lt;dataScope&gt;created_at&lt;/dataScope&gt;
+                    &lt;rangeType&gt;date&lt;/rangeType&gt;
+                &lt;/settings&gt;
+            &lt;/filterRange&gt;
+        &lt;/filters&gt;
+
+        &lt;!-- Mass actions --&gt;
+        &lt;massaction name=&quot;listing_massaction&quot;&gt;
+            &lt;action name=&quot;delete&quot;&gt;
+                &lt;settings&gt;
+                    &lt;confirm&gt;
+                        &lt;message translate=&quot;true&quot;&gt;Are you sure you want to delete selected orders?&lt;/message&gt;
+                        &lt;title translate=&quot;true&quot;&gt;Delete Orders&lt;/title&gt;
+                    &lt;/confirm&gt;
+                    &lt;url path=&quot;vendor_module/order/massDelete&quot;/&gt;
+                    &lt;type&gt;delete&lt;/type&gt;
+                    &lt;label translate=&quot;true&quot;&gt;Delete&lt;/label&gt;
+                &lt;/settings&gt;
+            &lt;/action&gt;
+            &lt;action name=&quot;status&quot;&gt;
+                &lt;settings&gt;
+                    &lt;type&gt;status&lt;/type&gt;
+                    &lt;label translate=&quot;true&quot;&gt;Change Status&lt;/label&gt;
+                    &lt;actions&gt;
+                        &lt;action name=&quot;0&quot;&gt;
+                            &lt;type&gt;pending&lt;/type&gt;
+                            &lt;label translate=&quot;true&quot;&gt;Pending&lt;/label&gt;
+                            &lt;url path=&quot;vendor_module/order/massStatus&quot;&gt;
+                                &lt;param name=&quot;status&quot;&gt;pending&lt;/param&gt;
+                            &lt;/url&gt;
+                        &lt;/action&gt;
+                        &lt;action name=&quot;1&quot;&gt;
+                            &lt;type&gt;processing&lt;/type&gt;
+                            &lt;label translate=&quot;true&quot;&gt;Processing&lt;/label&gt;
+                            &lt;url path=&quot;vendor_module/order/massStatus&quot;&gt;
+                                &lt;param name=&quot;status&quot;&gt;processing&lt;/param&gt;
+                            &lt;/url&gt;
+                        &lt;/action&gt;
+                        &lt;action name=&quot;2&quot;&gt;
+                            &lt;type&gt;complete&lt;/type&gt;
+                            &lt;label translate=&quot;true&quot;&gt;Complete&lt;/label&gt;
+                            &lt;url path=&quot;vendor_module/order/massStatus&quot;&gt;
+                                &lt;param name=&quot;status&quot;&gt;complete&lt;/param&gt;
+                            &lt;/url&gt;
+                        &lt;/action&gt;
+                    &lt;/actions&gt;
+                &lt;/settings&gt;
+            &lt;/action&gt;
+        &lt;/massaction&gt;
+
+        &lt;!-- Pagination --&gt;
+        &lt;paging name=&quot;listing_paging&quot;/&gt;
+    &lt;/listingToolbar&gt;
+
+    &lt;!-- Columns --&gt;
+    &lt;columns name=&quot;vendor_module_order_columns&quot;&gt;
+        &lt;!-- Selection column --&gt;
+        &lt;selectionsColumn name=&quot;ids&quot;&gt;
+            &lt;settings&gt;
+                &lt;indexField&gt;entity_id&lt;/indexField&gt;
+            &lt;/settings&gt;
+        &lt;/selectionsColumn&gt;
+
+        &lt;!-- ID column --&gt;
+        &lt;column name=&quot;entity_id&quot;&gt;
+            &lt;settings&gt;
+                &lt;filter&gt;textRange&lt;/filter&gt;
+                &lt;label translate=&quot;true&quot;&gt;ID&lt;/label&gt;
+                &lt;sorting&gt;desc&lt;/sorting&gt;
+            &lt;/settings&gt;
+        &lt;/column&gt;
+
+        &lt;!-- Increment ID column --&gt;
+        &lt;column name=&quot;increment_id&quot;&gt;
+            &lt;settings&gt;
+                &lt;filter&gt;text&lt;/filter&gt;
+                &lt;label translate=&quot;true&quot;&gt;Order #&lt;/label&gt;
+            &lt;/settings&gt;
+        &lt;/column&gt;
+
+        &lt;!-- Customer name column --&gt;
+        &lt;column name=&quot;customer_name&quot;&gt;
+            &lt;settings&gt;
+                &lt;filter&gt;text&lt;/filter&gt;
+                &lt;label translate=&quot;true&quot;&gt;Customer&lt;/label&gt;
+            &lt;/settings&gt;
+        &lt;/column&gt;
+
+        &lt;!-- Status column with options --&gt;
+        &lt;column name=&quot;status&quot; component=&quot;Magento_Ui/js/grid/columns/select&quot;&gt;
+            &lt;settings&gt;
+                &lt;options class=&quot;Vendor\Module\Model\Source\OrderStatus&quot;/&gt;
+                &lt;filter&gt;select&lt;/filter&gt;
+                &lt;dataType&gt;select&lt;/dataType&gt;
+                &lt;label translate=&quot;true&quot;&gt;Status&lt;/label&gt;
+            &lt;/settings&gt;
+        &lt;/column&gt;
+
+        &lt;!-- Grand total column with price formatting --&gt;
+        &lt;column name=&quot;grand_total&quot; class=&quot;Vendor\Module\Ui\Component\Listing\Column\Price&quot;&gt;
+            &lt;settings&gt;
+                &lt;filter&gt;textRange&lt;/filter&gt;
+                &lt;label translate=&quot;true&quot;&gt;Grand Total&lt;/label&gt;
+            &lt;/settings&gt;
+        &lt;/column&gt;
+
+        &lt;!-- Created at column with date formatting --&gt;
+        &lt;column name=&quot;created_at&quot; class=&quot;Magento\Ui\Component\Listing\Columns\Date&quot; component=&quot;Magento_Ui/js/grid/columns/date&quot;&gt;
+            &lt;settings&gt;
+                &lt;filter&gt;dateRange&lt;/filter&gt;
+                &lt;dataType&gt;date&lt;/dataType&gt;
+                &lt;label translate=&quot;true&quot;&gt;Created&lt;/label&gt;
+            &lt;/settings&gt;
+        &lt;/column&gt;
+
+        &lt;!-- Actions column --&gt;
+        &lt;actionsColumn name=&quot;actions&quot; class=&quot;Vendor\Module\Ui\Component\Listing\Column\Actions&quot;&gt;
+            &lt;settings&gt;
+                &lt;indexField&gt;entity_id&lt;/indexField&gt;
+                &lt;resizeEnabled&gt;false&lt;/resizeEnabled&gt;
+                &lt;resizeDefaultWidth&gt;107&lt;/resizeDefaultWidth&gt;
+            &lt;/settings&gt;
+        &lt;/actionsColumn&gt;
+    &lt;/columns&gt;
+&lt;/listing&gt;
+</code></pre>
+<h3 id="step-2-create-data-provider">Step 2: Create Data Provider</h3>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Ui\Component\Listing;
+
+use Magento\Framework\View\Element\UiComponent\DataProvider\DataProvider as AbstractDataProvider;
+use Magento\Ui\DataProvider\Modifier\PoolInterface;
+use Vendor\Module\Model\ResourceModel\Order\Grid\CollectionFactory;
+
+class DataProvider extends AbstractDataProvider
+{
+    private PoolInterface $modifierPool;
+
+    public function __construct(
+        string $name,
+        string $primaryFieldName,
+        string $requestFieldName,
+        CollectionFactory $collectionFactory,
+        PoolInterface $modifierPool,
+        array $meta = [],
+        array $data = []
+    ) {
+        parent::__construct($name, $primaryFieldName, $requestFieldName, $meta, $data);
+        $this-&gt;collection = $collectionFactory-&gt;create();
+        $this-&gt;modifierPool = $modifierPool;
+    }
+
+    /**
+     * Get data
+     *
+     * @return array
+     */
+    public function getData(): array
+    {
+        $data = parent::getData();
+
+        // Apply modifiers
+        foreach ($this-&gt;modifierPool-&gt;getModifiersInstances() as $modifier) {
+            $data = $modifier-&gt;modifyData($data);
+        }
+
+        return $data;
+    }
+
+    /**
+     * Get meta
+     *
+     * @return array
+     */
+    public function getMeta(): array
+    {
+        $meta = parent::getMeta();
+
+        // Apply modifiers
+        foreach ($this-&gt;modifierPool-&gt;getModifiersInstances() as $modifier) {
+            $meta = $modifier-&gt;modifyMeta($meta);
+        }
+
+        return $meta;
+    }
+}
+</code></pre>
+<h3 id="step-3-grid-collection">Step 3: Grid Collection</h3>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Model\ResourceModel\Order\Grid;
+
+use Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult;
+use Vendor\Module\Model\ResourceModel\Order as OrderResource;
+
+class Collection extends SearchResult
+{
+    /**
+     * Initialize select
+     *
+     * @return $this
+     */
+    protected function _initSelect()
+    {
+        parent::_initSelect();
+
+        // Join customer name
+        $this-&gt;getSelect()-&gt;joinLeft(
+            ['customer' =&gt; $this-&gt;getTable('customer_entity')],
+            'main_table.customer_id = customer.entity_id',
+            ['customer_name' =&gt; 'CONCAT(customer.firstname, &quot; &quot;, customer.lastname)']
+        );
+
+        return $this;
+    }
+}
+</code></pre>
+<p><strong>Register collection in <code>di.xml</code>:</strong></p>
+<pre><code class="language-xml">&lt;virtualType name=&quot;Vendor\Module\Model\ResourceModel\Order\Grid\Collection&quot; type=&quot;Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult&quot;&gt;
+    &lt;arguments&gt;
+        &lt;argument name=&quot;mainTable&quot; xsi:type=&quot;string&quot;&gt;vendor_module_order&lt;/argument&gt;
+        &lt;argument name=&quot;resourceModel&quot; xsi:type=&quot;string&quot;&gt;Vendor\Module\Model\ResourceModel\Order&lt;/argument&gt;
+    &lt;/arguments&gt;
+&lt;/virtualType&gt;
+
+&lt;type name=&quot;Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory&quot;&gt;
+    &lt;arguments&gt;
+        &lt;argument name=&quot;collections&quot; xsi:type=&quot;array&quot;&gt;
+            &lt;item name=&quot;vendor_module_order_listing_data_source&quot; xsi:type=&quot;string&quot;&gt;Vendor\Module\Model\ResourceModel\Order\Grid\Collection&lt;/item&gt;
+        &lt;/argument&gt;
+    &lt;/arguments&gt;
+&lt;/type&gt;
+</code></pre>
+<h3 id="step-4-custom-column-renderers">Step 4: Custom Column Renderers</h3>
+<p><strong>Price column:</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Ui\Component\Listing\Column;
+
+use Magento\Framework\View\Element\UiComponent\ContextInterface;
+use Magento\Framework\View\Element\UiComponentFactory;
+use Magento\Ui\Component\Listing\Columns\Column;
+use Magento\Framework\Pricing\PriceCurrencyInterface;
+
+class Price extends Column
+{
+    public function __construct(
+        ContextInterface $context,
+        UiComponentFactory $uiComponentFactory,
+        private readonly PriceCurrencyInterface $priceCurrency,
+        array $components = [],
+        array $data = []
+    ) {
+        parent::__construct($context, $uiComponentFactory, $components, $data);
+    }
+
+    /**
+     * Prepare data source
+     *
+     * @param array $dataSource
+     * @return array
+     */
+    public function prepareDataSource(array $dataSource): array
+    {
+        if (isset($dataSource['data']['items'])) {
+            $fieldName = $this-&gt;getData('name');
+
+            foreach ($dataSource['data']['items'] as &amp;$item) {
+                if (isset($item[$fieldName])) {
+                    $item[$fieldName] = $this-&gt;priceCurrency-&gt;format(
+                        (float) $item[$fieldName],
+                        false
+                    );
+                }
+            }
+        }
+
+        return $dataSource;
+    }
+}
+</code></pre>
+<p><strong>Actions column:</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Ui\Component\Listing\Column;
+
+use Magento\Framework\View\Element\UiComponent\ContextInterface;
+use Magento\Framework\View\Element\UiComponentFactory;
+use Magento\Ui\Component\Listing\Columns\Column;
+use Magento\Framework\UrlInterface;
+
+class Actions extends Column
+{
+    private const URL_PATH_EDIT = 'vendor_module/order/edit';
+    private const URL_PATH_DELETE = 'vendor_module/order/delete';
+
+    public function __construct(
+        ContextInterface $context,
+        UiComponentFactory $uiComponentFactory,
+        private readonly UrlInterface $urlBuilder,
+        array $components = [],
+        array $data = []
+    ) {
+        parent::__construct($context, $uiComponentFactory, $components, $data);
+    }
+
+    /**
+     * Prepare data source
+     *
+     * @param array $dataSource
+     * @return array
+     */
+    public function prepareDataSource(array $dataSource): array
+    {
+        if (isset($dataSource['data']['items'])) {
+            foreach ($dataSource['data']['items'] as &amp;$item) {
+                if (isset($item['entity_id'])) {
+                    $item[$this-&gt;getData('name')] = [
+                        'edit' =&gt; [
+                            'href' =&gt; $this-&gt;urlBuilder-&gt;getUrl(
+                                static::URL_PATH_EDIT,
+                                ['id' =&gt; $item['entity_id']]
+                            ),
+                            'label' =&gt; __('Edit')
+                        ],
+                        'delete' =&gt; [
+                            'href' =&gt; $this-&gt;urlBuilder-&gt;getUrl(
+                                static::URL_PATH_DELETE,
+                                ['id' =&gt; $item['entity_id']]
+                            ),
+                            'label' =&gt; __('Delete'),
+                            'confirm' =&gt; [
+                                'title' =&gt; __('Delete Order'),
+                                'message' =&gt; __('Are you sure you want to delete this order?')
+                            ]
+                        ]
+                    ];
+                }
+            }
+        }
+
+        return $dataSource;
+    }
+}
+</code></pre>
+<h3 id="step-5-layout-xml">Step 5: Layout XML</h3>
+<p><strong>File:</strong> <code>view/adminhtml/layout/vendor_module_order_index.xml</code></p>
+<pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;page xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+      xsi:noNamespaceSchemaLocation=&quot;urn:magento:framework:View/Layout/etc/page_configuration.xsd&quot;&gt;
+    &lt;update handle=&quot;styles&quot;/&gt;
+    &lt;body&gt;
+        &lt;referenceContainer name=&quot;content&quot;&gt;
+            &lt;uiComponent name=&quot;vendor_module_order_listing&quot;/&gt;
+        &lt;/referenceContainer&gt;
+    &lt;/body&gt;
+&lt;/page&gt;
+</code></pre>
+<hr />
+<h2 id="admin-form-implementation">Admin Form Implementation</h2>
+<h3 id="step-1-define-form-ui-component">Step 1: Define Form UI Component</h3>
+<p><strong>File:</strong> <code>view/adminhtml/ui_component/vendor_module_order_form.xml</code></p>
+<pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;form xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+      xsi:noNamespaceSchemaLocation=&quot;urn:magento:module:Magento_Ui:etc/ui_configuration.xsd&quot;&gt;
+
+    &lt;!-- Form Settings --&gt;
+    &lt;argument name=&quot;data&quot; xsi:type=&quot;array&quot;&gt;
+        &lt;item name=&quot;js_config&quot; xsi:type=&quot;array&quot;&gt;
+            &lt;item name=&quot;provider&quot; xsi:type=&quot;string&quot;&gt;vendor_module_order_form.vendor_module_order_form_data_source&lt;/item&gt;
+        &lt;/item&gt;
+        &lt;item name=&quot;label&quot; xsi:type=&quot;string&quot; translate=&quot;true&quot;&gt;Order Information&lt;/item&gt;
+        &lt;item name=&quot;template&quot; xsi:type=&quot;string&quot;&gt;templates/form/collapsible&lt;/item&gt;
+    &lt;/argument&gt;
+
+    &lt;settings&gt;
+        &lt;buttons&gt;
+            &lt;button name=&quot;back&quot;&gt;
+                &lt;url path=&quot;*/*/&quot;/&gt;
+                &lt;class&gt;back&lt;/class&gt;
+                &lt;label translate=&quot;true&quot;&gt;Back&lt;/label&gt;
+            &lt;/button&gt;
+            &lt;button name=&quot;delete&quot; class=&quot;Vendor\Module\Block\Adminhtml\Order\Edit\DeleteButton&quot;/&gt;
+            &lt;button name=&quot;save&quot; class=&quot;Vendor\Module\Block\Adminhtml\Order\Edit\SaveButton&quot;/&gt;
+            &lt;button name=&quot;save_and_continue&quot; class=&quot;Vendor\Module\Block\Adminhtml\Order\Edit\SaveAndContinueButton&quot;/&gt;
+        &lt;/buttons&gt;
+        &lt;namespace&gt;vendor_module_order_form&lt;/namespace&gt;
+        &lt;dataScope&gt;data&lt;/dataScope&gt;
+        &lt;deps&gt;
+            &lt;dep&gt;vendor_module_order_form.vendor_module_order_form_data_source&lt;/dep&gt;
+        &lt;/deps&gt;
+    &lt;/settings&gt;
+
+    &lt;!-- Data Source --&gt;
+    &lt;dataSource name=&quot;vendor_module_order_form_data_source&quot;&gt;
+        &lt;argument name=&quot;data&quot; xsi:type=&quot;array&quot;&gt;
+            &lt;item name=&quot;js_config&quot; xsi:type=&quot;array&quot;&gt;
+                &lt;item name=&quot;component&quot; xsi:type=&quot;string&quot;&gt;Magento_Ui/js/form/provider&lt;/item&gt;
+            &lt;/item&gt;
+        &lt;/argument&gt;
+        &lt;settings&gt;
+            &lt;submitUrl path=&quot;vendor_module/order/save&quot;/&gt;
+        &lt;/settings&gt;
+        &lt;dataProvider class=&quot;Vendor\Module\Ui\Component\Form\DataProvider&quot; name=&quot;vendor_module_order_form_data_source&quot;&gt;
+            &lt;settings&gt;
+                &lt;requestFieldName&gt;id&lt;/requestFieldName&gt;
+                &lt;primaryFieldName&gt;entity_id&lt;/primaryFieldName&gt;
+            &lt;/settings&gt;
+        &lt;/dataProvider&gt;
+    &lt;/dataSource&gt;
+
+    &lt;!-- Fieldsets --&gt;
+    &lt;fieldset name=&quot;general&quot;&gt;
+        &lt;settings&gt;
+            &lt;label translate=&quot;true&quot;&gt;General Information&lt;/label&gt;
+            &lt;collapsible&gt;true&lt;/collapsible&gt;
+            &lt;opened&gt;true&lt;/opened&gt;
+        &lt;/settings&gt;
+
+        &lt;!-- Increment ID field --&gt;
+        &lt;field name=&quot;increment_id&quot; formElement=&quot;input&quot;&gt;
+            &lt;settings&gt;
+                &lt;dataType&gt;text&lt;/dataType&gt;
+                &lt;label translate=&quot;true&quot;&gt;Order Number&lt;/label&gt;
+                &lt;validation&gt;
+                    &lt;rule name=&quot;required-entry&quot; xsi:type=&quot;boolean&quot;&gt;true&lt;/rule&gt;
+                &lt;/validation&gt;
+            &lt;/settings&gt;
+        &lt;/field&gt;
+
+        &lt;!-- Customer email field --&gt;
+        &lt;field name=&quot;customer_email&quot; formElement=&quot;input&quot;&gt;
+            &lt;settings&gt;
+                &lt;dataType&gt;text&lt;/dataType&gt;
+                &lt;label translate=&quot;true&quot;&gt;Customer Email&lt;/label&gt;
+                &lt;validation&gt;
+                    &lt;rule name=&quot;required-entry&quot; xsi:type=&quot;boolean&quot;&gt;true&lt;/rule&gt;
+                    &lt;rule name=&quot;validate-email&quot; xsi:type=&quot;boolean&quot;&gt;true&lt;/rule&gt;
+                &lt;/validation&gt;
+            &lt;/settings&gt;
+        &lt;/field&gt;
+
+        &lt;!-- Status field (select) --&gt;
+        &lt;field name=&quot;status&quot; formElement=&quot;select&quot;&gt;
+            &lt;settings&gt;
+                &lt;dataType&gt;text&lt;/dataType&gt;
+                &lt;label translate=&quot;true&quot;&gt;Status&lt;/label&gt;
+                &lt;validation&gt;
+                    &lt;rule name=&quot;required-entry&quot; xsi:type=&quot;boolean&quot;&gt;true&lt;/rule&gt;
+                &lt;/validation&gt;
+            &lt;/settings&gt;
+            &lt;formElements&gt;
+                &lt;select&gt;
+                    &lt;settings&gt;
+                        &lt;options class=&quot;Vendor\Module\Model\Source\OrderStatus&quot;/&gt;
+                    &lt;/settings&gt;
+                &lt;/select&gt;
+            &lt;/formElements&gt;
+        &lt;/field&gt;
+
+        &lt;!-- Grand total field (price) --&gt;
+        &lt;field name=&quot;grand_total&quot; formElement=&quot;input&quot;&gt;
+            &lt;settings&gt;
+                &lt;dataType&gt;text&lt;/dataType&gt;
+                &lt;label translate=&quot;true&quot;&gt;Grand Total&lt;/label&gt;
+                &lt;validation&gt;
+                    &lt;rule name=&quot;validate-number&quot; xsi:type=&quot;boolean&quot;&gt;true&lt;/rule&gt;
+                    &lt;rule name=&quot;validate-zero-or-greater&quot; xsi:type=&quot;boolean&quot;&gt;true&lt;/rule&gt;
+                &lt;/validation&gt;
+            &lt;/settings&gt;
+        &lt;/field&gt;
+
+        &lt;!-- Created at field (date) --&gt;
+        &lt;field name=&quot;created_at&quot; formElement=&quot;date&quot;&gt;
+            &lt;settings&gt;
+                &lt;dataType&gt;text&lt;/dataType&gt;
+                &lt;label translate=&quot;true&quot;&gt;Created Date&lt;/label&gt;
+                &lt;validation&gt;
+                    &lt;rule name=&quot;required-entry&quot; xsi:type=&quot;boolean&quot;&gt;true&lt;/rule&gt;
+                &lt;/validation&gt;
+            &lt;/settings&gt;
+            &lt;formElements&gt;
+                &lt;date&gt;
+                    &lt;settings&gt;
+                        &lt;options&gt;
+                            &lt;option name=&quot;dateFormat&quot; xsi:type=&quot;string&quot;&gt;MM/dd/yyyy&lt;/option&gt;
+                            &lt;option name=&quot;timeFormat&quot; xsi:type=&quot;string&quot;&gt;HH:mm:ss&lt;/option&gt;
+                            &lt;option name=&quot;showsTime&quot; xsi:type=&quot;boolean&quot;&gt;true&lt;/option&gt;
+                        &lt;/options&gt;
+                    &lt;/settings&gt;
+                &lt;/date&gt;
+            &lt;/formElements&gt;
+        &lt;/field&gt;
+    &lt;/fieldset&gt;
+
+    &lt;!-- Items fieldset --&gt;
+    &lt;fieldset name=&quot;items&quot;&gt;
+        &lt;settings&gt;
+            &lt;label translate=&quot;true&quot;&gt;Order Items&lt;/label&gt;
+            &lt;collapsible&gt;true&lt;/collapsible&gt;
+            &lt;opened&gt;true&lt;/opened&gt;
+        &lt;/settings&gt;
+
+        &lt;!-- Dynamic rows for order items --&gt;
+        &lt;dynamicRows name=&quot;order_items&quot;&gt;
+            &lt;settings&gt;
+                &lt;addButtonLabel translate=&quot;true&quot;&gt;Add Item&lt;/addButtonLabel&gt;
+                &lt;deleteProperty&gt;false&lt;/deleteProperty&gt;
+                &lt;recordTemplate&gt;record&lt;/recordTemplate&gt;
+            &lt;/settings&gt;
+            &lt;container name=&quot;record&quot; component=&quot;Magento_Ui/js/dynamic-rows/record&quot;&gt;
+                &lt;argument name=&quot;data&quot; xsi:type=&quot;array&quot;&gt;
+                    &lt;item name=&quot;config&quot; xsi:type=&quot;array&quot;&gt;
+                        &lt;item name=&quot;isTemplate&quot; xsi:type=&quot;boolean&quot;&gt;true&lt;/item&gt;
+                        &lt;item name=&quot;is_collection&quot; xsi:type=&quot;boolean&quot;&gt;true&lt;/item&gt;
+                        &lt;item name=&quot;componentType&quot; xsi:type=&quot;string&quot;&gt;container&lt;/item&gt;
+                    &lt;/item&gt;
+                &lt;/argument&gt;
+
+                &lt;field name=&quot;sku&quot; formElement=&quot;input&quot;&gt;
+                    &lt;settings&gt;
+                        &lt;dataType&gt;text&lt;/dataType&gt;
+                        &lt;label translate=&quot;true&quot;&gt;SKU&lt;/label&gt;
+                        &lt;validation&gt;
+                            &lt;rule name=&quot;required-entry&quot; xsi:type=&quot;boolean&quot;&gt;true&lt;/rule&gt;
+                        &lt;/validation&gt;
+                    &lt;/settings&gt;
+                &lt;/field&gt;
+
+                &lt;field name=&quot;qty&quot; formElement=&quot;input&quot;&gt;
+                    &lt;settings&gt;
+                        &lt;dataType&gt;text&lt;/dataType&gt;
+                        &lt;label translate=&quot;true&quot;&gt;Qty&lt;/label&gt;
+                        &lt;validation&gt;
+                            &lt;rule name=&quot;required-entry&quot; xsi:type=&quot;boolean&quot;&gt;true&lt;/rule&gt;
+                            &lt;rule name=&quot;validate-number&quot; xsi:type=&quot;boolean&quot;&gt;true&lt;/rule&gt;
+                        &lt;/validation&gt;
+                    &lt;/settings&gt;
+                &lt;/field&gt;
+
+                &lt;field name=&quot;price&quot; formElement=&quot;input&quot;&gt;
+                    &lt;settings&gt;
+                        &lt;dataType&gt;text&lt;/dataType&gt;
+                        &lt;label translate=&quot;true&quot;&gt;Price&lt;/label&gt;
+                        &lt;validation&gt;
+                            &lt;rule name=&quot;validate-number&quot; xsi:type=&quot;boolean&quot;&gt;true&lt;/rule&gt;
+                        &lt;/validation&gt;
+                    &lt;/settings&gt;
+                &lt;/field&gt;
+
+                &lt;actionDelete&gt;
+                    &lt;settings&gt;
+                        &lt;componentType&gt;actionDelete&lt;/componentType&gt;
+                        &lt;fit&gt;false&lt;/fit&gt;
+                    &lt;/settings&gt;
+                &lt;/actionDelete&gt;
+            &lt;/container&gt;
+        &lt;/dynamicRows&gt;
+    &lt;/fieldset&gt;
+&lt;/form&gt;
+</code></pre>
+<h3 id="step-2-form-data-provider">Step 2: Form Data Provider</h3>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Ui\Component\Form;
+
+use Magento\Framework\App\Request\DataPersistorInterface;
+use Magento\Ui\DataProvider\AbstractDataProvider;
+use Vendor\Module\Model\ResourceModel\Order\CollectionFactory;
+use Vendor\Module\Model\Order;
+
+class DataProvider extends AbstractDataProvider
+{
+    private DataPersistorInterface $dataPersistor;
+    private array $loadedData = [];
+
+    public function __construct(
+        string $name,
+        string $primaryFieldName,
+        string $requestFieldName,
+        CollectionFactory $collectionFactory,
+        DataPersistorInterface $dataPersistor,
+        array $meta = [],
+        array $data = []
+    ) {
+        parent::__construct($name, $primaryFieldName, $requestFieldName, $meta, $data);
+        $this-&gt;collection = $collectionFactory-&gt;create();
+        $this-&gt;dataPersistor = $dataPersistor;
+    }
+
+    /**
+     * Get data
+     *
+     * @return array
+     */
+    public function getData(): array
+    {
+        if (!empty($this-&gt;loadedData)) {
+            return $this-&gt;loadedData;
+        }
+
+        $items = $this-&gt;collection-&gt;getItems();
+        /** @var Order $order */
+        foreach ($items as $order) {
+            $this-&gt;loadedData[$order-&gt;getId()] = $order-&gt;getData();
+
+            // Load order items
+            $orderItems = $order-&gt;getItems();
+            $itemsData = [];
+            foreach ($orderItems as $item) {
+                $itemsData[] = [
+                    'sku' =&gt; $item-&gt;getSku(),
+                    'qty' =&gt; $item-&gt;getQty(),
+                    'price' =&gt; $item-&gt;getPrice()
+                ];
+            }
+            $this-&gt;loadedData[$order-&gt;getId()]['order_items'] = $itemsData;
+        }
+
+        // Load data from session (after validation failure)
+        $data = $this-&gt;dataPersistor-&gt;get('vendor_module_order');
+        if (!empty($data)) {
+            $order = $this-&gt;collection-&gt;getNewEmptyItem();
+            $order-&gt;setData($data);
+            $this-&gt;loadedData[$order-&gt;getId()] = $order-&gt;getData();
+            $this-&gt;dataPersistor-&gt;clear('vendor_module_order');
+        }
+
+        return $this-&gt;loadedData;
+    }
+}
+</code></pre>
+<h3 id="step-3-form-buttons">Step 3: Form Buttons</h3>
+<p><strong>Save button:</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Block\Adminhtml\Order\Edit;
+
+use Magento\Framework\View\Element\UiComponent\Control\ButtonProviderInterface;
+
+class SaveButton implements ButtonProviderInterface
+{
+    /**
+     * Get button data
+     *
+     * @return array
+     */
+    public function getButtonData(): array
+    {
+        return [
+            'label' =&gt; __('Save'),
+            'class' =&gt; 'save primary',
+            'data_attribute' =&gt; [
+                'mage-init' =&gt; ['button' =&gt; ['event' =&gt; 'save']],
+                'form-role' =&gt; 'save',
+            ],
+            'sort_order' =&gt; 90,
+        ];
+    }
+}
+</code></pre>
+<p><strong>Delete button:</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Block\Adminhtml\Order\Edit;
+
+use Magento\Framework\View\Element\UiComponent\Control\ButtonProviderInterface;
+use Magento\Backend\Block\Widget\Context;
+
+class DeleteButton implements ButtonProviderInterface
+{
+    public function __construct(
+        private readonly Context $context
+    ) {}
+
+    /**
+     * Get button data
+     *
+     * @return array
+     */
+    public function getButtonData(): array
+    {
+        $orderId = (int) $this-&gt;context-&gt;getRequest()-&gt;getParam('id');
+
+        if (!$orderId) {
+            return [];
+        }
+
+        return [
+            'label' =&gt; __('Delete'),
+            'class' =&gt; 'delete',
+            'on_click' =&gt; sprintf(
+                &quot;deleteConfirm('%s', '%s')&quot;,
+                __('Are you sure you want to delete this order?'),
+                $this-&gt;context-&gt;getUrlBuilder()-&gt;getUrl('*/*/delete', ['id' =&gt; $orderId])
+            ),
+            'sort_order' =&gt; 20,
+        ];
+    }
+}
+</code></pre>
+<hr />
+<h2 id="mass-actions-implementation">Mass Actions Implementation</h2>
+<h3 id="controller">Controller</h3>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Controller\Adminhtml\Order;
+
+use Magento\Backend\App\Action;
+use Magento\Backend\App\Action\Context;
+use Magento\Framework\Controller\ResultFactory;
+use Magento\Ui\Component\MassAction\Filter;
+use Vendor\Module\Model\ResourceModel\Order\CollectionFactory;
+use Vendor\Module\Api\OrderRepositoryInterface;
+use Psr\Log\LoggerInterface;
+
+class MassDelete extends Action
+{
+    public const ADMIN_RESOURCE = 'Vendor_Module::order_delete';
+
+    public function __construct(
+        Context $context,
+        private readonly Filter $filter,
+        private readonly CollectionFactory $collectionFactory,
+        private readonly OrderRepositoryInterface $orderRepository,
+        private readonly LoggerInterface $logger
+    ) {
+        parent::__construct($context);
+    }
+
+    /**
+     * Execute mass delete action
+     *
+     * @return \Magento\Framework\Controller\ResultInterface
+     */
+    public function execute()
+    {
+        try {
+            $collection = $this-&gt;filter-&gt;getCollection($this-&gt;collectionFactory-&gt;create());
+            $collectionSize = $collection-&gt;getSize();
+            $deletedCount = 0;
+
+            foreach ($collection as $order) {
+                try {
+                    $this-&gt;orderRepository-&gt;delete($order);
+                    $deletedCount++;
+                } catch (\Exception $e) {
+                    $this-&gt;logger-&gt;error('Failed to delete order', [
+                        'order_id' =&gt; $order-&gt;getId(),
+                        'error' =&gt; $e-&gt;getMessage()
+                    ]);
+                }
+            }
+
+            $this-&gt;messageManager-&gt;addSuccessMessage(
+                __('A total of %1 record(s) have been deleted.', $deletedCount)
+            );
+
+            if ($deletedCount &lt; $collectionSize) {
+                $this-&gt;messageManager-&gt;addWarningMessage(
+                    __('%1 record(s) could not be deleted.', $collectionSize - $deletedCount)
+                );
+            }
+        } catch (\Exception $e) {
+            $this-&gt;messageManager-&gt;addErrorMessage(__('An error occurred while deleting orders.'));
+            $this-&gt;logger-&gt;critical($e);
+        }
+
+        $resultRedirect = $this-&gt;resultFactory-&gt;create(ResultFactory::TYPE_REDIRECT);
+        return $resultRedirect-&gt;setPath('*/*/');
+    }
+}
+</code></pre>
+<p><strong>Mass status update:</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Controller\Adminhtml\Order;
+
+use Magento\Backend\App\Action;
+use Magento\Backend\App\Action\Context;
+use Magento\Framework\Controller\ResultFactory;
+use Magento\Ui\Component\MassAction\Filter;
+use Vendor\Module\Model\ResourceModel\Order\CollectionFactory;
+
+class MassStatus extends Action
+{
+    public const ADMIN_RESOURCE = 'Vendor_Module::order_edit';
+
+    public function __construct(
+        Context $context,
+        private readonly Filter $filter,
+        private readonly CollectionFactory $collectionFactory
+    ) {
+        parent::__construct($context);
+    }
+
+    /**
+     * Execute mass status update
+     *
+     * @return \Magento\Framework\Controller\ResultInterface
+     */
+    public function execute()
+    {
+        $status = $this-&gt;getRequest()-&gt;getParam('status');
+
+        if (!$status) {
+            $this-&gt;messageManager-&gt;addErrorMessage(__('Invalid status parameter.'));
+            return $this-&gt;resultFactory-&gt;create(ResultFactory::TYPE_REDIRECT)-&gt;setPath('*/*/');
+        }
+
+        try {
+            $collection = $this-&gt;filter-&gt;getCollection($this-&gt;collectionFactory-&gt;create());
+            $updatedCount = 0;
+
+            foreach ($collection as $order) {
+                $order-&gt;setStatus($status);
+                $order-&gt;save();
+                $updatedCount++;
+            }
+
+            $this-&gt;messageManager-&gt;addSuccessMessage(
+                __('A total of %1 record(s) have been updated.', $updatedCount)
+            );
+        } catch (\Exception $e) {
+            $this-&gt;messageManager-&gt;addErrorMessage(__('An error occurred while updating orders.'));
+        }
+
+        return $this-&gt;resultFactory-&gt;create(ResultFactory::TYPE_REDIRECT)-&gt;setPath('*/*/');
+    }
+}
+</code></pre>
+<hr />
+<h2 id="inline-editing">Inline Editing</h2>
+<h3 id="enable-inline-editing-in-grid">Enable Inline Editing in Grid</h3>
+<pre><code class="language-xml">&lt;column name=&quot;status&quot; component=&quot;Magento_Ui/js/grid/columns/select&quot;&gt;
+    &lt;settings&gt;
+        &lt;editor&gt;
+            &lt;editorType&gt;select&lt;/editorType&gt;
+            &lt;validation&gt;
+                &lt;rule name=&quot;required-entry&quot; xsi:type=&quot;boolean&quot;&gt;true&lt;/rule&gt;
+            &lt;/validation&gt;
+        &lt;/editor&gt;
+        &lt;options class=&quot;Vendor\Module\Model\Source\OrderStatus&quot;/&gt;
+        &lt;filter&gt;select&lt;/filter&gt;
+        &lt;dataType&gt;select&lt;/dataType&gt;
+        &lt;label translate=&quot;true&quot;&gt;Status&lt;/label&gt;
+    &lt;/settings&gt;
+&lt;/column&gt;
+</code></pre>
+<h3 id="inline-edit-controller">Inline Edit Controller</h3>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Controller\Adminhtml\Order;
+
+use Magento\Backend\App\Action;
+use Magento\Backend\App\Action\Context;
+use Magento\Framework\Controller\Result\JsonFactory;
+use Vendor\Module\Api\OrderRepositoryInterface;
+use Psr\Log\LoggerInterface;
+
+class InlineEdit extends Action
+{
+    public const ADMIN_RESOURCE = 'Vendor_Module::order_edit';
+
+    public function __construct(
+        Context $context,
+        private readonly JsonFactory $jsonFactory,
+        private readonly OrderRepositoryInterface $orderRepository,
+        private readonly LoggerInterface $logger
+    ) {
+        parent::__construct($context);
+    }
+
+    /**
+     * Execute inline edit
+     *
+     * @return \Magento\Framework\Controller\ResultInterface
+     */
+    public function execute()
+    {
+        $resultJson = $this-&gt;jsonFactory-&gt;create();
+        $error = false;
+        $messages = [];
+
+        $postItems = $this-&gt;getRequest()-&gt;getParam('items', []);
+
+        if (!($this-&gt;getRequest()-&gt;getParam('isAjax') &amp;&amp; count($postItems))) {
+            return $resultJson-&gt;setData([
+                'messages' =&gt; [__('Please correct the data sent.')],
+                'error' =&gt; true,
+            ]);
+        }
+
+        foreach (array_keys($postItems) as $orderId) {
+            try {
+                $order = $this-&gt;orderRepository-&gt;get((int) $orderId);
+                $order-&gt;setData(array_merge($order-&gt;getData(), $postItems[$orderId]));
+                $this-&gt;orderRepository-&gt;save($order);
+            } catch (\Exception $e) {
+                $messages[] = __('Error updating order %1: %2', $orderId, $e-&gt;getMessage());
+                $error = true;
+                $this-&gt;logger-&gt;error('Inline edit error', [
+                    'order_id' =&gt; $orderId,
+                    'error' =&gt; $e-&gt;getMessage()
+                ]);
+            }
+        }
+
+        return $resultJson-&gt;setData([
+            'messages' =&gt; $messages,
+            'error' =&gt; $error
+        ]);
+    }
+}
+</code></pre>
+<p><strong>Register route in <code>routes.xml</code>:</strong></p>
+<pre><code class="language-xml">&lt;route id=&quot;vendor_module&quot; frontName=&quot;vendor_module&quot;&gt;
+    &lt;module name=&quot;Vendor_Module&quot;/&gt;
+&lt;/route&gt;
+</code></pre>
+<hr />
+<h2 id="ajax-operations">AJAX Operations</h2>
+<h3 id="custom-ajax-controller">Custom AJAX Controller</h3>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Controller\Adminhtml\Order;
+
+use Magento\Backend\App\Action;
+use Magento\Backend\App\Action\Context;
+use Magento\Framework\Controller\Result\JsonFactory;
+use Vendor\Module\Model\OrderProcessor;
+
+class Process extends Action
+{
+    public const ADMIN_RESOURCE = 'Vendor_Module::order_process';
+
+    public function __construct(
+        Context $context,
+        private readonly JsonFactory $jsonFactory,
+        private readonly OrderProcessor $orderProcessor
+    ) {
+        parent::__construct($context);
+    }
+
+    /**
+     * Process order via AJAX
+     *
+     * @return \Magento\Framework\Controller\ResultInterface
+     */
+    public function execute()
+    {
+        $resultJson = $this-&gt;jsonFactory-&gt;create();
+        $orderId = (int) $this-&gt;getRequest()-&gt;getParam('order_id');
+
+        if (!$orderId) {
+            return $resultJson-&gt;setData([
+                'success' =&gt; false,
+                'message' =&gt; __('Invalid order ID')
+            ]);
+        }
+
+        try {
+            $this-&gt;orderProcessor-&gt;process($orderId);
+
+            return $resultJson-&gt;setData([
+                'success' =&gt; true,
+                'message' =&gt; __('Order processed successfully')
+            ]);
+        } catch (\Exception $e) {
+            return $resultJson-&gt;setData([
+                'success' =&gt; false,
+                'message' =&gt; __('Error processing order: %1', $e-&gt;getMessage())
+            ]);
+        }
+    }
+}
+</code></pre>
+<h3 id="javascript-component-for-ajax">JavaScript Component for AJAX</h3>
+<p><strong>File:</strong> <code>view/adminhtml/web/js/process-order.js</code></p>
+<pre><code class="language-javascript">define([
+    'jquery',
+    'Magento_Ui/js/modal/alert',
+    'mage/translate'
+], function ($, alert, $t) {
+    'use strict';
+
+    return function (config, element) {
+        $(element).on('click', function (e) {
+            e.preventDefault();
+
+            $.ajax({
+                url: config.processUrl,
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    order_id: config.orderId,
+                    form_key: window.FORM_KEY
+                },
+                showLoader: true,
+                success: function (response) {
+                    if (response.success) {
+                        alert({
+                            title: $t('Success'),
+                            content: response.message
+                        });
+                        location.reload();
+                    } else {
+                        alert({
+                            title: $t('Error'),
+                            content: response.message
+                        });
+                    }
+                },
+                error: function () {
+                    alert({
+                        title: $t('Error'),
+                        content: $t('An error occurred while processing the order.')
+                    });
+                }
+            });
+        });
+    };
+});
+</code></pre>
+<p><strong>Add button in form:</strong></p>
+<pre><code class="language-xml">&lt;field name=&quot;process_button&quot; formElement=&quot;container&quot;&gt;
+    &lt;settings&gt;
+        &lt;label/&gt;
+        &lt;additionalClasses&gt;
+            &lt;class name=&quot;admin__field-small&quot;&gt;false&lt;/class&gt;
+        &lt;/additionalClasses&gt;
+    &lt;/settings&gt;
+    &lt;formElements&gt;
+        &lt;container&gt;
+            &lt;settings&gt;
+                &lt;template&gt;ui/form/components/button/container&lt;/template&gt;
+            &lt;/settings&gt;
+            &lt;buttonAdapter&gt;
+                &lt;settings&gt;
+                    &lt;title translate=&quot;true&quot;&gt;Process Order&lt;/title&gt;
+                    &lt;actions&gt;
+                        &lt;action name=&quot;process&quot;&gt;
+                            &lt;settings&gt;
+                                &lt;targetName&gt;${ $.parentName }&lt;/targetName&gt;
+                                &lt;actionName&gt;processOrder&lt;/actionName&gt;
+                                &lt;params&gt;
+                                    &lt;param name=&quot;0&quot; xsi:type=&quot;string&quot;&gt;processUrl&lt;/param&gt;
+                                &lt;/params&gt;
+                            &lt;/settings&gt;
+                        &lt;/action&gt;
+                    &lt;/actions&gt;
+                &lt;/settings&gt;
+            &lt;/buttonAdapter&gt;
+        &lt;/container&gt;
+    &lt;/formElements&gt;
+&lt;/field&gt;
+</code></pre>
+<hr />
+<h2 id="assumptions">Assumptions</h2>
+<ul>
+<li><strong>Magento version:</strong> 2.4.7+ (UI Component framework 2.x)</li>
+<li><strong>PHP version:</strong> 8.2+ (typed properties, readonly)</li>
+<li><strong>JavaScript:</strong> KnockoutJS 3.5+, RequireJS 2.3+</li>
+<li><strong>Modules:</strong> <code>Magento_Ui</code>, <code>Magento_Backend</code> enabled</li>
+<li><strong>ACL:</strong> Proper ACL resources defined in <code>acl.xml</code></li>
+</ul>
+<h2 id="why-this-approach">Why This Approach</h2>
+<p><strong>UI Component XML over programmatic grids:</strong>
+- Declarative configuration is easier to maintain and extend
+- Built-in features (pagination, filtering, sorting) with zero code
+- Consistent UX across Magento admin
+- Plugin-friendly for third-party extensions</p>
+<p><strong>Data providers pattern:</strong>
+- Separation of concerns (data fetching vs presentation)
+- Testable (mock data provider in unit tests)
+- Modifiers allow post-processing without touching collection
+- Supports multiple data sources (DB, API, cache)</p>
+<p><strong>Mass actions with Filter class:</strong>
+- Handles UI Component selected IDs automatically
+- Supports "select all" across pages
+- Consistent error handling and user feedback
+- Transaction-safe (partial success reporting)</p>
+<p><strong>Inline editing:</strong>
+- Reduces clicks for admin users (no form navigation)
+- AJAX-based (no full page reload)
+- Validation feedback inline
+- Audit trail preserved (modified_at timestamps)</p>
+<h2 id="security-impact">Security Impact</h2>
+<ul>
+<li><strong>ACL resources:</strong> All controllers must define <code>ADMIN_RESOURCE</code> constant; unauthorized access returns 403</li>
+<li><strong>CSRF protection:</strong> Form key validated on all POST requests (Magento framework handles automatically)</li>
+<li><strong>XSS prevention:</strong> Use <code>translate="true"</code> and <code>__()</code> for all user-facing strings; never output raw HTML</li>
+<li><strong>SQL injection:</strong> Use repositories/collections (ORM); never concatenate SQL strings</li>
+<li><strong>Authorization:</strong> Verify entity ownership before edit/delete (check store scope, customer group)</li>
+<li><strong>AJAX endpoints:</strong> Validate <code>isAjax()</code> request; return JSON only (no HTML to prevent CSRF)</li>
+</ul>
+<h2 id="performance-impact">Performance Impact</h2>
+<ul>
+<li><strong>Grid collection:</strong> Use indexes on filtered/sorted columns; avoid N+1 queries with joins</li>
+<li><strong>Data provider:</strong> Lazy load data (only fetch when needed); cache metadata</li>
+<li><strong>Static content:</strong> UI Component JS/CSS minified in production mode</li>
+<li><strong>Mass actions:</strong> Batch operations where possible (single UPDATE for status changes)</li>
+<li><strong>Inline editing:</strong> Delta updates (only changed fields); avoid full entity load</li>
+<li><strong>Pagination:</strong> Limit grid to 20-50 rows per page; use <code>getLimitedData()</code> for large datasets</li>
+</ul>
+<h2 id="backward-compatibility">Backward Compatibility</h2>
+<ul>
+<li><strong>UI Component schema:</strong> Stable across 2.4.x; breaking changes in major versions only (2.5+)</li>
+<li><strong>Data provider interface:</strong> Implement <code>DataProviderInterface</code> for forward compatibility</li>
+<li><strong>JavaScript components:</strong> Use RequireJS mixins for extensions; avoid direct overwrites</li>
+<li><strong>Deprecations:</strong> <code>Magento_Ui/js/lib/ko/bind/scope</code> deprecated in 2.4.6 (use <code>scope</code> binding)</li>
+<li><strong>Migration path:</strong> UI Components replace legacy grids (<code>Magento\Backend\Block\Widget\Grid</code>); migrate before 2.5</li>
+</ul>
+<h2 id="tests-to-add">Tests to Add</h2>
+<p><strong>Unit tests:</strong>
+- Data provider returns correct data structure
+- Column renderers format values correctly
+- Mass action controllers handle errors gracefully</p>
+<p><strong>Integration tests:</strong>
+- Grid collection filters apply correctly
+- Form data provider loads entity data
+- Inline edit saves changes to database
+- AJAX endpoints return valid JSON</p>
+<p><strong>MFTF tests:</strong>
+- Grid displays records and pagination works
+- Mass actions execute and show success message
+- Form validates required fields
+- Inline editing updates grid row</p>
+<h2 id="documentation-to-update">Documentation to Update</h2>
+<ul>
+<li><strong>README:</strong> List all admin routes and ACL resources</li>
+<li><strong>Admin user guide:</strong> Screenshots of grid, form, mass actions</li>
+<li><strong>Developer guide:</strong> How to extend grid with custom columns, add form fields</li>
+<li><strong>CHANGELOG:</strong> Document UI Component schema changes, new form fields</li>
+<li><strong>Architecture diagram:</strong> Data flow from controller → data provider → collection → UI Component</li>
+</ul>
+<hr />
+<h2 id="additional-resources">Additional Resources</h2>
+<ul>
+<li><a href="https://developer.adobe.com/commerce/frontend-core/ui-components/">Magento DevDocs: UI Components</a></li>
+<li><a href="https://developer.adobe.com/commerce/frontend-core/ui-components/concepts/xml-declaration/">UI Component XML Reference</a></li>
+<li><a href="https://developer.adobe.com/commerce/php/development/components/data-provider/">Data Provider Guide</a></li>
+<li><a href="https://knockoutjs.com/documentation/introduction.html">KnockoutJS Documentation</a></li>
+</ul>
+<h2 id="related-documentation">Related Documentation</h2>
+<h3 id="related-guides">Related Guides</h3>
+<ul>
+<li><a href="layout-xml-deep-dive.md">Layout XML Deep Dive: Mastering Magento's View Layer</a></li>
+<li><a href="../explanations/graphql-resolver-patterns.md">GraphQL Resolver Patterns in Magento 2</a></li>
+</ul>
+<h3 id="related-module-documentation">Related Module Documentation</h3>
+<ul>
+<li><a href="../../modules/catalog/README.md">Magento_Catalog Overview</a></li>
+<li><a href="../../modules/customer/README.md">Magento_Customer Overview</a></li>
+<li><a href="../../modules/sales/README.md">Magento_Sales Overview</a></li>
+</ul>
+                    </div>
+                </article>
+            </main>
+            <!-- Right Sidebar: On This Page (desktop) -->
+            <aside class="toc-sidebar hidden xl:block" aria-label="On this page">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-semibold text-gray-900 uppercase tracking-wider mb-4 mt-0">On this page</h3>
+                    <nav id="toc-nav" class="space-y-0" aria-label="Table of contents"></nav>
+                    <div class="toc-back-to-top">
+                        <a href="#">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+                            </svg>
+                            Back to top
+                        </a>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- ================================================================
+         FOOTER — matches module-catalog.html multi-column layout exactly
+         ================================================================ -->
+    <footer class="relative pt-12 bg-white border-t border-charcoal mt-16">
+        <div class="max-w-screen-2xl mx-auto w-full px-4 sm:px-6 lg:px-8">
+            <div>
+                <a href="index.html" class="inline-flex items-center no-underline">
+                    <svg width="30" height="33" viewBox="0 0 30 33" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Magento Association logo" role="img">
+                        <path d="M0 4.06492H29.6763V31.8882C29.6763 32.502 29.1713 33 28.5487 33H1.12762C0.505079 33 0 32.502 0 31.8882V4.06492Z" fill="#34323A"/>
+                        <path d="M1.26857 0H28.4078C29.1066 0 29.6763 0.561678 29.6763 1.25075V4.06492H0V1.25075C0 0.561678 0.569682 0 1.26857 0Z" fill="#C9C9C9"/>
+                        <path d="M2.37269 3.0458C2.94031 3.0458 3.40046 2.59211 3.40046 2.03246C3.40046 1.47281 2.94031 1.01913 2.37269 1.01913C1.80506 1.01913 1.34491 1.47281 1.34491 2.03246C1.34491 2.59211 1.80506 3.0458 2.37269 3.0458Z" fill="#848484"/>
+                        <path d="M5.28571 3.0458C5.85334 3.0458 6.31349 2.59211 6.31349 2.03246C6.31349 1.47281 5.85334 1.01913 5.28571 1.01913C4.71809 1.01913 4.25793 1.47281 4.25793 2.03246C4.25793 2.59211 4.71809 3.0458 5.28571 3.0458Z" fill="#848484"/>
+                        <path d="M14.7883 7.46973L4.90405 13.0923V24.349L7.54104 25.8487V14.5978L14.7883 10.4692L22.0415 14.5978V25.8487L24.6785 24.349V13.0923L14.7883 7.46973Z" fill="#F1BC1B"/>
+                        <path d="M16.0862 26.2367L14.7883 26.9779L13.4492 26.2135V14.233L10.178 16.0975V27.3485L13.4492 29.213L14.7883 29.9773L16.0862 29.2362L19.4045 27.3485V16.0975L16.0862 14.2098V26.2367Z" fill="#F1BC1B"/>
+                    </svg>
+                    <span class="ml-3 text-xl font-bold text-charcoal">Developer Documentation</span>
+                </a>
+            </div>
+
+            <div class="grid grid-cols-12 md:gap-x-8 gap-y-12 lg:mt-12">
+                <div class="col-span-12 lg:col-span-4">
+                    <p class="hidden lg:block text-xs text-charcoal sm:text-sm">Comprehensive developer documentation for Magento 2.4.7+ — tutorials, architecture deep dives, module references, and production-ready patterns built by the community, for the community.</p>
+                    <ul class="mt-6 hidden lg:flex items-center gap-3">
+                        <li class="pl-0">
+                            <a href="https://github.com/magento/magento2" class="p-2 md:p-0" aria-label="GitHub">
+                                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                                </svg>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Guides</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="tutorials.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Tutorials</a></li>
+                            <li class="pl-0"><a href="how-to-guides.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">How-To Guides</a></li>
+                            <li class="pl-0"><a href="architecture.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Architecture</a></li>
+                            <li class="pl-0"><a href="learning-paths.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Learning Paths</a></li>
+                            <li class="pl-0"><a href="references.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">References</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Modules</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="module-catalog.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Catalog</a></li>
+                            <li class="pl-0"><a href="module-checkout.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Checkout</a></li>
+                            <li class="pl-0"><a href="module-sales.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Sales</a></li>
+                            <li class="pl-0"><a href="module-customer.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Customer</a></li>
+                            <li class="pl-0"><a href="module-quote.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Quote</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Community</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Magento Community</a></li>
+                            <li class="pl-0"><a href="https://magento.stackexchange.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Stack Exchange</a></li>
+                            <li class="pl-0"><a href="https://marketplace.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Marketplace</a></li>
+                            <li class="pl-0"><a href="https://github.com/magento/magento2" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">GitHub</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Support</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://github.com/magento/magento2/issues" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Report Issues</a></li>
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Community Resources</a></li>
+                            <li class="pl-0"><a href="https://developer.adobe.com/commerce/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Adobe Commerce Docs</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-12 border-t pt-6 pb-16 border-charcoal">
+                <p class="text-xs text-charcoal">
+                    &copy; 2026 Magento 2 Developer Documentation. Magento&reg; is a registered trademark of Adobe Inc.
+                </p>
+                <p class="mt-6 text-xs text-charcoal">
+                    This documentation provides guidance for Magento 2 developers and extension builders. For merchant documentation, visit the <a href="index.html" class="text-orange hover:text-orange-600 transition-colors">merchant documentation</a>.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Initialize highlight.js -->
+    <script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('pre code').forEach(function (el) {
+        hljs.highlightElement(el);
+    });
+    document.querySelectorAll('pre').forEach(function (pre) {
+        if (pre.parentNode.classList && pre.parentNode.classList.contains('code-wrapper')) return;
+        var wrapper = document.createElement('div');
+        wrapper.className = 'code-wrapper';
+        pre.parentNode.insertBefore(wrapper, pre);
+        wrapper.appendChild(pre);
+        var btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.setAttribute('type', 'button');
+        btn.setAttribute('aria-label', 'Copy code to clipboard');
+        btn.setAttribute('title', 'Copy');
+        btn.textContent = 'Copy';
+        wrapper.appendChild(btn);
+        btn.addEventListener('click', function () {
+            var code = pre.querySelector('code');
+            var text = code ? (code.innerText || code.textContent) : (pre.innerText || pre.textContent);
+            navigator.clipboard.writeText(text).then(function () {
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            }).catch(function () {
+                var range = document.createRange();
+                range.selectNode(code || pre);
+                window.getSelection().removeAllRanges();
+                window.getSelection().addRange(range);
+                document.execCommand('copy');
+                window.getSelection().removeAllRanges();
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            });
+        });
+    });
+});
+</script>
+
+
+<script>
+(function() {
+    var nav = document.getElementById('toc-nav');
+    if (!nav) return;
+    var article = document.getElementById('main-content');
+    if (!article) return;
+    var headings = article.querySelectorAll('h2[id], h3[id]');
+    if (headings.length < 3) {
+        // Hide the entire TOC sidebar if fewer than 3 headings
+        var sidebar = nav.closest('.toc-sidebar');
+        if (sidebar) sidebar.style.display = 'none';
+        return;
+    }
+    var ids = [];
+    headings.forEach(function(h) {
+        var a = document.createElement('a');
+        a.href = '#' + h.id;
+        a.textContent = h.textContent.replace(/^#+\s*/, '').replace(/\s+/g, ' ').trim();
+        if (h.tagName === 'H3') a.classList.add('toc-h3');
+        nav.appendChild(a);
+        ids.push(h.id);
+    });
+    // Scroll-spy with IntersectionObserver
+    var links = nav.querySelectorAll('a');
+    var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                links.forEach(function(l) { l.classList.remove('toc-active'); });
+                var active = nav.querySelector('a[href="#' + entry.target.id + '"]');
+                if (active) active.classList.add('toc-active');
+            }
+        });
+    }, { rootMargin: '-80px 0px -70% 0px', threshold: 0 });
+    headings.forEach(function(h) { observer.observe(h); });
+})();
+</script>
+</body>
+</html>

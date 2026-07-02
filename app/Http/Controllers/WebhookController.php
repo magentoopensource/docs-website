@@ -80,16 +80,70 @@ class WebhookController extends Controller
             $commitProcess->run();
             $currentCommit = trim($commitProcess->getOutput());
 
-            // Clear Laravel caches
+            // Generate developer docs if developer/ content was checked out.
+            // Guard: skipped silently when developer/ is absent so that merchant-only
+            // pushes are completely unaffected.
+            // Fail-safe: a generation failure is logged but does NOT abort the merchant
+            // sync or change the HTTP response to an error.
+            $devDocsOutcome = 'skipped — developer/ content not present';
+
+            $developerSourcePath = resource_path('docs/main/developer');
+
+            if (is_dir($developerSourcePath)) {
+                try {
+                    $generateScript = base_path('bin/devdocs/generate.sh');
+
+                    // Prefer the explicitly-configured server venv (DEVDOCS_VENV_PATH)
+                    // for reproducible deps; fall back to whatever python3 is on PATH
+                    // (works locally without any venv). Using config rather than
+                    // getenv('HOME') keeps this deterministic under PHP-FPM, whose
+                    // HOME may differ from the deploy user's.
+                    $venvPath = config('services.devdocs.venv_path');
+                    $venvBinDir = $venvPath ? rtrim($venvPath, '/') . '/bin' : '';
+                    $processEnv = null;
+
+                    if ($venvBinDir && is_dir($venvBinDir)) {
+                        $processEnv = getenv();
+                        $processEnv['PATH'] = $venvBinDir . ':' . ($processEnv['PATH'] ?? '/usr/local/bin:/usr/bin:/bin');
+                    }
+
+                    // generate.sh builds into a temp dir then atomically renames into
+                    // public_path('developer'), so the live directory is never half-written.
+                    $generateProcess = new Process(
+                        ['bash', $generateScript, $developerSourcePath, public_path('developer')],
+                        base_path(),
+                        $processEnv,
+                    );
+                    $generateProcess->setTimeout(120);
+                    $generateProcess->run();
+
+                    if ($generateProcess->isSuccessful()) {
+                        $devDocsOutcome = 'generated successfully';
+                        Log::info('Developer docs generated successfully');
+                    } else {
+                        $devDocsOutcome = 'generation failed (see error log)';
+                        Log::error('Developer docs generation failed — merchant sync unaffected', [
+                            'stderr' => $generateProcess->getErrorOutput(),
+                        ]);
+                    }
+                } catch (\Exception $devException) {
+                    $devDocsOutcome = 'exception: ' . $devException->getMessage();
+                    Log::error('Developer docs generation threw exception — merchant sync unaffected', [
+                        'exception' => $devException->getMessage(),
+                    ]);
+                }
+            }
+
+            // Clear caches so the freshly synced docs are served. We deliberately do
+            // NOT rebuild the compiled caches here (config:cache, route:cache,
+            // view:cache): none are affected by a docs *content* sync, and running a
+            // *:cache command inside a booted HTTP request throws at runtime
+            // (route:cache -> TypeError on CompiledRouteCollection; view:cache ->
+            // hash_file on a just-cleared compiled view). Laravel rebuilds each lazily
+            // on the next request, and the deploy's deploy:optimize re-caches them fully.
             Artisan::call('cache:clear');
             Artisan::call('view:clear');
             Artisan::call('config:clear');
-            Artisan::call('route:clear');
-
-            // Rebuild caches
-            Artisan::call('config:cache');
-            Artisan::call('route:cache');
-            Artisan::call('view:cache');
 
             Log::info('Docs sync completed successfully', ['commit' => $currentCommit]);
 
@@ -97,9 +151,10 @@ class WebhookController extends Controller
                 'success' => true,
                 'message' => 'Documentation synced successfully',
                 'commit' => $currentCommit,
+                'developer_docs' => $devDocsOutcome,
             ]);
 
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             Log::error('Docs sync failed: ' . $e->getMessage());
 
             return response()->json([

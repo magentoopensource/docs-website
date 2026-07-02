@@ -1,0 +1,1509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magento_Customer Plugins & Observers — Magento 2 Developer Documentation</title>
+    <meta name="description" content="Magento_Customer Plugins & Observers">
+
+    <!-- Google Fonts: Inter Tight only. Courier New used for code. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Highlight.js: syntax highlighting for code blocks -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/php.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/ini.min.js"></script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        charcoal: {
+                            DEFAULT: '#2c2c2c', 50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6',
+                            300: '#6B6B6B', 400: '#474747', 500: '#2c2c2c', 600: '#262626',
+                            700: '#202020', 800: '#1c1c1c', 900: '#191919', 950: '#121212'
+                        },
+                        orange: {
+                            DEFAULT: '#D4551A', 50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad',
+                            300: '#f9ae78', 400: '#f58242', 500: '#f26423', 600: '#e34613',
+                            700: '#bc3312', 800: '#962a16', 900: '#792515', 950: '#411009'
+                        },
+                        yellow: {
+                            DEFAULT: '#B8860B', 50: '#fffdeb', 100: '#fdf9c8', 200: '#fbf38c',
+                            300: '#f8e651', 400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a',
+                            700: '#b1670c', 800: '#8f5111', 900: '#764311', 950: '#442204'
+                        },
+                        'off-white': '#FAFAFA',
+                    },
+                    fontFamily: {
+                        sans: ['Inter Tight', 'system-ui', '-apple-system', 'sans-serif'],
+                        mono: ['Courier New', 'Courier', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* ── Force light mode ── */
+        :root { color-scheme: light only; }
+
+        [x-cloak] { display: none !important; }
+
+        /* ── Scroll offset for sticky header ── */
+        .prose h2, .prose h3 { scroll-margin-top: 5rem; }
+
+        /* ── Code blocks: Bauhaus charcoal bg, no border-radius, highlight.js override ── */
+        .prose pre {
+            background-color: #2C2C2C !important;
+            border-radius: 0 !important;
+            padding: 1.25rem;
+            overflow-x: auto;
+            font-size: 0.875rem;
+            line-height: 1.7;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 1.5rem 0;
+        }
+        .prose pre code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            background: transparent !important;
+            padding: 0;
+                    color: #abb2bf;
+        }
+        /* Override highlight.js theme background to match Bauhaus charcoal */
+        .hljs {
+            background: #2C2C2C !important;
+            color: #abb2bf !important;
+            border-radius: 0 !important;
+        }
+
+        /* ── Inline code: charcoal bg, yellow text, no border-radius ── */
+        .prose code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.85em;
+        }
+        .prose :not(pre) > code {
+            background-color: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2em 0.45em;
+            border-radius: 0;
+        }
+
+        /* ── Step-code: same charcoal/yellow style for UI path chips ── */
+        .step-code {
+            background: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2rem 0.5rem;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            border-radius: 0;
+        }
+
+        /* ── Tables: no border-radius, charcoal header ── */
+        .prose table { width: 100%; border-collapse: collapse; }
+        .prose th {
+            background-color: #2C2C2C;
+            color: #ffffff;
+            font-weight: 600;
+            text-align: left;
+            padding: 0.75rem 1rem;
+            border-bottom: 2px solid #2C2C2C;
+            border-radius: 0;
+        }
+        .prose td { padding: 0.75rem 1rem; border-bottom: 1px solid #e5e5e5; }
+        .prose tr:hover { background-color: #fafafa; }
+
+        /* ── Blockquote: Bauhaus style — border-4 yellow, square, no left-only border ── */
+        .prose blockquote {
+            border: 4px solid #F1BC1B;
+            background-color: #ffffff;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+            border-radius: 0;
+        }
+        .prose blockquote p { margin: 0; }
+
+        /* ── Lists: hexagon bullets ── */
+        .prose ul { list-style: none; padding-left: 0; }
+        .prose ul li {
+            position: relative;
+            padding-left: 1.75rem;
+            margin-bottom: 0.4rem;
+            line-height: 1.7;
+        }
+        .prose ul li::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0.45em;
+            width: 10px;
+            height: 10px;
+            background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 2L21 7V17L12 22L3 17V7L12 2Z' stroke='%23F26423' stroke-width='2.5' stroke-linejoin='miter'/%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+        .prose ol { list-style-type: decimal; padding-left: 1.5rem; }
+        .prose li { margin-bottom: 0.4rem; }
+
+        /* ── Headings ── */
+        .prose h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            padding-top: 1.5rem;
+            border-top: 4px solid #F1BC1B;
+            color: #2C2C2C;
+        }
+        .prose h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+            color: #2C2C2C;
+        }
+        .prose h4 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #2C2C2C;
+        }
+        .prose p { margin-bottom: 1rem; line-height: 1.75; }
+        .prose a { color: #D4551A; text-decoration: none; }
+        .prose a:hover { color: #e34613; text-decoration: underline; }
+        .prose hr { border: none; border-top: 1px solid #e5e5e5; margin: 2rem 0; }
+
+        /* ── Callout boxes: Bauhaus — border-4 yellow, white bg, icon + title ── */
+        .callout-box {
+            background-color: #ffffff;
+            border: 4px solid #F1BC1B;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+        }
+        .callout-warning {
+            border-color: #D4551A;
+        }
+        .callout-important {
+            border-color: #2C2C2C;
+        }
+        .callout-box .callout-inner {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+        .callout-box .callout-title {
+            font-weight: 600;
+            color: #2C2C2C;
+            margin-bottom: 0.25rem;
+        }
+        .callout-box .callout-body {
+            font-size: 0.875rem;
+            line-height: 1.6;
+            color: rgba(44,44,44,0.85);
+        }
+
+        
+    
+        /* Code block copy button */
+        .code-wrapper {
+            position: relative;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            font-family: 'Inter Tight', system-ui, sans-serif;
+            background: rgba(255,255,255,0.1);
+            color: #abb2bf;
+            border: 1px solid rgba(255,255,255,0.15);
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.15s ease, background 0.15s ease;
+            z-index: 10;
+            line-height: 1.4;
+            border-radius: 4px;
+            user-select: none;
+        }
+        .code-wrapper:hover .copy-btn {
+            opacity: 1;
+        }
+        .copy-btn:hover,
+        .copy-btn:focus {
+            background: rgba(255,255,255,0.2);
+            color: #ffffff;
+            outline: 2px solid #D4551A;
+            outline-offset: 1px;
+        }
+        .copy-btn.copied {
+            color: #98c379;
+            background: rgba(152, 195, 121, 0.15);
+            opacity: 1;
+        }
+    
+        /* Right-hand TOC sidebar */
+        .toc-sidebar {
+            width: 14rem;
+            flex-shrink: 0;
+        }
+        .toc-sidebar a {
+            display: block;
+            padding: 0.375rem 0;
+            font-size: 0.8125rem;
+            line-height: 1.4;
+            color: #6b7280;
+            text-decoration: none;
+            transition: color 0.15s ease;
+            border-left: 2px solid transparent;
+            padding-left: 0.75rem;
+        }
+        .toc-sidebar a:hover {
+            color: #111827;
+        }
+        .toc-sidebar a.toc-active {
+            color: #ea580c;
+            border-left-color: #ea580c;
+            font-weight: 500;
+        }
+        .toc-sidebar a.toc-h3 {
+            padding-left: 1.5rem;
+            font-size: 0.75rem;
+        }
+        .toc-sidebar .toc-back-to-top {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e5e7eb;
+        }
+        .toc-sidebar .toc-back-to-top a {
+            border-left: none;
+            padding-left: 0;
+            font-weight: 500;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .toc-sidebar .toc-back-to-top a:hover {
+            color: #ea580c;
+        }
+    </style>
+</head>
+
+<body class="font-sans bg-off-white text-charcoal">
+
+    <!-- Shared header — single source of truth -->
+    <script src="includes/header.js"></script>
+
+    <!-- Breadcrumb — orange › separators -->
+    <div class="bg-white border-b border-gray-100">
+        <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <div class="flex items-center gap-2 text-sm flex-wrap">
+                <a href="index.html" class="text-orange hover:text-orange-600 transition-colors no-underline">Home</a> <span class="text-orange font-medium">›</span> <a href="modules.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">Modules</a> <span class="text-orange font-medium">›</span> <a href="module-customer.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">Customer</a> <span class="text-orange font-medium">›</span> <span class="text-charcoal font-medium">Magento_Customer Plugins & Observers</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="flex gap-8">
+
+            <!-- Left Sidebar (desktop) -->
+            <aside class="hidden lg:block w-64 flex-shrink-0">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4">Customer Module</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="module-customer-overview.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Overview</a></li>
+<li class="pl-0"><a href="module-customer-architecture.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Architecture</a></li>
+<li class="pl-0"><a href="module-customer-execution-flows.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Execution Flows</a></li>
+<li class="pl-0"><a href="module-customer-plugins-and-observers.html" class="block px-3 py-2 text-sm text-orange font-semibold bg-orange-50 border-l-4 border-orange pl-2 transition-colors no-underline">Plugins & Observers</a></li>
+<li class="pl-0"><a href="module-customer-integrations.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Integrations</a></li>
+<li class="pl-0"><a href="module-customer-anti-patterns.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Anti-Patterns</a></li>
+<li class="pl-0"><a href="module-customer-performance.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Performance</a></li>
+<li class="pl-0"><a href="module-customer-known-issues.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Known Issues</a></li>
+<li class="pl-0"><a href="module-customer-version-compatibility.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Version Compatibility</a></li>
+</ul>
+<h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4 mt-8">Other Modules</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="module-catalog.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Catalog</a></li>
+<li class="pl-0"><a href="module-checkout.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Checkout</a></li>
+<li class="pl-0"><a href="module-quote.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Quote</a></li>
+<li class="pl-0"><a href="module-sales.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Sales</a></li>
+</ul>
+                </div>
+            </aside>
+
+            <!-- Article — square corners, border-t-4 orange accent -->
+            <main id="main-content" class="flex-1 min-w-0">
+                <article class="bg-white shadow-sm border border-gray-100 border-t-4 border-t-orange p-8 md:p-12">
+                    <!-- Title block -->
+                    <div class="mb-8">
+                        <span class="inline-block px-3 py-1.5 text-xs font-medium bg-yellow-50 text-yellow-800 border border-yellow-200">Extension Points</span>
+                        <h1 class="text-3xl md:text-4xl font-extrabold text-charcoal mt-3 mb-3">Magento_Customer Plugins & Observers</h1>
+                        <p class="text-charcoal-300 text-lg mb-4">Magento_Customer Plugins & Observers</p>
+                        <!-- Meta pills -->
+                        <div class="flex flex-wrap gap-2"><span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-charcoal text-white">Magento 2.4.7+</span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-charcoal-50 text-charcoal border border-charcoal-100">Magento_Customer</span></div>
+                    </div>
+
+                    <hr class="border-0 border-t border-gray-100 mb-8">
+
+                    <!-- Content -->
+                    <div class="prose max-w-none">
+                        <h1 id="magento_customer-plugins-and-observers">Magento_Customer Plugins and Observers</h1>
+<h2 id="overview">Overview</h2>
+<p>The Magento_Customer module exposes numerous extension points through <strong>plugins</strong> (interceptors) and <strong>observers</strong> (event handlers). These mechanisms allow developers to customize customer behavior without modifying core code, ensuring upgrade safety and maintainability.</p>
+<p>This document catalogs all major plugin opportunities and observable events within the Customer module, provides real-world implementation examples, and explains best practices for extending customer functionality.</p>
+<p><strong>Target Versions:</strong> Magento 2.4.7+ / Adobe Commerce 2.4.7+ with PHP 8.2+</p>
+<hr />
+<h2 id="table-of-contents">Table of Contents</h2>
+<ol>
+<li><a href="#plugins-vs-observers-when-to-use-each">Plugins vs Observers: When to Use Each</a></li>
+<li><a href="#customer-authentication-plugins">Customer Authentication Plugins</a></li>
+<li><a href="#customer-save-plugins">Customer Save Plugins</a></li>
+<li><a href="#address-management-plugins">Address Management Plugins</a></li>
+<li><a href="#customer-repository-plugins">Customer Repository Plugins</a></li>
+<li><a href="#customer-session-plugins">Customer Session Plugins</a></li>
+<li><a href="#core-customer-events">Core Customer Events</a></li>
+<li><a href="#address-events">Address Events</a></li>
+<li><a href="#group-assignment-events">Group Assignment Events</a></li>
+<li><a href="#real-world-use-cases">Real-World Use Cases</a></li>
+</ol>
+<hr />
+<h2 id="plugins-vs-observers-when-to-use-each">Plugins vs Observers: When to Use Each</h2>
+<h3 id="plugins-interceptors">Plugins (Interceptors)</h3>
+<p><strong>Use plugins when you need to:</strong>
+- Modify method arguments (before plugin)
+- Change return values (after plugin)
+- Wrap method execution (around plugin)
+- Intercept service contract methods for API consistency
+- Implement cross-cutting concerns (logging, caching, validation)</p>
+<p><strong>Plugin Types:</strong>
+- <strong>Before:</strong> Execute before target method, can modify arguments
+- <strong>After:</strong> Execute after target method, can modify return value
+- <strong>Around:</strong> Wrap target method, full control over execution</p>
+<p><strong>Example Use Cases:</strong>
+- Add custom validation before customer save
+- Modify customer data before returning from API
+- Log authentication attempts
+- Integrate with external CRM systems</p>
+<h3 id="observers-event-handlers">Observers (Event Handlers)</h3>
+<p><strong>Use observers when you need to:</strong>
+- React to events without modifying core flow
+- Execute side effects (send emails, update external systems)
+- Implement loosely coupled extensions
+- Listen to events that don't have direct method interception points</p>
+<p><strong>Observer Characteristics:</strong>
+- Cannot modify method arguments or return values
+- Multiple observers can listen to same event
+- Execution order controllable via <code>sortOrder</code> attribute
+- Fire-and-forget pattern (don't throw exceptions unless critical)</p>
+<p><strong>Example Use Cases:</strong>
+- Send customer data to marketing automation platform
+- Update loyalty points after registration
+- Sync customer addresses with ERP system
+- Log customer login events</p>
+<hr />
+<h2 id="customer-authentication-plugins">Customer Authentication Plugins</h2>
+<h3 id="accountmanagementinterfaceauthenticate">AccountManagementInterface::authenticate()</h3>
+<p><strong>Plugin Point:</strong> <code>Magento\Customer\Api\AccountManagementInterface::authenticate</code></p>
+<p><strong>Purpose:</strong> Intercept customer authentication to add custom validation, logging, or integration with external auth systems.</p>
+<h4 id="before-plugin-add-pre-authentication-validation">Before Plugin: Add Pre-Authentication Validation</h4>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Plugin\Customer\Model;
+
+use Magento\Customer\Api\AccountManagementInterface;
+use Magento\Framework\Exception\AuthenticationException;
+use Psr\Log\LoggerInterface;
+
+class AccountManagementAuthenticationValidatorExtend
+{
+    public function __construct(
+        private readonly LoggerInterface $logger
+    ) {}
+
+    /**
+     * Validate customer before authentication
+     *
+     * @param AccountManagementInterface $subject
+     * @param string $username
+     * @param string $password
+     * @return array
+     * @throws AuthenticationException
+     */
+    public function beforeAuthenticate(
+        AccountManagementInterface $subject,
+        string $username,
+        string $password
+    ): array {
+        // Custom validation: check if email is from blocked domain
+        $blockedDomains = ['disposable-email.com', 'tempmail.com'];
+        $emailDomain = substr(strrchr($username, '@'), 1);
+
+        if (in_array($emailDomain, $blockedDomains, true)) {
+            $this-&gt;logger-&gt;warning('Authentication attempt from blocked domain', [
+                'email' =&gt; $username,
+                'domain' =&gt; $emailDomain
+            ]);
+
+            throw new AuthenticationException(
+                __('Authentication is not available for this email domain.')
+            );
+        }
+
+        // Return original arguments (required for before plugins)
+        return [$username, $password];
+    }
+}
+</code></pre>
+<h4 id="after-plugin-log-successful-authentication">After Plugin: Log Successful Authentication</h4>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Plugin\Customer\Model;
+
+use Magento\Customer\Api\AccountManagementInterface;
+use Magento\Customer\Api\Data\CustomerInterface;
+use Psr\Log\LoggerInterface;
+
+class AccountManagementAuthenticationLoggerExtend
+{
+    public function __construct(
+        private readonly LoggerInterface $logger
+    ) {}
+
+    /**
+     * Log successful authentication
+     *
+     * @param AccountManagementInterface $subject
+     * @param CustomerInterface $result
+     * @return CustomerInterface
+     */
+    public function afterAuthenticate(
+        AccountManagementInterface $subject,
+        CustomerInterface $result
+    ): CustomerInterface {
+        $this-&gt;logger-&gt;info('Customer authenticated successfully', [
+            'customer_id' =&gt; $result-&gt;getId(),
+            'email' =&gt; $result-&gt;getEmail(),
+            'group_id' =&gt; $result-&gt;getGroupId(),
+            'timestamp' =&gt; date('Y-m-d H:i:s')
+        ]);
+
+        return $result;
+    }
+}
+</code></pre>
+<h4 id="around-plugin-implement-sso-integration">Around Plugin: Implement SSO Integration</h4>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Plugin\Customer\Model;
+
+use Magento\Customer\Api\AccountManagementInterface;
+use Magento\Customer\Api\Data\CustomerInterface;
+use Magento\Framework\Exception\AuthenticationException;
+use Vendor\Module\Service\SsoAuthenticationService;
+
+class AccountManagementSsoExtend
+{
+    public function __construct(
+        private readonly SsoAuthenticationService $ssoAuth
+    ) {}
+
+    /**
+     * Wrap authentication to check SSO first
+     *
+     * @param AccountManagementInterface $subject
+     * @param callable $proceed
+     * @param string $username
+     * @param string $password
+     * @return CustomerInterface
+     * @throws AuthenticationException
+     */
+    public function aroundAuthenticate(
+        AccountManagementInterface $subject,
+        callable $proceed,
+        string $username,
+        string $password
+    ): CustomerInterface {
+        // Check if SSO token provided instead of password
+        if ($this-&gt;ssoAuth-&gt;isSsoToken($password)) {
+            return $this-&gt;ssoAuth-&gt;authenticateWithToken($username, $password);
+        }
+
+        // Fall back to standard authentication
+        return $proceed($username, $password);
+    }
+}
+</code></pre>
+<p><strong>DI Configuration:</strong></p>
+<pre><code class="language-xml">&lt;!-- etc/di.xml --&gt;
+&lt;config xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+        xsi:noNamespaceSchemaLocation=&quot;urn:magento:framework:ObjectManager/etc/config.xsd&quot;&gt;
+    &lt;type name=&quot;Magento\Customer\Api\AccountManagementInterface&quot;&gt;
+        &lt;plugin name=&quot;vendor_module_auth_validator&quot;
+                type=&quot;Vendor\Module\Plugin\Customer\Model\AccountManagementAuthenticationValidatorExtend&quot;
+                sortOrder=&quot;10&quot; /&gt;
+        &lt;plugin name=&quot;vendor_module_auth_logger&quot;
+                type=&quot;Vendor\Module\Plugin\Customer\Model\AccountManagementAuthenticationLoggerExtend&quot;
+                sortOrder=&quot;20&quot; /&gt;
+        &lt;plugin name=&quot;vendor_module_sso_auth&quot;
+                type=&quot;Vendor\Module\Plugin\Customer\Model\AccountManagementSsoExtend&quot;
+                sortOrder=&quot;5&quot;
+                disabled=&quot;false&quot; /&gt;
+    &lt;/type&gt;
+&lt;/config&gt;
+</code></pre>
+<hr />
+<h2 id="customer-save-plugins">Customer Save Plugins</h2>
+<h3 id="customerrepositoryinterfacesave">CustomerRepositoryInterface::save()</h3>
+<p><strong>Plugin Point:</strong> <code>Magento\Customer\Api\CustomerRepositoryInterface::save</code></p>
+<p><strong>Purpose:</strong> Modify customer data before/after save, trigger external integrations, add custom validation.</p>
+<h4 id="before-plugin-validate-custom-attribute">Before Plugin: Validate Custom Attribute</h4>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Plugin\Customer\Api;
+
+use Magento\Customer\Api\CustomerRepositoryInterface;
+use Magento\Customer\Api\Data\CustomerInterface;
+use Magento\Framework\Exception\LocalizedException;
+
+class CustomerRepositoryValidatorExtend
+{
+    /**
+     * Validate custom attribute before save
+     *
+     * @param CustomerRepositoryInterface $subject
+     * @param CustomerInterface $customer
+     * @param string|null $passwordHash
+     * @return array
+     * @throws LocalizedException
+     */
+    public function beforeSave(
+        CustomerRepositoryInterface $subject,
+        CustomerInterface $customer,
+        ?string $passwordHash = null
+    ): array {
+        // Validate loyalty number format (if provided)
+        $customAttributes = $customer-&gt;getCustomAttributes();
+        if ($customAttributes) {
+            foreach ($customAttributes as $attribute) {
+                if ($attribute-&gt;getAttributeCode() === 'loyalty_number') {
+                    $loyaltyNumber = $attribute-&gt;getValue();
+                    if (!preg_match('/^LOY-\d{8}$/', $loyaltyNumber)) {
+                        throw new LocalizedException(
+                            __('Loyalty number must be in format LOY-XXXXXXXX')
+                        );
+                    }
+                }
+            }
+        }
+
+        return [$customer, $passwordHash];
+    }
+}
+</code></pre>
+<h4 id="after-plugin-sync-with-external-crm">After Plugin: Sync with External CRM</h4>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Plugin\Customer\Api;
+
+use Magento\Customer\Api\CustomerRepositoryInterface;
+use Magento\Customer\Api\Data\CustomerInterface;
+use Psr\Log\LoggerInterface;
+use Vendor\Module\Service\CrmSyncService;
+
+class CustomerRepositoryCrmSyncExtend
+{
+    public function __construct(
+        private readonly CrmSyncService $crmSync,
+        private readonly LoggerInterface $logger
+    ) {}
+
+    /**
+     * Sync customer to CRM after save
+     *
+     * @param CustomerRepositoryInterface $subject
+     * @param CustomerInterface $result
+     * @return CustomerInterface
+     */
+    public function afterSave(
+        CustomerRepositoryInterface $subject,
+        CustomerInterface $result
+    ): CustomerInterface {
+        try {
+            $this-&gt;crmSync-&gt;syncCustomer($result);
+        } catch (\Exception $e) {
+            // Don't fail save if CRM sync fails, just log
+            $this-&gt;logger-&gt;error('CRM sync failed', [
+                'customer_id' =&gt; $result-&gt;getId(),
+                'error' =&gt; $e-&gt;getMessage()
+            ]);
+        }
+
+        return $result;
+    }
+}
+</code></pre>
+<hr />
+<h2 id="address-management-plugins">Address Management Plugins</h2>
+<h3 id="addressrepositoryinterfacesave">AddressRepositoryInterface::save()</h3>
+<p><strong>Plugin Point:</strong> <code>Magento\Customer\Api\AddressRepositoryInterface::save</code></p>
+<h4 id="before-plugin-validate-address-with-external-service">Before Plugin: Validate Address with External Service</h4>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Plugin\Customer\Api;
+
+use Magento\Customer\Api\AddressRepositoryInterface;
+use Magento\Customer\Api\Data\AddressInterface;
+use Magento\Framework\Exception\LocalizedException;
+use Vendor\Module\Service\AddressValidationService;
+
+class AddressRepositoryValidationExtend
+{
+    public function __construct(
+        private readonly AddressValidationService $addressValidator
+    ) {}
+
+    /**
+     * Validate address with external service
+     *
+     * @param AddressRepositoryInterface $subject
+     * @param AddressInterface $address
+     * @return array
+     * @throws LocalizedException
+     */
+    public function beforeSave(
+        AddressRepositoryInterface $subject,
+        AddressInterface $address
+    ): array {
+        // Validate with USPS/Google Maps/etc.
+        $isValid = $this-&gt;addressValidator-&gt;validate(
+            $address-&gt;getStreet(),
+            $address-&gt;getCity(),
+            $address-&gt;getRegionId(),
+            $address-&gt;getPostcode(),
+            $address-&gt;getCountryId()
+        );
+
+        if (!$isValid) {
+            throw new LocalizedException(
+                __('Address validation failed. Please verify your address details.')
+            );
+        }
+
+        return [$address];
+    }
+}
+</code></pre>
+<h4 id="after-plugin-geocode-address">After Plugin: Geocode Address</h4>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Plugin\Customer\Api;
+
+use Magento\Customer\Api\AddressRepositoryInterface;
+use Magento\Customer\Api\Data\AddressInterface;
+use Vendor\Module\Service\GeocodingService;
+
+class AddressRepositoryGeocodingExtend
+{
+    public function __construct(
+        private readonly GeocodingService $geocoding
+    ) {}
+
+    /**
+     * Add latitude/longitude to address after save
+     *
+     * @param AddressRepositoryInterface $subject
+     * @param AddressInterface $result
+     * @return AddressInterface
+     */
+    public function afterSave(
+        AddressRepositoryInterface $subject,
+        AddressInterface $result
+    ): AddressInterface {
+        // Get coordinates
+        $coordinates = $this-&gt;geocoding-&gt;geocode(
+            $result-&gt;getStreet(),
+            $result-&gt;getCity(),
+            $result-&gt;getPostcode(),
+            $result-&gt;getCountryId()
+        );
+
+        if ($coordinates) {
+            // Store as extension attributes
+            $extensionAttributes = $result-&gt;getExtensionAttributes();
+            $extensionAttributes-&gt;setLatitude($coordinates['lat']);
+            $extensionAttributes-&gt;setLongitude($coordinates['lng']);
+            $result-&gt;setExtensionAttributes($extensionAttributes);
+
+            // Save coordinates (in real implementation, save to DB)
+        }
+
+        return $result;
+    }
+}
+</code></pre>
+<hr />
+<h2 id="customer-repository-plugins">Customer Repository Plugins</h2>
+<h3 id="customerrepositoryinterfacegetbyid">CustomerRepositoryInterface::getById()</h3>
+<p><strong>Plugin Point:</strong> <code>Magento\Customer\Api\CustomerRepositoryInterface::getById</code></p>
+<h4 id="after-plugin-load-additional-data">After Plugin: Load Additional Data</h4>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Plugin\Customer\Api;
+
+use Magento\Customer\Api\CustomerRepositoryInterface;
+use Magento\Customer\Api\Data\CustomerInterface;
+use Vendor\Module\Service\LoyaltyPointsService;
+
+class CustomerRepositoryLoyaltyExtend
+{
+    public function __construct(
+        private readonly LoyaltyPointsService $loyaltyPoints
+    ) {}
+
+    /**
+     * Load loyalty points into extension attributes
+     *
+     * @param CustomerRepositoryInterface $subject
+     * @param CustomerInterface $result
+     * @return CustomerInterface
+     */
+    public function afterGetById(
+        CustomerRepositoryInterface $subject,
+        CustomerInterface $result
+    ): CustomerInterface {
+        $extensionAttributes = $result-&gt;getExtensionAttributes();
+        $points = $this-&gt;loyaltyPoints-&gt;getPointsForCustomer((int)$result-&gt;getId());
+        $extensionAttributes-&gt;setLoyaltyPoints($points);
+        $result-&gt;setExtensionAttributes($extensionAttributes);
+
+        return $result;
+    }
+}
+</code></pre>
+<hr />
+<h2 id="customer-session-plugins">Customer Session Plugins</h2>
+<h3 id="sessionsetcustomerdataasloggedin">Session::setCustomerDataAsLoggedIn()</h3>
+<p><strong>Plugin Point:</strong> <code>Magento\Customer\Model\Session::setCustomerDataAsLoggedIn</code></p>
+<h4 id="after-plugin-load-additional-session-data">After Plugin: Load Additional Session Data</h4>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Plugin\Customer\Model;
+
+use Magento\Customer\Api\Data\CustomerInterface;
+use Magento\Customer\Model\Session;
+use Vendor\Module\Service\CustomerPreferencesService;
+
+class SessionExtend
+{
+    public function __construct(
+        private readonly CustomerPreferencesService $preferences
+    ) {}
+
+    /**
+     * Load customer preferences into session
+     *
+     * @param Session $subject
+     * @param Session $result
+     * @param CustomerInterface $customer
+     * @return Session
+     */
+    public function afterSetCustomerDataAsLoggedIn(
+        Session $subject,
+        Session $result,
+        CustomerInterface $customer
+    ): Session {
+        // Load customer preferences
+        $preferences = $this-&gt;preferences-&gt;getPreferences((int)$customer-&gt;getId());
+        $result-&gt;setData('customer_preferences', $preferences);
+
+        return $result;
+    }
+}
+</code></pre>
+<hr />
+<h2 id="core-customer-events">Core Customer Events</h2>
+<h3 id="customer_register_success">customer_register_success</h3>
+<p><strong>Dispatched:</strong> After successful customer registration
+<strong>Location:</strong> <code>Magento\Customer\Controller\Account\CreatePost::execute()</code></p>
+<p><strong>Event Data:</strong>
+- <code>customer</code> - CustomerInterface object
+- <code>account_controller</code> - Controller instance</p>
+<p><strong>Use Cases:</strong>
+- Send welcome email with discount code
+- Assign initial loyalty points
+- Create customer record in external system
+- Trigger marketing automation workflow</p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Observer;
+
+use Magento\Customer\Api\Data\CustomerInterface;
+use Magento\Framework\Event\Observer;
+use Magento\Framework\Event\ObserverInterface;
+use Vendor\Module\Service\WelcomeBonusService;
+
+class CustomerRegisterSuccessObserver implements ObserverInterface
+{
+    public function __construct(
+        private readonly WelcomeBonusService $welcomeBonus
+    ) {}
+
+    /**
+     * Award welcome bonus after registration
+     *
+     * @param Observer $observer
+     * @return void
+     */
+    public function execute(Observer $observer): void
+    {
+        /** @var CustomerInterface $customer */
+        $customer = $observer-&gt;getEvent()-&gt;getCustomer();
+
+        // Award 100 loyalty points for new registration
+        $this-&gt;welcomeBonus-&gt;awardPoints((int)$customer-&gt;getId(), 100);
+    }
+}
+</code></pre>
+<h3 id="customer_login">customer_login</h3>
+<p><strong>Dispatched:</strong> After successful customer login
+<strong>Location:</strong> <code>Magento\Customer\Model\Session::setCustomerAsLoggedIn()</code> and <code>Session::setCustomerDataAsLoggedIn()</code></p>
+<p><strong>Event Data:</strong>
+- <code>customer</code> - Customer model object</p>
+<p><strong>Use Cases:</strong>
+- Update last login timestamp
+- Log login attempts for security audit
+- Sync login status with external systems
+- Load customer-specific cache</p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Observer;
+
+use Magento\Customer\Model\Customer;
+use Magento\Framework\Event\Observer;
+use Magento\Framework\Event\ObserverInterface;
+use Magento\Framework\Stdlib\DateTime\DateTime;
+
+class CustomerLoginObserver implements ObserverInterface
+{
+    public function __construct(
+        private readonly DateTime $dateTime
+    ) {}
+
+    /**
+     * Update last login timestamp
+     *
+     * @param Observer $observer
+     * @return void
+     */
+    public function execute(Observer $observer): void
+    {
+        /** @var Customer $customer */
+        $customer = $observer-&gt;getEvent()-&gt;getCustomer();
+
+        // Update custom attribute
+        $customer-&gt;setData('last_login_at', $this-&gt;dateTime-&gt;gmtDate());
+        $customer-&gt;getResource()-&gt;saveAttribute($customer, 'last_login_at');
+    }
+}
+</code></pre>
+<h3 id="customer_logout">customer_logout</h3>
+<p><strong>Dispatched:</strong> After customer logout
+<strong>Location:</strong> <code>Magento\Customer\Model\Session::logout()</code></p>
+<p><strong>Event Data:</strong>
+- <code>customer</code> - Customer model object</p>
+<p><strong>Use Cases:</strong>
+- Clear customer-specific cache
+- Log logout event
+- Update session analytics</p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Observer;
+
+use Magento\Framework\Event\Observer;
+use Magento\Framework\Event\ObserverInterface;
+use Psr\Log\LoggerInterface;
+
+class CustomerLogoutObserver implements ObserverInterface
+{
+    public function __construct(
+        private readonly LoggerInterface $logger
+    ) {}
+
+    /**
+     * Log customer logout
+     *
+     * @param Observer $observer
+     * @return void
+     */
+    public function execute(Observer $observer): void
+    {
+        $customer = $observer-&gt;getEvent()-&gt;getCustomer();
+
+        $this-&gt;logger-&gt;info('Customer logged out', [
+            'customer_id' =&gt; $customer-&gt;getId(),
+            'email' =&gt; $customer-&gt;getEmail()
+        ]);
+    }
+}
+</code></pre>
+<h3 id="customer_save_before">customer_save_before</h3>
+<p><strong>Dispatched:</strong> Before customer entity is saved
+<strong>Location:</strong> <code>Magento\Framework\Model\AbstractModel::beforeSave()</code> (dispatched by framework, not ResourceModel)</p>
+<p><strong>Event Data:</strong>
+- <code>customer</code> - Customer model object
+- <code>data_object</code> - Customer data object</p>
+<p><strong>Use Cases:</strong>
+- Modify customer data before save
+- Add custom validation
+- Generate computed fields</p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Observer;
+
+use Magento\Customer\Model\Customer;
+use Magento\Framework\Event\Observer;
+use Magento\Framework\Event\ObserverInterface;
+
+class CustomerSaveBeforeObserver implements ObserverInterface
+{
+    /**
+     * Generate customer display name
+     *
+     * @param Observer $observer
+     * @return void
+     */
+    public function execute(Observer $observer): void
+    {
+        /** @var Customer $customer */
+        $customer = $observer-&gt;getEvent()-&gt;getCustomer();
+
+        // Generate full display name
+        $displayName = trim(sprintf(
+            '%s %s %s %s',
+            $customer-&gt;getPrefix() ?? '',
+            $customer-&gt;getFirstname(),
+            $customer-&gt;getMiddlename() ?? '',
+            $customer-&gt;getLastname()
+        ));
+
+        $customer-&gt;setData('display_name', $displayName);
+    }
+}
+</code></pre>
+<h3 id="customer_save_after">customer_save_after</h3>
+<p><strong>Dispatched:</strong> After customer entity is saved
+<strong>Location:</strong> <code>Magento\Framework\Model\AbstractModel::afterSave()</code> (dispatched by framework, not ResourceModel)</p>
+<p><strong>Event Data:</strong>
+- <code>customer</code> - Customer model object
+- <code>data_object</code> - Customer data object</p>
+<p><strong>Use Cases:</strong>
+- Sync to external systems
+- Invalidate cache
+- Update related entities</p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Observer;
+
+use Magento\Customer\Model\Customer;
+use Magento\Framework\Event\Observer;
+use Magento\Framework\Event\ObserverInterface;
+use Vendor\Module\Service\CustomerIndexService;
+
+class CustomerSaveAfterObserver implements ObserverInterface
+{
+    public function __construct(
+        private readonly CustomerIndexService $indexer
+    ) {}
+
+    /**
+     * Reindex customer data
+     *
+     * @param Observer $observer
+     * @return void
+     */
+    public function execute(Observer $observer): void
+    {
+        /** @var Customer $customer */
+        $customer = $observer-&gt;getEvent()-&gt;getCustomer();
+
+        // Queue reindex
+        $this-&gt;indexer-&gt;scheduleReindex((int)$customer-&gt;getId());
+    }
+}
+</code></pre>
+<h3 id="customer_delete_before">customer_delete_before</h3>
+<p><strong>Dispatched:</strong> Before customer is deleted
+<strong>Location:</strong> <code>Magento\Framework\Model\AbstractModel::beforeDelete()</code> (dispatched by framework, not ResourceModel)</p>
+<p><strong>Event Data:</strong>
+- <code>customer</code> - Customer model object</p>
+<p><strong>Use Cases:</strong>
+- Archive customer data
+- Remove related data
+- GDPR compliance logging</p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Observer;
+
+use Magento\Customer\Model\Customer;
+use Magento\Framework\Event\Observer;
+use Magento\Framework\Event\ObserverInterface;
+use Vendor\Module\Service\GdprArchiveService;
+
+class CustomerDeleteBeforeObserver implements ObserverInterface
+{
+    public function __construct(
+        private readonly GdprArchiveService $archive
+    ) {}
+
+    /**
+     * Archive customer data before deletion
+     *
+     * @param Observer $observer
+     * @return void
+     */
+    public function execute(Observer $observer): void
+    {
+        /** @var Customer $customer */
+        $customer = $observer-&gt;getEvent()-&gt;getCustomer();
+
+        // Archive for GDPR compliance
+        $this-&gt;archive-&gt;archiveCustomerData($customer);
+    }
+}
+</code></pre>
+<hr />
+<h2 id="address-events">Address Events</h2>
+<h3 id="customer_address_save_before-customer_address_save_after">customer_address_save_before / customer_address_save_after</h3>
+<p><strong>Use Cases:</strong>
+- Validate address with external service
+- Geocode address coordinates
+- Update address book in ERP</p>
+<h3 id="customer_address_delete_before-customer_address_delete_after">customer_address_delete_before / customer_address_delete_after</h3>
+<p><strong>Use Cases:</strong>
+- Clean up related data
+- Update external systems</p>
+<hr />
+<h2 id="group-assignment-events">Group Assignment Events</h2>
+<h3 id="customer_group_save_after">customer_group_save_after</h3>
+<p><strong>Dispatched:</strong> After customer group is saved</p>
+<p><strong>Use Case:</strong> Update pricing rules, invalidate cache</p>
+<hr />
+<h2 id="real-world-use-cases">Real-World Use Cases</h2>
+<h3 id="use-case-1-two-factor-authentication-integration">Use Case 1: Two-Factor Authentication Integration</h3>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Plugin\Customer\Model;
+
+use Magento\Customer\Api\AccountManagementInterface;
+use Magento\Customer\Api\Data\CustomerInterface;
+use Magento\Framework\Exception\AuthenticationException;
+use Vendor\Module\Service\TwoFactorAuthService;
+
+class AccountManagementTwoFactorExtend
+{
+    public function __construct(
+        private readonly TwoFactorAuthService $twoFactorAuth
+    ) {}
+
+    /**
+     * Require 2FA after password authentication
+     *
+     * @param AccountManagementInterface $subject
+     * @param CustomerInterface $result
+     * @return CustomerInterface
+     * @throws AuthenticationException
+     */
+    public function afterAuthenticate(
+        AccountManagementInterface $subject,
+        CustomerInterface $result
+    ): CustomerInterface {
+        // Check if customer has 2FA enabled
+        if ($this-&gt;twoFactorAuth-&gt;isEnabledForCustomer((int)$result-&gt;getId())) {
+            // Store pending authentication state
+            $this-&gt;twoFactorAuth-&gt;setPendingAuthentication((int)$result-&gt;getId());
+
+            throw new AuthenticationException(
+                __('Two-factor authentication required. Please enter your code.')
+            );
+        }
+
+        return $result;
+    }
+}
+</code></pre>
+<h3 id="use-case-2-customer-tier-auto-assignment">Use Case 2: Customer Tier Auto-Assignment</h3>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Observer;
+
+use Magento\Customer\Model\Customer;
+use Magento\Framework\Event\Observer;
+use Magento\Framework\Event\ObserverInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Framework\Api\SearchCriteriaBuilder;
+
+class CustomerTierAssignmentObserver implements ObserverInterface
+{
+    public function __construct(
+        private readonly OrderRepositoryInterface $orderRepository,
+        private readonly SearchCriteriaBuilder $searchCriteriaBuilder
+    ) {}
+
+    /**
+     * Auto-assign customer tier based on order history
+     *
+     * @param Observer $observer
+     * @return void
+     */
+    public function execute(Observer $observer): void
+    {
+        /** @var Customer $customer */
+        $customer = $observer-&gt;getEvent()-&gt;getCustomer();
+
+        // Calculate total order value
+        $searchCriteria = $this-&gt;searchCriteriaBuilder
+            -&gt;addFilter('customer_id', $customer-&gt;getId())
+            -&gt;create();
+
+        $orders = $this-&gt;orderRepository-&gt;getList($searchCriteria);
+        $totalSpent = 0;
+
+        foreach ($orders-&gt;getItems() as $order) {
+            $totalSpent += (float)$order-&gt;getGrandTotal();
+        }
+
+        // Assign tier based on spend
+        if ($totalSpent &gt;= 10000) {
+            $customer-&gt;setGroupId(4); // VIP group
+        } elseif ($totalSpent &gt;= 5000) {
+            $customer-&gt;setGroupId(3); // Premium group
+        } elseif ($totalSpent &gt;= 1000) {
+            $customer-&gt;setGroupId(2); // Regular group
+        }
+
+        $customer-&gt;save();
+    }
+}
+</code></pre>
+<hr />
+<h2 id="observer-registration">Observer Registration</h2>
+<pre><code class="language-xml">&lt;!-- etc/events.xml (global) --&gt;
+&lt;config xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+        xsi:noNamespaceSchemaLocation=&quot;urn:magento:framework:Event/etc/events.xsd&quot;&gt;
+    &lt;event name=&quot;customer_save_after&quot;&gt;
+        &lt;observer name=&quot;vendor_module_customer_save_after&quot;
+                  instance=&quot;Vendor\Module\Observer\CustomerSaveAfterObserver&quot;
+                  shared=&quot;false&quot; /&gt;
+    &lt;/event&gt;
+&lt;/config&gt;
+
+&lt;!-- etc/frontend/events.xml (frontend only) --&gt;
+&lt;config xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+        xsi:noNamespaceSchemaLocation=&quot;urn:magento:framework:Event/etc/events.xsd&quot;&gt;
+    &lt;event name=&quot;customer_login&quot;&gt;
+        &lt;observer name=&quot;vendor_module_customer_login&quot;
+                  instance=&quot;Vendor\Module\Observer\CustomerLoginObserver&quot; /&gt;
+    &lt;/event&gt;
+    &lt;event name=&quot;customer_logout&quot;&gt;
+        &lt;observer name=&quot;vendor_module_customer_logout&quot;
+                  instance=&quot;Vendor\Module\Observer\CustomerLogoutObserver&quot; /&gt;
+    &lt;/event&gt;
+&lt;/config&gt;
+
+&lt;!-- etc/adminhtml/events.xml (admin only) --&gt;
+&lt;config xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+        xsi:noNamespaceSchemaLocation=&quot;urn:magento:framework:Event/etc/events.xsd&quot;&gt;
+    &lt;event name=&quot;customer_save_before&quot;&gt;
+        &lt;observer name=&quot;vendor_module_admin_customer_save_before&quot;
+                  instance=&quot;Vendor\Module\Observer\AdminCustomerSaveBeforeObserver&quot; /&gt;
+    &lt;/event&gt;
+&lt;/config&gt;
+</code></pre>
+<hr />
+<h2 id="best-practices">Best Practices</h2>
+<h3 id="plugin-best-practices">Plugin Best Practices</h3>
+<ol>
+<li><strong>Use Specific Sort Order:</strong> Define explicit <code>sortOrder</code> to control execution sequence</li>
+<li><strong>Prefer After Over Around:</strong> Use <code>around</code> only when absolutely necessary (performance impact)</li>
+<li><strong>Don't Modify Arguments in After:</strong> After plugins should only modify return values</li>
+<li><strong>Return Original Value:</strong> Before plugins must return arguments array</li>
+<li><strong>Handle Exceptions:</strong> Catch and log exceptions to prevent breaking core functionality</li>
+</ol>
+<h3 id="observer-best-practices">Observer Best Practices</h3>
+<ol>
+<li><strong>Keep Logic Lightweight:</strong> Heavy operations should use message queues</li>
+<li><strong>Don't Throw Exceptions:</strong> Observers shouldn't break core flow (log errors instead)</li>
+<li><strong>Use Appropriate Area:</strong> Register in correct <code>events.xml</code> (global/frontend/adminhtml)</li>
+<li><strong>Avoid Direct Model Save:</strong> Use repositories to trigger proper events and validation</li>
+<li><strong>Set shared="false":</strong> For observers that maintain state, prevent singleton issues</li>
+</ol>
+<hr />
+<h2 id="assumptions">Assumptions</h2>
+<ul>
+<li><strong>Target Platform:</strong> Adobe Commerce / Magento Open Source 2.4.7+</li>
+<li><strong>PHP Version:</strong> 8.2+</li>
+<li><strong>Plugin Scope:</strong> Plugins apply to all areas unless specified in area-specific <code>di.xml</code></li>
+<li><strong>Observer Scope:</strong> Observers registered in appropriate area configuration</li>
+</ul>
+<h2 id="why-this-approach">Why This Approach</h2>
+<p>Plugins and observers provide upgrade-safe extension points that don't require core modifications. Service contract plugins ensure API consistency across REST, GraphQL, and PHP integrations, while observers enable loosely coupled reactions to business events.</p>
+<h2 id="security-impact">Security Impact</h2>
+<ul>
+<li><strong>Authorization:</strong> Plugins and observers have full access; implement proper validation</li>
+<li><strong>Data Exposure:</strong> Be cautious logging customer PII in plugins/observers</li>
+<li><strong>Exception Handling:</strong> Plugins can block execution; observers should fail gracefully</li>
+</ul>
+<h2 id="performance-impact">Performance Impact</h2>
+<ul>
+<li><strong>Around Plugins:</strong> Highest overhead; use sparingly</li>
+<li><strong>Observer Chains:</strong> Multiple observers on same event execute sequentially</li>
+<li><strong>Heavy Operations:</strong> Use message queues for time-consuming tasks</li>
+</ul>
+<h2 id="backward-compatibility">Backward Compatibility</h2>
+<ul>
+<li><strong>Plugin Stability:</strong> Plugin on service contracts safe across minor versions</li>
+<li><strong>Event Stability:</strong> Events never removed, only added</li>
+<li><strong>Observer Registration:</strong> Configuration format stable</li>
+</ul>
+<h2 id="tests-to-add">Tests to Add</h2>
+<ul>
+<li><strong>Unit:</strong> Test observer and plugin logic in isolation with mocks</li>
+<li><strong>Integration:</strong> Test observer/plugin execution in real Magento context</li>
+<li><strong>MFTF:</strong> Test end-to-end flows that trigger plugins/observers</li>
+</ul>
+<h2 id="docs-to-update">Docs to Update</h2>
+<ul>
+<li><strong>README.md:</strong> List available extension points</li>
+<li><strong>PLUGINS_AND_OBSERVERS.md:</strong> This document</li>
+<li><strong>CHANGELOG.md:</strong> Document new events added in version updates</li>
+</ul>
+                    </div>
+                </article>
+            </main>
+            <!-- Right Sidebar: On This Page (desktop) -->
+            <aside class="toc-sidebar hidden xl:block" aria-label="On this page">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-semibold text-gray-900 uppercase tracking-wider mb-4 mt-0">On this page</h3>
+                    <nav id="toc-nav" class="space-y-0" aria-label="Table of contents"></nav>
+                    <div class="toc-back-to-top">
+                        <a href="#">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+                            </svg>
+                            Back to top
+                        </a>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- ================================================================
+         FOOTER — matches module-catalog.html multi-column layout exactly
+         ================================================================ -->
+    <footer class="relative pt-12 bg-white border-t border-charcoal mt-16">
+        <div class="max-w-screen-2xl mx-auto w-full px-4 sm:px-6 lg:px-8">
+            <div>
+                <a href="index.html" class="inline-flex items-center no-underline">
+                    <svg width="30" height="33" viewBox="0 0 30 33" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Magento Association logo" role="img">
+                        <path d="M0 4.06492H29.6763V31.8882C29.6763 32.502 29.1713 33 28.5487 33H1.12762C0.505079 33 0 32.502 0 31.8882V4.06492Z" fill="#34323A"/>
+                        <path d="M1.26857 0H28.4078C29.1066 0 29.6763 0.561678 29.6763 1.25075V4.06492H0V1.25075C0 0.561678 0.569682 0 1.26857 0Z" fill="#C9C9C9"/>
+                        <path d="M2.37269 3.0458C2.94031 3.0458 3.40046 2.59211 3.40046 2.03246C3.40046 1.47281 2.94031 1.01913 2.37269 1.01913C1.80506 1.01913 1.34491 1.47281 1.34491 2.03246C1.34491 2.59211 1.80506 3.0458 2.37269 3.0458Z" fill="#848484"/>
+                        <path d="M5.28571 3.0458C5.85334 3.0458 6.31349 2.59211 6.31349 2.03246C6.31349 1.47281 5.85334 1.01913 5.28571 1.01913C4.71809 1.01913 4.25793 1.47281 4.25793 2.03246C4.25793 2.59211 4.71809 3.0458 5.28571 3.0458Z" fill="#848484"/>
+                        <path d="M14.7883 7.46973L4.90405 13.0923V24.349L7.54104 25.8487V14.5978L14.7883 10.4692L22.0415 14.5978V25.8487L24.6785 24.349V13.0923L14.7883 7.46973Z" fill="#F1BC1B"/>
+                        <path d="M16.0862 26.2367L14.7883 26.9779L13.4492 26.2135V14.233L10.178 16.0975V27.3485L13.4492 29.213L14.7883 29.9773L16.0862 29.2362L19.4045 27.3485V16.0975L16.0862 14.2098V26.2367Z" fill="#F1BC1B"/>
+                    </svg>
+                    <span class="ml-3 text-xl font-bold text-charcoal">Developer Documentation</span>
+                </a>
+            </div>
+
+            <div class="grid grid-cols-12 md:gap-x-8 gap-y-12 lg:mt-12">
+                <div class="col-span-12 lg:col-span-4">
+                    <p class="hidden lg:block text-xs text-charcoal sm:text-sm">Comprehensive developer documentation for Magento 2.4.7+ — tutorials, architecture deep dives, module references, and production-ready patterns built by the community, for the community.</p>
+                    <ul class="mt-6 hidden lg:flex items-center gap-3">
+                        <li class="pl-0">
+                            <a href="https://github.com/magento/magento2" class="p-2 md:p-0" aria-label="GitHub">
+                                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                                </svg>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Guides</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="tutorials.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Tutorials</a></li>
+                            <li class="pl-0"><a href="how-to-guides.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">How-To Guides</a></li>
+                            <li class="pl-0"><a href="architecture.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Architecture</a></li>
+                            <li class="pl-0"><a href="learning-paths.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Learning Paths</a></li>
+                            <li class="pl-0"><a href="references.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">References</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Modules</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="module-catalog.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Catalog</a></li>
+                            <li class="pl-0"><a href="module-checkout.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Checkout</a></li>
+                            <li class="pl-0"><a href="module-sales.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Sales</a></li>
+                            <li class="pl-0"><a href="module-customer.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Customer</a></li>
+                            <li class="pl-0"><a href="module-quote.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Quote</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Community</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Magento Community</a></li>
+                            <li class="pl-0"><a href="https://magento.stackexchange.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Stack Exchange</a></li>
+                            <li class="pl-0"><a href="https://marketplace.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Marketplace</a></li>
+                            <li class="pl-0"><a href="https://github.com/magento/magento2" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">GitHub</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Support</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://github.com/magento/magento2/issues" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Report Issues</a></li>
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Community Resources</a></li>
+                            <li class="pl-0"><a href="https://developer.adobe.com/commerce/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Adobe Commerce Docs</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-12 border-t pt-6 pb-16 border-charcoal">
+                <p class="text-xs text-charcoal">
+                    &copy; 2026 Magento 2 Developer Documentation. Magento&reg; is a registered trademark of Adobe Inc.
+                </p>
+                <p class="mt-6 text-xs text-charcoal">
+                    This documentation provides guidance for Magento 2 developers and extension builders. For merchant documentation, visit the <a href="index.html" class="text-orange hover:text-orange-600 transition-colors">merchant documentation</a>.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Initialize highlight.js -->
+    <script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('pre code').forEach(function (el) {
+        hljs.highlightElement(el);
+    });
+    document.querySelectorAll('pre').forEach(function (pre) {
+        if (pre.parentNode.classList && pre.parentNode.classList.contains('code-wrapper')) return;
+        var wrapper = document.createElement('div');
+        wrapper.className = 'code-wrapper';
+        pre.parentNode.insertBefore(wrapper, pre);
+        wrapper.appendChild(pre);
+        var btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.setAttribute('type', 'button');
+        btn.setAttribute('aria-label', 'Copy code to clipboard');
+        btn.setAttribute('title', 'Copy');
+        btn.textContent = 'Copy';
+        wrapper.appendChild(btn);
+        btn.addEventListener('click', function () {
+            var code = pre.querySelector('code');
+            var text = code ? (code.innerText || code.textContent) : (pre.innerText || pre.textContent);
+            navigator.clipboard.writeText(text).then(function () {
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            }).catch(function () {
+                var range = document.createRange();
+                range.selectNode(code || pre);
+                window.getSelection().removeAllRanges();
+                window.getSelection().addRange(range);
+                document.execCommand('copy');
+                window.getSelection().removeAllRanges();
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            });
+        });
+    });
+});
+</script>
+
+
+<script>
+(function() {
+    var nav = document.getElementById('toc-nav');
+    if (!nav) return;
+    var article = document.getElementById('main-content');
+    if (!article) return;
+    var headings = article.querySelectorAll('h2[id], h3[id]');
+    if (headings.length < 3) {
+        // Hide the entire TOC sidebar if fewer than 3 headings
+        var sidebar = nav.closest('.toc-sidebar');
+        if (sidebar) sidebar.style.display = 'none';
+        return;
+    }
+    var ids = [];
+    headings.forEach(function(h) {
+        var a = document.createElement('a');
+        a.href = '#' + h.id;
+        a.textContent = h.textContent.replace(/^#+\s*/, '').replace(/\s+/g, ' ').trim();
+        if (h.tagName === 'H3') a.classList.add('toc-h3');
+        nav.appendChild(a);
+        ids.push(h.id);
+    });
+    // Scroll-spy with IntersectionObserver
+    var links = nav.querySelectorAll('a');
+    var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                links.forEach(function(l) { l.classList.remove('toc-active'); });
+                var active = nav.querySelector('a[href="#' + entry.target.id + '"]');
+                if (active) active.classList.add('toc-active');
+            }
+        });
+    }, { rootMargin: '-80px 0px -70% 0px', threshold: 0 });
+    headings.forEach(function(h) { observer.observe(h); });
+})();
+</script>
+</body>
+</html>

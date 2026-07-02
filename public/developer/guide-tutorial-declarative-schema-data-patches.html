@@ -1,0 +1,2233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Declarative Schema & Data Patches: Modern Database Management in Magento 2 — Magento 2 Developer Documentation</title>
+    <meta name="description" content="Complete guide to declarative schema (db_schema.xml) and data/schema patches in Magento 2.4.7+: create tables, manage indexes, foreign keys, versioning, migrations, and rollback strategies">
+
+    <!-- Google Fonts: Inter Tight only. Courier New used for code. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Highlight.js: syntax highlighting for code blocks -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/php.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/ini.min.js"></script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        charcoal: {
+                            DEFAULT: '#2c2c2c', 50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6',
+                            300: '#6B6B6B', 400: '#474747', 500: '#2c2c2c', 600: '#262626',
+                            700: '#202020', 800: '#1c1c1c', 900: '#191919', 950: '#121212'
+                        },
+                        orange: {
+                            DEFAULT: '#D4551A', 50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad',
+                            300: '#f9ae78', 400: '#f58242', 500: '#f26423', 600: '#e34613',
+                            700: '#bc3312', 800: '#962a16', 900: '#792515', 950: '#411009'
+                        },
+                        yellow: {
+                            DEFAULT: '#B8860B', 50: '#fffdeb', 100: '#fdf9c8', 200: '#fbf38c',
+                            300: '#f8e651', 400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a',
+                            700: '#b1670c', 800: '#8f5111', 900: '#764311', 950: '#442204'
+                        },
+                        'off-white': '#FAFAFA',
+                    },
+                    fontFamily: {
+                        sans: ['Inter Tight', 'system-ui', '-apple-system', 'sans-serif'],
+                        mono: ['Courier New', 'Courier', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* ── Force light mode ── */
+        :root { color-scheme: light only; }
+
+        [x-cloak] { display: none !important; }
+
+        /* ── Scroll offset for sticky header ── */
+        .prose h2, .prose h3 { scroll-margin-top: 5rem; }
+
+        /* ── Code blocks: Bauhaus charcoal bg, no border-radius, highlight.js override ── */
+        .prose pre {
+            background-color: #2C2C2C !important;
+            border-radius: 0 !important;
+            padding: 1.25rem;
+            overflow-x: auto;
+            font-size: 0.875rem;
+            line-height: 1.7;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 1.5rem 0;
+        }
+        .prose pre code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            background: transparent !important;
+            padding: 0;
+                    color: #abb2bf;
+        }
+        /* Override highlight.js theme background to match Bauhaus charcoal */
+        .hljs {
+            background: #2C2C2C !important;
+            color: #abb2bf !important;
+            border-radius: 0 !important;
+        }
+
+        /* ── Inline code: charcoal bg, yellow text, no border-radius ── */
+        .prose code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.85em;
+        }
+        .prose :not(pre) > code {
+            background-color: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2em 0.45em;
+            border-radius: 0;
+        }
+
+        /* ── Step-code: same charcoal/yellow style for UI path chips ── */
+        .step-code {
+            background: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2rem 0.5rem;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            border-radius: 0;
+        }
+
+        /* ── Tables: no border-radius, charcoal header ── */
+        .prose table { width: 100%; border-collapse: collapse; }
+        .prose th {
+            background-color: #2C2C2C;
+            color: #ffffff;
+            font-weight: 600;
+            text-align: left;
+            padding: 0.75rem 1rem;
+            border-bottom: 2px solid #2C2C2C;
+            border-radius: 0;
+        }
+        .prose td { padding: 0.75rem 1rem; border-bottom: 1px solid #e5e5e5; }
+        .prose tr:hover { background-color: #fafafa; }
+
+        /* ── Blockquote: Bauhaus style — border-4 yellow, square, no left-only border ── */
+        .prose blockquote {
+            border: 4px solid #F1BC1B;
+            background-color: #ffffff;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+            border-radius: 0;
+        }
+        .prose blockquote p { margin: 0; }
+
+        /* ── Lists: hexagon bullets ── */
+        .prose ul { list-style: none; padding-left: 0; }
+        .prose ul li {
+            position: relative;
+            padding-left: 1.75rem;
+            margin-bottom: 0.4rem;
+            line-height: 1.7;
+        }
+        .prose ul li::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0.45em;
+            width: 10px;
+            height: 10px;
+            background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 2L21 7V17L12 22L3 17V7L12 2Z' stroke='%23F26423' stroke-width='2.5' stroke-linejoin='miter'/%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+        .prose ol { list-style-type: decimal; padding-left: 1.5rem; }
+        .prose li { margin-bottom: 0.4rem; }
+
+        /* ── Headings ── */
+        .prose h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            padding-top: 1.5rem;
+            border-top: 4px solid #F1BC1B;
+            color: #2C2C2C;
+        }
+        .prose h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+            color: #2C2C2C;
+        }
+        .prose h4 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #2C2C2C;
+        }
+        .prose p { margin-bottom: 1rem; line-height: 1.75; }
+        .prose a { color: #D4551A; text-decoration: none; }
+        .prose a:hover { color: #e34613; text-decoration: underline; }
+        .prose hr { border: none; border-top: 1px solid #e5e5e5; margin: 2rem 0; }
+
+        /* ── Callout boxes: Bauhaus — border-4 yellow, white bg, icon + title ── */
+        .callout-box {
+            background-color: #ffffff;
+            border: 4px solid #F1BC1B;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+        }
+        .callout-warning {
+            border-color: #D4551A;
+        }
+        .callout-important {
+            border-color: #2C2C2C;
+        }
+        .callout-box .callout-inner {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+        .callout-box .callout-title {
+            font-weight: 600;
+            color: #2C2C2C;
+            margin-bottom: 0.25rem;
+        }
+        .callout-box .callout-body {
+            font-size: 0.875rem;
+            line-height: 1.6;
+            color: rgba(44,44,44,0.85);
+        }
+
+        
+    
+        /* Code block copy button */
+        .code-wrapper {
+            position: relative;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            font-family: 'Inter Tight', system-ui, sans-serif;
+            background: rgba(255,255,255,0.1);
+            color: #abb2bf;
+            border: 1px solid rgba(255,255,255,0.15);
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.15s ease, background 0.15s ease;
+            z-index: 10;
+            line-height: 1.4;
+            border-radius: 4px;
+            user-select: none;
+        }
+        .code-wrapper:hover .copy-btn {
+            opacity: 1;
+        }
+        .copy-btn:hover,
+        .copy-btn:focus {
+            background: rgba(255,255,255,0.2);
+            color: #ffffff;
+            outline: 2px solid #D4551A;
+            outline-offset: 1px;
+        }
+        .copy-btn.copied {
+            color: #98c379;
+            background: rgba(152, 195, 121, 0.15);
+            opacity: 1;
+        }
+    
+        /* Right-hand TOC sidebar */
+        .toc-sidebar {
+            width: 14rem;
+            flex-shrink: 0;
+        }
+        .toc-sidebar a {
+            display: block;
+            padding: 0.375rem 0;
+            font-size: 0.8125rem;
+            line-height: 1.4;
+            color: #6b7280;
+            text-decoration: none;
+            transition: color 0.15s ease;
+            border-left: 2px solid transparent;
+            padding-left: 0.75rem;
+        }
+        .toc-sidebar a:hover {
+            color: #111827;
+        }
+        .toc-sidebar a.toc-active {
+            color: #ea580c;
+            border-left-color: #ea580c;
+            font-weight: 500;
+        }
+        .toc-sidebar a.toc-h3 {
+            padding-left: 1.5rem;
+            font-size: 0.75rem;
+        }
+        .toc-sidebar .toc-back-to-top {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e5e7eb;
+        }
+        .toc-sidebar .toc-back-to-top a {
+            border-left: none;
+            padding-left: 0;
+            font-weight: 500;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .toc-sidebar .toc-back-to-top a:hover {
+            color: #ea580c;
+        }
+    </style>
+</head>
+
+<body class="font-sans bg-off-white text-charcoal">
+
+    <!-- Shared header — single source of truth -->
+    <script src="includes/header.js"></script>
+
+    <!-- Breadcrumb — orange › separators -->
+    <div class="bg-white border-b border-gray-100">
+        <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <div class="flex items-center gap-2 text-sm flex-wrap">
+                <a href="index.html" class="text-orange hover:text-orange-600 transition-colors no-underline">Home</a> <span class="text-orange font-medium">›</span> <a href="index.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">Guides</a> <span class="text-orange font-medium">›</span> <a href="tutorials.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">Tutorials</a> <span class="text-orange font-medium">›</span> <span class="text-charcoal font-medium">Declarative Schema & Data Patches: Modern Database Management in Magento 2</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="flex gap-8">
+
+            <!-- Left Sidebar (desktop) -->
+            <aside class="hidden lg:block w-64 flex-shrink-0">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4">Tutorials</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="guide-tutorial-custom-payment-method.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Custom Payment Method Developmen...</a></li>
+<li class="pl-0"><a href="guide-tutorial-custom-shipping-method.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Custom Shipping Method Developme...</a></li>
+<li class="pl-0"><a href="guide-tutorial-declarative-schema-data-patches.html" class="block px-3 py-2 text-sm text-orange font-semibold bg-orange-50 border-l-4 border-orange pl-2 transition-colors no-underline">Declarative Schema & Data Patche...</a></li>
+<li class="pl-0"><a href="guide-tutorial-docker-development-environment.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Docker Development Environment S...</a></li>
+<li class="pl-0"><a href="guide-tutorial-plugin-system-deep-dive.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Plugin System Deep Dive: Masteri...</a></li>
+<li class="pl-0"><a href="guide-tutorial-product-types.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Product Types Development</a></li>
+</ul>
+<h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4 mt-8">Guide Sections</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="tutorials.html" class="block px-3 py-2 text-sm text-orange font-semibold bg-orange-50 border-l-4 border-orange pl-2 transition-colors no-underline">Tutorials</a></li>
+<li class="pl-0"><a href="how-to-guides.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">How-To Guides</a></li>
+<li class="pl-0"><a href="architecture.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Architecture</a></li>
+<li class="pl-0"><a href="references.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">References</a></li>
+</ul>
+                </div>
+            </aside>
+
+            <!-- Article — square corners, border-t-4 orange accent -->
+            <main id="main-content" class="flex-1 min-w-0">
+                <article class="bg-white shadow-sm border border-gray-100 border-t-4 border-t-orange p-8 md:p-12">
+                    <!-- Title block -->
+                    <div class="mb-8">
+                        <span class="inline-block px-3 py-1.5 text-xs font-medium bg-orange-50 text-orange-700 border border-orange-200">Tutorial</span>
+                        <h1 class="text-3xl md:text-4xl font-extrabold text-charcoal mt-3 mb-3">Declarative Schema & Data Patches: Modern Database Management in Magento 2</h1>
+                        <p class="text-charcoal-300 text-lg mb-4">Complete guide to declarative schema (db_schema.xml) and data/schema patches in Magento 2.4.7+: create tables, manage indexes, foreign keys, versioning, migrations, and rollback strategies</p>
+                        <!-- Meta pills -->
+                        <div class="flex flex-wrap gap-2"><span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-yellow-50 text-yellow-800"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>Intermediate</span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-orange-50 text-orange-700"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>75 minutes</span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-charcoal text-white">Magento 2.4.7+</span></div>
+                    </div>
+
+                    <hr class="border-0 border-t border-gray-100 mb-8">
+
+                    <!-- Content -->
+                    <div class="prose max-w-none">
+                        <h1 id="declarative-schema-data-patches-modern-database-management-in-magento-2">Declarative Schema &amp; Data Patches: Modern Database Management in Magento 2</h1>
+<h2 id="learning-objectives">Learning Objectives</h2>
+<p>By completing this tutorial, you will:</p>
+<ul>
+<li>Understand declarative schema architecture and advantages over legacy InstallSchema/UpgradeSchema</li>
+<li>Master <code>db_schema.xml</code> syntax for tables, columns, indexes, and foreign keys</li>
+<li>Create data patches (DataPatchInterface) for idempotent data modifications</li>
+<li>Create schema patches (SchemaPatchInterface) for complex schema changes</li>
+<li>Implement patch dependencies and versioning strategies</li>
+<li>Migrate legacy setup scripts to declarative schema</li>
+<li>Design rollback strategies for schema and data changes</li>
+<li>Optimize database performance with proper indexing and constraints</li>
+<li>Ensure upgrade-safe database modifications</li>
+</ul>
+<h2 id="introduction">Introduction</h2>
+<p>Magento 2.3+ introduced <strong>declarative schema</strong>, a paradigm shift from procedural setup scripts (InstallSchema, UpgradeSchema) to declarative configuration files (<code>db_schema.xml</code>). Instead of writing PHP code to describe <strong>how</strong> to change the database, you declare <strong>what</strong> the database should look like, and Magento calculates the necessary changes.</p>
+<h3 id="what-is-declarative-schema">What is Declarative Schema?</h3>
+<p>Declarative schema defines the <strong>desired state</strong> of your database structure in XML format. Magento compares this desired state with the current database state and generates the SQL needed to migrate from current to desired state.</p>
+<p><strong>Key files:</strong></p>
+<ol>
+<li><strong><code>etc/db_schema.xml</code></strong>: Declares tables, columns, indexes, constraints</li>
+<li><strong><code>etc/db_schema_whitelist.json</code></strong>: Tracks schema changes (auto-generated, never manually edit)</li>
+<li><strong><code>Setup/Patch/Data/*.php</code></strong>: Data patches for inserting/modifying data</li>
+<li><strong><code>Setup/Patch/Schema/*.php</code></strong>: Schema patches for complex changes that can't be expressed in XML</li>
+</ol>
+<h3 id="why-declarative-schema">Why Declarative Schema?</h3>
+<p><strong>Legacy approach (Magento 2.0-2.2):</strong></p>
+<pre><code class="language-php">// InstallSchema.php - Procedural, version-dependent
+public function install(SchemaSetupInterface $setup, ModuleContextInterface $context)
+{
+    $setup-&gt;startSetup();
+    $table = $setup-&gt;getConnection()-&gt;newTable(
+        $setup-&gt;getTable('vendor_table')
+    )-&gt;addColumn(
+        'entity_id',
+        \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+        null,
+        ['identity' =&gt; true, 'unsigned' =&gt; true, 'nullable' =&gt; false, 'primary' =&gt; true],
+        'Entity ID'
+    );
+    $setup-&gt;getConnection()-&gt;createTable($table);
+    $setup-&gt;endSetup();
+}
+</code></pre>
+<p><strong>Problems:</strong>
+- Version-dependent: Must track module versions
+- Error-prone: Easy to forget columns, indexes
+- No rollback: Upgrades are one-way
+- Difficult to maintain: Changes scattered across multiple upgrade scripts</p>
+<p><strong>Declarative approach (Magento 2.3+):</strong></p>
+<pre><code class="language-xml">&lt;!-- db_schema.xml - Declarative, version-independent --&gt;
+&lt;schema xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+        xsi:noNamespaceSchemaLocation=&quot;urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd&quot;&gt;
+    &lt;table name=&quot;vendor_table&quot; resource=&quot;default&quot; engine=&quot;innodb&quot; comment=&quot;Vendor Table&quot;&gt;
+        &lt;column xsi:type=&quot;int&quot; name=&quot;entity_id&quot; unsigned=&quot;true&quot; nullable=&quot;false&quot; identity=&quot;true&quot; comment=&quot;Entity ID&quot;/&gt;
+        &lt;constraint xsi:type=&quot;primary&quot; referenceId=&quot;PRIMARY&quot;&gt;
+            &lt;column name=&quot;entity_id&quot;/&gt;
+        &lt;/constraint&gt;
+    &lt;/table&gt;
+&lt;/schema&gt;
+</code></pre>
+<p><strong>Advantages:</strong>
+- <strong>Version-independent</strong>: No module version tracking
+- <strong>Declarative</strong>: Clear "what" not "how"
+- <strong>Rollback support</strong>: Can revert schema changes
+- <strong>Single source of truth</strong>: All schema in one file
+- <strong>Validation</strong>: XSD schema validation prevents errors
+- <strong>Dry-run</strong>: Preview changes before applying</p>
+<h3 id="when-to-use-db_schemaxml-vs-patches">When to Use db_schema.xml vs Patches</h3>
+<div class="overflow-x-auto my-6 border border-gray-200"><table class="min-w-full">
+<thead>
+<tr>
+<th>Task</th>
+<th>Use</th>
+<th>Reason</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Create table</td>
+<td><code>db_schema.xml</code></td>
+<td>Declarative structure</td>
+</tr>
+<tr>
+<td>Add column</td>
+<td><code>db_schema.xml</code></td>
+<td>Simple schema change</td>
+</tr>
+<tr>
+<td>Add index</td>
+<td><code>db_schema.xml</code></td>
+<td>Declarative indexing</td>
+</tr>
+<tr>
+<td>Add foreign key</td>
+<td><code>db_schema.xml</code></td>
+<td>Declarative constraint</td>
+</tr>
+<tr>
+<td>Insert initial data</td>
+<td>Data Patch</td>
+<td>Data operations</td>
+</tr>
+<tr>
+<td>Complex column transform</td>
+<td>Schema Patch</td>
+<td>Complex SQL logic</td>
+</tr>
+<tr>
+<td>Migrate data between tables</td>
+<td>Data Patch</td>
+<td>Data operations</td>
+</tr>
+<tr>
+<td>Add computed column</td>
+<td>Schema Patch</td>
+<td>SQL expressions not supported in XML</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="db_schemaxml-syntax">db_schema.xml Syntax</h2>
+<h3 id="complete-example">Complete Example</h3>
+<pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;schema xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+        xsi:noNamespaceSchemaLocation=&quot;urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd&quot;&gt;
+
+    &lt;!-- Main entity table --&gt;
+    &lt;table name=&quot;vendor_product_review&quot; resource=&quot;default&quot; engine=&quot;innodb&quot; comment=&quot;Product Review Table&quot;&gt;
+
+        &lt;!-- Columns --&gt;
+        &lt;column xsi:type=&quot;int&quot; name=&quot;review_id&quot; unsigned=&quot;true&quot; nullable=&quot;false&quot; identity=&quot;true&quot; comment=&quot;Review ID&quot;/&gt;
+        &lt;column xsi:type=&quot;int&quot; name=&quot;product_id&quot; unsigned=&quot;true&quot; nullable=&quot;false&quot; comment=&quot;Product ID&quot;/&gt;
+        &lt;column xsi:type=&quot;int&quot; name=&quot;customer_id&quot; unsigned=&quot;true&quot; nullable=&quot;true&quot; comment=&quot;Customer ID&quot;/&gt;
+        &lt;column xsi:type=&quot;varchar&quot; name=&quot;nickname&quot; nullable=&quot;false&quot; length=&quot;128&quot; comment=&quot;Nickname&quot;/&gt;
+        &lt;column xsi:type=&quot;varchar&quot; name=&quot;title&quot; nullable=&quot;false&quot; length=&quot;255&quot; comment=&quot;Review Title&quot;/&gt;
+        &lt;column xsi:type=&quot;text&quot; name=&quot;detail&quot; nullable=&quot;false&quot; comment=&quot;Review Detail&quot;/&gt;
+        &lt;column xsi:type=&quot;smallint&quot; name=&quot;rating&quot; unsigned=&quot;true&quot; nullable=&quot;false&quot; default=&quot;0&quot; comment=&quot;Rating (1-5)&quot;/&gt;
+        &lt;column xsi:type=&quot;smallint&quot; name=&quot;status&quot; unsigned=&quot;true&quot; nullable=&quot;false&quot; default=&quot;0&quot; comment=&quot;Status (0=pending, 1=approved)&quot;/&gt;
+        &lt;column xsi:type=&quot;timestamp&quot; name=&quot;created_at&quot; nullable=&quot;false&quot; default=&quot;CURRENT_TIMESTAMP&quot; comment=&quot;Creation Time&quot;/&gt;
+        &lt;column xsi:type=&quot;timestamp&quot; name=&quot;updated_at&quot; nullable=&quot;false&quot; default=&quot;CURRENT_TIMESTAMP&quot; on_update=&quot;true&quot; comment=&quot;Update Time&quot;/&gt;
+
+        &lt;!-- Primary Key --&gt;
+        &lt;constraint xsi:type=&quot;primary&quot; referenceId=&quot;PRIMARY&quot;&gt;
+            &lt;column name=&quot;review_id&quot;/&gt;
+        &lt;/constraint&gt;
+
+        &lt;!-- Foreign Keys --&gt;
+        &lt;constraint xsi:type=&quot;foreign&quot; referenceId=&quot;FK_REVIEW_PRODUCT_ID&quot;
+                    table=&quot;vendor_product_review&quot; column=&quot;product_id&quot;
+                    referenceTable=&quot;catalog_product_entity&quot; referenceColumn=&quot;entity_id&quot;
+                    onDelete=&quot;CASCADE&quot;/&gt;
+
+        &lt;constraint xsi:type=&quot;foreign&quot; referenceId=&quot;FK_REVIEW_CUSTOMER_ID&quot;
+                    table=&quot;vendor_product_review&quot; column=&quot;customer_id&quot;
+                    referenceTable=&quot;customer_entity&quot; referenceColumn=&quot;entity_id&quot;
+                    onDelete=&quot;SET NULL&quot;/&gt;
+
+        &lt;!-- Indexes --&gt;
+        &lt;index referenceId=&quot;VENDOR_REVIEW_PRODUCT_ID&quot; indexType=&quot;btree&quot;&gt;
+            &lt;column name=&quot;product_id&quot;/&gt;
+        &lt;/index&gt;
+
+        &lt;index referenceId=&quot;VENDOR_REVIEW_CUSTOMER_ID&quot; indexType=&quot;btree&quot;&gt;
+            &lt;column name=&quot;customer_id&quot;/&gt;
+        &lt;/index&gt;
+
+        &lt;index referenceId=&quot;VENDOR_REVIEW_STATUS_CREATED&quot; indexType=&quot;btree&quot;&gt;
+            &lt;column name=&quot;status&quot;/&gt;
+            &lt;column name=&quot;created_at&quot;/&gt;
+        &lt;/index&gt;
+
+        &lt;!-- Unique Constraint --&gt;
+        &lt;constraint xsi:type=&quot;unique&quot; referenceId=&quot;VENDOR_REVIEW_UNIQUE_CUSTOMER_PRODUCT&quot;&gt;
+            &lt;column name=&quot;customer_id&quot;/&gt;
+            &lt;column name=&quot;product_id&quot;/&gt;
+        &lt;/constraint&gt;
+
+    &lt;/table&gt;
+
+    &lt;!-- Join table for many-to-many relationship --&gt;
+    &lt;table name=&quot;vendor_review_tag&quot; resource=&quot;default&quot; engine=&quot;innodb&quot; comment=&quot;Review Tag Relation Table&quot;&gt;
+
+        &lt;column xsi:type=&quot;int&quot; name=&quot;review_id&quot; unsigned=&quot;true&quot; nullable=&quot;false&quot; comment=&quot;Review ID&quot;/&gt;
+        &lt;column xsi:type=&quot;int&quot; name=&quot;tag_id&quot; unsigned=&quot;true&quot; nullable=&quot;false&quot; comment=&quot;Tag ID&quot;/&gt;
+
+        &lt;constraint xsi:type=&quot;primary&quot; referenceId=&quot;PRIMARY&quot;&gt;
+            &lt;column name=&quot;review_id&quot;/&gt;
+            &lt;column name=&quot;tag_id&quot;/&gt;
+        &lt;/constraint&gt;
+
+        &lt;constraint xsi:type=&quot;foreign&quot; referenceId=&quot;FK_REVIEW_TAG_REVIEW_ID&quot;
+                    table=&quot;vendor_review_tag&quot; column=&quot;review_id&quot;
+                    referenceTable=&quot;vendor_product_review&quot; referenceColumn=&quot;review_id&quot;
+                    onDelete=&quot;CASCADE&quot;/&gt;
+
+        &lt;constraint xsi:type=&quot;foreign&quot; referenceId=&quot;FK_REVIEW_TAG_TAG_ID&quot;
+                    table=&quot;vendor_review_tag&quot; column=&quot;tag_id&quot;
+                    referenceTable=&quot;vendor_tag&quot; referenceColumn=&quot;tag_id&quot;
+                    onDelete=&quot;CASCADE&quot;/&gt;
+
+        &lt;index referenceId=&quot;VENDOR_REVIEW_TAG_TAG_ID&quot; indexType=&quot;btree&quot;&gt;
+            &lt;column name=&quot;tag_id&quot;/&gt;
+        &lt;/index&gt;
+
+    &lt;/table&gt;
+
+    &lt;!-- Tag table --&gt;
+    &lt;table name=&quot;vendor_tag&quot; resource=&quot;default&quot; engine=&quot;innodb&quot; comment=&quot;Tag Table&quot;&gt;
+
+        &lt;column xsi:type=&quot;int&quot; name=&quot;tag_id&quot; unsigned=&quot;true&quot; nullable=&quot;false&quot; identity=&quot;true&quot; comment=&quot;Tag ID&quot;/&gt;
+        &lt;column xsi:type=&quot;varchar&quot; name=&quot;name&quot; nullable=&quot;false&quot; length=&quot;64&quot; comment=&quot;Tag Name&quot;/&gt;
+
+        &lt;constraint xsi:type=&quot;primary&quot; referenceId=&quot;PRIMARY&quot;&gt;
+            &lt;column name=&quot;tag_id&quot;/&gt;
+        &lt;/constraint&gt;
+
+        &lt;constraint xsi:type=&quot;unique&quot; referenceId=&quot;VENDOR_TAG_UNIQUE_NAME&quot;&gt;
+            &lt;column name=&quot;name&quot;/&gt;
+        &lt;/constraint&gt;
+
+    &lt;/table&gt;
+
+&lt;/schema&gt;
+</code></pre>
+<h3 id="table-definition">Table Definition</h3>
+<pre><code class="language-xml">&lt;table name=&quot;vendor_table_name&quot;
+       resource=&quot;default&quot;
+       engine=&quot;innodb&quot;
+       comment=&quot;Human-readable description&quot;&gt;
+    &lt;!-- columns, constraints, indexes --&gt;
+&lt;/table&gt;
+</code></pre>
+<p><strong>Attributes:</strong></p>
+<div class="overflow-x-auto my-6 border border-gray-200"><table class="min-w-full">
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Required</th>
+<th>Description</th>
+<th>Values</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code></td>
+<td>Yes</td>
+<td>Table name (with vendor prefix)</td>
+<td><code>vendor_module_entity</code></td>
+</tr>
+<tr>
+<td><code>resource</code></td>
+<td>No</td>
+<td>Database resource (default: <code>default</code>)</td>
+<td><code>default</code>, <code>sales</code>, <code>checkout</code></td>
+</tr>
+<tr>
+<td><code>engine</code></td>
+<td>No</td>
+<td>Storage engine (default: <code>innodb</code>)</td>
+<td><code>innodb</code>, <code>memory</code></td>
+</tr>
+<tr>
+<td><code>comment</code></td>
+<td>No</td>
+<td>Table comment</td>
+<td>Any string</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Naming convention</strong>: <code>{vendor}_{module}_{entity}</code> (e.g., <code>acme_blog_post</code>)</p>
+<h3 id="column-types">Column Types</h3>
+<pre><code class="language-xml">&lt;!-- Integer types --&gt;
+&lt;column xsi:type=&quot;smallint&quot; name=&quot;status&quot; unsigned=&quot;true&quot; nullable=&quot;false&quot; default=&quot;0&quot;/&gt;
+&lt;column xsi:type=&quot;int&quot; name=&quot;entity_id&quot; unsigned=&quot;true&quot; nullable=&quot;false&quot; identity=&quot;true&quot;/&gt;
+&lt;column xsi:type=&quot;bigint&quot; name=&quot;large_number&quot; unsigned=&quot;false&quot; nullable=&quot;true&quot;/&gt;
+
+&lt;!-- Decimal/Float --&gt;
+&lt;column xsi:type=&quot;decimal&quot; name=&quot;price&quot; precision=&quot;12&quot; scale=&quot;4&quot; nullable=&quot;false&quot; default=&quot;0.0000&quot;/&gt;
+&lt;column xsi:type=&quot;float&quot; name=&quot;weight&quot; nullable=&quot;true&quot;/&gt;
+
+&lt;!-- String types --&gt;
+&lt;column xsi:type=&quot;varchar&quot; name=&quot;name&quot; length=&quot;255&quot; nullable=&quot;false&quot;/&gt;
+&lt;column xsi:type=&quot;text&quot; name=&quot;description&quot; nullable=&quot;true&quot;/&gt;
+&lt;column xsi:type=&quot;mediumtext&quot; name=&quot;content&quot; nullable=&quot;true&quot;/&gt;
+&lt;column xsi:type=&quot;longtext&quot; name=&quot;large_content&quot; nullable=&quot;true&quot;/&gt;
+
+&lt;!-- Date/Time --&gt;
+&lt;column xsi:type=&quot;timestamp&quot; name=&quot;created_at&quot; nullable=&quot;false&quot; default=&quot;CURRENT_TIMESTAMP&quot;/&gt;
+&lt;column xsi:type=&quot;timestamp&quot; name=&quot;updated_at&quot; nullable=&quot;false&quot; default=&quot;CURRENT_TIMESTAMP&quot; on_update=&quot;true&quot;/&gt;
+&lt;column xsi:type=&quot;date&quot; name=&quot;birth_date&quot; nullable=&quot;true&quot;/&gt;
+&lt;column xsi:type=&quot;datetime&quot; name=&quot;event_time&quot; nullable=&quot;true&quot;/&gt;
+
+&lt;!-- Binary --&gt;
+&lt;column xsi:type=&quot;blob&quot; name=&quot;binary_data&quot; nullable=&quot;true&quot;/&gt;
+&lt;column xsi:type=&quot;mediumblob&quot; name=&quot;medium_binary_data&quot; nullable=&quot;true&quot;/&gt;
+
+&lt;!-- Boolean (stored as smallint) --&gt;
+&lt;column xsi:type=&quot;boolean&quot; name=&quot;is_active&quot; nullable=&quot;false&quot; default=&quot;false&quot;/&gt;
+</code></pre>
+<p><strong>Column attributes:</strong></p>
+<div class="overflow-x-auto my-6 border border-gray-200"><table class="min-w-full">
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Required</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>xsi:type</code></td>
+<td>Yes</td>
+<td>Column data type</td>
+<td><code>int</code>, <code>varchar</code>, <code>text</code>, <code>timestamp</code></td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>Yes</td>
+<td>Column name</td>
+<td><code>entity_id</code>, <code>customer_name</code></td>
+</tr>
+<tr>
+<td><code>unsigned</code></td>
+<td>No</td>
+<td>Unsigned integer (int types only)</td>
+<td><code>true</code>, <code>false</code></td>
+</tr>
+<tr>
+<td><code>nullable</code></td>
+<td>No</td>
+<td>Allow NULL values (default: true)</td>
+<td><code>true</code>, <code>false</code></td>
+</tr>
+<tr>
+<td><code>identity</code></td>
+<td>No</td>
+<td>Auto-increment (int types only)</td>
+<td><code>true</code>, <code>false</code></td>
+</tr>
+<tr>
+<td><code>default</code></td>
+<td>No</td>
+<td>Default value</td>
+<td><code>0</code>, <code>''</code>, <code>CURRENT_TIMESTAMP</code></td>
+</tr>
+<tr>
+<td><code>length</code></td>
+<td>Conditional</td>
+<td>Length for varchar (required for varchar)</td>
+<td><code>255</code>, <code>128</code></td>
+</tr>
+<tr>
+<td><code>precision</code></td>
+<td>Conditional</td>
+<td>Total digits for decimal (required)</td>
+<td><code>12</code></td>
+</tr>
+<tr>
+<td><code>scale</code></td>
+<td>Conditional</td>
+<td>Decimal places for decimal (required)</td>
+<td><code>4</code></td>
+</tr>
+<tr>
+<td><code>on_update</code></td>
+<td>No</td>
+<td>Update timestamp on row update</td>
+<td><code>true</code> (timestamp only)</td>
+</tr>
+<tr>
+<td><code>comment</code></td>
+<td>No</td>
+<td>Column comment</td>
+<td>Any string</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="constraints">Constraints</h3>
+<h4 id="primary-key">Primary Key</h4>
+<pre><code class="language-xml">&lt;constraint xsi:type=&quot;primary&quot; referenceId=&quot;PRIMARY&quot;&gt;
+    &lt;column name=&quot;entity_id&quot;/&gt;
+&lt;/constraint&gt;
+
+&lt;!-- Composite primary key --&gt;
+&lt;constraint xsi:type=&quot;primary&quot; referenceId=&quot;PRIMARY&quot;&gt;
+    &lt;column name=&quot;entity_id&quot;/&gt;
+    &lt;column name=&quot;store_id&quot;/&gt;
+&lt;/constraint&gt;
+</code></pre>
+<h4 id="foreign-key">Foreign Key</h4>
+<pre><code class="language-xml">&lt;constraint xsi:type=&quot;foreign&quot; referenceId=&quot;FK_ORDER_CUSTOMER_ID&quot;
+            table=&quot;vendor_order&quot; column=&quot;customer_id&quot;
+            referenceTable=&quot;customer_entity&quot; referenceColumn=&quot;entity_id&quot;
+            onDelete=&quot;CASCADE&quot;/&gt;
+</code></pre>
+<p><strong>onDelete options:</strong></p>
+<div class="overflow-x-auto my-6 border border-gray-200"><table class="min-w-full">
+<thead>
+<tr>
+<th>Option</th>
+<th>Behavior</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CASCADE</code></td>
+<td>Delete child rows when parent deleted</td>
+<td>Order items deleted when order deleted</td>
+</tr>
+<tr>
+<td><code>SET NULL</code></td>
+<td>Set child column to NULL when parent deleted</td>
+<td>Customer ID set to NULL when customer deleted</td>
+</tr>
+<tr>
+<td><code>NO ACTION</code></td>
+<td>Prevent parent deletion if children exist</td>
+<td>Prevent category deletion if products exist</td>
+</tr>
+<tr>
+<td><code>RESTRICT</code></td>
+<td>Same as NO ACTION (MySQL default)</td>
+<td>Prevent deletion</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Attributes:</strong></p>
+<ul>
+<li><code>referenceId</code>: Unique constraint identifier (e.g., <code>FK_VENDOR_ORDER_CUSTOMER_ID</code>)</li>
+<li><code>table</code>: Current table name</li>
+<li><code>column</code>: Current table column</li>
+<li><code>referenceTable</code>: Parent table name</li>
+<li><code>referenceColumn</code>: Parent table column</li>
+<li><code>onDelete</code>: Action on parent deletion</li>
+</ul>
+<h4 id="unique-constraint">Unique Constraint</h4>
+<pre><code class="language-xml">&lt;!-- Single column unique --&gt;
+&lt;constraint xsi:type=&quot;unique&quot; referenceId=&quot;VENDOR_TAG_UNIQUE_NAME&quot;&gt;
+    &lt;column name=&quot;name&quot;/&gt;
+&lt;/constraint&gt;
+
+&lt;!-- Composite unique (multiple columns) --&gt;
+&lt;constraint xsi:type=&quot;unique&quot; referenceId=&quot;VENDOR_REVIEW_UNIQUE_CUSTOMER_PRODUCT&quot;&gt;
+    &lt;column name=&quot;customer_id&quot;/&gt;
+    &lt;column name=&quot;product_id&quot;/&gt;
+&lt;/constraint&gt;
+</code></pre>
+<h3 id="indexes">Indexes</h3>
+<pre><code class="language-xml">&lt;!-- Single column index --&gt;
+&lt;index referenceId=&quot;VENDOR_REVIEW_PRODUCT_ID&quot; indexType=&quot;btree&quot;&gt;
+    &lt;column name=&quot;product_id&quot;/&gt;
+&lt;/index&gt;
+
+&lt;!-- Composite index (order matters for query performance) --&gt;
+&lt;index referenceId=&quot;VENDOR_REVIEW_STATUS_CREATED&quot; indexType=&quot;btree&quot;&gt;
+    &lt;column name=&quot;status&quot;/&gt;
+    &lt;column name=&quot;created_at&quot;/&gt;
+&lt;/index&gt;
+
+&lt;!-- Full-text index (for text search) --&gt;
+&lt;index referenceId=&quot;VENDOR_REVIEW_FULLTEXT&quot; indexType=&quot;fulltext&quot;&gt;
+    &lt;column name=&quot;title&quot;/&gt;
+    &lt;column name=&quot;detail&quot;/&gt;
+&lt;/index&gt;
+</code></pre>
+<p><strong>Index types:</strong></p>
+<div class="overflow-x-auto my-6 border border-gray-200"><table class="min-w-full">
+<thead>
+<tr>
+<th>Type</th>
+<th>Description</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>btree</code></td>
+<td>B-tree index (default)</td>
+<td>Standard lookups, range queries</td>
+</tr>
+<tr>
+<td><code>fulltext</code></td>
+<td>Full-text search index</td>
+<td>Text search with MATCH AGAINST</td>
+</tr>
+<tr>
+<td><code>hash</code></td>
+<td>Hash index (Memory engine only)</td>
+<td>Exact match lookups</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Index best practices:</strong></p>
+<ol>
+<li><strong>Foreign key columns</strong>: Always index foreign key columns</li>
+<li><strong>Where clause columns</strong>: Index columns frequently used in WHERE</li>
+<li><strong>Composite indexes</strong>: Order by cardinality (most selective first)</li>
+<li><strong>Covering indexes</strong>: Include columns used in SELECT to avoid table lookups</li>
+<li><strong>Limit indexes</strong>: Too many indexes slow down INSERT/UPDATE</li>
+</ol>
+<p><strong>Example: Optimize query</strong></p>
+<pre><code class="language-sql">-- Query: Find approved reviews for product, sorted by date
+SELECT * FROM vendor_product_review
+WHERE product_id = 123 AND status = 1
+ORDER BY created_at DESC;
+
+-- Optimal index: (product_id, status, created_at)
+&lt;index referenceId=&quot;VENDOR_REVIEW_PRODUCT_STATUS_DATE&quot; indexType=&quot;btree&quot;&gt;
+    &lt;column name=&quot;product_id&quot;/&gt;
+    &lt;column name=&quot;status&quot;/&gt;
+    &lt;column name=&quot;created_at&quot;/&gt;
+&lt;/index&gt;
+</code></pre>
+<h2 id="generating-db_schema_whitelistjson">Generating db_schema_whitelist.json</h2>
+<p>The whitelist tracks which schema changes are applied. Magento auto-generates this file; <strong>never edit manually</strong>.</p>
+<h3 id="generate-whitelist">Generate Whitelist</h3>
+<pre><code class="language-bash"># Generate whitelist for all modules
+bin/magento setup:db-declaration:generate-whitelist
+
+# Generate whitelist for specific module
+bin/magento setup:db-declaration:generate-whitelist --module-name=Vendor_Module
+</code></pre>
+<p><strong>Output</strong>: <code>etc/db_schema_whitelist.json</code></p>
+<pre><code class="language-json">{
+    &quot;vendor_product_review&quot;: {
+        &quot;column&quot;: {
+            &quot;review_id&quot;: true,
+            &quot;product_id&quot;: true,
+            &quot;customer_id&quot;: true,
+            &quot;nickname&quot;: true,
+            &quot;title&quot;: true,
+            &quot;detail&quot;: true,
+            &quot;rating&quot;: true,
+            &quot;status&quot;: true,
+            &quot;created_at&quot;: true,
+            &quot;updated_at&quot;: true
+        },
+        &quot;constraint&quot;: {
+            &quot;PRIMARY&quot;: true,
+            &quot;FK_REVIEW_PRODUCT_ID&quot;: true,
+            &quot;FK_REVIEW_CUSTOMER_ID&quot;: true,
+            &quot;VENDOR_REVIEW_UNIQUE_CUSTOMER_PRODUCT&quot;: true
+        },
+        &quot;index&quot;: {
+            &quot;VENDOR_REVIEW_PRODUCT_ID&quot;: true,
+            &quot;VENDOR_REVIEW_CUSTOMER_ID&quot;: true,
+            &quot;VENDOR_REVIEW_STATUS_CREATED&quot;: true
+        }
+    }
+}
+</code></pre>
+<h3 id="apply-schema-changes">Apply Schema Changes</h3>
+<pre><code class="language-bash"># Dry-run: Preview SQL without executing
+bin/magento setup:db-declaration:generate-patch --revertable Vendor_Module
+
+# Apply schema changes
+bin/magento setup:upgrade
+
+# Verify schema
+bin/magento setup:db:status
+</code></pre>
+<h2 id="data-patches">Data Patches</h2>
+<p>Data patches insert or modify data in a version-independent, idempotent manner.</p>
+<h3 id="data-patch-structure">Data Patch Structure</h3>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Setup\Patch\Data;
+
+use Magento\Framework\Setup\ModuleDataSetupInterface;
+use Magento\Framework\Setup\Patch\DataPatchInterface;
+use Magento\Framework\Setup\Patch\PatchRevertableInterface;
+use Magento\Framework\Setup\Patch\PatchVersionInterface;
+
+/**
+ * Install default product review statuses
+ */
+class InstallReviewStatuses implements
+    DataPatchInterface,
+    PatchRevertableInterface,
+    PatchVersionInterface
+{
+    /**
+     * @param ModuleDataSetupInterface $moduleDataSetup
+     */
+    public function __construct(
+        private readonly ModuleDataSetupInterface $moduleDataSetup
+    ) {
+    }
+
+    /**
+     * Apply patch: Insert default review statuses
+     *
+     * @return void
+     */
+    public function apply(): void
+    {
+        $this-&gt;moduleDataSetup-&gt;getConnection()-&gt;startSetup();
+
+        $tableName = $this-&gt;moduleDataSetup-&gt;getTable('vendor_review_status');
+
+        // Check if data already exists (idempotency)
+        $select = $this-&gt;moduleDataSetup-&gt;getConnection()-&gt;select()
+            -&gt;from($tableName)
+            -&gt;where('status_id = ?', 1);
+
+        if ($this-&gt;moduleDataSetup-&gt;getConnection()-&gt;fetchOne($select)) {
+            $this-&gt;moduleDataSetup-&gt;getConnection()-&gt;endSetup();
+            return; // Data already exists, skip
+        }
+
+        // Insert data
+        $data = [
+            ['status_id' =&gt; 1, 'status_code' =&gt; 'pending', 'label' =&gt; 'Pending Approval'],
+            ['status_id' =&gt; 2, 'status_code' =&gt; 'approved', 'label' =&gt; 'Approved'],
+            ['status_id' =&gt; 3, 'status_code' =&gt; 'rejected', 'label' =&gt; 'Rejected'],
+        ];
+
+        $this-&gt;moduleDataSetup-&gt;getConnection()-&gt;insertMultiple($tableName, $data);
+
+        $this-&gt;moduleDataSetup-&gt;getConnection()-&gt;endSetup();
+    }
+
+    /**
+     * Revert patch: Remove installed statuses
+     *
+     * @return void
+     */
+    public function revert(): void
+    {
+        $this-&gt;moduleDataSetup-&gt;getConnection()-&gt;startSetup();
+
+        $tableName = $this-&gt;moduleDataSetup-&gt;getTable('vendor_review_status');
+
+        $this-&gt;moduleDataSetup-&gt;getConnection()-&gt;delete(
+            $tableName,
+            ['status_id IN (?)' =&gt; [1, 2, 3]]
+        );
+
+        $this-&gt;moduleDataSetup-&gt;getConnection()-&gt;endSetup();
+    }
+
+    /**
+     * Get patch dependencies (execute after these patches)
+     *
+     * @return array&lt;class-string&gt;
+     */
+    public static function getDependencies(): array
+    {
+        return [
+            // Example: Run after another patch
+            // \Vendor\Module\Setup\Patch\Data\OtherPatch::class
+        ];
+    }
+
+    /**
+     * Get patch version (optional, for documentation)
+     *
+     * @return string
+     */
+    public static function getVersion(): string
+    {
+        return '1.0.0';
+    }
+
+    /**
+     * Get aliases (old patch class names, for BC)
+     *
+     * @return array&lt;class-string&gt;
+     */
+    public function getAliases(): array
+    {
+        return [];
+    }
+}
+</code></pre>
+<h3 id="data-patch-interfaces">Data Patch Interfaces</h3>
+<div class="overflow-x-auto my-6 border border-gray-200"><table class="min-w-full">
+<thead>
+<tr>
+<th>Interface</th>
+<th>Required</th>
+<th>Purpose</th>
+<th>Methods</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>DataPatchInterface</code></td>
+<td><strong>Yes</strong></td>
+<td>Mark class as data patch</td>
+<td><code>apply()</code>, <code>getDependencies()</code>, <code>getAliases()</code></td>
+</tr>
+<tr>
+<td><code>PatchRevertableInterface</code></td>
+<td>No</td>
+<td>Enable rollback</td>
+<td><code>revert()</code></td>
+</tr>
+<tr>
+<td><code>PatchVersionInterface</code></td>
+<td>No</td>
+<td>Document version</td>
+<td><code>getVersion()</code></td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="data-patch-best-practices">Data Patch Best Practices</h3>
+<ol>
+<li><strong>Idempotency</strong>: Always check if data exists before inserting</li>
+</ol>
+<pre><code class="language-php">public function apply(): void
+{
+    // Check if data already exists
+    $select = $this-&gt;connection-&gt;select()
+        -&gt;from($tableName)
+        -&gt;where('identifier = ?', 'my_data');
+
+    if ($this-&gt;connection-&gt;fetchOne($select)) {
+        return; // Skip if exists
+    }
+
+    // Insert data
+    $this-&gt;connection-&gt;insert($tableName, $data);
+}
+</code></pre>
+<ol>
+<li><strong>Transactions</strong>: Wrap in startSetup/endSetup for atomicity</li>
+</ol>
+<pre><code class="language-php">public function apply(): void
+{
+    $this-&gt;moduleDataSetup-&gt;getConnection()-&gt;startSetup();
+    try {
+        // Data operations
+        $this-&gt;moduleDataSetup-&gt;getConnection()-&gt;commit();
+    } catch (\Exception $e) {
+        $this-&gt;moduleDataSetup-&gt;getConnection()-&gt;rollBack();
+        throw $e;
+    }
+    $this-&gt;moduleDataSetup-&gt;getConnection()-&gt;endSetup();
+}
+</code></pre>
+<ol>
+<li><strong>Batch processing</strong>: For large datasets, process in chunks</li>
+</ol>
+<pre><code class="language-php">public function apply(): void
+{
+    $batchSize = 1000;
+    $offset = 0;
+
+    do {
+        $data = $this-&gt;getDataBatch($offset, $batchSize);
+
+        if (empty($data)) {
+            break;
+        }
+
+        $this-&gt;connection-&gt;insertMultiple($tableName, $data);
+        $offset += $batchSize;
+    } while (count($data) === $batchSize);
+}
+</code></pre>
+<ol>
+<li><strong>Use repositories, not raw SQL</strong>: Prefer service contracts for complex logic</li>
+</ol>
+<pre><code class="language-php">public function apply(): void
+{
+    // AVOID: Raw SQL for complex business logic
+    $this-&gt;connection-&gt;query(&quot;INSERT INTO ...&quot;);
+
+    // PREFER: Use repository/service contract
+    $review = $this-&gt;reviewFactory-&gt;create();
+    $review-&gt;setData($data);
+    $this-&gt;reviewRepository-&gt;save($review);
+}
+</code></pre>
+<h3 id="data-patch-example-migrate-configuration">Data Patch Example: Migrate Configuration</h3>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Setup\Patch\Data;
+
+use Magento\Framework\App\Config\Storage\WriterInterface;
+use Magento\Framework\Setup\Patch\DataPatchInterface;
+
+/**
+ * Migrate old config path to new path
+ */
+class MigrateConfigPath implements DataPatchInterface
+{
+    private const OLD_PATH = 'vendor/old_section/old_field';
+    private const NEW_PATH = 'vendor/new_section/new_field';
+
+    public function __construct(
+        private readonly WriterInterface $configWriter,
+        private readonly \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
+    ) {
+    }
+
+    public function apply(): void
+    {
+        $oldValue = $this-&gt;scopeConfig-&gt;getValue(self::OLD_PATH);
+
+        if ($oldValue !== null) {
+            // Copy to new path
+            $this-&gt;configWriter-&gt;save(self::NEW_PATH, $oldValue);
+
+            // Delete old path
+            $this-&gt;configWriter-&gt;delete(self::OLD_PATH);
+        }
+    }
+
+    public static function getDependencies(): array
+    {
+        return [];
+    }
+
+    public function getAliases(): array
+    {
+        return [];
+    }
+}
+</code></pre>
+<h2 id="schema-patches">Schema Patches</h2>
+<p>Schema patches handle complex schema changes that can't be expressed in <code>db_schema.xml</code>.</p>
+<h3 id="schema-patch-structure">Schema Patch Structure</h3>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Setup\Patch\Schema;
+
+use Magento\Framework\Setup\SchemaSetupInterface;
+use Magento\Framework\Setup\Patch\SchemaPatchInterface;
+use Magento\Framework\Setup\Patch\PatchRevertableInterface;
+
+/**
+ * Add computed column for review sentiment score
+ */
+class AddReviewSentimentScore implements
+    SchemaPatchInterface,
+    PatchRevertableInterface
+{
+    public function __construct(
+        private readonly SchemaSetupInterface $schemaSetup
+    ) {
+    }
+
+    /**
+     * Apply patch: Add generated column
+     *
+     * @return void
+     */
+    public function apply(): void
+    {
+        $this-&gt;schemaSetup-&gt;startSetup();
+
+        $connection = $this-&gt;schemaSetup-&gt;getConnection();
+        $tableName = $this-&gt;schemaSetup-&gt;getTable('vendor_product_review');
+
+        // Check if column already exists
+        if ($connection-&gt;tableColumnExists($tableName, 'sentiment_score')) {
+            $this-&gt;schemaSetup-&gt;endSetup();
+            return;
+        }
+
+        // Add computed column (MySQL 5.7+)
+        // sentiment_score = rating * 20 (convert 1-5 to 20-100)
+        $connection-&gt;addColumn(
+            $tableName,
+            'sentiment_score',
+            [
+                'type' =&gt; \Magento\Framework\DB\Ddl\Table::TYPE_SMALLINT,
+                'unsigned' =&gt; true,
+                'nullable' =&gt; false,
+                'default' =&gt; 0,
+                'comment' =&gt; 'Sentiment Score (0-100)',
+            ]
+        );
+
+        // Update existing rows
+        $connection-&gt;query(
+            &quot;UPDATE {$tableName} SET sentiment_score = rating * 20&quot;
+        );
+
+        $this-&gt;schemaSetup-&gt;endSetup();
+    }
+
+    /**
+     * Revert patch: Remove column
+     *
+     * @return void
+     */
+    public function revert(): void
+    {
+        $this-&gt;schemaSetup-&gt;startSetup();
+
+        $connection = $this-&gt;schemaSetup-&gt;getConnection();
+        $tableName = $this-&gt;schemaSetup-&gt;getTable('vendor_product_review');
+
+        if ($connection-&gt;tableColumnExists($tableName, 'sentiment_score')) {
+            $connection-&gt;dropColumn($tableName, 'sentiment_score');
+        }
+
+        $this-&gt;schemaSetup-&gt;endSetup();
+    }
+
+    /**
+     * Get dependencies
+     *
+     * @return array&lt;class-string&gt;
+     */
+    public static function getDependencies(): array
+    {
+        return [];
+    }
+
+    /**
+     * Get aliases
+     *
+     * @return array&lt;class-string&gt;
+     */
+    public function getAliases(): array
+    {
+        return [];
+    }
+}
+</code></pre>
+<h3 id="schema-patch-use-cases">Schema Patch Use Cases</h3>
+<div class="overflow-x-auto my-6 border border-gray-200"><table class="min-w-full">
+<thead>
+<tr>
+<th>Use Case</th>
+<th>Why Schema Patch</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Computed columns</td>
+<td>Not supported in db_schema.xml</td>
+<td>Generated columns, triggers</td>
+</tr>
+<tr>
+<td>Data migration</td>
+<td>Transform data during schema change</td>
+<td>Split column into two</td>
+</tr>
+<tr>
+<td>Complex constraints</td>
+<td>CHECK constraints</td>
+<td>Validate enum values</td>
+</tr>
+<tr>
+<td>Stored procedures</td>
+<td>Not supported in db_schema.xml</td>
+<td>Create stored procedure</td>
+</tr>
+<tr>
+<td>Partitioning</td>
+<td>Not supported in db_schema.xml</td>
+<td>Partition large table</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="schema-patch-example-split-column">Schema Patch Example: Split Column</h3>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Setup\Patch\Schema;
+
+use Magento\Framework\Setup\SchemaSetupInterface;
+use Magento\Framework\Setup\Patch\SchemaPatchInterface;
+
+/**
+ * Split full_name into first_name and last_name
+ */
+class SplitCustomerName implements SchemaPatchInterface
+{
+    public function __construct(
+        private readonly SchemaSetupInterface $schemaSetup
+    ) {
+    }
+
+    public function apply(): void
+    {
+        $this-&gt;schemaSetup-&gt;startSetup();
+        $connection = $this-&gt;schemaSetup-&gt;getConnection();
+        $tableName = $this-&gt;schemaSetup-&gt;getTable('vendor_customer');
+
+        // Add new columns
+        if (!$connection-&gt;tableColumnExists($tableName, 'first_name')) {
+            $connection-&gt;addColumn(
+                $tableName,
+                'first_name',
+                [
+                    'type' =&gt; \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    'length' =&gt; 128,
+                    'nullable' =&gt; true,
+                    'comment' =&gt; 'First Name',
+                ]
+            );
+        }
+
+        if (!$connection-&gt;tableColumnExists($tableName, 'last_name')) {
+            $connection-&gt;addColumn(
+                $tableName,
+                'last_name',
+                [
+                    'type' =&gt; \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                    'length' =&gt; 128,
+                    'nullable' =&gt; true,
+                    'comment' =&gt; 'Last Name',
+                ]
+            );
+        }
+
+        // Migrate data: Split full_name on first space
+        $connection-&gt;query(&quot;
+            UPDATE {$tableName}
+            SET
+                first_name = SUBSTRING_INDEX(full_name, ' ', 1),
+                last_name = TRIM(SUBSTRING(full_name, LOCATE(' ', full_name) + 1))
+            WHERE full_name IS NOT NULL
+              AND full_name != ''
+        &quot;);
+
+        $this-&gt;schemaSetup-&gt;endSetup();
+    }
+
+    public static function getDependencies(): array
+    {
+        return [];
+    }
+
+    public function getAliases(): array
+    {
+        return [];
+    }
+}
+</code></pre>
+<h2 id="patch-dependencies-and-versioning">Patch Dependencies and Versioning</h2>
+<h3 id="patch-dependencies">Patch Dependencies</h3>
+<p>Control execution order with <code>getDependencies()</code>:</p>
+<pre><code class="language-php">class MyDataPatch implements DataPatchInterface
+{
+    /**
+     * Execute after these patches
+     *
+     * @return array&lt;class-string&gt;
+     */
+    public static function getDependencies(): array
+    {
+        return [
+            \Vendor\Module\Setup\Patch\Data\PatchA::class,
+            \Vendor\Module\Setup\Patch\Data\PatchB::class,
+        ];
+    }
+}
+</code></pre>
+<p><strong>Execution order:</strong></p>
+<ol>
+<li>Magento builds dependency graph</li>
+<li>Executes patches in topological order (dependencies first)</li>
+<li>Tracks applied patches in <code>patch_list</code> table</li>
+</ol>
+<p><strong>View applied patches:</strong></p>
+<pre><code class="language-sql">SELECT * FROM patch_list WHERE patch_name LIKE 'Vendor_Module%';
+</code></pre>
+<h3 id="patch-versioning">Patch Versioning</h3>
+<p>Use <code>PatchVersionInterface</code> for documentation (not enforced by Magento):</p>
+<pre><code class="language-php">class MyPatch implements DataPatchInterface, PatchVersionInterface
+{
+    public static function getVersion(): string
+    {
+        return '1.0.0'; // Semantic version
+    }
+}
+</code></pre>
+<p><strong>Use case</strong>: Track which patches correspond to module versions for rollback planning.</p>
+<h3 id="patch-aliases">Patch Aliases</h3>
+<p>Use <code>getAliases()</code> for backward compatibility when renaming patches:</p>
+<pre><code class="language-php">class NewPatchName implements DataPatchInterface
+{
+    public function getAliases(): array
+    {
+        return [
+            \Vendor\Module\Setup\Patch\Data\OldPatchName::class,
+        ];
+    }
+}
+</code></pre>
+<p>Magento treats aliases as the same patch, preventing duplicate execution.</p>
+<h2 id="migration-from-legacy-setup-scripts">Migration from Legacy Setup Scripts</h2>
+<h3 id="legacy-setup-structure-magento-20-22">Legacy Setup Structure (Magento 2.0-2.2)</h3>
+<pre><code>Vendor/Module/Setup/
+├── InstallSchema.php       # Initial schema installation
+├── UpgradeSchema.php       # Schema upgrades (version-based)
+├── InstallData.php         # Initial data installation
+├── UpgradeData.php         # Data upgrades (version-based)
+└── Recurring.php           # Runs on every setup:upgrade
+</code></pre>
+<h3 id="migration-steps">Migration Steps</h3>
+<h4 id="step-1-convert-installschema-to-db_schemaxml">Step 1: Convert InstallSchema to db_schema.xml</h4>
+<p><strong>Legacy InstallSchema.php:</strong></p>
+<pre><code class="language-php">public function install(SchemaSetupInterface $setup, ModuleContextInterface $context)
+{
+    $setup-&gt;startSetup();
+
+    $table = $setup-&gt;getConnection()-&gt;newTable(
+        $setup-&gt;getTable('vendor_review')
+    )-&gt;addColumn(
+        'review_id',
+        \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+        null,
+        ['identity' =&gt; true, 'unsigned' =&gt; true, 'nullable' =&gt; false, 'primary' =&gt; true],
+        'Review ID'
+    )-&gt;addColumn(
+        'title',
+        \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+        255,
+        ['nullable' =&gt; false],
+        'Title'
+    )-&gt;addIndex(
+        $setup-&gt;getIdxName('vendor_review', ['title']),
+        ['title']
+    );
+
+    $setup-&gt;getConnection()-&gt;createTable($table);
+    $setup-&gt;endSetup();
+}
+</code></pre>
+<p><strong>New db_schema.xml:</strong></p>
+<pre><code class="language-xml">&lt;schema xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+        xsi:noNamespaceSchemaLocation=&quot;urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd&quot;&gt;
+    &lt;table name=&quot;vendor_review&quot; resource=&quot;default&quot; engine=&quot;innodb&quot; comment=&quot;Review Table&quot;&gt;
+        &lt;column xsi:type=&quot;int&quot; name=&quot;review_id&quot; unsigned=&quot;true&quot; nullable=&quot;false&quot; identity=&quot;true&quot; comment=&quot;Review ID&quot;/&gt;
+        &lt;column xsi:type=&quot;varchar&quot; name=&quot;title&quot; length=&quot;255&quot; nullable=&quot;false&quot; comment=&quot;Title&quot;/&gt;
+
+        &lt;constraint xsi:type=&quot;primary&quot; referenceId=&quot;PRIMARY&quot;&gt;
+            &lt;column name=&quot;review_id&quot;/&gt;
+        &lt;/constraint&gt;
+
+        &lt;index referenceId=&quot;VENDOR_REVIEW_TITLE&quot; indexType=&quot;btree&quot;&gt;
+            &lt;column name=&quot;title&quot;/&gt;
+        &lt;/index&gt;
+    &lt;/table&gt;
+&lt;/schema&gt;
+</code></pre>
+<h4 id="step-2-convert-upgradeschema-to-db_schemaxml">Step 2: Convert UpgradeSchema to db_schema.xml</h4>
+<p><strong>Legacy UpgradeSchema.php:</strong></p>
+<pre><code class="language-php">public function upgrade(SchemaSetupInterface $setup, ModuleContextInterface $context)
+{
+    $setup-&gt;startSetup();
+
+    if (version_compare($context-&gt;getVersion(), '1.0.1', '&lt;')) {
+        $setup-&gt;getConnection()-&gt;addColumn(
+            $setup-&gt;getTable('vendor_review'),
+            'status',
+            [
+                'type' =&gt; \Magento\Framework\DB\Ddl\Table::TYPE_SMALLINT,
+                'unsigned' =&gt; true,
+                'nullable' =&gt; false,
+                'default' =&gt; 0,
+                'comment' =&gt; 'Status',
+            ]
+        );
+    }
+
+    $setup-&gt;endSetup();
+}
+</code></pre>
+<p><strong>New db_schema.xml (add status column):</strong></p>
+<pre><code class="language-xml">&lt;table name=&quot;vendor_review&quot; resource=&quot;default&quot; engine=&quot;innodb&quot; comment=&quot;Review Table&quot;&gt;
+    &lt;column xsi:type=&quot;int&quot; name=&quot;review_id&quot; unsigned=&quot;true&quot; nullable=&quot;false&quot; identity=&quot;true&quot; comment=&quot;Review ID&quot;/&gt;
+    &lt;column xsi:type=&quot;varchar&quot; name=&quot;title&quot; length=&quot;255&quot; nullable=&quot;false&quot; comment=&quot;Title&quot;/&gt;
+    &lt;!-- NEW: Add status column --&gt;
+    &lt;column xsi:type=&quot;smallint&quot; name=&quot;status&quot; unsigned=&quot;true&quot; nullable=&quot;false&quot; default=&quot;0&quot; comment=&quot;Status&quot;/&gt;
+
+    &lt;constraint xsi:type=&quot;primary&quot; referenceId=&quot;PRIMARY&quot;&gt;
+        &lt;column name=&quot;review_id&quot;/&gt;
+    &lt;/constraint&gt;
+
+    &lt;index referenceId=&quot;VENDOR_REVIEW_TITLE&quot; indexType=&quot;btree&quot;&gt;
+        &lt;column name=&quot;title&quot;/&gt;
+    &lt;/index&gt;
+&lt;/table&gt;
+</code></pre>
+<p>No version checks needed! Magento compares desired state with current state.</p>
+<h4 id="step-3-convert-installdata-to-data-patch">Step 3: Convert InstallData to Data Patch</h4>
+<p><strong>Legacy InstallData.php:</strong></p>
+<pre><code class="language-php">public function install(ModuleDataSetupInterface $setup, ModuleContextInterface $context)
+{
+    $setup-&gt;startSetup();
+
+    $data = [
+        ['status_id' =&gt; 1, 'label' =&gt; 'Pending'],
+        ['status_id' =&gt; 2, 'label' =&gt; 'Approved'],
+    ];
+
+    $setup-&gt;getConnection()-&gt;insertMultiple(
+        $setup-&gt;getTable('vendor_review_status'),
+        $data
+    );
+
+    $setup-&gt;endSetup();
+}
+</code></pre>
+<p><strong>New Data Patch (Setup/Patch/Data/InstallStatuses.php):</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Setup\Patch\Data;
+
+use Magento\Framework\Setup\ModuleDataSetupInterface;
+use Magento\Framework\Setup\Patch\DataPatchInterface;
+
+class InstallStatuses implements DataPatchInterface
+{
+    public function __construct(
+        private readonly ModuleDataSetupInterface $moduleDataSetup
+    ) {
+    }
+
+    public function apply(): void
+    {
+        $this-&gt;moduleDataSetup-&gt;getConnection()-&gt;startSetup();
+
+        $tableName = $this-&gt;moduleDataSetup-&gt;getTable('vendor_review_status');
+
+        // Check if data exists (idempotency)
+        $select = $this-&gt;moduleDataSetup-&gt;getConnection()-&gt;select()
+            -&gt;from($tableName)
+            -&gt;limit(1);
+
+        if ($this-&gt;moduleDataSetup-&gt;getConnection()-&gt;fetchOne($select)) {
+            $this-&gt;moduleDataSetup-&gt;getConnection()-&gt;endSetup();
+            return;
+        }
+
+        $data = [
+            ['status_id' =&gt; 1, 'label' =&gt; 'Pending'],
+            ['status_id' =&gt; 2, 'label' =&gt; 'Approved'],
+        ];
+
+        $this-&gt;moduleDataSetup-&gt;getConnection()-&gt;insertMultiple($tableName, $data);
+        $this-&gt;moduleDataSetup-&gt;getConnection()-&gt;endSetup();
+    }
+
+    public static function getDependencies(): array
+    {
+        return [];
+    }
+
+    public function getAliases(): array
+    {
+        return [];
+    }
+}
+</code></pre>
+<h4 id="step-4-remove-legacy-files">Step 4: Remove Legacy Files</h4>
+<p>After migration:</p>
+<ol>
+<li>Delete <code>Setup/InstallSchema.php</code></li>
+<li>Delete <code>Setup/UpgradeSchema.php</code></li>
+<li>Delete <code>Setup/InstallData.php</code></li>
+<li>Delete <code>Setup/UpgradeData.php</code></li>
+<li>Keep <code>Setup/Recurring.php</code> if still needed (rare)</li>
+</ol>
+<h4 id="step-5-generate-whitelist-and-test">Step 5: Generate Whitelist and Test</h4>
+<pre><code class="language-bash"># Generate whitelist
+bin/magento setup:db-declaration:generate-whitelist --module-name=Vendor_Module
+
+# Dry-run to verify changes
+bin/magento setup:db-declaration:generate-patch --revertable Vendor_Module
+
+# Apply changes
+bin/magento setup:upgrade
+</code></pre>
+<h2 id="rollback-strategies">Rollback Strategies</h2>
+<h3 id="schema-rollback">Schema Rollback</h3>
+<p><strong>Revertable patches</strong> (implement <code>PatchRevertableInterface</code>):</p>
+<pre><code class="language-php">class MyPatch implements DataPatchInterface, PatchRevertableInterface
+{
+    public function apply(): void
+    {
+        // Apply changes
+    }
+
+    public function revert(): void
+    {
+        // Undo changes
+    }
+}
+</code></pre>
+<p><strong>Revert patch:</strong></p>
+<pre><code class="language-bash"># Revert specific patch
+bin/magento module:uninstall Vendor_Module --non-composer
+
+# Or manually delete from patch_list and run revert logic
+DELETE FROM patch_list WHERE patch_name = 'Vendor\\Module\\Setup\\Patch\\Data\\MyPatch';
+</code></pre>
+<p><strong>Limitations:</strong>
+- Magento doesn't auto-revert patches
+- Must manually trigger revert logic or uninstall module
+- Data loss risk (e.g., dropping column loses data)</p>
+<h3 id="safe-rollback-pattern">Safe Rollback Pattern</h3>
+<p><strong>Phase 1: Add new column (backward compatible)</strong></p>
+<pre><code class="language-xml">&lt;!-- Version 1.0.1: Add new column, keep old column --&gt;
+&lt;table name=&quot;vendor_customer&quot;&gt;
+    &lt;column xsi:type=&quot;varchar&quot; name=&quot;old_field&quot; length=&quot;255&quot; nullable=&quot;true&quot;/&gt;
+    &lt;column xsi:type=&quot;varchar&quot; name=&quot;new_field&quot; length=&quot;255&quot; nullable=&quot;true&quot;/&gt;
+&lt;/table&gt;
+</code></pre>
+<p><strong>Phase 2: Migrate data</strong></p>
+<pre><code class="language-php">// Data patch: Copy old_field to new_field
+public function apply(): void
+{
+    $connection-&gt;query(&quot;
+        UPDATE vendor_customer
+        SET new_field = old_field
+        WHERE new_field IS NULL
+    &quot;);
+}
+</code></pre>
+<p><strong>Phase 3: Dual-write period (application code writes to both fields)</strong></p>
+<pre><code class="language-php">// In application code
+$customer-&gt;setData('old_field', $value);
+$customer-&gt;setData('new_field', $value); // Dual write
+</code></pre>
+<p><strong>Phase 4: Remove old column (next major version)</strong></p>
+<pre><code class="language-xml">&lt;!-- Version 2.0.0: Remove old column --&gt;
+&lt;table name=&quot;vendor_customer&quot;&gt;
+    &lt;column xsi:type=&quot;varchar&quot; name=&quot;new_field&quot; length=&quot;255&quot; nullable=&quot;false&quot;/&gt;
+    &lt;!-- old_field removed from db_schema.xml --&gt;
+&lt;/table&gt;
+</code></pre>
+<p><strong>Rollback</strong>: Revert to version 1.x.x, old column still exists.</p>
+<h3 id="backup-before-schema-changes">Backup Before Schema Changes</h3>
+<pre><code class="language-bash"># Backup database before upgrade
+mysqldump -u root -p magento2 &gt; backup_before_upgrade.sql
+
+# Apply upgrade
+bin/magento setup:upgrade
+
+# If issues, restore backup
+mysql -u root -p magento2 &lt; backup_before_upgrade.sql
+</code></pre>
+<h2 id="production-checklist">Production Checklist</h2>
+<p>Before deploying declarative schema changes to production:</p>
+<h3 id="1-test-in-staging">1. Test in Staging</h3>
+<ul>
+<li>Apply changes in staging environment identical to production</li>
+<li>Run full regression test suite</li>
+<li>Verify data integrity after migration</li>
+</ul>
+<h3 id="2-review-generated-sql">2. Review Generated SQL</h3>
+<pre><code class="language-bash"># Generate SQL preview
+bin/magento setup:db-declaration:generate-patch Vendor_Module --revertable
+
+# Review output in Setup/Patch/Schema/*.php
+# Ensure no destructive operations (DROP COLUMN, etc.)
+</code></pre>
+<h3 id="3-backup-database">3. Backup Database</h3>
+<pre><code class="language-bash">mysqldump -u root -p magento2 &gt; pre_upgrade_backup.sql
+</code></pre>
+<h3 id="4-estimate-downtime">4. Estimate Downtime</h3>
+<ul>
+<li>Large tables: Adding columns with defaults can lock table (MySQL 5.7)</li>
+<li>MySQL 8.0+: Instant ADD COLUMN (most cases)</li>
+<li>Foreign keys: Can cause cascading locks</li>
+</ul>
+<p><strong>Test duration in staging:</strong></p>
+<pre><code class="language-bash">time bin/magento setup:upgrade
+# Measure time for production planning
+</code></pre>
+<h3 id="5-maintenance-mode">5. Maintenance Mode</h3>
+<pre><code class="language-bash">bin/magento maintenance:enable
+bin/magento setup:upgrade
+bin/magento cache:flush
+bin/magento maintenance:disable
+</code></pre>
+<h3 id="6-monitor-performance">6. Monitor Performance</h3>
+<p>After deployment:</p>
+<ul>
+<li>Check slow query log for new N+1 queries</li>
+<li>Verify indexes are used: <code>EXPLAIN SELECT ...</code></li>
+<li>Monitor database CPU/memory usage</li>
+</ul>
+<h2 id="performance-optimization">Performance Optimization</h2>
+<h3 id="index-strategy">Index Strategy</h3>
+<p><strong>Query patterns:</strong></p>
+<pre><code class="language-sql">-- Frequent query: Get approved reviews for product
+SELECT * FROM vendor_review
+WHERE product_id = 123 AND status = 1
+ORDER BY created_at DESC;
+
+-- Optimal index: Covering index
+&lt;index referenceId=&quot;VENDOR_REVIEW_PRODUCT_STATUS_DATE&quot; indexType=&quot;btree&quot;&gt;
+    &lt;column name=&quot;product_id&quot;/&gt;
+    &lt;column name=&quot;status&quot;/&gt;
+    &lt;column name=&quot;created_at&quot;/&gt;
+&lt;/index&gt;
+</code></pre>
+<p><strong>Verify index usage:</strong></p>
+<pre><code class="language-sql">EXPLAIN SELECT * FROM vendor_review
+WHERE product_id = 123 AND status = 1
+ORDER BY created_at DESC;
+
+-- Check &quot;key&quot; column shows your index name
+</code></pre>
+<h3 id="foreign-key-performance">Foreign Key Performance</h3>
+<p><strong>Cascading deletes</strong> can lock many tables:</p>
+<pre><code class="language-xml">&lt;!-- SLOW: Cascade delete thousands of rows --&gt;
+&lt;constraint xsi:type=&quot;foreign&quot; referenceId=&quot;FK_REVIEW_PRODUCT&quot;
+            table=&quot;vendor_review&quot; column=&quot;product_id&quot;
+            referenceTable=&quot;catalog_product_entity&quot; referenceColumn=&quot;entity_id&quot;
+            onDelete=&quot;CASCADE&quot;/&gt;
+
+&lt;!-- FASTER: SET NULL (no cascade), handle in application --&gt;
+&lt;constraint xsi:type=&quot;foreign&quot; referenceId=&quot;FK_REVIEW_PRODUCT&quot;
+            table=&quot;vendor_review&quot; column=&quot;product_id&quot;
+            referenceTable=&quot;catalog_product_entity&quot; referenceColumn=&quot;entity_id&quot;
+            onDelete=&quot;SET NULL&quot;/&gt;
+</code></pre>
+<p>Manually delete orphaned rows in batch:</p>
+<pre><code class="language-php">// Cron job or scheduled task
+$connection-&gt;delete(
+    'vendor_review',
+    ['product_id IS NULL']
+);
+</code></pre>
+<h3 id="large-table-considerations">Large Table Considerations</h3>
+<p>For tables &gt;1M rows:</p>
+<ol>
+<li><strong>Add indexes before data</strong>: Faster than adding after</li>
+<li><strong>Use ALGORITHM=INPLACE</strong> (MySQL 8.0): Non-blocking schema changes</li>
+<li><strong>Partition tables</strong>: Split by date range for better performance</li>
+<li><strong>Archive old data</strong>: Move to separate archive table</li>
+</ol>
+<p><strong>Example: Partition by date</strong></p>
+<pre><code class="language-php">// Schema patch: Partition review table by year
+public function apply(): void
+{
+    $connection-&gt;query(&quot;
+        ALTER TABLE vendor_review
+        PARTITION BY RANGE (YEAR(created_at)) (
+            PARTITION p2023 VALUES LESS THAN (2024),
+            PARTITION p2024 VALUES LESS THAN (2025),
+            PARTITION p2025 VALUES LESS THAN (2026),
+            PARTITION pmax VALUES LESS THAN MAXVALUE
+        )
+    &quot;);
+}
+</code></pre>
+<h2 id="related-resources">Related Resources</h2>
+<h3 id="official-documentation">Official Documentation</h3>
+<ul>
+<li><a href="https://developer.adobe.com/commerce/php/development/components/declarative-schema/">Magento DevDocs: Declarative Schema</a></li>
+<li><a href="https://developer.adobe.com/commerce/php/development/components/declarative-schema/patches/">Magento DevDocs: Data and Schema Patches</a></li>
+<li><a href="https://dev.mysql.com/doc/refman/8.0/en/">MySQL 8.0 Reference Manual</a></li>
+</ul>
+<h3 id="community-resources">Community Resources</h3>
+<ul>
+<li><a href="https://magento.stackexchange.com/questions/tagged/declarative-schema">Magento Stack Exchange: Declarative Schema</a></li>
+<li><a href="https://alanstorm.com/magento-2-3-declarative-schema/">Alan Storm: Magento 2 Declarative Schema</a></li>
+<li><a href="https://swiftotter.com/">SwiftOtter: Declarative Schema Deep Dive</a></li>
+</ul>
+<h3 id="further-learning">Further Learning</h3>
+<ul>
+<li><a href="https://use-the-index-luke.com/">Database Indexing Strategies</a></li>
+<li><a href="https://www.percona.com/blog/">MySQL Performance Tuning</a></li>
+<li><a href="https://dev.mysql.com/doc/refman/8.0/en/optimization.html">Schema Design Best Practices</a></li>
+</ul>
+<hr />
+<h2 id="assumptions">Assumptions</h2>
+<ul>
+<li>Target: Adobe Commerce / Magento Open Source 2.4.7</li>
+<li>Database: MySQL 8.0 (declarative schema requires 2.3+)</li>
+<li>PHP: 8.2+</li>
+<li>Environment: Development and production</li>
+<li>Scope: Backend (PHP modules, database schema)</li>
+</ul>
+<h2 id="why-this-approach">Why This Approach</h2>
+<ul>
+<li><strong>Declarative over Procedural</strong>: Version-independent, single source of truth</li>
+<li><strong>Patches over Upgrade Scripts</strong>: Idempotent, explicit dependencies</li>
+<li><strong>db_schema.xml for Structure</strong>: Standard schema changes</li>
+<li><strong>Patches for Complex Logic</strong>: Data transformations, computed columns</li>
+<li><strong>Revertable Patches</strong>: Rollback support for safe deployments</li>
+<li><strong>Whitelist Auto-Generation</strong>: Tracks applied changes, prevents drift</li>
+</ul>
+<p>Alternatives considered:
+- <strong>Legacy InstallSchema/UpgradeSchema</strong>: Deprecated, version-dependent, no rollback
+- <strong>Raw SQL in patches</strong>: Less portable, no validation
+- <strong>Manual schema changes</strong>: Not tracked, breaks deployments</p>
+<h2 id="security-impact">Security Impact</h2>
+<h3 id="authenticationauthorization">Authentication/Authorization</h3>
+<ul>
+<li>Schema changes don't directly affect auth, but ensure ACL resources updated if adding admin features</li>
+<li>Data patches: Don't expose sensitive data in logs</li>
+</ul>
+<h3 id="csrfform-keys">CSRF/Form Keys</h3>
+<ul>
+<li>N/A for database schema</li>
+</ul>
+<h3 id="xss-escaping">XSS Escaping</h3>
+<ul>
+<li>N/A for database schema</li>
+</ul>
+<h3 id="piigdpr">PII/GDPR</h3>
+<ul>
+<li><strong>Sensitive columns</strong>: Mark with appropriate comment for GDPR compliance</li>
+<li>Example: <code>&lt;column xsi:type="varchar" name="email" comment="Email (PII)"/&gt;</code></li>
+<li>Data patches: Anonymize customer data if loading from production dumps</li>
+<li>Implement data export/deletion per GDPR requirements in application layer</li>
+</ul>
+<h3 id="secrets-management">Secrets Management</h3>
+<ul>
+<li>Never store plaintext secrets in database</li>
+<li>Use encrypted columns for sensitive data (payment tokens, API keys)</li>
+<li>Magento encryption: <code>Magento\Framework\Encryption\EncryptorInterface</code></li>
+</ul>
+<h2 id="performance-impact">Performance Impact</h2>
+<h3 id="full-page-cache-fpc">Full Page Cache (FPC)</h3>
+<ul>
+<li>Schema changes don't affect FPC directly</li>
+<li>Data patches: Flush cache after modifying config data</li>
+</ul>
+<h3 id="database-load">Database Load</h3>
+<ul>
+<li><strong>Adding indexes</strong>: Can lock table (test duration in staging)</li>
+<li><strong>Foreign keys</strong>: Cascading deletes can be slow (prefer SET NULL + manual cleanup)</li>
+<li><strong>Large tables</strong>: Adding columns with defaults can be slow (MySQL 5.7)</li>
+<li><strong>MySQL 8.0 Instant ADD COLUMN</strong>: Most ADD COLUMN operations instant (no table rebuild)</li>
+</ul>
+<h3 id="core-web-vitals-cwv">Core Web Vitals (CWV)</h3>
+<ul>
+<li>Database performance affects page load times</li>
+<li>Ensure proper indexing for frontend queries</li>
+<li>Use query profiler to measure impact: <code>EXPLAIN SELECT ...</code></li>
+</ul>
+<h3 id="cacheability">Cacheability</h3>
+<ul>
+<li>Data patches: Ensure cache invalidation if modifying cached data</li>
+<li>Example: After updating config, call <code>bin/magento cache:flush config</code></li>
+</ul>
+<h2 id="backward-compatibility">Backward Compatibility</h2>
+<h3 id="apidb-schema-changes">API/DB Schema Changes</h3>
+<ul>
+<li><strong>Adding columns</strong>: Backward compatible (existing code ignores new columns)</li>
+<li><strong>Removing columns</strong>: <strong>Breaking change</strong> (code referencing column fails)</li>
+<li><strong>Renaming columns</strong>: <strong>Breaking change</strong> (requires dual-write period)</li>
+<li><strong>Changing column types</strong>: <strong>Risky</strong> (data loss if incompatible)</li>
+</ul>
+<p><strong>Safe migration pattern</strong> (rename column):</p>
+<ol>
+<li>Add new column (BC)</li>
+<li>Dual-write both columns (BC)</li>
+<li>Migrate data (BC)</li>
+<li>Switch code to new column (BC)</li>
+<li>Remove old column (next major version, breaking)</li>
+</ol>
+<h3 id="upgrade-path">Upgrade Path</h3>
+<ul>
+<li>Magento 2.4.6 → 2.4.7: Declarative schema fully supported</li>
+<li>Magento 2.4.7 → 2.5: Continue using declarative schema</li>
+<li>MySQL 5.7 → 8.0: Test schema changes (syntax differences minimal)</li>
+</ul>
+<h3 id="migration-notes">Migration Notes</h3>
+<ul>
+<li>Review MySQL 8.0 reserved keywords if upgrading from 5.7</li>
+<li>Test foreign key constraints (behavior may differ)</li>
+<li>Verify index types supported (FULLTEXT requires InnoDB)</li>
+</ul>
+<h2 id="tests-to-add">Tests to Add</h2>
+<h3 id="unit-tests">Unit Tests</h3>
+<ul>
+<li>Test data patch idempotency: Run <code>apply()</code> twice, verify no errors</li>
+<li>Test schema patch column checks: Verify skips if column exists</li>
+</ul>
+<h3 id="integration-tests">Integration Tests</h3>
+<pre><code class="language-php">/**
+ * @magentoDbIsolation enabled
+ */
+public function testSchemaTableExists(): void
+{
+    $connection = $this-&gt;getConnection();
+    $tableName = $this-&gt;resource-&gt;getTableName('vendor_review');
+
+    $this-&gt;assertTrue($connection-&gt;isTableExists($tableName));
+}
+
+/**
+ * @magentoDbIsolation enabled
+ */
+public function testSchemaColumnExists(): void
+{
+    $connection = $this-&gt;getConnection();
+    $tableName = $this-&gt;resource-&gt;getTableName('vendor_review');
+
+    $this-&gt;assertTrue($connection-&gt;tableColumnExists($tableName, 'review_id'));
+}
+</code></pre>
+<h3 id="functional-tests-mftf">Functional Tests (MFTF)</h3>
+<ul>
+<li>Test end-to-end flows that depend on new schema</li>
+<li>Example: Create review, verify data saved correctly</li>
+</ul>
+<h3 id="performance-tests">Performance Tests</h3>
+<ul>
+<li>Measure index usage with <code>EXPLAIN</code></li>
+<li>Measure query duration before/after index addition</li>
+<li>Load test with realistic data volumes</li>
+</ul>
+<h2 id="documentation-to-update">Documentation to Update</h2>
+<h3 id="module-readme">Module README</h3>
+<pre><code class="language-markdown">## Database Schema
+
+This module adds the following tables:
+
+- `vendor_product_review`: Product reviews
+- `vendor_review_status`: Review status types
+- `vendor_review_tag`: Many-to-many review-tag relation
+
+To install schema:
+
+1. `bin/magento setup:upgrade`
+2. `bin/magento setup:db-declaration:generate-whitelist --module-name=Vendor_Module`
+</code></pre>
+<h3 id="changelog">CHANGELOG</h3>
+<pre><code class="language-markdown">## [1.0.0] - 2026-02-05
+### Added
+- Database schema: `vendor_product_review`, `vendor_review_status`, `vendor_review_tag`
+- Data patch: Install default review statuses
+- Schema patch: Add sentiment score computed column
+
+### Changed
+- Migrated from legacy InstallSchema to declarative schema
+</code></pre>
+<h3 id="upgrade-guide">Upgrade Guide</h3>
+<pre><code class="language-markdown">## Upgrading from 0.9.x to 1.0.0
+
+**Breaking Changes:**
+
+- Removed `old_field` column from `vendor_customer` table. Applications must use `new_field`.
+
+**Migration Steps:**
+
+1. Backup database: `mysqldump magento2 &gt; backup.sql`
+2. Run: `bin/magento setup:upgrade`
+3. Verify data integrity in `vendor_customer` table
+4. Update custom code to use `new_field`
+</code></pre>
+<h3 id="admin-user-guide">Admin User Guide</h3>
+<ul>
+<li>Document any user-visible changes caused by schema updates</li>
+<li>Example: "Review statuses now include 'Rejected' option (v1.0.0+)"</li>
+</ul>
+<h2 id="related-documentation">Related Documentation</h2>
+<h3 id="related-guides">Related Guides</h3>
+<ul>
+<li><a href="../explanations/eav-system.md">EAV System Architecture: Understanding Entity-Attribute-Value in Magento 2</a></li>
+<li><a href="../references/upgrade-guide-247-248.md">Upgrade Guide: Adobe Commerce 2.4.6 to 2.4.7/2.4.8</a></li>
+<li><a href="plugin-system-deep-dive.md">Plugin System Deep Dive: Mastering Magento 2 Interception</a></li>
+</ul>
+<h3 id="related-module-documentation">Related Module Documentation</h3>
+<ul>
+<li><a href="../../modules/catalog/README.md">Magento_Catalog Overview</a></li>
+<li><a href="../../modules/customer/README.md">Magento_Customer Overview</a></li>
+<li><a href="../../modules/sales/README.md">Magento_Sales Overview</a></li>
+</ul>
+                    </div>
+                </article>
+            </main>
+            <!-- Right Sidebar: On This Page (desktop) -->
+            <aside class="toc-sidebar hidden xl:block" aria-label="On this page">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-semibold text-gray-900 uppercase tracking-wider mb-4 mt-0">On this page</h3>
+                    <nav id="toc-nav" class="space-y-0" aria-label="Table of contents"></nav>
+                    <div class="toc-back-to-top">
+                        <a href="#">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+                            </svg>
+                            Back to top
+                        </a>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- ================================================================
+         FOOTER — matches module-catalog.html multi-column layout exactly
+         ================================================================ -->
+    <footer class="relative pt-12 bg-white border-t border-charcoal mt-16">
+        <div class="max-w-screen-2xl mx-auto w-full px-4 sm:px-6 lg:px-8">
+            <div>
+                <a href="index.html" class="inline-flex items-center no-underline">
+                    <svg width="30" height="33" viewBox="0 0 30 33" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Magento Association logo" role="img">
+                        <path d="M0 4.06492H29.6763V31.8882C29.6763 32.502 29.1713 33 28.5487 33H1.12762C0.505079 33 0 32.502 0 31.8882V4.06492Z" fill="#34323A"/>
+                        <path d="M1.26857 0H28.4078C29.1066 0 29.6763 0.561678 29.6763 1.25075V4.06492H0V1.25075C0 0.561678 0.569682 0 1.26857 0Z" fill="#C9C9C9"/>
+                        <path d="M2.37269 3.0458C2.94031 3.0458 3.40046 2.59211 3.40046 2.03246C3.40046 1.47281 2.94031 1.01913 2.37269 1.01913C1.80506 1.01913 1.34491 1.47281 1.34491 2.03246C1.34491 2.59211 1.80506 3.0458 2.37269 3.0458Z" fill="#848484"/>
+                        <path d="M5.28571 3.0458C5.85334 3.0458 6.31349 2.59211 6.31349 2.03246C6.31349 1.47281 5.85334 1.01913 5.28571 1.01913C4.71809 1.01913 4.25793 1.47281 4.25793 2.03246C4.25793 2.59211 4.71809 3.0458 5.28571 3.0458Z" fill="#848484"/>
+                        <path d="M14.7883 7.46973L4.90405 13.0923V24.349L7.54104 25.8487V14.5978L14.7883 10.4692L22.0415 14.5978V25.8487L24.6785 24.349V13.0923L14.7883 7.46973Z" fill="#F1BC1B"/>
+                        <path d="M16.0862 26.2367L14.7883 26.9779L13.4492 26.2135V14.233L10.178 16.0975V27.3485L13.4492 29.213L14.7883 29.9773L16.0862 29.2362L19.4045 27.3485V16.0975L16.0862 14.2098V26.2367Z" fill="#F1BC1B"/>
+                    </svg>
+                    <span class="ml-3 text-xl font-bold text-charcoal">Developer Documentation</span>
+                </a>
+            </div>
+
+            <div class="grid grid-cols-12 md:gap-x-8 gap-y-12 lg:mt-12">
+                <div class="col-span-12 lg:col-span-4">
+                    <p class="hidden lg:block text-xs text-charcoal sm:text-sm">Comprehensive developer documentation for Magento 2.4.7+ — tutorials, architecture deep dives, module references, and production-ready patterns built by the community, for the community.</p>
+                    <ul class="mt-6 hidden lg:flex items-center gap-3">
+                        <li class="pl-0">
+                            <a href="https://github.com/magento/magento2" class="p-2 md:p-0" aria-label="GitHub">
+                                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                                </svg>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Guides</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="tutorials.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Tutorials</a></li>
+                            <li class="pl-0"><a href="how-to-guides.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">How-To Guides</a></li>
+                            <li class="pl-0"><a href="architecture.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Architecture</a></li>
+                            <li class="pl-0"><a href="learning-paths.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Learning Paths</a></li>
+                            <li class="pl-0"><a href="references.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">References</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Modules</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="module-catalog.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Catalog</a></li>
+                            <li class="pl-0"><a href="module-checkout.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Checkout</a></li>
+                            <li class="pl-0"><a href="module-sales.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Sales</a></li>
+                            <li class="pl-0"><a href="module-customer.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Customer</a></li>
+                            <li class="pl-0"><a href="module-quote.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Quote</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Community</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Magento Community</a></li>
+                            <li class="pl-0"><a href="https://magento.stackexchange.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Stack Exchange</a></li>
+                            <li class="pl-0"><a href="https://marketplace.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Marketplace</a></li>
+                            <li class="pl-0"><a href="https://github.com/magento/magento2" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">GitHub</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Support</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://github.com/magento/magento2/issues" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Report Issues</a></li>
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Community Resources</a></li>
+                            <li class="pl-0"><a href="https://developer.adobe.com/commerce/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Adobe Commerce Docs</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-12 border-t pt-6 pb-16 border-charcoal">
+                <p class="text-xs text-charcoal">
+                    &copy; 2026 Magento 2 Developer Documentation. Magento&reg; is a registered trademark of Adobe Inc.
+                </p>
+                <p class="mt-6 text-xs text-charcoal">
+                    This documentation provides guidance for Magento 2 developers and extension builders. For merchant documentation, visit the <a href="index.html" class="text-orange hover:text-orange-600 transition-colors">merchant documentation</a>.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Initialize highlight.js -->
+    <script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('pre code').forEach(function (el) {
+        hljs.highlightElement(el);
+    });
+    document.querySelectorAll('pre').forEach(function (pre) {
+        if (pre.parentNode.classList && pre.parentNode.classList.contains('code-wrapper')) return;
+        var wrapper = document.createElement('div');
+        wrapper.className = 'code-wrapper';
+        pre.parentNode.insertBefore(wrapper, pre);
+        wrapper.appendChild(pre);
+        var btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.setAttribute('type', 'button');
+        btn.setAttribute('aria-label', 'Copy code to clipboard');
+        btn.setAttribute('title', 'Copy');
+        btn.textContent = 'Copy';
+        wrapper.appendChild(btn);
+        btn.addEventListener('click', function () {
+            var code = pre.querySelector('code');
+            var text = code ? (code.innerText || code.textContent) : (pre.innerText || pre.textContent);
+            navigator.clipboard.writeText(text).then(function () {
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            }).catch(function () {
+                var range = document.createRange();
+                range.selectNode(code || pre);
+                window.getSelection().removeAllRanges();
+                window.getSelection().addRange(range);
+                document.execCommand('copy');
+                window.getSelection().removeAllRanges();
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            });
+        });
+    });
+});
+</script>
+
+
+<script>
+(function() {
+    var nav = document.getElementById('toc-nav');
+    if (!nav) return;
+    var article = document.getElementById('main-content');
+    if (!article) return;
+    var headings = article.querySelectorAll('h2[id], h3[id]');
+    if (headings.length < 3) {
+        // Hide the entire TOC sidebar if fewer than 3 headings
+        var sidebar = nav.closest('.toc-sidebar');
+        if (sidebar) sidebar.style.display = 'none';
+        return;
+    }
+    var ids = [];
+    headings.forEach(function(h) {
+        var a = document.createElement('a');
+        a.href = '#' + h.id;
+        a.textContent = h.textContent.replace(/^#+\s*/, '').replace(/\s+/g, ' ').trim();
+        if (h.tagName === 'H3') a.classList.add('toc-h3');
+        nav.appendChild(a);
+        ids.push(h.id);
+    });
+    // Scroll-spy with IntersectionObserver
+    var links = nav.querySelectorAll('a');
+    var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                links.forEach(function(l) { l.classList.remove('toc-active'); });
+                var active = nav.querySelector('a[href="#' + entry.target.id + '"]');
+                if (active) active.classList.add('toc-active');
+            }
+        });
+    }, { rootMargin: '-80px 0px -70% 0px', threshold: 0 });
+    headings.forEach(function(h) { observer.observe(h); });
+})();
+</script>
+</body>
+</html>

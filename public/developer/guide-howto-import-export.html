@@ -1,0 +1,1832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Import/Export System Deep Dive — Magento 2 Developer Documentation</title>
+    <meta name="description" content="Master Magento's import/export architecture for custom entity imports, scheduled imports, large file handling, validation strategies, and performance optimization.">
+
+    <!-- Google Fonts: Inter Tight only. Courier New used for code. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Highlight.js: syntax highlighting for code blocks -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/php.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/ini.min.js"></script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        charcoal: {
+                            DEFAULT: '#2c2c2c', 50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6',
+                            300: '#6B6B6B', 400: '#474747', 500: '#2c2c2c', 600: '#262626',
+                            700: '#202020', 800: '#1c1c1c', 900: '#191919', 950: '#121212'
+                        },
+                        orange: {
+                            DEFAULT: '#D4551A', 50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad',
+                            300: '#f9ae78', 400: '#f58242', 500: '#f26423', 600: '#e34613',
+                            700: '#bc3312', 800: '#962a16', 900: '#792515', 950: '#411009'
+                        },
+                        yellow: {
+                            DEFAULT: '#B8860B', 50: '#fffdeb', 100: '#fdf9c8', 200: '#fbf38c',
+                            300: '#f8e651', 400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a',
+                            700: '#b1670c', 800: '#8f5111', 900: '#764311', 950: '#442204'
+                        },
+                        'off-white': '#FAFAFA',
+                    },
+                    fontFamily: {
+                        sans: ['Inter Tight', 'system-ui', '-apple-system', 'sans-serif'],
+                        mono: ['Courier New', 'Courier', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* ── Force light mode ── */
+        :root { color-scheme: light only; }
+
+        [x-cloak] { display: none !important; }
+
+        /* ── Scroll offset for sticky header ── */
+        .prose h2, .prose h3 { scroll-margin-top: 5rem; }
+
+        /* ── Code blocks: Bauhaus charcoal bg, no border-radius, highlight.js override ── */
+        .prose pre {
+            background-color: #2C2C2C !important;
+            border-radius: 0 !important;
+            padding: 1.25rem;
+            overflow-x: auto;
+            font-size: 0.875rem;
+            line-height: 1.7;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 1.5rem 0;
+        }
+        .prose pre code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            background: transparent !important;
+            padding: 0;
+                    color: #abb2bf;
+        }
+        /* Override highlight.js theme background to match Bauhaus charcoal */
+        .hljs {
+            background: #2C2C2C !important;
+            color: #abb2bf !important;
+            border-radius: 0 !important;
+        }
+
+        /* ── Inline code: charcoal bg, yellow text, no border-radius ── */
+        .prose code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.85em;
+        }
+        .prose :not(pre) > code {
+            background-color: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2em 0.45em;
+            border-radius: 0;
+        }
+
+        /* ── Step-code: same charcoal/yellow style for UI path chips ── */
+        .step-code {
+            background: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2rem 0.5rem;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            border-radius: 0;
+        }
+
+        /* ── Tables: no border-radius, charcoal header ── */
+        .prose table { width: 100%; border-collapse: collapse; }
+        .prose th {
+            background-color: #2C2C2C;
+            color: #ffffff;
+            font-weight: 600;
+            text-align: left;
+            padding: 0.75rem 1rem;
+            border-bottom: 2px solid #2C2C2C;
+            border-radius: 0;
+        }
+        .prose td { padding: 0.75rem 1rem; border-bottom: 1px solid #e5e5e5; }
+        .prose tr:hover { background-color: #fafafa; }
+
+        /* ── Blockquote: Bauhaus style — border-4 yellow, square, no left-only border ── */
+        .prose blockquote {
+            border: 4px solid #F1BC1B;
+            background-color: #ffffff;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+            border-radius: 0;
+        }
+        .prose blockquote p { margin: 0; }
+
+        /* ── Lists: hexagon bullets ── */
+        .prose ul { list-style: none; padding-left: 0; }
+        .prose ul li {
+            position: relative;
+            padding-left: 1.75rem;
+            margin-bottom: 0.4rem;
+            line-height: 1.7;
+        }
+        .prose ul li::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0.45em;
+            width: 10px;
+            height: 10px;
+            background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 2L21 7V17L12 22L3 17V7L12 2Z' stroke='%23F26423' stroke-width='2.5' stroke-linejoin='miter'/%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+        .prose ol { list-style-type: decimal; padding-left: 1.5rem; }
+        .prose li { margin-bottom: 0.4rem; }
+
+        /* ── Headings ── */
+        .prose h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            padding-top: 1.5rem;
+            border-top: 4px solid #F1BC1B;
+            color: #2C2C2C;
+        }
+        .prose h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+            color: #2C2C2C;
+        }
+        .prose h4 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #2C2C2C;
+        }
+        .prose p { margin-bottom: 1rem; line-height: 1.75; }
+        .prose a { color: #D4551A; text-decoration: none; }
+        .prose a:hover { color: #e34613; text-decoration: underline; }
+        .prose hr { border: none; border-top: 1px solid #e5e5e5; margin: 2rem 0; }
+
+        /* ── Callout boxes: Bauhaus — border-4 yellow, white bg, icon + title ── */
+        .callout-box {
+            background-color: #ffffff;
+            border: 4px solid #F1BC1B;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+        }
+        .callout-warning {
+            border-color: #D4551A;
+        }
+        .callout-important {
+            border-color: #2C2C2C;
+        }
+        .callout-box .callout-inner {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+        .callout-box .callout-title {
+            font-weight: 600;
+            color: #2C2C2C;
+            margin-bottom: 0.25rem;
+        }
+        .callout-box .callout-body {
+            font-size: 0.875rem;
+            line-height: 1.6;
+            color: rgba(44,44,44,0.85);
+        }
+
+        
+    
+        /* Code block copy button */
+        .code-wrapper {
+            position: relative;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            font-family: 'Inter Tight', system-ui, sans-serif;
+            background: rgba(255,255,255,0.1);
+            color: #abb2bf;
+            border: 1px solid rgba(255,255,255,0.15);
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.15s ease, background 0.15s ease;
+            z-index: 10;
+            line-height: 1.4;
+            border-radius: 4px;
+            user-select: none;
+        }
+        .code-wrapper:hover .copy-btn {
+            opacity: 1;
+        }
+        .copy-btn:hover,
+        .copy-btn:focus {
+            background: rgba(255,255,255,0.2);
+            color: #ffffff;
+            outline: 2px solid #D4551A;
+            outline-offset: 1px;
+        }
+        .copy-btn.copied {
+            color: #98c379;
+            background: rgba(152, 195, 121, 0.15);
+            opacity: 1;
+        }
+    
+        /* Right-hand TOC sidebar */
+        .toc-sidebar {
+            width: 14rem;
+            flex-shrink: 0;
+        }
+        .toc-sidebar a {
+            display: block;
+            padding: 0.375rem 0;
+            font-size: 0.8125rem;
+            line-height: 1.4;
+            color: #6b7280;
+            text-decoration: none;
+            transition: color 0.15s ease;
+            border-left: 2px solid transparent;
+            padding-left: 0.75rem;
+        }
+        .toc-sidebar a:hover {
+            color: #111827;
+        }
+        .toc-sidebar a.toc-active {
+            color: #ea580c;
+            border-left-color: #ea580c;
+            font-weight: 500;
+        }
+        .toc-sidebar a.toc-h3 {
+            padding-left: 1.5rem;
+            font-size: 0.75rem;
+        }
+        .toc-sidebar .toc-back-to-top {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e5e7eb;
+        }
+        .toc-sidebar .toc-back-to-top a {
+            border-left: none;
+            padding-left: 0;
+            font-weight: 500;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .toc-sidebar .toc-back-to-top a:hover {
+            color: #ea580c;
+        }
+    </style>
+</head>
+
+<body class="font-sans bg-off-white text-charcoal">
+
+    <!-- Shared header — single source of truth -->
+    <script src="includes/header.js"></script>
+
+    <!-- Breadcrumb — orange › separators -->
+    <div class="bg-white border-b border-gray-100">
+        <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <div class="flex items-center gap-2 text-sm flex-wrap">
+                <a href="index.html" class="text-orange hover:text-orange-600 transition-colors no-underline">Home</a> <span class="text-orange font-medium">›</span> <a href="index.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">Guides</a> <span class="text-orange font-medium">›</span> <a href="how-to-guides.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">How-To Guides</a> <span class="text-orange font-medium">›</span> <span class="text-charcoal font-medium">Import/Export System Deep Dive</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="flex gap-8">
+
+            <!-- Left Sidebar (desktop) -->
+            <aside class="hidden lg:block w-64 flex-shrink-0">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4">How-To Guides</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="guide-howto-admin-ui-components.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Building Admin UI Components in ...</a></li>
+<li class="pl-0"><a href="guide-howto-cicd-deployment.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">CI/CD Deployment Pipelines for M...</a></li>
+<li class="pl-0"><a href="guide-howto-cron-jobs.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Cron Jobs Implementation: Buildi...</a></li>
+<li class="pl-0"><a href="guide-howto-email-templates.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Email Templates Customization</a></li>
+<li class="pl-0"><a href="guide-howto-erp-integration.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">ERP Integration Patterns for Mag...</a></li>
+<li class="pl-0"><a href="guide-howto-full-page-cache-strategy.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Full Page Cache Strategy for Hig...</a></li>
+<li class="pl-0"><a href="guide-howto-import-export.html" class="block px-3 py-2 text-sm text-orange font-semibold bg-orange-50 border-l-4 border-orange pl-2 transition-colors no-underline">Import/Export System Deep Dive</a></li>
+<li class="pl-0"><a href="guide-howto-layout-xml-deep-dive.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Layout XML Deep Dive: Mastering ...</a></li>
+<li class="pl-0"><a href="guide-howto-multi-store-setup.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Multi-Store Configuration Mastery</a></li>
+<li class="pl-0"><a href="guide-howto-security-checklist.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Security Checklist for Custom Mo...</a></li>
+<li class="pl-0"><a href="guide-howto-testing-strategies.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Comprehensive Testing Strategies...</a></li>
+</ul>
+<h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4 mt-8">Guide Sections</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="tutorials.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Tutorials</a></li>
+<li class="pl-0"><a href="how-to-guides.html" class="block px-3 py-2 text-sm text-orange font-semibold bg-orange-50 border-l-4 border-orange pl-2 transition-colors no-underline">How-To Guides</a></li>
+<li class="pl-0"><a href="architecture.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Architecture</a></li>
+<li class="pl-0"><a href="references.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">References</a></li>
+</ul>
+                </div>
+            </aside>
+
+            <!-- Article — square corners, border-t-4 orange accent -->
+            <main id="main-content" class="flex-1 min-w-0">
+                <article class="bg-white shadow-sm border border-gray-100 border-t-4 border-t-orange p-8 md:p-12">
+                    <!-- Title block -->
+                    <div class="mb-8">
+                        <span class="inline-block px-3 py-1.5 text-xs font-medium bg-yellow-50 text-yellow-800 border border-yellow-200">How-To</span>
+                        <h1 class="text-3xl md:text-4xl font-extrabold text-charcoal mt-3 mb-3">Import/Export System Deep Dive</h1>
+                        <p class="text-charcoal-300 text-lg mb-4">Master Magento's import/export architecture for custom entity imports, scheduled imports, large file handling, validation strategies, and performance optimization.</p>
+                        <!-- Meta pills -->
+                        <div class="flex flex-wrap gap-2"><span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-yellow-50 text-yellow-800"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>Advanced</span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-orange-50 text-orange-700"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>50 minutes</span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-charcoal text-white">Magento 2.4.7+</span></div>
+                    </div>
+
+                    <hr class="border-0 border-t border-gray-100 mb-8">
+
+                    <!-- Content -->
+                    <div class="prose max-w-none">
+                        <h1 id="importexport-system-deep-dive">Import/Export System Deep Dive</h1>
+<h2 id="overview">Overview</h2>
+<p>Magento's import/export system provides a robust framework for bulk data operations. Understanding this architecture is critical for custom entity imports, third-party integrations, and large-scale catalog management.</p>
+<p><strong>What you'll learn:</strong>
+- Import/export architecture and the adapter/entity/behavior pattern
+- Creating custom entity importers with validation and error handling
+- Scheduled imports with cron integration
+- Large file handling strategies (chunking, streaming, memory optimization)
+- Advanced validation techniques and error recovery
+- Performance optimization for million-row imports
+- Export customization and custom export entities</p>
+<p><strong>Prerequisites:</strong>
+- Magento 2.4.7+ (Adobe Commerce or Open Source)
+- Understanding of Magento module structure and dependency injection
+- Experience with CSV file processing and data validation
+- Knowledge of indexing and cache management
+- Familiarity with cron system</p>
+<hr />
+<h2 id="importexport-architecture">Import/Export Architecture</h2>
+<h3 id="core-components">Core Components</h3>
+<ol>
+<li><strong>Import Model</strong>: <code>Magento\ImportExport\Model\Import</code> - Main import orchestrator</li>
+<li><strong>Entity Adapters</strong>: <code>Magento\ImportExport\Model\Import\Entity\AbstractEntity</code> - Per-entity logic</li>
+<li><strong>Source Models</strong>: <code>Magento\ImportExport\Model\Import\AbstractSource</code> - File reading abstraction</li>
+<li><strong>Behavior Models</strong>: Add, update, delete, or replace strategies</li>
+<li><strong>Validation</strong>: <code>Magento\ImportExport\Model\Import\ErrorProcessing\ProcessingErrorAggregator</code></li>
+<li><strong>Export Model</strong>: <code>Magento\ImportExport\Model\Export</code> - Export orchestrator</li>
+</ol>
+<h3 id="import-flow">Import Flow</h3>
+<pre><code>[CSV Upload] → [Source Model] → [Validation]
+       ↓
+[Entity Adapter] → [Behavior (Add/Update/Delete)]
+       ↓
+[Data Processing] → [Database Write] → [Indexing]
+       ↓
+[Error Aggregation] → [Report Generation]
+</code></pre>
+<h3 id="entity-adapter-pattern">Entity Adapter Pattern</h3>
+<p>Each importable entity (products, customers, stock sources) has an adapter that:
+- Validates row structure and data integrity
+- Maps CSV columns to entity attributes
+- Handles add/update/delete/replace behaviors
+- Manages relationships (categories, links, options)</p>
+<hr />
+<h2 id="creating-a-custom-entity-importer">Creating a Custom Entity Importer</h2>
+<h3 id="use-case-warranty-registration-import">Use Case: Warranty Registration Import</h3>
+<p>We'll build an importer for warranty registrations that validates product SKU, customer email, purchase date, and warranty details.</p>
+<h3 id="step-1-register-import-entity">Step 1: Register Import Entity</h3>
+<p><strong>File</strong>: <code>Vendor/WarrantyImport/etc/import.xml</code></p>
+<pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;config xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+        xsi:noNamespaceSchemaLocation=&quot;urn:magento:module:Magento_ImportExport:etc/import.xsd&quot;&gt;
+
+    &lt;entity name=&quot;warranty_registration&quot;
+            label=&quot;Warranty Registrations&quot;
+            model=&quot;Vendor\WarrantyImport\Model\Import\WarrantyRegistration&quot;
+            behaviorModel=&quot;Vendor\WarrantyImport\Model\Import\WarrantyRegistration\Behavior&quot;
+            entityTypeCode=&quot;warranty_registration&quot;&gt;
+    &lt;/entity&gt;
+&lt;/config&gt;
+</code></pre>
+<h3 id="step-2-create-entity-adapter">Step 2: Create Entity Adapter</h3>
+<p><strong>File</strong>: <code>Vendor/WarrantyImport/Model/Import/WarrantyRegistration.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\WarrantyImport\Model\Import;
+
+use Magento\ImportExport\Model\Import;
+use Magento\ImportExport\Model\Import\Entity\AbstractEntity;
+use Magento\ImportExport\Model\Import\ErrorProcessing\ProcessingErrorAggregatorInterface;
+use Magento\Framework\App\ResourceConnection;
+use Vendor\WarrantyImport\Model\ResourceModel\Warranty as WarrantyResource;
+use Psr\Log\LoggerInterface;
+
+class WarrantyRegistration extends AbstractEntity
+{
+    public const ENTITY_CODE = 'warranty_registration';
+    public const TABLE = 'warranty_registration';
+
+    /**
+     * Required columns
+     */
+    public const COL_EMAIL = 'customer_email';
+    public const COL_SKU = 'product_sku';
+    public const COL_PURCHASE_DATE = 'purchase_date';
+    public const COL_WARRANTY_CODE = 'warranty_code';
+    public const COL_SERIAL_NUMBER = 'serial_number';
+
+    /**
+     * Optional columns
+     */
+    public const COL_PURCHASE_PRICE = 'purchase_price';
+    public const COL_RETAILER = 'retailer';
+    public const COL_NOTES = 'notes';
+
+    /**
+     * Validation errors
+     */
+    private const ERROR_DUPLICATE_WARRANTY = 'duplicateWarranty';
+    private const ERROR_INVALID_EMAIL = 'invalidEmail';
+    private const ERROR_INVALID_SKU = 'invalidSku';
+    private const ERROR_INVALID_DATE = 'invalidDate';
+    private const ERROR_MISSING_REQUIRED = 'missingRequired';
+
+    protected $validColumnNames = [
+        self::COL_EMAIL,
+        self::COL_SKU,
+        self::COL_PURCHASE_DATE,
+        self::COL_WARRANTY_CODE,
+        self::COL_SERIAL_NUMBER,
+        self::COL_PURCHASE_PRICE,
+        self::COL_RETAILER,
+        self::COL_NOTES,
+    ];
+
+    protected $needColumnCheck = true;
+    protected $logInHistory = true;
+    protected $_permanentAttributes = [self::COL_WARRANTY_CODE];
+
+    private array $validatedRows = [];
+    private array $invalidRows = [];
+    private array $existingWarranties = [];
+
+    public function __construct(
+        \Magento\Framework\Json\Helper\Data $jsonHelper,
+        \Magento\ImportExport\Helper\Data $importExportData,
+        \Magento\ImportExport\Model\ResourceModel\Import\Data $importData,
+        ResourceConnection $resource,
+        \Magento\ImportExport\Model\ResourceModel\Helper $resourceHelper,
+        ProcessingErrorAggregatorInterface $errorAggregator,
+        private readonly WarrantyResource $warrantyResource,
+        private readonly \Magento\Catalog\Api\ProductRepositoryInterface $productRepository,
+        private readonly \Magento\Customer\Api\CustomerRepositoryInterface $customerRepository,
+        private readonly LoggerInterface $logger
+    ) {
+        parent::__construct(
+            $jsonHelper,
+            $importExportData,
+            $importData,
+            $resource,
+            $resourceHelper,
+            $errorAggregator
+        );
+    }
+
+    /**
+     * Entity type code getter
+     */
+    public function getEntityTypeCode(): string
+    {
+        return self::ENTITY_CODE;
+    }
+
+    /**
+     * Validate row data
+     */
+    public function validateRow(array $rowData, $rowNum): bool
+    {
+        // Check if row already validated
+        if (isset($this-&gt;validatedRows[$rowNum])) {
+            return !$this-&gt;getErrorAggregator()-&gt;isRowInvalid($rowNum);
+        }
+
+        $this-&gt;validatedRows[$rowNum] = true;
+
+        // Validate required columns
+        if (!$this-&gt;validateRequiredColumns($rowData, $rowNum)) {
+            return false;
+        }
+
+        // Validate email format
+        if (!$this-&gt;validateEmail($rowData, $rowNum)) {
+            return false;
+        }
+
+        // Validate product SKU exists
+        if (!$this-&gt;validateProductSku($rowData, $rowNum)) {
+            return false;
+        }
+
+        // Validate date format
+        if (!$this-&gt;validateDate($rowData, $rowNum)) {
+            return false;
+        }
+
+        // Check for duplicate warranty codes
+        if (!$this-&gt;validateUniqueWarranty($rowData, $rowNum)) {
+            return false;
+        }
+
+        return !$this-&gt;getErrorAggregator()-&gt;isRowInvalid($rowNum);
+    }
+
+    /**
+     * Validate required columns
+     */
+    private function validateRequiredColumns(array $rowData, int $rowNum): bool
+    {
+        $requiredColumns = [
+            self::COL_EMAIL,
+            self::COL_SKU,
+            self::COL_PURCHASE_DATE,
+            self::COL_WARRANTY_CODE,
+        ];
+
+        foreach ($requiredColumns as $column) {
+            if (empty($rowData[$column])) {
+                $this-&gt;addRowError(
+                    self::ERROR_MISSING_REQUIRED,
+                    $rowNum,
+                    $column
+                );
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Validate email format
+     */
+    private function validateEmail(array $rowData, int $rowNum): bool
+    {
+        $email = $rowData[self::COL_EMAIL];
+
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $this-&gt;addRowError(
+                self::ERROR_INVALID_EMAIL,
+                $rowNum,
+                self::COL_EMAIL,
+                null,
+                null,
+                sprintf('Invalid email format: %s', $email)
+            );
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Validate product SKU exists
+     */
+    private function validateProductSku(array $rowData, int $rowNum): bool
+    {
+        $sku = $rowData[self::COL_SKU];
+
+        try {
+            $this-&gt;productRepository-&gt;get($sku);
+            return true;
+        } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
+            $this-&gt;addRowError(
+                self::ERROR_INVALID_SKU,
+                $rowNum,
+                self::COL_SKU,
+                null,
+                null,
+                sprintf('Product SKU not found: %s', $sku)
+            );
+            return false;
+        }
+    }
+
+    /**
+     * Validate date format
+     */
+    private function validateDate(array $rowData, int $rowNum): bool
+    {
+        $dateString = $rowData[self::COL_PURCHASE_DATE];
+
+        try {
+            $date = new \DateTime($dateString);
+
+            // Check if date is not in future
+            $now = new \DateTime();
+            if ($date &gt; $now) {
+                $this-&gt;addRowError(
+                    self::ERROR_INVALID_DATE,
+                    $rowNum,
+                    self::COL_PURCHASE_DATE,
+                    null,
+                    null,
+                    'Purchase date cannot be in the future'
+                );
+                return false;
+            }
+
+            return true;
+
+        } catch (\Exception $e) {
+            $this-&gt;addRowError(
+                self::ERROR_INVALID_DATE,
+                $rowNum,
+                self::COL_PURCHASE_DATE,
+                null,
+                null,
+                sprintf('Invalid date format: %s', $dateString)
+            );
+            return false;
+        }
+    }
+
+    /**
+     * Check for duplicate warranty codes
+     */
+    private function validateUniqueWarranty(array $rowData, int $rowNum): bool
+    {
+        $warrantyCode = $rowData[self::COL_WARRANTY_CODE];
+
+        // Load existing warranties on first validation
+        if (empty($this-&gt;existingWarranties)) {
+            $this-&gt;existingWarranties = $this-&gt;loadExistingWarranties();
+        }
+
+        if (isset($this-&gt;existingWarranties[$warrantyCode])) {
+            $this-&gt;addRowError(
+                self::ERROR_DUPLICATE_WARRANTY,
+                $rowNum,
+                self::COL_WARRANTY_CODE,
+                null,
+                null,
+                sprintf('Warranty code already exists: %s', $warrantyCode)
+            );
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Load existing warranty codes
+     */
+    private function loadExistingWarranties(): array
+    {
+        $connection = $this-&gt;_connection;
+        $select = $connection-&gt;select()
+            -&gt;from($this-&gt;warrantyResource-&gt;getMainTable(), ['warranty_code'])
+            -&gt;where('warranty_code IS NOT NULL');
+
+        $result = $connection-&gt;fetchCol($select);
+
+        return array_fill_keys($result, true);
+    }
+
+    /**
+     * Import data
+     */
+    protected function _importData(): bool
+    {
+        switch ($this-&gt;getBehavior()) {
+            case Import::BEHAVIOR_DELETE:
+                $this-&gt;deleteWarranties();
+                break;
+            case Import::BEHAVIOR_REPLACE:
+                $this-&gt;replaceWarranties();
+                break;
+            case Import::BEHAVIOR_APPEND:
+            default:
+                $this-&gt;saveWarranties();
+                break;
+        }
+
+        return true;
+    }
+
+    /**
+     * Save warranty data
+     */
+    private function saveWarranties(): void
+    {
+        $warrantiesToInsert = [];
+        $warrantiesToUpdate = [];
+
+        while ($bunch = $this-&gt;_dataSourceModel-&gt;getNextBunch()) {
+            foreach ($bunch as $rowNum =&gt; $rowData) {
+                // Skip invalid rows
+                if (!$this-&gt;validateRow($rowData, $rowNum)) {
+                    continue;
+                }
+
+                // Prepare warranty data
+                $warranty = $this-&gt;prepareWarrantyData($rowData);
+
+                // Check if warranty exists (for update)
+                if (isset($this-&gt;existingWarranties[$warranty['warranty_code']])) {
+                    $warrantiesToUpdate[] = $warranty;
+                } else {
+                    $warrantiesToInsert[] = $warranty;
+                }
+
+                // Process in batches
+                if (count($warrantiesToInsert) &gt;= $this-&gt;getBatchSize()) {
+                    $this-&gt;insertWarranties($warrantiesToInsert);
+                    $warrantiesToInsert = [];
+                }
+
+                if (count($warrantiesToUpdate) &gt;= $this-&gt;getBatchSize()) {
+                    $this-&gt;updateWarranties($warrantiesToUpdate);
+                    $warrantiesToUpdate = [];
+                }
+            }
+        }
+
+        // Process remaining
+        if (!empty($warrantiesToInsert)) {
+            $this-&gt;insertWarranties($warrantiesToInsert);
+        }
+
+        if (!empty($warrantiesToUpdate)) {
+            $this-&gt;updateWarranties($warrantiesToUpdate);
+        }
+    }
+
+    /**
+     * Prepare warranty data for insertion
+     */
+    private function prepareWarrantyData(array $rowData): array
+    {
+        // Get customer ID from email
+        $customerId = $this-&gt;getCustomerIdByEmail($rowData[self::COL_EMAIL]);
+
+        // Get product ID from SKU
+        $productId = $this-&gt;getProductIdBySku($rowData[self::COL_SKU]);
+
+        return [
+            'warranty_code' =&gt; $rowData[self::COL_WARRANTY_CODE],
+            'customer_id' =&gt; $customerId,
+            'customer_email' =&gt; $rowData[self::COL_EMAIL],
+            'product_id' =&gt; $productId,
+            'product_sku' =&gt; $rowData[self::COL_SKU],
+            'serial_number' =&gt; $rowData[self::COL_SERIAL_NUMBER] ?? null,
+            'purchase_date' =&gt; $rowData[self::COL_PURCHASE_DATE],
+            'purchase_price' =&gt; $rowData[self::COL_PURCHASE_PRICE] ?? null,
+            'retailer' =&gt; $rowData[self::COL_RETAILER] ?? null,
+            'notes' =&gt; $rowData[self::COL_NOTES] ?? null,
+            'created_at' =&gt; date('Y-m-d H:i:s'),
+        ];
+    }
+
+    /**
+     * Insert warranty records
+     */
+    private function insertWarranties(array $warranties): void
+    {
+        if (empty($warranties)) {
+            return;
+        }
+
+        try {
+            $this-&gt;_connection-&gt;insertMultiple(
+                $this-&gt;warrantyResource-&gt;getMainTable(),
+                $warranties
+            );
+
+            $this-&gt;countItemsCreated += count($warranties);
+
+        } catch (\Exception $e) {
+            $this-&gt;logger-&gt;error('Warranty import insert failed', [
+                'exception' =&gt; $e-&gt;getMessage(),
+                'count' =&gt; count($warranties)
+            ]);
+        }
+    }
+
+    /**
+     * Update warranty records
+     */
+    private function updateWarranties(array $warranties): void
+    {
+        if (empty($warranties)) {
+            return;
+        }
+
+        try {
+            $this-&gt;_connection-&gt;insertOnDuplicate(
+                $this-&gt;warrantyResource-&gt;getMainTable(),
+                $warranties,
+                array_keys(reset($warranties))
+            );
+
+            $this-&gt;countItemsUpdated += count($warranties);
+
+        } catch (\Exception $e) {
+            $this-&gt;logger-&gt;error('Warranty import update failed', [
+                'exception' =&gt; $e-&gt;getMessage(),
+                'count' =&gt; count($warranties)
+            ]);
+        }
+    }
+
+    /**
+     * Delete warranties
+     */
+    private function deleteWarranties(): void
+    {
+        $warrantyCodesToDelete = [];
+
+        while ($bunch = $this-&gt;_dataSourceModel-&gt;getNextBunch()) {
+            foreach ($bunch as $rowNum =&gt; $rowData) {
+                if (!$this-&gt;validateRow($rowData, $rowNum)) {
+                    continue;
+                }
+
+                $warrantyCodesToDelete[] = $rowData[self::COL_WARRANTY_CODE];
+
+                if (count($warrantyCodesToDelete) &gt;= $this-&gt;getBatchSize()) {
+                    $this-&gt;deleteWarrantyBatch($warrantyCodesToDelete);
+                    $warrantyCodesToDelete = [];
+                }
+            }
+        }
+
+        if (!empty($warrantyCodesToDelete)) {
+            $this-&gt;deleteWarrantyBatch($warrantyCodesToDelete);
+        }
+    }
+
+    /**
+     * Delete batch of warranties
+     */
+    private function deleteWarrantyBatch(array $warrantyCodes): void
+    {
+        try {
+            $this-&gt;_connection-&gt;delete(
+                $this-&gt;warrantyResource-&gt;getMainTable(),
+                $this-&gt;_connection-&gt;quoteInto('warranty_code IN (?)', $warrantyCodes)
+            );
+
+            $this-&gt;countItemsDeleted += count($warrantyCodes);
+
+        } catch (\Exception $e) {
+            $this-&gt;logger-&gt;error('Warranty delete failed', [
+                'exception' =&gt; $e-&gt;getMessage(),
+                'codes' =&gt; $warrantyCodes
+            ]);
+        }
+    }
+
+    /**
+     * Replace warranties (delete all, then insert)
+     */
+    private function replaceWarranties(): void
+    {
+        // Delete all existing warranties
+        try {
+            $this-&gt;_connection-&gt;delete($this-&gt;warrantyResource-&gt;getMainTable());
+        } catch (\Exception $e) {
+            $this-&gt;logger-&gt;error('Warranty replace (delete all) failed', [
+                'exception' =&gt; $e-&gt;getMessage()
+            ]);
+        }
+
+        // Insert new data
+        $this-&gt;saveWarranties();
+    }
+
+    /**
+     * Get customer ID by email
+     */
+    private function getCustomerIdByEmail(string $email): ?int
+    {
+        try {
+            $customer = $this-&gt;customerRepository-&gt;get($email);
+            return (int)$customer-&gt;getId();
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+
+    /**
+     * Get product ID by SKU
+     */
+    private function getProductIdBySku(string $sku): ?int
+    {
+        try {
+            $product = $this-&gt;productRepository-&gt;get($sku);
+            return (int)$product-&gt;getId();
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+
+    /**
+     * Get batch size for processing
+     */
+    private function getBatchSize(): int
+    {
+        return 500;
+    }
+}
+</code></pre>
+<hr />
+<h2 id="scheduled-imports">Scheduled Imports</h2>
+<h3 id="cron-based-import-processor">Cron-Based Import Processor</h3>
+<p><strong>File</strong>: <code>Vendor/WarrantyImport/Model/ScheduledImport.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\WarrantyImport\Model;
+
+use Magento\Framework\App\Filesystem\DirectoryList;
+use Magento\Framework\Filesystem;
+use Magento\ImportExport\Model\Import;
+use Magento\ImportExport\Model\Import\Source\Csv;
+use Psr\Log\LoggerInterface;
+
+class ScheduledImport
+{
+    private const IMPORT_DIR = 'import/warranty';
+
+    public function __construct(
+        private readonly Filesystem $filesystem,
+        private readonly Import $importModel,
+        private readonly LoggerInterface $logger
+    ) {
+    }
+
+    /**
+     * Execute scheduled import
+     */
+    public function execute(): void
+    {
+        $varDirectory = $this-&gt;filesystem-&gt;getDirectoryRead(DirectoryList::VAR_DIR);
+        $importPath = $varDirectory-&gt;getAbsolutePath(self::IMPORT_DIR);
+
+        if (!is_dir($importPath)) {
+            $this-&gt;logger-&gt;info('Import directory does not exist: ' . $importPath);
+            return;
+        }
+
+        $files = glob($importPath . '/*.csv');
+
+        foreach ($files as $filePath) {
+            try {
+                $this-&gt;processImportFile($filePath);
+
+                // Move processed file to archive
+                $this-&gt;archiveFile($filePath);
+
+            } catch (\Exception $e) {
+                $this-&gt;logger-&gt;error('Scheduled import failed', [
+                    'file' =&gt; $filePath,
+                    'exception' =&gt; $e-&gt;getMessage()
+                ]);
+
+                // Move failed file to error directory
+                $this-&gt;moveToErrorDirectory($filePath);
+            }
+        }
+    }
+
+    /**
+     * Process single import file
+     */
+    private function processImportFile(string $filePath): void
+    {
+        $source = new Csv($filePath);
+
+        $this-&gt;importModel-&gt;setData([
+            'entity' =&gt; 'warranty_registration',
+            'behavior' =&gt; Import::BEHAVIOR_APPEND,
+            'validation_strategy' =&gt; Import::VALIDATION_STRATEGY_STOP_ON_ERROR,
+        ]);
+
+        $validationResult = $this-&gt;importModel-&gt;validateSource($source);
+
+        if (!$validationResult) {
+            $errors = $this-&gt;importModel-&gt;getErrorAggregator()-&gt;getAllErrors();
+            throw new \RuntimeException('Validation failed: ' . implode(', ', $errors));
+        }
+
+        $result = $this-&gt;importModel-&gt;importSource();
+
+        if (!$result) {
+            throw new \RuntimeException('Import failed');
+        }
+
+        $this-&gt;logger-&gt;info('Import completed successfully', [
+            'file' =&gt; basename($filePath),
+            'created' =&gt; $this-&gt;importModel-&gt;getCreatedItemsCount(),
+            'updated' =&gt; $this-&gt;importModel-&gt;getUpdatedItemsCount(),
+            'deleted' =&gt; $this-&gt;importModel-&gt;getDeletedItemsCount(),
+        ]);
+    }
+
+    /**
+     * Archive processed file
+     */
+    private function archiveFile(string $filePath): void
+    {
+        $varDirectory = $this-&gt;filesystem-&gt;getDirectoryWrite(DirectoryList::VAR_DIR);
+        $archivePath = $varDirectory-&gt;getAbsolutePath(self::IMPORT_DIR . '/archive');
+
+        if (!is_dir($archivePath)) {
+            mkdir($archivePath, 0775, true);
+        }
+
+        $fileName = basename($filePath);
+        $archiveFileName = date('YmdHis') . '_' . $fileName;
+
+        rename($filePath, $archivePath . '/' . $archiveFileName);
+    }
+
+    /**
+     * Move file to error directory
+     */
+    private function moveToErrorDirectory(string $filePath): void
+    {
+        $varDirectory = $this-&gt;filesystem-&gt;getDirectoryWrite(DirectoryList::VAR_DIR);
+        $errorPath = $varDirectory-&gt;getAbsolutePath(self::IMPORT_DIR . '/error');
+
+        if (!is_dir($errorPath)) {
+            mkdir($errorPath, 0775, true);
+        }
+
+        $fileName = basename($filePath);
+        $errorFileName = date('YmdHis') . '_' . $fileName;
+
+        rename($filePath, $errorPath . '/' . $errorFileName);
+    }
+}
+</code></pre>
+<p><strong>Register cron job:</strong></p>
+<p><strong>File</strong>: <code>Vendor/WarrantyImport/etc/crontab.xml</code></p>
+<pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;config xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+        xsi:noNamespaceSchemaLocation=&quot;urn:magento:module:Magento_Cron:etc/crontab.xsd&quot;&gt;
+    &lt;group id=&quot;default&quot;&gt;
+        &lt;job name=&quot;warranty_scheduled_import&quot; instance=&quot;Vendor\WarrantyImport\Cron\ScheduledImport&quot; method=&quot;execute&quot;&gt;
+            &lt;schedule&gt;*/15 * * * *&lt;/schedule&gt;
+        &lt;/job&gt;
+    &lt;/group&gt;
+&lt;/config&gt;
+</code></pre>
+<hr />
+<h2 id="large-file-handling">Large File Handling</h2>
+<h3 id="memory-efficient-csv-reading">Memory-Efficient CSV Reading</h3>
+<p><strong>File</strong>: <code>Vendor/WarrantyImport/Model/Import/Source/StreamingCsv.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\WarrantyImport\Model\Import\Source;
+
+use Magento\ImportExport\Model\Import\AbstractSource;
+
+class StreamingCsv extends AbstractSource
+{
+    private const BATCH_SIZE = 1000;
+
+    private $fileHandle;
+    private array $colNames;
+    private int $currentRow = 0;
+    private array $buffer = [];
+
+    public function __construct(
+        string $file,
+        string $delimiter = ',',
+        string $enclosure = '&quot;'
+    ) {
+        $this-&gt;fileHandle = fopen($file, 'r');
+
+        if ($this-&gt;fileHandle === false) {
+            throw new \RuntimeException('Unable to open file: ' . $file);
+        }
+
+        // Read header
+        $header = fgetcsv($this-&gt;fileHandle, 0, $delimiter, $enclosure);
+
+        if ($header === false) {
+            throw new \RuntimeException('Unable to read CSV header');
+        }
+
+        $this-&gt;colNames = $header;
+
+        // Pre-load first batch
+        $this-&gt;loadNextBatch($delimiter, $enclosure);
+
+        parent::__construct($this-&gt;colNames);
+    }
+
+    /**
+     * Load next batch of rows into buffer
+     */
+    private function loadNextBatch(string $delimiter, string $enclosure): void
+    {
+        $this-&gt;buffer = [];
+        $count = 0;
+
+        while ($count &lt; self::BATCH_SIZE &amp;&amp; !feof($this-&gt;fileHandle)) {
+            $row = fgetcsv($this-&gt;fileHandle, 0, $delimiter, $enclosure);
+
+            if ($row === false) {
+                break;
+            }
+
+            // Skip empty rows
+            if (empty(array_filter($row))) {
+                continue;
+            }
+
+            $this-&gt;buffer[] = array_combine($this-&gt;colNames, $row);
+            $count++;
+        }
+    }
+
+    /**
+     * Get next row
+     */
+    protected function _getNextRow()
+    {
+        if (empty($this-&gt;buffer)) {
+            return false;
+        }
+
+        $row = array_shift($this-&gt;buffer);
+        $this-&gt;currentRow++;
+
+        // Reload buffer if empty
+        if (empty($this-&gt;buffer) &amp;&amp; !feof($this-&gt;fileHandle)) {
+            $this-&gt;loadNextBatch(',', '&quot;');
+        }
+
+        return $row;
+    }
+
+    /**
+     * Rewind to start
+     */
+    public function rewind(): void
+    {
+        fseek($this-&gt;fileHandle, 0);
+        fgetcsv($this-&gt;fileHandle); // Skip header
+        $this-&gt;currentRow = 0;
+        $this-&gt;loadNextBatch(',', '&quot;');
+        parent::rewind();
+    }
+
+    /**
+     * Close file handle
+     */
+    public function __destruct()
+    {
+        if (is_resource($this-&gt;fileHandle)) {
+            fclose($this-&gt;fileHandle);
+        }
+    }
+}
+</code></pre>
+<hr />
+<h2 id="performance-optimization">Performance Optimization</h2>
+<h3 id="parallel-processing-with-message-queue">Parallel Processing with Message Queue</h3>
+<p><strong>File</strong>: <code>Vendor/WarrantyImport/Model/Import/Parallel/ChunkProcessor.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\WarrantyImport\Model\Import\Parallel;
+
+use Magento\Framework\MessageQueue\PublisherInterface;
+
+class ChunkProcessor
+{
+    private const CHUNK_SIZE = 5000;
+
+    public function __construct(
+        private readonly PublisherInterface $publisher
+    ) {
+    }
+
+    /**
+     * Split large import into chunks and publish to queue
+     */
+    public function processInParallel(string $filePath): void
+    {
+        $fileHandle = fopen($filePath, 'r');
+        $header = fgetcsv($fileHandle);
+
+        $chunk = [];
+        $chunkNumber = 0;
+
+        while (($row = fgetcsv($fileHandle)) !== false) {
+            $chunk[] = $row;
+
+            if (count($chunk) &gt;= self::CHUNK_SIZE) {
+                $this-&gt;publishChunk($header, $chunk, $chunkNumber++);
+                $chunk = [];
+            }
+        }
+
+        // Process remaining rows
+        if (!empty($chunk)) {
+            $this-&gt;publishChunk($header, $chunk, $chunkNumber);
+        }
+
+        fclose($fileHandle);
+    }
+
+    /**
+     * Publish chunk to message queue
+     */
+    private function publishChunk(array $header, array $rows, int $chunkNumber): void
+    {
+        $chunkData = [
+            'header' =&gt; $header,
+            'rows' =&gt; $rows,
+            'chunk_number' =&gt; $chunkNumber,
+            'timestamp' =&gt; time(),
+        ];
+
+        $this-&gt;publisher-&gt;publish(
+            'warranty.import.chunk',
+            json_encode($chunkData)
+        );
+    }
+}
+</code></pre>
+<p><strong>Queue Consumer:</strong></p>
+<p><strong>File</strong>: <code>Vendor/WarrantyImport/etc/queue_consumer.xml</code></p>
+<pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;config xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+        xsi:noNamespaceSchemaLocation=&quot;urn:magento:framework-message-queue:etc/consumer.xsd&quot;&gt;
+    &lt;consumer name=&quot;warranty.import.chunk&quot;
+              queue=&quot;warranty.import.chunk&quot;
+              connection=&quot;amqp&quot;
+              handler=&quot;Vendor\WarrantyImport\Model\Import\Parallel\ChunkConsumer::process&quot;
+              maxMessages=&quot;10&quot;/&gt;
+&lt;/config&gt;
+</code></pre>
+<h3 id="database-optimization">Database Optimization</h3>
+<p><strong>Use batch inserts:</strong></p>
+<pre><code class="language-php">&lt;?php
+// Instead of single inserts
+foreach ($warranties as $warranty) {
+    $connection-&gt;insert($table, $warranty);
+}
+
+// Use batch insert
+$connection-&gt;insertMultiple($table, $warranties);
+</code></pre>
+<p><strong>Disable indexers during import:</strong></p>
+<pre><code class="language-php">&lt;?php
+// Save indexer state
+$indexerCollection = $objectManager-&gt;get(\Magento\Indexer\Model\Indexer\CollectionFactory::class)-&gt;create();
+$indexerStates = [];
+
+foreach ($indexerCollection as $indexer) {
+    $indexerStates[$indexer-&gt;getId()] = $indexer-&gt;isScheduled();
+    $indexer-&gt;setScheduled(true); // Set to scheduled mode
+}
+
+// Perform import
+// ...
+
+// Restore indexer state and reindex
+foreach ($indexerCollection as $indexer) {
+    $indexer-&gt;setScheduled($indexerStates[$indexer-&gt;getId()]);
+    $indexer-&gt;reindexAll();
+}
+</code></pre>
+<hr />
+<h2 id="export-customization">Export Customization</h2>
+<h3 id="custom-export-entity">Custom Export Entity</h3>
+<p><strong>File</strong>: <code>Vendor/WarrantyImport/Model/Export/Warranty.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\WarrantyImport\Model\Export;
+
+use Magento\ImportExport\Model\Export\Entity\AbstractEntity;
+use Magento\ImportExport\Model\Export\Factory as ExportFactory;
+use Magento\Framework\App\ResourceConnection;
+
+class Warranty extends AbstractEntity
+{
+    public const ENTITY_CODE = 'warranty_registration';
+
+    protected $_permanentAttributes = ['warranty_id'];
+
+    public function __construct(
+        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
+        \Magento\Store\Model\StoreManagerInterface $storeManager,
+        ExportFactory $collectionFactory,
+        \Magento\ImportExport\Model\ResourceModel\CollectionByPagesIteratorFactory $resourceColFactory,
+        private readonly ResourceConnection $resource
+    ) {
+        parent::__construct($scopeConfig, $storeManager, $collectionFactory, $resourceColFactory);
+    }
+
+    /**
+     * Export process
+     */
+    public function export()
+    {
+        $connection = $this-&gt;resource-&gt;getConnection();
+        $select = $connection-&gt;select()
+            -&gt;from($this-&gt;resource-&gt;getTableName('warranty_registration'));
+
+        // Apply filters if set
+        if ($filters = $this-&gt;_parameters['filters'] ?? []) {
+            foreach ($filters as $field =&gt; $value) {
+                $select-&gt;where(&quot;{$field} = ?&quot;, $value);
+            }
+        }
+
+        $writer = $this-&gt;_getWriter();
+        $writer-&gt;setHeaderCols($this-&gt;_getHeaderColumns());
+
+        $result = $connection-&gt;fetchAll($select);
+
+        foreach ($result as $row) {
+            $writer-&gt;writeRow($this-&gt;_prepareExportRow($row));
+        }
+
+        return $writer-&gt;getContents();
+    }
+
+    /**
+     * Get header columns
+     */
+    protected function _getHeaderColumns(): array
+    {
+        return [
+            'warranty_id',
+            'warranty_code',
+            'customer_email',
+            'product_sku',
+            'serial_number',
+            'purchase_date',
+            'purchase_price',
+            'retailer',
+            'notes',
+            'created_at',
+        ];
+    }
+
+    /**
+     * Prepare export row
+     */
+    private function _prepareExportRow(array $row): array
+    {
+        // Format dates
+        if (isset($row['purchase_date'])) {
+            $row['purchase_date'] = date('Y-m-d', strtotime($row['purchase_date']));
+        }
+
+        // Format price
+        if (isset($row['purchase_price'])) {
+            $row['purchase_price'] = number_format((float)$row['purchase_price'], 2, '.', '');
+        }
+
+        return $row;
+    }
+
+    /**
+     * Entity type code
+     */
+    public function getEntityTypeCode(): string
+    {
+        return self::ENTITY_CODE;
+    }
+}
+</code></pre>
+<p><strong>Register export entity:</strong></p>
+<p><strong>File</strong>: <code>Vendor/WarrantyImport/etc/export.xml</code></p>
+<pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;config xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+        xsi:noNamespaceSchemaLocation=&quot;urn:magento:module:Magento_ImportExport:etc/export.xsd&quot;&gt;
+    &lt;entity name=&quot;warranty_registration&quot;
+            label=&quot;Warranty Registrations&quot;
+            model=&quot;Vendor\WarrantyImport\Model\Export\Warranty&quot;
+            entityTypeCode=&quot;warranty_registration&quot;/&gt;
+&lt;/config&gt;
+</code></pre>
+<hr />
+<h2 id="error-handling-and-recovery">Error Handling and Recovery</h2>
+<h3 id="import-with-error-threshold">Import with Error Threshold</h3>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\WarrantyImport\Model\Import;
+
+class ResilientImporter
+{
+    private const MAX_ERROR_PERCENTAGE = 5.0;
+
+    public function __construct(
+        private readonly \Magento\ImportExport\Model\Import $importModel,
+        private readonly \Psr\Log\LoggerInterface $logger
+    ) {
+    }
+
+    /**
+     * Import with error threshold
+     */
+    public function import(string $filePath): array
+    {
+        $source = new \Magento\ImportExport\Model\Import\Source\Csv($filePath);
+
+        $this-&gt;importModel-&gt;setData([
+            'entity' =&gt; 'warranty_registration',
+            'behavior' =&gt; \Magento\ImportExport\Model\Import::BEHAVIOR_APPEND,
+            'validation_strategy' =&gt; \Magento\ImportExport\Model\Import::VALIDATION_STRATEGY_SKIP_ERRORS,
+        ]);
+
+        // Validate
+        $validationResult = $this-&gt;importModel-&gt;validateSource($source);
+
+        $errorAggregator = $this-&gt;importModel-&gt;getErrorAggregator();
+        $totalRows = $errorAggregator-&gt;getErrorsCount() + $this-&gt;countValidRows($source);
+        $errorPercentage = ($errorAggregator-&gt;getErrorsCount() / $totalRows) * 100;
+
+        if ($errorPercentage &gt; self::MAX_ERROR_PERCENTAGE) {
+            throw new \RuntimeException(
+                sprintf('Error rate %.2f%% exceeds threshold of %.2f%%', $errorPercentage, self::MAX_ERROR_PERCENTAGE)
+            );
+        }
+
+        // Import valid rows
+        $result = $this-&gt;importModel-&gt;importSource();
+
+        return [
+            'success' =&gt; $result,
+            'created' =&gt; $this-&gt;importModel-&gt;getCreatedItemsCount(),
+            'updated' =&gt; $this-&gt;importModel-&gt;getUpdatedItemsCount(),
+            'errors' =&gt; $errorAggregator-&gt;getErrorsCount(),
+            'error_percentage' =&gt; $errorPercentage,
+        ];
+    }
+
+    private function countValidRows($source): int
+    {
+        $count = 0;
+        foreach ($source as $row) {
+            $count++;
+        }
+        $source-&gt;rewind();
+        return $count;
+    }
+}
+</code></pre>
+<hr />
+<h2 id="testing">Testing</h2>
+<h3 id="unit-test">Unit Test</h3>
+<p><strong>File</strong>: <code>Vendor/WarrantyImport/Test/Unit/Model/Import/WarrantyRegistrationTest.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\WarrantyImport\Test\Unit\Model\Import;
+
+use PHPUnit\Framework\TestCase;
+use Vendor\WarrantyImport\Model\Import\WarrantyRegistration;
+
+class WarrantyRegistrationTest extends TestCase
+{
+    private WarrantyRegistration $importer;
+
+    protected function setUp(): void
+    {
+        // Mock dependencies
+        $this-&gt;importer = $this-&gt;createPartialMock(WarrantyRegistration::class, [
+            'validateEmail',
+            'validateProductSku'
+        ]);
+    }
+
+    public function testValidateRowWithMissingEmail(): void
+    {
+        $rowData = [
+            'product_sku' =&gt; 'TEST-SKU',
+            'purchase_date' =&gt; '2025-01-01',
+            'warranty_code' =&gt; 'WC12345',
+        ];
+
+        $result = $this-&gt;importer-&gt;validateRow($rowData, 1);
+
+        $this-&gt;assertFalse($result);
+    }
+}
+</code></pre>
+<hr />
+<h2 id="summary">Summary</h2>
+<p><strong>Key Takeaways:</strong>
+- Import entities extend AbstractEntity with validation, behavior, and data processing
+- Source models handle file reading; use streaming for large files
+- Validation uses ErrorAggregator for comprehensive error reporting
+- Batch processing (insertMultiple) critical for performance
+- Scheduled imports via cron enable automated data synchronization
+- Message queues enable parallel processing for multi-million row imports
+- Export entities mirror import structure for data extraction</p>
+<hr />
+<h2 id="assumptions">Assumptions</h2>
+<ul>
+<li><strong>Magento Version:</strong> 2.4.7+ (Adobe Commerce or Open Source)</li>
+<li><strong>PHP Version:</strong> 8.2+ with sufficient memory_limit for large files</li>
+<li><strong>Database:</strong> MySQL 8.0+ with optimized buffer pool</li>
+<li><strong>Message Queue:</strong> RabbitMQ for parallel processing</li>
+<li><strong>File System:</strong> Sufficient storage for archive/error directories</li>
+</ul>
+<h2 id="why-this-approach">Why This Approach</h2>
+<ul>
+<li><strong>Entity Adapter Pattern:</strong> Clean separation of concerns for validation, data transformation, persistence</li>
+<li><strong>Streaming Source:</strong> Memory-efficient for files exceeding PHP memory limits</li>
+<li><strong>Batch Operations:</strong> insertMultiple/insertOnDuplicate reduces query overhead</li>
+<li><strong>Error Aggregation:</strong> Non-blocking validation enables partial imports</li>
+<li><strong>Queue-Based Parallelism:</strong> Horizontal scaling for massive datasets</li>
+</ul>
+<h2 id="security-impact">Security Impact</h2>
+<ul>
+<li><strong>File Upload Validation:</strong> Restrict file types, sizes, and upload locations</li>
+<li><strong>Input Sanitization:</strong> Validate all CSV data before database insertion</li>
+<li><strong>Authorization:</strong> Restrict import/export to admin users with appropriate ACL</li>
+<li><strong>Path Traversal:</strong> Use Magento filesystem abstraction, never raw file paths</li>
+<li><strong>SQL Injection:</strong> Use parameterized queries and quoteInto()</li>
+</ul>
+<h2 id="performance-impact">Performance Impact</h2>
+<ul>
+<li><strong>Memory:</strong> Streaming source reduces memory footprint from GB to MB</li>
+<li><strong>Database:</strong> Batch inserts 50-100x faster than single-row inserts</li>
+<li><strong>Indexing:</strong> Defer indexing until after import completes</li>
+<li><strong>FPC:</strong> Import operations bypass FPC; minimal impact on frontend</li>
+<li><strong>Queue:</strong> Parallel consumers scale horizontally for large imports</li>
+</ul>
+<h2 id="backward-compatibility">Backward Compatibility</h2>
+<ul>
+<li><strong>Import API:</strong> Entity adapter interface stable since Magento 2.0</li>
+<li><strong>CSV Format:</strong> Maintain backward compatibility with existing import files</li>
+<li><strong>Database Schema:</strong> Use data patches for schema changes</li>
+<li><strong>Export Format:</strong> Maintain column order for existing integrations</li>
+</ul>
+<h2 id="tests-to-add">Tests to Add</h2>
+<p><strong>Unit Tests:</strong></p>
+<pre><code class="language-php">testValidateEmailFormat()
+testValidateDateRange()
+testBatchInsertWarranties()
+testErrorThresholdExceeded()
+</code></pre>
+<p><strong>Integration Tests:</strong></p>
+<pre><code class="language-php">testFullImportWorkflow()
+testScheduledImportExecution()
+testExportMatchesImport()
+</code></pre>
+<p><strong>Performance Tests:</strong></p>
+<pre><code class="language-bash"># Note: import:run is not a core Magento CLI command. Use the Admin Import UI
+# (System &gt; Data Transfer &gt; Import) or a third-party CLI import tool.
+# Example using a custom or third-party import command:
+# time bin/magento custom:import:run --entity=warranty_registration --file=1m_rows.csv
+</code></pre>
+<h2 id="docs-to-update">Docs to Update</h2>
+<ul>
+<li><strong>README.md:</strong> Installation, CSV format specification, usage examples</li>
+<li><strong>docs/IMPORT_FORMAT.md:</strong> Column definitions, validation rules, examples</li>
+<li><strong>docs/PERFORMANCE.md:</strong> Optimization guidelines, benchmarks</li>
+<li><strong>Admin User Guide:</strong> Screenshots of import UI, error report interpretation</li>
+</ul>
+<h2 id="related-documentation">Related Documentation</h2>
+<h3 id="related-guides">Related Guides</h3>
+<ul>
+<li><a href="cron-jobs.md">Cron Jobs Implementation: Building Reliable Scheduled Tasks in Magento 2</a></li>
+<li><a href="erp-integration.md">ERP Integration Patterns for Magento 2</a></li>
+<li><a href="../tutorials/declarative-schema-data-patches.md">Declarative Schema &amp; Data Patches: Modern Database Management in Magento 2</a></li>
+</ul>
+<h3 id="related-module-documentation">Related Module Documentation</h3>
+<ul>
+<li><a href="../../modules/catalog/README.md">Magento_Catalog Overview</a></li>
+<li><a href="../../modules/customer/README.md">Magento_Customer Overview</a></li>
+</ul>
+                    </div>
+                </article>
+            </main>
+            <!-- Right Sidebar: On This Page (desktop) -->
+            <aside class="toc-sidebar hidden xl:block" aria-label="On this page">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-semibold text-gray-900 uppercase tracking-wider mb-4 mt-0">On this page</h3>
+                    <nav id="toc-nav" class="space-y-0" aria-label="Table of contents"></nav>
+                    <div class="toc-back-to-top">
+                        <a href="#">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+                            </svg>
+                            Back to top
+                        </a>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- ================================================================
+         FOOTER — matches module-catalog.html multi-column layout exactly
+         ================================================================ -->
+    <footer class="relative pt-12 bg-white border-t border-charcoal mt-16">
+        <div class="max-w-screen-2xl mx-auto w-full px-4 sm:px-6 lg:px-8">
+            <div>
+                <a href="index.html" class="inline-flex items-center no-underline">
+                    <svg width="30" height="33" viewBox="0 0 30 33" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Magento Association logo" role="img">
+                        <path d="M0 4.06492H29.6763V31.8882C29.6763 32.502 29.1713 33 28.5487 33H1.12762C0.505079 33 0 32.502 0 31.8882V4.06492Z" fill="#34323A"/>
+                        <path d="M1.26857 0H28.4078C29.1066 0 29.6763 0.561678 29.6763 1.25075V4.06492H0V1.25075C0 0.561678 0.569682 0 1.26857 0Z" fill="#C9C9C9"/>
+                        <path d="M2.37269 3.0458C2.94031 3.0458 3.40046 2.59211 3.40046 2.03246C3.40046 1.47281 2.94031 1.01913 2.37269 1.01913C1.80506 1.01913 1.34491 1.47281 1.34491 2.03246C1.34491 2.59211 1.80506 3.0458 2.37269 3.0458Z" fill="#848484"/>
+                        <path d="M5.28571 3.0458C5.85334 3.0458 6.31349 2.59211 6.31349 2.03246C6.31349 1.47281 5.85334 1.01913 5.28571 1.01913C4.71809 1.01913 4.25793 1.47281 4.25793 2.03246C4.25793 2.59211 4.71809 3.0458 5.28571 3.0458Z" fill="#848484"/>
+                        <path d="M14.7883 7.46973L4.90405 13.0923V24.349L7.54104 25.8487V14.5978L14.7883 10.4692L22.0415 14.5978V25.8487L24.6785 24.349V13.0923L14.7883 7.46973Z" fill="#F1BC1B"/>
+                        <path d="M16.0862 26.2367L14.7883 26.9779L13.4492 26.2135V14.233L10.178 16.0975V27.3485L13.4492 29.213L14.7883 29.9773L16.0862 29.2362L19.4045 27.3485V16.0975L16.0862 14.2098V26.2367Z" fill="#F1BC1B"/>
+                    </svg>
+                    <span class="ml-3 text-xl font-bold text-charcoal">Developer Documentation</span>
+                </a>
+            </div>
+
+            <div class="grid grid-cols-12 md:gap-x-8 gap-y-12 lg:mt-12">
+                <div class="col-span-12 lg:col-span-4">
+                    <p class="hidden lg:block text-xs text-charcoal sm:text-sm">Comprehensive developer documentation for Magento 2.4.7+ — tutorials, architecture deep dives, module references, and production-ready patterns built by the community, for the community.</p>
+                    <ul class="mt-6 hidden lg:flex items-center gap-3">
+                        <li class="pl-0">
+                            <a href="https://github.com/magento/magento2" class="p-2 md:p-0" aria-label="GitHub">
+                                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                                </svg>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Guides</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="tutorials.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Tutorials</a></li>
+                            <li class="pl-0"><a href="how-to-guides.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">How-To Guides</a></li>
+                            <li class="pl-0"><a href="architecture.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Architecture</a></li>
+                            <li class="pl-0"><a href="learning-paths.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Learning Paths</a></li>
+                            <li class="pl-0"><a href="references.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">References</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Modules</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="module-catalog.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Catalog</a></li>
+                            <li class="pl-0"><a href="module-checkout.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Checkout</a></li>
+                            <li class="pl-0"><a href="module-sales.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Sales</a></li>
+                            <li class="pl-0"><a href="module-customer.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Customer</a></li>
+                            <li class="pl-0"><a href="module-quote.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Quote</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Community</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Magento Community</a></li>
+                            <li class="pl-0"><a href="https://magento.stackexchange.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Stack Exchange</a></li>
+                            <li class="pl-0"><a href="https://marketplace.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Marketplace</a></li>
+                            <li class="pl-0"><a href="https://github.com/magento/magento2" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">GitHub</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Support</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://github.com/magento/magento2/issues" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Report Issues</a></li>
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Community Resources</a></li>
+                            <li class="pl-0"><a href="https://developer.adobe.com/commerce/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Adobe Commerce Docs</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-12 border-t pt-6 pb-16 border-charcoal">
+                <p class="text-xs text-charcoal">
+                    &copy; 2026 Magento 2 Developer Documentation. Magento&reg; is a registered trademark of Adobe Inc.
+                </p>
+                <p class="mt-6 text-xs text-charcoal">
+                    This documentation provides guidance for Magento 2 developers and extension builders. For merchant documentation, visit the <a href="index.html" class="text-orange hover:text-orange-600 transition-colors">merchant documentation</a>.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Initialize highlight.js -->
+    <script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('pre code').forEach(function (el) {
+        hljs.highlightElement(el);
+    });
+    document.querySelectorAll('pre').forEach(function (pre) {
+        if (pre.parentNode.classList && pre.parentNode.classList.contains('code-wrapper')) return;
+        var wrapper = document.createElement('div');
+        wrapper.className = 'code-wrapper';
+        pre.parentNode.insertBefore(wrapper, pre);
+        wrapper.appendChild(pre);
+        var btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.setAttribute('type', 'button');
+        btn.setAttribute('aria-label', 'Copy code to clipboard');
+        btn.setAttribute('title', 'Copy');
+        btn.textContent = 'Copy';
+        wrapper.appendChild(btn);
+        btn.addEventListener('click', function () {
+            var code = pre.querySelector('code');
+            var text = code ? (code.innerText || code.textContent) : (pre.innerText || pre.textContent);
+            navigator.clipboard.writeText(text).then(function () {
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            }).catch(function () {
+                var range = document.createRange();
+                range.selectNode(code || pre);
+                window.getSelection().removeAllRanges();
+                window.getSelection().addRange(range);
+                document.execCommand('copy');
+                window.getSelection().removeAllRanges();
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            });
+        });
+    });
+});
+</script>
+
+
+<script>
+(function() {
+    var nav = document.getElementById('toc-nav');
+    if (!nav) return;
+    var article = document.getElementById('main-content');
+    if (!article) return;
+    var headings = article.querySelectorAll('h2[id], h3[id]');
+    if (headings.length < 3) {
+        // Hide the entire TOC sidebar if fewer than 3 headings
+        var sidebar = nav.closest('.toc-sidebar');
+        if (sidebar) sidebar.style.display = 'none';
+        return;
+    }
+    var ids = [];
+    headings.forEach(function(h) {
+        var a = document.createElement('a');
+        a.href = '#' + h.id;
+        a.textContent = h.textContent.replace(/^#+\s*/, '').replace(/\s+/g, ' ').trim();
+        if (h.tagName === 'H3') a.classList.add('toc-h3');
+        nav.appendChild(a);
+        ids.push(h.id);
+    });
+    // Scroll-spy with IntersectionObserver
+    var links = nav.querySelectorAll('a');
+    var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                links.forEach(function(l) { l.classList.remove('toc-active'); });
+                var active = nav.querySelector('a[href="#' + entry.target.id + '"]');
+                if (active) active.classList.add('toc-active');
+            }
+        });
+    }, { rootMargin: '-80px 0px -70% 0px', threshold: 0 });
+    headings.forEach(function(h) { observer.observe(h); });
+})();
+</script>
+</body>
+</html>

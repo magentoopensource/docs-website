@@ -1,0 +1,1692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprehensive Testing Strategies for Magento 2 — Magento 2 Developer Documentation</title>
+    <meta name="description" content="Developer guide: Comprehensive Testing Strategies for Magento 2">
+
+    <!-- Google Fonts: Inter Tight only. Courier New used for code. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Highlight.js: syntax highlighting for code blocks -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/php.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/ini.min.js"></script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        charcoal: {
+                            DEFAULT: '#2c2c2c', 50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6',
+                            300: '#6B6B6B', 400: '#474747', 500: '#2c2c2c', 600: '#262626',
+                            700: '#202020', 800: '#1c1c1c', 900: '#191919', 950: '#121212'
+                        },
+                        orange: {
+                            DEFAULT: '#D4551A', 50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad',
+                            300: '#f9ae78', 400: '#f58242', 500: '#f26423', 600: '#e34613',
+                            700: '#bc3312', 800: '#962a16', 900: '#792515', 950: '#411009'
+                        },
+                        yellow: {
+                            DEFAULT: '#B8860B', 50: '#fffdeb', 100: '#fdf9c8', 200: '#fbf38c',
+                            300: '#f8e651', 400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a',
+                            700: '#b1670c', 800: '#8f5111', 900: '#764311', 950: '#442204'
+                        },
+                        'off-white': '#FAFAFA',
+                    },
+                    fontFamily: {
+                        sans: ['Inter Tight', 'system-ui', '-apple-system', 'sans-serif'],
+                        mono: ['Courier New', 'Courier', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* ── Force light mode ── */
+        :root { color-scheme: light only; }
+
+        [x-cloak] { display: none !important; }
+
+        /* ── Scroll offset for sticky header ── */
+        .prose h2, .prose h3 { scroll-margin-top: 5rem; }
+
+        /* ── Code blocks: Bauhaus charcoal bg, no border-radius, highlight.js override ── */
+        .prose pre {
+            background-color: #2C2C2C !important;
+            border-radius: 0 !important;
+            padding: 1.25rem;
+            overflow-x: auto;
+            font-size: 0.875rem;
+            line-height: 1.7;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 1.5rem 0;
+        }
+        .prose pre code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            background: transparent !important;
+            padding: 0;
+                    color: #abb2bf;
+        }
+        /* Override highlight.js theme background to match Bauhaus charcoal */
+        .hljs {
+            background: #2C2C2C !important;
+            color: #abb2bf !important;
+            border-radius: 0 !important;
+        }
+
+        /* ── Inline code: charcoal bg, yellow text, no border-radius ── */
+        .prose code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.85em;
+        }
+        .prose :not(pre) > code {
+            background-color: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2em 0.45em;
+            border-radius: 0;
+        }
+
+        /* ── Step-code: same charcoal/yellow style for UI path chips ── */
+        .step-code {
+            background: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2rem 0.5rem;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            border-radius: 0;
+        }
+
+        /* ── Tables: no border-radius, charcoal header ── */
+        .prose table { width: 100%; border-collapse: collapse; }
+        .prose th {
+            background-color: #2C2C2C;
+            color: #ffffff;
+            font-weight: 600;
+            text-align: left;
+            padding: 0.75rem 1rem;
+            border-bottom: 2px solid #2C2C2C;
+            border-radius: 0;
+        }
+        .prose td { padding: 0.75rem 1rem; border-bottom: 1px solid #e5e5e5; }
+        .prose tr:hover { background-color: #fafafa; }
+
+        /* ── Blockquote: Bauhaus style — border-4 yellow, square, no left-only border ── */
+        .prose blockquote {
+            border: 4px solid #F1BC1B;
+            background-color: #ffffff;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+            border-radius: 0;
+        }
+        .prose blockquote p { margin: 0; }
+
+        /* ── Lists: hexagon bullets ── */
+        .prose ul { list-style: none; padding-left: 0; }
+        .prose ul li {
+            position: relative;
+            padding-left: 1.75rem;
+            margin-bottom: 0.4rem;
+            line-height: 1.7;
+        }
+        .prose ul li::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0.45em;
+            width: 10px;
+            height: 10px;
+            background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 2L21 7V17L12 22L3 17V7L12 2Z' stroke='%23F26423' stroke-width='2.5' stroke-linejoin='miter'/%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+        .prose ol { list-style-type: decimal; padding-left: 1.5rem; }
+        .prose li { margin-bottom: 0.4rem; }
+
+        /* ── Headings ── */
+        .prose h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            padding-top: 1.5rem;
+            border-top: 4px solid #F1BC1B;
+            color: #2C2C2C;
+        }
+        .prose h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+            color: #2C2C2C;
+        }
+        .prose h4 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #2C2C2C;
+        }
+        .prose p { margin-bottom: 1rem; line-height: 1.75; }
+        .prose a { color: #D4551A; text-decoration: none; }
+        .prose a:hover { color: #e34613; text-decoration: underline; }
+        .prose hr { border: none; border-top: 1px solid #e5e5e5; margin: 2rem 0; }
+
+        /* ── Callout boxes: Bauhaus — border-4 yellow, white bg, icon + title ── */
+        .callout-box {
+            background-color: #ffffff;
+            border: 4px solid #F1BC1B;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+        }
+        .callout-warning {
+            border-color: #D4551A;
+        }
+        .callout-important {
+            border-color: #2C2C2C;
+        }
+        .callout-box .callout-inner {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+        .callout-box .callout-title {
+            font-weight: 600;
+            color: #2C2C2C;
+            margin-bottom: 0.25rem;
+        }
+        .callout-box .callout-body {
+            font-size: 0.875rem;
+            line-height: 1.6;
+            color: rgba(44,44,44,0.85);
+        }
+
+        
+    
+        /* Code block copy button */
+        .code-wrapper {
+            position: relative;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            font-family: 'Inter Tight', system-ui, sans-serif;
+            background: rgba(255,255,255,0.1);
+            color: #abb2bf;
+            border: 1px solid rgba(255,255,255,0.15);
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.15s ease, background 0.15s ease;
+            z-index: 10;
+            line-height: 1.4;
+            border-radius: 4px;
+            user-select: none;
+        }
+        .code-wrapper:hover .copy-btn {
+            opacity: 1;
+        }
+        .copy-btn:hover,
+        .copy-btn:focus {
+            background: rgba(255,255,255,0.2);
+            color: #ffffff;
+            outline: 2px solid #D4551A;
+            outline-offset: 1px;
+        }
+        .copy-btn.copied {
+            color: #98c379;
+            background: rgba(152, 195, 121, 0.15);
+            opacity: 1;
+        }
+    
+        /* Right-hand TOC sidebar */
+        .toc-sidebar {
+            width: 14rem;
+            flex-shrink: 0;
+        }
+        .toc-sidebar a {
+            display: block;
+            padding: 0.375rem 0;
+            font-size: 0.8125rem;
+            line-height: 1.4;
+            color: #6b7280;
+            text-decoration: none;
+            transition: color 0.15s ease;
+            border-left: 2px solid transparent;
+            padding-left: 0.75rem;
+        }
+        .toc-sidebar a:hover {
+            color: #111827;
+        }
+        .toc-sidebar a.toc-active {
+            color: #ea580c;
+            border-left-color: #ea580c;
+            font-weight: 500;
+        }
+        .toc-sidebar a.toc-h3 {
+            padding-left: 1.5rem;
+            font-size: 0.75rem;
+        }
+        .toc-sidebar .toc-back-to-top {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e5e7eb;
+        }
+        .toc-sidebar .toc-back-to-top a {
+            border-left: none;
+            padding-left: 0;
+            font-weight: 500;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .toc-sidebar .toc-back-to-top a:hover {
+            color: #ea580c;
+        }
+    </style>
+</head>
+
+<body class="font-sans bg-off-white text-charcoal">
+
+    <!-- Shared header — single source of truth -->
+    <script src="includes/header.js"></script>
+
+    <!-- Breadcrumb — orange › separators -->
+    <div class="bg-white border-b border-gray-100">
+        <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <div class="flex items-center gap-2 text-sm flex-wrap">
+                <a href="index.html" class="text-orange hover:text-orange-600 transition-colors no-underline">Home</a> <span class="text-orange font-medium">›</span> <a href="index.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">Guides</a> <span class="text-orange font-medium">›</span> <a href="how-to-guides.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">How-To Guides</a> <span class="text-orange font-medium">›</span> <span class="text-charcoal font-medium">Comprehensive Testing Strategies for Magento 2</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="flex gap-8">
+
+            <!-- Left Sidebar (desktop) -->
+            <aside class="hidden lg:block w-64 flex-shrink-0">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4">How-To Guides</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="guide-howto-admin-ui-components.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Building Admin UI Components in ...</a></li>
+<li class="pl-0"><a href="guide-howto-cicd-deployment.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">CI/CD Deployment Pipelines for M...</a></li>
+<li class="pl-0"><a href="guide-howto-cron-jobs.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Cron Jobs Implementation: Buildi...</a></li>
+<li class="pl-0"><a href="guide-howto-email-templates.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Email Templates Customization</a></li>
+<li class="pl-0"><a href="guide-howto-erp-integration.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">ERP Integration Patterns for Mag...</a></li>
+<li class="pl-0"><a href="guide-howto-full-page-cache-strategy.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Full Page Cache Strategy for Hig...</a></li>
+<li class="pl-0"><a href="guide-howto-import-export.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Import/Export System Deep Dive</a></li>
+<li class="pl-0"><a href="guide-howto-layout-xml-deep-dive.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Layout XML Deep Dive: Mastering ...</a></li>
+<li class="pl-0"><a href="guide-howto-multi-store-setup.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Multi-Store Configuration Mastery</a></li>
+<li class="pl-0"><a href="guide-howto-security-checklist.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Security Checklist for Custom Mo...</a></li>
+<li class="pl-0"><a href="guide-howto-testing-strategies.html" class="block px-3 py-2 text-sm text-orange font-semibold bg-orange-50 border-l-4 border-orange pl-2 transition-colors no-underline">Comprehensive Testing Strategies...</a></li>
+</ul>
+<h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4 mt-8">Guide Sections</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="tutorials.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Tutorials</a></li>
+<li class="pl-0"><a href="how-to-guides.html" class="block px-3 py-2 text-sm text-orange font-semibold bg-orange-50 border-l-4 border-orange pl-2 transition-colors no-underline">How-To Guides</a></li>
+<li class="pl-0"><a href="architecture.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Architecture</a></li>
+<li class="pl-0"><a href="references.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">References</a></li>
+</ul>
+                </div>
+            </aside>
+
+            <!-- Article — square corners, border-t-4 orange accent -->
+            <main id="main-content" class="flex-1 min-w-0">
+                <article class="bg-white shadow-sm border border-gray-100 border-t-4 border-t-orange p-8 md:p-12">
+                    <!-- Title block -->
+                    <div class="mb-8">
+                        <span class="inline-block px-3 py-1.5 text-xs font-medium bg-yellow-50 text-yellow-800 border border-yellow-200">How-To</span>
+                        <h1 class="text-3xl md:text-4xl font-extrabold text-charcoal mt-3 mb-3">Comprehensive Testing Strategies for Magento 2</h1>
+                        <p class="text-charcoal-300 text-lg mb-4">Developer guide: Comprehensive Testing Strategies for Magento 2</p>
+                        <!-- Meta pills -->
+                        <div class="flex flex-wrap gap-2"><span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-yellow-50 text-yellow-800"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>Advanced</span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-orange-50 text-orange-700"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>30 minutes</span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-charcoal text-white">Magento 2.4.7+</span></div>
+                    </div>
+
+                    <hr class="border-0 border-t border-gray-100 mb-8">
+
+                    <!-- Content -->
+                    <div class="prose max-w-none">
+                        <h1 id="comprehensive-testing-strategies-for-magento-2">Comprehensive Testing Strategies for Magento 2</h1>
+<h2 id="overview">Overview</h2>
+<p>Comprehensive testing is non-negotiable for production Magento applications. This guide provides battle-tested strategies for unit, integration, API functional, and MFTF testing, with patterns that ensure code quality, prevent regressions, and enable confident deployments.</p>
+<p><strong>What you'll learn:</strong>
+- Unit testing with PHPUnit (mocking, ObjectManager usage)
+- Integration tests with database fixtures
+- API functional testing for REST/GraphQL endpoints
+- MFTF (Magento Functional Testing Framework) for E2E scenarios
+- Test coverage requirements and tooling
+- CI/CD integration patterns</p>
+<p><strong>Prerequisites:</strong>
+- PHP 8.2+ knowledge (typed properties, attributes)
+- Magento module structure and DI
+- Basic PHPUnit experience
+- Understanding of service contracts</p>
+<hr />
+<h2 id="testing-pyramid-for-magento">Testing Pyramid for Magento</h2>
+<pre><code>        /\
+       /  \      E2E/MFTF (10%)
+      /____\
+     /      \    Integration (30%)
+    /________\
+   /          \  Unit Tests (60%)
+  /__________\
+</code></pre>
+<p><strong>Distribution rationale:</strong>
+- <strong>Unit tests (60%):</strong> Fast, isolated, test business logic
+- <strong>Integration tests (30%):</strong> Verify DI, DB interactions, service contracts
+- <strong>MFTF/E2E (10%):</strong> Critical user journeys, smoke tests</p>
+<hr />
+<h2 id="unit-testing-with-phpunit">Unit Testing with PHPUnit</h2>
+<h3 id="principles">Principles</h3>
+<ol>
+<li><strong>Isolated:</strong> No database, no filesystem, no network</li>
+<li><strong>Fast:</strong> &lt;100ms per test</li>
+<li><strong>Deterministic:</strong> Same input always produces same output</li>
+<li><strong>Single responsibility:</strong> One assertion per test (guideline)</li>
+</ol>
+<h3 id="test-structure">Test Structure</h3>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Test\Unit\Model;
+
+use PHPUnit\Framework\TestCase;
+use Vendor\Module\Model\OrderProcessor;
+use Vendor\Module\Api\OrderValidatorInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Sales\Api\Data\OrderInterface;
+use Psr\Log\LoggerInterface;
+
+class OrderProcessorTest extends TestCase
+{
+    private OrderRepositorInterface $orderRepositoryMock;
+    private OrderValidatorInterface $validatorMock;
+    private LoggerInterface $loggerMock;
+    private OrderProcessor $orderProcessor;
+
+    protected function setUp(): void
+    {
+        // Create mocks
+        $this-&gt;orderRepositoryMock = $this-&gt;createMock(OrderRepositoryInterface::class);
+        $this-&gt;validatorMock = $this-&gt;createMock(OrderValidatorInterface::class);
+        $this-&gt;loggerMock = $this-&gt;createMock(LoggerInterface::class);
+
+        // Instantiate SUT (System Under Test)
+        $this-&gt;orderProcessor = new OrderProcessor(
+            $this-&gt;orderRepositoryMock,
+            $this-&gt;validatorMock,
+            $this-&gt;loggerMock
+        );
+    }
+
+    public function testProcessOrderSuccess(): void
+    {
+        // Arrange
+        $orderId = 123;
+        $orderMock = $this-&gt;createMock(OrderInterface::class);
+        $orderMock-&gt;method('getId')-&gt;willReturn($orderId);
+        $orderMock-&gt;method('getStatus')-&gt;willReturn('pending');
+
+        $this-&gt;orderRepositoryMock-&gt;method('get')
+            -&gt;with($orderId)
+            -&gt;willReturn($orderMock);
+
+        $this-&gt;validatorMock-&gt;method('validate')
+            -&gt;with($orderMock)
+            -&gt;willReturn(true);
+
+        $this-&gt;orderRepositoryMock-&gt;expects($this-&gt;once())
+            -&gt;method('save')
+            -&gt;with($orderMock);
+
+        // Act
+        $result = $this-&gt;orderProcessor-&gt;process($orderId);
+
+        // Assert
+        $this-&gt;assertTrue($result);
+    }
+
+    public function testProcessOrderValidationFails(): void
+    {
+        // Arrange
+        $orderId = 123;
+        $orderMock = $this-&gt;createMock(OrderInterface::class);
+
+        $this-&gt;orderRepositoryMock-&gt;method('get')
+            -&gt;with($orderId)
+            -&gt;willReturn($orderMock);
+
+        $this-&gt;validatorMock-&gt;method('validate')
+            -&gt;with($orderMock)
+            -&gt;willReturn(false);
+
+        $this-&gt;loggerMock-&gt;expects($this-&gt;once())
+            -&gt;method('warning')
+            -&gt;with(
+                $this-&gt;stringContains('Order validation failed'),
+                $this-&gt;arrayHasKey('order_id')
+            );
+
+        // Act
+        $result = $this-&gt;orderProcessor-&gt;process($orderId);
+
+        // Assert
+        $this-&gt;assertFalse($result);
+    }
+
+    public function testProcessOrderThrowsExceptionOnRepositoryError(): void
+    {
+        // Arrange
+        $orderId = 123;
+        $exception = new \Magento\Framework\Exception\NoSuchEntityException(
+            __('Order not found')
+        );
+
+        $this-&gt;orderRepositoryMock-&gt;method('get')
+            -&gt;with($orderId)
+            -&gt;willThrowException($exception);
+
+        // Assert
+        $this-&gt;expectException(\Magento\Framework\Exception\NoSuchEntityException::class);
+        $this-&gt;expectExceptionMessage('Order not found');
+
+        // Act
+        $this-&gt;orderProcessor-&gt;process($orderId);
+    }
+}
+</code></pre>
+<h3 id="mocking-strategies">Mocking Strategies</h3>
+<p><strong>1. Simple mocks (no behavior):</strong></p>
+<pre><code class="language-php">$mock = $this-&gt;createMock(MyInterface::class);
+</code></pre>
+<p><strong>2. Stub methods (return values):</strong></p>
+<pre><code class="language-php">$mock = $this-&gt;createMock(OrderInterface::class);
+$mock-&gt;method('getId')-&gt;willReturn(123);
+$mock-&gt;method('getStatus')-&gt;willReturn('pending');
+</code></pre>
+<p><strong>3. Consecutive calls:</strong></p>
+<pre><code class="language-php">$mock-&gt;method('getStatus')
+    -&gt;willReturnOnConsecutiveCalls('pending', 'processing', 'complete');
+</code></pre>
+<p><strong>4. Callback logic:</strong></p>
+<pre><code class="language-php">$mock-&gt;method('validate')
+    -&gt;willReturnCallback(function (OrderInterface $order) {
+        return $order-&gt;getGrandTotal() &gt; 0;
+    });
+</code></pre>
+<p><strong>5. Expectations (verify calls):</strong></p>
+<pre><code class="language-php">$mock-&gt;expects($this-&gt;once())
+    -&gt;method('save')
+    -&gt;with($this-&gt;equalTo($expectedOrder));
+</code></pre>
+<h3 id="testing-exceptions">Testing Exceptions</h3>
+<pre><code class="language-php">public function testInvalidInputThrowsException(): void
+{
+    $this-&gt;expectException(\InvalidArgumentException::class);
+    $this-&gt;expectExceptionMessage('Order ID must be positive');
+
+    $this-&gt;orderProcessor-&gt;process(-1);
+}
+</code></pre>
+<h3 id="data-providers-for-parametric-tests">Data Providers for Parametric Tests</h3>
+<pre><code class="language-php">/**
+ * @dataProvider orderStatusProvider
+ */
+public function testGetStatusLabel(string $status, string $expectedLabel): void
+{
+    $this-&gt;assertEquals($expectedLabel, $this-&gt;orderProcessor-&gt;getStatusLabel($status));
+}
+
+public function orderStatusProvider(): array
+{
+    return [
+        'pending' =&gt; ['pending', 'Pending'],
+        'processing' =&gt; ['processing', 'Processing'],
+        'complete' =&gt; ['complete', 'Complete'],
+        'canceled' =&gt; ['canceled', 'Canceled'],
+    ];
+}
+</code></pre>
+<h3 id="avoid-objectmanager-in-unit-tests">Avoid ObjectManager in Unit Tests</h3>
+<p><strong>BAD:</strong></p>
+<pre><code class="language-php">$objectManager = \Magento\TestFramework\Helper\Bootstrap::getObjectManager();
+$orderProcessor = $objectManager-&gt;create(OrderProcessor::class);
+</code></pre>
+<p><strong>GOOD:</strong></p>
+<pre><code class="language-php">$orderProcessor = new OrderProcessor(
+    $this-&gt;orderRepositoryMock,
+    $this-&gt;validatorMock,
+    $this-&gt;loggerMock
+);
+</code></pre>
+<p><strong>Why?</strong> Unit tests must be isolated. ObjectManager loads entire Magento framework, making tests slow and brittle.</p>
+<hr />
+<h2 id="integration-testing">Integration Testing</h2>
+<h3 id="when-to-use-integration-tests">When to Use Integration Tests</h3>
+<p>Use integration tests when:
+- Testing database interactions (repositories, resource models)
+- Verifying DI configuration (<code>di.xml</code>)
+- Testing service contracts with real implementations
+- Validating events/observers
+- Testing plugins (interceptors)</p>
+<h3 id="basic-integration-test-structure">Basic Integration Test Structure</h3>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Test\Integration\Model;
+
+use Magento\TestFramework\Helper\Bootstrap;
+use PHPUnit\Framework\TestCase;
+use Vendor\Module\Api\OrderProcessorInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
+
+class OrderProcessorTest extends TestCase
+{
+    private OrderProcessorInterface $orderProcessor;
+    private OrderRepositoryInterface $orderRepository;
+
+    protected function setUp(): void
+    {
+        $objectManager = Bootstrap::getObjectManager();
+        $this-&gt;orderProcessor = $objectManager-&gt;get(OrderProcessorInterface::class);
+        $this-&gt;orderRepository = $objectManager-&gt;get(OrderRepositoryInterface::class);
+    }
+
+    /**
+     * @magentoDataFixture Magento/Sales/_files/order.php
+     * @magentoDbIsolation enabled
+     * @magentoAppIsolation enabled
+     */
+    public function testProcessOrderUpdatesStatus(): void
+    {
+        // Fixture creates order with ID 100000001
+        $orderId = 100000001;
+
+        $this-&gt;orderProcessor-&gt;process($orderId);
+
+        $order = $this-&gt;orderRepository-&gt;get($orderId);
+        $this-&gt;assertEquals('processing', $order-&gt;getStatus());
+    }
+
+    /**
+     * @magentoDataFixture Vendor_Module::Test/Integration/_files/order_with_items.php
+     * @magentoDbIsolation enabled
+     */
+    public function testProcessOrderWithItems(): void
+    {
+        $orderId = 100000002; // From fixture
+
+        $result = $this-&gt;orderProcessor-&gt;process($orderId);
+
+        $this-&gt;assertTrue($result);
+        $order = $this-&gt;orderRepository-&gt;get($orderId);
+        $this-&gt;assertCount(2, $order-&gt;getItems());
+    }
+}
+</code></pre>
+<h3 id="creating-custom-fixtures">Creating Custom Fixtures</h3>
+<p><strong>File:</strong> <code>Test/Integration/_files/order_with_items.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+use Magento\TestFramework\Helper\Bootstrap;
+use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\Item;
+use Magento\Catalog\Model\Product;
+
+$objectManager = Bootstrap::getObjectManager();
+
+// Create product
+$product = $objectManager-&gt;create(Product::class);
+$product-&gt;setTypeId('simple')
+    -&gt;setId(1)
+    -&gt;setAttributeSetId(4)
+    -&gt;setName('Test Product')
+    -&gt;setSku('test-product-sku')
+    -&gt;setPrice(100.00)
+    -&gt;setVisibility(4)
+    -&gt;setStatus(1)
+    -&gt;setWebsiteIds([1]);
+$product-&gt;save();
+
+// Create order
+$order = $objectManager-&gt;create(Order::class);
+$order-&gt;setIncrementId('100000002')
+    -&gt;setStoreId(1)
+    -&gt;setState(Order::STATE_NEW)
+    -&gt;setStatus('pending')
+    -&gt;setCustomerIsGuest(false)
+    -&gt;setCustomerEmail('customer@example.com')
+    -&gt;setCustomerFirstname('John')
+    -&gt;setCustomerLastname('Doe')
+    -&gt;setGrandTotal(200.00)
+    -&gt;setBaseGrandTotal(200.00)
+    -&gt;setSubtotal(200.00)
+    -&gt;setBaseSubtotal(200.00);
+
+// Add order items
+$orderItem1 = $objectManager-&gt;create(Item::class);
+$orderItem1-&gt;setProductId($product-&gt;getId())
+    -&gt;setSku($product-&gt;getSku())
+    -&gt;setName($product-&gt;getName())
+    -&gt;setPrice(100.00)
+    -&gt;setQtyOrdered(1);
+$order-&gt;addItem($orderItem1);
+
+$orderItem2 = $objectManager-&gt;create(Item::class);
+$orderItem2-&gt;setProductId($product-&gt;getId())
+    -&gt;setSku($product-&gt;getSku())
+    -&gt;setName($product-&gt;getName())
+    -&gt;setPrice(100.00)
+    -&gt;setQtyOrdered(1);
+$order-&gt;addItem($orderItem2);
+
+$order-&gt;save();
+</code></pre>
+<p><strong>Rollback:</strong> <code>Test/Integration/_files/order_with_items_rollback.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+use Magento\TestFramework\Helper\Bootstrap;
+use Magento\Sales\Model\Order;
+use Magento\Framework\Registry;
+
+$objectManager = Bootstrap::getObjectManager();
+$registry = $objectManager-&gt;get(Registry::class);
+
+// Prevent observer execution
+$registry-&gt;unregister('isSecureArea');
+$registry-&gt;register('isSecureArea', true);
+
+// Delete order
+$order = $objectManager-&gt;create(Order::class);
+$order-&gt;loadByIncrementId('100000002');
+if ($order-&gt;getId()) {
+    $order-&gt;delete();
+}
+
+// Delete product
+$product = $objectManager-&gt;create(\Magento\Catalog\Model\Product::class);
+$product-&gt;load(1);
+if ($product-&gt;getId()) {
+    $product-&gt;delete();
+}
+
+$registry-&gt;unregister('isSecureArea');
+</code></pre>
+<h3 id="testing-plugins-interceptors">Testing Plugins (Interceptors)</h3>
+<p><strong>Plugin class:</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Plugin;
+
+use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Sales\Api\Data\OrderInterface;
+
+class OrderRepositoryExtend
+{
+    /**
+     * Add custom attribute after loading order
+     *
+     * @param OrderRepositoryInterface $subject
+     * @param OrderInterface $result
+     * @return OrderInterface
+     */
+    public function afterGet(
+        OrderRepositoryInterface $subject,
+        OrderInterface $result
+    ): OrderInterface {
+        $extensionAttributes = $result-&gt;getExtensionAttributes();
+        $extensionAttributes-&gt;setCustomAttribute('processed');
+        $result-&gt;setExtensionAttributes($extensionAttributes);
+
+        return $result;
+    }
+}
+</code></pre>
+<p><strong>Integration test:</strong></p>
+<pre><code class="language-php">/**
+ * @magentoDataFixture Magento/Sales/_files/order.php
+ */
+public function testPluginAddsCustomAttribute(): void
+{
+    $order = $this-&gt;orderRepository-&gt;get(100000001);
+
+    $extensionAttributes = $order-&gt;getExtensionAttributes();
+    $this-&gt;assertEquals('processed', $extensionAttributes-&gt;getCustomAttribute());
+}
+</code></pre>
+<h3 id="testing-observers">Testing Observers</h3>
+<p><strong>Observer:</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Observer;
+
+use Magento\Framework\Event\Observer;
+use Magento\Framework\Event\ObserverInterface;
+use Psr\Log\LoggerInterface;
+
+class OrderPlaceAfter implements ObserverInterface
+{
+    public function __construct(
+        private readonly LoggerInterface $logger
+    ) {}
+
+    public function execute(Observer $observer): void
+    {
+        $order = $observer-&gt;getEvent()-&gt;getOrder();
+        $this-&gt;logger-&gt;info('Order placed', ['order_id' =&gt; $order-&gt;getId()]);
+    }
+}
+</code></pre>
+<p><strong>Integration test:</strong></p>
+<pre><code class="language-php">/**
+ * @magentoDataFixture Magento/Sales/_files/order.php
+ */
+public function testObserverExecutesOnOrderPlace(): void
+{
+    $objectManager = Bootstrap::getObjectManager();
+    $eventManager = $objectManager-&gt;get(\Magento\Framework\Event\ManagerInterface::class);
+    $order = $this-&gt;orderRepository-&gt;get(100000001);
+
+    // Dispatch event
+    $eventManager-&gt;dispatch('sales_order_place_after', ['order' =&gt; $order]);
+
+    // Verify log entry (requires custom log handler or DB logging)
+    // For demonstration, test observer is registered
+    $this-&gt;assertTrue(true);
+}
+</code></pre>
+<hr />
+<h2 id="api-functional-testing">API Functional Testing</h2>
+<h3 id="rest-api-tests">REST API Tests</h3>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Test\Api;
+
+use Magento\TestFramework\TestCase\WebapiAbstract;
+
+class OrderManagementTest extends WebapiAbstract
+{
+    private const RESOURCE_PATH = '/V1/custom/orders';
+
+    /**
+     * @magentoApiDataFixture Magento/Sales/_files/order.php
+     */
+    public function testGetOrderViaApi(): void
+    {
+        $orderId = 100000001;
+
+        $serviceInfo = [
+            'rest' =&gt; [
+                'resourcePath' =&gt; self::RESOURCE_PATH . '/' . $orderId,
+                'httpMethod' =&gt; \Magento\Framework\Webapi\Rest\Request::HTTP_METHOD_GET,
+            ],
+        ];
+
+        $response = $this-&gt;_webApiCall($serviceInfo);
+
+        $this-&gt;assertArrayHasKey('entity_id', $response);
+        $this-&gt;assertEquals($orderId, $response['entity_id']);
+        $this-&gt;assertArrayHasKey('status', $response);
+    }
+
+    /**
+     * @magentoApiDataFixture Magento/Customer/_files/customer.php
+     */
+    public function testCreateOrderViaApi(): void
+    {
+        $orderData = [
+            'customer_email' =&gt; 'customer@example.com',
+            'items' =&gt; [
+                [
+                    'sku' =&gt; 'simple-product',
+                    'qty' =&gt; 1,
+                    'price' =&gt; 100.00
+                ]
+            ],
+            'billing_address' =&gt; [
+                'firstname' =&gt; 'John',
+                'lastname' =&gt; 'Doe',
+                'street' =&gt; ['123 Main St'],
+                'city' =&gt; 'Los Angeles',
+                'region' =&gt; 'CA',
+                'postcode' =&gt; '90001',
+                'country_id' =&gt; 'US',
+                'telephone' =&gt; '555-1234'
+            ]
+        ];
+
+        $serviceInfo = [
+            'rest' =&gt; [
+                'resourcePath' =&gt; self::RESOURCE_PATH,
+                'httpMethod' =&gt; \Magento\Framework\Webapi\Rest\Request::HTTP_METHOD_POST,
+            ],
+        ];
+
+        $response = $this-&gt;_webApiCall($serviceInfo, $orderData);
+
+        $this-&gt;assertArrayHasKey('entity_id', $response);
+        $this-&gt;assertGreaterThan(0, $response['entity_id']);
+    }
+
+    public function testUnauthorizedAccessReturns401(): void
+    {
+        $this-&gt;expectException(\Exception::class);
+        $this-&gt;expectExceptionCode(401);
+
+        $serviceInfo = [
+            'rest' =&gt; [
+                'resourcePath' =&gt; self::RESOURCE_PATH . '/999',
+                'httpMethod' =&gt; \Magento\Framework\Webapi\Rest\Request::HTTP_METHOD_GET,
+                'token' =&gt; 'invalid_token'
+            ],
+        ];
+
+        $this-&gt;_webApiCall($serviceInfo);
+    }
+}
+</code></pre>
+<h3 id="graphql-api-tests">GraphQL API Tests</h3>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Test\GraphQl;
+
+use Magento\TestFramework\TestCase\GraphQlAbstract;
+
+class OrderQueryTest extends GraphQlAbstract
+{
+    /**
+     * @magentoApiDataFixture Magento/Sales/_files/order.php
+     */
+    public function testGetOrderViaGraphQl(): void
+    {
+        $orderId = 100000001;
+
+        $query = &lt;&lt;&lt;QUERY
+{
+  customOrder(id: $orderId) {
+    id
+    increment_id
+    status
+    grand_total
+    items {
+      sku
+      name
+      qty_ordered
+    }
+  }
+}
+QUERY;
+
+        $response = $this-&gt;graphQlQuery($query);
+
+        $this-&gt;assertArrayHasKey('customOrder', $response);
+        $this-&gt;assertEquals($orderId, $response['customOrder']['id']);
+        $this-&gt;assertIsArray($response['customOrder']['items']);
+    }
+
+    /**
+     * @magentoApiDataFixture Magento/Customer/_files/customer.php
+     */
+    public function testCreateOrderMutation(): void
+    {
+        $mutation = &lt;&lt;&lt;MUTATION
+mutation {
+  createCustomOrder(input: {
+    customer_email: &quot;customer@example.com&quot;
+    items: [
+      {
+        sku: &quot;simple-product&quot;
+        qty: 1
+      }
+    ]
+  }) {
+    order {
+      id
+      increment_id
+      status
+    }
+  }
+}
+MUTATION;
+
+        $response = $this-&gt;graphQlMutation($mutation);
+
+        $this-&gt;assertArrayHasKey('createCustomOrder', $response);
+        $this-&gt;assertArrayHasKey('order', $response['createCustomOrder']);
+        $this-&gt;assertGreaterThan(0, $response['createCustomOrder']['order']['id']);
+    }
+}
+</code></pre>
+<hr />
+<h2 id="mftf-magento-functional-testing-framework">MFTF (Magento Functional Testing Framework)</h2>
+<h3 id="when-to-use-mftf">When to Use MFTF</h3>
+<p>Use MFTF for:
+- Critical user journeys (checkout, customer registration)
+- Cross-module integration scenarios
+- Admin panel workflows
+- Smoke tests for deployment validation</p>
+<p><strong>Not for:</strong> Unit-level logic, API endpoints (use API functional tests)</p>
+<h3 id="mftf-test-structure">MFTF Test Structure</h3>
+<p><strong>File:</strong> <code>Test/Mftf/Test/AdminProcessOrderTest.xml</code></p>
+<pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;tests xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+       xsi:noNamespaceSchemaLocation=&quot;urn:magento:mftf:Test/etc/testSchema.xsd&quot;&gt;
+
+    &lt;test name=&quot;AdminProcessOrderTest&quot;&gt;
+        &lt;annotations&gt;
+            &lt;features value=&quot;Order Management&quot;/&gt;
+            &lt;stories value=&quot;Admin processes pending order&quot;/&gt;
+            &lt;title value=&quot;Admin can process order and update status&quot;/&gt;
+            &lt;description value=&quot;Verify admin can process order from pending to processing status&quot;/&gt;
+            &lt;severity value=&quot;CRITICAL&quot;/&gt;
+            &lt;testCaseId value=&quot;OM-123&quot;/&gt;
+            &lt;group value=&quot;order&quot;/&gt;
+            &lt;group value=&quot;admin&quot;/&gt;
+        &lt;/annotations&gt;
+
+        &lt;before&gt;
+            &lt;!-- Create order fixture --&gt;
+            &lt;createData entity=&quot;SimpleProduct&quot; stepKey=&quot;createProduct&quot;/&gt;
+            &lt;createData entity=&quot;Simple_US_Customer&quot; stepKey=&quot;createCustomer&quot;/&gt;
+            &lt;createData entity=&quot;CustomerCart&quot; stepKey=&quot;createCustomerCart&quot;&gt;
+                &lt;requiredEntity createDataKey=&quot;createCustomer&quot;/&gt;
+            &lt;/createData&gt;
+            &lt;createData entity=&quot;CustomerCartItem&quot; stepKey=&quot;addCartItem&quot;&gt;
+                &lt;requiredEntity createDataKey=&quot;createCustomerCart&quot;/&gt;
+                &lt;requiredEntity createDataKey=&quot;createProduct&quot;/&gt;
+            &lt;/createData&gt;
+            &lt;createData entity=&quot;CustomerAddressInformation&quot; stepKey=&quot;addCustomerOrderAddress&quot;&gt;
+                &lt;requiredEntity createDataKey=&quot;createCustomerCart&quot;/&gt;
+            &lt;/createData&gt;
+            &lt;updateData createDataKey=&quot;createCustomerCart&quot; entity=&quot;CustomerOrderPaymentMethod&quot; stepKey=&quot;sendCustomerPaymentInformation&quot;&gt;
+                &lt;requiredEntity createDataKey=&quot;createCustomerCart&quot;/&gt;
+            &lt;/updateData&gt;
+
+            &lt;!-- Login as admin --&gt;
+            &lt;actionGroup ref=&quot;AdminLoginActionGroup&quot; stepKey=&quot;loginAsAdmin&quot;/&gt;
+        &lt;/before&gt;
+
+        &lt;after&gt;
+            &lt;!-- Cleanup --&gt;
+            &lt;deleteData createDataKey=&quot;createProduct&quot; stepKey=&quot;deleteProduct&quot;/&gt;
+            &lt;deleteData createDataKey=&quot;createCustomer&quot; stepKey=&quot;deleteCustomer&quot;/&gt;
+            &lt;actionGroup ref=&quot;AdminLogoutActionGroup&quot; stepKey=&quot;logout&quot;/&gt;
+        &lt;/after&gt;
+
+        &lt;!-- Navigate to order --&gt;
+        &lt;actionGroup ref=&quot;AdminOrdersPageOpenActionGroup&quot; stepKey=&quot;goToOrdersPage&quot;/&gt;
+        &lt;actionGroup ref=&quot;AdminOrdersGridClearFiltersActionGroup&quot; stepKey=&quot;clearFilters&quot;/&gt;
+        &lt;actionGroup ref=&quot;FilterOrderGridByIdActionGroup&quot; stepKey=&quot;filterOrderById&quot;&gt;
+            &lt;argument name=&quot;orderId&quot; value=&quot;$createCustomerCart.return$&quot;/&gt;
+        &lt;/actionGroup&gt;
+        &lt;click selector=&quot;{{AdminOrdersGridSection.firstRow}}&quot; stepKey=&quot;clickOrderRow&quot;/&gt;
+
+        &lt;!-- Process order --&gt;
+        &lt;click selector=&quot;{{AdminOrderDetailsMainActionsSection.processOrder}}&quot; stepKey=&quot;clickProcessOrder&quot;/&gt;
+        &lt;waitForPageLoad stepKey=&quot;waitForProcessing&quot;/&gt;
+
+        &lt;!-- Verify status updated --&gt;
+        &lt;see selector=&quot;{{AdminOrderDetailsInformationSection.orderStatus}}&quot; userInput=&quot;Processing&quot; stepKey=&quot;seeProcessingStatus&quot;/&gt;
+        &lt;see selector=&quot;{{AdminMessagesSection.success}}&quot; userInput=&quot;Order processed successfully&quot; stepKey=&quot;seeSuccessMessage&quot;/&gt;
+    &lt;/test&gt;
+&lt;/tests&gt;
+</code></pre>
+<h3 id="custom-action-groups">Custom Action Groups</h3>
+<p><strong>File:</strong> <code>Test/Mftf/ActionGroup/AdminProcessOrderActionGroup.xml</code></p>
+<pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;actionGroups xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+              xsi:noNamespaceSchemaLocation=&quot;urn:magento:mftf:Test/etc/actionGroupSchema.xsd&quot;&gt;
+
+    &lt;actionGroup name=&quot;AdminProcessOrderActionGroup&quot;&gt;
+        &lt;annotations&gt;
+            &lt;description&gt;Process order from order view page&lt;/description&gt;
+        &lt;/annotations&gt;
+        &lt;arguments&gt;
+            &lt;argument name=&quot;orderId&quot; type=&quot;string&quot;/&gt;
+        &lt;/arguments&gt;
+
+        &lt;amOnPage url=&quot;{{AdminOrderPage.url(orderId)}}&quot; stepKey=&quot;navigateToOrderPage&quot;/&gt;
+        &lt;waitForPageLoad stepKey=&quot;waitForOrderPage&quot;/&gt;
+        &lt;click selector=&quot;{{AdminOrderDetailsMainActionsSection.processOrder}}&quot; stepKey=&quot;clickProcessButton&quot;/&gt;
+        &lt;waitForPageLoad stepKey=&quot;waitForProcessing&quot;/&gt;
+        &lt;see selector=&quot;{{AdminMessagesSection.success}}&quot; userInput=&quot;Order processed successfully&quot; stepKey=&quot;verifySuccess&quot;/&gt;
+    &lt;/actionGroup&gt;
+&lt;/actionGroups&gt;
+</code></pre>
+<h3 id="running-mftf-tests">Running MFTF Tests</h3>
+<pre><code class="language-bash"># Generate and run specific test
+vendor/bin/mftf generate:tests
+vendor/bin/mftf run:test AdminProcessOrderTest
+
+# Run group
+vendor/bin/mftf run:group order
+
+# Run with specific browser
+vendor/bin/mftf run:test AdminProcessOrderTest --browser chrome
+
+# Parallel execution (requires Selenium Grid)
+vendor/bin/mftf run:group order --parallel 4
+</code></pre>
+<hr />
+<h2 id="test-coverage-requirements">Test Coverage Requirements</h2>
+<h3 id="coverage-targets">Coverage Targets</h3>
+<div class="overflow-x-auto my-6 border border-gray-200"><table class="min-w-full">
+<thead>
+<tr>
+<th>Test Type</th>
+<th>Minimum Coverage</th>
+<th>Target Coverage</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Unit</td>
+<td>70%</td>
+<td>80%+</td>
+</tr>
+<tr>
+<td>Integration</td>
+<td>50%</td>
+<td>65%+</td>
+</tr>
+<tr>
+<td>MFTF</td>
+<td>Critical paths</td>
+<td>100% of user journeys</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="measuring-coverage">Measuring Coverage</h3>
+<p><strong>PHPUnit with coverage:</strong></p>
+<pre><code class="language-bash">vendor/bin/phpunit -c dev/tests/unit/phpunit.xml.dist --coverage-html var/coverage/unit
+</code></pre>
+<p><strong>Integration test coverage:</strong></p>
+<pre><code class="language-bash">vendor/bin/phpunit -c dev/tests/integration/phpunit.xml.dist --coverage-html var/coverage/integration
+</code></pre>
+<p><strong>View coverage report:</strong></p>
+<pre><code class="language-bash">open var/coverage/unit/index.html
+</code></pre>
+<h3 id="coverage-configuration-phpunitxml">Coverage Configuration (phpunit.xml)</h3>
+<pre><code class="language-xml">&lt;phpunit&gt;
+    &lt;filter&gt;
+        &lt;whitelist processUncoveredFilesFromWhitelist=&quot;true&quot;&gt;
+            &lt;directory suffix=&quot;.php&quot;&gt;../../../app/code/Vendor/Module&lt;/directory&gt;
+            &lt;exclude&gt;
+                &lt;directory&gt;../../../app/code/Vendor/Module/Test&lt;/directory&gt;
+                &lt;directory&gt;../../../app/code/Vendor/Module/Setup&lt;/directory&gt;
+            &lt;/exclude&gt;
+        &lt;/whitelist&gt;
+    &lt;/filter&gt;
+&lt;/phpunit&gt;
+</code></pre>
+<hr />
+<h2 id="cicd-integration">CI/CD Integration</h2>
+<h3 id="github-actions-workflow">GitHub Actions Workflow</h3>
+<p><strong>File:</strong> <code>.github/workflows/tests.yml</code></p>
+<pre><code class="language-yaml">name: Magento Tests
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: bcmath, ctype, curl, dom, gd, intl, mbstring, pdo_mysql, simplexml, soap, xsl, zip
+          coverage: xdebug
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress
+
+      - name: Run unit tests
+        run: vendor/bin/phpunit -c dev/tests/unit/phpunit.xml.dist --coverage-clover coverage.xml
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage.xml
+
+  integration-tests:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: magento_integration_tests
+        ports:
+          - 3306:3306
+        options: --health-cmd=&quot;mysqladmin ping&quot; --health-interval=10s --health-timeout=5s --health-retries=3
+
+      elasticsearch:
+        image: docker.elastic.co/elasticsearch/elasticsearch:7.17.0
+        env:
+          discovery.type: single-node
+        ports:
+          - 9200:9200
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: bcmath, ctype, curl, dom, gd, intl, mbstring, pdo_mysql, simplexml, soap, xsl, zip
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress
+
+      - name: Setup Magento
+        run: |
+          php bin/magento setup:install \
+            --db-host=127.0.0.1 \
+            --db-name=magento_integration_tests \
+            --db-user=root \
+            --db-password=root \
+            --backend-frontname=admin \
+            --search-engine=elasticsearch7 \
+            --elasticsearch-host=127.0.0.1 \
+            --elasticsearch-port=9200
+
+      - name: Run integration tests
+        run: |
+          cd dev/tests/integration
+          ../../../vendor/bin/phpunit -c phpunit.xml.dist
+
+  static-analysis:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress
+
+      - name: Run PHPStan
+        run: vendor/bin/phpstan analyse app/code/Vendor/Module --level 8
+
+      - name: Run PHPCS
+        run: vendor/bin/phpcs app/code/Vendor/Module --standard=Magento2
+</code></pre>
+<h3 id="gitlab-ci-pipeline">GitLab CI Pipeline</h3>
+<p><strong>File:</strong> <code>.gitlab-ci.yml</code></p>
+<pre><code class="language-yaml">stages:
+  - test
+  - analyze
+
+unit-tests:
+  stage: test
+  image: php:8.2-cli
+  services:
+    - mysql:8.0
+  variables:
+    MYSQL_ROOT_PASSWORD: root
+    MYSQL_DATABASE: magento_tests
+  script:
+    - composer install
+    - vendor/bin/phpunit -c dev/tests/unit/phpunit.xml.dist --coverage-text
+  coverage: '/^\s*Lines:\s*\d+.\d+\%/'
+
+integration-tests:
+  stage: test
+  image: php:8.2-cli
+  services:
+    - mysql:8.0
+    - elasticsearch:7.17.0
+  script:
+    - composer install
+    - bin/magento setup:install --db-host=mysql --db-name=magento_tests --db-user=root --db-password=root
+    - cd dev/tests/integration &amp;&amp; ../../../vendor/bin/phpunit
+
+phpstan:
+  stage: analyze
+  image: php:8.2-cli
+  script:
+    - composer install
+    - vendor/bin/phpstan analyse app/code/Vendor/Module --level 8
+  allow_failure: false
+
+phpcs:
+  stage: analyze
+  image: php:8.2-cli
+  script:
+    - composer install
+    - vendor/bin/phpcs app/code/Vendor/Module --standard=Magento2
+</code></pre>
+<hr />
+<h2 id="advanced-testing-patterns">Advanced Testing Patterns</h2>
+<h3 id="testing-private-methods-via-reflection">Testing Private Methods (via Reflection)</h3>
+<pre><code class="language-php">public function testPrivateMethodLogic(): void
+{
+    $reflection = new \ReflectionClass(OrderProcessor::class);
+    $method = $reflection-&gt;getMethod('calculateDiscount');
+    $method-&gt;setAccessible(true);
+
+    $orderProcessor = new OrderProcessor(/* dependencies */);
+    $result = $method-&gt;invokeArgs($orderProcessor, [100.00, 0.15]);
+
+    $this-&gt;assertEquals(15.00, $result);
+}
+</code></pre>
+<p><strong>Note:</strong> Prefer refactoring private methods to separate classes with public interfaces for better testability.</p>
+<h3 id="testing-event-dispatching">Testing Event Dispatching</h3>
+<pre><code class="language-php">public function testEventDispatched(): void
+{
+    $eventManagerMock = $this-&gt;createMock(\Magento\Framework\Event\ManagerInterface::class);
+    $eventManagerMock-&gt;expects($this-&gt;once())
+        -&gt;method('dispatch')
+        -&gt;with(
+            'vendor_module_order_processed',
+            $this-&gt;callback(function ($data) {
+                return isset($data['order']) &amp;&amp; $data['order'] instanceof OrderInterface;
+            })
+        );
+
+    $orderProcessor = new OrderProcessor($eventManagerMock, /* other dependencies */);
+    $orderProcessor-&gt;process(123);
+}
+</code></pre>
+<h3 id="mutation-testing-with-infection">Mutation Testing with Infection</h3>
+<pre><code class="language-bash">composer require --dev infection/infection
+
+vendor/bin/infection --threads=4 --min-msi=80
+</code></pre>
+<p><strong>Configuration:</strong> <code>infection.json.dist</code></p>
+<pre><code class="language-json">{
+    &quot;source&quot;: {
+        &quot;directories&quot;: [
+            &quot;app/code/Vendor/Module&quot;
+        ],
+        &quot;excludes&quot;: [
+            &quot;Test&quot;
+        ]
+    },
+    &quot;logs&quot;: {
+        &quot;text&quot;: &quot;var/infection.log&quot;
+    },
+    &quot;mutators&quot;: {
+        &quot;@default&quot;: true
+    }
+}
+</code></pre>
+<hr />
+<h2 id="best-practices">Best Practices</h2>
+<h3 id="test-naming-conventions">Test Naming Conventions</h3>
+<pre><code class="language-php">// Pattern: test[MethodName][Scenario][ExpectedResult]
+public function testProcessOrderWithValidDataReturnsTrue(): void
+public function testProcessOrderWithInvalidOrderIdThrowsException(): void
+public function testGetOrderStatusForPendingOrderReturnsPending(): void
+</code></pre>
+<h3 id="arrange-act-assert-pattern">Arrange-Act-Assert Pattern</h3>
+<pre><code class="language-php">public function testExample(): void
+{
+    // Arrange: Set up test data and mocks
+    $orderId = 123;
+    $this-&gt;orderRepositoryMock-&gt;method('get')-&gt;willReturn($orderMock);
+
+    // Act: Execute the method under test
+    $result = $this-&gt;orderProcessor-&gt;process($orderId);
+
+    // Assert: Verify expected outcome
+    $this-&gt;assertTrue($result);
+}
+</code></pre>
+<h3 id="test-isolation">Test Isolation</h3>
+<pre><code class="language-php">// BAD: Tests depend on execution order
+public function testA(): void { self::$sharedState = 'value'; }
+public function testB(): void { $this-&gt;assertEquals('value', self::$sharedState); }
+
+// GOOD: Each test is independent
+public function testA(): void { /* isolated */ }
+public function testB(): void { /* isolated */ }
+</code></pre>
+<h3 id="avoid-test-logic">Avoid Test Logic</h3>
+<pre><code class="language-php">// BAD: Conditional logic in tests
+if ($condition) {
+    $this-&gt;assertTrue($result);
+} else {
+    $this-&gt;assertFalse($result);
+}
+
+// GOOD: Explicit assertions
+$this-&gt;assertTrue($result);
+</code></pre>
+<hr />
+<h2 id="assumptions">Assumptions</h2>
+<ul>
+<li><strong>Magento version:</strong> 2.4.7+ (PHPUnit 9.x, MFTF 3.x)</li>
+<li><strong>PHP version:</strong> 8.2+ (typed properties, readonly)</li>
+<li><strong>Test frameworks:</strong> PHPUnit 9.5+, MFTF 3.7+</li>
+<li><strong>CI/CD:</strong> GitHub Actions or GitLab CI</li>
+<li><strong>Services:</strong> MySQL 8.0, Elasticsearch 7.17</li>
+</ul>
+<h2 id="why-this-approach">Why This Approach</h2>
+<p><strong>Test pyramid distribution (60/30/10):</strong>
+- Unit tests are fast and catch logic errors early
+- Integration tests verify framework interactions
+- MFTF tests validate critical user paths without over-investment in slow E2E tests</p>
+<p><strong>PHPUnit mocking over ObjectManager:</strong>
+- Unit tests run in &lt;100ms vs 5-10s with ObjectManager
+- True isolation prevents cascading failures
+- Forces proper dependency injection design</p>
+<p><strong>API functional tests for endpoints:</strong>
+- Tests service contracts as external consumers use them
+- Validates serialization, authorization, error responses
+- Catches breaking changes in API contracts</p>
+<p><strong>MFTF for user journeys:</strong>
+- Cross-browser testing (Chrome, Firefox)
+- Validates frontend-backend integration
+- Smoke tests for deployment confidence</p>
+<h2 id="security-impact">Security Impact</h2>
+<ul>
+<li><strong>Test data:</strong> Use anonymized/synthetic PII in fixtures; never production data</li>
+<li><strong>API tests:</strong> Validate authentication, authorization, rate limiting</li>
+<li><strong>MFTF:</strong> Test CSRF token handling, XSS prevention in admin forms</li>
+<li><strong>Secrets:</strong> Use environment variables for CI credentials; never commit to VCS</li>
+<li><strong>Test isolation:</strong> Database rollback prevents data leakage between tests</li>
+</ul>
+<h2 id="performance-impact">Performance Impact</h2>
+<ul>
+<li><strong>Unit tests:</strong> ~50ms per test; 1000 tests in &lt;1 minute</li>
+<li><strong>Integration tests:</strong> ~500ms per test; database overhead</li>
+<li><strong>MFTF:</strong> ~30s per test; browser automation + page loads</li>
+<li><strong>CI runtime:</strong> Unit (2min), Integration (10min), MFTF (30min)</li>
+<li><strong>Coverage reports:</strong> Add 20-30% to test runtime (Xdebug overhead)</li>
+</ul>
+<h2 id="backward-compatibility">Backward Compatibility</h2>
+<ul>
+<li><strong>PHPUnit:</strong> 9.x across Magento 2.4.x; migration to PHPUnit 10 in 2.5</li>
+<li><strong>MFTF:</strong> 3.x stable; selector changes may break tests on Magento core updates</li>
+<li><strong>Test attributes:</strong> PHP 8.2+ attributes preferred over annotations (future-proof)</li>
+<li><strong>Fixtures:</strong> Backward compatible across 2.4.x if using entity builders</li>
+<li><strong>API tests:</strong> Version endpoints (<code>/V1/</code>, <code>/V2/</code>) to maintain BC</li>
+</ul>
+<h2 id="tests-to-add">Tests to Add</h2>
+<p><strong>Unit tests:</strong>
+- All public methods in service classes
+- Validation logic
+- Exception handling paths
+- Data transformation logic</p>
+<p><strong>Integration tests:</strong>
+- Repository operations (CRUD)
+- Plugin execution order
+- Observer registration and execution
+- DI configuration correctness</p>
+<p><strong>API functional tests:</strong>
+- All REST/GraphQL endpoints
+- Authentication/authorization flows
+- Error responses (400, 401, 404, 500)
+- Input validation</p>
+<p><strong>MFTF tests:</strong>
+- Critical checkout flows
+- Admin order management
+- Customer account operations
+- Payment gateway integration</p>
+<h2 id="documentation-to-update">Documentation to Update</h2>
+<ul>
+<li><strong>README:</strong> Add test execution instructions (<code>composer test</code>, <code>composer test:unit</code>)</li>
+<li><strong>CONTRIBUTING:</strong> Test requirements for PRs (70% unit coverage minimum)</li>
+<li><strong>CI/CD docs:</strong> Pipeline configuration and troubleshooting</li>
+<li><strong>Test fixtures:</strong> Document available fixtures and how to create custom ones</li>
+<li><strong>CHANGELOG:</strong> Note breaking changes in test infrastructure</li>
+<li><strong>Screenshots:</strong> CI badge, coverage report example</li>
+</ul>
+<hr />
+<h2 id="additional-resources">Additional Resources</h2>
+<ul>
+<li><a href="https://developer.adobe.com/commerce/testing/">Magento DevDocs: Testing Guide</a></li>
+<li><a href="https://phpunit.de/documentation.html">PHPUnit Documentation</a></li>
+<li><a href="https://developer.adobe.com/commerce/testing/functional-testing-framework/">MFTF Developer Guide</a></li>
+<li><a href="https://infection.github.io/">Infection Mutation Testing</a></li>
+<li><a href="https://github.com/shivammathur/setup-php">GitHub Actions for PHP</a></li>
+</ul>
+<h2 id="related-documentation">Related Documentation</h2>
+<h3 id="related-guides">Related Guides</h3>
+<ul>
+<li><a href="../tutorials/docker-development-environment.md">Docker Development Environment Setup for Magento 2</a></li>
+<li><a href="cicd-deployment.md">CI/CD Deployment Pipelines for Magento 2</a></li>
+<li><a href="../tutorials/plugin-system-deep-dive.md">Plugin System Deep Dive: Mastering Magento 2 Interception</a></li>
+</ul>
+<h3 id="related-module-documentation">Related Module Documentation</h3>
+<ul>
+<li><a href="../../modules/catalog/README.md">Magento_Catalog Overview</a></li>
+<li><a href="../../modules/sales/README.md">Magento_Sales Overview</a></li>
+<li><a href="../../modules/checkout/README.md">Magento_Checkout Overview</a></li>
+</ul>
+                    </div>
+                </article>
+            </main>
+            <!-- Right Sidebar: On This Page (desktop) -->
+            <aside class="toc-sidebar hidden xl:block" aria-label="On this page">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-semibold text-gray-900 uppercase tracking-wider mb-4 mt-0">On this page</h3>
+                    <nav id="toc-nav" class="space-y-0" aria-label="Table of contents"></nav>
+                    <div class="toc-back-to-top">
+                        <a href="#">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+                            </svg>
+                            Back to top
+                        </a>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- ================================================================
+         FOOTER — matches module-catalog.html multi-column layout exactly
+         ================================================================ -->
+    <footer class="relative pt-12 bg-white border-t border-charcoal mt-16">
+        <div class="max-w-screen-2xl mx-auto w-full px-4 sm:px-6 lg:px-8">
+            <div>
+                <a href="index.html" class="inline-flex items-center no-underline">
+                    <svg width="30" height="33" viewBox="0 0 30 33" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Magento Association logo" role="img">
+                        <path d="M0 4.06492H29.6763V31.8882C29.6763 32.502 29.1713 33 28.5487 33H1.12762C0.505079 33 0 32.502 0 31.8882V4.06492Z" fill="#34323A"/>
+                        <path d="M1.26857 0H28.4078C29.1066 0 29.6763 0.561678 29.6763 1.25075V4.06492H0V1.25075C0 0.561678 0.569682 0 1.26857 0Z" fill="#C9C9C9"/>
+                        <path d="M2.37269 3.0458C2.94031 3.0458 3.40046 2.59211 3.40046 2.03246C3.40046 1.47281 2.94031 1.01913 2.37269 1.01913C1.80506 1.01913 1.34491 1.47281 1.34491 2.03246C1.34491 2.59211 1.80506 3.0458 2.37269 3.0458Z" fill="#848484"/>
+                        <path d="M5.28571 3.0458C5.85334 3.0458 6.31349 2.59211 6.31349 2.03246C6.31349 1.47281 5.85334 1.01913 5.28571 1.01913C4.71809 1.01913 4.25793 1.47281 4.25793 2.03246C4.25793 2.59211 4.71809 3.0458 5.28571 3.0458Z" fill="#848484"/>
+                        <path d="M14.7883 7.46973L4.90405 13.0923V24.349L7.54104 25.8487V14.5978L14.7883 10.4692L22.0415 14.5978V25.8487L24.6785 24.349V13.0923L14.7883 7.46973Z" fill="#F1BC1B"/>
+                        <path d="M16.0862 26.2367L14.7883 26.9779L13.4492 26.2135V14.233L10.178 16.0975V27.3485L13.4492 29.213L14.7883 29.9773L16.0862 29.2362L19.4045 27.3485V16.0975L16.0862 14.2098V26.2367Z" fill="#F1BC1B"/>
+                    </svg>
+                    <span class="ml-3 text-xl font-bold text-charcoal">Developer Documentation</span>
+                </a>
+            </div>
+
+            <div class="grid grid-cols-12 md:gap-x-8 gap-y-12 lg:mt-12">
+                <div class="col-span-12 lg:col-span-4">
+                    <p class="hidden lg:block text-xs text-charcoal sm:text-sm">Comprehensive developer documentation for Magento 2.4.7+ — tutorials, architecture deep dives, module references, and production-ready patterns built by the community, for the community.</p>
+                    <ul class="mt-6 hidden lg:flex items-center gap-3">
+                        <li class="pl-0">
+                            <a href="https://github.com/magento/magento2" class="p-2 md:p-0" aria-label="GitHub">
+                                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                                </svg>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Guides</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="tutorials.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Tutorials</a></li>
+                            <li class="pl-0"><a href="how-to-guides.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">How-To Guides</a></li>
+                            <li class="pl-0"><a href="architecture.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Architecture</a></li>
+                            <li class="pl-0"><a href="learning-paths.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Learning Paths</a></li>
+                            <li class="pl-0"><a href="references.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">References</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Modules</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="module-catalog.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Catalog</a></li>
+                            <li class="pl-0"><a href="module-checkout.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Checkout</a></li>
+                            <li class="pl-0"><a href="module-sales.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Sales</a></li>
+                            <li class="pl-0"><a href="module-customer.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Customer</a></li>
+                            <li class="pl-0"><a href="module-quote.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Quote</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Community</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Magento Community</a></li>
+                            <li class="pl-0"><a href="https://magento.stackexchange.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Stack Exchange</a></li>
+                            <li class="pl-0"><a href="https://marketplace.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Marketplace</a></li>
+                            <li class="pl-0"><a href="https://github.com/magento/magento2" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">GitHub</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Support</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://github.com/magento/magento2/issues" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Report Issues</a></li>
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Community Resources</a></li>
+                            <li class="pl-0"><a href="https://developer.adobe.com/commerce/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Adobe Commerce Docs</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-12 border-t pt-6 pb-16 border-charcoal">
+                <p class="text-xs text-charcoal">
+                    &copy; 2026 Magento 2 Developer Documentation. Magento&reg; is a registered trademark of Adobe Inc.
+                </p>
+                <p class="mt-6 text-xs text-charcoal">
+                    This documentation provides guidance for Magento 2 developers and extension builders. For merchant documentation, visit the <a href="index.html" class="text-orange hover:text-orange-600 transition-colors">merchant documentation</a>.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Initialize highlight.js -->
+    <script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('pre code').forEach(function (el) {
+        hljs.highlightElement(el);
+    });
+    document.querySelectorAll('pre').forEach(function (pre) {
+        if (pre.parentNode.classList && pre.parentNode.classList.contains('code-wrapper')) return;
+        var wrapper = document.createElement('div');
+        wrapper.className = 'code-wrapper';
+        pre.parentNode.insertBefore(wrapper, pre);
+        wrapper.appendChild(pre);
+        var btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.setAttribute('type', 'button');
+        btn.setAttribute('aria-label', 'Copy code to clipboard');
+        btn.setAttribute('title', 'Copy');
+        btn.textContent = 'Copy';
+        wrapper.appendChild(btn);
+        btn.addEventListener('click', function () {
+            var code = pre.querySelector('code');
+            var text = code ? (code.innerText || code.textContent) : (pre.innerText || pre.textContent);
+            navigator.clipboard.writeText(text).then(function () {
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            }).catch(function () {
+                var range = document.createRange();
+                range.selectNode(code || pre);
+                window.getSelection().removeAllRanges();
+                window.getSelection().addRange(range);
+                document.execCommand('copy');
+                window.getSelection().removeAllRanges();
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            });
+        });
+    });
+});
+</script>
+
+
+<script>
+(function() {
+    var nav = document.getElementById('toc-nav');
+    if (!nav) return;
+    var article = document.getElementById('main-content');
+    if (!article) return;
+    var headings = article.querySelectorAll('h2[id], h3[id]');
+    if (headings.length < 3) {
+        // Hide the entire TOC sidebar if fewer than 3 headings
+        var sidebar = nav.closest('.toc-sidebar');
+        if (sidebar) sidebar.style.display = 'none';
+        return;
+    }
+    var ids = [];
+    headings.forEach(function(h) {
+        var a = document.createElement('a');
+        a.href = '#' + h.id;
+        a.textContent = h.textContent.replace(/^#+\s*/, '').replace(/\s+/g, ' ').trim();
+        if (h.tagName === 'H3') a.classList.add('toc-h3');
+        nav.appendChild(a);
+        ids.push(h.id);
+    });
+    // Scroll-spy with IntersectionObserver
+    var links = nav.querySelectorAll('a');
+    var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                links.forEach(function(l) { l.classList.remove('toc-active'); });
+                var active = nav.querySelector('a[href="#' + entry.target.id + '"]');
+                if (active) active.classList.add('toc-active');
+            }
+        });
+    }, { rootMargin: '-80px 0px -70% 0px', threshold: 0 });
+    headings.forEach(function(h) { observer.observe(h); });
+})();
+</script>
+</body>
+</html>

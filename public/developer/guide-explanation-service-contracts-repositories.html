@@ -1,0 +1,1841 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service Contracts vs Repositories in Magento 2 — Magento 2 Developer Documentation</title>
+    <meta name="description" content="Developer guide: Service Contracts vs Repositories in Magento 2">
+
+    <!-- Google Fonts: Inter Tight only. Courier New used for code. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Highlight.js: syntax highlighting for code blocks -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/php.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/ini.min.js"></script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        charcoal: {
+                            DEFAULT: '#2c2c2c', 50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6',
+                            300: '#6B6B6B', 400: '#474747', 500: '#2c2c2c', 600: '#262626',
+                            700: '#202020', 800: '#1c1c1c', 900: '#191919', 950: '#121212'
+                        },
+                        orange: {
+                            DEFAULT: '#D4551A', 50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad',
+                            300: '#f9ae78', 400: '#f58242', 500: '#f26423', 600: '#e34613',
+                            700: '#bc3312', 800: '#962a16', 900: '#792515', 950: '#411009'
+                        },
+                        yellow: {
+                            DEFAULT: '#B8860B', 50: '#fffdeb', 100: '#fdf9c8', 200: '#fbf38c',
+                            300: '#f8e651', 400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a',
+                            700: '#b1670c', 800: '#8f5111', 900: '#764311', 950: '#442204'
+                        },
+                        'off-white': '#FAFAFA',
+                    },
+                    fontFamily: {
+                        sans: ['Inter Tight', 'system-ui', '-apple-system', 'sans-serif'],
+                        mono: ['Courier New', 'Courier', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* ── Force light mode ── */
+        :root { color-scheme: light only; }
+
+        [x-cloak] { display: none !important; }
+
+        /* ── Scroll offset for sticky header ── */
+        .prose h2, .prose h3 { scroll-margin-top: 5rem; }
+
+        /* ── Code blocks: Bauhaus charcoal bg, no border-radius, highlight.js override ── */
+        .prose pre {
+            background-color: #2C2C2C !important;
+            border-radius: 0 !important;
+            padding: 1.25rem;
+            overflow-x: auto;
+            font-size: 0.875rem;
+            line-height: 1.7;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 1.5rem 0;
+        }
+        .prose pre code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            background: transparent !important;
+            padding: 0;
+                    color: #abb2bf;
+        }
+        /* Override highlight.js theme background to match Bauhaus charcoal */
+        .hljs {
+            background: #2C2C2C !important;
+            color: #abb2bf !important;
+            border-radius: 0 !important;
+        }
+
+        /* ── Inline code: charcoal bg, yellow text, no border-radius ── */
+        .prose code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.85em;
+        }
+        .prose :not(pre) > code {
+            background-color: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2em 0.45em;
+            border-radius: 0;
+        }
+
+        /* ── Step-code: same charcoal/yellow style for UI path chips ── */
+        .step-code {
+            background: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2rem 0.5rem;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            border-radius: 0;
+        }
+
+        /* ── Tables: no border-radius, charcoal header ── */
+        .prose table { width: 100%; border-collapse: collapse; }
+        .prose th {
+            background-color: #2C2C2C;
+            color: #ffffff;
+            font-weight: 600;
+            text-align: left;
+            padding: 0.75rem 1rem;
+            border-bottom: 2px solid #2C2C2C;
+            border-radius: 0;
+        }
+        .prose td { padding: 0.75rem 1rem; border-bottom: 1px solid #e5e5e5; }
+        .prose tr:hover { background-color: #fafafa; }
+
+        /* ── Blockquote: Bauhaus style — border-4 yellow, square, no left-only border ── */
+        .prose blockquote {
+            border: 4px solid #F1BC1B;
+            background-color: #ffffff;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+            border-radius: 0;
+        }
+        .prose blockquote p { margin: 0; }
+
+        /* ── Lists: hexagon bullets ── */
+        .prose ul { list-style: none; padding-left: 0; }
+        .prose ul li {
+            position: relative;
+            padding-left: 1.75rem;
+            margin-bottom: 0.4rem;
+            line-height: 1.7;
+        }
+        .prose ul li::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0.45em;
+            width: 10px;
+            height: 10px;
+            background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 2L21 7V17L12 22L3 17V7L12 2Z' stroke='%23F26423' stroke-width='2.5' stroke-linejoin='miter'/%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+        .prose ol { list-style-type: decimal; padding-left: 1.5rem; }
+        .prose li { margin-bottom: 0.4rem; }
+
+        /* ── Headings ── */
+        .prose h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            padding-top: 1.5rem;
+            border-top: 4px solid #F1BC1B;
+            color: #2C2C2C;
+        }
+        .prose h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+            color: #2C2C2C;
+        }
+        .prose h4 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #2C2C2C;
+        }
+        .prose p { margin-bottom: 1rem; line-height: 1.75; }
+        .prose a { color: #D4551A; text-decoration: none; }
+        .prose a:hover { color: #e34613; text-decoration: underline; }
+        .prose hr { border: none; border-top: 1px solid #e5e5e5; margin: 2rem 0; }
+
+        /* ── Callout boxes: Bauhaus — border-4 yellow, white bg, icon + title ── */
+        .callout-box {
+            background-color: #ffffff;
+            border: 4px solid #F1BC1B;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+        }
+        .callout-warning {
+            border-color: #D4551A;
+        }
+        .callout-important {
+            border-color: #2C2C2C;
+        }
+        .callout-box .callout-inner {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+        .callout-box .callout-title {
+            font-weight: 600;
+            color: #2C2C2C;
+            margin-bottom: 0.25rem;
+        }
+        .callout-box .callout-body {
+            font-size: 0.875rem;
+            line-height: 1.6;
+            color: rgba(44,44,44,0.85);
+        }
+
+        
+    
+        /* Code block copy button */
+        .code-wrapper {
+            position: relative;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            font-family: 'Inter Tight', system-ui, sans-serif;
+            background: rgba(255,255,255,0.1);
+            color: #abb2bf;
+            border: 1px solid rgba(255,255,255,0.15);
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.15s ease, background 0.15s ease;
+            z-index: 10;
+            line-height: 1.4;
+            border-radius: 4px;
+            user-select: none;
+        }
+        .code-wrapper:hover .copy-btn {
+            opacity: 1;
+        }
+        .copy-btn:hover,
+        .copy-btn:focus {
+            background: rgba(255,255,255,0.2);
+            color: #ffffff;
+            outline: 2px solid #D4551A;
+            outline-offset: 1px;
+        }
+        .copy-btn.copied {
+            color: #98c379;
+            background: rgba(152, 195, 121, 0.15);
+            opacity: 1;
+        }
+    
+        /* Right-hand TOC sidebar */
+        .toc-sidebar {
+            width: 14rem;
+            flex-shrink: 0;
+        }
+        .toc-sidebar a {
+            display: block;
+            padding: 0.375rem 0;
+            font-size: 0.8125rem;
+            line-height: 1.4;
+            color: #6b7280;
+            text-decoration: none;
+            transition: color 0.15s ease;
+            border-left: 2px solid transparent;
+            padding-left: 0.75rem;
+        }
+        .toc-sidebar a:hover {
+            color: #111827;
+        }
+        .toc-sidebar a.toc-active {
+            color: #ea580c;
+            border-left-color: #ea580c;
+            font-weight: 500;
+        }
+        .toc-sidebar a.toc-h3 {
+            padding-left: 1.5rem;
+            font-size: 0.75rem;
+        }
+        .toc-sidebar .toc-back-to-top {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e5e7eb;
+        }
+        .toc-sidebar .toc-back-to-top a {
+            border-left: none;
+            padding-left: 0;
+            font-weight: 500;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .toc-sidebar .toc-back-to-top a:hover {
+            color: #ea580c;
+        }
+    </style>
+</head>
+
+<body class="font-sans bg-off-white text-charcoal">
+
+    <!-- Shared header — single source of truth -->
+    <script src="includes/header.js"></script>
+
+    <!-- Breadcrumb — orange › separators -->
+    <div class="bg-white border-b border-gray-100">
+        <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <div class="flex items-center gap-2 text-sm flex-wrap">
+                <a href="index.html" class="text-orange hover:text-orange-600 transition-colors no-underline">Home</a> <span class="text-orange font-medium">›</span> <a href="index.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">Guides</a> <span class="text-orange font-medium">›</span> <a href="architecture.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">Architecture</a> <span class="text-orange font-medium">›</span> <span class="text-charcoal font-medium">Service Contracts vs Repositories in Magento 2</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="flex gap-8">
+
+            <!-- Left Sidebar (desktop) -->
+            <aside class="hidden lg:block w-64 flex-shrink-0">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4">Architecture</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="guide-explanation-b2b-features.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">B2B Features Development</a></li>
+<li class="pl-0"><a href="guide-explanation-eav-system.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">EAV System Architecture: Underst...</a></li>
+<li class="pl-0"><a href="guide-explanation-graphql-resolver-patterns.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">GraphQL Resolver Patterns in Mag...</a></li>
+<li class="pl-0"><a href="guide-explanation-indexer-system.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Indexer System Deep Dive: Unders...</a></li>
+<li class="pl-0"><a href="guide-explanation-message-queue-architecture.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Message Queue Architecture in Ma...</a></li>
+<li class="pl-0"><a href="guide-explanation-service-contracts-repositories.html" class="block px-3 py-2 text-sm text-orange font-semibold bg-orange-50 border-l-4 border-orange pl-2 transition-colors no-underline">Service Contracts vs Repositorie...</a></li>
+</ul>
+<h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4 mt-8">Guide Sections</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="tutorials.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Tutorials</a></li>
+<li class="pl-0"><a href="how-to-guides.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">How-To Guides</a></li>
+<li class="pl-0"><a href="architecture.html" class="block px-3 py-2 text-sm text-orange font-semibold bg-orange-50 border-l-4 border-orange pl-2 transition-colors no-underline">Architecture</a></li>
+<li class="pl-0"><a href="references.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">References</a></li>
+</ul>
+                </div>
+            </aside>
+
+            <!-- Article — square corners, border-t-4 orange accent -->
+            <main id="main-content" class="flex-1 min-w-0">
+                <article class="bg-white shadow-sm border border-gray-100 border-t-4 border-t-orange p-8 md:p-12">
+                    <!-- Title block -->
+                    <div class="mb-8">
+                        <span class="inline-block px-3 py-1.5 text-xs font-medium bg-charcoal-50 text-charcoal border border-charcoal-100">Explanation</span>
+                        <h1 class="text-3xl md:text-4xl font-extrabold text-charcoal mt-3 mb-3">Service Contracts vs Repositories in Magento 2</h1>
+                        <p class="text-charcoal-300 text-lg mb-4">Developer guide: Service Contracts vs Repositories in Magento 2</p>
+                        <!-- Meta pills -->
+                        <div class="flex flex-wrap gap-2"><span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-yellow-50 text-yellow-800"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>Intermediate</span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-orange-50 text-orange-700"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>18 minutes</span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-charcoal text-white">Magento 2.4.7+</span></div>
+                    </div>
+
+                    <hr class="border-0 border-t border-gray-100 mb-8">
+
+                    <!-- Content -->
+                    <div class="prose max-w-none">
+                        <h1 id="service-contracts-vs-repositories-in-magento-2">Service Contracts vs Repositories in Magento 2</h1>
+<h2 id="introduction">Introduction</h2>
+<p>One of the most critical architectural decisions in Magento 2 was the introduction of <strong>service contracts</strong>—stable, versioned APIs marked with <code>@api</code> annotations. This shift from direct model manipulation to repository-mediated persistence fundamentally changed how we build upgrade-safe, extensible Magento modules.</p>
+<p>Understanding the distinction between service contracts and repositories—and when to use each—is essential for any Magento developer building production-ready extensions. This guide explores the conceptual foundations, architectural trade-offs, and practical patterns that govern these core abstractions.</p>
+<h3 id="what-youll-learn">What You'll Learn</h3>
+<ul>
+<li>The purpose and guarantees of <code>@api</code> service contracts</li>
+<li>How the Repository pattern abstracts persistence</li>
+<li>When to use repositories vs direct model access</li>
+<li>SearchCriteriaBuilder for complex filtering</li>
+<li>Extension attributes vs custom attributes</li>
+<li>API stability and backward compatibility guarantees</li>
+<li>Real-world examples from core modules</li>
+<li>Design trade-offs and antipatterns to avoid</li>
+</ul>
+<hr />
+<h2 id="what-are-service-contracts">What Are Service Contracts?</h2>
+<h3 id="definition">Definition</h3>
+<p>A <strong>service contract</strong> in Magento 2 is a set of PHP interfaces in the <code>Api</code> namespace of a module that define stable public APIs. These interfaces are marked with the <code>@api</code> annotation and carry a promise: <strong>the method signatures will remain backward-compatible across minor and patch releases</strong>.</p>
+<pre><code class="language-php">/**
+ * Customer repository interface.
+ *
+ * @api
+ * @since 100.0.2
+ */
+interface CustomerRepositoryInterface
+{
+    /**
+     * Retrieve customer.
+     *
+     * @param int $customerId
+     * @return \Magento\Customer\Api\Data\CustomerInterface
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     */
+    public function getById($customerId);
+
+    /**
+     * Create or update a customer.
+     *
+     * @param \Magento\Customer\Api\Data\CustomerInterface $customer
+     * @param string $passwordHash
+     * @return \Magento\Customer\Api\Data\CustomerInterface
+     * @throws \Magento\Framework\Exception\InputException
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
+    public function save(
+        \Magento\Customer\Api\Data\CustomerInterface $customer,
+        $passwordHash = null
+    );
+
+    /**
+     * Retrieve customers matching specified search criteria.
+     *
+     * @param \Magento\Framework\Api\SearchCriteriaInterface $searchCriteria
+     * @return \Magento\Customer\Api\Data\CustomerSearchResultsInterface
+     */
+    public function getList(
+        \Magento\Framework\Api\SearchCriteriaInterface $searchCriteria
+    );
+
+    /**
+     * Delete customer.
+     *
+     * @param \Magento\Customer\Api\Data\CustomerInterface $customer
+     * @return bool
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
+    public function delete(\Magento\Customer\Api\Data\CustomerInterface $customer);
+}
+</code></pre>
+<h3 id="key-characteristics">Key Characteristics</h3>
+<ol>
+<li>
+<p><strong>Backward Compatibility (BC) Policy</strong>: Method signatures cannot change in ways that break existing calls (adding required parameters, changing return types, removing methods).</p>
+</li>
+<li>
+<p><strong>Versioning via @since</strong>: The <code>@since</code> docblock tag indicates when the interface was introduced, enabling tracking across releases.</p>
+</li>
+<li>
+<p><strong>Data Interfaces (DTOs)</strong>: Service contracts accept and return <strong>Data Interfaces</strong>—immutable value objects that represent entities without behavior.</p>
+</li>
+<li>
+<p><strong>Exception Contracts</strong>: Well-defined exception hierarchy (<code>NoSuchEntityException</code>, <code>InputException</code>, <code>LocalizedException</code>) ensures predictable error handling.</p>
+</li>
+<li>
+<p><strong>REST/SOAP/GraphQL Exposure</strong>: <code>@api</code> interfaces can be automatically exposed as web services via <code>webapi.xml</code>.</p>
+</li>
+</ol>
+<h3 id="why-service-contracts-matter">Why Service Contracts Matter</h3>
+<h4 id="before-service-contracts-magento-1x">Before Service Contracts (Magento 1.x)</h4>
+<pre><code class="language-php">// Magento 1 approach - fragile, upgrade-unsafe
+$customer = Mage::getModel('customer/customer')-&gt;load($customerId);
+$customer-&gt;setFirstname('John');
+$customer-&gt;save();
+</code></pre>
+<p><strong>Problems:</strong>
+- Direct coupling to implementation (Models, ResourceModels)
+- Methods could be added/removed/changed between versions
+- No clear API surface for third-party modules or web services
+- Difficult to mock for testing
+- Plugins couldn't reliably intercept persistence logic</p>
+<h4 id="with-service-contracts-magento-2">With Service Contracts (Magento 2)</h4>
+<pre><code class="language-php">// Magento 2 approach - stable, upgrade-safe
+public function __construct(
+    \Magento\Customer\Api\CustomerRepositoryInterface $customerRepository
+) {
+    $this-&gt;customerRepository = $customerRepository;
+}
+
+public function updateCustomer(int $customerId): void
+{
+    $customer = $this-&gt;customerRepository-&gt;getById($customerId);
+    $customer-&gt;setFirstname('John');
+    $this-&gt;customerRepository-&gt;save($customer);
+}
+</code></pre>
+<p><strong>Benefits:</strong>
+- Guaranteed stability: method signatures won't break
+- Testable: inject mocks via DI
+- Pluginable: intercept <code>save()</code>, <code>getById()</code> with plugins
+- Web API ready: expose via REST/GraphQL without additional code
+- Clear separation: business logic vs persistence vs presentation</p>
+<hr />
+<h2 id="the-repository-pattern-in-magento-2">The Repository Pattern in Magento 2</h2>
+<h3 id="pattern-overview">Pattern Overview</h3>
+<p>The <strong>Repository pattern</strong> mediates between the domain layer (business logic) and data mapping layers (ResourceModels, Collections). It provides a <strong>collection-like interface</strong> for accessing domain objects while encapsulating storage details.</p>
+<pre><code>┌─────────────────────────────────────────────────────────┐
+│                    Service Layer                        │
+│              (Business Logic / Use Cases)               │
+└────────────────────┬────────────────────────────────────┘
+                     │ depends on
+                     ▼
+┌─────────────────────────────────────────────────────────┐
+│             Repository Interface (@api)                 │
+│  - getById(int $id)                                     │
+│  - save(DataInterface $entity)                          │
+│  - delete(DataInterface $entity)                        │
+│  - getList(SearchCriteriaInterface $criteria)           │
+└────────────────────┬────────────────────────────────────┘
+                     │ implemented by
+                     ▼
+┌─────────────────────────────────────────────────────────┐
+│          Repository Implementation (Model/)             │
+│  - Coordinates ResourceModel, Factory, SearchResults    │
+│  - Handles caching, validation, events                  │
+│  - Maps between Models and Data Interfaces              │
+└────────────────────┬────────────────────────────────────┘
+                     │ uses
+                     ▼
+┌─────────────────────────────────────────────────────────┐
+│            ResourceModel / Collection                   │
+│         (Database Abstraction Layer)                    │
+└─────────────────────────────────────────────────────────┘
+</code></pre>
+<h3 id="core-repository-methods">Core Repository Methods</h3>
+<p>Every Magento repository follows a consistent pattern:</p>
+<div class="overflow-x-auto my-6 border border-gray-200"><table class="min-w-full">
+<thead>
+<tr>
+<th>Method</th>
+<th>Purpose</th>
+<th>Returns</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>getById(int $id)</code></td>
+<td>Fetch single entity by primary key</td>
+<td><code>DataInterface</code></td>
+</tr>
+<tr>
+<td><code>save(DataInterface $entity)</code></td>
+<td>Create or update entity</td>
+<td><code>DataInterface</code></td>
+</tr>
+<tr>
+<td><code>delete(DataInterface $entity)</code></td>
+<td>Remove entity</td>
+<td><code>bool</code></td>
+</tr>
+<tr>
+<td><code>deleteById(int $id)</code></td>
+<td>Remove entity by ID</td>
+<td><code>bool</code></td>
+</tr>
+<tr>
+<td><code>getList(SearchCriteriaInterface $criteria)</code></td>
+<td>Fetch multiple entities with filters, sorting, pagination</td>
+<td><code>SearchResultsInterface</code></td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="example-productrepository">Example: ProductRepository</h3>
+<pre><code class="language-php">namespace Magento\Catalog\Api;
+
+/**
+ * @api
+ */
+interface ProductRepositoryInterface
+{
+    /**
+     * @param \Magento\Catalog\Api\Data\ProductInterface $product
+     * @param bool $saveOptions
+     * @return \Magento\Catalog\Api\Data\ProductInterface
+     * @throws \Magento\Framework\Exception\InputException
+     * @throws \Magento\Framework\Exception\StateException
+     * @throws \Magento\Framework\Exception\CouldNotSaveException
+     */
+    public function save(
+        \Magento\Catalog\Api\Data\ProductInterface $product,
+        $saveOptions = false
+    );
+
+    /**
+     * @param string $sku
+     * @param bool $editMode
+     * @param int|null $storeId
+     * @param bool $forceReload
+     * @return \Magento\Catalog\Api\Data\ProductInterface
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     */
+    public function get($sku, $editMode = false, $storeId = null, $forceReload = false);
+
+    /**
+     * @param int $productId
+     * @param bool $editMode
+     * @param int|null $storeId
+     * @param bool $forceReload
+     * @return \Magento\Catalog\Api\Data\ProductInterface
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     */
+    public function getById($productId, $editMode = false, $storeId = null, $forceReload = false);
+
+    /**
+     * @param \Magento\Framework\Api\SearchCriteriaInterface $searchCriteria
+     * @return \Magento\Catalog\Api\Data\ProductSearchResultsInterface
+     */
+    public function getList(\Magento\Framework\Api\SearchCriteriaInterface $searchCriteria);
+
+    /**
+     * @param \Magento\Catalog\Api\Data\ProductInterface $product
+     * @return bool
+     * @throws \Magento\Framework\Exception\StateException
+     */
+    public function delete(\Magento\Catalog\Api\Data\ProductInterface $product);
+
+    /**
+     * @param string $sku
+     * @return bool
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @throws \Magento\Framework\Exception\StateException
+     */
+    public function deleteById($sku);
+}
+</code></pre>
+<p><strong>Key Details:</strong>
+- <code>get($sku)</code> vs <code>getById($productId)</code>: Products have composite identities
+- <code>$editMode</code>, <code>$storeId</code>, <code>$forceReload</code>: control caching and scope
+- <code>save()</code> returns the updated entity (with generated IDs, timestamps)</p>
+<hr />
+<h2 id="when-to-use-repositories-vs-direct-model-access">When to Use Repositories vs Direct Model Access</h2>
+<h3 id="use-repositories-when">Use Repositories When:</h3>
+<h4 id="1-building-for-upgrade-safety">1. Building for Upgrade Safety</h4>
+<pre><code class="language-php">// RIGHT: Upgrade-safe, BC-guaranteed
+public function __construct(
+    \Magento\Catalog\Api\ProductRepositoryInterface $productRepository
+) {
+    $this-&gt;productRepository = $productRepository;
+}
+
+public function execute(string $sku): void
+{
+    $product = $this-&gt;productRepository-&gt;get($sku);
+    // Business logic
+}
+</code></pre>
+<p><strong>Why:</strong> The <code>@api</code> interface guarantees the method signature won't change. Your code will survive Magento upgrades from 2.4.7 → 2.4.8 → 2.5.0.</p>
+<h4 id="2-exposing-business-logic-as-web-apis">2. Exposing Business Logic as Web APIs</h4>
+<pre><code class="language-xml">&lt;!-- webapi.xml --&gt;
+&lt;route url=&quot;/V1/products/:sku&quot; method=&quot;GET&quot;&gt;
+    &lt;service class=&quot;Magento\Catalog\Api\ProductRepositoryInterface&quot; method=&quot;get&quot;/&gt;
+    &lt;resources&gt;
+        &lt;resource ref=&quot;Magento_Catalog::products&quot;/&gt;
+    &lt;/resources&gt;
+&lt;/route&gt;
+</code></pre>
+<p>Service contracts map directly to REST/SOAP/GraphQL endpoints with zero additional code.</p>
+<h4 id="3-writing-testable-code">3. Writing Testable Code</h4>
+<pre><code class="language-php">// Unit test - mock the repository
+public function testUpdateProduct(): void
+{
+    $productMock = $this-&gt;createMock(\Magento\Catalog\Api\Data\ProductInterface::class);
+    $repositoryMock = $this-&gt;createMock(\Magento\Catalog\Api\ProductRepositoryInterface::class);
+
+    $repositoryMock-&gt;expects($this-&gt;once())
+        -&gt;method('get')
+        -&gt;with('TEST-SKU')
+        -&gt;willReturn($productMock);
+
+    $service = new MyProductService($repositoryMock);
+    $service-&gt;execute('TEST-SKU');
+}
+</code></pre>
+<p>Mocking interfaces is trivial; mocking concrete Models with 50 dependencies is not.</p>
+<h4 id="4-enabling-plugin-interception">4. Enabling Plugin Interception</h4>
+<pre><code class="language-php">// Plugin to log every product save
+class LogProductSave
+{
+    public function afterSave(
+        \Magento\Catalog\Api\ProductRepositoryInterface $subject,
+        \Magento\Catalog\Api\Data\ProductInterface $result
+    ): \Magento\Catalog\Api\Data\ProductInterface {
+        $this-&gt;logger-&gt;info('Product saved: ' . $result-&gt;getSku());
+        return $result;
+    }
+}
+</code></pre>
+<p>Plugins on repository methods give you centralized interception points; plugins on Models are fragmented.</p>
+<h3 id="use-direct-model-access-when">Use Direct Model Access When:</h3>
+<h4 id="1-working-in-admin-grids-or-collections-performance">1. Working in Admin Grids or Collections (Performance)</h4>
+<pre><code class="language-php">// Admin product grid - use collection for efficiency
+$collection = $this-&gt;collectionFactory-&gt;create();
+$collection-&gt;addAttributeToSelect(['name', 'sku', 'price']);
+$collection-&gt;addFieldToFilter('status', ['eq' =&gt; Status::STATUS_ENABLED]);
+$collection-&gt;setPageSize(20);
+</code></pre>
+<p><strong>Why:</strong> <code>getList()</code> with SearchCriteria is convenient but adds overhead. For admin grids where you need raw DB control (joins, custom columns), collections are still appropriate.</p>
+<h4 id="2-bulk-operations">2. Bulk Operations</h4>
+<pre><code class="language-php">// Bulk price update - direct ResourceModel
+$connection = $this-&gt;resourceConnection-&gt;getConnection();
+$connection-&gt;update(
+    $this-&gt;resourceConnection-&gt;getTableName('catalog_product_entity_decimal'),
+    ['value' =&gt; new \Zend_Db_Expr('value * 1.10')],
+    ['attribute_id = ?' =&gt; $priceAttributeId]
+);
+</code></pre>
+<p><strong>Why:</strong> Repository <code>save()</code> calls trigger events, validation, indexing. For bulk updates, direct SQL is orders of magnitude faster.</p>
+<h4 id="3-custom-queries-not-supported-by-searchcriteria">3. Custom Queries Not Supported by SearchCriteria</h4>
+<pre><code class="language-php">// Complex join not expressible in SearchCriteria
+$collection = $this-&gt;collectionFactory-&gt;create();
+$collection-&gt;getSelect()
+    -&gt;joinLeft(
+        ['sales' =&gt; $this-&gt;resourceConnection-&gt;getTableName('sales_order_item')],
+        'e.entity_id = sales.product_id',
+        ['total_sold' =&gt; 'SUM(sales.qty_ordered)']
+    )
+    -&gt;group('e.entity_id')
+    -&gt;having('total_sold &gt; ?', 100);
+</code></pre>
+<p><strong>Why:</strong> SearchCriteria supports filters, sorting, pagination—but not arbitrary SQL. Use collections when you need joins, subqueries, or aggregates.</p>
+<h3 id="decision-matrix">Decision Matrix</h3>
+<div class="overflow-x-auto my-6 border border-gray-200"><table class="min-w-full">
+<thead>
+<tr>
+<th>Scenario</th>
+<th>Use Repository</th>
+<th>Use Model/Collection</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CRUD operations in business logic</td>
+<td>✓</td>
+<td></td>
+</tr>
+<tr>
+<td>Web API endpoints</td>
+<td>✓</td>
+<td></td>
+</tr>
+<tr>
+<td>Unit testable code</td>
+<td>✓</td>
+<td></td>
+</tr>
+<tr>
+<td>Plugin interception needed</td>
+<td>✓</td>
+<td></td>
+</tr>
+<tr>
+<td>Admin grid data providers</td>
+<td></td>
+<td>✓</td>
+</tr>
+<tr>
+<td>Bulk operations (1000+ records)</td>
+<td></td>
+<td>✓</td>
+</tr>
+<tr>
+<td>Complex SQL joins/aggregates</td>
+<td></td>
+<td>✓</td>
+</tr>
+<tr>
+<td>Internal module utilities</td>
+<td></td>
+<td>✓ (acceptable)</td>
+</tr>
+<tr>
+<td>Third-party extension public API</td>
+<td>✓ (required)</td>
+<td></td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="searchcriteriabuilder-and-advanced-filtering">SearchCriteriaBuilder and Advanced Filtering</h2>
+<h3 id="the-searchcriteria-pattern">The SearchCriteria Pattern</h3>
+<p><code>getList()</code> methods accept a <code>SearchCriteriaInterface</code> that encapsulates:
+- <strong>Filters</strong>: field conditions (equals, like, in, gt, etc.)
+- <strong>FilterGroups</strong>: logical OR groups (filters within a group are AND)
+- <strong>SortOrders</strong>: ascending/descending sort
+- <strong>Pagination</strong>: page size and current page</p>
+<pre><code class="language-php">namespace Magento\Framework\Api;
+
+interface SearchCriteriaInterface
+{
+    public function getFilterGroups();
+    public function getSortOrders();
+    public function getPageSize();
+    public function getCurrentPage();
+}
+</code></pre>
+<h3 id="building-search-criteria">Building Search Criteria</h3>
+<pre><code class="language-php">use Magento\Framework\Api\SearchCriteriaBuilder;
+use Magento\Framework\Api\SortOrderBuilder;
+
+public function __construct(
+    \Magento\Catalog\Api\ProductRepositoryInterface $productRepository,
+    SearchCriteriaBuilder $searchCriteriaBuilder,
+    SortOrderBuilder $sortOrderBuilder
+) {
+    $this-&gt;productRepository = $productRepository;
+    $this-&gt;searchCriteriaBuilder = $searchCriteriaBuilder;
+    $this-&gt;sortOrderBuilder = $sortOrderBuilder;
+}
+
+public function getActiveProductsByCategory(int $categoryId): array
+{
+    // Filters are AND within the same addFilters() call
+    $this-&gt;searchCriteriaBuilder-&gt;addFilter('status', Status::STATUS_ENABLED);
+    $this-&gt;searchCriteriaBuilder-&gt;addFilter('visibility', [
+        Visibility::VISIBILITY_IN_CATALOG,
+        Visibility::VISIBILITY_BOTH
+    ], 'in');
+    $this-&gt;searchCriteriaBuilder-&gt;addFilter('category_id', $categoryId);
+
+    // Sort by name ascending
+    $sortOrder = $this-&gt;sortOrderBuilder
+        -&gt;setField('name')
+        -&gt;setDirection(SortOrder::SORT_ASC)
+        -&gt;create();
+    $this-&gt;searchCriteriaBuilder-&gt;setSortOrders([$sortOrder]);
+
+    // Pagination
+    $this-&gt;searchCriteriaBuilder-&gt;setPageSize(20);
+    $this-&gt;searchCriteriaBuilder-&gt;setCurrentPage(1);
+
+    $searchCriteria = $this-&gt;searchCriteriaBuilder-&gt;create();
+    $searchResults = $this-&gt;productRepository-&gt;getList($searchCriteria);
+
+    return $searchResults-&gt;getItems();
+}
+</code></pre>
+<h3 id="or-logic-with-filter-groups">OR Logic with Filter Groups</h3>
+<p>SearchCriteria uses <strong>FilterGroups</strong> for OR logic:
+- Filters in the <strong>same group</strong> are OR'd
+- <strong>Different groups</strong> are AND'd</p>
+<pre><code class="language-php">// Find products: (status = enabled) AND (price &lt; 50 OR price &gt; 1000)
+
+// Group 1: status = enabled
+$this-&gt;searchCriteriaBuilder-&gt;addFilter('status', Status::STATUS_ENABLED);
+
+// Group 2: price &lt; 50 OR price &gt; 1000
+$lowPriceFilter = $this-&gt;filterBuilder
+    -&gt;setField('price')
+    -&gt;setValue(50)
+    -&gt;setConditionType('lt')
+    -&gt;create();
+
+$highPriceFilter = $this-&gt;filterBuilder
+    -&gt;setField('price')
+    -&gt;setValue(1000)
+    -&gt;setConditionType('gt')
+    -&gt;create();
+
+$filterGroup = $this-&gt;filterGroupBuilder
+    -&gt;addFilter($lowPriceFilter)
+    -&gt;addFilter($highPriceFilter)
+    -&gt;create();
+
+$this-&gt;searchCriteriaBuilder-&gt;setFilterGroups([$filterGroup]);
+
+$searchCriteria = $this-&gt;searchCriteriaBuilder-&gt;create();
+$searchResults = $this-&gt;productRepository-&gt;getList($searchCriteria);
+</code></pre>
+<h3 id="condition-types">Condition Types</h3>
+<div class="overflow-x-auto my-6 border border-gray-200"><table class="min-w-full">
+<thead>
+<tr>
+<th>Condition</th>
+<th>SQL Equivalent</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>eq</code></td>
+<td><code>=</code></td>
+<td><code>['field' =&gt; 'value']</code></td>
+</tr>
+<tr>
+<td><code>neq</code></td>
+<td><code>!=</code></td>
+<td><code>['field' =&gt; 'value', 'condition_type' =&gt; 'neq']</code></td>
+</tr>
+<tr>
+<td><code>like</code></td>
+<td><code>LIKE</code></td>
+<td><code>['field' =&gt; '%value%', 'condition_type' =&gt; 'like']</code></td>
+</tr>
+<tr>
+<td><code>in</code></td>
+<td><code>IN</code></td>
+<td><code>['field' =&gt; [1, 2, 3], 'condition_type' =&gt; 'in']</code></td>
+</tr>
+<tr>
+<td><code>nin</code></td>
+<td><code>NOT IN</code></td>
+<td><code>['field' =&gt; [1, 2, 3], 'condition_type' =&gt; 'nin']</code></td>
+</tr>
+<tr>
+<td><code>gt</code></td>
+<td><code>&gt;</code></td>
+<td><code>['field' =&gt; 100, 'condition_type' =&gt; 'gt']</code></td>
+</tr>
+<tr>
+<td><code>lt</code></td>
+<td><code>&lt;</code></td>
+<td><code>['field' =&gt; 100, 'condition_type' =&gt; 'lt']</code></td>
+</tr>
+<tr>
+<td><code>gteq</code></td>
+<td><code>&gt;=</code></td>
+<td><code>['field' =&gt; 100, 'condition_type' =&gt; 'gteq']</code></td>
+</tr>
+<tr>
+<td><code>lteq</code></td>
+<td><code>&lt;=</code></td>
+<td><code>['field' =&gt; 100, 'condition_type' =&gt; 'lteq']</code></td>
+</tr>
+<tr>
+<td><code>null</code></td>
+<td><code>IS NULL</code></td>
+<td><code>['field' =&gt; null, 'condition_type' =&gt; 'null']</code></td>
+</tr>
+<tr>
+<td><code>notnull</code></td>
+<td><code>IS NOT NULL</code></td>
+<td><code>['field' =&gt; null, 'condition_type' =&gt; 'notnull']</code></td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="working-with-searchresults">Working with SearchResults</h3>
+<pre><code class="language-php">$searchResults = $this-&gt;productRepository-&gt;getList($searchCriteria);
+
+// Iterate items
+foreach ($searchResults-&gt;getItems() as $product) {
+    echo $product-&gt;getSku() . PHP_EOL;
+}
+
+// Total count (before pagination)
+$totalCount = $searchResults-&gt;getTotalCount();
+
+// Pagination info
+$pageSize = $searchCriteria-&gt;getPageSize();
+$currentPage = $searchCriteria-&gt;getCurrentPage();
+$totalPages = ceil($totalCount / $pageSize);
+</code></pre>
+<hr />
+<h2 id="extension-attributes-vs-custom-attributes">Extension Attributes vs Custom Attributes</h2>
+<p>Magento provides two mechanisms for extending entities without modifying core tables: <strong>extension attributes</strong> and <strong>custom attributes</strong> (EAV).</p>
+<h3 id="extension-attributes">Extension Attributes</h3>
+<p><strong>Purpose:</strong> Add <strong>structured, typed fields</strong> to Data Interfaces for module integrations.</p>
+<p><strong>Characteristics:</strong>
+- Defined in <code>extension_attributes.xml</code>
+- Strongly typed (scalar, array, or another Data Interface)
+- Populated via plugins on repositories
+- Persisted in separate tables (custom logic required)
+- Best for <strong>module-to-module</strong> contracts (e.g., inventory data on products)</p>
+<h4 id="defining-extension-attributes">Defining Extension Attributes</h4>
+<pre><code class="language-xml">&lt;!-- VendorName/ModuleName/etc/extension_attributes.xml --&gt;
+&lt;config xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+        xsi:noNamespaceSchemaLocation=&quot;urn:magento:framework:Api/etc/extension_attributes.xsd&quot;&gt;
+    &lt;extension_attributes for=&quot;Magento\Catalog\Api\Data\ProductInterface&quot;&gt;
+        &lt;attribute code=&quot;warranty_info&quot; type=&quot;VendorName\ModuleName\Api\Data\WarrantyInterface&quot;/&gt;
+        &lt;attribute code=&quot;supplier_id&quot; type=&quot;int&quot;/&gt;
+    &lt;/extension_attributes&gt;
+&lt;/config&gt;
+</code></pre>
+<h4 id="populating-extension-attributes">Populating Extension Attributes</h4>
+<pre><code class="language-php">namespace VendorName\ModuleName\Plugin;
+
+class LoadWarrantyExtensionAttribute
+{
+    public function __construct(
+        private \VendorName\ModuleName\Model\WarrantyRepository $warrantyRepository,
+        private \VendorName\ModuleName\Api\Data\WarrantyInterfaceFactory $warrantyFactory,
+        private \Magento\Catalog\Api\Data\ProductExtensionFactory $extensionFactory
+    ) {}
+
+    public function afterGet(
+        \Magento\Catalog\Api\ProductRepositoryInterface $subject,
+        \Magento\Catalog\Api\Data\ProductInterface $product
+    ): \Magento\Catalog\Api\Data\ProductInterface {
+        $extensionAttributes = $product-&gt;getExtensionAttributes()
+            ?? $this-&gt;extensionFactory-&gt;create();
+
+        $warranty = $this-&gt;warrantyRepository-&gt;getByProductId($product-&gt;getId());
+        $extensionAttributes-&gt;setWarrantyInfo($warranty);
+
+        $product-&gt;setExtensionAttributes($extensionAttributes);
+        return $product;
+    }
+
+    public function afterGetList(
+        \Magento\Catalog\Api\ProductRepositoryInterface $subject,
+        \Magento\Catalog\Api\Data\ProductSearchResultsInterface $searchResults
+    ): \Magento\Catalog\Api\Data\ProductSearchResultsInterface {
+        foreach ($searchResults-&gt;getItems() as $product) {
+            $this-&gt;afterGet($subject, $product);
+        }
+        return $searchResults;
+    }
+}
+</code></pre>
+<h4 id="using-extension-attributes">Using Extension Attributes</h4>
+<pre><code class="language-php">$product = $this-&gt;productRepository-&gt;get('TEST-SKU');
+$warranty = $product-&gt;getExtensionAttributes()-&gt;getWarrantyInfo();
+echo $warranty-&gt;getDurationMonths();
+</code></pre>
+<h3 id="custom-attributes-eav">Custom Attributes (EAV)</h3>
+<p><strong>Purpose:</strong> Add <strong>dynamic, user-defined fields</strong> to EAV entities (products, customers, categories).</p>
+<p><strong>Characteristics:</strong>
+- Defined via setup scripts or admin UI
+- Loosely typed (stored as varchar, int, decimal, text)
+- Automatically included in Data Interfaces under <code>custom_attributes</code>
+- Persisted in EAV tables (<code>catalog_product_entity_varchar</code>, etc.)
+- Best for <strong>merchant-configurable</strong> fields (product features, customer preferences)</p>
+<h4 id="creating-custom-attributes">Creating Custom Attributes</h4>
+<pre><code class="language-php">// Setup/Patch/Data/AddProductManufacturerAttribute.php
+namespace VendorName\ModuleName\Setup\Patch\Data;
+
+use Magento\Eav\Setup\EavSetupFactory;
+use Magento\Framework\Setup\ModuleDataSetupInterface;
+use Magento\Framework\Setup\Patch\DataPatchInterface;
+
+class AddProductManufacturerAttribute implements DataPatchInterface
+{
+    public function __construct(
+        private ModuleDataSetupInterface $moduleDataSetup,
+        private EavSetupFactory $eavSetupFactory
+    ) {}
+
+    public function apply()
+    {
+        $eavSetup = $this-&gt;eavSetupFactory-&gt;create(['setup' =&gt; $this-&gt;moduleDataSetup]);
+
+        $eavSetup-&gt;addAttribute(
+            \Magento\Catalog\Model\Product::ENTITY,
+            'manufacturer_country',
+            [
+                'type' =&gt; 'varchar',
+                'label' =&gt; 'Manufacturer Country',
+                'input' =&gt; 'select',
+                'source' =&gt; \Magento\Eav\Model\Entity\Attribute\Source\Table::class,
+                'required' =&gt; false,
+                'sort_order' =&gt; 100,
+                'global' =&gt; \Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface::SCOPE_GLOBAL,
+                'used_in_product_listing' =&gt; true,
+                'visible_on_front' =&gt; true,
+                'option' =&gt; [
+                    'values' =&gt; ['USA', 'Germany', 'China', 'Japan']
+                ]
+            ]
+        );
+    }
+
+    public static function getDependencies(): array
+    {
+        return [];
+    }
+
+    public function getAliases(): array
+    {
+        return [];
+    }
+}
+</code></pre>
+<h4 id="using-custom-attributes">Using Custom Attributes</h4>
+<pre><code class="language-php">// Via Data Interface
+$product = $this-&gt;productRepository-&gt;get('TEST-SKU');
+$country = $product-&gt;getCustomAttribute('manufacturer_country');
+echo $country ? $country-&gt;getValue() : 'N/A';
+
+// Setting custom attributes
+$product-&gt;setCustomAttribute('manufacturer_country', 'Germany');
+$this-&gt;productRepository-&gt;save($product);
+
+// Via Model (convenience methods)
+$product = $this-&gt;productRepository-&gt;get('TEST-SKU');
+echo $product-&gt;getData('manufacturer_country');
+</code></pre>
+<h3 id="when-to-use-which">When to Use Which?</h3>
+<div class="overflow-x-auto my-6 border border-gray-200"><table class="min-w-full">
+<thead>
+<tr>
+<th>Use Case</th>
+<th>Extension Attributes</th>
+<th>Custom Attributes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Merchant-configurable fields</td>
+<td></td>
+<td>✓</td>
+</tr>
+<tr>
+<td>Module integration data</td>
+<td>✓</td>
+<td></td>
+</tr>
+<tr>
+<td>Strongly typed (objects, arrays)</td>
+<td>✓</td>
+<td></td>
+</tr>
+<tr>
+<td>Searchable in admin grids</td>
+<td></td>
+<td>✓ (with config)</td>
+</tr>
+<tr>
+<td>Exposed in GraphQL automatically</td>
+<td>✓</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>Requires custom persistence logic</td>
+<td>✓ (via plugins)</td>
+<td>(automatic)</td>
+</tr>
+<tr>
+<td>Visible in admin product form</td>
+<td>Manual</td>
+<td>✓ (via attribute config)</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="api-stability-and-backward-compatibility">API Stability and Backward Compatibility</h2>
+<h3 id="magentos-bc-policy">Magento's BC Policy</h3>
+<p>Magento follows <strong>Semantic Versioning</strong> for BC guarantees:</p>
+<ul>
+<li><strong>MAJOR</strong> (2.x → 3.x): BC breaks allowed</li>
+<li><strong>MINOR</strong> (2.4.x → 2.5.x): No BC breaks in <code>@api</code>, new features added</li>
+<li><strong>PATCH</strong> (2.4.7 → 2.4.8): No BC breaks, bug fixes only</li>
+</ul>
+<h3 id="whats-protected-by-api">What's Protected by @api</h3>
+<div class="overflow-x-auto my-6 border border-gray-200"><table class="min-w-full">
+<thead>
+<tr>
+<th>Element</th>
+<th>BC Guarantee</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Interface method signature</td>
+<td>✓</td>
+<td>Cannot remove parameters, change return type</td>
+</tr>
+<tr>
+<td>Interface method name</td>
+<td>✓</td>
+<td>Cannot rename or remove</td>
+</tr>
+<tr>
+<td>Exception types thrown</td>
+<td>✓</td>
+<td>Cannot add new checked exceptions</td>
+</tr>
+<tr>
+<td>Data Interface getters</td>
+<td>✓</td>
+<td>Cannot remove or rename</td>
+</tr>
+<tr>
+<td>Data Interface setters</td>
+<td>✓ (fluid interface)</td>
+<td>Must return <code>$this</code></td>
+</tr>
+<tr>
+<td>Constant values</td>
+<td>✓</td>
+<td>Cannot change meaning</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="whats-not-protected">What's NOT Protected</h3>
+<div class="overflow-x-auto my-6 border border-gray-200"><table class="min-w-full">
+<thead>
+<tr>
+<th>Element</th>
+<th>No BC Guarantee</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Concrete classes</td>
+<td>Can change</td>
+<td>Internal implementation details</td>
+</tr>
+<tr>
+<td>Private/protected methods</td>
+<td>Can change</td>
+<td>Not part of public API</td>
+</tr>
+<tr>
+<td>Constructor signatures</td>
+<td>Can change (caveat)</td>
+<td>DI auto-wiring, but use caution</td>
+</tr>
+<tr>
+<td>Non-@api interfaces</td>
+<td>Can change</td>
+<td>Internal contracts</td>
+</tr>
+<tr>
+<td>Database schema (direct access)</td>
+<td>Can change</td>
+<td>Use repositories instead</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="safe-changes">Safe Changes</h3>
+<pre><code class="language-php">// SAFE: Adding optional parameter with default
+interface ProductRepositoryInterface
+{
+    // Before
+    public function get($sku, $editMode = false, $storeId = null);
+
+    // After - new optional parameter
+    public function get($sku, $editMode = false, $storeId = null, $forceReload = false);
+}
+
+// SAFE: Adding new method (hypothetical example)
+interface ProductRepositoryInterface
+{
+    public function getList(SearchCriteriaInterface $criteria);
+
+    // New method added (does not break existing implementations)
+    public function getByProductType(string $typeId);
+}
+
+// SAFE: Widening return type (PHP 7.4+)
+interface ProductRepositoryInterface
+{
+    // Before
+    public function get($sku): ProductInterface;
+
+    // After - allows null (less restrictive)
+    public function get($sku): ?ProductInterface;
+}
+</code></pre>
+<h3 id="breaking-changes-forbidden">Breaking Changes (Forbidden)</h3>
+<pre><code class="language-php">// BREAKING: Removing parameter
+interface ProductRepositoryInterface
+{
+    // Before
+    public function get($sku, $editMode = false, $storeId = null);
+
+    // After - BREAKS EXISTING CALLS
+    public function get($sku);
+}
+
+// BREAKING: Adding required parameter
+interface ProductRepositoryInterface
+{
+    // Before
+    public function get($sku);
+
+    // After - BREAKS EXISTING CALLS
+    public function get($sku, $storeId);
+}
+
+// BREAKING: Changing return type (narrowing)
+interface ProductRepositoryInterface
+{
+    // Before
+    public function getList(SearchCriteriaInterface $criteria): SearchResultsInterface;
+
+    // After - BREAKS TYPE CHECKS
+    public function getList(SearchCriteriaInterface $criteria): ProductSearchResultsInterface;
+}
+</code></pre>
+<h3 id="versioning-strategy">Versioning Strategy</h3>
+<p>When BC breaks are unavoidable:</p>
+<ol>
+<li><strong>Deprecate</strong> the old method with <code>@deprecated</code> tag</li>
+<li>Create <strong>new method</strong> with updated signature</li>
+<li>Old method <strong>delegates</strong> to new method</li>
+<li>Remove old method in <strong>next major version</strong></li>
+</ol>
+<pre><code class="language-php">// Hypothetical example of versioning strategy:
+interface ExampleRepositoryInterface
+{
+    /**
+     * @deprecated Use saveV2() instead
+     * @see saveV2()
+     */
+    public function save(ExampleInterface $entity);
+
+    /**
+     * @since 2.5.0
+     */
+    public function saveV2(ExampleInterface $entity, array $options = []);
+}
+</code></pre>
+<div class="callout-box"><div class="callout-inner"><svg class="w-5 h-5 text-orange flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg><div><p class="callout-title">Note</p><div class="callout-body"><p> This is an illustrative example. In practice, Magento rarely deprecates core repository methods and instead adds new optional parameters with defaults to maintain backward compatibility.</p></div></div></div></div>
+<hr />
+<h2 id="real-world-examples-from-core-modules">Real-World Examples from Core Modules</h2>
+<h3 id="example-1-customerrepository">Example 1: CustomerRepository</h3>
+<p><strong>Location:</strong> <code>Magento\Customer\Model\ResourceModel\CustomerRepository</code></p>
+<p><strong>Key Features:</strong>
+- Caching layer (registry pattern)
+- Event dispatch (<code>customer_save_before</code>, <code>customer_save_after</code>)
+- Validation (email uniqueness, required fields)
+- Extension attribute population (customer groups, addresses)</p>
+<pre><code class="language-php">public function save(CustomerInterface $customer, $passwordHash = null)
+{
+    $this-&gt;validate($customer);
+
+    // Trigger before-save event
+    $this-&gt;eventManager-&gt;dispatch(
+        'customer_save_before',
+        ['customer' =&gt; $customer]
+    );
+
+    // Map Data Interface → Model
+    $customerModel = $this-&gt;customerFactory-&gt;create();
+    $this-&gt;dataObjectHelper-&gt;populateWithArray(
+        $customerModel,
+        $customer-&gt;__toArray(),
+        CustomerInterface::class
+    );
+
+    // Persist
+    $this-&gt;resourceModel-&gt;save($customerModel);
+
+    // Clear cache
+    $this-&gt;customerRegistry-&gt;remove($customerModel-&gt;getId());
+
+    // Trigger after-save event
+    $this-&gt;eventManager-&gt;dispatch(
+        'customer_save_after',
+        ['customer' =&gt; $customerModel]
+    );
+
+    // Map Model → Data Interface
+    return $customerModel-&gt;getDataModel();
+}
+</code></pre>
+<p><strong>Lessons:</strong>
+- Repositories orchestrate validation, events, caching—not just DB ops
+- Always return updated entity (with new IDs, timestamps)
+- Use registry/cache to avoid redundant DB hits</p>
+<h3 id="example-2-productrepository-with-store-context">Example 2: ProductRepository with Store Context</h3>
+<p><strong>Location:</strong> <code>Magento\Catalog\Model\ProductRepository</code></p>
+<p><strong>Key Features:</strong>
+- Multi-store/multi-website support via <code>$storeId</code> parameter
+- EAV attribute loading (only requested attributes)
+- Extension attribute plugins (inventory, reviews, prices)
+- Cache tags for FPC invalidation</p>
+<pre><code class="language-php">public function get($sku, $editMode = false, $storeId = null, $forceReload = false)
+{
+    $cacheKey = $this-&gt;getCacheKey([$editMode, $storeId]);
+
+    if (!$forceReload &amp;&amp; isset($this-&gt;instances[$sku][$cacheKey])) {
+        return $this-&gt;instances[$sku][$cacheKey];
+    }
+
+    $product = $this-&gt;productFactory-&gt;create();
+
+    if ($editMode) {
+        $product-&gt;setData('_edit_mode', true);
+    }
+
+    if ($storeId !== null) {
+        $product-&gt;setStoreId($storeId);
+    }
+
+    $this-&gt;resourceModel-&gt;load($product, $sku, 'sku');
+
+    if (!$product-&gt;getId()) {
+        throw new NoSuchEntityException(
+            __('The product with SKU &quot;%1&quot; doesn\'t exist.', $sku)
+        );
+    }
+
+    $this-&gt;instances[$sku][$cacheKey] = $product-&gt;getDataModel();
+
+    return $this-&gt;instances[$sku][$cacheKey];
+}
+</code></pre>
+<p><strong>Lessons:</strong>
+- <code>$editMode</code>, <code>$storeId</code>, <code>$forceReload</code> control caching and scope
+- Store-level attributes (price, name) require explicit <code>$storeId</code>
+- Cache keys must account for all context parameters</p>
+<h3 id="example-3-orderrepository-with-relations">Example 3: OrderRepository with Relations</h3>
+<p><strong>Location:</strong> <code>Magento\Sales\Model\OrderRepository</code></p>
+<p><strong>Key Features:</strong>
+- Lazy-loads related entities (items, addresses, payments)
+- Extension attributes for third-party data (shipping tracking, taxes)
+- Search includes JOIN with grid table for performance</p>
+<pre><code class="language-php">public function getList(SearchCriteriaInterface $searchCriteria)
+{
+    $collection = $this-&gt;collectionFactory-&gt;create();
+
+    // Join with sales_order_grid for pre-aggregated fields
+    $collection-&gt;getSelect()-&gt;joinLeft(
+        ['grid' =&gt; $this-&gt;resourceConnection-&gt;getTableName('sales_order_grid')],
+        'main_table.entity_id = grid.entity_id',
+        ['increment_id', 'customer_name']
+    );
+
+    // Apply SearchCriteria filters
+    foreach ($searchCriteria-&gt;getFilterGroups() as $filterGroup) {
+        $this-&gt;addFilterGroupToCollection($filterGroup, $collection);
+    }
+
+    // Apply sorting
+    foreach ($searchCriteria-&gt;getSortOrders() as $sortOrder) {
+        $collection-&gt;addOrder($sortOrder-&gt;getField(), $sortOrder-&gt;getDirection());
+    }
+
+    // Pagination
+    $collection-&gt;setCurPage($searchCriteria-&gt;getCurrentPage());
+    $collection-&gt;setPageSize($searchCriteria-&gt;getPageSize());
+
+    // Load related items
+    foreach ($collection as $order) {
+        $order-&gt;getItems(); // Lazy-load items
+        $order-&gt;getAddresses(); // Lazy-load addresses
+    }
+
+    // Build SearchResults
+    $searchResults = $this-&gt;searchResultsFactory-&gt;create();
+    $searchResults-&gt;setSearchCriteria($searchCriteria);
+    $searchResults-&gt;setItems($collection-&gt;getItems());
+    $searchResults-&gt;setTotalCount($collection-&gt;getSize());
+
+    return $searchResults;
+}
+</code></pre>
+<p><strong>Lessons:</strong>
+- <code>getList()</code> can optimize with JOINs to grid/flat tables
+- Lazy-load related entities after collection iteration
+- SearchResults must include original SearchCriteria for pagination</p>
+<hr />
+<h2 id="trade-offs-and-design-decisions">Trade-Offs and Design Decisions</h2>
+<h3 id="repository-overhead-vs-flexibility">Repository Overhead vs Flexibility</h3>
+<p><strong>Overhead:</strong>
+- Additional abstraction layer (Repository → ResourceModel → Collection → DB)
+- Event dispatch, validation, and caching add milliseconds per call
+- SearchCriteria less expressive than raw SQL</p>
+<p><strong>Flexibility:</strong>
+- Plugin interception at single point
+- Testable, mockable interfaces
+- Automatic web API exposure
+- Upgrade-safe, BC-guaranteed</p>
+<p><strong>Verdict:</strong> For public APIs and business logic, the overhead is justified. For internal batch jobs, direct ResourceModel access is acceptable.</p>
+<h3 id="data-interfaces-vs-models">Data Interfaces vs Models</h3>
+<p><strong>Data Interfaces (DTOs):</strong>
+- Immutable (via setters returning new instances, conceptually)
+- No behavior, just data
+- Type-safe via interface contracts
+- Serializable to JSON/XML</p>
+<p><strong>Models:</strong>
+- Mutable (setters modify state)
+- Business logic methods (calculateDiscount, canShip)
+- Coupled to ResourceModels and Collections
+- Not directly serializable</p>
+<p><strong>Verdict:</strong> Use Data Interfaces at API boundaries, Models internally. Map between them in repositories.</p>
+<h3 id="searchcriteria-vs-direct-collections">SearchCriteria vs Direct Collections</h3>
+<p><strong>SearchCriteria:</strong>
+- Declarative, composable filters
+- Pagination and sorting built-in
+- Compatible with web APIs
+- Limited to basic filters (no JOINs, subqueries)</p>
+<p><strong>Collections:</strong>
+- Full SQL control (JOINs, GROUP BY, HAVING)
+- Direct Zend_Db_Select manipulation
+- Optimizable for specific queries
+- Not portable to web APIs</p>
+<p><strong>Verdict:</strong> Default to SearchCriteria. Use Collections when you need SQL features (admin grids, reports).</p>
+<hr />
+<h2 id="antipatterns-to-avoid">Antipatterns to Avoid</h2>
+<h3 id="1-bypassing-repositories-in-business-logic">1. Bypassing Repositories in Business Logic</h3>
+<pre><code class="language-php">// WRONG: Direct Model usage in service layer
+public function __construct(
+    \Magento\Catalog\Model\ProductFactory $productFactory
+) {}
+
+public function execute(int $productId): void
+{
+    $product = $this-&gt;productFactory-&gt;create()-&gt;load($productId);
+    $product-&gt;setPrice(99.99);
+    $product-&gt;save();
+}
+</code></pre>
+<p><strong>Why Wrong:</strong>
+- No plugin interception
+- No validation or events
+- Breaks if Model signature changes
+- Can't mock for testing</p>
+<p><strong>Fix:</strong> Use <code>ProductRepositoryInterface</code>.</p>
+<h3 id="2-mixing-model-and-data-interface-methods">2. Mixing Model and Data Interface Methods</h3>
+<pre><code class="language-php">// WRONG: Calling Model methods on Data Interface
+$product = $this-&gt;productRepository-&gt;get('TEST-SKU');
+$product-&gt;load($productId); // load() doesn't exist on Data Interface!
+$product-&gt;save(); // save() doesn't exist on Data Interface!
+</code></pre>
+<p><strong>Why Wrong:</strong>
+- Data Interfaces don't have <code>load()</code>, <code>save()</code>, <code>delete()</code> methods
+- IDE autocomplete won't help
+- Code breaks if implementation changes</p>
+<p><strong>Fix:</strong> Use repository methods (<code>save()</code>, <code>getById()</code>).</p>
+<h3 id="3-ignoring-searchcriteria-limits">3. Ignoring SearchCriteria Limits</h3>
+<pre><code class="language-php">// WRONG: Loading all products into memory
+$searchCriteria = $this-&gt;searchCriteriaBuilder-&gt;create();
+$searchResults = $this-&gt;productRepository-&gt;getList($searchCriteria);
+
+foreach ($searchResults-&gt;getItems() as $product) {
+    // Process 50,000 products - OOM!
+}
+</code></pre>
+<p><strong>Why Wrong:</strong>
+- Default page size may be unlimited or very large
+- Memory exhaustion on large catalogs</p>
+<p><strong>Fix:</strong> Use explicit pagination:</p>
+<pre><code class="language-php">$pageSize = 100;
+$currentPage = 1;
+
+do {
+    $this-&gt;searchCriteriaBuilder-&gt;setPageSize($pageSize);
+    $this-&gt;searchCriteriaBuilder-&gt;setCurrentPage($currentPage);
+    $searchCriteria = $this-&gt;searchCriteriaBuilder-&gt;create();
+    $searchResults = $this-&gt;productRepository-&gt;getList($searchCriteria);
+
+    foreach ($searchResults-&gt;getItems() as $product) {
+        // Process in batches
+    }
+
+    $currentPage++;
+} while ($searchResults-&gt;getTotalCount() &gt; ($currentPage - 1) * $pageSize);
+</code></pre>
+<h3 id="4-not-handling-extension-attributes-in-plugins">4. Not Handling Extension Attributes in Plugins</h3>
+<pre><code class="language-php">// WRONG: Plugin doesn't preserve extension attributes
+public function afterSave(
+    ProductRepositoryInterface $subject,
+    ProductInterface $result
+): ProductInterface {
+    $newProduct = $this-&gt;productFactory-&gt;create();
+    $newProduct-&gt;setSku($result-&gt;getSku());
+    return $newProduct; // Lost all extension attributes!
+}
+</code></pre>
+<p><strong>Why Wrong:</strong>
+- Other plugins' extension attributes are discarded
+- GraphQL queries return incomplete data</p>
+<p><strong>Fix:</strong> Always return the original or clone:</p>
+<pre><code class="language-php">public function afterSave(
+    ProductRepositoryInterface $subject,
+    ProductInterface $result
+): ProductInterface {
+    // Modify extension attributes on existing object
+    $extensionAttributes = $result-&gt;getExtensionAttributes();
+    $extensionAttributes-&gt;setWarrantyInfo($this-&gt;loadWarranty($result-&gt;getId()));
+    $result-&gt;setExtensionAttributes($extensionAttributes);
+
+    return $result;
+}
+</code></pre>
+<hr />
+<h2 id="further-reading">Further Reading</h2>
+<h3 id="official-documentation">Official Documentation</h3>
+<ul>
+<li><a href="https://developer.adobe.com/commerce/php/development/components/service-contracts/">Service Contracts</a> - Adobe Developer Portal</li>
+<li><a href="https://developer.adobe.com/commerce/contributor/guides/code-contributions/backward-compatibility-policy/">Backward Compatibility Policy</a> - Adobe Contributor Guide</li>
+<li><a href="https://developer.adobe.com/commerce/php/development/components/searching-with-repositories/">Search Criteria</a> - Adobe Developer Portal</li>
+<li><a href="https://developer.adobe.com/commerce/php/development/components/add-attributes/">Extension Attributes</a> - Adobe Developer Portal</li>
+</ul>
+<h3 id="core-module-examples">Core Module Examples</h3>
+<ul>
+<li><code>Magento\Catalog\Api\ProductRepositoryInterface</code> - Product CRUD</li>
+<li><code>Magento\Customer\Api\CustomerRepositoryInterface</code> - Customer CRUD</li>
+<li><code>Magento\Sales\Api\OrderRepositoryInterface</code> - Order CRUD with relations</li>
+<li><code>Magento\Framework\Api\SearchCriteriaBuilder</code> - Query builder</li>
+</ul>
+<h3 id="books-deep-dives">Books &amp; Deep Dives</h3>
+<ul>
+<li><em>Magento 2 Developer's Guide</em> by Branko Ajzele (Chapter 4: Service Contracts)</li>
+<li><em>Magento 2 Explained</em> by Stephen Burge (Chapter 7: Repositories)</li>
+</ul>
+<hr />
+<h2 id="conclusion">Conclusion</h2>
+<p>Service contracts and repositories are the <strong>foundation of upgrade-safe, testable, extensible Magento 2 code</strong>. By adhering to <code>@api</code> interfaces, you ensure your modules survive Magento upgrades and integrate seamlessly with the broader ecosystem.</p>
+<p><strong>Key Takeaways:</strong>
+1. <strong>Always prefer repositories over direct Model access</strong> in business logic
+2. <strong>Use SearchCriteria for standard queries</strong>, Collections for complex SQL
+3. <strong>Extension attributes for module integrations</strong>, custom attributes for merchant config
+4. <strong>Understand BC policy</strong> to avoid breaking changes
+5. <strong>Study core repositories</strong> (Product, Customer, Order) for patterns and best practices</p>
+<p>Mastering these patterns separates professional Magento developers from those fighting upgrade nightmares.</p>
+<hr />
+<p><strong>Assumptions:</strong>
+- Magento Open Source / Adobe Commerce 2.4.7+
+- PHP 8.2+
+- Modules follow PSR-4 autoloading and Magento module structure</p>
+<p><strong>Why This Approach:</strong>
+- <strong>Upgrade Safety:</strong> Service contracts guarantee BC across minor versions
+- <strong>Testability:</strong> Interface-based DI enables mocking and unit tests
+- <strong>Extensibility:</strong> Plugins on repositories provide centralized interception
+- <strong>Web API Ready:</strong> <code>@api</code> interfaces map directly to REST/GraphQL
+- <strong>Standards:</strong> Aligns with Magento architecture and community best practices</p>
+<p><strong>Security Impact:</strong>
+- Repositories enforce validation (email uniqueness, required fields)
+- Data Interfaces prevent SQL injection (no raw query construction)
+- Extension attributes via plugins can add ACL checks, audit logging
+- Service contracts expose consistent error handling (NoSuchEntityException)</p>
+<p><strong>Performance Impact:</strong>
+- Repository overhead: ~1-5ms per call (events, validation, caching)
+- SearchCriteria less efficient than optimized Collections for complex queries
+- Extension attribute plugins can add N+1 query problems if not batched
+- Caching in repositories (registry pattern) mitigates repeated <code>getById()</code> calls</p>
+<p><strong>Backward Compatibility:</strong>
+- <code>@api</code> interfaces guaranteed BC within major version (2.x)
+- New optional parameters safe to add
+- New methods safe to add
+- Removing methods, changing signatures, or adding required params = BC break
+- Always check <code>@since</code> tags and CHANGELOG for deprecations</p>
+<p><strong>Tests to Add:</strong>
+- Unit tests: Mock repositories, verify method calls and exceptions
+- Integration tests: Test SearchCriteria filters, pagination, extension attributes
+- API functional tests (MFTF): Validate web API endpoints using repositories
+- Mutation tests: Ensure repository validation logic is covered (PHPUnit + Infection)</p>
+<p><strong>Docs to Update:</strong>
+- README: Module dependencies, service contracts exposed
+- CHANGELOG: New repository methods, BC notes
+- GraphQL schema: Document extension attributes in schema.graphqls
+- Admin user guide: Screenshots of custom attributes in product form</p>
+<h2 id="related-documentation">Related Documentation</h2>
+<h3 id="related-guides">Related Guides</h3>
+<ul>
+<li><a href="graphql-resolver-patterns.md">GraphQL Resolver Patterns in Magento 2</a></li>
+<li><a href="../tutorials/plugin-system-deep-dive.md">Plugin System Deep Dive: Mastering Magento 2 Interception</a></li>
+<li><a href="../how-to/erp-integration.md">ERP Integration Patterns for Magento 2</a></li>
+</ul>
+<h3 id="related-module-documentation">Related Module Documentation</h3>
+<ul>
+<li><a href="../../modules/catalog/README.md">Magento_Catalog Overview</a></li>
+<li><a href="../../modules/customer/README.md">Magento_Customer Overview</a></li>
+<li><a href="../../modules/sales/README.md">Magento_Sales Overview</a></li>
+<li><a href="../../modules/quote/README.md">Magento_Quote Overview</a></li>
+</ul>
+                    </div>
+                </article>
+            </main>
+            <!-- Right Sidebar: On This Page (desktop) -->
+            <aside class="toc-sidebar hidden xl:block" aria-label="On this page">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-semibold text-gray-900 uppercase tracking-wider mb-4 mt-0">On this page</h3>
+                    <nav id="toc-nav" class="space-y-0" aria-label="Table of contents"></nav>
+                    <div class="toc-back-to-top">
+                        <a href="#">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+                            </svg>
+                            Back to top
+                        </a>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- ================================================================
+         FOOTER — matches module-catalog.html multi-column layout exactly
+         ================================================================ -->
+    <footer class="relative pt-12 bg-white border-t border-charcoal mt-16">
+        <div class="max-w-screen-2xl mx-auto w-full px-4 sm:px-6 lg:px-8">
+            <div>
+                <a href="index.html" class="inline-flex items-center no-underline">
+                    <svg width="30" height="33" viewBox="0 0 30 33" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Magento Association logo" role="img">
+                        <path d="M0 4.06492H29.6763V31.8882C29.6763 32.502 29.1713 33 28.5487 33H1.12762C0.505079 33 0 32.502 0 31.8882V4.06492Z" fill="#34323A"/>
+                        <path d="M1.26857 0H28.4078C29.1066 0 29.6763 0.561678 29.6763 1.25075V4.06492H0V1.25075C0 0.561678 0.569682 0 1.26857 0Z" fill="#C9C9C9"/>
+                        <path d="M2.37269 3.0458C2.94031 3.0458 3.40046 2.59211 3.40046 2.03246C3.40046 1.47281 2.94031 1.01913 2.37269 1.01913C1.80506 1.01913 1.34491 1.47281 1.34491 2.03246C1.34491 2.59211 1.80506 3.0458 2.37269 3.0458Z" fill="#848484"/>
+                        <path d="M5.28571 3.0458C5.85334 3.0458 6.31349 2.59211 6.31349 2.03246C6.31349 1.47281 5.85334 1.01913 5.28571 1.01913C4.71809 1.01913 4.25793 1.47281 4.25793 2.03246C4.25793 2.59211 4.71809 3.0458 5.28571 3.0458Z" fill="#848484"/>
+                        <path d="M14.7883 7.46973L4.90405 13.0923V24.349L7.54104 25.8487V14.5978L14.7883 10.4692L22.0415 14.5978V25.8487L24.6785 24.349V13.0923L14.7883 7.46973Z" fill="#F1BC1B"/>
+                        <path d="M16.0862 26.2367L14.7883 26.9779L13.4492 26.2135V14.233L10.178 16.0975V27.3485L13.4492 29.213L14.7883 29.9773L16.0862 29.2362L19.4045 27.3485V16.0975L16.0862 14.2098V26.2367Z" fill="#F1BC1B"/>
+                    </svg>
+                    <span class="ml-3 text-xl font-bold text-charcoal">Developer Documentation</span>
+                </a>
+            </div>
+
+            <div class="grid grid-cols-12 md:gap-x-8 gap-y-12 lg:mt-12">
+                <div class="col-span-12 lg:col-span-4">
+                    <p class="hidden lg:block text-xs text-charcoal sm:text-sm">Comprehensive developer documentation for Magento 2.4.7+ — tutorials, architecture deep dives, module references, and production-ready patterns built by the community, for the community.</p>
+                    <ul class="mt-6 hidden lg:flex items-center gap-3">
+                        <li class="pl-0">
+                            <a href="https://github.com/magento/magento2" class="p-2 md:p-0" aria-label="GitHub">
+                                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                                </svg>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Guides</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="tutorials.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Tutorials</a></li>
+                            <li class="pl-0"><a href="how-to-guides.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">How-To Guides</a></li>
+                            <li class="pl-0"><a href="architecture.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Architecture</a></li>
+                            <li class="pl-0"><a href="learning-paths.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Learning Paths</a></li>
+                            <li class="pl-0"><a href="references.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">References</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Modules</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="module-catalog.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Catalog</a></li>
+                            <li class="pl-0"><a href="module-checkout.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Checkout</a></li>
+                            <li class="pl-0"><a href="module-sales.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Sales</a></li>
+                            <li class="pl-0"><a href="module-customer.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Customer</a></li>
+                            <li class="pl-0"><a href="module-quote.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Quote</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Community</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Magento Community</a></li>
+                            <li class="pl-0"><a href="https://magento.stackexchange.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Stack Exchange</a></li>
+                            <li class="pl-0"><a href="https://marketplace.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Marketplace</a></li>
+                            <li class="pl-0"><a href="https://github.com/magento/magento2" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">GitHub</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Support</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://github.com/magento/magento2/issues" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Report Issues</a></li>
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Community Resources</a></li>
+                            <li class="pl-0"><a href="https://developer.adobe.com/commerce/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Adobe Commerce Docs</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-12 border-t pt-6 pb-16 border-charcoal">
+                <p class="text-xs text-charcoal">
+                    &copy; 2026 Magento 2 Developer Documentation. Magento&reg; is a registered trademark of Adobe Inc.
+                </p>
+                <p class="mt-6 text-xs text-charcoal">
+                    This documentation provides guidance for Magento 2 developers and extension builders. For merchant documentation, visit the <a href="index.html" class="text-orange hover:text-orange-600 transition-colors">merchant documentation</a>.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Initialize highlight.js -->
+    <script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('pre code').forEach(function (el) {
+        hljs.highlightElement(el);
+    });
+    document.querySelectorAll('pre').forEach(function (pre) {
+        if (pre.parentNode.classList && pre.parentNode.classList.contains('code-wrapper')) return;
+        var wrapper = document.createElement('div');
+        wrapper.className = 'code-wrapper';
+        pre.parentNode.insertBefore(wrapper, pre);
+        wrapper.appendChild(pre);
+        var btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.setAttribute('type', 'button');
+        btn.setAttribute('aria-label', 'Copy code to clipboard');
+        btn.setAttribute('title', 'Copy');
+        btn.textContent = 'Copy';
+        wrapper.appendChild(btn);
+        btn.addEventListener('click', function () {
+            var code = pre.querySelector('code');
+            var text = code ? (code.innerText || code.textContent) : (pre.innerText || pre.textContent);
+            navigator.clipboard.writeText(text).then(function () {
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            }).catch(function () {
+                var range = document.createRange();
+                range.selectNode(code || pre);
+                window.getSelection().removeAllRanges();
+                window.getSelection().addRange(range);
+                document.execCommand('copy');
+                window.getSelection().removeAllRanges();
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            });
+        });
+    });
+});
+</script>
+
+
+<script>
+(function() {
+    var nav = document.getElementById('toc-nav');
+    if (!nav) return;
+    var article = document.getElementById('main-content');
+    if (!article) return;
+    var headings = article.querySelectorAll('h2[id], h3[id]');
+    if (headings.length < 3) {
+        // Hide the entire TOC sidebar if fewer than 3 headings
+        var sidebar = nav.closest('.toc-sidebar');
+        if (sidebar) sidebar.style.display = 'none';
+        return;
+    }
+    var ids = [];
+    headings.forEach(function(h) {
+        var a = document.createElement('a');
+        a.href = '#' + h.id;
+        a.textContent = h.textContent.replace(/^#+\s*/, '').replace(/\s+/g, ' ').trim();
+        if (h.tagName === 'H3') a.classList.add('toc-h3');
+        nav.appendChild(a);
+        ids.push(h.id);
+    });
+    // Scroll-spy with IntersectionObserver
+    var links = nav.querySelectorAll('a');
+    var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                links.forEach(function(l) { l.classList.remove('toc-active'); });
+                var active = nav.querySelector('a[href="#' + entry.target.id + '"]');
+                if (active) active.classList.add('toc-active');
+            }
+        });
+    }, { rootMargin: '-80px 0px -70% 0px', threshold: 0 });
+    headings.forEach(function(h) { observer.observe(h); });
+})();
+</script>
+</body>
+</html>

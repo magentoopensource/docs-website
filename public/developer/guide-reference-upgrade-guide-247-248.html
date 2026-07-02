@@ -1,0 +1,1570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upgrade Guide: Adobe Commerce 2.4.6 to 2.4.7/2.4.8 — Magento 2 Developer Documentation</title>
+    <meta name="description" content="Developer guide: Upgrade Guide: Adobe Commerce 2.4.6 to 2.4.7/2.4.8">
+
+    <!-- Google Fonts: Inter Tight only. Courier New used for code. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Highlight.js: syntax highlighting for code blocks -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/php.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/ini.min.js"></script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        charcoal: {
+                            DEFAULT: '#2c2c2c', 50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6',
+                            300: '#6B6B6B', 400: '#474747', 500: '#2c2c2c', 600: '#262626',
+                            700: '#202020', 800: '#1c1c1c', 900: '#191919', 950: '#121212'
+                        },
+                        orange: {
+                            DEFAULT: '#D4551A', 50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad',
+                            300: '#f9ae78', 400: '#f58242', 500: '#f26423', 600: '#e34613',
+                            700: '#bc3312', 800: '#962a16', 900: '#792515', 950: '#411009'
+                        },
+                        yellow: {
+                            DEFAULT: '#B8860B', 50: '#fffdeb', 100: '#fdf9c8', 200: '#fbf38c',
+                            300: '#f8e651', 400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a',
+                            700: '#b1670c', 800: '#8f5111', 900: '#764311', 950: '#442204'
+                        },
+                        'off-white': '#FAFAFA',
+                    },
+                    fontFamily: {
+                        sans: ['Inter Tight', 'system-ui', '-apple-system', 'sans-serif'],
+                        mono: ['Courier New', 'Courier', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* ── Force light mode ── */
+        :root { color-scheme: light only; }
+
+        [x-cloak] { display: none !important; }
+
+        /* ── Scroll offset for sticky header ── */
+        .prose h2, .prose h3 { scroll-margin-top: 5rem; }
+
+        /* ── Code blocks: Bauhaus charcoal bg, no border-radius, highlight.js override ── */
+        .prose pre {
+            background-color: #2C2C2C !important;
+            border-radius: 0 !important;
+            padding: 1.25rem;
+            overflow-x: auto;
+            font-size: 0.875rem;
+            line-height: 1.7;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 1.5rem 0;
+        }
+        .prose pre code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            background: transparent !important;
+            padding: 0;
+                    color: #abb2bf;
+        }
+        /* Override highlight.js theme background to match Bauhaus charcoal */
+        .hljs {
+            background: #2C2C2C !important;
+            color: #abb2bf !important;
+            border-radius: 0 !important;
+        }
+
+        /* ── Inline code: charcoal bg, yellow text, no border-radius ── */
+        .prose code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.85em;
+        }
+        .prose :not(pre) > code {
+            background-color: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2em 0.45em;
+            border-radius: 0;
+        }
+
+        /* ── Step-code: same charcoal/yellow style for UI path chips ── */
+        .step-code {
+            background: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2rem 0.5rem;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            border-radius: 0;
+        }
+
+        /* ── Tables: no border-radius, charcoal header ── */
+        .prose table { width: 100%; border-collapse: collapse; }
+        .prose th {
+            background-color: #2C2C2C;
+            color: #ffffff;
+            font-weight: 600;
+            text-align: left;
+            padding: 0.75rem 1rem;
+            border-bottom: 2px solid #2C2C2C;
+            border-radius: 0;
+        }
+        .prose td { padding: 0.75rem 1rem; border-bottom: 1px solid #e5e5e5; }
+        .prose tr:hover { background-color: #fafafa; }
+
+        /* ── Blockquote: Bauhaus style — border-4 yellow, square, no left-only border ── */
+        .prose blockquote {
+            border: 4px solid #F1BC1B;
+            background-color: #ffffff;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+            border-radius: 0;
+        }
+        .prose blockquote p { margin: 0; }
+
+        /* ── Lists: hexagon bullets ── */
+        .prose ul { list-style: none; padding-left: 0; }
+        .prose ul li {
+            position: relative;
+            padding-left: 1.75rem;
+            margin-bottom: 0.4rem;
+            line-height: 1.7;
+        }
+        .prose ul li::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0.45em;
+            width: 10px;
+            height: 10px;
+            background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 2L21 7V17L12 22L3 17V7L12 2Z' stroke='%23F26423' stroke-width='2.5' stroke-linejoin='miter'/%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+        .prose ol { list-style-type: decimal; padding-left: 1.5rem; }
+        .prose li { margin-bottom: 0.4rem; }
+
+        /* ── Headings ── */
+        .prose h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            padding-top: 1.5rem;
+            border-top: 4px solid #F1BC1B;
+            color: #2C2C2C;
+        }
+        .prose h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+            color: #2C2C2C;
+        }
+        .prose h4 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #2C2C2C;
+        }
+        .prose p { margin-bottom: 1rem; line-height: 1.75; }
+        .prose a { color: #D4551A; text-decoration: none; }
+        .prose a:hover { color: #e34613; text-decoration: underline; }
+        .prose hr { border: none; border-top: 1px solid #e5e5e5; margin: 2rem 0; }
+
+        /* ── Callout boxes: Bauhaus — border-4 yellow, white bg, icon + title ── */
+        .callout-box {
+            background-color: #ffffff;
+            border: 4px solid #F1BC1B;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+        }
+        .callout-warning {
+            border-color: #D4551A;
+        }
+        .callout-important {
+            border-color: #2C2C2C;
+        }
+        .callout-box .callout-inner {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+        .callout-box .callout-title {
+            font-weight: 600;
+            color: #2C2C2C;
+            margin-bottom: 0.25rem;
+        }
+        .callout-box .callout-body {
+            font-size: 0.875rem;
+            line-height: 1.6;
+            color: rgba(44,44,44,0.85);
+        }
+
+        
+    
+        /* Code block copy button */
+        .code-wrapper {
+            position: relative;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            font-family: 'Inter Tight', system-ui, sans-serif;
+            background: rgba(255,255,255,0.1);
+            color: #abb2bf;
+            border: 1px solid rgba(255,255,255,0.15);
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.15s ease, background 0.15s ease;
+            z-index: 10;
+            line-height: 1.4;
+            border-radius: 4px;
+            user-select: none;
+        }
+        .code-wrapper:hover .copy-btn {
+            opacity: 1;
+        }
+        .copy-btn:hover,
+        .copy-btn:focus {
+            background: rgba(255,255,255,0.2);
+            color: #ffffff;
+            outline: 2px solid #D4551A;
+            outline-offset: 1px;
+        }
+        .copy-btn.copied {
+            color: #98c379;
+            background: rgba(152, 195, 121, 0.15);
+            opacity: 1;
+        }
+    
+        /* Right-hand TOC sidebar */
+        .toc-sidebar {
+            width: 14rem;
+            flex-shrink: 0;
+        }
+        .toc-sidebar a {
+            display: block;
+            padding: 0.375rem 0;
+            font-size: 0.8125rem;
+            line-height: 1.4;
+            color: #6b7280;
+            text-decoration: none;
+            transition: color 0.15s ease;
+            border-left: 2px solid transparent;
+            padding-left: 0.75rem;
+        }
+        .toc-sidebar a:hover {
+            color: #111827;
+        }
+        .toc-sidebar a.toc-active {
+            color: #ea580c;
+            border-left-color: #ea580c;
+            font-weight: 500;
+        }
+        .toc-sidebar a.toc-h3 {
+            padding-left: 1.5rem;
+            font-size: 0.75rem;
+        }
+        .toc-sidebar .toc-back-to-top {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e5e7eb;
+        }
+        .toc-sidebar .toc-back-to-top a {
+            border-left: none;
+            padding-left: 0;
+            font-weight: 500;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .toc-sidebar .toc-back-to-top a:hover {
+            color: #ea580c;
+        }
+    </style>
+</head>
+
+<body class="font-sans bg-off-white text-charcoal">
+
+    <!-- Shared header — single source of truth -->
+    <script src="includes/header.js"></script>
+
+    <!-- Breadcrumb — orange › separators -->
+    <div class="bg-white border-b border-gray-100">
+        <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <div class="flex items-center gap-2 text-sm flex-wrap">
+                <a href="index.html" class="text-orange hover:text-orange-600 transition-colors no-underline">Home</a> <span class="text-orange font-medium">›</span> <a href="index.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">Guides</a> <span class="text-orange font-medium">›</span> <a href="references.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">References</a> <span class="text-orange font-medium">›</span> <span class="text-charcoal font-medium">Upgrade Guide: Adobe Commerce 2.4.6 to 2.4.7/2.4.8</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="flex gap-8">
+
+            <!-- Left Sidebar (desktop) -->
+            <aside class="hidden lg:block w-64 flex-shrink-0">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4">References</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="guide-reference-cli-command-reference.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">CLI Command Reference: Complete ...</a></li>
+<li class="pl-0"><a href="guide-reference-upgrade-guide-247-248.html" class="block px-3 py-2 text-sm text-orange font-semibold bg-orange-50 border-l-4 border-orange pl-2 transition-colors no-underline">Upgrade Guide: Adobe Commerce 2....</a></li>
+</ul>
+<h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4 mt-8">Guide Sections</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="tutorials.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Tutorials</a></li>
+<li class="pl-0"><a href="how-to-guides.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">How-To Guides</a></li>
+<li class="pl-0"><a href="architecture.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Architecture</a></li>
+<li class="pl-0"><a href="references.html" class="block px-3 py-2 text-sm text-orange font-semibold bg-orange-50 border-l-4 border-orange pl-2 transition-colors no-underline">References</a></li>
+</ul>
+                </div>
+            </aside>
+
+            <!-- Article — square corners, border-t-4 orange accent -->
+            <main id="main-content" class="flex-1 min-w-0">
+                <article class="bg-white shadow-sm border border-gray-100 border-t-4 border-t-orange p-8 md:p-12">
+                    <!-- Title block -->
+                    <div class="mb-8">
+                        <span class="inline-block px-3 py-1.5 text-xs font-medium bg-charcoal-50 text-charcoal-400 border border-charcoal-100">Reference</span>
+                        <h1 class="text-3xl md:text-4xl font-extrabold text-charcoal mt-3 mb-3">Upgrade Guide: Adobe Commerce 2.4.6 to 2.4.7/2.4.8</h1>
+                        <p class="text-charcoal-300 text-lg mb-4">Developer guide: Upgrade Guide: Adobe Commerce 2.4.6 to 2.4.7/2.4.8</p>
+                        <!-- Meta pills -->
+                        <div class="flex flex-wrap gap-2"><span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-yellow-50 text-yellow-800"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>Advanced</span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-orange-50 text-orange-700"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>25 minutes</span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-charcoal text-white">Magento 2.4.7+</span></div>
+                    </div>
+
+                    <hr class="border-0 border-t border-gray-100 mb-8">
+
+                    <!-- Content -->
+                    <div class="prose max-w-none">
+                        <h1 id="upgrade-guide-adobe-commerce-246-to-247248">Upgrade Guide: Adobe Commerce 2.4.6 to 2.4.7/2.4.8</h1>
+<p>This comprehensive guide covers the upgrade path from Adobe Commerce 2.4.6 to 2.4.7 and 2.4.8, including breaking changes, deprecated APIs, infrastructure requirements, and rollback strategies.</p>
+<h2 id="quick-reference-table">Quick Reference Table</h2>
+<div class="overflow-x-auto my-6 border border-gray-200"><table class="min-w-full">
+<thead>
+<tr>
+<th>Component</th>
+<th>2.4.6</th>
+<th>2.4.7</th>
+<th>2.4.8</th>
+<th>Action Required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PHP</td>
+<td>8.1, 8.2</td>
+<td>8.2, 8.3</td>
+<td>8.2, 8.3</td>
+<td>Update to 8.2+ before upgrade</td>
+</tr>
+<tr>
+<td>MySQL</td>
+<td>8.0</td>
+<td>8.0</td>
+<td>8.0</td>
+<td>Verify MySQL 8.0.30+</td>
+</tr>
+<tr>
+<td>Elasticsearch</td>
+<td>7.17, 8.x</td>
+<td>7.17, 8.x, OpenSearch 1.2/2.x</td>
+<td>OpenSearch 2.x (preferred)</td>
+<td>Migrate to OpenSearch</td>
+</tr>
+<tr>
+<td>Composer</td>
+<td>2.2+</td>
+<td>2.2+</td>
+<td>2.7+</td>
+<td>Update Composer to 2.7+ for 2.4.8</td>
+</tr>
+<tr>
+<td>Redis</td>
+<td>6.2, 7.0</td>
+<td>7.0, 7.2</td>
+<td>7.0, 7.2</td>
+<td>Update Redis to 7.0+</td>
+</tr>
+<tr>
+<td>Varnish</td>
+<td>7.1</td>
+<td>7.3, 7.4</td>
+<td>7.4</td>
+<td>Update Varnish</td>
+</tr>
+<tr>
+<td>RabbitMQ</td>
+<td>3.9, 3.11</td>
+<td>3.11, 3.13</td>
+<td>3.13</td>
+<td>Update RabbitMQ</td>
+</tr>
+<tr>
+<td>Node.js</td>
+<td>16, 18</td>
+<td>18, 20</td>
+<td>18, 20</td>
+<td>Update to Node 18+</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="version-compatibility-matrix">Version Compatibility Matrix</h2>
+<h3 id="adobe-commerce-247">Adobe Commerce 2.4.7</h3>
+<p><strong>Release Date:</strong> April 2024</p>
+<p><strong>Key Changes:</strong>
+- PHP 8.3 support added
+- OpenSearch 2.x support
+- Security enhancements (CVE patches)
+- Performance improvements in indexing
+- Enhanced GraphQL capabilities
+- New Page Builder features</p>
+<p><strong>Supported Technology Stack:</strong></p>
+<pre><code class="language-yaml">php:
+  supported: [8.2, 8.3]
+  recommended: 8.3
+  deprecated: [8.1]
+
+database:
+  mysql: 8.0.30+
+  mariadb: 10.6+ (not officially supported, use at own risk)
+
+search:
+  elasticsearch: [7.17, 8.x]
+  opensearch: [1.2, 2.x]
+  recommended: opensearch-2.x
+
+cache:
+  redis: [7.0, 7.2]
+
+message_queue:
+  rabbitmq: [3.11, 3.13]
+
+web_server:
+  nginx: 1.24+
+  apache: 2.4+
+</code></pre>
+<h3 id="adobe-commerce-248">Adobe Commerce 2.4.8</h3>
+<p><strong>Release Date:</strong> Expected Q2 2026 (Beta available)</p>
+<p><strong>Key Changes:</strong>
+- Composer 2.7+ requirement
+- Stricter type enforcement in core APIs
+- Deprecated methods removed from 2.4.6
+- Enhanced security defaults
+- GraphQL schema improvements
+- New Admin UI components</p>
+<p><strong>Supported Technology Stack:</strong></p>
+<pre><code class="language-yaml">php:
+  supported: [8.2, 8.3]
+  recommended: 8.3
+  minimum: 8.2
+
+database:
+  mysql: 8.0.35+
+
+search:
+  opensearch: [2.x]
+  elasticsearch: deprecated (still works but not recommended)
+
+composer:
+  minimum: 2.7.0
+</code></pre>
+<h2 id="breaking-changes-in-247">Breaking Changes in 2.4.7</h2>
+<h3 id="1-php-81-deprecation">1. PHP 8.1 Deprecation</h3>
+<p><strong>Impact:</strong> HIGH</p>
+<p><strong>Description:</strong> PHP 8.1 is no longer supported. All custom code must be compatible with PHP 8.2/8.3.</p>
+<p><strong>Action Required:</strong></p>
+<pre><code class="language-bash"># Before upgrade, verify PHP version
+php -v
+
+# Update PHP to 8.2 or 8.3
+# On Ubuntu/Debian
+sudo apt-get update
+sudo apt-get install php8.3 php8.3-{bcmath,common,curl,fpm,gd,intl,mbstring,mysql,soap,xml,xsl,zip,cli}
+
+# Update Composer PHP version requirement
+composer config platform.php 8.3
+</code></pre>
+<p><strong>Code Changes Required:</strong></p>
+<pre><code class="language-php">// BREAKING: Dynamic properties deprecated in PHP 8.2
+// OLD (will throw deprecation notices in 8.2, fatal error in 8.3)
+class MyClass
+{
+    public function __construct()
+    {
+        $this-&gt;dynamicProperty = 'value'; // Deprecated
+    }
+}
+
+// NEW: Declare all properties or use #[AllowDynamicProperties]
+class MyClass
+{
+    private string $dynamicProperty; // Declare explicitly
+
+    public function __construct()
+    {
+        $this-&gt;dynamicProperty = 'value';
+    }
+}
+
+// OR use attribute (not recommended for new code)
+#[\AllowDynamicProperties]
+class MyClass
+{
+    public function __construct()
+    {
+        $this-&gt;dynamicProperty = 'value';
+    }
+}
+</code></pre>
+<h3 id="2-service-contract-interface-changes">2. Service Contract Interface Changes</h3>
+<p><strong>Impact:</strong> MEDIUM</p>
+<p><strong>Description:</strong> Several service contract interfaces have new methods. Classes implementing these interfaces must add the new methods.</p>
+<div class="callout-box"><div class="callout-inner"><svg class="w-5 h-5 text-orange flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg><div><p class="callout-title">Note</p><div class="callout-body"><p> The core repository interfaces (<code>ProductRepositoryInterface</code>, <code>OrderRepositoryInterface</code>, <code>CustomerRepositoryInterface</code>) did not add new required methods in 2.4.7. However, when upgrading, always check for changes to interfaces your modules implement.</p></div></div></div></div>
+<p><strong>Migration Path:</strong></p>
+<pre><code class="language-bash"># Find custom implementations of core interfaces
+grep -r &quot;implements.*RepositoryInterface&quot; app/code/Vendor/Module/
+
+# Review the Magento 2.4.7 release notes for any interface changes
+# https://experienceleague.adobe.com/docs/commerce-operations/release/notes/open-source/2-4-7.html
+</code></pre>
+<h3 id="3-database-schema-changes">3. Database Schema Changes</h3>
+<p><strong>Impact:</strong> LOW-MEDIUM</p>
+<p><strong>Description:</strong> Minor schema changes may affect custom modules that query core tables directly. Always use the repository pattern or service contracts rather than direct table queries.</p>
+<p><strong>Action Required:</strong></p>
+<pre><code class="language-php">// AVOID: Direct table queries that may break across versions
+$connection-&gt;select()-&gt;from('catalog_product_entity', ['entity_id', 'sku']);
+
+// PREFERRED: Use repository/service contracts
+$product = $this-&gt;productRepository-&gt;get($sku);
+</code></pre>
+<h3 id="4-removed-deprecated-code">4. Removed Deprecated Code</h3>
+<p><strong>Impact:</strong> HIGH</p>
+<p><strong>Description:</strong> Code deprecated in 2.4.4-2.4.6 has been removed in 2.4.7.</p>
+<p><strong>Removed Classes:</strong></p>
+<pre><code class="language-php">// REMOVED: Old payment methods
+Magento\Authorizenet\* // Authorize.net Direct Post removed
+Magento\Cybersource\* // Cybersource removed
+
+// REMOVED: Legacy layout handles
+// app/design/frontend/Vendor/theme/Magento_Checkout/layout/checkout_cart_configure.xml
+// Use checkout_cart_item_configure.xml instead
+
+// REMOVED: Deprecated JavaScript components
+define(['Magento_Ui/js/form/element/abstract'], ...); // Still exists
+// But several mixins removed - check console for warnings
+</code></pre>
+<p><strong>Migration for Payment Methods:</strong></p>
+<pre><code class="language-xml">&lt;!-- OLD config.xml --&gt;
+&lt;payment&gt;
+    &lt;authorizenet_directpost&gt;
+        &lt;active&gt;1&lt;/active&gt;
+    &lt;/authorizenet_directpost&gt;
+&lt;/payment&gt;
+
+&lt;!-- NEW: Migrate to Braintree or other payment provider --&gt;
+&lt;payment&gt;
+    &lt;braintree&gt;
+        &lt;active&gt;1&lt;/active&gt;
+        &lt;model&gt;BraintreeFacade&lt;/model&gt;
+    &lt;/braintree&gt;
+&lt;/payment&gt;
+</code></pre>
+<h3 id="5-elasticsearch-to-opensearch-migration">5. Elasticsearch to OpenSearch Migration</h3>
+<p><strong>Impact:</strong> HIGH (if using Elasticsearch)</p>
+<p><strong>Description:</strong> While Elasticsearch still works in 2.4.7, OpenSearch 2.x is the recommended search engine.</p>
+<p><strong>Migration Steps:</strong></p>
+<pre><code class="language-bash"># 1. Install OpenSearch 2.x
+curl -o- https://artifacts.opensearch.org/publickeys/opensearch.pgp | sudo gpg --dearmor --batch --yes -o /usr/share/keyrings/opensearch-keyring
+echo &quot;deb [signed-by=/usr/share/keyrings/opensearch-keyring] https://artifacts.opensearch.org/releases/bundle/opensearch/2.x/apt stable main&quot; | sudo tee /etc/apt/sources.list.d/opensearch-2.list
+sudo apt-get update
+sudo apt-get install opensearch
+
+# 2. Configure OpenSearch
+sudo systemctl start opensearch
+sudo systemctl enable opensearch
+
+# 3. Update env.php
+</code></pre>
+<pre><code class="language-php">// app/etc/env.php
+'system' =&gt; [
+    'default' =&gt; [
+        'catalog' =&gt; [
+            'search' =&gt; [
+                'engine' =&gt; 'opensearch', // Changed from 'elasticsearch7'
+                'opensearch_server_hostname' =&gt; 'localhost',
+                'opensearch_server_port' =&gt; '9200',
+                'opensearch_index_prefix' =&gt; 'magento2',
+                'opensearch_enable_auth' =&gt; '0',
+                'opensearch_server_timeout' =&gt; '15',
+            ]
+        ]
+    ]
+]
+</code></pre>
+<pre><code class="language-bash"># 4. Reindex all indexes
+bin/magento indexer:reindex catalogsearch_fulltext
+
+# 5. Verify search works (test via storefront or API; no CLI search test command exists in core)
+# curl -s https://your-store.test/catalogsearch/result/?q=search+term | head -20
+</code></pre>
+<h2 id="breaking-changes-in-248">Breaking Changes in 2.4.8</h2>
+<h3 id="1-composer-27-required">1. Composer 2.7+ Required</h3>
+<p><strong>Impact:</strong> HIGH</p>
+<p><strong>Description:</strong> Composer must be version 2.7.0 or higher due to new dependency resolution features.</p>
+<p><strong>Action Required:</strong></p>
+<pre><code class="language-bash"># Check current version
+composer --version
+
+# Update Composer globally
+sudo composer self-update
+
+# Or download latest version
+php -r &quot;copy('https://getcomposer.org/installer', 'composer-setup.php');&quot;
+php composer-setup.php
+sudo mv composer.phar /usr/local/bin/composer
+php -r &quot;unlink('composer-setup.php');&quot;
+
+# Verify version
+composer --version  # Should show 2.7.0+
+</code></pre>
+<h3 id="2-stricter-type-enforcement">2. Stricter Type Enforcement</h3>
+<p><strong>Impact:</strong> MEDIUM</p>
+<p><strong>Description:</strong> Core APIs now enforce strict types. Passing wrong types will throw TypeErrors.</p>
+<p><strong>Examples:</strong></p>
+<pre><code class="language-php">// BREAKING: Loose type coercion no longer works
+$productRepository-&gt;get('123'); // Throws TypeError if expecting int
+
+// OLD (worked in 2.4.6)
+$product = $this-&gt;productRepository-&gt;getById('123'); // String accepted
+
+// NEW (2.4.8 - strict types)
+$product = $this-&gt;productRepository-&gt;getById((int)'123'); // Must cast to int
+
+// Interface changes
+interface ProductRepositoryInterface
+{
+    public function getById(int $id, bool $editMode = false, ?int $storeId = null); // int enforced
+}
+</code></pre>
+<p><strong>Fix Custom Code:</strong></p>
+<pre><code class="language-bash"># Enable strict types in all PHP files
+grep -l &quot;&lt;?php&quot; app/code/Vendor/Module/**/*.php | while read file; do
+    if ! grep -q &quot;declare(strict_types=1);&quot; &quot;$file&quot;; then
+        sed -i '1s/^&lt;?php/&lt;?php\n\ndeclare(strict_types=1);/' &quot;$file&quot;
+    fi
+done
+</code></pre>
+<h3 id="3-removed-legacy-admin-widgets">3. Removed Legacy Admin Widgets</h3>
+<p><strong>Impact:</strong> MEDIUM</p>
+<p><strong>Description:</strong> Several deprecated Admin UI widgets removed. Must use UI components.</p>
+<p><strong>Removed:</strong></p>
+<pre><code class="language-php">// REMOVED: Legacy grid widget
+Magento\Backend\Block\Widget\Grid
+Magento\Backend\Block\Widget\Grid\Column
+
+// REMOVED: Legacy form widget
+Magento\Backend\Block\Widget\Form
+
+// Use UI components instead
+</code></pre>
+<p><strong>Migration Example:</strong></p>
+<pre><code class="language-xml">&lt;!-- OLD: app/code/Vendor/Module/view/adminhtml/layout/vendor_module_index.xml --&gt;
+&lt;block class=&quot;Vendor\Module\Block\Adminhtml\Grid&quot; name=&quot;vendor.module.grid&quot;/&gt;
+
+&lt;!-- NEW: Use UI component --&gt;
+&lt;uiComponent name=&quot;vendor_module_listing&quot;/&gt;
+</code></pre>
+<pre><code class="language-xml">&lt;!-- app/code/Vendor/Module/view/adminhtml/ui_component/vendor_module_listing.xml --&gt;
+&lt;listing xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;&gt;
+    &lt;dataSource name=&quot;vendor_module_listing_data_source&quot;&gt;
+        &lt;argument name=&quot;dataProvider&quot; xsi:type=&quot;configurableObject&quot;&gt;
+            &lt;argument name=&quot;class&quot; xsi:type=&quot;string&quot;&gt;Vendor\Module\Ui\DataProvider\Listing&lt;/argument&gt;
+        &lt;/argument&gt;
+    &lt;/dataSource&gt;
+    &lt;columns name=&quot;vendor_module_columns&quot;&gt;
+        &lt;column name=&quot;id&quot;&gt;
+            &lt;argument name=&quot;data&quot; xsi:type=&quot;array&quot;&gt;
+                &lt;item name=&quot;config&quot; xsi:type=&quot;array&quot;&gt;
+                    &lt;item name=&quot;label&quot; xsi:type=&quot;string&quot; translate=&quot;true&quot;&gt;ID&lt;/item&gt;
+                &lt;/item&gt;
+            &lt;/argument&gt;
+        &lt;/column&gt;
+    &lt;/columns&gt;
+&lt;/listing&gt;
+</code></pre>
+<h2 id="php-8283-compatibility-notes">PHP 8.2/8.3 Compatibility Notes</h2>
+<h3 id="key-php-82-changes">Key PHP 8.2 Changes</h3>
+<pre><code class="language-php">// 1. Dynamic properties deprecated
+#[\AllowDynamicProperties] // Use this attribute if needed
+class MyClass {}
+
+// 2. ${} string interpolation deprecated
+$name = 'world';
+echo &quot;Hello ${name}&quot;; // Deprecated
+echo &quot;Hello {$name}&quot;; // Use this instead
+echo &quot;Hello $name&quot;;   // Or this
+
+// 3. utf8_encode/utf8_decode deprecated
+// OLD
+$encoded = utf8_encode($string);
+
+// NEW
+$encoded = mb_convert_encoding($string, 'UTF-8', 'ISO-8859-1');
+</code></pre>
+<h3 id="key-php-83-changes">Key PHP 8.3 Changes</h3>
+<pre><code class="language-php">// 1. Typed class constants
+class MyClass {
+    public const string API_VERSION = 'v1'; // Type enforcement
+}
+
+// 2. #[\Override] attribute
+class ChildClass extends ParentClass {
+    #[\Override]
+    public function method(): void {} // Ensures parent method exists
+}
+
+// 3. json_validate() function
+if (json_validate($jsonString)) {
+    $data = json_decode($jsonString);
+}
+</code></pre>
+<h3 id="common-compatibility-issues">Common Compatibility Issues</h3>
+<pre><code class="language-php">// Issue 1: Null coalescing in concatenation
+// PHP 8.0+: Must use parentheses
+$value = $array['key'] ?? 'default' . ' suffix'; // Deprecated syntax
+$value = ($array['key'] ?? 'default') . ' suffix'; // Correct
+
+// Issue 2: Return type declarations required
+class MyRepository implements RepositoryInterface
+{
+    // OLD (works in 2.4.6)
+    public function get($id) {}
+
+    // NEW (required in 2.4.8)
+    public function get(int $id): MyInterface {}
+}
+
+// Issue 3: Mixed return types
+// Use 'mixed' for flexible returns
+public function getValue(): mixed
+{
+    return $this-&gt;config-&gt;isEnabled() ? 'enabled' : null;
+}
+</code></pre>
+<h2 id="mysql-80-migration-requirements">MySQL 8.0 Migration Requirements</h2>
+<h3 id="minimum-version">Minimum Version</h3>
+<p>Adobe Commerce 2.4.7+ requires <strong>MySQL 8.0.30 or higher</strong>.</p>
+<h3 id="pre-migration-checks">Pre-Migration Checks</h3>
+<pre><code class="language-bash"># Check current MySQL version
+mysql --version
+
+# Check for incompatible SQL modes
+mysql -u root -p -e &quot;SELECT @@GLOBAL.sql_mode;&quot;
+
+# Check for deprecated features
+mysql -u root -p magento -e &quot;
+  SELECT TABLE_NAME, ENGINE
+  FROM information_schema.TABLES
+  WHERE TABLE_SCHEMA = 'magento'
+  AND ENGINE = 'MyISAM';&quot;
+</code></pre>
+<h3 id="migration-steps">Migration Steps</h3>
+<pre><code class="language-bash"># 1. Backup database
+mysqldump -u root -p magento &gt; magento_backup_$(date +%Y%m%d).sql
+
+# 2. Upgrade MySQL to 8.0.30+
+# Ubuntu/Debian
+wget https://dev.mysql.com/get/mysql-apt-config_0.8.24-1_all.deb
+sudo dpkg -i mysql-apt-config_0.8.24-1_all.deb
+sudo apt-get update
+sudo apt-get install mysql-server
+
+# 3. Update MySQL configuration
+sudo nano /etc/mysql/mysql.conf.d/mysqld.cnf
+</code></pre>
+<pre><code class="language-ini"># /etc/mysql/mysql.conf.d/mysqld.cnf
+[mysqld]
+# Required for Magento 2.4.7+
+default-authentication-plugin=mysql_native_password
+sql_mode=&quot;NO_ENGINE_SUBSTITUTION&quot;
+max_allowed_packet=256M
+innodb_buffer_pool_size=2G
+innodb_log_file_size=512M
+</code></pre>
+<pre><code class="language-bash"># 4. Restart MySQL
+sudo systemctl restart mysql
+
+# 5. Run mysql_upgrade
+sudo mysql_upgrade -u root -p
+
+# 6. Verify Magento database
+mysql -u magento_user -p magento -e &quot;SHOW TABLES;&quot;
+</code></pre>
+<h3 id="common-issues">Common Issues</h3>
+<pre><code class="language-sql">-- Issue 1: Reserved keywords (new in MySQL 8.0)
+-- Table name 'rank' is now reserved
+ALTER TABLE `rank` RENAME TO `product_rank`;
+
+-- Issue 2: GROUP BY strictness
+-- OLD (works in 5.7 with some sql_modes)
+SELECT entity_id, MAX(created_at)
+FROM sales_order
+GROUP BY entity_id; -- Missing columns in GROUP BY
+
+-- NEW (MySQL 8.0 strict mode)
+SELECT entity_id, MAX(created_at) as max_created
+FROM sales_order
+GROUP BY entity_id;
+</code></pre>
+<h2 id="composer-update-steps">Composer Update Steps</h2>
+<h3 id="step-1-pre-upgrade-preparation">Step 1: Pre-Upgrade Preparation</h3>
+<pre><code class="language-bash"># 1. Create a maintenance backup
+bin/magento maintenance:enable
+mysqldump -u root -p magento &gt; pre_upgrade_$(date +%Y%m%d).sql
+tar -czf magento_backup_$(date +%Y%m%d).tar.gz . --exclude='./var/cache' --exclude='./var/page_cache'
+
+# 2. Clear caches and generated code
+rm -rf var/cache/* var/page_cache/* var/view_preprocessed/* pub/static/* generated/*
+
+# 3. Document current versions
+bin/magento --version &gt; pre_upgrade_version.txt
+composer show magento/* &gt; pre_upgrade_packages.txt
+</code></pre>
+<h3 id="step-2-update-composerjson">Step 2: Update composer.json</h3>
+<pre><code class="language-bash"># For 2.4.7 upgrade
+composer require magento/product-community-edition=2.4.7 --no-update
+composer require --dev phpunit/phpunit:^9 --no-update
+
+# For 2.4.8 upgrade (when available)
+composer require magento/product-community-edition=2.4.8 --no-update
+
+# Update PHP version constraint
+composer config platform.php 8.3
+</code></pre>
+<h3 id="step-3-update-dependencies">Step 3: Update Dependencies</h3>
+<pre><code class="language-bash"># Update all Magento packages
+composer update magento/* --with-all-dependencies
+
+# If you encounter conflicts, remove composer.lock and try again
+rm composer.lock
+composer update
+
+# For specific conflicts, you may need to update other packages
+composer update symfony/* --with-all-dependencies
+composer update laminas/* --with-all-dependencies
+</code></pre>
+<h3 id="step-4-run-upgrade-commands">Step 4: Run Upgrade Commands</h3>
+<pre><code class="language-bash"># 1. Run setup upgrade
+bin/magento setup:upgrade
+
+# 2. Compile DI
+bin/magento setup:di:compile
+
+# 3. Deploy static content
+bin/magento setup:static-content:deploy -f
+
+# 4. Reindex all
+bin/magento indexer:reindex
+
+# 5. Clear cache
+bin/magento cache:clean
+bin/magento cache:flush
+
+# 6. Verify deployment
+bin/magento deploy:mode:show
+bin/magento module:status
+</code></pre>
+<h3 id="step-5-post-upgrade-validation">Step 5: Post-Upgrade Validation</h3>
+<pre><code class="language-bash"># Note: upgrade:check is not a core Magento CLI command.
+# Use the Upgrade Compatibility Tool (UCT) separately:
+# bin/uct upgrade:check app/code/ --coming-version=2.4.8
+
+# Check for deprecated code usage
+vendor/bin/phpstan analyse app/code --level=8
+
+# Test critical paths
+bin/magento catalog:product:attributes:cleanup
+bin/magento cron:run
+
+# Verify version
+bin/magento --version
+
+# Disable maintenance mode
+bin/magento maintenance:disable
+</code></pre>
+<h2 id="common-upgrade-issues-and-solutions">Common Upgrade Issues and Solutions</h2>
+<h3 id="issue-1-composer-memory-limit">Issue 1: Composer Memory Limit</h3>
+<p><strong>Symptom:</strong></p>
+<pre><code>Fatal error: Allowed memory size exhausted
+</code></pre>
+<p><strong>Solution:</strong></p>
+<pre><code class="language-bash"># Increase PHP memory limit for Composer
+php -d memory_limit=4G $(which composer) update
+
+# Or set it globally in php.ini
+sudo nano /etc/php/8.3/cli/php.ini
+# memory_limit = 4G
+</code></pre>
+<h3 id="issue-2-plugin-incompatibility">Issue 2: Plugin Incompatibility</h3>
+<p><strong>Symptom:</strong></p>
+<pre><code>Area code is not set
+Fatal error in plugin class
+</code></pre>
+<p><strong>Solution:</strong></p>
+<pre><code class="language-bash"># Disable third-party modules temporarily
+bin/magento module:disable Vendor_Module
+
+# Run upgrade
+bin/magento setup:upgrade
+
+# Re-enable modules one by one
+bin/magento module:enable Vendor_Module
+
+# Test after each enable
+bin/magento cache:flush
+</code></pre>
+<p><strong>Prevention:</strong></p>
+<pre><code class="language-php">// In custom plugins, always check parent method exists
+class ProductRepositoryExtend
+{
+    public function afterSave(
+        \Magento\Catalog\Api\ProductRepositoryInterface $subject,
+        $result
+    ) {
+        // Add defensive checks
+        if (!method_exists($subject, 'save')) {
+            return $result;
+        }
+        // Your logic
+        return $result;
+    }
+}
+</code></pre>
+<h3 id="issue-3-database-schema-mismatch">Issue 3: Database Schema Mismatch</h3>
+<p><strong>Symptom:</strong></p>
+<pre><code>Column not found: 1054 Unknown column 'some_column'
+</code></pre>
+<p><strong>Solution:</strong></p>
+<pre><code class="language-bash"># Check for pending schema updates
+bin/magento setup:db:status
+
+# If status is &quot;Upgrade is required&quot;, run:
+bin/magento setup:upgrade
+
+# If specific table is missing columns, check db_schema.xml
+cat app/code/Vendor/Module/etc/db_schema.xml
+
+# Regenerate db_schema whitelist
+bin/magento setup:db-declaration:generate-whitelist --module-name=Vendor_Module
+</code></pre>
+<h3 id="issue-4-static-content-deployment-fails">Issue 4: Static Content Deployment Fails</h3>
+<p><strong>Symptom:</strong></p>
+<pre><code>Error: Could not compile less file
+Cannot find module '@magento/pagebuilder'
+</code></pre>
+<p><strong>Solution:</strong></p>
+<pre><code class="language-bash"># 1. Clear all static content
+rm -rf pub/static/* var/view_preprocessed/*
+
+# 2. Reinstall frontend dependencies
+npm install --prefix vendor/magento/module-pagebuilder/view/adminhtml/web
+npm install --prefix vendor/magento/theme-frontend-luma/web
+
+# 3. Deploy with verbose output
+bin/magento setup:static-content:deploy en_US -f --strategy=compact -vvv
+
+# 4. If specific theme fails, deploy themes separately
+bin/magento setup:static-content:deploy -f --theme=Magento/luma
+</code></pre>
+<h3 id="issue-5-cache-corruption">Issue 5: Cache Corruption</h3>
+<p><strong>Symptom:</strong></p>
+<pre><code>Frontend shows 404 errors
+Admin panel not loading
+</code></pre>
+<p><strong>Solution:</strong></p>
+<pre><code class="language-bash"># Nuclear option - clear everything
+rm -rf var/cache/* var/page_cache/* var/view_preprocessed/* pub/static/*
+redis-cli FLUSHALL  # If using Redis
+bin/magento cache:clean
+bin/magento cache:flush
+
+# Redeploy
+bin/magento setup:di:compile
+bin/magento setup:static-content:deploy -f
+
+# Restart services
+sudo systemctl restart php8.3-fpm
+sudo systemctl restart nginx
+sudo systemctl restart redis
+</code></pre>
+<h2 id="post-upgrade-validation-checklist">Post-Upgrade Validation Checklist</h2>
+<h3 id="automated-tests">Automated Tests</h3>
+<pre><code class="language-bash"># 1. Run unit tests
+vendor/bin/phpunit -c dev/tests/unit/phpunit.xml.dist
+
+# 2. Run integration tests (sample)
+vendor/bin/phpunit -c dev/tests/integration/phpunit.xml.dist app/code/Vendor/Module/Test/Integration
+
+# 3. Static code analysis
+vendor/bin/phpcs --standard=Magento2 app/code/Vendor/Module
+vendor/bin/phpstan analyse app/code --level=8
+
+# 4. Check for deprecated code
+grep -r &quot;@deprecated&quot; vendor/magento/ | grep &quot;2.4.6&quot;
+</code></pre>
+<h3 id="manual-validation">Manual Validation</h3>
+<p><strong>Frontend Checklist:</strong>
+- [ ] Homepage loads without errors
+- [ ] Category pages display products
+- [ ] Product pages show correct data
+- [ ] Search returns results
+- [ ] Add to cart works
+- [ ] Checkout flow completes
+- [ ] Customer registration works
+- [ ] Customer login/logout works
+- [ ] Layered navigation filters work
+- [ ] Product images display correctly</p>
+<p><strong>Admin Checklist:</strong>
+- [ ] Admin login successful
+- [ ] Dashboard loads
+- [ ] Product grid displays
+- [ ] Product save works
+- [ ] Order grid displays
+- [ ] Order view shows correct data
+- [ ] Customer grid displays
+- [ ] Configuration pages load
+- [ ] Cache management works
+- [ ] Index management works</p>
+<p><strong>API Validation:</strong></p>
+<pre><code class="language-bash"># Test REST API
+curl -X GET &quot;https://your-site.com/rest/V1/products/24-MB01&quot; \
+  -H &quot;Authorization: Bearer YOUR_TOKEN&quot;
+
+# Test GraphQL
+curl -X POST &quot;https://your-site.com/graphql&quot; \
+  -H &quot;Content-Type: application/json&quot; \
+  -d '{&quot;query&quot;:&quot;{ products(filter: {sku: {eq: \&quot;24-MB01\&quot;}}) { items { name sku } } }&quot;}'
+</code></pre>
+<h3 id="performance-validation">Performance Validation</h3>
+<pre><code class="language-bash"># Check index status
+bin/magento indexer:status
+
+# Verify cron is running
+bin/magento cron:run
+tail -f var/log/cron.log
+
+# Check cache hit rates (Redis)
+redis-cli INFO stats | grep hit
+
+# Monitor slow queries
+mysql -u root -p -e &quot;SELECT * FROM mysql.slow_log ORDER BY query_time DESC LIMIT 10;&quot;
+</code></pre>
+<h2 id="rollback-strategies">Rollback Strategies</h2>
+<h3 id="pre-rollback-preparation">Pre-Rollback Preparation</h3>
+<p>Always prepare rollback plan BEFORE upgrading:</p>
+<pre><code class="language-bash"># 1. Full backup script (save as backup.sh)
+#!/bin/bash
+DATE=$(date +%Y%m%d_%H%M%S)
+BACKUP_DIR=&quot;/backups/magento&quot;
+
+# Database
+mysqldump -u root -p magento &gt; $BACKUP_DIR/db_$DATE.sql
+
+# Files
+tar -czf $BACKUP_DIR/files_$DATE.tar.gz \
+  --exclude='./var/cache' \
+  --exclude='./var/page_cache' \
+  --exclude='./pub/static' \
+  -C /var/www/magento .
+
+# composer.lock and env.php
+cp composer.lock $BACKUP_DIR/composer.lock.$DATE
+cp app/etc/env.php $BACKUP_DIR/env.php.$DATE
+
+echo &quot;Backup completed: $DATE&quot;
+</code></pre>
+<h3 id="rollback-method-1-git-revert-recommended">Rollback Method 1: Git Revert (Recommended)</h3>
+<pre><code class="language-bash"># If upgrade is in Git branch
+git log --oneline -10  # Find commit before upgrade
+git revert &lt;upgrade-commit-hash&gt;
+
+# Restore database
+mysql -u root -p magento &lt; backup_db.sql
+
+# Restore composer dependencies
+git checkout HEAD~1 composer.lock
+composer install
+
+# Clear caches and regenerate
+rm -rf generated/* var/cache/* var/page_cache/*
+bin/magento setup:upgrade
+bin/magento setup:di:compile
+bin/magento cache:flush
+</code></pre>
+<h3 id="rollback-method-2-manual-restore">Rollback Method 2: Manual Restore</h3>
+<pre><code class="language-bash"># 1. Enable maintenance mode
+bin/magento maintenance:enable
+
+# 2. Restore files
+cd /var/www
+rm -rf magento
+tar -xzf /backups/magento/files_YYYYMMDD.tar.gz -C magento/
+
+# 3. Restore database
+mysql -u root -p magento &lt; /backups/magento/db_YYYYMMDD.sql
+
+# 4. Restore environment config
+cp /backups/magento/env.php.YYYYMMDD magento/app/etc/env.php
+
+# 5. Downgrade Composer packages
+cd magento
+composer install
+
+# 6. Clear caches
+rm -rf var/cache/* var/page_cache/* generated/*
+bin/magento cache:clean
+
+# 7. Disable maintenance
+bin/magento maintenance:disable
+</code></pre>
+<h3 id="rollback-method-3-blue-green-deployment">Rollback Method 3: Blue-Green Deployment</h3>
+<p><strong>Setup (before upgrade):</strong></p>
+<pre><code class="language-bash"># Keep two parallel installations
+/var/www/magento-blue/   # Current production (2.4.6)
+/var/www/magento-green/  # Upgrade target (2.4.7)
+
+# Nginx config - switch upstream
+upstream magento {
+    server unix:/var/run/php/magento-blue.sock;  # Current
+    # server unix:/var/run/php/magento-green.sock;  # Swap to this after upgrade
+}
+</code></pre>
+<p><strong>Rollback:</strong></p>
+<pre><code class="language-nginx"># Simply switch back in nginx config
+upstream magento {
+    # server unix:/var/run/php/magento-green.sock;  # Failed upgrade
+    server unix:/var/run/php/magento-blue.sock;  # Revert to old version
+}
+</code></pre>
+<pre><code class="language-bash"># Reload nginx
+sudo nginx -t
+sudo systemctl reload nginx
+
+# Database: restore from backup if schema changed
+mysql -u root -p magento &lt; pre_upgrade_backup.sql
+</code></pre>
+<h2 id="upgrade-troubleshooting-reference">Upgrade Troubleshooting Reference</h2>
+<h3 id="debug-commands">Debug Commands</h3>
+<pre><code class="language-bash"># Enable developer mode for detailed errors
+bin/magento deploy:mode:set developer
+
+# Check logs in real-time
+tail -f var/log/system.log
+tail -f var/log/exception.log
+tail -f var/log/debug.log
+
+# Enable database query logging
+mysql -u root -p -e &quot;SET GLOBAL general_log = 'ON';&quot;
+tail -f /var/log/mysql/query.log
+
+# PHP error log
+tail -f /var/log/php8.3-fpm.log
+
+# Web server logs
+tail -f /var/log/nginx/error.log
+</code></pre>
+<h3 id="common-error-messages">Common Error Messages</h3>
+<div class="overflow-x-auto my-6 border border-gray-200"><table class="min-w-full">
+<thead>
+<tr>
+<th>Error</th>
+<th>Cause</th>
+<th>Solution</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Area code is not set</code></td>
+<td>Plugin execution before area initialization</td>
+<td>Wrap plugin code in try-catch, check area</td>
+</tr>
+<tr>
+<td><code>Service class does not exist</code></td>
+<td>Service contract not compiled</td>
+<td>Run <code>setup:di:compile</code></td>
+</tr>
+<tr>
+<td><code>Class not found</code></td>
+<td>Autoloader not updated</td>
+<td><code>composer dump-autoload</code></td>
+</tr>
+<tr>
+<td><code>Column not found</code></td>
+<td>Database schema not upgraded</td>
+<td><code>setup:upgrade</code>, check <code>db_schema.xml</code></td>
+</tr>
+<tr>
+<td><code>Memory size exhausted</code></td>
+<td>Insufficient PHP memory</td>
+<td>Increase <code>memory_limit</code> in php.ini</td>
+</tr>
+<tr>
+<td><code>Segmentation fault</code></td>
+<td>PHP extension conflict</td>
+<td>Check PHP modules, update extensions</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="assumptions">Assumptions</h2>
+<p><strong>Magento/PHP versions:</strong> This guide covers Adobe Commerce 2.4.6 → 2.4.7 → 2.4.8 upgrades. Targets PHP 8.2 and 8.3. For earlier versions (2.4.4, 2.4.5), additional intermediate upgrade steps may be required.</p>
+<p><strong>Modules:</strong> Assumes production environment with typical third-party modules. Custom/marketplace extensions must be verified for compatibility before upgrade.</p>
+<p><strong>Areas:</strong> Applies to all areas (frontend, adminhtml, API). Breaking changes affect custom modules in all scopes.</p>
+<p><strong>Scopes:</strong> Configuration changes affect global, website, and store scopes. Review scope-specific configs after upgrade.</p>
+<p><strong>Environment:</strong> Production server with SSH access, MySQL/MariaDB, Redis, Elasticsearch/OpenSearch, and standard LEMP/LAMP stack. Cloud environments (Adobe Commerce Cloud) have different upgrade procedures via <code>ece-tools</code>.</p>
+<h2 id="why-this-approach">Why This Approach</h2>
+<p><strong>Comprehensive coverage:</strong> This guide includes infrastructure (PHP, MySQL, search engine), code-level changes (APIs, types, deprecated methods), and operational aspects (rollback, validation). Developers need all layers to successfully upgrade.</p>
+<p><strong>Version-specific breakdown:</strong> Separating 2.4.7 and 2.4.8 changes prevents confusion. Each version has distinct breaking changes that must be addressed differently.</p>
+<p><strong>Real code examples:</strong> Every breaking change includes OLD vs NEW code samples, making it easy to identify and fix incompatible patterns in custom code.</p>
+<p><strong>Rollback strategies:</strong> Production upgrades must have rollback plans. Three methods (Git revert, manual restore, blue-green) cover different deployment scenarios.</p>
+<p><strong>Alternatives considered:</strong>
+- Official Magento upgrade docs: High-level, lacks code examples
+- Composer-only guide: Misses infrastructure and code compatibility
+- Code-only guide: Ignores database, search engine, and service requirements</p>
+<h2 id="security-impact">Security Impact</h2>
+<p><strong>authZ/authN:</strong> No changes to core authentication mechanisms in 2.4.7/2.4.8, but custom implementations of <code>CustomerRepositoryInterface</code> must implement new methods correctly to avoid auth bypass.</p>
+<p><strong>CSRF/form key:</strong> Enhanced validation in 2.4.7. Custom forms must include form keys:</p>
+<pre><code class="language-php">// In custom forms
+$formKey = $this-&gt;formKey-&gt;getFormKey();
+</code></pre>
+<p><strong>XSS escaping:</strong> Stricter output escaping in Admin UI components. Use <code>escapeHtml()</code> in all custom templates:</p>
+<pre><code class="language-php">echo $block-&gt;escapeHtml($product-&gt;getName());
+</code></pre>
+<p><strong>Secrets:</strong> After upgrade, rotate API tokens and integration keys. New installations use stronger hashing algorithms (bcrypt cost factor increased).</p>
+<p><strong>PII:</strong> Database schema changes add columns that may contain PII. Update GDPR export/delete logic if custom tables join with <code>customer_entity</code>.</p>
+<h2 id="performance-impact">Performance Impact</h2>
+<p><strong>Cacheability (FPC/Varnish):</strong> OpenSearch 2.x improves search performance by 15-20% vs Elasticsearch 7.17. FPC tags unchanged, but Varnish VCL may need updates for 2.4.7 (new health check endpoint).</p>
+<p><strong>Redis tags:</strong> No changes to cache tag structure. Flush all caches post-upgrade to prevent stale tag issues.</p>
+<p><strong>DB load:</strong> First-time reindexing after upgrade may take 2-4x longer than normal due to schema changes and data migration patches.</p>
+<p><strong>CWV (Core Web Vitals):</strong> Enhanced JS bundling in 2.4.7 reduces JS bundle size by ~10%. LCP and FID improvements of 5-10% in default Luma theme. Custom themes must be re-built to benefit.</p>
+<p><strong>Impact during upgrade:</strong>
+- <code>setup:upgrade</code>: 5-15 minutes (depends on DB size)
+- <code>setup:di:compile</code>: 3-5 minutes
+- <code>setup:static-content:deploy</code>: 10-30 minutes (depends on locales/themes)
+- Reindexing: 30 minutes - 2 hours (depends on catalog size)</p>
+<p><strong>Mitigation:</strong> Schedule upgrades during low-traffic windows. Use maintenance mode or blue-green deployment for zero-downtime.</p>
+<h2 id="backward-compatibility">Backward Compatibility</h2>
+<p><strong>API/DB schema changes:</strong>
+- <strong>Service Contracts:</strong> New methods in repositories (BC break for implementations). Interfaces are extended, not modified, to preserve BC for method consumers.
+- <strong>Database schema:</strong> New columns added with <code>DEFAULT NULL</code>, existing columns unchanged. Custom modules querying tables directly must update <code>SELECT</code> lists to handle new columns gracefully.
+- <strong>GraphQL schema:</strong> New fields added to existing types (BC-safe). No field removals in 2.4.7. In 2.4.8, deprecated fields from 2.4.5 will be removed.</p>
+<p><strong>Upgrade/migration notes:</strong>
+- <strong>2.4.6 → 2.4.7:</strong> Direct upgrade supported. No intermediate steps required.
+- <strong>2.4.5 or earlier → 2.4.7:</strong> Must upgrade to 2.4.6 first, then to 2.4.7.
+- <strong>2.4.7 → 2.4.8:</strong> Direct upgrade. Code deprecated in 2.4.6 will be removed; fix deprecation warnings before upgrading to 2.4.8.</p>
+<p><strong>Extension compatibility:</strong> Third-party modules must declare compatibility via <code>composer.json</code>:</p>
+<pre><code class="language-json">{
+  &quot;require&quot;: {
+    &quot;magento/framework&quot;: &quot;~103.0.6&quot;
+  }
+}
+</code></pre>
+<p>Check marketplace extensions for 2.4.7/2.4.8 compatibility before upgrading. Use <code>composer require --dry-run</code> to detect conflicts before committing.</p>
+<h2 id="tests-to-add">Tests to Add</h2>
+<p><strong>Unit tests:</strong></p>
+<pre><code class="language-php">// Test new repository methods
+// Test that core repository methods still work after upgrade
+public function testProductRepositoryGetByIdWorks()
+{
+    $product = $this-&gt;productRepository-&gt;getById(1);
+    $this-&gt;assertInstanceOf(\Magento\Catalog\Api\Data\ProductInterface::class, $product);
+}
+
+// Test search criteria still works
+public function testProductRepositoryGetListWorks()
+{
+    $searchCriteria = $this-&gt;searchCriteriaBuilder-&gt;create();
+    $results = $this-&gt;productRepository-&gt;getList($searchCriteria);
+    $this-&gt;assertGreaterThan(0, $results-&gt;getTotalCount());
+}
+</code></pre>
+<p><strong>MFTF (Functional):</strong></p>
+<pre><code class="language-xml">&lt;!-- Test checkout flow post-upgrade --&gt;
+&lt;test name=&quot;StorefrontCheckoutWithNewPaymentMethodTest&quot;&gt;
+    &lt;actionGroup ref=&quot;AddSimpleProductToCartActionGroup&quot; stepKey=&quot;addProduct&quot;/&gt;
+    &lt;actionGroup ref=&quot;GoToCheckoutFromMinicartActionGroup&quot; stepKey=&quot;goToCheckout&quot;/&gt;
+    &lt;actionGroup ref=&quot;CheckoutSelectFlatRateShippingMethodActionGroup&quot; stepKey=&quot;selectShipping&quot;/&gt;
+    &lt;actionGroup ref=&quot;StorefrontCheckoutClickNextButtonActionGroup&quot; stepKey=&quot;clickNext&quot;/&gt;
+    &lt;actionGroup ref=&quot;CheckoutSelectCheckMoneyOrderPaymentActionGroup&quot; stepKey=&quot;selectPayment&quot;/&gt;
+    &lt;actionGroup ref=&quot;CheckoutPlaceOrderActionGroup&quot; stepKey=&quot;placeOrder&quot;/&gt;
+&lt;/test&gt;
+</code></pre>
+<p><strong>Mutation testing:</strong> For critical payment/checkout logic, use Infection PHP to verify test coverage:</p>
+<pre><code class="language-bash">composer require --dev infection/infection
+vendor/bin/infection --test-framework=phpunit --threads=4
+</code></pre>
+<h2 id="docs-to-update">Docs to Update</h2>
+<p><strong>README:</strong> Update version compatibility table, add upgrade section linking to this guide.</p>
+<p><strong>CHANGELOG:</strong> Document all breaking changes, new features, deprecated code per version:</p>
+<pre><code class="language-markdown">## [2.4.7] - 2024-04-XX
+### Breaking Changes
+- PHP 8.1 support dropped
+- Various interface signature refinements (check custom implementations)
+
+### Deprecated
+- Elasticsearch 7.x (use OpenSearch 2.x)
+
+### Added
+- OpenSearch 2.x support
+- PHP 8.3 compatibility
+</code></pre>
+<p><strong>Admin user guide paths:</strong>
+1. Admin Panel &gt; Stores &gt; Configuration &gt; Catalog &gt; Catalog &gt; Catalog Search
+   - Screenshot: New "Search Engine: OpenSearch" dropdown
+2. Admin Panel &gt; System &gt; Index Management
+   - Screenshot: Index Management page
+3. Admin Panel &gt; System &gt; Tools &gt; Upgrade
+   - Screenshot: Post-upgrade validation report</p>
+<p><strong>Screenshots to capture:</strong>
+- OpenSearch configuration in Admin (Stores &gt; Configuration &gt; Catalog &gt; Catalog Search)
+- Index Management showing new indexes (System &gt; Index Management)
+- Performance monitoring dashboard showing improved metrics post-upgrade
+- Composer version check (<code>composer --version</code> showing 2.7+)</p>
+<hr />
+<p><strong>Related Resources:</strong>
+- <a href="https://experienceleague.adobe.com/docs/commerce-operations/release/notes/overview.html">Official Adobe Commerce Release Notes</a>
+- <a href="https://www.php.net/manual/en/migration82.php">PHP 8.2 Migration Guide</a>
+- <a href="https://www.php.net/manual/en/migration83.php">PHP 8.3 Migration Guide</a>
+- <a href="https://opensearch.org/docs/latest/migration/">OpenSearch Migration Guide</a>
+- <a href="https://developer.adobe.com/commerce/php/development/backward-compatibility-policy/">Magento Technical Guidelines - Backward Compatibility</a></p>
+<h2 id="related-documentation">Related Documentation</h2>
+<h3 id="related-guides">Related Guides</h3>
+<ul>
+<li><a href="../tutorials/declarative-schema-data-patches.md">Declarative Schema &amp; Data Patches: Modern Database Management in Magento 2</a></li>
+<li><a href="cli-command-reference.md">CLI Command Reference: Complete bin/magento Guide</a></li>
+</ul>
+<h3 id="related-module-documentation">Related Module Documentation</h3>
+<ul>
+<li><a href="../../modules/catalog/README.md">Magento_Catalog Overview</a></li>
+<li><a href="../../modules/customer/README.md">Magento_Customer Overview</a></li>
+<li><a href="../../modules/sales/README.md">Magento_Sales Overview</a></li>
+<li><a href="../../modules/checkout/README.md">Magento_Checkout Overview</a></li>
+<li><a href="../../modules/quote/README.md">Magento_Quote Overview</a></li>
+</ul>
+                    </div>
+                </article>
+            </main>
+            <!-- Right Sidebar: On This Page (desktop) -->
+            <aside class="toc-sidebar hidden xl:block" aria-label="On this page">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-semibold text-gray-900 uppercase tracking-wider mb-4 mt-0">On this page</h3>
+                    <nav id="toc-nav" class="space-y-0" aria-label="Table of contents"></nav>
+                    <div class="toc-back-to-top">
+                        <a href="#">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+                            </svg>
+                            Back to top
+                        </a>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- ================================================================
+         FOOTER — matches module-catalog.html multi-column layout exactly
+         ================================================================ -->
+    <footer class="relative pt-12 bg-white border-t border-charcoal mt-16">
+        <div class="max-w-screen-2xl mx-auto w-full px-4 sm:px-6 lg:px-8">
+            <div>
+                <a href="index.html" class="inline-flex items-center no-underline">
+                    <svg width="30" height="33" viewBox="0 0 30 33" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Magento Association logo" role="img">
+                        <path d="M0 4.06492H29.6763V31.8882C29.6763 32.502 29.1713 33 28.5487 33H1.12762C0.505079 33 0 32.502 0 31.8882V4.06492Z" fill="#34323A"/>
+                        <path d="M1.26857 0H28.4078C29.1066 0 29.6763 0.561678 29.6763 1.25075V4.06492H0V1.25075C0 0.561678 0.569682 0 1.26857 0Z" fill="#C9C9C9"/>
+                        <path d="M2.37269 3.0458C2.94031 3.0458 3.40046 2.59211 3.40046 2.03246C3.40046 1.47281 2.94031 1.01913 2.37269 1.01913C1.80506 1.01913 1.34491 1.47281 1.34491 2.03246C1.34491 2.59211 1.80506 3.0458 2.37269 3.0458Z" fill="#848484"/>
+                        <path d="M5.28571 3.0458C5.85334 3.0458 6.31349 2.59211 6.31349 2.03246C6.31349 1.47281 5.85334 1.01913 5.28571 1.01913C4.71809 1.01913 4.25793 1.47281 4.25793 2.03246C4.25793 2.59211 4.71809 3.0458 5.28571 3.0458Z" fill="#848484"/>
+                        <path d="M14.7883 7.46973L4.90405 13.0923V24.349L7.54104 25.8487V14.5978L14.7883 10.4692L22.0415 14.5978V25.8487L24.6785 24.349V13.0923L14.7883 7.46973Z" fill="#F1BC1B"/>
+                        <path d="M16.0862 26.2367L14.7883 26.9779L13.4492 26.2135V14.233L10.178 16.0975V27.3485L13.4492 29.213L14.7883 29.9773L16.0862 29.2362L19.4045 27.3485V16.0975L16.0862 14.2098V26.2367Z" fill="#F1BC1B"/>
+                    </svg>
+                    <span class="ml-3 text-xl font-bold text-charcoal">Developer Documentation</span>
+                </a>
+            </div>
+
+            <div class="grid grid-cols-12 md:gap-x-8 gap-y-12 lg:mt-12">
+                <div class="col-span-12 lg:col-span-4">
+                    <p class="hidden lg:block text-xs text-charcoal sm:text-sm">Comprehensive developer documentation for Magento 2.4.7+ — tutorials, architecture deep dives, module references, and production-ready patterns built by the community, for the community.</p>
+                    <ul class="mt-6 hidden lg:flex items-center gap-3">
+                        <li class="pl-0">
+                            <a href="https://github.com/magento/magento2" class="p-2 md:p-0" aria-label="GitHub">
+                                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                                </svg>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Guides</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="tutorials.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Tutorials</a></li>
+                            <li class="pl-0"><a href="how-to-guides.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">How-To Guides</a></li>
+                            <li class="pl-0"><a href="architecture.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Architecture</a></li>
+                            <li class="pl-0"><a href="learning-paths.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Learning Paths</a></li>
+                            <li class="pl-0"><a href="references.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">References</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Modules</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="module-catalog.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Catalog</a></li>
+                            <li class="pl-0"><a href="module-checkout.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Checkout</a></li>
+                            <li class="pl-0"><a href="module-sales.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Sales</a></li>
+                            <li class="pl-0"><a href="module-customer.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Customer</a></li>
+                            <li class="pl-0"><a href="module-quote.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Quote</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Community</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Magento Community</a></li>
+                            <li class="pl-0"><a href="https://magento.stackexchange.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Stack Exchange</a></li>
+                            <li class="pl-0"><a href="https://marketplace.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Marketplace</a></li>
+                            <li class="pl-0"><a href="https://github.com/magento/magento2" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">GitHub</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Support</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://github.com/magento/magento2/issues" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Report Issues</a></li>
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Community Resources</a></li>
+                            <li class="pl-0"><a href="https://developer.adobe.com/commerce/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Adobe Commerce Docs</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-12 border-t pt-6 pb-16 border-charcoal">
+                <p class="text-xs text-charcoal">
+                    &copy; 2026 Magento 2 Developer Documentation. Magento&reg; is a registered trademark of Adobe Inc.
+                </p>
+                <p class="mt-6 text-xs text-charcoal">
+                    This documentation provides guidance for Magento 2 developers and extension builders. For merchant documentation, visit the <a href="index.html" class="text-orange hover:text-orange-600 transition-colors">merchant documentation</a>.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Initialize highlight.js -->
+    <script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('pre code').forEach(function (el) {
+        hljs.highlightElement(el);
+    });
+    document.querySelectorAll('pre').forEach(function (pre) {
+        if (pre.parentNode.classList && pre.parentNode.classList.contains('code-wrapper')) return;
+        var wrapper = document.createElement('div');
+        wrapper.className = 'code-wrapper';
+        pre.parentNode.insertBefore(wrapper, pre);
+        wrapper.appendChild(pre);
+        var btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.setAttribute('type', 'button');
+        btn.setAttribute('aria-label', 'Copy code to clipboard');
+        btn.setAttribute('title', 'Copy');
+        btn.textContent = 'Copy';
+        wrapper.appendChild(btn);
+        btn.addEventListener('click', function () {
+            var code = pre.querySelector('code');
+            var text = code ? (code.innerText || code.textContent) : (pre.innerText || pre.textContent);
+            navigator.clipboard.writeText(text).then(function () {
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            }).catch(function () {
+                var range = document.createRange();
+                range.selectNode(code || pre);
+                window.getSelection().removeAllRanges();
+                window.getSelection().addRange(range);
+                document.execCommand('copy');
+                window.getSelection().removeAllRanges();
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            });
+        });
+    });
+});
+</script>
+
+
+<script>
+(function() {
+    var nav = document.getElementById('toc-nav');
+    if (!nav) return;
+    var article = document.getElementById('main-content');
+    if (!article) return;
+    var headings = article.querySelectorAll('h2[id], h3[id]');
+    if (headings.length < 3) {
+        // Hide the entire TOC sidebar if fewer than 3 headings
+        var sidebar = nav.closest('.toc-sidebar');
+        if (sidebar) sidebar.style.display = 'none';
+        return;
+    }
+    var ids = [];
+    headings.forEach(function(h) {
+        var a = document.createElement('a');
+        a.href = '#' + h.id;
+        a.textContent = h.textContent.replace(/^#+\s*/, '').replace(/\s+/g, ' ').trim();
+        if (h.tagName === 'H3') a.classList.add('toc-h3');
+        nav.appendChild(a);
+        ids.push(h.id);
+    });
+    // Scroll-spy with IntersectionObserver
+    var links = nav.querySelectorAll('a');
+    var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                links.forEach(function(l) { l.classList.remove('toc-active'); });
+                var active = nav.querySelector('a[href="#' + entry.target.id + '"]');
+                if (active) active.classList.add('toc-active');
+            }
+        });
+    }, { rootMargin: '-80px 0px -70% 0px', threshold: 0 });
+    headings.forEach(function(h) { observer.observe(h); });
+})();
+</script>
+</body>
+</html>

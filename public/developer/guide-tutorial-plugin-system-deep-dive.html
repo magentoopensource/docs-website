@@ -1,0 +1,1904 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plugin System Deep Dive: Mastering Magento 2 Interception — Magento 2 Developer Documentation</title>
+    <meta name="description" content="Complete guide to Magento 2's plugin system (interceptors): Before, After, Around plugins, execution order, best practices, performance optimization, and production-ready examples">
+
+    <!-- Google Fonts: Inter Tight only. Courier New used for code. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Highlight.js: syntax highlighting for code blocks -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/php.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/ini.min.js"></script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        charcoal: {
+                            DEFAULT: '#2c2c2c', 50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6',
+                            300: '#6B6B6B', 400: '#474747', 500: '#2c2c2c', 600: '#262626',
+                            700: '#202020', 800: '#1c1c1c', 900: '#191919', 950: '#121212'
+                        },
+                        orange: {
+                            DEFAULT: '#D4551A', 50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad',
+                            300: '#f9ae78', 400: '#f58242', 500: '#f26423', 600: '#e34613',
+                            700: '#bc3312', 800: '#962a16', 900: '#792515', 950: '#411009'
+                        },
+                        yellow: {
+                            DEFAULT: '#B8860B', 50: '#fffdeb', 100: '#fdf9c8', 200: '#fbf38c',
+                            300: '#f8e651', 400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a',
+                            700: '#b1670c', 800: '#8f5111', 900: '#764311', 950: '#442204'
+                        },
+                        'off-white': '#FAFAFA',
+                    },
+                    fontFamily: {
+                        sans: ['Inter Tight', 'system-ui', '-apple-system', 'sans-serif'],
+                        mono: ['Courier New', 'Courier', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* ── Force light mode ── */
+        :root { color-scheme: light only; }
+
+        [x-cloak] { display: none !important; }
+
+        /* ── Scroll offset for sticky header ── */
+        .prose h2, .prose h3 { scroll-margin-top: 5rem; }
+
+        /* ── Code blocks: Bauhaus charcoal bg, no border-radius, highlight.js override ── */
+        .prose pre {
+            background-color: #2C2C2C !important;
+            border-radius: 0 !important;
+            padding: 1.25rem;
+            overflow-x: auto;
+            font-size: 0.875rem;
+            line-height: 1.7;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 1.5rem 0;
+        }
+        .prose pre code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            background: transparent !important;
+            padding: 0;
+                    color: #abb2bf;
+        }
+        /* Override highlight.js theme background to match Bauhaus charcoal */
+        .hljs {
+            background: #2C2C2C !important;
+            color: #abb2bf !important;
+            border-radius: 0 !important;
+        }
+
+        /* ── Inline code: charcoal bg, yellow text, no border-radius ── */
+        .prose code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.85em;
+        }
+        .prose :not(pre) > code {
+            background-color: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2em 0.45em;
+            border-radius: 0;
+        }
+
+        /* ── Step-code: same charcoal/yellow style for UI path chips ── */
+        .step-code {
+            background: #2C2C2C;
+            color: #F1BC1B;
+            padding: 0.2rem 0.5rem;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+            border-radius: 0;
+        }
+
+        /* ── Tables: no border-radius, charcoal header ── */
+        .prose table { width: 100%; border-collapse: collapse; }
+        .prose th {
+            background-color: #2C2C2C;
+            color: #ffffff;
+            font-weight: 600;
+            text-align: left;
+            padding: 0.75rem 1rem;
+            border-bottom: 2px solid #2C2C2C;
+            border-radius: 0;
+        }
+        .prose td { padding: 0.75rem 1rem; border-bottom: 1px solid #e5e5e5; }
+        .prose tr:hover { background-color: #fafafa; }
+
+        /* ── Blockquote: Bauhaus style — border-4 yellow, square, no left-only border ── */
+        .prose blockquote {
+            border: 4px solid #F1BC1B;
+            background-color: #ffffff;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+            border-radius: 0;
+        }
+        .prose blockquote p { margin: 0; }
+
+        /* ── Lists: hexagon bullets ── */
+        .prose ul { list-style: none; padding-left: 0; }
+        .prose ul li {
+            position: relative;
+            padding-left: 1.75rem;
+            margin-bottom: 0.4rem;
+            line-height: 1.7;
+        }
+        .prose ul li::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0.45em;
+            width: 10px;
+            height: 10px;
+            background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 2L21 7V17L12 22L3 17V7L12 2Z' stroke='%23F26423' stroke-width='2.5' stroke-linejoin='miter'/%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+        .prose ol { list-style-type: decimal; padding-left: 1.5rem; }
+        .prose li { margin-bottom: 0.4rem; }
+
+        /* ── Headings ── */
+        .prose h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            padding-top: 1.5rem;
+            border-top: 4px solid #F1BC1B;
+            color: #2C2C2C;
+        }
+        .prose h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+            color: #2C2C2C;
+        }
+        .prose h4 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #2C2C2C;
+        }
+        .prose p { margin-bottom: 1rem; line-height: 1.75; }
+        .prose a { color: #D4551A; text-decoration: none; }
+        .prose a:hover { color: #e34613; text-decoration: underline; }
+        .prose hr { border: none; border-top: 1px solid #e5e5e5; margin: 2rem 0; }
+
+        /* ── Callout boxes: Bauhaus — border-4 yellow, white bg, icon + title ── */
+        .callout-box {
+            background-color: #ffffff;
+            border: 4px solid #F1BC1B;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+        }
+        .callout-warning {
+            border-color: #D4551A;
+        }
+        .callout-important {
+            border-color: #2C2C2C;
+        }
+        .callout-box .callout-inner {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+        .callout-box .callout-title {
+            font-weight: 600;
+            color: #2C2C2C;
+            margin-bottom: 0.25rem;
+        }
+        .callout-box .callout-body {
+            font-size: 0.875rem;
+            line-height: 1.6;
+            color: rgba(44,44,44,0.85);
+        }
+
+        
+    
+        /* Code block copy button */
+        .code-wrapper {
+            position: relative;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            font-family: 'Inter Tight', system-ui, sans-serif;
+            background: rgba(255,255,255,0.1);
+            color: #abb2bf;
+            border: 1px solid rgba(255,255,255,0.15);
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.15s ease, background 0.15s ease;
+            z-index: 10;
+            line-height: 1.4;
+            border-radius: 4px;
+            user-select: none;
+        }
+        .code-wrapper:hover .copy-btn {
+            opacity: 1;
+        }
+        .copy-btn:hover,
+        .copy-btn:focus {
+            background: rgba(255,255,255,0.2);
+            color: #ffffff;
+            outline: 2px solid #D4551A;
+            outline-offset: 1px;
+        }
+        .copy-btn.copied {
+            color: #98c379;
+            background: rgba(152, 195, 121, 0.15);
+            opacity: 1;
+        }
+    
+        /* Right-hand TOC sidebar */
+        .toc-sidebar {
+            width: 14rem;
+            flex-shrink: 0;
+        }
+        .toc-sidebar a {
+            display: block;
+            padding: 0.375rem 0;
+            font-size: 0.8125rem;
+            line-height: 1.4;
+            color: #6b7280;
+            text-decoration: none;
+            transition: color 0.15s ease;
+            border-left: 2px solid transparent;
+            padding-left: 0.75rem;
+        }
+        .toc-sidebar a:hover {
+            color: #111827;
+        }
+        .toc-sidebar a.toc-active {
+            color: #ea580c;
+            border-left-color: #ea580c;
+            font-weight: 500;
+        }
+        .toc-sidebar a.toc-h3 {
+            padding-left: 1.5rem;
+            font-size: 0.75rem;
+        }
+        .toc-sidebar .toc-back-to-top {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e5e7eb;
+        }
+        .toc-sidebar .toc-back-to-top a {
+            border-left: none;
+            padding-left: 0;
+            font-weight: 500;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .toc-sidebar .toc-back-to-top a:hover {
+            color: #ea580c;
+        }
+    </style>
+</head>
+
+<body class="font-sans bg-off-white text-charcoal">
+
+    <!-- Shared header — single source of truth -->
+    <script src="includes/header.js"></script>
+
+    <!-- Breadcrumb — orange › separators -->
+    <div class="bg-white border-b border-gray-100">
+        <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <div class="flex items-center gap-2 text-sm flex-wrap">
+                <a href="index.html" class="text-orange hover:text-orange-600 transition-colors no-underline">Home</a> <span class="text-orange font-medium">›</span> <a href="index.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">Guides</a> <span class="text-orange font-medium">›</span> <a href="tutorials.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">Tutorials</a> <span class="text-orange font-medium">›</span> <span class="text-charcoal font-medium">Plugin System Deep Dive: Mastering Magento 2 Interception</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="flex gap-8">
+
+            <!-- Left Sidebar (desktop) -->
+            <aside class="hidden lg:block w-64 flex-shrink-0">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4">Tutorials</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="guide-tutorial-custom-payment-method.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Custom Payment Method Developmen...</a></li>
+<li class="pl-0"><a href="guide-tutorial-custom-shipping-method.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Custom Shipping Method Developme...</a></li>
+<li class="pl-0"><a href="guide-tutorial-declarative-schema-data-patches.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Declarative Schema & Data Patche...</a></li>
+<li class="pl-0"><a href="guide-tutorial-docker-development-environment.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Docker Development Environment S...</a></li>
+<li class="pl-0"><a href="guide-tutorial-plugin-system-deep-dive.html" class="block px-3 py-2 text-sm text-orange font-semibold bg-orange-50 border-l-4 border-orange pl-2 transition-colors no-underline">Plugin System Deep Dive: Masteri...</a></li>
+<li class="pl-0"><a href="guide-tutorial-product-types.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Product Types Development</a></li>
+</ul>
+<h3 class="text-xs font-bold text-charcoal uppercase tracking-wider mb-4 mt-8">Guide Sections</h3>
+<ul class="space-y-0.5 list-none pl-0">
+<li class="pl-0"><a href="tutorials.html" class="block px-3 py-2 text-sm text-orange font-semibold bg-orange-50 border-l-4 border-orange pl-2 transition-colors no-underline">Tutorials</a></li>
+<li class="pl-0"><a href="how-to-guides.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">How-To Guides</a></li>
+<li class="pl-0"><a href="architecture.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">Architecture</a></li>
+<li class="pl-0"><a href="references.html" class="block px-3 py-2 text-sm text-charcoal-400 hover:text-orange hover:bg-off-white transition-colors no-underline">References</a></li>
+</ul>
+                </div>
+            </aside>
+
+            <!-- Article — square corners, border-t-4 orange accent -->
+            <main id="main-content" class="flex-1 min-w-0">
+                <article class="bg-white shadow-sm border border-gray-100 border-t-4 border-t-orange p-8 md:p-12">
+                    <!-- Title block -->
+                    <div class="mb-8">
+                        <span class="inline-block px-3 py-1.5 text-xs font-medium bg-orange-50 text-orange-700 border border-orange-200">Tutorial</span>
+                        <h1 class="text-3xl md:text-4xl font-extrabold text-charcoal mt-3 mb-3">Plugin System Deep Dive: Mastering Magento 2 Interception</h1>
+                        <p class="text-charcoal-300 text-lg mb-4">Complete guide to Magento 2's plugin system (interceptors): Before, After, Around plugins, execution order, best practices, performance optimization, and production-ready examples</p>
+                        <!-- Meta pills -->
+                        <div class="flex flex-wrap gap-2"><span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-yellow-50 text-yellow-800"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>Intermediate</span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-orange-50 text-orange-700"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>60 minutes</span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-charcoal text-white">Magento 2.4.7+</span></div>
+                    </div>
+
+                    <hr class="border-0 border-t border-gray-100 mb-8">
+
+                    <!-- Content -->
+                    <div class="prose max-w-none">
+                        <h1 id="plugin-system-deep-dive-mastering-magento-2-interception">Plugin System Deep Dive: Mastering Magento 2 Interception</h1>
+<h2 id="learning-objectives">Learning Objectives</h2>
+<p>By completing this tutorial, you will:</p>
+<ul>
+<li>Understand the plugin (interceptor) pattern and how Magento implements it</li>
+<li>Master Before, After, and Around plugin types with real-world examples</li>
+<li>Control plugin execution order using <code>sortOrder</code> and dependencies</li>
+<li>Choose the correct extension mechanism: plugins vs observers vs preferences</li>
+<li>Avoid common plugin pitfalls that break functionality or performance</li>
+<li>Optimize plugin performance and minimize generated code bloat</li>
+<li>Implement production-ready plugins following SOLID principles</li>
+<li>Debug plugin chains and diagnose interception issues</li>
+</ul>
+<h2 id="introduction">Introduction</h2>
+<p>Magento 2's plugin system (also called interceptors) is the primary mechanism for extending core and third-party functionality <strong>without modifying original code</strong>. Plugins enable you to run custom code before, after, or around any public method in Magento, making them essential for building upgrade-safe, modular extensions.</p>
+<h3 id="what-are-plugins">What Are Plugins?</h3>
+<p>Plugins are PHP classes that intercept method calls on <strong>public methods</strong> of <strong>non-final classes</strong>. When a method is intercepted, Magento's generated code routes the call through your plugin, allowing you to:</p>
+<ul>
+<li>Modify input arguments (Before plugin)</li>
+<li>Modify return values (After plugin)</li>
+<li>Completely replace method logic (Around plugin)</li>
+</ul>
+<h3 id="why-use-plugins">Why Use Plugins?</h3>
+<p><strong>Advantages:</strong>
+- <strong>Upgrade-safe</strong>: No direct modification of core/third-party code
+- <strong>Modular</strong>: Multiple plugins can intercept the same method
+- <strong>Flexible</strong>: Choose Before/After/Around based on requirements
+- <strong>Testable</strong>: Plugins are DI-injected classes with explicit dependencies</p>
+<p><strong>Limitations:</strong>
+- Only work on <strong>public methods</strong> of <strong>non-final classes</strong>
+- Cannot intercept: final methods, static methods, constructors, private/protected methods
+- Performance cost: Generated code overhead (mitigated by compiled mode)</p>
+<h3 id="when-to-use-plugins-vs-alternatives">When to Use Plugins vs Alternatives</h3>
+<div class="overflow-x-auto my-6 border border-gray-200"><table class="min-w-full">
+<thead>
+<tr>
+<th>Mechanism</th>
+<th>Use Case</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Plugin</strong></td>
+<td>Modify method behavior, arguments, or return values</td>
+<td>Change product price calculation</td>
+</tr>
+<tr>
+<td><strong>Observer</strong></td>
+<td>React to events without return value</td>
+<td>Send email after order placed</td>
+</tr>
+<tr>
+<td><strong>Preference</strong></td>
+<td>Replace entire class (last resort)</td>
+<td>Override core class with major changes</td>
+</tr>
+<tr>
+<td><strong>Event Dispatch</strong></td>
+<td>Notify other modules of state changes</td>
+<td>Dispatch custom event after import</td>
+</tr>
+<tr>
+<td><strong>Service Contract</strong></td>
+<td>Define new API contract</td>
+<td>Create new repository interface</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Rule of thumb</strong>: Prefer plugins for method interception, observers for event-driven logic, and avoid preferences.</p>
+<h2 id="plugin-types-before-after-around">Plugin Types: Before, After, Around</h2>
+<p>Magento provides three plugin types, each with distinct capabilities and use cases.</p>
+<h3 id="before-plugin">Before Plugin</h3>
+<p><strong>Purpose</strong>: Modify method arguments before the original method executes.</p>
+<p><strong>Signature</strong>: <code>public function before&lt;MethodName&gt;(&lt;Type&gt; $subject, &lt;argument1&gt;, &lt;argument2&gt;, ...)</code></p>
+<p><strong>Return</strong>: Array of modified arguments (or empty array to keep original)</p>
+<p><strong>Use Case</strong>: Validation, argument transformation, logging input</p>
+<p><strong>Example</strong>: Add customer group discount to product price calculation</p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Plugin\Catalog\Model\Product;
+
+use Magento\Catalog\Model\Product;
+use Magento\Customer\Model\Session as CustomerSession;
+use Psr\Log\LoggerInterface;
+
+class PriceExtend
+{
+    public function __construct(
+        private readonly CustomerSession $customerSession,
+        private readonly LoggerInterface $logger
+    ) {
+    }
+
+    /**
+     * Modify finalPrice calculation arguments based on customer group
+     *
+     * @param Product $subject The product instance being intercepted
+     * @param float $qty Quantity (original argument)
+     * @return array|null Modified arguments [qty] or null to keep original
+     */
+    public function beforeGetFinalPrice(Product $subject, $qty = 1.0): ?array
+    {
+        $customerGroupId = $this-&gt;customerSession-&gt;getCustomerGroupId();
+
+        // Log for debugging
+        $this-&gt;logger-&gt;debug('Before getFinalPrice', [
+            'product_id' =&gt; $subject-&gt;getId(),
+            'original_qty' =&gt; $qty,
+            'customer_group' =&gt; $customerGroupId
+        ]);
+
+        // Example: Apply bulk discount for wholesale customer group (ID 3)
+        if ($customerGroupId === 3 &amp;&amp; $qty &lt; 10) {
+            $this-&gt;logger-&gt;info('Adjusting quantity to 10 for wholesale pricing');
+            return [10.0]; // Force minimum quantity for wholesale price tier
+        }
+
+        return null; // Return null to keep original arguments unchanged
+    }
+}
+</code></pre>
+<p><strong>Key Points:</strong>
+- Method name: <code>before</code> + PascalCase original method name
+- First parameter: <code>$subject</code> (the intercepted object instance)
+- Subsequent parameters: Match original method signature <strong>exactly</strong>
+- Return: Array of modified arguments in same order as original method, or <code>null</code> to keep original
+- <strong>Important:</strong> Returning <code>null</code> keeps original arguments. Returning <code>[]</code> would replace arguments with an empty array, which would break the method call. The interceptor checks <code>if ($beforeResult !== null)</code> before replacing arguments.</p>
+<h3 id="after-plugin">After Plugin</h3>
+<p><strong>Purpose</strong>: Modify the return value after the original method executes.</p>
+<p><strong>Signature</strong>: <code>public function after&lt;MethodName&gt;(&lt;Type&gt; $subject, &lt;result&gt;, &lt;argument1&gt;, &lt;argument2&gt;, ...)</code></p>
+<p><strong>Return</strong>: Modified result (must match original return type)</p>
+<p><strong>Use Case</strong>: Transform output, add data, logging result</p>
+<p><strong>Example</strong>: Add custom attribute to product collection</p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Plugin\Catalog\Model\ResourceModel\Product;
+
+use Magento\Catalog\Model\ResourceModel\Product\Collection;
+use Magento\Framework\DB\Select;
+use Psr\Log\LoggerInterface;
+
+class CollectionExtend
+{
+    public function __construct(
+        private readonly LoggerInterface $logger
+    ) {
+    }
+
+    /**
+     * Add custom attribute to product collection after load
+     *
+     * @param Collection $subject The collection instance
+     * @param Collection $result The collection after _afterLoad (method returns $this)
+     * @return Collection Modified collection
+     */
+    public function afterLoad(Collection $subject, Collection $result): Collection
+    {
+        // Only process if collection has items
+        if ($result-&gt;count() === 0) {
+            return $result;
+        }
+
+        // Add custom data to each product
+        foreach ($result-&gt;getItems() as $product) {
+            $customValue = $this-&gt;calculateCustomValue($product);
+            $product-&gt;setData('custom_attribute', $customValue);
+        }
+
+        $this-&gt;logger-&gt;debug('Added custom attribute to product collection', [
+            'product_count' =&gt; $result-&gt;count()
+        ]);
+
+        return $result;
+    }
+
+    /**
+     * Example business logic
+     */
+    private function calculateCustomValue($product): string
+    {
+        // Complex calculation based on product data
+        return 'custom_' . $product-&gt;getId();
+    }
+}
+</code></pre>
+<p><strong>Key Points:</strong>
+- Method name: <code>after</code> + PascalCase original method name
+- First parameter: <code>$subject</code> (the intercepted object)
+- <strong>Second parameter</strong>: <code>$result</code> (return value from original method)
+- Subsequent parameters: Original method arguments (for reference only)
+- <strong>Must return</strong> value compatible with original method's return type
+- Cannot access <code>$subject</code> state changed by original method (use <code>$result</code>)</p>
+<h3 id="around-plugin">Around Plugin</h3>
+<p><strong>Purpose</strong>: Completely control method execution (call original, skip it, or replace it).</p>
+<p><strong>Signature</strong>: <code>public function around&lt;MethodName&gt;(&lt;Type&gt; $subject, callable $proceed, &lt;argument1&gt;, &lt;argument2&gt;, ...)</code></p>
+<p><strong>Return</strong>: Modified result (must match original return type)</p>
+<p><strong>Use Case</strong>: Conditional execution, caching, performance optimization, complete behavior replacement</p>
+<p><strong>Example</strong>: Add caching layer to expensive product recommendation</p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Plugin\Catalog\Model\Product;
+
+use Magento\Catalog\Api\Data\ProductInterface;
+use Magento\Catalog\Model\Product;
+use Magento\Framework\App\CacheInterface;
+use Magento\Framework\Serialize\SerializerInterface;
+use Psr\Log\LoggerInterface;
+
+class RecommendationExtend
+{
+    private const CACHE_KEY_PREFIX = 'product_recommendations_';
+    private const CACHE_LIFETIME = 3600; // 1 hour
+    private const CACHE_TAG = 'product_recommendations';
+
+    public function __construct(
+        private readonly CacheInterface $cache,
+        private readonly SerializerInterface $serializer,
+        private readonly LoggerInterface $logger
+    ) {
+    }
+
+    /**
+     * Add caching layer around expensive getRecommendations call
+     *
+     * @param Recommendation $subject
+     * @param callable $proceed Original method callable
+     * @param ProductInterface $product
+     * @param int $limit
+     * @return ProductInterface[] Array of recommended products
+     */
+    public function aroundGetRecommendations(
+        Recommendation $subject,
+        callable $proceed,
+        ProductInterface $product,
+        int $limit = 5
+    ): array {
+        $cacheKey = $this-&gt;getCacheKey($product-&gt;getId(), $limit);
+
+        // Try cache first
+        $cachedData = $this-&gt;cache-&gt;load($cacheKey);
+        if ($cachedData !== false) {
+            $this-&gt;logger-&gt;debug('Cache hit for product recommendations', [
+                'product_id' =&gt; $product-&gt;getId(),
+                'limit' =&gt; $limit
+            ]);
+
+            try {
+                return $this-&gt;serializer-&gt;unserialize($cachedData);
+            } catch (\InvalidArgumentException $e) {
+                $this-&gt;logger-&gt;error('Failed to unserialize cached recommendations', [
+                    'error' =&gt; $e-&gt;getMessage()
+                ]);
+                // Fall through to original method
+            }
+        }
+
+        // Cache miss - call original method
+        $this-&gt;logger-&gt;info('Cache miss, executing expensive recommendation logic', [
+            'product_id' =&gt; $product-&gt;getId()
+        ]);
+
+        $result = $proceed($product, $limit); // Call original method
+
+        // Store in cache
+        try {
+            $this-&gt;cache-&gt;save(
+                $this-&gt;serializer-&gt;serialize($result),
+                $cacheKey,
+                [self::CACHE_TAG],
+                self::CACHE_LIFETIME
+            );
+        } catch (\InvalidArgumentException $e) {
+            $this-&gt;logger-&gt;error('Failed to cache recommendations', [
+                'error' =&gt; $e-&gt;getMessage()
+            ]);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Generate unique cache key
+     */
+    private function getCacheKey(int $productId, int $limit): string
+    {
+        return self::CACHE_KEY_PREFIX . $productId . '_' . $limit;
+    }
+}
+</code></pre>
+<p><strong>Key Points:</strong>
+- Method name: <code>around</code> + PascalCase original method name
+- Second parameter: <code>callable $proceed</code> (invokes original method + subsequent plugins)
+- <strong>Must call</strong> <code>$proceed(...)</code> to execute original method (unless intentionally skipping)
+- Arguments passed to <code>$proceed()</code> can be modified
+- <strong>Most powerful</strong> but also <strong>most dangerous</strong> (can break plugin chain if misused)
+- Higher performance cost than Before/After</p>
+<p><strong>Common Around Plugin Mistake:</strong></p>
+<pre><code class="language-php">// WRONG: Not calling $proceed breaks plugin chain
+public function aroundSomeMethod($subject, callable $proceed, $arg)
+{
+    return 'my value'; // Original method and other plugins never execute!
+}
+
+// CORRECT: Always call $proceed unless you have specific reason
+public function aroundSomeMethod($subject, callable $proceed, $arg)
+{
+    $result = $proceed($arg); // Execute original + other plugins
+    return $this-&gt;modifyResult($result);
+}
+</code></pre>
+<h2 id="plugin-registration-dixml">Plugin Registration (di.xml)</h2>
+<p>Plugins are declared in <code>etc/di.xml</code> (global scope) or <code>etc/frontend/di.xml</code> / <code>etc/adminhtml/di.xml</code> (area-specific).</p>
+<h3 id="basic-plugin-registration">Basic Plugin Registration</h3>
+<pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;config xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+        xsi:noNamespaceSchemaLocation=&quot;urn:magento:framework:ObjectManager/etc/config.xsd&quot;&gt;
+
+    &lt;!-- Plugin for product price calculation --&gt;
+    &lt;type name=&quot;Magento\Catalog\Model\Product&quot;&gt;
+        &lt;plugin name=&quot;vendor_module_product_price_plugin&quot;
+                type=&quot;Vendor\Module\Plugin\Catalog\Model\Product\PriceExtend&quot;
+                sortOrder=&quot;10&quot;
+                disabled=&quot;false&quot; /&gt;
+    &lt;/type&gt;
+
+&lt;/config&gt;
+</code></pre>
+<p><strong>Attributes:</strong></p>
+<div class="overflow-x-auto my-6 border border-gray-200"><table class="min-w-full">
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Required</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code></td>
+<td>Yes</td>
+<td>Unique plugin identifier (vendor_module_scope_plugin)</td>
+<td><code>vendor_module_product_price_plugin</code></td>
+</tr>
+<tr>
+<td><code>type</code></td>
+<td>Yes</td>
+<td>Fully qualified plugin class name</td>
+<td><code>Vendor\Module\Plugin\Class</code></td>
+</tr>
+<tr>
+<td><code>sortOrder</code></td>
+<td>No</td>
+<td>Execution order (default: 10)</td>
+<td><code>10</code> (lower = earlier)</td>
+</tr>
+<tr>
+<td><code>disabled</code></td>
+<td>No</td>
+<td>Enable/disable plugin (default: false)</td>
+<td><code>true</code> to disable</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="plugin-naming-convention">Plugin Naming Convention</h3>
+<p>Follow this pattern for plugin <code>name</code> attribute:</p>
+<pre><code>{vendor}_{module}_{scope}_{functionality}_plugin
+</code></pre>
+<p>Examples:
+- <code>acme_catalog_product_price_plugin</code>
+- <code>acme_checkout_cart_validation_plugin</code>
+- <code>acme_customer_authentication_plugin</code></p>
+<h3 id="area-specific-plugins">Area-Specific Plugins</h3>
+<p>Limit plugin scope to frontend or adminhtml:</p>
+<p><strong>Frontend only</strong> (<code>etc/frontend/di.xml</code>):</p>
+<pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;config xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+        xsi:noNamespaceSchemaLocation=&quot;urn:magento:framework:ObjectManager/etc/config.xsd&quot;&gt;
+
+    &lt;!-- Only active on storefront --&gt;
+    &lt;type name=&quot;Magento\Checkout\Model\Cart&quot;&gt;
+        &lt;plugin name=&quot;vendor_module_cart_discount_plugin&quot;
+                type=&quot;Vendor\Module\Plugin\Checkout\Model\Cart\DiscountExtend&quot;
+                sortOrder=&quot;20&quot; /&gt;
+    &lt;/type&gt;
+
+&lt;/config&gt;
+</code></pre>
+<p><strong>Admin only</strong> (<code>etc/adminhtml/di.xml</code>):</p>
+<pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;config xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+        xsi:noNamespaceSchemaLocation=&quot;urn:magento:framework:ObjectManager/etc/config.xsd&quot;&gt;
+
+    &lt;!-- Only active in admin panel --&gt;
+    &lt;type name=&quot;Magento\Sales\Api\OrderRepositoryInterface&quot;&gt;
+        &lt;plugin name=&quot;vendor_module_order_audit_plugin&quot;
+                type=&quot;Vendor\Module\Plugin\Sales\Api\OrderRepositoryExtend&quot;
+                sortOrder=&quot;30&quot; /&gt;
+    &lt;/type&gt;
+
+&lt;/config&gt;
+</code></pre>
+<p><strong>Global</strong> (<code>etc/di.xml</code>): Active in all areas (frontend, adminhtml, crontab, webapi_rest, webapi_soap).</p>
+<h2 id="plugin-execution-order">Plugin Execution Order</h2>
+<p>When multiple plugins intercept the same method, execution order is determined by <code>sortOrder</code> (ascending).</p>
+<h3 id="execution-flow">Execution Flow</h3>
+<p>Given three plugins on <code>ClassName::methodName()</code>:</p>
+<pre><code class="language-xml">&lt;type name=&quot;ClassName&quot;&gt;
+    &lt;plugin name=&quot;pluginA&quot; type=&quot;PluginA&quot; sortOrder=&quot;10&quot; /&gt;
+    &lt;plugin name=&quot;pluginB&quot; type=&quot;PluginB&quot; sortOrder=&quot;20&quot; /&gt;
+    &lt;plugin name=&quot;pluginC&quot; type=&quot;PluginC&quot; sortOrder=&quot;30&quot; /&gt;
+&lt;/type&gt;
+</code></pre>
+<p><strong>Execution sequence</strong> when <code>methodName()</code> is called:</p>
+<ol>
+<li><code>PluginA::beforeMethodName()</code> (sortOrder 10)</li>
+<li><code>PluginB::beforeMethodName()</code> (sortOrder 20)</li>
+<li><code>PluginC::beforeMethodName()</code> (sortOrder 30)</li>
+<li><code>PluginA::aroundMethodName()</code> (sortOrder 10, calls <code>$proceed</code>)</li>
+<li><code>PluginB::aroundMethodName()</code> (sortOrder 20, calls <code>$proceed</code>)</li>
+<li><code>PluginC::aroundMethodName()</code> (sortOrder 30, calls <code>$proceed</code>)</li>
+<li><strong>Original method executes</strong></li>
+<li><code>PluginC::aroundMethodName()</code> returns (sortOrder 30, reverse order)</li>
+<li><code>PluginB::aroundMethodName()</code> returns (sortOrder 20)</li>
+<li><code>PluginA::aroundMethodName()</code> returns (sortOrder 10)</li>
+<li><code>PluginA::afterMethodName()</code> (sortOrder 10)</li>
+<li><code>PluginB::afterMethodName()</code> (sortOrder 20)</li>
+<li><code>PluginC::afterMethodName()</code> (sortOrder 30)</li>
+</ol>
+<p><strong>Key Observations:</strong></p>
+<ul>
+<li><strong>Before plugins</strong>: Execute in sortOrder (10 → 20 → 30)</li>
+<li><strong>Around plugins</strong>: Execute in sortOrder on entry, <strong>reverse</strong> on exit (like nested function calls)</li>
+<li><strong>After plugins</strong>: Execute in sortOrder (10 → 20 → 30), same order as before plugins</li>
+<li><strong>Original method</strong>: Executes after all Around plugins call <code>$proceed()</code></li>
+</ul>
+<h3 id="controlling-execution-order">Controlling Execution Order</h3>
+<p><strong>Default sortOrder</strong>: If not specified, defaults to <code>10</code>.</p>
+<p><strong>Strategic sortOrder values</strong>:</p>
+<div class="overflow-x-auto my-6 border border-gray-200"><table class="min-w-full">
+<thead>
+<tr>
+<th>sortOrder</th>
+<th>Purpose</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>1-9</code></td>
+<td>Early validation, security checks</td>
+<td>Authentication plugin</td>
+</tr>
+<tr>
+<td><code>10-50</code></td>
+<td>Standard business logic</td>
+<td>Price calculation</td>
+</tr>
+<tr>
+<td><code>51-90</code></td>
+<td>Post-processing, logging</td>
+<td>Audit trail</td>
+</tr>
+<tr>
+<td><code>91-100</code></td>
+<td>Final transformations</td>
+<td>Output formatting</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Example</strong>: Ensure validation runs before business logic:</p>
+<pre><code class="language-xml">&lt;type name=&quot;Magento\Checkout\Model\Cart&quot;&gt;
+    &lt;!-- Validation runs first --&gt;
+    &lt;plugin name=&quot;vendor_module_cart_validation&quot;
+            type=&quot;Vendor\Module\Plugin\Checkout\Validation&quot;
+            sortOrder=&quot;5&quot; /&gt;
+
+    &lt;!-- Business logic runs second --&gt;
+    &lt;plugin name=&quot;vendor_module_cart_discount&quot;
+            type=&quot;Vendor\Module\Plugin\Checkout\Discount&quot;
+            sortOrder=&quot;20&quot; /&gt;
+
+    &lt;!-- Logging runs last --&gt;
+    &lt;plugin name=&quot;vendor_module_cart_logger&quot;
+            type=&quot;Vendor\Module\Plugin\Checkout\Logger&quot;
+            sortOrder=&quot;90&quot; /&gt;
+&lt;/type&gt;
+</code></pre>
+<h3 id="debugging-plugin-order">Debugging Plugin Order</h3>
+<p>View compiled plugin chain:</p>
+<pre><code class="language-bash"># Inspect generated interceptor
+cat generated/code/Magento/Catalog/Model/Product/Interceptor.php
+</code></pre>
+<p>The <code>Interceptor.php</code> file shows the exact plugin sequence Magento will execute.</p>
+<h2 id="when-to-use-plugins-vs-observers-vs-preferences">When to Use Plugins vs Observers vs Preferences</h2>
+<h3 id="decision-matrix">Decision Matrix</h3>
+<div class="overflow-x-auto my-6 border border-gray-200"><table class="min-w-full">
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Solution</th>
+<th>Reason</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Modify method arguments</td>
+<td><strong>Before Plugin</strong></td>
+<td>Direct access to arguments</td>
+</tr>
+<tr>
+<td>Modify return value</td>
+<td><strong>After Plugin</strong></td>
+<td>Direct access to result</td>
+</tr>
+<tr>
+<td>Replace method entirely</td>
+<td><strong>Around Plugin</strong> (or Preference)</td>
+<td>Can skip original method</td>
+</tr>
+<tr>
+<td>React to event (no return value)</td>
+<td><strong>Observer</strong></td>
+<td>Event-driven, decoupled</td>
+</tr>
+<tr>
+<td>Add data to object</td>
+<td><strong>After Plugin</strong> or <strong>Extension Attributes</strong></td>
+<td>Depends on persistence need</td>
+</tr>
+<tr>
+<td>Validate input</td>
+<td><strong>Before Plugin</strong> or <strong>Validator</strong></td>
+<td>Plugins for interception, Validators for reusable logic</td>
+</tr>
+<tr>
+<td>Replace entire class</td>
+<td><strong>Preference</strong> (last resort)</td>
+<td>Only if plugins insufficient</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="plugin-use-cases">Plugin Use Cases</h3>
+<p><strong>Best suited for:</strong></p>
+<ol>
+<li><strong>Price calculations</strong>: Modify product price based on customer group</li>
+<li><strong>Inventory checks</strong>: Add custom stock validation</li>
+<li><strong>URL generation</strong>: Customize product URLs</li>
+<li><strong>API responses</strong>: Transform REST/GraphQL output</li>
+<li><strong>Data enrichment</strong>: Add calculated fields to collections</li>
+<li><strong>Caching</strong>: Wrap expensive methods with cache layer</li>
+<li><strong>Logging</strong>: Track method calls for debugging</li>
+</ol>
+<p><strong>Example: Plugin for API Response Transformation</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Plugin\Catalog\Api;
+
+use Magento\Catalog\Api\Data\ProductInterface;
+use Magento\Catalog\Api\ProductRepositoryInterface;
+use Magento\Framework\Api\SearchResultsInterface;
+
+class ProductRepositoryExtend
+{
+    /**
+     * Add computed field to product data after getById
+     *
+     * @param ProductRepositoryInterface $subject
+     * @param ProductInterface $result
+     * @param int $productId
+     * @return ProductInterface
+     */
+    public function afterGetById(
+        ProductRepositoryInterface $subject,
+        ProductInterface $result,
+        int $productId
+    ): ProductInterface {
+        // Add custom attribute to API response
+        $result-&gt;setCustomAttribute('api_version', '2.0');
+        $result-&gt;setCustomAttribute('response_time', microtime(true));
+
+        return $result;
+    }
+
+    /**
+     * Add computed fields to product list after getList
+     *
+     * @param ProductRepositoryInterface $subject
+     * @param SearchResultsInterface $result
+     * @return SearchResultsInterface
+     */
+    public function afterGetList(
+        ProductRepositoryInterface $subject,
+        SearchResultsInterface $result
+    ): SearchResultsInterface {
+        foreach ($result-&gt;getItems() as $product) {
+            $product-&gt;setCustomAttribute('list_position', $this-&gt;calculatePosition($product));
+        }
+
+        return $result;
+    }
+
+    private function calculatePosition(ProductInterface $product): int
+    {
+        // Business logic
+        return (int) $product-&gt;getId();
+    }
+}
+</code></pre>
+<h3 id="observer-use-cases">Observer Use Cases</h3>
+<p><strong>Best suited for:</strong></p>
+<ol>
+<li><strong>Email notifications</strong>: Send email after order placement</li>
+<li><strong>Third-party integrations</strong>: Sync data to external system</li>
+<li><strong>Logging</strong>: Record events for audit trail</li>
+<li><strong>Cache invalidation</strong>: Clear cache after data changes</li>
+<li><strong>Analytics</strong>: Track user behavior</li>
+</ol>
+<p><strong>Example: Observer for Order Notification</strong></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Observer\Sales;
+
+use Magento\Framework\Event\Observer;
+use Magento\Framework\Event\ObserverInterface;
+use Magento\Sales\Api\Data\OrderInterface;
+use Psr\Log\LoggerInterface;
+
+class OrderPlacedNotification implements ObserverInterface
+{
+    public function __construct(
+        private readonly LoggerInterface $logger
+    ) {
+    }
+
+    /**
+     * Execute when sales_order_place_after event dispatches
+     *
+     * @param Observer $observer
+     * @return void
+     */
+    public function execute(Observer $observer): void
+    {
+        /** @var OrderInterface $order */
+        $order = $observer-&gt;getData('order');
+
+        $this-&gt;logger-&gt;info('Order placed', [
+            'order_id' =&gt; $order-&gt;getEntityId(),
+            'customer_email' =&gt; $order-&gt;getCustomerEmail(),
+            'grand_total' =&gt; $order-&gt;getGrandTotal()
+        ]);
+
+        // Send notification to external system
+        // No return value needed
+    }
+}
+</code></pre>
+<p><strong>Registration</strong> (<code>etc/events.xml</code>):</p>
+<pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;config xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+        xsi:noNamespaceSchemaLocation=&quot;urn:magento:framework:Event/etc/events.xsd&quot;&gt;
+    &lt;event name=&quot;sales_order_place_after&quot;&gt;
+        &lt;observer name=&quot;vendor_module_order_notification&quot;
+                  instance=&quot;Vendor\Module\Observer\Sales\OrderPlacedNotification&quot; /&gt;
+    &lt;/event&gt;
+&lt;/config&gt;
+</code></pre>
+<h3 id="preference-use-cases-avoid-when-possible">Preference Use Cases (Avoid When Possible)</h3>
+<p><strong>Only use preferences when:</strong></p>
+<ol>
+<li>You must override <strong>private/protected methods</strong> (plugins can't intercept these)</li>
+<li>You need to replace <strong>entire class behavior</strong> (multiple methods)</li>
+<li>The class is <strong>final</strong> (plugins don't work on final classes)</li>
+<li>You're fixing a <strong>core bug</strong> temporarily until patch available</li>
+</ol>
+<p><strong>Preference risks:</strong></p>
+<ul>
+<li><strong>BC breaks</strong>: Only one preference allowed per class (last one wins)</li>
+<li><strong>Upgrade issues</strong>: Core changes conflict with your preference</li>
+<li><strong>Conflicts</strong>: Other modules' preferences clash with yours</li>
+</ul>
+<p><strong>Example: Preference for final class</strong> (hypothetical):</p>
+<pre><code class="language-xml">&lt;!-- Only if ClassName is final and you have no other choice --&gt;
+&lt;preference for=&quot;Magento\Framework\SomeClass&quot;
+            type=&quot;Vendor\Module\Model\SomeClassCustom&quot; /&gt;
+</code></pre>
+<p><strong>Better alternative</strong>: Request Magento core to make class non-final or add plugin points.</p>
+<h2 id="common-plugin-mistakes">Common Plugin Mistakes</h2>
+<h3 id="mistake-1-wrong-return-type-in-after-plugin">Mistake 1: Wrong Return Type in After Plugin</h3>
+<pre><code class="language-php">// WRONG: Changing return type
+public function afterGetName(Product $subject, string $result): array
+{
+    return ['modified_name']; // Original returns string, not array!
+}
+
+// CORRECT: Return same type
+public function afterGetName(Product $subject, string $result): string
+{
+    return 'Modified: ' . $result;
+}
+</code></pre>
+<h3 id="mistake-2-not-calling-proceed-in-around-plugin">Mistake 2: Not Calling $proceed in Around Plugin</h3>
+<pre><code class="language-php">// WRONG: Breaking plugin chain
+public function aroundSave(ProductRepository $subject, callable $proceed, ProductInterface $product): ProductInterface
+{
+    // Validation logic
+    if (!$this-&gt;isValid($product)) {
+        throw new \InvalidArgumentException('Invalid product');
+    }
+
+    // Forgot to call $proceed - original save never happens!
+    return $product;
+}
+
+// CORRECT: Always call $proceed
+public function aroundSave(ProductRepository $subject, callable $proceed, ProductInterface $product): ProductInterface
+{
+    if (!$this-&gt;isValid($product)) {
+        throw new \InvalidArgumentException('Invalid product');
+    }
+
+    return $proceed($product); // Call original method
+}
+</code></pre>
+<h3 id="mistake-3-modifying-subject-state-in-before-plugin">Mistake 3: Modifying $subject State in Before Plugin</h3>
+<pre><code class="language-php">// WRONG: Before plugins should not modify $subject state
+public function beforeSave(Product $subject): ?array
+{
+    $subject-&gt;setName('Modified'); // Side effect!
+    return null;
+}
+
+// CORRECT: Modify via arguments or use After/Around plugin
+public function aroundSave(Product $subject, callable $proceed): Product
+{
+    $subject-&gt;setName('Modified'); // OK in Around plugin
+    return $proceed();
+}
+</code></pre>
+<h3 id="mistake-4-plugin-on-finalprivatestatic-methods">Mistake 4: Plugin on Final/Private/Static Methods</h3>
+<pre><code class="language-php">// These will NOT work:
+// - final public methods
+// - private/protected methods
+// - static methods
+// - __construct() method
+
+// Check if method is pluginable:
+class SomeClass {
+    final public function finalMethod() {} // Cannot plugin
+    private function privateMethod() {} // Cannot plugin
+    public static function staticMethod() {} // Cannot plugin
+    public function __construct() {} // Cannot plugin
+
+    public function pluginableMethod() {} // CAN plugin
+}
+</code></pre>
+<h3 id="mistake-5-circular-dependencies">Mistake 5: Circular Dependencies</h3>
+<pre><code class="language-php">// WRONG: Plugin creates circular dependency
+namespace Vendor\Module\Plugin;
+
+class ProductExtend {
+    public function __construct(
+        private readonly \Magento\Catalog\Model\Product $product // Circular!
+    ) {}
+
+    public function afterGetName(\Magento\Catalog\Model\Product $subject, string $result): string {
+        return $this-&gt;product-&gt;getSku(); // Infinite loop!
+    }
+}
+
+// CORRECT: Inject factory or avoid injecting plugged class
+public function __construct(
+    private readonly \Magento\Catalog\Model\ProductFactory $productFactory
+) {}
+</code></pre>
+<h2 id="performance-considerations">Performance Considerations</h2>
+<h3 id="plugin-performance-impact">Plugin Performance Impact</h3>
+<p><strong>Cost per plugin type</strong>:</p>
+<div class="overflow-x-auto my-6 border border-gray-200"><table class="min-w-full">
+<thead>
+<tr>
+<th>Type</th>
+<th>Overhead</th>
+<th>Reason</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Before</td>
+<td>Low</td>
+<td>Simple argument pass-through</td>
+</tr>
+<tr>
+<td>After</td>
+<td>Low</td>
+<td>Simple result pass-through</td>
+</tr>
+<tr>
+<td>Around</td>
+<td><strong>High</strong></td>
+<td>Wraps original method, adds call stack depth</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>General overhead</strong>:
+- Each plugin adds ~0.01-0.1ms per call (production mode)
+- Around plugins: 2-5x slower than Before/After
+- Compiled interceptors mitigate cost (use <code>production</code> mode)</p>
+<h3 id="optimization-strategies">Optimization Strategies</h3>
+<h4 id="1-minimize-around-plugins">1. Minimize Around Plugins</h4>
+<pre><code class="language-php">// AVOID: Around plugin for simple transformation
+public function aroundGetPrice(Product $subject, callable $proceed): float
+{
+    $price = $proceed();
+    return $price * 1.1; // 10% markup
+}
+
+// BETTER: Use After plugin
+public function afterGetPrice(Product $subject, float $result): float
+{
+    return $result * 1.1;
+}
+</code></pre>
+<h4 id="2-avoid-heavy-operations-in-plugins">2. Avoid Heavy Operations in Plugins</h4>
+<pre><code class="language-php">// AVOID: Database query in plugin on frequently-called method
+public function afterGetName(Product $subject, string $result): string
+{
+    $customData = $this-&gt;resource-&gt;getConnection()-&gt;fetchOne(
+        &quot;SELECT custom_field FROM custom_table WHERE product_id = ?&quot;,
+        [$subject-&gt;getId()]
+    ); // Executes on EVERY getName() call!
+
+    return $result . ' - ' . $customData;
+}
+
+// BETTER: Cache result or load in collection
+private array $cache = [];
+
+public function afterGetName(Product $subject, string $result): string
+{
+    $productId = $subject-&gt;getId();
+
+    if (!isset($this-&gt;cache[$productId])) {
+        $this-&gt;cache[$productId] = $this-&gt;getCustomData($productId);
+    }
+
+    return $result . ' - ' . $this-&gt;cache[$productId];
+}
+</code></pre>
+<h4 id="3-use-area-specific-plugins">3. Use Area-Specific Plugins</h4>
+<pre><code class="language-php">// AVOID: Global plugin active everywhere
+&lt;!-- etc/di.xml --&gt;
+&lt;type name=&quot;Magento\Catalog\Model\Product&quot;&gt;
+    &lt;plugin name=&quot;frontend_specific_plugin&quot; type=&quot;FrontendPlugin&quot; /&gt;
+&lt;/type&gt;
+
+// BETTER: Frontend-only plugin
+&lt;!-- etc/frontend/di.xml --&gt;
+&lt;type name=&quot;Magento\Catalog\Model\Product&quot;&gt;
+    &lt;plugin name=&quot;frontend_specific_plugin&quot; type=&quot;FrontendPlugin&quot; /&gt;
+&lt;/type&gt;
+</code></pre>
+<h4 id="4-conditional-logic-early-in-plugin">4. Conditional Logic Early in Plugin</h4>
+<pre><code class="language-php">// AVOID: Processing every call
+public function afterLoad(Collection $subject, Collection $result): Collection
+{
+    foreach ($result-&gt;getItems() as $item) {
+        // Expensive operation on every item
+        $this-&gt;processItem($item);
+    }
+    return $result;
+}
+
+// BETTER: Early exit if not applicable
+public function afterLoad(Collection $subject, Collection $result): Collection
+{
+    // Exit early if wrong area or empty collection
+    if ($this-&gt;state-&gt;getAreaCode() !== Area::AREA_FRONTEND || $result-&gt;count() === 0) {
+        return $result;
+    }
+
+    foreach ($result-&gt;getItems() as $item) {
+        $this-&gt;processItem($item);
+    }
+
+    return $result;
+}
+</code></pre>
+<h3 id="generated-code-management">Generated Code Management</h3>
+<p>Plugins generate <code>Interceptor.php</code> files in <code>generated/code/</code>. Keep generated code clean:</p>
+<pre><code class="language-bash"># Clear generated code after di.xml changes
+bin/magento setup:di:compile
+
+# Verify plugin is registered
+grep -r &quot;YourPluginClass&quot; generated/metadata/
+</code></pre>
+<h2 id="production-ready-plugin-example">Production-Ready Plugin Example</h2>
+<p>Complete example following all best practices:</p>
+<p><strong>Module structure</strong>:</p>
+<pre><code>Vendor/Module/
+├── Plugin/
+│   └── Sales/
+│       └── Api/
+│           └── OrderRepositoryExtend.php
+├── etc/
+│   └── di.xml
+├── registration.php
+└── module.xml
+</code></pre>
+<p><strong>Plugin/Sales/Api/OrderRepositoryExtend.php</strong>:</p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Plugin\Sales\Api;
+
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
+use Psr\Log\LoggerInterface;
+
+/**
+ * Plugin to add audit trail when orders are saved
+ *
+ * @see OrderRepositoryInterface
+ */
+class OrderRepositoryExtend
+{
+    /**
+     * @param LoggerInterface $logger
+     * @param \Magento\Framework\Stdlib\DateTime\DateTime $dateTime
+     * @param \Magento\Backend\Model\Auth\Session $authSession
+     */
+    public function __construct(
+        private readonly LoggerInterface $logger,
+        private readonly \Magento\Framework\Stdlib\DateTime\DateTime $dateTime,
+        private readonly \Magento\Backend\Model\Auth\Session $authSession
+    ) {
+    }
+
+    /**
+     * Validate order before save
+     *
+     * @param OrderRepositoryInterface $subject
+     * @param OrderInterface $order
+     * @return array
+     * @throws LocalizedException
+     */
+    public function beforeSave(
+        OrderRepositoryInterface $subject,
+        OrderInterface $order
+    ): array {
+        // Validation logic
+        if ($order-&gt;getGrandTotal() &lt; 0) {
+            throw new LocalizedException(
+                __('Order grand total cannot be negative.')
+            );
+        }
+
+        $this-&gt;logger-&gt;debug('Order validation passed', [
+            'order_id' =&gt; $order-&gt;getEntityId(),
+            'grand_total' =&gt; $order-&gt;getGrandTotal()
+        ]);
+
+        // Return null to keep original arguments unchanged
+        return null;
+    }
+
+    /**
+     * Add audit trail after order is saved
+     *
+     * @param OrderRepositoryInterface $subject
+     * @param OrderInterface $result Saved order
+     * @param OrderInterface $order Original order argument
+     * @return OrderInterface
+     */
+    public function afterSave(
+        OrderRepositoryInterface $subject,
+        OrderInterface $result,
+        OrderInterface $order
+    ): OrderInterface {
+        // Get admin user who made the change
+        $adminUser = $this-&gt;authSession-&gt;getUser();
+        $adminUsername = $adminUser ? $adminUser-&gt;getUserName() : 'system';
+
+        // Log audit trail
+        $this-&gt;logger-&gt;info('Order saved', [
+            'order_id' =&gt; $result-&gt;getEntityId(),
+            'admin_user' =&gt; $adminUsername,
+            'timestamp' =&gt; $this-&gt;dateTime-&gt;gmtDate(),
+            'status' =&gt; $result-&gt;getStatus(),
+            'state' =&gt; $result-&gt;getState()
+        ]);
+
+        // Add audit data as custom attribute (optional)
+        $result-&gt;setData('last_modified_by', $adminUsername);
+        $result-&gt;setData('last_modified_at', $this-&gt;dateTime-&gt;gmtDate());
+
+        return $result;
+    }
+}
+</code></pre>
+<p><strong>etc/di.xml</strong>:</p>
+<pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;config xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+        xsi:noNamespaceSchemaLocation=&quot;urn:magento:framework:ObjectManager/etc/config.xsd&quot;&gt;
+
+    &lt;type name=&quot;Magento\Sales\Api\OrderRepositoryInterface&quot;&gt;
+        &lt;plugin name=&quot;vendor_module_order_audit_plugin&quot;
+                type=&quot;Vendor\Module\Plugin\Sales\Api\OrderRepositoryExtend&quot;
+                sortOrder=&quot;100&quot;
+                disabled=&quot;false&quot; /&gt;
+    &lt;/type&gt;
+
+&lt;/config&gt;
+</code></pre>
+<p><strong>Why this example is production-ready</strong>:</p>
+<ol>
+<li><strong>Type declarations</strong>: All parameters and return types explicitly declared (PHP 8.2+ strict types)</li>
+<li><strong>Constructor DI</strong>: Dependencies injected, testable</li>
+<li><strong>Readonly properties</strong>: Immutable dependencies (PHP 8.1+)</li>
+<li><strong>Exception handling</strong>: Validation with meaningful exception messages</li>
+<li><strong>Logging</strong>: Debug and info logs for troubleshooting</li>
+<li><strong>Documentation</strong>: PHPDoc with @see, @param, @return, @throws</li>
+<li><strong>Naming</strong>: Clear plugin name following convention</li>
+<li><strong>sortOrder</strong>: Explicit sortOrder for predictable execution</li>
+<li><strong>Service contract</strong>: Plugs interface, not implementation (upgrade-safe)</li>
+<li><strong>No side effects</strong>: Before plugin doesn't modify $subject</li>
+</ol>
+<h2 id="debugging-plugins">Debugging Plugins</h2>
+<h3 id="check-plugin-registration">Check Plugin Registration</h3>
+<pre><code class="language-bash"># List all plugins for a class
+bin/magento dev:di:info &quot;Magento\Catalog\Model\Product&quot;
+
+# Output shows all configured plugins
+</code></pre>
+<h3 id="inspect-generated-interceptor">Inspect Generated Interceptor</h3>
+<pre><code class="language-bash"># View generated plugin wrapper
+cat generated/code/Magento/Catalog/Model/Product/Interceptor.php
+
+# Shows exact plugin execution order
+</code></pre>
+<h3 id="enable-debug-logging">Enable Debug Logging</h3>
+<pre><code class="language-php">// In plugin method
+$this-&gt;logger-&gt;debug('Plugin executed', [
+    'method' =&gt; __METHOD__,
+    'subject_class' =&gt; get_class($subject),
+    'arguments' =&gt; func_get_args()
+]);
+</code></pre>
+<h3 id="test-plugin-in-isolation">Test Plugin in Isolation</h3>
+<pre><code class="language-php">// Unit test for plugin
+namespace Vendor\Module\Test\Unit\Plugin;
+
+use PHPUnit\Framework\TestCase;
+use Vendor\Module\Plugin\MyPluginExtend;
+
+class MyPluginExtendTest extends TestCase
+{
+    private MyPluginExtend $plugin;
+
+    protected function setUp(): void
+    {
+        $this-&gt;plugin = new MyPluginExtend(
+            $this-&gt;createMock(\Psr\Log\LoggerInterface::class)
+        );
+    }
+
+    public function testAfterGetName(): void
+    {
+        $subjectMock = $this-&gt;createMock(\Magento\Catalog\Model\Product::class);
+        $originalResult = 'Product Name';
+
+        $result = $this-&gt;plugin-&gt;afterGetName($subjectMock, $originalResult);
+
+        $this-&gt;assertStringContainsString('Modified', $result);
+    }
+}
+</code></pre>
+<h2 id="testing-plugins">Testing Plugins</h2>
+<h3 id="unit-test-example">Unit Test Example</h3>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Test\Unit\Plugin\Catalog\Model\Product;
+
+use Magento\Catalog\Model\Product;
+use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
+use Vendor\Module\Plugin\Catalog\Model\Product\PriceExtend;
+
+class PriceExtendTest extends TestCase
+{
+    private PriceExtend $plugin;
+    private LoggerInterface $loggerMock;
+    private Product $productMock;
+
+    protected function setUp(): void
+    {
+        $this-&gt;loggerMock = $this-&gt;createMock(LoggerInterface::class);
+        $this-&gt;productMock = $this-&gt;createMock(Product::class);
+
+        $this-&gt;plugin = new PriceExtend($this-&gt;loggerMock);
+    }
+
+    public function testAfterGetPriceAppliesMarkup(): void
+    {
+        $originalPrice = 100.0;
+        $expectedPrice = 110.0; // 10% markup
+
+        $result = $this-&gt;plugin-&gt;afterGetPrice($this-&gt;productMock, $originalPrice);
+
+        $this-&gt;assertEquals($expectedPrice, $result);
+    }
+
+    public function testAfterGetPriceLogsDebugInfo(): void
+    {
+        $this-&gt;productMock-&gt;method('getId')-&gt;willReturn(123);
+
+        $this-&gt;loggerMock-&gt;expects($this-&gt;once())
+            -&gt;method('debug')
+            -&gt;with(
+                $this-&gt;stringContains('Price modified'),
+                $this-&gt;arrayHasKey('product_id')
+            );
+
+        $this-&gt;plugin-&gt;afterGetPrice($this-&gt;productMock, 100.0);
+    }
+}
+</code></pre>
+<h3 id="integration-test-example">Integration Test Example</h3>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Test\Integration\Plugin;
+
+use Magento\Catalog\Api\ProductRepositoryInterface;
+use Magento\TestFramework\Helper\Bootstrap;
+use PHPUnit\Framework\TestCase;
+
+class PricePluginIntegrationTest extends TestCase
+{
+    private ProductRepositoryInterface $productRepository;
+
+    protected function setUp(): void
+    {
+        $this-&gt;productRepository = Bootstrap::getObjectManager()
+            -&gt;get(ProductRepositoryInterface::class);
+    }
+
+    /**
+     * @magentoDataFixture Magento/Catalog/_files/product_simple.php
+     * @magentoAppArea frontend
+     */
+    public function testPluginModifiesProductPrice(): void
+    {
+        $product = $this-&gt;productRepository-&gt;get('simple');
+
+        $originalPrice = 10.0;
+        $this-&gt;assertEquals($originalPrice, $product-&gt;getPrice());
+
+        // After plugin should apply 10% markup
+        $finalPrice = $product-&gt;getFinalPrice();
+        $this-&gt;assertEquals(11.0, $finalPrice);
+    }
+}
+</code></pre>
+<h2 id="related-resources">Related Resources</h2>
+<h3 id="official-documentation">Official Documentation</h3>
+<ul>
+<li><a href="https://developer.adobe.com/commerce/php/development/components/plugins/">Magento DevDocs: Plugins (Interceptors)</a></li>
+<li><a href="https://developer.adobe.com/commerce/php/development/components/dependency-injection/">Magento DevDocs: Dependency Injection</a></li>
+<li><a href="https://developer.adobe.com/commerce/php/development/components/service-contracts/">Magento DevDocs: Service Contracts</a></li>
+</ul>
+<h3 id="community-resources">Community Resources</h3>
+<ul>
+<li><a href="https://magento.stackexchange.com/questions/tagged/plugin">Magento Stack Exchange: Plugin Questions</a></li>
+<li><a href="https://alanstorm.com/magento_2_object_manager_plugin_system/">Alan Storm: Magento 2 Plugin System</a></li>
+<li><a href="https://www.mage2.tv/">Mage2.tv: Understanding Plugins</a></li>
+</ul>
+<h3 id="further-learning">Further Learning</h3>
+<ul>
+<li><a href="https://refactoring.guru/design-patterns/decorator">Design Patterns: Decorator Pattern</a></li>
+<li><a href="https://refactoring.guru/design-patterns/chain-of-responsibility">Design Patterns: Chain of Responsibility</a></li>
+<li><a href="https://github.com/magento/magento-coding-standard">Magento Coding Standards (PHPCS)</a></li>
+</ul>
+<hr />
+<h2 id="assumptions">Assumptions</h2>
+<ul>
+<li>Target: Adobe Commerce / Magento Open Source 2.4.7</li>
+<li>PHP: 8.2+</li>
+<li>Environment: Development and production</li>
+<li>Scope: Backend (PHP modules, DI, plugins)</li>
+<li>Extensions: Custom modules in app/code or Composer packages</li>
+</ul>
+<h2 id="why-this-approach">Why This Approach</h2>
+<ul>
+<li><strong>Plugins over Preferences</strong>: Upgrade-safe; multiple plugins can coexist</li>
+<li><strong>Service Contracts</strong>: Plugin interfaces, not implementations, for BC</li>
+<li><strong>Before/After over Around</strong>: Lower performance cost when possible</li>
+<li><strong>Type Declarations</strong>: PHP 8.2+ strict types for reliability</li>
+<li><strong>Constructor DI</strong>: Explicit dependencies, testable</li>
+<li><strong>Logging</strong>: Debug and info logs for production troubleshooting</li>
+<li><strong>Early Exit</strong>: Conditional logic at start of method reduces overhead</li>
+</ul>
+<p>Alternatives considered:
+- <strong>Observers</strong>: No return value; can't modify method behavior
+- <strong>Preferences</strong>: Only one allowed; BC risk; conflicts common
+- <strong>Event Dispatch</strong>: Custom events for decoupling; plugins for interception
+- <strong>Rewrites (Magento 1)</strong>: Deprecated; plugins replace rewrites in Magento 2</p>
+<h2 id="security-impact">Security Impact</h2>
+<h3 id="authenticationauthorization">Authentication/Authorization</h3>
+<ul>
+<li>Plugins on admin controllers: Ensure ACL checks not bypassed</li>
+<li>Plugins on API endpoints: Verify token/OAuth validation occurs</li>
+<li>Example: Plugin on <code>OrderRepositoryInterface::save()</code> must not skip ACL</li>
+</ul>
+<h3 id="csrfform-keys">CSRF/Form Keys</h3>
+<ul>
+<li>Plugins on POST handlers: Ensure form key validation not skipped</li>
+<li>Do not remove CSRF protection in plugins</li>
+</ul>
+<h3 id="xss-escaping">XSS Escaping</h3>
+<ul>
+<li>Plugins modifying HTML output: Escape all user input</li>
+<li>Example: <code>afterGetName()</code> returning HTML must use <code>escapeHtml()</code></li>
+</ul>
+<h3 id="piigdpr">PII/GDPR</h3>
+<ul>
+<li>Plugins logging customer data: Ensure PII not logged in plain text</li>
+<li>Anonymize logs: <code>$this-&gt;logger-&gt;info('Customer action', ['customer_id' =&gt; hash('sha256', $customerId)])</code></li>
+</ul>
+<h3 id="secrets-management">Secrets Management</h3>
+<ul>
+<li>Never log API keys, passwords, tokens in plugins</li>
+<li>Use <code>LoggerInterface</code> with log level awareness (debug vs info)</li>
+</ul>
+<h2 id="performance-impact">Performance Impact</h2>
+<h3 id="full-page-cache-fpc">Full Page Cache (FPC)</h3>
+<ul>
+<li>Plugins on cacheable blocks: May break FPC</li>
+<li>ESI holes for dynamic content: Use Varnish ESI instead of plugins</li>
+<li>Cache invalidation: Plugins modifying cached data must invalidate cache tags</li>
+</ul>
+<h3 id="database-load">Database Load</h3>
+<ul>
+<li>Avoid N+1 queries in plugins on collection load</li>
+<li>Use <code>afterLoad</code> to batch-fetch data, not per-item queries</li>
+</ul>
+<h3 id="core-web-vitals-cwv">Core Web Vitals (CWV)</h3>
+<ul>
+<li>Plugins on frontend rendering: Minimize processing time</li>
+<li>Use profiler to measure plugin overhead: <code>bin/magento dev:profiler:enable</code></li>
+</ul>
+<h3 id="cacheability">Cacheability</h3>
+<ul>
+<li>Plugins on <code>CacheInterface</code>: Can wrap cache operations for logging/metrics</li>
+<li>Ensure cache keys unique: Include all parameters affecting output</li>
+</ul>
+<h2 id="backward-compatibility">Backward Compatibility</h2>
+<h3 id="apidb-schema-changes">API/DB Schema Changes</h3>
+<ul>
+<li>Plugins on data interfaces: Ensure added attributes don't break serialization</li>
+<li>Use extension attributes for adding data to entities</li>
+</ul>
+<h3 id="upgrade-path">Upgrade Path</h3>
+<ul>
+<li>Magento 2.4.6 → 2.4.7: Plugins remain compatible if targeting service contracts</li>
+<li>Magento 2.4.7 → 2.5: Verify plugin methods still exist; check deprecation notices</li>
+</ul>
+<h3 id="migration-notes">Migration Notes</h3>
+<ul>
+<li>Review Magento release notes for deprecated methods</li>
+<li>Test plugins against new minor versions before upgrading</li>
+<li>Use <code>@deprecated</code> annotations in your plugin methods if replacing with new approach</li>
+</ul>
+<h2 id="tests-to-add">Tests to Add</h2>
+<h3 id="unit-tests">Unit Tests</h3>
+<ul>
+<li>Test each plugin method in isolation</li>
+<li>Mock <code>$subject</code>, verify return types</li>
+<li>Test edge cases (null values, empty collections, exceptions)</li>
+</ul>
+<h3 id="integration-tests">Integration Tests</h3>
+<ul>
+<li>Test plugin in real Magento environment with DI</li>
+<li>Verify plugin execution order with multiple plugins</li>
+<li>Test area-specific plugins (frontend vs adminhtml)</li>
+</ul>
+<h3 id="functional-tests-mftf">Functional Tests (MFTF)</h3>
+<ul>
+<li>Test end-to-end flows affected by plugins</li>
+<li>Example: Product add to cart with price plugin active</li>
+</ul>
+<h3 id="performance-tests">Performance Tests</h3>
+<ul>
+<li>Measure plugin overhead with <code>bin/magento dev:profiler:enable</code></li>
+<li>Compare before/after plugin activation</li>
+<li>Target: &lt;5ms overhead per plugin in production mode</li>
+</ul>
+<h2 id="documentation-to-update">Documentation to Update</h2>
+<h3 id="code-comments">Code Comments</h3>
+<ul>
+<li>PHPDoc for all plugin methods: <code>@param</code>, <code>@return</code>, <code>@throws</code>, <code>@see</code></li>
+<li>Explain <strong>why</strong> plugin is needed, not just <strong>what</strong> it does</li>
+</ul>
+<h3 id="module-readme">Module README</h3>
+<pre><code class="language-markdown">## Plugins
+
+This module registers the following plugins:
+
+- `Vendor\Module\Plugin\Catalog\Model\Product\PriceExtend`: Applies 10% markup to product prices for customer group 3 (Wholesale). Registered on `Magento\Catalog\Model\Product::getPrice()`.
+
+sortOrder: 20 (runs after core price calculations)
+</code></pre>
+<h3 id="changelog">CHANGELOG</h3>
+<pre><code class="language-markdown">## [1.0.0] - 2026-02-05
+### Added
+- Plugin on `ProductRepositoryInterface::save()` for order audit trail
+- Plugin on `Product::getFinalPrice()` for dynamic pricing
+</code></pre>
+<h3 id="admin-user-guide">Admin User Guide</h3>
+<ul>
+<li>Document observable behavior changes caused by plugins</li>
+<li>Example: "Wholesale customers (group 3) automatically receive 10% discount on all products"</li>
+</ul>
+<h2 id="related-documentation">Related Documentation</h2>
+<h3 id="related-guides">Related Guides</h3>
+<ul>
+<li><a href="../explanations/service-contracts-repositories.md">Service Contracts vs Repositories in Magento 2</a></li>
+<li><a href="../how-to/testing-strategies.md">Comprehensive Testing Strategies for Magento 2</a></li>
+<li><a href="declarative-schema-data-patches.md">Declarative Schema &amp; Data Patches: Modern Database Management in Magento 2</a></li>
+</ul>
+<h3 id="related-module-documentation">Related Module Documentation</h3>
+<ul>
+<li><a href="../../modules/catalog/README.md">Magento_Catalog Overview</a></li>
+<li><a href="../../modules/customer/README.md">Magento_Customer Overview</a></li>
+<li><a href="../../modules/sales/README.md">Magento_Sales Overview</a></li>
+</ul>
+                    </div>
+                </article>
+            </main>
+            <!-- Right Sidebar: On This Page (desktop) -->
+            <aside class="toc-sidebar hidden xl:block" aria-label="On this page">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-semibold text-gray-900 uppercase tracking-wider mb-4 mt-0">On this page</h3>
+                    <nav id="toc-nav" class="space-y-0" aria-label="Table of contents"></nav>
+                    <div class="toc-back-to-top">
+                        <a href="#">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+                            </svg>
+                            Back to top
+                        </a>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- ================================================================
+         FOOTER — matches module-catalog.html multi-column layout exactly
+         ================================================================ -->
+    <footer class="relative pt-12 bg-white border-t border-charcoal mt-16">
+        <div class="max-w-screen-2xl mx-auto w-full px-4 sm:px-6 lg:px-8">
+            <div>
+                <a href="index.html" class="inline-flex items-center no-underline">
+                    <svg width="30" height="33" viewBox="0 0 30 33" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Magento Association logo" role="img">
+                        <path d="M0 4.06492H29.6763V31.8882C29.6763 32.502 29.1713 33 28.5487 33H1.12762C0.505079 33 0 32.502 0 31.8882V4.06492Z" fill="#34323A"/>
+                        <path d="M1.26857 0H28.4078C29.1066 0 29.6763 0.561678 29.6763 1.25075V4.06492H0V1.25075C0 0.561678 0.569682 0 1.26857 0Z" fill="#C9C9C9"/>
+                        <path d="M2.37269 3.0458C2.94031 3.0458 3.40046 2.59211 3.40046 2.03246C3.40046 1.47281 2.94031 1.01913 2.37269 1.01913C1.80506 1.01913 1.34491 1.47281 1.34491 2.03246C1.34491 2.59211 1.80506 3.0458 2.37269 3.0458Z" fill="#848484"/>
+                        <path d="M5.28571 3.0458C5.85334 3.0458 6.31349 2.59211 6.31349 2.03246C6.31349 1.47281 5.85334 1.01913 5.28571 1.01913C4.71809 1.01913 4.25793 1.47281 4.25793 2.03246C4.25793 2.59211 4.71809 3.0458 5.28571 3.0458Z" fill="#848484"/>
+                        <path d="M14.7883 7.46973L4.90405 13.0923V24.349L7.54104 25.8487V14.5978L14.7883 10.4692L22.0415 14.5978V25.8487L24.6785 24.349V13.0923L14.7883 7.46973Z" fill="#F1BC1B"/>
+                        <path d="M16.0862 26.2367L14.7883 26.9779L13.4492 26.2135V14.233L10.178 16.0975V27.3485L13.4492 29.213L14.7883 29.9773L16.0862 29.2362L19.4045 27.3485V16.0975L16.0862 14.2098V26.2367Z" fill="#F1BC1B"/>
+                    </svg>
+                    <span class="ml-3 text-xl font-bold text-charcoal">Developer Documentation</span>
+                </a>
+            </div>
+
+            <div class="grid grid-cols-12 md:gap-x-8 gap-y-12 lg:mt-12">
+                <div class="col-span-12 lg:col-span-4">
+                    <p class="hidden lg:block text-xs text-charcoal sm:text-sm">Comprehensive developer documentation for Magento 2.4.7+ — tutorials, architecture deep dives, module references, and production-ready patterns built by the community, for the community.</p>
+                    <ul class="mt-6 hidden lg:flex items-center gap-3">
+                        <li class="pl-0">
+                            <a href="https://github.com/magento/magento2" class="p-2 md:p-0" aria-label="GitHub">
+                                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                                </svg>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Guides</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="tutorials.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Tutorials</a></li>
+                            <li class="pl-0"><a href="how-to-guides.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">How-To Guides</a></li>
+                            <li class="pl-0"><a href="architecture.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Architecture</a></li>
+                            <li class="pl-0"><a href="learning-paths.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Learning Paths</a></li>
+                            <li class="pl-0"><a href="references.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">References</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Modules</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="module-catalog.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Catalog</a></li>
+                            <li class="pl-0"><a href="module-checkout.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Checkout</a></li>
+                            <li class="pl-0"><a href="module-sales.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Sales</a></li>
+                            <li class="pl-0"><a href="module-customer.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Customer</a></li>
+                            <li class="pl-0"><a href="module-quote.html" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Quote</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Community</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Magento Community</a></li>
+                            <li class="pl-0"><a href="https://magento.stackexchange.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Stack Exchange</a></li>
+                            <li class="pl-0"><a href="https://marketplace.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Marketplace</a></li>
+                            <li class="pl-0"><a href="https://github.com/magento/magento2" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">GitHub</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-xs col-span-6 md:col-span-3 lg:col-span-2">
+                    <span class="uppercase font-semibold text-charcoal">Support</span>
+                    <div class="mt-6">
+                        <ul class="space-y-3.5 md:space-y-3 text-charcoal list-none">
+                            <li class="pl-0"><a href="https://github.com/magento/magento2/issues" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Report Issues</a></li>
+                            <li class="pl-0"><a href="https://community.magento.com/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Community Resources</a></li>
+                            <li class="pl-0"><a href="https://developer.adobe.com/commerce/" class="block py-2 transition-colors no-underline hover:text-orange hover:bg-off-white px-2 -mx-2">Adobe Commerce Docs</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-12 border-t pt-6 pb-16 border-charcoal">
+                <p class="text-xs text-charcoal">
+                    &copy; 2026 Magento 2 Developer Documentation. Magento&reg; is a registered trademark of Adobe Inc.
+                </p>
+                <p class="mt-6 text-xs text-charcoal">
+                    This documentation provides guidance for Magento 2 developers and extension builders. For merchant documentation, visit the <a href="index.html" class="text-orange hover:text-orange-600 transition-colors">merchant documentation</a>.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Initialize highlight.js -->
+    <script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('pre code').forEach(function (el) {
+        hljs.highlightElement(el);
+    });
+    document.querySelectorAll('pre').forEach(function (pre) {
+        if (pre.parentNode.classList && pre.parentNode.classList.contains('code-wrapper')) return;
+        var wrapper = document.createElement('div');
+        wrapper.className = 'code-wrapper';
+        pre.parentNode.insertBefore(wrapper, pre);
+        wrapper.appendChild(pre);
+        var btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.setAttribute('type', 'button');
+        btn.setAttribute('aria-label', 'Copy code to clipboard');
+        btn.setAttribute('title', 'Copy');
+        btn.textContent = 'Copy';
+        wrapper.appendChild(btn);
+        btn.addEventListener('click', function () {
+            var code = pre.querySelector('code');
+            var text = code ? (code.innerText || code.textContent) : (pre.innerText || pre.textContent);
+            navigator.clipboard.writeText(text).then(function () {
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            }).catch(function () {
+                var range = document.createRange();
+                range.selectNode(code || pre);
+                window.getSelection().removeAllRanges();
+                window.getSelection().addRange(range);
+                document.execCommand('copy');
+                window.getSelection().removeAllRanges();
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            });
+        });
+    });
+});
+</script>
+
+
+<script>
+(function() {
+    var nav = document.getElementById('toc-nav');
+    if (!nav) return;
+    var article = document.getElementById('main-content');
+    if (!article) return;
+    var headings = article.querySelectorAll('h2[id], h3[id]');
+    if (headings.length < 3) {
+        // Hide the entire TOC sidebar if fewer than 3 headings
+        var sidebar = nav.closest('.toc-sidebar');
+        if (sidebar) sidebar.style.display = 'none';
+        return;
+    }
+    var ids = [];
+    headings.forEach(function(h) {
+        var a = document.createElement('a');
+        a.href = '#' + h.id;
+        a.textContent = h.textContent.replace(/^#+\s*/, '').replace(/\s+/g, ' ').trim();
+        if (h.tagName === 'H3') a.classList.add('toc-h3');
+        nav.appendChild(a);
+        ids.push(h.id);
+    });
+    // Scroll-spy with IntersectionObserver
+    var links = nav.querySelectorAll('a');
+    var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                links.forEach(function(l) { l.classList.remove('toc-active'); });
+                var active = nav.querySelector('a[href="#' + entry.target.id + '"]');
+                if (active) active.classList.add('toc-active');
+            }
+        });
+    }, { rootMargin: '-80px 0px -70% 0px', threshold: 0 });
+    headings.forEach(function(h) { observer.observe(h); });
+})();
+</script>
+</body>
+</html>
