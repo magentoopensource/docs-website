@@ -69,12 +69,12 @@
         var left = contributorsSection(contribs);
         var right = editSection(editUrl);
         if (!left && !right) { return ''; }
+        // No page-width wrapper: the widget fills its host container (the #dev-contributors
+        // placeholder inside the article column on content pages), matching the merchant docs.
         return '' +
-            '<div class="max-w-7xl xl:max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8">' +
-                '<div class="mt-16 pt-8 border-t border-gray-200">' +
-                    '<div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-8">' +
-                        left + right +
-                    '</div>' +
+            '<div class="mt-16 pt-8 border-t border-gray-200">' +
+                '<div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-8">' +
+                    left + right +
                 '</div>' +
             '</div>';
     }
@@ -84,6 +84,10 @@
         var container = document.createElement('div');
         container.innerHTML = html;
         var node = container.firstChild;
+        // Preferred: the #dev-contributors placeholder inside the article/content column.
+        var target = document.getElementById('dev-contributors');
+        if (target) { target.appendChild(node); return; }
+        // Fallback: just above the footer.
         var footer = document.querySelector('footer');
         if (footer && footer.parentNode) {
             footer.parentNode.insertBefore(node, footer);

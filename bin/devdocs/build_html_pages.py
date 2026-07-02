@@ -596,6 +596,8 @@ def build_page(md_path):
                         {content_html}
                     </div>
                 </article>
+                <!-- Contributor + edit widget injected here (inside the content column) -->
+                <div id="dev-contributors"></div>
             </main>
 
             <!-- TOC right sidebar (desktop) -->
