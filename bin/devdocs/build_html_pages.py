@@ -908,36 +908,48 @@ def update_overview_pages(link_map):
             print(f"  Updated {os.path.basename(filepath)}: {count} links resolved, {content.count('href=\"#\"')} remaining")
 
 
-def write_contributors_json(out_dir, owner='magentoopensource', repo='docs', path='developer', limit=3):
-    """Bake the DEV-DOCS contributors into contributors.json (consumed client-side by
-    includes/contributors.js). Scoped to commits touching `path` (the developer/ folder)
-    so the widget reflects who actually authored the developer docs — not repo-wide
-    contributors (which are dominated by the separate merchant content).
-    Best-effort: on any failure, writes an empty list so the widget just hides."""
-    url = f'https://api.github.com/repos/{owner}/{repo}/commits?path={path}&per_page=100'
+def _gh_get(url):
+    """GET a GitHub API URL and return parsed JSON (raises on failure)."""
+    req = urllib.request.Request(url, headers={
+        'User-Agent': 'MagentoOpenSource-DevDocs-Generator',
+        'Accept': 'application/vnd.github+json',
+    })
+    with urllib.request.urlopen(req, timeout=15) as resp:
+        return json.load(resp)
+
+
+def write_contributors_json(out_dir, limit=3):
+    """Bake the documentation-platform contributors into contributors.json (consumed
+    client-side by includes/contributors.js). Combines the developer/ CONTENT
+    (magentoopensource/docs) with the docs-website repo (the site + generator that build
+    and present the docs), aggregated per author. Best-effort: on any failure writes an
+    empty list so the widget simply hides."""
+    agg = {}
+
+    def add(login, avatar, html, n):
+        if not login:
+            return
+        entry = agg.setdefault(login, {
+            'login': login, 'avatar_url': avatar or '', 'html_url': html or '#', 'contributions': 0,
+        })
+        entry['contributions'] += n
+        if avatar and not entry['avatar_url']:
+            entry['avatar_url'] = avatar
+        if html and entry['html_url'] == '#':
+            entry['html_url'] = html
+
     data = []
     try:
-        req = urllib.request.Request(url, headers={
-            'User-Agent': 'MagentoOpenSource-DevDocs-Generator',
-            'Accept': 'application/vnd.github+json',
-        })
-        with urllib.request.urlopen(req, timeout=15) as resp:
-            commits = json.load(resp)
-        agg = {}
-        for c in commits:
+        # (1) developer/ CONTENT authorship in magentoopensource/docs
+        for c in _gh_get('https://api.github.com/repos/magentoopensource/docs/commits?path=developer&per_page=100'):
             a = c.get('author') or {}
-            login = a.get('login')
-            if not login:
-                continue
-            entry = agg.setdefault(login, {
-                'login': login,
-                'avatar_url': a.get('avatar_url', ''),
-                'html_url': a.get('html_url', '#'),
-                'contributions': 0,
-            })
-            entry['contributions'] += 1
+            add(a.get('login'), a.get('avatar_url'), a.get('html_url'), 1)
+        # (2) docs-website repo (the generator + site that build/present the docs)
+        for c in _gh_get('https://api.github.com/repos/magentoopensource/docs-website/contributors?per_page=100'):
+            if c.get('type') == 'User':
+                add(c.get('login'), c.get('avatar_url'), c.get('html_url'), c.get('contributions', 0))
         data = sorted(agg.values(), key=lambda x: x['contributions'], reverse=True)[:limit]
-        print(f"  Contributors: {len(data)} for {owner}/{repo}/{path} (dev-docs scoped)")
+        print(f"  Contributors: {len(data)} (dev-docs content + docs-website, combined)")
     except Exception as e:
         print(f"  Contributors: fetch failed ({e}) — writing empty list (widget hides)")
     with open(os.path.join(out_dir, 'contributors.json'), 'w') as f:
