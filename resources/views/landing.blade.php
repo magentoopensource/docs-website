@@ -72,7 +72,7 @@
 
     {{-- Minimal Header --}}
     <header class="bg-white border-b border-gray-200">
-        <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl xl:max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
                 <a href="/" class="inline-flex items-center no-underline flex-shrink-0">
                     <svg width="30" height="33" viewBox="0 0 30 33" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -110,7 +110,7 @@
 
             <div class="absolute bottom-0 left-0 right-0 h-1.5" style="background: linear-gradient(to right, #F1BC1B, #F26423, #2C2C2C);"></div>
 
-            <div class="relative z-10 max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24 text-center">
+            <div class="relative z-10 max-w-7xl xl:max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-24 text-center">
                 <h1 class="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold tracking-tight text-charcoal mb-6 leading-[1.05]">
                     Magento<br class="sm:hidden"> Documentation
                 </h1>
@@ -129,7 +129,7 @@
     {{-- DOCUMENTATION CARDS                                               --}}
     {{-- ================================================================ --}}
     <section class="relative pt-16 pb-16 sm:pt-20 sm:pb-24 bg-off-white">
-        <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl xl:max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid md:grid-cols-2 gap-6 lg:gap-8 max-w-5xl mx-auto">
 
                 {{-- Merchant Documentation Card --}}
@@ -239,7 +239,7 @@
     {{-- STATS BAR                                                         --}}
     {{-- ================================================================ --}}
     <section class="bg-charcoal border-t-4 border-gold">
-        <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+        <div class="max-w-7xl xl:max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
             <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
                 <div>
                     <span class="block text-4xl sm:text-5xl font-extrabold text-white">90+</span>
@@ -265,7 +265,7 @@
     {{-- QUICK LINKS GRID                                                  --}}
     {{-- ================================================================ --}}
     <section class="py-16 sm:py-20 bg-off-white">
-        <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl xl:max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-12">
                 <h2 class="text-3xl sm:text-4xl font-extrabold text-charcoal mb-4">Popular Starting Points</h2>
                 <p class="text-charcoal-300 text-lg max-w-2xl mx-auto">Jump straight into what you need.</p>
@@ -341,7 +341,7 @@
     {{-- COMMUNITY CALLOUT                                                 --}}
     {{-- ================================================================ --}}
     <section class="bg-white border-t border-gray-200">
-        <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
+        <div class="max-w-7xl xl:max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
             <div class="max-w-3xl mx-auto text-center">
                 <div class="flex justify-center mb-6">
                     <div class="flex items-center gap-1" aria-hidden="true">
@@ -372,7 +372,7 @@
 
     {{-- Footer --}}
     <footer class="bg-charcoal text-white">
-        <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div class="max-w-7xl xl:max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             <div class="grid md:grid-cols-3 gap-8 items-center">
                 <div class="flex items-center gap-3">
                     <svg width="30" height="33" viewBox="0 0 30 33" fill="none">

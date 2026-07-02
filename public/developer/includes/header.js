@@ -74,14 +74,14 @@
     var html = '' +
         // Ecosystem bar (desktop only) — scrolls away with the page.
         '<div class="hidden lg:flex bg-charcoal items-center justify-center h-10 w-full">' +
-            '<div class="max-w-screen-2xl w-full flex items-center justify-between px-4 sm:px-6 lg:px-8">' +
+            '<div class="max-w-7xl xl:max-w-[90rem] w-full flex items-center justify-between px-4 sm:px-6 lg:px-8">' +
                 '<div class="text-sm leading-[1.42] text-white font-bold">Explore the Magento<span class="text-[9px] align-super">&reg;</span> Open Source Ecosystem</div>' +
                 '<div class="flex items-center">' + ecosystemItems() + '</div>' +
             '</div>' +
         '</div>' +
         // Main header — sticky, fixed h-16 to align with `sticky top-16` quick-jump nav.
         '<div class="sticky top-0 z-50 bg-white flex items-center h-16 w-full border-b border-gray-200 shadow-sm">' +
-            '<div class="flex items-center justify-between w-full max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">' +
+            '<div class="flex items-center justify-between w-full max-w-7xl xl:max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8">' +
                 '<a href="/" class="inline-flex items-center" aria-label="Magento home">' + MAGENTO_LOGO + '</a>' +
                 '<button data-mobile-menu-toggle class="lg:hidden flex items-center justify-center w-10 h-10 text-charcoal hover:text-orange transition-all focus:outline-none focus:ring-2 focus:ring-orange" aria-label="Toggle navigation menu" aria-expanded="false">' +
                     '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>' +
