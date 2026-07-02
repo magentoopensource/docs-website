@@ -101,10 +101,18 @@
         <div class="relative min-h-[420px] sm:min-h-[500px] lg:min-h-[560px] flex flex-col items-center justify-center">
 
             <div class="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden" aria-hidden="true">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" class="w-auto min-h-[140%] opacity-[0.40]" preserveAspectRatio="xMidYMid meet">
+                <!-- Desktop (sm+): original layered translucent hexagons — unchanged -->
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" class="hidden sm:block w-auto min-h-[140%] opacity-[0.40]" preserveAspectRatio="xMidYMid meet">
                     <path fill-rule="evenodd" fill="#F1BC1B" d="M400,-30 L694.4,140 L694.4,480 L400,650 L105.6,480 L105.6,140 Z M400,120 L564.5,215 L564.5,405 L400,500 L235.5,405 L235.5,215 Z"/>
                     <path fill-rule="evenodd" fill="#F26423" d="M400,99 L656.3,247 L656.3,543 L400,691 L143.7,543 L143.7,247 Z M400,249 L526.4,322 L526.4,468 L400,541 L273.6,468 L273.6,322 Z"/>
                     <path fill-rule="evenodd" fill="#2C2C2C" d="M400,228 L618.2,354 L618.2,606 L400,732 L181.8,606 L181.8,354 Z M400,338 L522.9,409 L522.9,551 L400,622 L277.1,551 L277.1,409 Z"/>
+                </svg>
+                <!-- Mobile (<sm): solid nested hexagons — cleaner, more solid even rings -->
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" class="block sm:hidden w-auto min-h-[140%] opacity-[0.5]" preserveAspectRatio="xMidYMid meet">
+                    <polygon points="400,8 744,204 744,596 400,792 56,596 56,204" fill="#2C2C2C"/>
+                    <polygon points="400,92 672,250 672,550 400,708 128,550 128,250" fill="#F26423"/>
+                    <polygon points="400,175 599,296 599,504 400,625 201,504 201,296" fill="#F1BC1B"/>
+                    <polygon points="400,258 527,342 527,458 400,542 273,458 273,342" fill="#FFFFFF"/>
                 </svg>
             </div>
 
