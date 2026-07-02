@@ -12,6 +12,8 @@ import os
 import re
 import yaml
 import glob
+import json
+import urllib.request
 
 # Paths are resolved from env vars set by generate.sh.
 # Fallback defaults are relative to this script's location (repo root → ma-devdocs / deploy dir).
@@ -251,6 +253,11 @@ def build_page(md_path):
     title = meta.get('title', os.path.basename(md_path).replace('.md', '').replace('-', ' ').title())
     description = meta.get('description', title)
 
+    # Per-page "Edit on GitHub" URL — points at the source .md under developer/
+    # in the content repo (read by includes/contributors.js to render the edit button).
+    rel_md = os.path.relpath(md_path, MD_DIR)
+    edit_url = f"https://github.com/magentoopensource/docs/edit/main/developer/{rel_md}"
+
     # Convert markdown to HTML
     md = markdown.Markdown(extensions=[
         'tables',
@@ -311,6 +318,7 @@ def build_page(md_path):
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{title} — Magento 2 Developer Documentation</title>
     <meta name="description" content="{description}">
+    <meta name="edit-url" content="{edit_url}">
 
     <!-- Google Fonts: Inter Tight only. Courier New used for code. -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -387,6 +395,10 @@ def build_page(md_path):
             font-size: 0.875rem;
             background: transparent !important;
             padding: 0;
+            /* Light base colour so code stays readable on the charcoal bg even for
+               languages highlight.js doesn't tokenize (e.g. vcl). Recognized
+               languages still get their own token colours from the hljs theme. */
+            color: #abb2bf;
         }}
         /* Override highlight.js theme background to match Bauhaus charcoal */
         .hljs {{
@@ -542,6 +554,8 @@ def build_page(md_path):
 
     <!-- Shared header — single source of truth -->
     <script src="includes/header.js"></script>
+    <!-- Contributor widget (reads locally-baked contributors.json) -->
+    <script src="includes/contributors.js"></script>
 
     <!-- Breadcrumb — orange › separators -->
     <div class="bg-white border-b border-gray-100">
@@ -894,6 +908,32 @@ def update_overview_pages(link_map):
             print(f"  Updated {os.path.basename(filepath)}: {count} links resolved, {content.count('href=\"#\"')} remaining")
 
 
+def write_contributors_json(out_dir, owner='magentoopensource', repo='docs', limit=3):
+    """Fetch top repo contributors from the GitHub API and bake them into
+    contributors.json (consumed client-side by includes/contributors.js).
+    Best-effort: on any failure, writes an empty list so the widget just hides."""
+    url = f'https://api.github.com/repos/{owner}/{repo}/contributors?per_page={limit}'
+    data = []
+    try:
+        req = urllib.request.Request(url, headers={
+            'User-Agent': 'MagentoOpenSource-DevDocs-Generator',
+            'Accept': 'application/vnd.github+json',
+        })
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            raw = json.load(resp)
+        data = [{
+            'login': c.get('login', ''),
+            'avatar_url': c.get('avatar_url', ''),
+            'html_url': c.get('html_url', '#'),
+            'contributions': c.get('contributions', 0),
+        } for c in raw if c.get('type') == 'User'][:limit]
+        print(f"  Contributors: fetched {len(data)} from {owner}/{repo}")
+    except Exception as e:
+        print(f"  Contributors: fetch failed ({e}) — writing empty list (widget hides)")
+    with open(os.path.join(out_dir, 'contributors.json'), 'w') as f:
+        json.dump(data, f)
+
+
 if __name__ == '__main__':
     print("=" * 60)
     print("Building HTML pages from markdown")
@@ -904,6 +944,9 @@ if __name__ == '__main__':
     print(f"\nFound {len(md_files)} markdown files to convert\n")
 
     os.makedirs(OUT_DIR, exist_ok=True)
+
+    # Bake the contributor widget data (best-effort; widget hides if empty).
+    write_contributors_json(OUT_DIR)
 
     generated = 0
     errors = 0
