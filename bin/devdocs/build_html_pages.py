@@ -908,11 +908,13 @@ def update_overview_pages(link_map):
             print(f"  Updated {os.path.basename(filepath)}: {count} links resolved, {content.count('href=\"#\"')} remaining")
 
 
-def write_contributors_json(out_dir, owner='magentoopensource', repo='docs', limit=3):
-    """Fetch top repo contributors from the GitHub API and bake them into
-    contributors.json (consumed client-side by includes/contributors.js).
+def write_contributors_json(out_dir, owner='magentoopensource', repo='docs', path='developer', limit=3):
+    """Bake the DEV-DOCS contributors into contributors.json (consumed client-side by
+    includes/contributors.js). Scoped to commits touching `path` (the developer/ folder)
+    so the widget reflects who actually authored the developer docs — not repo-wide
+    contributors (which are dominated by the separate merchant content).
     Best-effort: on any failure, writes an empty list so the widget just hides."""
-    url = f'https://api.github.com/repos/{owner}/{repo}/contributors?per_page={limit}'
+    url = f'https://api.github.com/repos/{owner}/{repo}/commits?path={path}&per_page=100'
     data = []
     try:
         req = urllib.request.Request(url, headers={
@@ -920,14 +922,22 @@ def write_contributors_json(out_dir, owner='magentoopensource', repo='docs', lim
             'Accept': 'application/vnd.github+json',
         })
         with urllib.request.urlopen(req, timeout=15) as resp:
-            raw = json.load(resp)
-        data = [{
-            'login': c.get('login', ''),
-            'avatar_url': c.get('avatar_url', ''),
-            'html_url': c.get('html_url', '#'),
-            'contributions': c.get('contributions', 0),
-        } for c in raw if c.get('type') == 'User'][:limit]
-        print(f"  Contributors: fetched {len(data)} from {owner}/{repo}")
+            commits = json.load(resp)
+        agg = {}
+        for c in commits:
+            a = c.get('author') or {}
+            login = a.get('login')
+            if not login:
+                continue
+            entry = agg.setdefault(login, {
+                'login': login,
+                'avatar_url': a.get('avatar_url', ''),
+                'html_url': a.get('html_url', '#'),
+                'contributions': 0,
+            })
+            entry['contributions'] += 1
+        data = sorted(agg.values(), key=lambda x: x['contributions'], reverse=True)[:limit]
+        print(f"  Contributors: {len(data)} for {owner}/{repo}/{path} (dev-docs scoped)")
     except Exception as e:
         print(f"  Contributors: fetch failed ({e}) — writing empty list (widget hides)")
     with open(os.path.join(out_dir, 'contributors.json'), 'w') as f:

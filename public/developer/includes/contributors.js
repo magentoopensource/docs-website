@@ -13,7 +13,8 @@
  * Included on every dev-docs page as:  <script src="includes/contributors.js"></script>
  */
 (function () {
-    var REPO_URL = 'https://github.com/magentoopensource/docs/graphs/contributors';
+    // Dev-docs scoped: the commit history of the developer/ folder.
+    var REPO_URL = 'https://github.com/magentoopensource/docs/commits/main/developer';
     var RANK = [
         'bg-yellow-400 text-yellow-900 ring-2 ring-yellow-500',
         'bg-gray-300 text-gray-700 ring-2 ring-gray-400',
