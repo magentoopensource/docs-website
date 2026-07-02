@@ -545,7 +545,7 @@ def build_page(md_path):
 
     <!-- Breadcrumb — orange › separators -->
     <div class="bg-white border-b border-gray-100">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+        <div class="max-w-7xl xl:max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8 py-3">
             <div class="flex items-center gap-2 text-sm flex-wrap">
                 {breadcrumb}
             </div>
@@ -553,7 +553,7 @@ def build_page(md_path):
     </div>
 
     <!-- Main Content -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="max-w-7xl xl:max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div class="flex gap-8">
 
             <!-- Left Sidebar (desktop) -->
@@ -598,7 +598,7 @@ def build_page(md_path):
          FOOTER — matches module-catalog.html multi-column layout exactly
          ================================================================ -->
     <footer class="relative pt-12 bg-white border-t border-charcoal mt-16">
-        <div class="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl xl:max-w-[90rem] mx-auto w-full px-4 sm:px-6 lg:px-8">
             <div>
                 <a href="index.html" class="inline-flex items-center no-underline">
                     <svg width="30" height="33" viewBox="0 0 30 33" fill="none" xmlns="http://www.w3.org/2000/svg">
