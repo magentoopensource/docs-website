@@ -27,7 +27,7 @@
         '<path d="M16.0862 26.2367L14.7883 26.9779L13.4492 26.2135V14.233L10.178 16.0975V27.3485L13.4492 29.213L14.7883 29.9773L16.0862 29.2362L19.4045 27.3485V16.0975L16.0862 14.2098V26.2367Z" fill="#F1BC1B"/>' +
         '</svg>' +
         '<span class="text-xl font-bold text-charcoal leading-none">Magento</span>' +
-        '<span class="hidden sm:inline-block text-[11px] font-semibold uppercase tracking-wider text-charcoal-300 border-l border-gray-300 pl-2.5">Developer Docs</span>' +
+        '<span class="hidden sm:inline-block text-[11px] font-semibold uppercase tracking-wider text-charcoal-300 border-l border-gray-300 pl-2.5 pt-1">Developer Docs</span>' +
         '</span>';
 
     var ECOSYSTEM_LINKS = [
