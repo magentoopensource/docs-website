@@ -90,9 +90,78 @@
                     <a href="https://github.com/magento/magento2" target="_blank" rel="noopener" class="text-sm font-medium text-charcoal-300 hover:text-orange transition-colors no-underline">GitHub</a>
                     <a href="https://community.magento.com/" target="_blank" rel="noopener" class="text-sm font-medium text-charcoal-300 hover:text-orange transition-colors no-underline">Community</a>
                 </nav>
+                {{-- Mobile burger --}}
+                <button data-landing-menu-toggle type="button" class="md:hidden inline-flex items-center justify-center w-10 h-10 -mr-2 text-charcoal hover:text-orange focus:outline-none focus:ring-2 focus:ring-orange" aria-label="Open menu" aria-expanded="false">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                </button>
+            </div>
+        </div>
+
+        {{-- Mobile slide-out menu (vanilla JS — self-contained, no framework dependency) --}}
+        <div class="md:hidden">
+            {{-- Overlay --}}
+            <div data-landing-menu-overlay class="hidden fixed inset-0 bg-charcoal/80 z-40 transition-opacity duration-200 opacity-0" aria-hidden="true"></div>
+            {{-- Panel --}}
+            <div data-landing-menu-panel class="hidden fixed top-0 right-0 h-full w-80 max-w-[85%] bg-white shadow-2xl z-50 border-t-4 border-yellow overflow-y-auto transform translate-x-full transition-transform duration-300 ease-out" aria-hidden="true">
+                <div class="flex items-center justify-between px-6 py-5 border-b border-gray-200 bg-off-white">
+                    <span class="text-lg font-bold text-charcoal">Menu</span>
+                    <button data-landing-menu-close type="button" class="inline-flex items-center justify-center w-10 h-10 text-charcoal hover:text-orange focus:outline-none focus:ring-2 focus:ring-orange" aria-label="Close menu">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                </div>
+                <nav class="flex flex-col py-2">
+                    <a href="https://www.magentoassociation.org/home" target="_blank" rel="noopener" class="px-6 py-4 text-base font-medium text-charcoal hover:bg-off-white hover:text-orange transition-colors border-b border-gray-100 no-underline">Magento Association</a>
+                    <a href="https://github.com/magento/magento2" target="_blank" rel="noopener" class="px-6 py-4 text-base font-medium text-charcoal hover:bg-off-white hover:text-orange transition-colors border-b border-gray-100 no-underline">GitHub</a>
+                    <a href="https://community.magento.com/" target="_blank" rel="noopener" class="px-6 py-4 text-base font-medium text-charcoal hover:bg-off-white hover:text-orange transition-colors no-underline">Community</a>
+                </nav>
             </div>
         </div>
     </header>
+    <script>
+        (function () {
+            var toggle = document.querySelector('[data-landing-menu-toggle]');
+            var overlay = document.querySelector('[data-landing-menu-overlay]');
+            var panel = document.querySelector('[data-landing-menu-panel]');
+            var closeBtn = document.querySelector('[data-landing-menu-close]');
+            if (!toggle || !overlay || !panel) { return; }
+
+            function openMenu() {
+                overlay.classList.remove('hidden');
+                panel.classList.remove('hidden');
+                // Force a reflow so the browser registers the off-screen start state,
+                // then removing the classes animates the slide-in. Reliable in
+                // background tabs where requestAnimationFrame is throttled.
+                void panel.offsetWidth;
+                overlay.classList.remove('opacity-0');
+                panel.classList.remove('translate-x-full');
+                toggle.setAttribute('aria-expanded', 'true');
+                panel.setAttribute('aria-hidden', 'false');
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeMenu() {
+                overlay.classList.add('opacity-0');
+                panel.classList.add('translate-x-full');
+                toggle.setAttribute('aria-expanded', 'false');
+                panel.setAttribute('aria-hidden', 'true');
+                document.body.style.overflow = '';
+                window.setTimeout(function () {
+                    overlay.classList.add('hidden');
+                    panel.classList.add('hidden');
+                }, 300);
+            }
+
+            toggle.addEventListener('click', openMenu);
+            closeBtn && closeBtn.addEventListener('click', closeMenu);
+            overlay.addEventListener('click', closeMenu);
+            panel.querySelectorAll('a').forEach(function (link) {
+                link.addEventListener('click', closeMenu);
+            });
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape' && !panel.classList.contains('hidden')) { closeMenu(); }
+            });
+        })();
+    </script>
 
     {{-- ================================================================ --}}
     {{-- HERO — Bauhaus: 3 stacked hex rings, deliberate overlap          --}}
@@ -108,11 +177,11 @@
                     <path fill-rule="evenodd" fill="#2C2C2C" d="M400,228 L618.2,354 L618.2,606 L400,732 L181.8,606 L181.8,354 Z M400,338 L522.9,409 L522.9,551 L400,622 L277.1,551 L277.1,409 Z"/>
                 </svg>
                 <!-- Mobile (<sm): solid nested hexagons — cleaner, more solid even rings -->
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" class="block sm:hidden w-auto min-h-[140%] opacity-[0.5]" preserveAspectRatio="xMidYMid meet">
-                    <polygon points="400,8 744,204 744,596 400,792 56,596 56,204" fill="#2C2C2C"/>
-                    <polygon points="400,92 672,250 672,550 400,708 128,550 128,250" fill="#F26423"/>
-                    <polygon points="400,175 599,296 599,504 400,625 201,504 201,296" fill="#F1BC1B"/>
-                    <polygon points="400,258 527,342 527,458 400,542 273,458 273,342" fill="#FFFFFF"/>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" class="block sm:hidden w-auto min-h-[140%] opacity-[0.40]" preserveAspectRatio="xMidYMid meet">
+                    <polygon points="400,8 740,204 740,596 400,792 60,596 60,204" fill="#F1BC1B"/>
+                    <polygon points="400,110 651,255 651,545 400,690 149,545 149,255" fill="#F26423"/>
+                    <polygon points="400,212 563,306 563,494 400,588 237,494 237,306" fill="#2C2C2C"/>
+                    <polygon points="400,314 475,357 475,443 400,486 325,443 325,357" fill="#FFFFFF"/>
                 </svg>
             </div>
 
@@ -122,12 +191,12 @@
                 <h1 class="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold tracking-tight text-charcoal mb-6 leading-[1.05]">
                     Magento<br class="sm:hidden"> Documentation
                 </h1>
-                <p class="text-lg sm:text-xl text-charcoal-300 leading-relaxed max-w-2xl mx-auto mb-8">
-                    Built by the community, for the community. Choose your path.
+                <p class="text-lg sm:text-xl text-charcoal leading-relaxed max-w-2xl mx-auto mb-8">
+                    Built by the community, for the community.<span class="hidden sm:inline"> Choose your path.</span>
                 </p>
                 <div class="inline-flex items-center gap-2 px-4 py-2 bg-charcoal text-sm text-gray-300">
                     <svg class="w-3.5 h-3.5 text-orange" viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 22,8 22,16 12,22 2,16 2,8"/></svg>
-                    Magento Open Source 2.4.8
+                    Magento Open Source 2.4.9
                 </div>
             </div>
         </div>
