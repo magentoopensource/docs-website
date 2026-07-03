@@ -244,6 +244,169 @@ def get_sidebar_nav(md_path):
 
     return '\n'.join(items)
 
+# ── Static CSS/JS blocks ported from the committed refined design ──
+# Defined as plain strings (not inside the f-string template) so their literal
+# CSS/JS braces need no `{{`/`}}` escaping. Interpolated into the template via
+# {COPY_TOC_CSS} / {CODE_TOC_SCRIPTS}.
+COPY_TOC_CSS = r'''        /* Code block copy button */
+        .code-wrapper {
+            position: relative;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            font-family: 'Inter Tight', system-ui, sans-serif;
+            background: rgba(255,255,255,0.1);
+            color: #abb2bf;
+            border: 1px solid rgba(255,255,255,0.15);
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.15s ease, background 0.15s ease;
+            z-index: 10;
+            line-height: 1.4;
+            border-radius: 4px;
+            user-select: none;
+        }
+        .code-wrapper:hover .copy-btn {
+            opacity: 1;
+        }
+        .copy-btn:hover,
+        .copy-btn:focus {
+            background: rgba(255,255,255,0.2);
+            color: #ffffff;
+            outline: 2px solid #D4551A;
+            outline-offset: 1px;
+        }
+        .copy-btn.copied {
+            color: #98c379;
+            background: rgba(152, 195, 121, 0.15);
+            opacity: 1;
+        }
+
+        /* Right-hand TOC sidebar */
+        .toc-sidebar {
+            width: 14rem;
+            flex-shrink: 0;
+        }
+        .toc-sidebar a {
+            display: block;
+            padding: 0.375rem 0;
+            font-size: 0.8125rem;
+            line-height: 1.4;
+            color: #6b7280;
+            text-decoration: none;
+            transition: color 0.15s ease;
+            border-left: 2px solid transparent;
+            padding-left: 0.75rem;
+        }
+        .toc-sidebar a:hover {
+            color: #111827;
+        }
+        .toc-sidebar a.toc-active {
+            color: #ea580c;
+            border-left-color: #ea580c;
+            font-weight: 500;
+        }
+        .toc-sidebar a.toc-h3 {
+            padding-left: 1.5rem;
+            font-size: 0.75rem;
+        }
+        .toc-sidebar .toc-back-to-top {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e5e7eb;
+        }
+        .toc-sidebar .toc-back-to-top a {
+            border-left: none;
+            padding-left: 0;
+            font-weight: 500;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .toc-sidebar .toc-back-to-top a:hover {
+            color: #ea580c;
+        }'''
+
+CODE_TOC_SCRIPTS = r'''    <script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('pre code').forEach(function (el) {
+        hljs.highlightElement(el);
+    });
+    document.querySelectorAll('pre').forEach(function (pre) {
+        if (pre.parentNode.classList && pre.parentNode.classList.contains('code-wrapper')) return;
+        var wrapper = document.createElement('div');
+        wrapper.className = 'code-wrapper';
+        pre.parentNode.insertBefore(wrapper, pre);
+        wrapper.appendChild(pre);
+        var btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.setAttribute('type', 'button');
+        btn.setAttribute('aria-label', 'Copy code to clipboard');
+        btn.setAttribute('title', 'Copy');
+        btn.textContent = 'Copy';
+        wrapper.appendChild(btn);
+        btn.addEventListener('click', function () {
+            var code = pre.querySelector('code');
+            var text = code ? (code.innerText || code.textContent) : (pre.innerText || pre.textContent);
+            navigator.clipboard.writeText(text).then(function () {
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            }).catch(function () {
+                var range = document.createRange();
+                range.selectNode(code || pre);
+                window.getSelection().removeAllRanges();
+                window.getSelection().addRange(range);
+                document.execCommand('copy');
+                window.getSelection().removeAllRanges();
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+            });
+        });
+    });
+});
+</script>
+
+<script>
+(function() {
+    var nav = document.getElementById('toc-nav');
+    if (!nav) return;
+    var article = document.getElementById('main-content');
+    if (!article) return;
+    var headings = article.querySelectorAll('h2[id], h3[id]');
+    if (headings.length < 3) {
+        var sidebar = nav.closest('.toc-sidebar');
+        if (sidebar) sidebar.style.display = 'none';
+        return;
+    }
+    headings.forEach(function(h) {
+        var a = document.createElement('a');
+        a.href = '#' + h.id;
+        a.textContent = h.textContent.replace(/^#+\s*/, '').replace(/\s+/g, ' ').trim();
+        if (h.tagName === 'H3') a.classList.add('toc-h3');
+        nav.appendChild(a);
+    });
+    var links = nav.querySelectorAll('a');
+    var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                links.forEach(function(l) { l.classList.remove('toc-active'); });
+                var active = nav.querySelector('a[href="#' + entry.target.id + '"]');
+                if (active) active.classList.add('toc-active');
+            }
+        });
+    }, { rootMargin: '-80px 0px -70% 0px', threshold: 0 });
+    headings.forEach(function(h) { observer.observe(h); });
+})();
+</script>'''
+
+
 def build_page(md_path):
     """Convert a markdown file to a full HTML page with Bauhaus design language."""
     with open(md_path, 'r') as f:
@@ -346,16 +509,16 @@ def build_page(md_path):
                     colors: {{
                         charcoal: {{
                             DEFAULT: '#2c2c2c', 50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6',
-                            300: '#818181', 400: '#474747', 500: '#2c2c2c', 600: '#262626',
+                            300: '#6B6B6B', 400: '#474747', 500: '#2c2c2c', 600: '#262626',
                             700: '#202020', 800: '#1c1c1c', 900: '#191919', 950: '#121212'
                         }},
                         orange: {{
-                            DEFAULT: '#F26423', 50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad',
+                            DEFAULT: '#D4551A', 50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad',
                             300: '#f9ae78', 400: '#f58242', 500: '#f26423', 600: '#e34613',
                             700: '#bc3312', 800: '#962a16', 900: '#792515', 950: '#411009'
                         }},
                         yellow: {{
-                            DEFAULT: '#F1BC1B', 50: '#fffdeb', 100: '#fdf9c8', 200: '#fbf38c',
+                            DEFAULT: '#B8860B', 50: '#fffdeb', 100: '#fdf9c8', 200: '#fbf38c',
                             300: '#f8e651', 400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a',
                             700: '#b1670c', 800: '#8f5111', 900: '#764311', 950: '#442204'
                         }},
@@ -499,7 +662,7 @@ def build_page(md_path):
             color: #2C2C2C;
         }}
         .prose p {{ margin-bottom: 1rem; line-height: 1.75; }}
-        .prose a {{ color: #F26423; text-decoration: none; }}
+        .prose a {{ color: #D4551A; text-decoration: none; }}
         .prose a:hover {{ color: #e34613; text-decoration: underline; }}
         .prose hr {{ border: none; border-top: 1px solid #e5e5e5; margin: 2rem 0; }}
 
@@ -511,7 +674,7 @@ def build_page(md_path):
             margin: 1.5rem 0;
         }}
         .callout-warning {{
-            border-color: #F26423;
+            border-color: #D4551A;
         }}
         .callout-important {{
             border-color: #2C2C2C;
@@ -532,21 +695,7 @@ def build_page(md_path):
             color: rgba(44,44,44,0.85);
         }}
 
-        /* ── TOC sidebar ── */
-        .toc-sidebar a {{
-            color: #818181;
-            font-size: 0.8125rem;
-            text-decoration: none;
-            display: block;
-            padding: 0.25rem 0;
-            transition: color 0.15s;
-        }}
-        .toc-sidebar a:hover {{ color: #F26423; }}
-        .toc-sidebar ul {{ list-style: none; padding-left: 0; }}
-        .toc-sidebar > ul > li > ul {{ padding-left: 0.75rem; }}
-        /* Override hexagon bullets inside TOC */
-        .toc-sidebar ul li::before {{ display: none; }}
-        .toc-sidebar ul li {{ padding-left: 0; }}
+{COPY_TOC_CSS}
     </style>
 </head>
 
@@ -578,7 +727,7 @@ def build_page(md_path):
             </aside>
 
             <!-- Article — square corners, border-t-4 orange accent -->
-            <main class="flex-1 min-w-0">
+            <main id="main-content" class="flex-1 min-w-0">
                 <article class="bg-white shadow-sm border border-gray-100 border-t-4 border-t-orange p-8 md:p-12">
                     <!-- Title block -->
                     <div class="mb-8">
@@ -600,11 +749,19 @@ def build_page(md_path):
                 <div id="dev-contributors"></div>
             </main>
 
-            <!-- TOC right sidebar (desktop) -->
-            <aside class="hidden xl:block w-56 flex-shrink-0">
-                <div class="sticky top-24 toc-sidebar">
-                    <h4 class="text-xs font-bold uppercase tracking-wider text-charcoal-300 mb-4">On this page</h4>
-                    {toc_html}
+            <!-- Right Sidebar: On This Page (desktop) — JS scrollspy TOC -->
+            <aside class="toc-sidebar hidden xl:block" aria-label="On this page">
+                <div class="sticky top-24">
+                    <h3 class="text-xs font-semibold text-gray-900 uppercase tracking-wider mb-4 mt-0">On this page</h3>
+                    <nav id="toc-nav" class="space-y-0" aria-label="Table of contents"></nav>
+                    <div class="toc-back-to-top">
+                        <a href="#">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+                            </svg>
+                            Back to top
+                        </a>
+                    </div>
                 </div>
             </aside>
         </div>
@@ -617,7 +774,7 @@ def build_page(md_path):
         <div class="max-w-7xl xl:max-w-[90rem] mx-auto w-full px-4 sm:px-6 lg:px-8">
             <div>
                 <a href="index.html" class="inline-flex items-center no-underline">
-                    <svg width="30" height="33" viewBox="0 0 30 33" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <svg width="30" height="33" viewBox="0 0 30 33" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Magento Association logo" role="img">
                         <path d="M0 4.06492H29.6763V31.8882C29.6763 32.502 29.1713 33 28.5487 33H1.12762C0.505079 33 0 32.502 0 31.8882V4.06492Z" fill="#34323A"/>
                         <path d="M1.26857 0H28.4078C29.1066 0 29.6763 0.561678 29.6763 1.25075V4.06492H0V1.25075C0 0.561678 0.569682 0 1.26857 0Z" fill="#C9C9C9"/>
                         <path d="M2.37269 3.0458C2.94031 3.0458 3.40046 2.59211 3.40046 2.03246C3.40046 1.47281 2.94031 1.01913 2.37269 1.01913C1.80506 1.01913 1.34491 1.47281 1.34491 2.03246C1.34491 2.59211 1.80506 3.0458 2.37269 3.0458Z" fill="#848484"/>
@@ -704,8 +861,8 @@ def build_page(md_path):
         </div>
     </footer>
 
-    <!-- Initialize highlight.js -->
-    <script>hljs.highlightAll();</script>
+    <!-- Initialize highlight.js + code copy buttons + scrollspy TOC -->
+{CODE_TOC_SCRIPTS}
 
 </body>
 </html>'''
