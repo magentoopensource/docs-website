@@ -83,7 +83,7 @@
                         <path d="M14.7883 7.46973L4.90405 13.0923V24.349L7.54104 25.8487V14.5978L14.7883 10.4692L22.0415 14.5978V25.8487L24.6785 24.349V13.0923L14.7883 7.46973Z" fill="#F1BC1B"/>
                         <path d="M16.0862 26.2367L14.7883 26.9779L13.4492 26.2135V14.233L10.178 16.0975V27.3485L13.4492 29.213L14.7883 29.9773L16.0862 29.2362L19.4045 27.3485V16.0975L16.0862 14.2098V26.2367Z" fill="#F1BC1B"/>
                     </svg>
-                    <span class="ml-3 text-xl font-bold text-charcoal">Documentation</span>
+                    <span class="ml-3 text-xl font-bold text-charcoal">Magento Documentation</span>
                 </a>
                 <nav class="hidden md:flex items-center gap-6">
                     <a href="https://www.magentoassociation.org/home" target="_blank" rel="noopener" class="text-sm font-medium text-charcoal-300 hover:text-orange transition-colors no-underline">Magento Association</a>
