@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magento_Eav - Known Issues & Gotchas</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        orange: {
+                            DEFAULT: '#F26423',
+                            50: '#fef5ee',
+                            100: '#fde8da',
+                            200: '#f9cdb4',
+                            300: '#f5a97d',
+                            400: '#f07d45',
+                            500: '#F26423',
+                            600: '#e34a11',
+                            700: '#bc3810',
+                            800: '#962e15',
+                            900: '#792914',
+                        },
+                        yellow: {
+                            DEFAULT: '#F1BC1B',
+                            50: '#fffbeb',
+                            100: '#fef3c7',
+                            200: '#fde58a',
+                            300: '#fcd34d',
+                            400: '#F1BC1B',
+                            500: '#F1BC1B',
+                            600: '#d19e0a',
+                            700: '#a67508',
+                            800: '#895c0d',
+                            900: '#744b11',
+                        },
+                        charcoal: {
+                            DEFAULT: '#2c2c2c',
+                            50: '#f1f1f1',
+                            100: '#e5e5e5',
+                            200: '#cccccc',
+                            300: '#a8a8a8',
+                            400: '#7a7a7a',
+                            500: '#2c2c2c',
+                            600: '#262626',
+                            700: '#1f1f1f',
+                            800: '#181818',
+                            900: '#121212',
+                        },
+                        brown: '#442204',
+                        'off-white': '#FAFAFA',
+                    },
+                    fontFamily: {
+                        sans: ['Inter Tight', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter Tight', system-ui, sans-serif; }
+        .code-block { background: #1c1c1c; color: #f1f1f1; }
+        .code-block .comment { color: #6A9955; }
+        .code-block .keyword { color: #569CD6; }
+        .code-block .string { color: #CE9178; }
+        .code-block .class { color: #4EC9B0; }
+        .code-block .method { color: #DCDCAA; }
+        .code-block .variable { color: #9CDCFE; }
+        .issue-card { border-left: 4px solid; }
+    </style>
+</head>
+<body class="bg-off-white text-charcoal">
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-orange-500 text-white px-4 py-2 z-50">Skip to main content</a>
+
+    <header class="bg-gradient-to-br from-charcoal-500 via-charcoal-600 to-charcoal-700 border-b-8 border-orange-500">
+        <!-- back-to-developer-docs -->
+        <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 pt-4"><a href="/developer/" aria-label="Back to Developer Docs" class="inline-flex items-center gap-1.5 text-sm font-medium text-white/70 hover:text-white transition-colors no-underline"><span aria-hidden="true">←</span> Developer Docs</a></div>
+        <div class="max-w-7xl mx-auto px-8 py-12">
+            <nav class="text-gray-400 mb-4 text-sm" aria-label="Breadcrumb">
+                <a href="../../index.html" class="text-yellow-400 hover:underline">Modules</a>
+                <span class="mx-2">/</span>
+                <a href="index.html" class="text-yellow-400 hover:underline">Magento_Eav</a>
+                <span class="mx-2">/</span>
+                <span>Known Issues</span>
+            </nav>
+            <h1 class="text-4xl md:text-5xl font-bold text-white mb-4">Known Issues & <span class="text-orange-500">Gotchas</span></h1>
+            <p class="text-xl text-gray-400">Common pitfalls, performance traps, and solutions for EAV development</p>
+        </div>
+    </header>
+
+    <nav class="bg-white shadow-sm sticky top-0 z-40" aria-label="Module navigation">
+        <div class="max-w-7xl mx-auto px-8">
+            <ul class="flex flex-wrap gap-8 py-4">
+                <li><a href="index.html" class="text-charcoal font-medium hover:text-orange-500 border-b-2 border-transparent hover:border-orange-500 pb-1 transition-colors">Overview</a></li>
+                <li><a href="architecture.html" class="text-charcoal font-medium hover:text-orange-500 border-b-2 border-transparent hover:border-orange-500 pb-1 transition-colors">Architecture</a></li>
+                <li><a href="execution-flows.html" class="text-charcoal font-medium hover:text-orange-500 border-b-2 border-transparent hover:border-orange-500 pb-1 transition-colors">Execution Flows</a></li>
+                <li><a href="plugins-observers.html" class="text-charcoal font-medium hover:text-orange-500 border-b-2 border-transparent hover:border-orange-500 pb-1 transition-colors">Plugins & Observers</a></li>
+                <li><a href="integrations.html" class="text-charcoal font-medium hover:text-orange-500 border-b-2 border-transparent hover:border-orange-500 pb-1 transition-colors">Integrations</a></li>
+                <li><a href="known-issues.html" class="text-orange-500 font-medium border-b-2 border-orange-500 pb-1">Known Issues</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main id="main-content" class="max-w-7xl mx-auto px-8 py-12">
+        <!-- Summary Stats -->
+        <section class="bg-white mb-12 p-8 border-t-4 border-orange-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-charcoal mb-6 pb-2 border-b-3 border-orange-500 inline-block">Issue Summary</h2>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                <div class="bg-charcoal text-white p-6 text-center">
+                    <div class="text-4xl font-bold text-orange-600">3</div>
+                    <div class="text-sm text-gray-400">Critical</div>
+                </div>
+                <div class="bg-charcoal text-white p-6 text-center">
+                    <div class="text-4xl font-bold text-orange-400">4</div>
+                    <div class="text-sm text-gray-400">Major</div>
+                </div>
+                <div class="bg-charcoal text-white p-6 text-center">
+                    <div class="text-4xl font-bold text-yellow-400">3</div>
+                    <div class="text-sm text-gray-400">Minor</div>
+                </div>
+                <div class="bg-charcoal text-white p-6 text-center">
+                    <div class="text-4xl font-bold text-orange-500">10</div>
+                    <div class="text-sm text-gray-400">Total Issues</div>
+                </div>
+            </div>
+
+            <div class="flex flex-wrap gap-6 p-4 bg-gray-100">
+                <div class="flex items-center gap-2">
+                    <span class="inline-block px-3 py-1 bg-orange-600 text-white text-xs font-bold uppercase">Critical</span>
+                    <span class="text-sm text-gray-600">Data loss or major performance degradation</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="inline-block px-3 py-1 bg-orange-400 text-white text-xs font-bold uppercase">Major</span>
+                    <span class="text-sm text-gray-600">Significant impact, workaround required</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="inline-block px-3 py-1 bg-yellow-400 text-charcoal text-xs font-bold uppercase">Minor</span>
+                    <span class="text-sm text-gray-600">Edge cases or minor inconvenience</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="inline-block px-3 py-1 bg-charcoal-400 text-white text-xs font-bold uppercase">Info</span>
+                    <span class="text-sm text-gray-600">Best practice guidance</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Critical Issues -->
+        <section class="bg-white mb-12 p-8 border-t-4 border-yellow-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-charcoal mb-6 pb-2 border-b-3 border-orange-500 inline-block">Critical Issues</h2>
+
+            <div class="issue-card bg-white border border-gray-200 mb-6 overflow-hidden border-l-orange-600">
+                <div class="p-4 flex flex-wrap justify-between items-start gap-4 bg-gradient-to-r from-orange-100 to-transparent">
+                    <div class="text-lg font-semibold text-charcoal">N+1 Query Problem on Entity Load</div>
+                    <span class="inline-block px-3 py-1 bg-orange-600 text-white text-xs font-bold uppercase">Critical</span>
+                </div>
+                <div class="p-6 border-t border-gray-200">
+                    <div class="mb-6">
+                        <h4 class="text-orange-500 text-sm font-bold uppercase mb-2">Affected Code</h4>
+                        <p class="mb-2"><code class="font-mono bg-charcoal text-yellow-400 px-2 py-1 text-sm">Magento\Eav\Model\Entity\AbstractEntity::load()</code></p>
+                        <p><code class="font-mono bg-charcoal text-yellow-400 px-2 py-1 text-sm">Magento\Eav\Model\Entity\Collection\AbstractCollection::load()</code></p>
+                    </div>
+                    <div class="mb-6">
+                        <h4 class="text-orange-500 text-sm font-bold uppercase mb-2">Description</h4>
+                        <p class="text-gray-600 mb-4">Loading EAV entities performs one query per value table type (varchar, int, decimal, text, datetime). When loading collections, this multiplies: N entities x 5+ value tables = severe performance degradation.</p>
+                        <pre class="code-block p-4 overflow-x-auto text-sm font-mono"><span class="comment">// BAD: Loading 100 products = 500+ queries</span>
+<span class="variable">$collection</span> = <span class="variable">$productCollectionFactory</span>-><span class="method">create</span>();
+<span class="variable">$collection</span>-><span class="method">addAttributeToSelect</span>(<span class="string">'*'</span>);
+<span class="keyword">foreach</span> (<span class="variable">$collection</span> <span class="keyword">as</span> <span class="variable">$product</span>) {
+    <span class="comment">// Each iteration may trigger lazy-loaded attribute queries</span>
+}</pre>
+                    </div>
+                    <div class="mb-6">
+                        <div class="bg-green-50 border-l-4 border-green-500 p-4">
+                            <h4 class="text-green-700 text-sm font-bold uppercase mb-2">Workaround</h4>
+                            <p class="text-gray-600 mb-2">1. Use flat tables for read-heavy operations (catalog_product_flat, catalog_category_flat)</p>
+                            <p class="text-gray-600 mb-2">2. Explicitly select only needed attributes:</p>
+                            <pre class="code-block p-4 overflow-x-auto text-sm font-mono mt-2"><span class="comment">// GOOD: Only load required attributes</span>
+<span class="variable">$collection</span>-><span class="method">addAttributeToSelect</span>([<span class="string">'name'</span>, <span class="string">'price'</span>, <span class="string">'sku'</span>]);</pre>
+                            <p class="text-gray-600 mt-2">3. Use joins for specific attributes rather than loading full entities</p>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="text-orange-500 text-sm font-bold uppercase mb-2">Tags</h4>
+                        <span class="inline-block px-2 py-1 bg-gray-100 text-sm mr-1 mb-1">performance</span>
+                        <span class="inline-block px-2 py-1 bg-gray-100 text-sm mr-1 mb-1">queries</span>
+                        <span class="inline-block px-2 py-1 bg-gray-100 text-sm mr-1 mb-1">collections</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="issue-card bg-white border border-gray-200 mb-6 overflow-hidden border-l-orange-600">
+                <div class="p-4 flex flex-wrap justify-between items-start gap-4 bg-gradient-to-r from-orange-100 to-transparent">
+                    <div class="text-lg font-semibold text-charcoal">Flat Table Sync Failures</div>
+                    <span class="inline-block px-3 py-1 bg-orange-600 text-white text-xs font-bold uppercase">Critical</span>
+                </div>
+                <div class="p-6 border-t border-gray-200">
+                    <div class="mb-6">
+                        <h4 class="text-orange-500 text-sm font-bold uppercase mb-2">Affected Code</h4>
+                        <p class="mb-2"><code class="font-mono bg-charcoal text-yellow-400 px-2 py-1 text-sm">Magento\Catalog\Model\Indexer\Product\Flat</code></p>
+                        <p><code class="font-mono bg-charcoal text-yellow-400 px-2 py-1 text-sm">Magento\Catalog\Model\Indexer\Category\Flat</code></p>
+                    </div>
+                    <div class="mb-6">
+                        <h4 class="text-orange-500 text-sm font-bold uppercase mb-2">Description</h4>
+                        <p class="text-gray-600 mb-4">When EAV attributes are modified but flat table indexers fail or are not triggered, the frontend shows stale data. This is especially problematic with:</p>
+                        <ul class="list-disc ml-6 text-gray-600 space-y-1">
+                            <li>New attribute creation (flat tables missing columns)</li>
+                            <li>Attribute deletion (orphaned flat table columns)</li>
+                            <li>Attribute type changes (column type mismatch)</li>
+                            <li>Multi-store deployments with partial reindexing</li>
+                        </ul>
+                    </div>
+                    <div class="mb-6">
+                        <div class="bg-green-50 border-l-4 border-green-500 p-4">
+                            <h4 class="text-green-700 text-sm font-bold uppercase mb-2">Workaround</h4>
+                            <p class="text-gray-600 mb-2">1. Always run full reindex after attribute schema changes:</p>
+                            <pre class="code-block p-4 overflow-x-auto text-sm font-mono mt-2">bin/magento indexer:reindex catalog_product_flat catalog_category_flat</pre>
+                            <p class="text-gray-600 mt-2">2. Monitor indexer status in production</p>
+                            <p class="text-gray-600">3. Consider disabling flat tables if attribute schema changes frequently</p>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="text-orange-500 text-sm font-bold uppercase mb-2">Tags</h4>
+                        <span class="inline-block px-2 py-1 bg-gray-100 text-sm mr-1 mb-1">indexer</span>
+                        <span class="inline-block px-2 py-1 bg-gray-100 text-sm mr-1 mb-1">flat-tables</span>
+                        <span class="inline-block px-2 py-1 bg-gray-100 text-sm mr-1 mb-1">data-sync</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="issue-card bg-white border border-gray-200 mb-6 overflow-hidden border-l-orange-600">
+                <div class="p-4 flex flex-wrap justify-between items-start gap-4 bg-gradient-to-r from-orange-100 to-transparent">
+                    <div class="text-lg font-semibold text-charcoal">Store Scope Value Inheritance Confusion</div>
+                    <span class="inline-block px-3 py-1 bg-orange-600 text-white text-xs font-bold uppercase">Critical</span>
+                </div>
+                <div class="p-6 border-t border-gray-200">
+                    <div class="mb-6">
+                        <h4 class="text-orange-500 text-sm font-bold uppercase mb-2">Affected Code</h4>
+                        <p><code class="font-mono bg-charcoal text-yellow-400 px-2 py-1 text-sm">Magento\Eav\Model\Entity\Attribute\AbstractAttribute::getValue()</code></p>
+                    </div>
+                    <div class="mb-6">
+                        <h4 class="text-orange-500 text-sm font-bold uppercase mb-2">Description</h4>
+                        <p class="text-gray-600 mb-4">EAV attributes support store-scoped values that inherit from website then global scope. When developers directly query value tables without proper scope resolution, they may:</p>
+                        <ul class="list-disc ml-6 text-gray-600 space-y-1 mb-4">
+                            <li>Return wrong scope value (store-specific instead of global)</li>
+                            <li>Return NULL when inheritance should provide a value</li>
+                            <li>Overwrite global values when saving store-scoped entities</li>
+                        </ul>
+                        <pre class="code-block p-4 overflow-x-auto text-sm font-mono"><span class="comment">// BAD: Direct query ignores scope inheritance</span>
+<span class="variable">$value</span> = <span class="variable">$connection</span>-><span class="method">fetchOne</span>(
+    <span class="string">"SELECT value FROM catalog_product_entity_varchar
+     WHERE attribute_id = ? AND entity_id = ?"</span>
+);
+<span class="comment">// Missing: AND store_id IN (0, $currentStoreId) ORDER BY store_id DESC LIMIT 1</span></pre>
+                    </div>
+                    <div class="mb-6">
+                        <div class="bg-green-50 border-l-4 border-green-500 p-4">
+                            <h4 class="text-green-700 text-sm font-bold uppercase mb-2">Workaround</h4>
+                            <p class="text-gray-600 mb-2">Always use the entity model or repository pattern which handles scope resolution:</p>
+                            <pre class="code-block p-4 overflow-x-auto text-sm font-mono mt-2"><span class="comment">// GOOD: Proper scope handling</span>
+<span class="variable">$product</span> = <span class="variable">$productRepository</span>-><span class="method">getById</span>(
+    <span class="variable">$productId</span>,
+    <span class="keyword">false</span>,
+    <span class="variable">$storeId</span>  <span class="comment">// Scope properly resolved</span>
+);
+<span class="variable">$value</span> = <span class="variable">$product</span>-><span class="method">getName</span>();</pre>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="text-orange-500 text-sm font-bold uppercase mb-2">Tags</h4>
+                        <span class="inline-block px-2 py-1 bg-gray-100 text-sm mr-1 mb-1">store-scope</span>
+                        <span class="inline-block px-2 py-1 bg-gray-100 text-sm mr-1 mb-1">multi-store</span>
+                        <span class="inline-block px-2 py-1 bg-gray-100 text-sm mr-1 mb-1">inheritance</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Major Issues -->
+        <section class="bg-white mb-12 p-8 border-t-4 border-orange-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-charcoal mb-6 pb-2 border-b-3 border-orange-500 inline-block">Major Issues</h2>
+
+            <div class="issue-card bg-white border border-gray-200 mb-6 overflow-hidden border-l-orange-400">
+                <div class="p-4 flex flex-wrap justify-between items-start gap-4 bg-gradient-to-r from-orange-50 to-transparent">
+                    <div class="text-lg font-semibold text-charcoal">Cache Invalidation After Attribute Changes</div>
+                    <span class="inline-block px-3 py-1 bg-orange-400 text-white text-xs font-bold uppercase">Major</span>
+                </div>
+                <div class="p-6 border-t border-gray-200">
+                    <div class="mb-6">
+                        <h4 class="text-orange-500 text-sm font-bold uppercase mb-2">Affected Code</h4>
+                        <p><code class="font-mono bg-charcoal text-yellow-400 px-2 py-1 text-sm">Magento\Eav\Model\Config</code></p>
+                    </div>
+                    <div class="mb-6">
+                        <h4 class="text-orange-500 text-sm font-bold uppercase mb-2">Description</h4>
+                        <p class="text-gray-600 mb-4">EAV attribute configuration is heavily cached. When attributes are modified programmatically (via setup scripts or API), the cached configuration may not be invalidated properly, leading to:</p>
+                        <ul class="list-disc ml-6 text-gray-600 space-y-1">
+                            <li>New attributes not appearing in admin forms</li>
+                            <li>Attribute options showing stale values</li>
+                            <li>Validation rules not being applied</li>
+                        </ul>
+                    </div>
+                    <div class="mb-6">
+                        <div class="bg-green-50 border-l-4 border-green-500 p-4">
+                            <h4 class="text-green-700 text-sm font-bold uppercase mb-2">Workaround</h4>
+                            <pre class="code-block p-4 overflow-x-auto text-sm font-mono"><span class="comment">// After programmatic attribute changes</span>
+<span class="variable">$cacheManager</span> = <span class="variable">$objectManager</span>-><span class="method">get</span>(<span class="class">CacheManager</span>::<span class="keyword">class</span>);
+<span class="variable">$cacheManager</span>-><span class="method">clean</span>([<span class="class">EavConfig</span>::<span class="string">CACHE_TAG</span>]);
+
+<span class="comment">// Or flush all caches</span>
+bin/magento cache:clean config eav</pre>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="text-orange-500 text-sm font-bold uppercase mb-2">Tags</h4>
+                        <span class="inline-block px-2 py-1 bg-gray-100 text-sm mr-1 mb-1">cache</span>
+                        <span class="inline-block px-2 py-1 bg-gray-100 text-sm mr-1 mb-1">config</span>
+                        <span class="inline-block px-2 py-1 bg-gray-100 text-sm mr-1 mb-1">admin</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="issue-card bg-white border border-gray-200 mb-6 overflow-hidden border-l-orange-400">
+                <div class="p-4 flex flex-wrap justify-between items-start gap-4 bg-gradient-to-r from-orange-50 to-transparent">
+                    <div class="text-lg font-semibold text-charcoal">Attribute Option Order Persistence</div>
+                    <span class="inline-block px-3 py-1 bg-orange-400 text-white text-xs font-bold uppercase">Major</span>
+                </div>
+                <div class="p-6 border-t border-gray-200">
+                    <div class="mb-6">
+                        <h4 class="text-orange-500 text-sm font-bold uppercase mb-2">Affected Code</h4>
+                        <p class="mb-2"><code class="font-mono bg-charcoal text-yellow-400 px-2 py-1 text-sm">Magento\Eav\Model\Entity\Attribute\Source\Table</code></p>
+                        <p><code class="font-mono bg-charcoal text-yellow-400 px-2 py-1 text-sm">eav_attribute_option</code> table</p>
+                    </div>
+                    <div class="mb-6">
+                        <h4 class="text-orange-500 text-sm font-bold uppercase mb-2">Description</h4>
+                        <p class="text-gray-600 mb-4">Attribute option sort order is stored in the <code class="bg-gray-100 px-1">sort_order</code> column, but:</p>
+                        <ul class="list-disc ml-6 text-gray-600 space-y-1">
+                            <li>Admin UI doesn't always persist drag-drop order changes</li>
+                            <li>Import processes may reset sort order to insertion order</li>
+                            <li>API option creation ignores sort_order parameter in some versions</li>
+                        </ul>
+                    </div>
+                    <div class="mb-6">
+                        <div class="bg-green-50 border-l-4 border-green-500 p-4">
+                            <h4 class="text-green-700 text-sm font-bold uppercase mb-2">Workaround</h4>
+                            <p class="text-gray-600 mb-2">Explicitly set sort_order via direct database update or custom setup script:</p>
+                            <pre class="code-block p-4 overflow-x-auto text-sm font-mono mt-2"><span class="variable">$connection</span>-><span class="method">update</span>(
+    <span class="string">'eav_attribute_option'</span>,
+    [<span class="string">'sort_order'</span> => <span class="variable">$sortOrder</span>],
+    [<span class="string">'option_id = ?'</span> => <span class="variable">$optionId</span>]
+);</pre>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="text-orange-500 text-sm font-bold uppercase mb-2">Tags</h4>
+                        <span class="inline-block px-2 py-1 bg-gray-100 text-sm mr-1 mb-1">options</span>
+                        <span class="inline-block px-2 py-1 bg-gray-100 text-sm mr-1 mb-1">sort-order</span>
+                        <span class="inline-block px-2 py-1 bg-gray-100 text-sm mr-1 mb-1">admin</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="issue-card bg-white border border-gray-200 mb-6 overflow-hidden border-l-orange-400">
+                <div class="p-4 flex flex-wrap justify-between items-start gap-4 bg-gradient-to-r from-orange-50 to-transparent">
+                    <div class="text-lg font-semibold text-charcoal">Backend Model Validation Bypass</div>
+                    <span class="inline-block px-3 py-1 bg-orange-400 text-white text-xs font-bold uppercase">Major</span>
+                </div>
+                <div class="p-6 border-t border-gray-200">
+                    <div class="mb-6">
+                        <h4 class="text-orange-500 text-sm font-bold uppercase mb-2">Affected Code</h4>
+                        <p><code class="font-mono bg-charcoal text-yellow-400 px-2 py-1 text-sm">Magento\Eav\Model\Entity\Attribute\Backend\AbstractBackend::validate()</code></p>
+                    </div>
+                    <div class="mb-6">
+                        <h4 class="text-orange-500 text-sm font-bold uppercase mb-2">Description</h4>
+                        <p class="text-gray-600 mb-4">Backend model validation only runs when saving through the entity model. Direct database updates or ResourceModel::save() without entity context bypasses validation:</p>
+                        <pre class="code-block p-4 overflow-x-auto text-sm font-mono"><span class="comment">// BAD: Bypasses backend model validation</span>
+<span class="variable">$resourceModel</span>-><span class="method">getConnection</span>()-><span class="method">insert</span>(
+    <span class="string">'catalog_product_entity_varchar'</span>,
+    [<span class="string">'value'</span> => <span class="variable">$invalidValue</span>, ...]
+);
+
+<span class="comment">// GOOD: Backend validation runs</span>
+<span class="variable">$product</span>-><span class="method">setData</span>(<span class="string">'attribute_code'</span>, <span class="variable">$value</span>);
+<span class="variable">$productRepository</span>-><span class="method">save</span>(<span class="variable">$product</span>);</pre>
+                    </div>
+                    <div class="mb-6">
+                        <div class="bg-green-50 border-l-4 border-green-500 p-4">
+                            <h4 class="text-green-700 text-sm font-bold uppercase mb-2">Workaround</h4>
+                            <p class="text-gray-600 mb-2">Always use repository or model save() for EAV entity persistence. If direct SQL is required for performance, manually validate:</p>
+                            <pre class="code-block p-4 overflow-x-auto text-sm font-mono mt-2"><span class="variable">$attribute</span> = <span class="variable">$eavConfig</span>-><span class="method">getAttribute</span>(<span class="string">'catalog_product'</span>, <span class="string">'attribute_code'</span>);
+<span class="variable">$backend</span> = <span class="variable">$attribute</span>-><span class="method">getBackend</span>();
+<span class="variable">$backend</span>-><span class="method">validate</span>(<span class="variable">$entityObject</span>); <span class="comment">// Throws exception if invalid</span></pre>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="text-orange-500 text-sm font-bold uppercase mb-2">Tags</h4>
+                        <span class="inline-block px-2 py-1 bg-gray-100 text-sm mr-1 mb-1">validation</span>
+                        <span class="inline-block px-2 py-1 bg-gray-100 text-sm mr-1 mb-1">backend-model</span>
+                        <span class="inline-block px-2 py-1 bg-gray-100 text-sm mr-1 mb-1">data-integrity</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="issue-card bg-white border border-gray-200 mb-6 overflow-hidden border-l-orange-400">
+                <div class="p-4 flex flex-wrap justify-between items-start gap-4 bg-gradient-to-r from-orange-50 to-transparent">
+                    <div class="text-lg font-semibold text-charcoal">Attribute Set Assignment During Import</div>
+                    <span class="inline-block px-3 py-1 bg-orange-400 text-white text-xs font-bold uppercase">Major</span>
+                </div>
+                <div class="p-6 border-t border-gray-200">
+                    <div class="mb-6">
+                        <h4 class="text-orange-500 text-sm font-bold uppercase mb-2">Affected Code</h4>
+                        <p><code class="font-mono bg-charcoal text-yellow-400 px-2 py-1 text-sm">Magento\ImportExport\Model\Import\Entity\AbstractEntity</code></p>
+                    </div>
+                    <div class="mb-6">
+                        <h4 class="text-orange-500 text-sm font-bold uppercase mb-2">Description</h4>
+                        <p class="text-gray-600 mb-4">During product import, attribute set changes can cause:</p>
+                        <ul class="list-disc ml-6 text-gray-600 space-y-1">
+                            <li>Orphaned attribute values (attribute removed from set but values remain)</li>
+                            <li>Missing required attributes (new set has required attrs not in CSV)</li>
+                            <li>Type conflicts (attribute exists in both sets with different types)</li>
+                        </ul>
+                    </div>
+                    <div class="mb-6">
+                        <div class="bg-green-50 border-l-4 border-green-500 p-4">
+                            <h4 class="text-green-700 text-sm font-bold uppercase mb-2">Workaround</h4>
+                            <p class="text-gray-600 mb-2">1. Validate attribute set compatibility before import</p>
+                            <p class="text-gray-600 mb-2">2. Clean orphaned values after attribute set changes:</p>
+                            <pre class="code-block p-4 overflow-x-auto text-sm font-mono mt-2"><span class="comment">-- Find orphaned values</span>
+<span class="keyword">SELECT</span> v.* <span class="keyword">FROM</span> catalog_product_entity_varchar v
+<span class="keyword">LEFT JOIN</span> eav_entity_attribute ea
+    <span class="keyword">ON</span> v.attribute_id = ea.attribute_id
+    <span class="keyword">AND</span> ea.attribute_set_id = (
+        <span class="keyword">SELECT</span> attribute_set_id <span class="keyword">FROM</span> catalog_product_entity
+        <span class="keyword">WHERE</span> entity_id = v.entity_id
+    )
+<span class="keyword">WHERE</span> ea.entity_attribute_id <span class="keyword">IS NULL</span>;</pre>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="text-orange-500 text-sm font-bold uppercase mb-2">Tags</h4>
+                        <span class="inline-block px-2 py-1 bg-gray-100 text-sm mr-1 mb-1">import</span>
+                        <span class="inline-block px-2 py-1 bg-gray-100 text-sm mr-1 mb-1">attribute-set</span>
+                        <span class="inline-block px-2 py-1 bg-gray-100 text-sm mr-1 mb-1">orphaned-data</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Minor Issues -->
+        <section class="bg-white mb-12 p-8 border-t-4 border-yellow-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-charcoal mb-6 pb-2 border-b-3 border-orange-500 inline-block">Minor Issues</h2>
+
+            <div class="issue-card bg-white border border-gray-200 mb-6 overflow-hidden border-l-yellow-400">
+                <div class="p-4 flex flex-wrap justify-between items-start gap-4 bg-gradient-to-r from-yellow-50 to-transparent">
+                    <div class="text-lg font-semibold text-charcoal">Source Model Caching</div>
+                    <span class="inline-block px-3 py-1 bg-yellow-400 text-charcoal text-xs font-bold uppercase">Minor</span>
+                </div>
+                <div class="p-6 border-t border-gray-200">
+                    <div class="mb-6">
+                        <h4 class="text-orange-500 text-sm font-bold uppercase mb-2">Description</h4>
+                        <p class="text-gray-600">Custom source models that fetch options from external sources (APIs, databases) are called multiple times per request without caching. This can cause performance issues with slow external services.</p>
+                    </div>
+                    <div>
+                        <div class="bg-green-50 border-l-4 border-green-500 p-4">
+                            <h4 class="text-green-700 text-sm font-bold uppercase mb-2">Workaround</h4>
+                            <p class="text-gray-600 mb-2">Implement internal caching in custom source models:</p>
+                            <pre class="code-block p-4 overflow-x-auto text-sm font-mono mt-2"><span class="keyword">protected</span> <span class="variable">$options</span> = <span class="keyword">null</span>;
+
+<span class="keyword">public function</span> <span class="method">getAllOptions</span>()
+{
+    <span class="keyword">if</span> (<span class="variable">$this</span>-><span class="variable">options</span> === <span class="keyword">null</span>) {
+        <span class="variable">$this</span>-><span class="variable">options</span> = <span class="variable">$this</span>-><span class="method">fetchFromExternalSource</span>();
+    }
+    <span class="keyword">return</span> <span class="variable">$this</span>-><span class="variable">options</span>;
+}</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="issue-card bg-white border border-gray-200 mb-6 overflow-hidden border-l-yellow-400">
+                <div class="p-4 flex flex-wrap justify-between items-start gap-4 bg-gradient-to-r from-yellow-50 to-transparent">
+                    <div class="text-lg font-semibold text-charcoal">Multiselect Value Delimiter Handling</div>
+                    <span class="inline-block px-3 py-1 bg-yellow-400 text-charcoal text-xs font-bold uppercase">Minor</span>
+                </div>
+                <div class="p-6 border-t border-gray-200">
+                    <div class="mb-6">
+                        <h4 class="text-orange-500 text-sm font-bold uppercase mb-2">Description</h4>
+                        <p class="text-gray-600">Multiselect attribute values are stored as comma-separated option IDs. If option values themselves contain commas, parsing can fail. The backend model handles this, but direct SQL queries may break.</p>
+                    </div>
+                    <div>
+                        <div class="bg-green-50 border-l-4 border-green-500 p-4">
+                            <h4 class="text-green-700 text-sm font-bold uppercase mb-2">Workaround</h4>
+                            <p class="text-gray-600 mb-2">Always use the attribute's backend model for multiselect handling:</p>
+                            <pre class="code-block p-4 overflow-x-auto text-sm font-mono mt-2"><span class="variable">$attribute</span> = <span class="variable">$eavConfig</span>-><span class="method">getAttribute</span>(<span class="string">'catalog_product'</span>, <span class="string">'multiselect_attr'</span>);
+<span class="variable">$values</span> = <span class="variable">$attribute</span>-><span class="method">getBackend</span>()-><span class="method">getArrayValue</span>(<span class="variable">$product</span>);</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="issue-card bg-white border border-gray-200 mb-6 overflow-hidden border-l-yellow-400">
+                <div class="p-4 flex flex-wrap justify-between items-start gap-4 bg-gradient-to-r from-yellow-50 to-transparent">
+                    <div class="text-lg font-semibold text-charcoal">Attribute Label Translation Scope</div>
+                    <span class="inline-block px-3 py-1 bg-yellow-400 text-charcoal text-xs font-bold uppercase">Minor</span>
+                </div>
+                <div class="p-6 border-t border-gray-200">
+                    <div class="mb-6">
+                        <h4 class="text-orange-500 text-sm font-bold uppercase mb-2">Description</h4>
+                        <p class="text-gray-600">Attribute labels can be translated per store view via <code class="bg-gray-100 px-1">eav_attribute_label</code> table. However, the admin interface doesn't always load the correct store's label when editing, leading to confusion about which translation is being modified.</p>
+                    </div>
+                    <div>
+                        <div class="bg-green-50 border-l-4 border-green-500 p-4">
+                            <h4 class="text-green-700 text-sm font-bold uppercase mb-2">Workaround</h4>
+                            <p class="text-gray-600 mb-2">Verify store scope when working with attribute labels in admin:</p>
+                            <pre class="code-block p-4 overflow-x-auto text-sm font-mono mt-2"><span class="comment">// Get label for specific store</span>
+<span class="variable">$label</span> = <span class="variable">$attribute</span>-><span class="method">getStoreLabel</span>(<span class="variable">$storeId</span>);
+
+<span class="comment">// Or via table directly</span>
+<span class="keyword">SELECT</span> value <span class="keyword">FROM</span> eav_attribute_label
+<span class="keyword">WHERE</span> attribute_id = ? <span class="keyword">AND</span> store_id = ?;</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Performance Best Practices -->
+        <section class="bg-white mb-12 p-8 border-t-4 border-orange-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-charcoal mb-6 pb-2 border-b-3 border-orange-500 inline-block">Performance Best Practices</h2>
+
+            <div class="bg-orange-50 border-l-4 border-orange-500 p-4 mb-6">
+                <h4 class="text-orange-600 font-bold mb-2">EAV Performance Golden Rules</h4>
+                <ol class="list-decimal ml-6 text-gray-700 space-y-2">
+                    <li><strong>Never use <code class="bg-white px-1">addAttributeToSelect('*')</code></strong> - Select only needed attributes</li>
+                    <li><strong>Enable flat tables</strong> for catalog in production</li>
+                    <li><strong>Use collection filters</strong> before loading, not after</li>
+                    <li><strong>Batch operations</strong> when creating/updating multiple entities</li>
+                    <li><strong>Profile queries</strong> - Watch for N+1 patterns in New Relic/logs</li>
+                </ol>
+            </div>
+
+            <pre class="code-block p-4 overflow-x-auto text-sm font-mono"><span class="comment">// Collection Performance Pattern</span>
+
+<span class="comment">// BAD: Filter after load (all entities loaded)</span>
+<span class="variable">$collection</span>-><span class="method">addAttributeToSelect</span>(<span class="string">'*'</span>);
+<span class="keyword">foreach</span> (<span class="variable">$collection</span> <span class="keyword">as</span> <span class="variable">$item</span>) {
+    <span class="keyword">if</span> (<span class="variable">$item</span>-><span class="method">getStatus</span>() == <span class="string">'active'</span>) { ... }
+}
+
+<span class="comment">// GOOD: Filter before load (SQL WHERE clause)</span>
+<span class="variable">$collection</span>-><span class="method">addAttributeToSelect</span>([<span class="string">'name'</span>, <span class="string">'status'</span>])
+            -><span class="method">addAttributeToFilter</span>(<span class="string">'status'</span>, <span class="string">'active'</span>);
+<span class="keyword">foreach</span> (<span class="variable">$collection</span> <span class="keyword">as</span> <span class="variable">$item</span>) { ... }</pre>
+        </section>
+    </main>
+
+    <footer class="bg-charcoal text-white py-8 mt-16">
+        <div class="max-w-7xl mx-auto px-8 text-center">
+            <p class="text-gray-400 mb-2">Magento 2 EAV Module Documentation | Generated December 2024</p>
+            <p><a href="index.html" class="text-yellow-400 hover:underline">Back to Module Overview</a></p>
+        </div>
+    </footer>
+</body>
+</html>

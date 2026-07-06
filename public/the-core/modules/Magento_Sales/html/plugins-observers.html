@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plugins & Observers - Magento_Sales Module | Magento Core Documentation</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&display=swap');
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'magento-orange': {
+                            DEFAULT: '#F26423',
+                            50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad', 300: '#f9ae78',
+                            400: '#f58242', 500: '#f26423', 600: '#e34613', 700: '#bc3312',
+                            800: '#962a16', 900: '#792515', 950: '#411009'
+                        },
+                        'magento-gold': {
+                            DEFAULT: '#F1BC1B',
+                            50: '#fffdeb', 100: '#fdf9c8', 200: '#fbf38c', 300: '#f8e651',
+                            400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a', 700: '#b1670c',
+                            800: '#8f5111', 900: '#764311', 950: '#442204'
+                        },
+                        'magento-charcoal': {
+                            DEFAULT: '#2c2c2c',
+                            50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6', 300: '#818181',
+                            400: '#474747', 500: '#2c2c2c', 600: '#262626', 700: '#202020',
+                            800: '#1c1c1c', 900: '#191919', 950: '#121212'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter Tight', 'system-ui', 'sans-serif'],
+                        mono: ['ui-monospace', 'SFMono-Regular', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>document.addEventListener('DOMContentLoaded', () => hljs.highlightAll());</script>
+</head>
+<body class="bg-[#FAFAFA] text-magento-charcoal font-sans">
+    <!-- Hero Section -->
+    <header class="bg-gradient-to-br from-magento-magento-orange-600 via-magento-magento-orange-500 to-magento-gold-500 text-white py-16 px-4 sm:px-6 lg:px-8">
+        <!-- back-to-developer-docs -->
+        <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 pt-4"><a href="/developer/" aria-label="Back to Developer Docs" class="inline-flex items-center gap-1.5 text-sm font-medium text-white/70 hover:text-white transition-colors no-underline"><span aria-hidden="true">←</span> Developer Docs</a></div>
+        <div class="mx-auto max-w-screen-xl">
+            <div class="flex items-center gap-6">
+                <!-- Hexagon SVG -->
+                <svg class="w-20 h-20 sm:w-24 sm:h-24 flex-shrink-0" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M50 5L90 27.5V72.5L50 95L10 72.5V27.5L50 5Z" stroke="white" stroke-width="3" fill="rgba(255,255,255,0.1)"/>
+                    <text x="50" y="60" font-size="40" font-weight="700" fill="white" text-anchor="middle">⚡</text>
+                </svg>
+
+                <div>
+                    <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight">Plugins & Observers Reference</h1>
+                    <p class="mt-2 text-lg sm:text-xl text-magento-magento-orange-50">Magento_Sales Module</p>
+                    <p class="mt-1 text-sm text-magento-magento-orange-100">Complete documentation of 16 plugins and 25 observers</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 py-12">
+        <!-- Breadcrumb Navigation -->
+        <nav class="mb-8 text-sm" aria-label="Breadcrumb">
+            <ol class="flex items-center gap-2 text-gray-600">
+                <li><a href="../../index.html" class="hover:text-magento-orange-800 transition-colors">Documentation</a></li>
+                <li><span class="text-gray-400">/</span></li>
+                <li><a href="../index.html" class="hover:text-magento-orange-800 transition-colors">Magento_Sales</a></li>
+                <li><span class="text-gray-400">/</span></li>
+                <li class="text-magento-charcoal font-medium">Plugins & Observers</li>
+            </ol>
+        </nav>
+
+        <!-- Stats Overview -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <div class="bg-white p-6 border-t-4 border-magento-orange-500 shadow-sm text-center">
+                <div class="text-3xl font-bold text-magento-orange-800">16</div>
+                <div class="text-sm text-gray-600 mt-1">Total Plugins</div>
+            </div>
+            <div class="bg-white p-6 border-t-4 border-magento-orange-500 shadow-sm text-center">
+                <div class="text-3xl font-bold text-magento-orange-800">25</div>
+                <div class="text-sm text-gray-600 mt-1">Total Observers</div>
+            </div>
+            <div class="bg-white p-6 border-t-4 border-magento-gold-500 shadow-sm text-center">
+                <div class="text-3xl font-bold text-magento-gold-600">10</div>
+                <div class="text-sm text-gray-600 mt-1">Frontend Plugins</div>
+            </div>
+            <div class="bg-white p-6 border-t-4 border-magento-gold-500 shadow-sm text-center">
+                <div class="text-3xl font-bold text-magento-gold-600">8</div>
+                <div class="text-sm text-gray-600 mt-1">Grid Sync Observers</div>
+            </div>
+        </div>
+
+        <!-- Plugins Overview -->
+        <section class="bg-white p-8 border-t-4 border-magento-gold-500 shadow-sm mb-8">
+            <h2 class="text-2xl font-semibold text-magento-charcoal mb-4">Plugins Overview</h2>
+
+            <p class="text-gray-700 mb-6">The Magento_Sales module implements <strong>16 plugins</strong> to intercept and modify behavior at critical execution points in the order management lifecycle.</p>
+
+            <div class="bg-magento-gold-500 bg-opacity-10 border-l-4 border-magento-gold-500 p-4 mb-6">
+                <p class="text-sm font-semibold text-magento-charcoal mb-2">Plugin Naming Convention</p>
+                <p class="text-sm text-magento-charcoal"><strong>Pattern:</strong> Plugins use descriptive names that reflect their purpose (e.g., <code class="bg-magento-gold-500 bg-opacity-20 px-2 py-0.5 ">authentication</code>, <code class="bg-magento-gold-500 bg-opacity-20 px-2 py-0.5 ">addressUpdate</code>, <code class="bg-magento-gold-500 bg-opacity-20 px-2 py-0.5 ">authorization</code>).</p>
+                <p class="text-sm text-magento-charcoal mt-2"><strong>Why:</strong> Core Magento code predates strict naming conventions. Third-party modules should follow the "Extend" suffix pattern.</p>
+            </div>
+
+            <h3 class="text-xl font-semibold text-magento-orange-800 mb-3">Plugin Execution Priority</h3>
+
+            <div class="overflow-x-auto mb-4">
+                <table class="min-w-full border border-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-sm font-semibold text-magento-charcoal border-b">sortOrder Value</th>
+                            <th class="px-4 py-3 text-left text-sm font-semibold text-magento-charcoal border-b">Purpose</th>
+                            <th class="px-4 py-3 text-left text-sm font-semibold text-magento-charcoal border-b">Example Use Cases</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        <tr>
+                            <td class="px-4 py-3 text-sm"><code class="bg-gray-100 px-2 py-0.5 ">1</code></td>
+                            <td class="px-4 py-3 text-sm text-gray-700">Authorization and validation plugins</td>
+                            <td class="px-4 py-3 text-sm text-gray-600">Must run first to prevent unauthorized access</td>
+                        </tr>
+                        <tr class="bg-gray-50">
+                            <td class="px-4 py-3 text-sm"><code class="bg-gray-100 px-2 py-0.5 ">10</code></td>
+                            <td class="px-4 py-3 text-sm text-gray-700">Standard business logic plugins</td>
+                            <td class="px-4 py-3 text-sm text-gray-600">Default execution order for most operations</td>
+                        </tr>
+                        <tr>
+                            <td class="px-4 py-3 text-sm"><code class="bg-gray-100 px-2 py-0.5 ">100+</code></td>
+                            <td class="px-4 py-3 text-sm text-gray-700">Cosmetic or non-critical plugins</td>
+                            <td class="px-4 py-3 text-sm text-gray-600">Formatting, logging, analytics</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Frontend Plugins -->
+        <section class="bg-white p-8 border-t-4 border-magento-gold-500 shadow-sm mb-8">
+            <h2 class="text-2xl font-semibold text-magento-charcoal mb-4">Frontend Plugins</h2>
+            <div class="inline-flex items-center px-3 py-1 -full text-xs font-semibold bg-magento-gold-100 text-magento-gold-800 mb-4">Frontend</div>
+
+            <p class="text-gray-700 mb-6">These plugins are registered in <code class="bg-gray-100 px-2 py-0.5 ">etc/frontend/di.xml</code> and only apply to customer-facing storefront requests.</p>
+
+            <h3 class="text-xl font-semibold text-magento-orange-800 mb-3">Order Controller Authentication Plugins (1-10)</h3>
+            <div class="inline-flex items-center px-3 py-1 -full text-xs font-semibold bg-amaranth-100 text-amaranth-800 mb-4">Critical Security</div>
+
+            <p class="text-gray-700 mb-4"><strong>Purpose:</strong> Validates customer has permission to view their orders, invoices, shipments, and credit memos.</p>
+
+            <p class="text-gray-700 mb-4">These 10 plugins all use the same class but intercept different controllers:</p>
+
+            <div class="overflow-x-auto mb-6">
+                <table class="min-w-full border border-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-sm font-semibold text-magento-charcoal border-b">Plugin Name</th>
+                            <th class="px-4 py-3 text-left text-sm font-semibold text-magento-charcoal border-b">Intercepts</th>
+                            <th class="px-4 py-3 text-left text-sm font-semibold text-magento-charcoal border-b">Purpose</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        <tr>
+                            <td class="px-4 py-3 text-sm"><code class="bg-gray-100 px-2 py-0.5  text-xs">authentication</code></td>
+                            <td class="px-4 py-3 text-sm text-gray-700">Order\Creditmemo</td>
+                            <td class="px-4 py-3 text-sm text-gray-600">Validate access to credit memo view</td>
+                        </tr>
+                        <tr class="bg-gray-50">
+                            <td class="px-4 py-3 text-sm"><code class="bg-gray-100 px-2 py-0.5  text-xs">authentication</code></td>
+                            <td class="px-4 py-3 text-sm text-gray-700">Order\History</td>
+                            <td class="px-4 py-3 text-sm text-gray-600">Validate access to order history</td>
+                        </tr>
+                        <tr>
+                            <td class="px-4 py-3 text-sm"><code class="bg-gray-100 px-2 py-0.5  text-xs">authentication</code></td>
+                            <td class="px-4 py-3 text-sm text-gray-700">Order\Invoice</td>
+                            <td class="px-4 py-3 text-sm text-gray-600">Validate access to invoice view</td>
+                        </tr>
+                        <tr class="bg-gray-50">
+                            <td class="px-4 py-3 text-sm"><code class="bg-gray-100 px-2 py-0.5  text-xs">authentication</code></td>
+                            <td class="px-4 py-3 text-sm text-gray-700">Order\View</td>
+                            <td class="px-4 py-3 text-sm text-gray-600">Validate access to order detail view</td>
+                        </tr>
+                        <tr>
+                            <td class="px-4 py-3 text-sm" colspan="3"><em class="text-gray-500">...and 6 more authentication plugins for print actions, shipment, and reorder</em></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h4 class="text-lg font-semibold text-magento-charcoal mb-3">Plugin Class</h4>
+            <p class="text-gray-700 mb-4">
+                <strong>Class:</strong> <code class="bg-gray-100 px-2 py-0.5 ">Magento\Sales\Controller\Order\Plugin\Authentication</code><br>
+                <strong>Sort Order:</strong> <code class="bg-gray-100 px-2 py-0.5 ">10</code> (default)
+            </p>
+
+            <h4 class="text-lg font-semibold text-magento-charcoal mb-3">Behavior</h4>
+            <ol class="list-decimal list-inside text-sm text-gray-700 space-y-2 mb-4">
+                <li>Extract order ID from request parameters</li>
+                <li>Load order from repository</li>
+                <li>Check if current customer owns the order</li>
+                <li>If mismatch: redirect to 404 (prevent information disclosure)</li>
+                <li>If match: allow request to proceed</li>
+            </ol>
+
+            <div class="bg-magento-gold-50 border-l-4 border-magento-gold-500 p-4 mb-6">
+                <p class="text-sm font-semibold text-magento-gold-800 mb-2">Security Note</p>
+                <p class="text-sm text-magento-gold-700">Returns 404 (not 403) to prevent order ID enumeration attacks. This prevents attackers from determining which order IDs exist in the system.</p>
+            </div>
+
+            <h4 class="text-lg font-semibold text-magento-charcoal mb-3">Code Example</h4>
+            <pre class="bg-gray-900 p-4  text-sm text-gray-100 overflow-x-auto mb-4"><code>public function beforeExecute(\Magento\Framework\App\ActionInterface $subject)
+{
+    $orderId = (int) $subject->getRequest()->getParam('order_id');
+
+    if (!$orderId) {
+        throw new NotFoundException(__('Page not found.'));
+    }
+
+    $customer = $this->customerRepository->get($orderId);
+    $customerId = $this->customerSession->getCustomerId();
+
+    if ($order->getCustomerId() != $customerId) {
+        // Return 404 to prevent order ID enumeration
+        throw new NotFoundException(__('Page not found.'));
+    }
+
+    return null; // Proceed with action
+}</code></pre>
+
+            <h4 class="text-lg font-semibold text-magento-charcoal mb-3">Security Impact</h4>
+            <p class="text-gray-700 mb-4"><strong class="text-amaranth-600">Critical:</strong> Without these plugins, any customer could view any order by guessing order IDs.</p>
+
+            <div class="bg-amaranth-50 border-l-4 border-amaranth-500 p-4">
+                <p class="text-sm font-semibold text-amaranth-800 mb-2">Attack Vector Prevented</p>
+                <pre class="bg-amaranth-100 p-3  text-xs text-amaranth-900 overflow-x-auto"><code># Without plugin:
+GET /sales/order/view/order_id/123  → Shows order details
+GET /sales/order/view/order_id/124  → Shows different customer's order ❌
+
+# With plugin:
+GET /sales/order/view/order_id/123  → Shows order details (if owned)
+GET /sales/order/view/order_id/124  → 404 Not Found ✓</code></pre>
+            </div>
+        </section>
+
+        <!-- Global Plugins -->
+        <section class="bg-white p-8 border-t-4 border-magento-gold-500 shadow-sm mb-8">
+            <h2 class="text-2xl font-semibold text-magento-charcoal mb-4">Global Plugins</h2>
+            <div class="inline-flex items-center px-3 py-1 -full text-xs font-semibold bg-magento-gold-500 bg-opacity-20 text-magento-charcoal mb-4">Global</div>
+
+            <p class="text-gray-700 mb-6">These plugins are registered in <code class="bg-gray-100 px-2 py-0.5 ">etc/di.xml</code> and apply across all areas (frontend, admin, API).</p>
+
+            <div class="space-y-6">
+                <!-- Authorization Plugin -->
+                <div class="border-l-4 border-amaranth-500 pl-4">
+                    <h3 class="text-lg font-semibold text-magento-orange-800 mb-2">14. Authorization Plugin</h3>
+                    <div class="inline-flex items-center px-3 py-1 -full text-xs font-semibold bg-amaranth-100 text-amaranth-800 mb-3">Critical Security</div>
+
+                    <p class="text-gray-700 mb-3"><strong>Intercepts:</strong> <code class="bg-gray-100 px-2 py-0.5 ">Magento\Sales\Model\ResourceModel\Order</code></p>
+                    <p class="text-gray-700 mb-3"><strong>Purpose:</strong> Validates user has permission to modify orders via repository operations.</p>
+
+                    <p class="text-gray-700 mb-2"><strong>Behavior:</strong> Before any order save/delete:</p>
+                    <ol class="list-decimal list-inside text-sm text-gray-700 space-y-1 ml-4">
+                        <li>Check current user's ACL permissions</li>
+                        <li>Verify user has <code class="bg-gray-100 px-2 py-0.5  text-xs">Magento_Sales::actions_edit</code> permission</li>
+                        <li>If admin user: check role restrictions</li>
+                        <li>If API token: verify scope includes sales operations</li>
+                        <li>Throw <code class="bg-gray-100 px-2 py-0.5  text-xs">AuthorizationException</code> if denied</li>
+                    </ol>
+                </div>
+
+                <!-- ConvertBlobToString Plugin -->
+                <div class="border-l-4 border-magento-gold-500 pl-4">
+                    <h3 class="text-lg font-semibold text-magento-orange-800 mb-2">15. ConvertBlobToString Plugin (Shipping Labels)</h3>
+
+                    <p class="text-gray-700 mb-3"><strong>Intercepts:</strong> <code class="bg-gray-100 px-2 py-0.5 ">Magento\Sales\Api\ShipmentRepositoryInterface</code></p>
+                    <p class="text-gray-700 mb-3"><strong>Purpose:</strong> Converts binary shipping label data to base64 string for API responses.</p>
+
+                    <p class="text-gray-700 mb-2"><strong>Why:</strong> API responses cannot contain binary data. Base64 encoding required for JSON/XML.</p>
+
+                    <pre class="bg-gray-900 p-4  text-sm text-gray-100 overflow-x-auto"><code>{
+  "entity_id": 12345,
+  "increment_id": "000000123",
+  "extension_attributes": {
+    "shipping_label": "JVBERi0xLjQKJeLjz9MKMyAwIG9iago8PC9UeXB..."
+  }
+}</code></pre>
+                </div>
+
+                <!-- Transaction Comment Plugin -->
+                <div class="border-l-4 border-magento-gold-500 pl-4">
+                    <h3 class="text-lg font-semibold text-magento-orange-800 mb-2">16. AddTransactionCommentAfterCapture Plugin</h3>
+
+                    <p class="text-gray-700 mb-3"><strong>Intercepts:</strong> <code class="bg-gray-100 px-2 py-0.5 ">Magento\Sales\Model\Service\InvoiceService</code></p>
+                    <p class="text-gray-700 mb-3"><strong>Purpose:</strong> Automatically adds payment transaction comments to order after invoice capture.</p>
+
+                    <p class="text-gray-700 mb-2"><strong>Use Cases:</strong></p>
+                    <ul class="list-disc list-inside text-sm text-gray-700 space-y-1 ml-4">
+                        <li>Payment Reconciliation: Match Magento transactions with payment gateway reports</li>
+                        <li>Fraud Investigation: Complete payment capture history</li>
+                        <li>Customer Service: Quick reference to payment details</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Observers Overview -->
+        <section class="bg-white p-8 border-t-4 border-magento-gold-500 shadow-sm mb-8">
+            <h2 class="text-2xl font-semibold text-magento-charcoal mb-4">Observers Overview</h2>
+
+            <p class="text-gray-700 mb-6">The Magento_Sales module implements <strong>25 observers</strong> that react to events dispatched during sales operations.</p>
+
+            <div class="bg-magento-gold-500 bg-opacity-10 border-l-4 border-magento-gold-500 p-4">
+                <p class="text-sm font-semibold text-magento-charcoal mb-2">Observer Execution</p>
+                <ul class="text-sm text-magento-charcoal space-y-1">
+                    <li><strong>Synchronous:</strong> Observers execute immediately when event is dispatched (blocking)</li>
+                    <li><strong>Transaction Safety:</strong> Most observers run inside database transactions, so exceptions rollback entire operation</li>
+                    <li><strong>Performance:</strong> Grid sync observers are the most performance-sensitive (run on every order save)</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Grid Synchronization Observers -->
+        <section class="bg-white p-8 border-t-4 border-magento-gold-500 shadow-sm mb-8">
+            <h2 class="text-2xl font-semibold text-magento-charcoal mb-4">Grid Synchronization Observers</h2>
+
+            <p class="text-gray-700 mb-6">These 8 observers maintain the sales grid tables (denormalized copies of order/invoice/shipment/creditmemo data for fast admin grid display).</p>
+
+            <h3 class="text-xl font-semibold text-magento-orange-800 mb-3">Grid Insert Observers (2-5) - Synchronous</h3>
+
+            <div class="overflow-x-auto mb-6">
+                <table class="min-w-full border border-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-sm font-semibold text-magento-charcoal border-b">Observer</th>
+                            <th class="px-4 py-3 text-left text-sm font-semibold text-magento-charcoal border-b">Event</th>
+                            <th class="px-4 py-3 text-left text-sm font-semibold text-magento-charcoal border-b">Grid Table</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        <tr>
+                            <td class="px-4 py-3 text-sm">OrderGridSyncInsert</td>
+                            <td class="px-4 py-3 text-sm"><code class="bg-gray-100 px-2 py-0.5  text-xs">sales_order_process_relation</code></td>
+                            <td class="px-4 py-3 text-sm"><code class="bg-gray-100 px-2 py-0.5  text-xs">sales_order_grid</code></td>
+                        </tr>
+                        <tr class="bg-gray-50">
+                            <td class="px-4 py-3 text-sm">InvoiceGridSyncInsert</td>
+                            <td class="px-4 py-3 text-sm"><code class="bg-gray-100 px-2 py-0.5  text-xs">sales_order_invoice_process_relation</code></td>
+                            <td class="px-4 py-3 text-sm"><code class="bg-gray-100 px-2 py-0.5  text-xs">sales_invoice_grid</code></td>
+                        </tr>
+                        <tr>
+                            <td class="px-4 py-3 text-sm">ShipmentGridSyncInsert</td>
+                            <td class="px-4 py-3 text-sm"><code class="bg-gray-100 px-2 py-0.5  text-xs">sales_order_shipment_process_relation</code></td>
+                            <td class="px-4 py-3 text-sm"><code class="bg-gray-100 px-2 py-0.5  text-xs">sales_shipment_grid</code></td>
+                        </tr>
+                        <tr class="bg-gray-50">
+                            <td class="px-4 py-3 text-sm">CreditmemoGridSyncInsert</td>
+                            <td class="px-4 py-3 text-sm"><code class="bg-gray-100 px-2 py-0.5  text-xs">sales_order_creditmemo_process_relation</code></td>
+                            <td class="px-4 py-3 text-sm"><code class="bg-gray-100 px-2 py-0.5  text-xs">sales_creditmemo_grid</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="bg-magento-gold-500 bg-opacity-10 border-l-4 border-magento-gold-500 p-4 mb-6">
+                <p class="text-sm font-semibold text-magento-charcoal mb-2">Why Needed</p>
+                <p class="text-sm text-magento-charcoal">Admin order grid queries <code class="bg-magento-gold-500 bg-opacity-20 px-2 py-0.5 ">sales_order_grid</code> instead of <code class="bg-magento-gold-500 bg-opacity-20 px-2 py-0.5 ">sales_order</code> for performance. Grid tables contain denormalized data optimized for fast filtering and sorting.</p>
+            </div>
+
+            <h3 class="text-xl font-semibold text-magento-orange-800 mb-3">Performance Comparison</h3>
+
+            <div class="overflow-x-auto">
+                <table class="min-w-full border border-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-sm font-semibold text-magento-charcoal border-b">Mode</th>
+                            <th class="px-4 py-3 text-left text-sm font-semibold text-magento-charcoal border-b">Performance</th>
+                            <th class="px-4 py-3 text-left text-sm font-semibold text-magento-charcoal border-b">Use Case</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        <tr>
+                            <td class="px-4 py-3 text-sm font-semibold">Synchronous</td>
+                            <td class="px-4 py-3 text-sm text-gray-700">Slower order save (blocks on grid UPDATE)</td>
+                            <td class="px-4 py-3 text-sm text-gray-600">Small stores, realtime accuracy critical</td>
+                        </tr>
+                        <tr class="bg-gray-50">
+                            <td class="px-4 py-3 text-sm font-semibold">Asynchronous</td>
+                            <td class="px-4 py-3 text-sm text-gray-700">Faster order save (queue message only)</td>
+                            <td class="px-4 py-3 text-sm text-gray-600">High-volume stores, eventual consistency OK</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Quote Integration Observers -->
+        <section class="bg-white p-8 border-t-4 border-magento-gold-500 shadow-sm mb-8">
+            <h2 class="text-2xl font-semibold text-magento-charcoal mb-4">Quote Integration Observers</h2>
+
+            <div class="space-y-6">
+                <!-- AssignOrderToCustomer Observer -->
+                <div class="border-l-4 border-magento-gold-500 pl-4">
+                    <h3 class="text-lg font-semibold text-magento-orange-800 mb-2">20. AssignOrderToCustomerObserver</h3>
+                    <div class="inline-flex items-center px-3 py-1 -full text-xs font-semibold bg-magento-gold-100 text-magento-gold-800 mb-3">Business Critical</div>
+
+                    <p class="text-gray-700 mb-3"><strong>Event:</strong> <code class="bg-gray-100 px-2 py-0.5 ">customer_save_after_data_object</code></p>
+                    <p class="text-gray-700 mb-3"><strong>Purpose:</strong> Links guest orders to customer account after customer registration.</p>
+
+                    <p class="text-gray-700 mb-2"><strong>Execution Logic:</strong></p>
+                    <ol class="list-decimal list-inside text-sm text-gray-700 space-y-1 ml-4 mb-4">
+                        <li>Only for new customers (registration)</li>
+                        <li>Find guest orders with matching email</li>
+                        <li>Update <code class="bg-gray-100 px-2 py-0.5  text-xs">customer_id</code> and <code class="bg-gray-100 px-2 py-0.5  text-xs">customer_is_guest</code> fields</li>
+                        <li>Customer can now see all their orders (guest + registered)</li>
+                    </ol>
+
+                    <div class="bg-magento-gold-50 border border-magento-gold-200  p-4">
+                        <p class="text-sm font-semibold text-magento-gold-800 mb-2">Use Cases</p>
+                        <ul class="text-sm text-magento-gold-700 space-y-1">
+                            <li><strong>Guest Checkout → Registration:</strong> Customer places order as guest, then creates account</li>
+                            <li><strong>Order History:</strong> Customer can now see all their orders (guest + registered)</li>
+                            <li><strong>Loyalty Programs:</strong> Past guest orders count toward loyalty points</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- VAT Validation Observer -->
+                <div class="border-l-4 border-magento-gold-500 pl-4">
+                    <h3 class="text-lg font-semibold text-magento-orange-800 mb-2">21. CustomerValidateVatNumberObserver</h3>
+
+                    <p class="text-gray-700 mb-3"><strong>Event:</strong> <code class="bg-gray-100 px-2 py-0.5 ">sales_quote_address_collect_totals_after</code></p>
+                    <p class="text-gray-700 mb-3"><strong>Purpose:</strong> Validates customer VAT number during checkout totals calculation to determine tax exemption.</p>
+
+                    <div class="bg-magento-gold-50 border-l-4 border-magento-gold-500 p-4">
+                        <p class="text-sm font-semibold text-magento-gold-800 mb-2">Performance Warning</p>
+                        <p class="text-sm text-magento-gold-700"><strong>External API Call:</strong> VIES validation can take 1-3 seconds. <strong>Blocks checkout!</strong></p>
+                        <p class="text-sm text-magento-gold-700 mt-2"><strong>Recommendation:</strong> Cache VAT validation results or use async validation.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Best Practices -->
+        <section class="bg-white p-8 border-t-4 border-magento-gold-500 shadow-sm mb-8">
+            <h2 class="text-2xl font-semibold text-magento-charcoal mb-4">Observer Best Practices</h2>
+
+            <div class="space-y-6">
+                <div>
+                    <h3 class="text-lg font-semibold text-magento-orange-800 mb-3">1. Avoid Heavy Operations in Synchronous Observers</h3>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-sm font-semibold text-amaranth-600 mb-2">BAD: External API calls</p>
+                            <pre class="bg-amaranth-50 p-3  text-xs text-amaranth-900 overflow-x-auto"><code>// BAD - blocks order save
+public function execute(Observer $observer): void
+{
+    $order = $observer->getEvent()->getOrder();
+    $this->externalApi->notifyOrderPlaced($order); // 2s timeout!
+}</code></pre>
+                        </div>
+                        <div>
+                            <p class="text-sm font-semibold text-magento-gold-600 mb-2">GOOD: Queue for async processing</p>
+                            <pre class="bg-magento-gold-50 p-3  text-xs text-magento-gold-900 overflow-x-auto"><code>// GOOD - async processing
+public function execute(Observer $observer): void
+{
+    $order = $observer->getEvent()->getOrder();
+    $this->publisher->publish('sales.order.placed', $order->getId());
+}</code></pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-lg font-semibold text-magento-orange-800 mb-3">2. Check for Data Changes Before Processing</h3>
+
+                    <pre class="bg-gray-900 p-4  text-sm text-gray-100 overflow-x-auto"><code>public function execute(Observer $observer): void
+{
+    $order = $observer->getEvent()->getOrder();
+
+    // Check if status changed
+    if (!$order->dataHasChangedFor('status')) {
+        return; // No change, skip processing
+    }
+
+    // Expensive status change logic
+}</code></pre>
+                </div>
+
+                <div>
+                    <h3 class="text-lg font-semibold text-magento-orange-800 mb-3">3. Handle Exceptions Gracefully</h3>
+
+                    <pre class="bg-gray-900 p-4  text-sm text-gray-100 overflow-x-auto"><code>public function execute(Observer $observer): void
+{
+    try {
+        // Risky operation
+        $this->externalService->notify($data);
+    } catch (\Exception $e) {
+        // Log error but don't fail order save
+        $this->logger->error('Notification failed: ' . $e->getMessage());
+        // Don't rethrow - allow order save to succeed
+    }
+}</code></pre>
+                </div>
+
+                <div>
+                    <h3 class="text-lg font-semibold text-magento-orange-800 mb-3">4. Use Grid Async Indexing for Performance</h3>
+
+                    <p class="text-gray-700 mb-2"><strong>Production Recommendation:</strong></p>
+                    <pre class="bg-gray-900 p-4  text-sm text-gray-100 overflow-x-auto"><code># Enable async grid indexing
+bin/magento config:set dev/grid/async_indexing 1
+
+# Enable async email sending
+bin/magento config:set sales_email/general/async_sending 1</code></pre>
+                    <p class="text-gray-700 mt-2"><strong>Result:</strong> Faster order placement, better scalability.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Troubleshooting -->
+        <section class="bg-white p-8 border-t-4 border-magento-gold-500 shadow-sm">
+            <h2 class="text-2xl font-semibold text-magento-charcoal mb-4">Troubleshooting</h2>
+
+            <div class="space-y-6">
+                <div>
+                    <h3 class="text-lg font-semibold text-magento-orange-800 mb-2">Grid Not Updating</h3>
+                    <p class="text-sm text-gray-700 mb-2"><strong>Symptom:</strong> Order visible in database but not in admin grid.</p>
+                    <p class="text-sm text-gray-700 mb-2"><strong>Cause:</strong> Grid sync observer failed or async indexing lagged.</p>
+                    <p class="text-sm text-gray-700 mb-2"><strong>Fix:</strong></p>
+                    <pre class="bg-gray-900 p-3  text-xs text-gray-100 overflow-x-auto"><code># Reindex grids manually
+bin/magento indexer:reindex sales_order_grid
+bin/magento indexer:reindex sales_invoice_grid
+bin/magento indexer:reindex sales_shipment_grid
+bin/magento indexer:reindex sales_creditmemo_grid</code></pre>
+                </div>
+
+                <div>
+                    <h3 class="text-lg font-semibold text-magento-orange-800 mb-2">Email Not Sending</h3>
+                    <p class="text-sm text-gray-700 mb-2"><strong>Symptom:</strong> Orders placed but no confirmation emails.</p>
+                    <p class="text-sm text-gray-700 mb-2"><strong>Cause:</strong> Async email queue not processing or SMTP failure.</p>
+                    <p class="text-sm text-gray-700 mb-2"><strong>Debug:</strong></p>
+                    <pre class="bg-gray-900 p-3  text-xs text-gray-100 overflow-x-auto"><code># Check email queue
+bin/magento queue:consumers:list | grep email
+
+# Process queue manually
+bin/magento queue:consumers:start sales.email.sender</code></pre>
+                </div>
+            </div>
+
+            <div class="mt-6 bg-gray-50 p-4 ">
+                <p class="text-sm text-gray-700"><strong>Document Version:</strong> 1.0.0</p>
+                <p class="text-sm text-gray-700"><strong>Last Updated:</strong> 2025-12-04</p>
+                <p class="text-sm text-gray-700"><strong>Magento Version:</strong> 2.4.8</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-charcoal text-white py-8 px-4 sm:px-6 lg:px-8 mt-16">
+        <div class="mx-auto max-w-screen-xl">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                    <h3 class="text-lg font-semibold mb-3">Magento_Sales</h3>
+                    <ul class="space-y-2 text-sm text-gray-300">
+                        <li><a href="architecture.html" class="hover:text-magento-orange-400 transition-colors">Architecture</a></li>
+                        <li><a href="known-issues.html" class="hover:text-magento-orange-400 transition-colors">Known Issues</a></li>
+                        <li><a href="plugins-observers.html" class="hover:text-magento-orange-400 transition-colors">Plugins & Observers</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-3">Quick Links</h3>
+                    <ul class="space-y-2 text-sm text-gray-300">
+                        <li><a href="../../index.html" class="hover:text-magento-orange-400 transition-colors">Documentation Home</a></li>
+                        <li><a href="../index.html" class="hover:text-magento-orange-400 transition-colors">Module Index</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-3">About</h3>
+                    <p class="text-sm text-gray-300">Comprehensive documentation for Magento 2 core modules, including architecture, patterns, and best practices.</p>
+                </div>
+            </div>
+            <div class="mt-8 pt-6 border-t border-gray-700 text-center text-sm text-gray-400">
+                <p>&copy; 2025 Magento Core Documentation. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

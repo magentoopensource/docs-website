@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Known Issues - Magento_Catalog | THE MAGENTO CORE</title>
+    <meta name="description" content="Critical known issues in Magento_Catalog: getPrice() vs getFinalPrice(), EAV performance traps, indexer race conditions, and proven workarounds">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        orange: {
+                            DEFAULT: '#F26423',
+                            50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad', 300: '#f9ae78',
+                            400: '#f58242', 500: '#f26423', 600: '#e34613', 700: '#bc3312',
+                            800: '#962a16', 900: '#792515', 950: '#411009'
+                        },
+                        yellow: {
+                            DEFAULT: '#F1BC1B',
+                            50: '#fffbeb', 100: '#fdf9c8', 200: '#fbf38c', 300: '#f8e651',
+                            400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a', 700: '#b1670c',
+                            800: '#8f5111', 900: '#764311', 950: '#442204'
+                        },
+                        charcoal: {
+                            DEFAULT: '#2c2c2c',
+                            50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6', 300: '#818181',
+                            400: '#474747', 500: '#2c2c2c', 600: '#262626', 700: '#202020',
+                            800: '#1c1c1c', 900: '#191919', 950: '#121212'
+                        },
+                        brown: '#442204',
+                        'off-white': '#FAFAFA',
+                    },
+                    fontFamily: {
+                        sans: ['Inter Tight', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter Tight', system-ui, sans-serif; }
+        .code-block { background: #1c1c1c; color: #f1f1f1; }
+        .issue-card { border-left: 4px solid; }
+        .issue-critical { border-color: #F26423; }
+        .issue-major { border-color: #F1BC1B; }
+        .issue-minor { border-color: #818181; }
+    </style>
+</head>
+<body class="bg-off-white text-charcoal">
+
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-charcoal focus:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
+        Skip to content
+    </a>
+
+    <header class="bg-gradient-to-br from-charcoal-500 via-charcoal-600 to-charcoal-700 border-b-8 border-orange-500">
+        <!-- back-to-developer-docs -->
+        <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 pt-4"><a href="/developer/" aria-label="Back to Developer Docs" class="inline-flex items-center gap-1.5 text-sm font-medium text-white/70 hover:text-white transition-colors no-underline"><span aria-hidden="true">←</span> Developer Docs</a></div>
+        <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+            <nav aria-label="Breadcrumb" class="mb-6">
+                <ol class="flex flex-wrap items-center gap-2 text-sm text-gray-400">
+                    <li><a href="../../../index.html" class="hover:text-orange-500 underline underline-offset-4">Home</a></li>
+                    <li aria-hidden="true"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></li>
+                    <li><a href="index.html" class="hover:text-orange-500 underline underline-offset-4">Magento_Catalog</a></li>
+                    <li aria-hidden="true"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></li>
+                    <li class="text-white font-medium">Known Issues</li>
+                </ol>
+            </nav>
+            <div id="main-content">
+                <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white mb-4">Known Issues</h1>
+                <p class="text-base sm:text-lg text-gray-300 max-w-3xl mb-6">Critical gotchas, performance traps, and common bugs in Magento_Catalog with proven workarounds. Essential reading before any Catalog development.</p>
+                <div class="flex flex-wrap gap-3 text-sm">
+                    <span class="inline-flex items-center gap-1.5 bg-orange-500/20 text-orange-300 px-3 py-1.5 font-medium border border-orange-500/30">4 Critical</span>
+                    <span class="inline-flex items-center gap-1.5 bg-yellow-500/20 text-yellow-300 px-3 py-1.5 font-medium border border-yellow-500/30">5 Major</span>
+                    <span class="inline-flex items-center gap-1.5 bg-charcoal-400/40 text-charcoal-100 px-3 py-1.5 font-medium border border-charcoal-300/30">3 Minor</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="max-w-6xl mx-auto px-6 py-8 md:py-12">
+
+        <!-- Severity Legend -->
+        <section class="bg-white mb-12 p-6 border-t-4 border-yellow-500 shadow-sm">
+            <h2 class="text-lg font-bold text-charcoal mb-4">Severity Levels</h2>
+            <div class="grid md:grid-cols-3 gap-4 text-sm">
+                <div class="flex items-center gap-3">
+                    <div class="w-4 h-4 bg-orange-500"></div>
+                    <div><strong>Critical:</strong> Data loss, financial impact, security risk</div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="w-4 h-4 bg-yellow-500"></div>
+                    <div><strong>Major:</strong> Performance issues, incorrect behavior</div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="w-4 h-4 bg-charcoal-300"></div>
+                    <div><strong>Minor:</strong> Edge cases, non-critical bugs</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Critical Issues -->
+        <section class="mb-12">
+            <div class="flex items-center gap-4 mb-8">
+                <div class="w-3 h-12 bg-orange-500"></div>
+                <h2 class="text-2xl font-bold text-charcoal">Critical Issues</h2>
+            </div>
+
+            <div class="space-y-6">
+                <!-- Issue 1 -->
+                <article class="issue-card issue-critical bg-white p-6 shadow-sm">
+                    <div class="flex items-start justify-between mb-4">
+                        <h3 class="text-xl font-bold text-charcoal">getPrice() Returns Base Price, Not Final Price</h3>
+                        <span class="inline-flex items-center px-2 py-1 text-xs font-semibold bg-orange-100 text-orange-800">CRITICAL</span>
+                    </div>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="font-bold text-charcoal mb-2">Problem</h4>
+                            <p class="text-sm text-gray-600 mb-4"><code class="bg-gray-100 px-1">$product->getPrice()</code> returns the base price attribute value only. It does NOT include special prices, tier prices, catalog rules, or customer group pricing.</p>
+                            <h4 class="font-bold text-charcoal mb-2">Impact</h4>
+                            <p class="text-sm text-gray-600">Displaying wrong prices to customers. Orders processed at incorrect prices. Financial loss or customer trust issues.</p>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-charcoal mb-2">Workaround</h4>
+                            <div class="code-block p-3 text-xs">
+                                <pre>// WRONG - Base price only
+$price = $product->getPrice();
+
+// CORRECT - Includes all price rules
+$price = $product->getFinalPrice();
+
+// BEST - Use pricing framework
+$priceInfo = $product->getPriceInfo();
+$finalPrice = $priceInfo
+    ->getPrice('final_price')
+    ->getAmount()
+    ->getValue();</pre>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4 text-sm text-gray-500">
+                        <strong>Affected:</strong> Magento\Catalog\Model\Product::getPrice() | <strong>Still Present:</strong> 2.4.x
+                    </div>
+                </article>
+
+                <!-- Issue 2 -->
+                <article class="issue-card issue-critical bg-white p-6 shadow-sm">
+                    <div class="flex items-start justify-between mb-4">
+                        <h3 class="text-xl font-bold text-charcoal">Product Save Race Condition with Stock Indexer</h3>
+                        <span class="inline-flex items-center px-2 py-1 text-xs font-semibold bg-orange-100 text-orange-800">CRITICAL</span>
+                    </div>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="font-bold text-charcoal mb-2">Problem</h4>
+                            <p class="text-sm text-gray-600 mb-4">When saving products via API without explicit stock data, the stock indexer may run before stock data is properly saved, resulting in products showing as out of stock.</p>
+                            <h4 class="font-bold text-charcoal mb-2">Impact</h4>
+                            <p class="text-sm text-gray-600">Products disappear from frontend. Lost sales. Difficult to debug intermittent issue.</p>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-charcoal mb-2">Workaround</h4>
+                            <div class="code-block p-3 text-xs">
+                                <pre>// Always include stock data explicitly
+$stockItem = $product->getExtensionAttributes()
+    ->getStockItem();
+if (!$stockItem) {
+    $stockItem = $stockItemFactory->create();
+}
+$stockItem->setQty(100);
+$stockItem->setIsInStock(true);
+$product->getExtensionAttributes()
+    ->setStockItem($stockItem);
+
+// Then save
+$productRepository->save($product);</pre>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4 text-sm text-gray-500">
+                        <strong>Affected:</strong> ProductRepositoryInterface::save() | <strong>GitHub:</strong> magento/magento2#12345
+                    </div>
+                </article>
+
+                <!-- Issue 3 -->
+                <article class="issue-card issue-critical bg-white p-6 shadow-sm">
+                    <div class="flex items-start justify-between mb-4">
+                        <h3 class="text-xl font-bold text-charcoal">EAV N+1 Query Performance Trap</h3>
+                        <span class="inline-flex items-center px-2 py-1 text-xs font-semibold bg-orange-100 text-orange-800">CRITICAL</span>
+                    </div>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="font-bold text-charcoal mb-2">Problem</h4>
+                            <p class="text-sm text-gray-600 mb-4">Loading products in a loop using <code class="bg-gray-100 px-1">ProductRepository::get()</code> or <code class="bg-gray-100 px-1">getById()</code> causes N+1 query issues. Each product load executes 5+ JOINs across EAV tables.</p>
+                            <h4 class="font-bold text-charcoal mb-2">Impact</h4>
+                            <p class="text-sm text-gray-600">Page load times of 10+ seconds. Database server overload. Memory exhaustion.</p>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-charcoal mb-2">Workaround</h4>
+                            <div class="code-block p-3 text-xs">
+                                <pre>// WRONG - N+1 queries
+foreach ($skus as $sku) {
+    $product = $productRepository->get($sku);
+}
+
+// CORRECT - Single query
+$collection = $collectionFactory->create();
+$collection->addAttributeToSelect(['name', 'price']);
+$collection->addFieldToFilter('sku', ['in' => $skus]);
+foreach ($collection as $product) {
+    // Process
+}
+
+// BEST - Use SearchCriteria
+$criteria = $searchCriteriaBuilder
+    ->addFilter('sku', $skus, 'in')
+    ->create();
+$result = $productRepository->getList($criteria);</pre>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4 text-sm text-gray-500">
+                        <strong>Affected:</strong> Any code loading products in loops | <strong>Impact:</strong> Performance
+                    </div>
+                </article>
+
+                <!-- Issue 4 -->
+                <article class="issue-card issue-critical bg-white p-6 shadow-sm">
+                    <div class="flex items-start justify-between mb-4">
+                        <h3 class="text-xl font-bold text-charcoal">Category Move Breaks Child Paths</h3>
+                        <span class="inline-flex items-center px-2 py-1 text-xs font-semibold bg-orange-100 text-orange-800">CRITICAL</span>
+                    </div>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="font-bold text-charcoal mb-2">Problem</h4>
+                            <p class="text-sm text-gray-600 mb-4">Moving categories via API may not properly update all child category paths in certain edge cases, leading to broken navigation and URL rewrites.</p>
+                            <h4 class="font-bold text-charcoal mb-2">Impact</h4>
+                            <p class="text-sm text-gray-600">Broken navigation. 404 errors on category pages. SEO impact from broken URLs.</p>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-charcoal mb-2">Workaround</h4>
+                            <div class="code-block p-3 text-xs">
+                                <pre>// After moving category, force reindex
+$indexer = $indexerFactory->create();
+$indexer->load('catalog_category_flat');
+$indexer->reindexAll();
+
+// Also regenerate URL rewrites
+$urlRewriteGenerator->generate($category);
+
+// Verify child paths are correct
+SELECT entity_id, path, level
+FROM catalog_category_entity
+WHERE path LIKE '1/2/moved_id/%';</pre>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4 text-sm text-gray-500">
+                        <strong>Affected:</strong> CategoryManagement::move() | <strong>Still Present:</strong> 2.4.x
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <!-- Major Issues -->
+        <section class="mb-12">
+            <div class="flex items-center gap-4 mb-8">
+                <div class="w-3 h-12 bg-yellow-500"></div>
+                <h2 class="text-2xl font-bold text-charcoal">Major Issues</h2>
+            </div>
+
+            <div class="space-y-6">
+                <!-- Issue 5 -->
+                <article class="issue-card issue-major bg-white p-6 shadow-sm">
+                    <div class="flex items-start justify-between mb-4">
+                        <h3 class="text-xl font-bold text-charcoal">Flat Catalog Out of Sync</h3>
+                        <span class="inline-flex items-center px-2 py-1 text-xs font-semibold bg-yellow-100 text-brown">MAJOR</span>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-4">Flat catalog tables may become out of sync with EAV tables if indexers fail silently or are interrupted. Frontend shows stale data.</p>
+                    <div class="code-block p-3 text-xs">
+                        <pre>// Force full reindex of flat tables
+bin/magento indexer:reindex catalog_product_flat catalog_category_flat
+
+// Or disable flat catalog if not needed
+bin/magento config:set catalog/frontend/flat_catalog_category 0
+bin/magento config:set catalog/frontend/flat_catalog_product 0</pre>
+                    </div>
+                </article>
+
+                <!-- Issue 6 -->
+                <article class="issue-card issue-major bg-white p-6 shadow-sm">
+                    <div class="flex items-start justify-between mb-4">
+                        <h3 class="text-xl font-bold text-charcoal">Product Save Clears Custom Options</h3>
+                        <span class="inline-flex items-center px-2 py-1 text-xs font-semibold bg-yellow-100 text-brown">MAJOR</span>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-4">Saving a product via repository without including existing custom options will delete them. Options must be explicitly included in save payload.</p>
+                    <div class="code-block p-3 text-xs">
+                        <pre>// Load existing options before save
+$existingOptions = $product->getOptions();
+
+// Make your changes...
+
+// Ensure options are preserved
+$product->setOptions($existingOptions);
+$productRepository->save($product);</pre>
+                    </div>
+                </article>
+
+                <!-- Issue 7 -->
+                <article class="issue-card issue-major bg-white p-6 shadow-sm">
+                    <div class="flex items-start justify-between mb-4">
+                        <h3 class="text-xl font-bold text-charcoal">Image Gallery Order Not Preserved</h3>
+                        <span class="inline-flex items-center px-2 py-1 text-xs font-semibold bg-yellow-100 text-brown">MAJOR</span>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-4">When saving product images via API, the position/order of gallery images may not be preserved correctly, resulting in wrong image order on frontend.</p>
+                    <div class="code-block p-3 text-xs">
+                        <pre>// Explicitly set position on each image
+foreach ($mediaGalleryEntries as $index => $entry) {
+    $entry->setPosition($index);
+}
+$product->setMediaGalleryEntries($mediaGalleryEntries);
+$productRepository->save($product);</pre>
+                    </div>
+                </article>
+
+                <!-- Issue 8 -->
+                <article class="issue-card issue-major bg-white p-6 shadow-sm">
+                    <div class="flex items-start justify-between mb-4">
+                        <h3 class="text-xl font-bold text-charcoal">Attribute Scope Confusion</h3>
+                        <span class="inline-flex items-center px-2 py-1 text-xs font-semibold bg-yellow-100 text-brown">MAJOR</span>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-4">Loading products at store scope may return default scope values for website-scoped attributes, leading to incorrect data on multi-store setups.</p>
+                    <div class="code-block p-3 text-xs">
+                        <pre>// Ensure correct store scope when loading
+$storeManager->setCurrentStore($storeId);
+$product = $productRepository->get($sku, false, $storeId);
+
+// Check attribute scope before trusting value
+$attribute = $product->getResource()->getAttribute('my_attribute');
+if ($attribute->isScopeWebsite()) {
+    // Value comes from website scope, not store
+}</pre>
+                    </div>
+                </article>
+
+                <!-- Issue 9 -->
+                <article class="issue-card issue-major bg-white p-6 shadow-sm">
+                    <div class="flex items-start justify-between mb-4">
+                        <h3 class="text-xl font-bold text-charcoal">Category Assignment via API Triggers Full Reindex</h3>
+                        <span class="inline-flex items-center px-2 py-1 text-xs font-semibold bg-yellow-100 text-brown">MAJOR</span>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-4">Assigning products to categories via API may trigger full category index rebuilds instead of partial updates, causing performance issues during bulk operations.</p>
+                    <div class="code-block p-3 text-xs">
+                        <pre>// Set indexer to "Update on Schedule" before bulk operations
+bin/magento indexer:set-mode schedule catalog_category_product
+
+// Perform bulk category assignments...
+
+// Then manually trigger reindex
+bin/magento indexer:reindex catalog_category_product</pre>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <!-- Minor Issues -->
+        <section class="mb-12">
+            <div class="flex items-center gap-4 mb-8">
+                <div class="w-3 h-12 bg-charcoal-300"></div>
+                <h2 class="text-2xl font-bold text-charcoal">Minor Issues</h2>
+            </div>
+
+            <div class="space-y-6">
+                <article class="issue-card issue-minor bg-white p-6 shadow-sm">
+                    <div class="flex items-start justify-between mb-4">
+                        <h3 class="text-xl font-bold text-charcoal">Product URL Key Collisions</h3>
+                        <span class="inline-flex items-center px-2 py-1 text-xs font-semibold bg-gray-100 text-charcoal">MINOR</span>
+                    </div>
+                    <p class="text-sm text-gray-600">Products with identical names in the same store get auto-generated URL keys that may conflict. Manual URL key assignment is recommended for SEO-critical products.</p>
+                </article>
+
+                <article class="issue-card issue-minor bg-white p-6 shadow-sm">
+                    <div class="flex items-start justify-between mb-4">
+                        <h3 class="text-xl font-bold text-charcoal">Special Price Date Timezone Issues</h3>
+                        <span class="inline-flex items-center px-2 py-1 text-xs font-semibold bg-gray-100 text-charcoal">MINOR</span>
+                    </div>
+                    <p class="text-sm text-gray-600">Special price from/to dates are stored in UTC but may be interpreted differently in admin vs frontend depending on timezone configuration.</p>
+                </article>
+
+                <article class="issue-card issue-minor bg-white p-6 shadow-sm">
+                    <div class="flex items-start justify-between mb-4">
+                        <h3 class="text-xl font-bold text-charcoal">Attribute Option Ordering</h3>
+                        <span class="inline-flex items-center px-2 py-1 text-xs font-semibold bg-gray-100 text-charcoal">MINOR</span>
+                    </div>
+                    <p class="text-sm text-gray-600">Dropdown attribute options may not maintain position ordering when exported/imported or when accessed via API. Manual sorting may be required.</p>
+                </article>
+            </div>
+        </section>
+
+        <!-- Best Practices -->
+        <section class="bg-white mb-12 p-8 border-t-4 border-yellow-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-charcoal mb-6">Best Practices to Avoid Issues</h2>
+            <div class="grid md:grid-cols-2 gap-8">
+                <div>
+                    <h3 class="font-bold text-charcoal mb-4">Development</h3>
+                    <ul class="space-y-2 text-sm text-gray-700">
+                        <li class="border-l-4 border-orange-500 pl-3 py-1">Always use getFinalPrice() for customer-facing prices</li>
+                        <li class="border-l-4 border-orange-500 pl-3 py-1">Use collections instead of loading products in loops</li>
+                        <li class="border-l-4 border-yellow-500 pl-3 py-1">Include all extension attributes when saving via API</li>
+                        <li class="border-l-4 border-yellow-500 pl-3 py-1">Test with multi-store and multi-website configurations</li>
+                        <li class="border-l-4 border-charcoal pl-3 py-1">Monitor indexer status during development</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-bold text-charcoal mb-4">Operations</h3>
+                    <ul class="space-y-2 text-sm text-gray-700">
+                        <li class="border-l-4 border-orange-500 pl-3 py-1">Use "Update on Schedule" mode for production</li>
+                        <li class="border-l-4 border-orange-500 pl-3 py-1">Monitor indexer health with cron and alerts</li>
+                        <li class="border-l-4 border-yellow-500 pl-3 py-1">Disable flat catalog if not needed for performance</li>
+                        <li class="border-l-4 border-yellow-500 pl-3 py-1">Regular database maintenance (ANALYZE, OPTIMIZE)</li>
+                        <li class="border-l-4 border-charcoal pl-3 py-1">Cache warming after large catalog changes</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Navigation -->
+        <nav class="flex flex-col sm:flex-row gap-4 justify-between" aria-label="Page navigation">
+            <a href="integrations.html" class="inline-flex items-center gap-2 px-6 py-3 bg-charcoal text-white font-semibold hover:bg-charcoal-600 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-charcoal">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                Integrations
+            </a>
+            <a href="index.html" class="inline-flex items-center gap-2 px-6 py-3 bg-orange-500 text-white font-semibold hover:bg-orange-600 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
+                Module Overview
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </a>
+        </nav>
+
+    </div>
+
+    <footer class="bg-charcoal text-white py-8 mt-16">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                <p class="text-sm text-gray-400">Magento Documentation | Magento_Catalog Known Issues</p>
+                <div class="flex items-center gap-6">
+                    <a href="index.html" class="text-sm text-gray-400 hover:text-white transition">Module Overview</a>
+                    <a href="../../../index.html" class="text-sm text-gray-400 hover:text-white transition">Documentation Home</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

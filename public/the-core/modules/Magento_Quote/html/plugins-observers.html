@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plugins & Observers - Magento_Quote Module</title>
+    <meta name="description" content="Magento_Quote plugins and observers including catalog product plugins, quote recollection triggers, and order submission observers.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'magento-orange': {
+                            DEFAULT: '#f26423',
+                            50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad', 300: '#f9ae78',
+                            400: '#f58242', 500: '#f26423', 600: '#e34613', 700: '#bc3312',
+                            800: '#962a16', 900: '#792515', 950: '#411009'
+                        },
+                        'magento-gold': {
+                            DEFAULT: '#f1bc1b',
+                            50: '#fffdeb', 100: '#fdf9c8', 200: '#fbf38c', 300: '#f8e651',
+                            400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a', 700: '#b1670c',
+                            800: '#8f5111', 900: '#764311', 950: '#442204'
+                        },
+                        'magento-charcoal': {
+                            DEFAULT: '#2c2c2c',
+                            50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6', 300: '#818181',
+                            400: '#474747', 500: '#2c2c2c', 600: '#262626', 700: '#202020',
+                            800: '#1c1c1c', 900: '#191919', 950: '#121212'
+                        },
+                    },
+                    fontFamily: {
+                        sans: ['Inter Tight', 'system-ui', 'sans-serif'],
+                        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&display=swap');
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+        pre { background: #1a1a1a; color: #e5e5e5; padding: 1rem; overflow-x: auto; font-size: 0.875rem; line-height: 1.5; }
+        code { font-family: 'JetBrains Mono', 'Fira Code', monospace; }
+        .code-keyword { color: #f1bc1b; }
+        .code-string { color: #98c379; }
+        .code-comment { color: #6b7280; }
+        .code-class { color: #f26423; }
+    </style>
+</head>
+<body class="bg-[#FAFAFA] text-magento-charcoal">
+
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-magento-gold-600 focus:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-magento-gold-600">
+        Skip to content
+    </a>
+
+    <header class="bg-gradient-to-br from-magento-charcoal-500 via-magento-charcoal-600 to-magento-charcoal-700 border-b-8 border-magento-charcoal-400">
+        <!-- back-to-developer-docs -->
+        <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 pt-4"><a href="/developer/" aria-label="Back to Developer Docs" class="inline-flex items-center gap-1.5 text-sm font-medium text-white/70 hover:text-white transition-colors no-underline"><span aria-hidden="true">←</span> Developer Docs</a></div>
+        <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 py-8">
+            <nav class="mb-4" aria-label="Breadcrumb">
+                <ol class="flex items-center gap-2 text-sm text-gray-400">
+                    <li><a href="../../../index.html" class="hover:text-white transition-colors">Home</a></li>
+                    <li aria-hidden="true">/</li>
+                    <li><a href="index.html" class="hover:text-white transition-colors">Magento_Quote</a></li>
+                    <li aria-hidden="true">/</li>
+                    <li><span class="text-magento-gold-400">Plugins & Observers</span></li>
+                </ol>
+            </nav>
+            <h1 id="main-content" class="text-3xl sm:text-4xl font-bold tracking-tight text-white">Plugins & Observers</h1>
+            <p class="text-gray-300 mt-2">Extension points, event subscriptions, and preference declarations</p>
+        </div>
+    </header>
+
+    <div class="max-w-6xl mx-auto px-6 py-8 md:py-12">
+
+        <!-- Plugins Overview -->
+        <section class="bg-white mb-12 p-8 border-t-4 border-magento-gold-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-magento-charcoal mb-6">Plugin Declarations</h2>
+            <p class="text-gray-700 mb-6">The Quote module declares 5 plugins that intercept catalog and tier price operations to keep quote items synchronized.</p>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="bg-charcoal text-white">
+                            <th class="px-4 py-3 text-left font-semibold">Plugin Name</th>
+                            <th class="px-4 py-3 text-left font-semibold">Target</th>
+                            <th class="px-4 py-3 text-left font-semibold">Purpose</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-3 font-mono text-magento-orange-600">clean_quote_items_after_product_delete</td>
+                            <td class="px-4 py-3 font-mono text-xs">Catalog\Model\ResourceModel\Product</td>
+                            <td class="px-4 py-3 text-gray-600">Remove quote items when product is deleted</td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-3 font-mono text-magento-orange-600">update_quote_items_after_product_save</td>
+                            <td class="px-4 py-3 font-mono text-xs">Catalog\Model\ResourceModel\Product</td>
+                            <td class="px-4 py-3 text-gray-600">Mark quotes for recollection on product changes</td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-3 font-mono text-magento-orange-600">update_quote_items_after_tier_prices_update</td>
+                            <td class="px-4 py-3 font-mono text-xs">Catalog\Api\TierPriceStorageInterface</td>
+                            <td class="px-4 py-3 text-gray-600">Recollect quotes when tier prices change</td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-3 font-mono text-magento-orange-600">quoteProductMassChange</td>
+                            <td class="px-4 py-3 font-mono text-xs">Catalog\Model\Product\Action</td>
+                            <td class="px-4 py-3 text-gray-600">Handle mass product status/attribute changes</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Plugin Details -->
+        <section class="mb-12">
+            <div class="flex items-center gap-4 mb-6">
+                <div class="w-3 h-12 bg-magento-orange-500"></div>
+                <h2 class="text-3xl font-bold text-magento-charcoal">Plugin Implementations</h2>
+            </div>
+
+            <div class="space-y-6">
+                <!-- RemoveQuoteItems -->
+                <div class="bg-white border border-gray-200 p-6 shadow-sm">
+                    <div class="flex items-start justify-between mb-4">
+                        <div>
+                            <h3 class="text-lg font-bold text-magento-charcoal">RemoveQuoteItems</h3>
+                            <p class="text-sm text-gray-600">Model\Product\Plugin\RemoveQuoteItems</p>
+                        </div>
+                        <span class="px-3 py-1 bg-magento-orange-100 text-magento-orange-800 text-xs font-semibold">afterDelete</span>
+                    </div>
+                    <p class="text-gray-700 mb-4">When a product is deleted, this plugin removes all corresponding quote items to prevent orphaned cart items.</p>
+                    <pre><code><span class="code-keyword">public function</span> <span class="code-class">afterDelete</span>(
+    <span class="code-class">ProductResourceModel</span> <span class="code-variable">$subject</span>,
+    <span class="code-class">ProductResourceModel</span> <span class="code-variable">$result</span>,
+    <span class="code-class">AbstractModel</span> <span class="code-variable">$product</span>
+): <span class="code-class">ProductResourceModel</span> {
+    <span class="code-variable">$this</span>->quoteItemsCleaner-><span class="code-class">execute</span>(<span class="code-variable">$product</span>);
+    <span class="code-keyword">return</span> <span class="code-variable">$result</span>;
+}</code></pre>
+                </div>
+
+                <!-- UpdateQuoteItems -->
+                <div class="bg-white border border-gray-200 p-6 shadow-sm">
+                    <div class="flex items-start justify-between mb-4">
+                        <div>
+                            <h3 class="text-lg font-bold text-magento-charcoal">UpdateQuoteItems</h3>
+                            <p class="text-sm text-gray-600">Model\Product\Plugin\UpdateQuoteItems</p>
+                        </div>
+                        <span class="px-3 py-1 bg-magento-gold-100 text-magento-gold-800 text-xs font-semibold">afterSave</span>
+                    </div>
+                    <p class="text-gray-700 mb-4">Marks quotes containing the updated product for totals recollection on next access.</p>
+                    <pre><code><span class="code-keyword">public function</span> <span class="code-class">afterSave</span>(
+    <span class="code-class">ProductResourceModel</span> <span class="code-variable">$subject</span>,
+    <span class="code-class">ProductResourceModel</span> <span class="code-variable">$result</span>,
+    <span class="code-class">AbstractModel</span> <span class="code-variable">$product</span>
+): <span class="code-class">ProductResourceModel</span> {
+    <span class="code-keyword">if</span> (<span class="code-variable">$this</span>->isProductDataChanged(<span class="code-variable">$product</span>)) {
+        <span class="code-variable">$this</span>->markQuotesRecollect->execute([<span class="code-variable">$product</span>->getId()]);
+    }
+    <span class="code-keyword">return</span> <span class="code-variable">$result</span>;
+}</code></pre>
+                </div>
+
+                <!-- MarkQuotesRecollectMassDisabled -->
+                <div class="bg-white border border-gray-200 p-6 shadow-sm">
+                    <div class="flex items-start justify-between mb-4">
+                        <div>
+                            <h3 class="text-lg font-bold text-magento-charcoal">MarkQuotesRecollectMassDisabled</h3>
+                            <p class="text-sm text-gray-600">Model\Product\Plugin\MarkQuotesRecollectMassDisabled</p>
+                        </div>
+                        <span class="px-3 py-1 bg-magento-charcoal-100 text-magento-charcoal text-xs font-semibold">afterUpdateAttributes</span>
+                    </div>
+                    <p class="text-gray-700 mb-4">Handles mass product actions (bulk disable, attribute updates) by marking affected quotes for recollection.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Observers -->
+        <section class="bg-white mb-12 p-8 border-t-4 border-charcoal shadow-sm">
+            <h2 class="text-2xl font-bold text-magento-charcoal mb-6">Observer Declarations</h2>
+            <p class="text-gray-700 mb-6">The Quote module registers 5 observers across global and frontend scopes.</p>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="bg-charcoal text-white">
+                            <th class="px-4 py-3 text-left font-semibold">Observer</th>
+                            <th class="px-4 py-3 text-left font-semibold">Event</th>
+                            <th class="px-4 py-3 text-left font-semibold">Scope</th>
+                            <th class="px-4 py-3 text-left font-semibold">Purpose</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-3 font-mono text-magento-orange-600">CollectTotalsObserver</td>
+                            <td class="px-4 py-3 font-mono text-xs">sales_quote_address_collect_totals_before</td>
+                            <td class="px-4 py-3"><span class="px-2 py-1 bg-magento-gold-100 text-magento-gold-800 text-xs">global</span></td>
+                            <td class="px-4 py-3 text-gray-600">VAT validation during totals collection</td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-3 font-mono text-magento-orange-600">SubmitObserver</td>
+                            <td class="px-4 py-3 font-mono text-xs">sales_model_service_quote_submit_success</td>
+                            <td class="px-4 py-3"><span class="px-2 py-1 bg-magento-gold-100 text-magento-gold-800 text-xs">global</span></td>
+                            <td class="px-4 py-3 text-gray-600">Post-order placement cleanup</td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-3 font-mono text-magento-orange-600">SendInvoiceEmailObserver</td>
+                            <td class="px-4 py-3 font-mono text-xs">sales_order_invoice_pay</td>
+                            <td class="px-4 py-3"><span class="px-2 py-1 bg-magento-gold-100 text-magento-gold-800 text-xs">global</span></td>
+                            <td class="px-4 py-3 text-gray-600">Trigger invoice email notification</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Observer Details -->
+        <section class="mb-12">
+            <div class="flex items-center gap-4 mb-6">
+                <div class="w-3 h-12 bg-magento-gold-500"></div>
+                <h2 class="text-3xl font-bold text-magento-charcoal">Key Observers</h2>
+            </div>
+
+            <div class="space-y-6">
+                <!-- SubmitObserver -->
+                <div class="bg-white border border-gray-200 p-6 shadow-sm">
+                    <div class="flex items-start justify-between mb-4">
+                        <div>
+                            <h3 class="text-lg font-bold text-magento-charcoal">SubmitObserver</h3>
+                            <p class="text-sm text-gray-600">Observer\SubmitObserver</p>
+                        </div>
+                        <span class="px-3 py-1 bg-magento-orange-100 text-magento-orange-800 text-xs font-semibold">CRITICAL</span>
+                    </div>
+                    <p class="text-gray-700 mb-4">Handles post-order submission tasks including quote cleanup and order notifications.</p>
+                    <pre><code><span class="code-keyword">public function</span> <span class="code-class">execute</span>(<span class="code-class">Observer</span> <span class="code-variable">$observer</span>): <span class="code-keyword">void</span>
+{
+    <span class="code-variable">$quote</span> = <span class="code-variable">$observer</span>->getEvent()->getQuote();
+    <span class="code-variable">$order</span> = <span class="code-variable">$observer</span>->getEvent()->getOrder();
+
+    <span class="code-comment">// Quote is already marked inactive by QuoteManagement</span>
+    <span class="code-comment">// This observer triggers additional order processing</span>
+}</code></pre>
+                    <div class="mt-4 bg-magento-gold-50 border-l-4 border-magento-gold-500 p-3">
+                        <p class="text-sm text-brown"><strong>Note:</strong> This observer fires after successful order creation. If payment fails, this observer is not called.</p>
+                    </div>
+                </div>
+
+                <!-- CollectTotalsObserver -->
+                <div class="bg-white border border-gray-200 p-6 shadow-sm">
+                    <div class="flex items-start justify-between mb-4">
+                        <div>
+                            <h3 class="text-lg font-bold text-magento-charcoal">CollectTotalsObserver (Frontend)</h3>
+                            <p class="text-sm text-gray-600">Observer\Frontend\Quote\Address\CollectTotalsObserver</p>
+                        </div>
+                        <span class="px-3 py-1 bg-magento-gold-100 text-magento-gold-800 text-xs font-semibold">frontend</span>
+                    </div>
+                    <p class="text-gray-700 mb-4">Validates customer VAT number during frontend totals collection and adjusts customer group if needed.</p>
+                    <pre><code><span class="code-comment">// Triggered by: sales_quote_address_collect_totals_before</span>
+<span class="code-comment">// Validates VAT for EU customers</span>
+<span class="code-comment">// May change customer tax group based on VAT validation result</span></code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- Preferences -->
+        <section class="bg-white mb-12 p-8 border-t-4 border-magento-orange-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-magento-charcoal mb-6">Preference Declarations (41 total)</h2>
+            <p class="text-gray-700 mb-6">The Quote module defines 41 interface-to-implementation mappings in di.xml.</p>
+
+            <div class="grid md:grid-cols-2 gap-6">
+                <div>
+                    <h3 class="font-bold text-magento-charcoal mb-4 border-b border-gray-200 pb-2">Cart Management</h3>
+                    <ul class="space-y-2 text-sm">
+                        <li class="flex items-center gap-2">
+                            <span class="text-magento-gold-600">I</span>
+                            <code class="text-xs">CartRepositoryInterface</code>
+                            <span class="text-gray-400">→</span>
+                            <code class="text-xs text-magento-orange-600">QuoteRepository</code>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="text-magento-gold-600">I</span>
+                            <code class="text-xs">CartManagementInterface</code>
+                            <span class="text-gray-400">→</span>
+                            <code class="text-xs text-magento-orange-600">QuoteManagement</code>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="text-magento-gold-600">I</span>
+                            <code class="text-xs">CartItemRepositoryInterface</code>
+                            <span class="text-gray-400">→</span>
+                            <code class="text-xs text-magento-orange-600">Quote\Item\Repository</code>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="text-magento-gold-600">I</span>
+                            <code class="text-xs">CartTotalRepositoryInterface</code>
+                            <span class="text-gray-400">→</span>
+                            <code class="text-xs text-magento-orange-600">Cart\CartTotalRepository</code>
+                        </li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h3 class="font-bold text-magento-charcoal mb-4 border-b border-gray-200 pb-2">Data Interfaces</h3>
+                    <ul class="space-y-2 text-sm">
+                        <li class="flex items-center gap-2">
+                            <span class="text-magento-gold-600">I</span>
+                            <code class="text-xs">CartInterface</code>
+                            <span class="text-gray-400">→</span>
+                            <code class="text-xs text-magento-orange-600">Quote</code>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="text-magento-gold-600">I</span>
+                            <code class="text-xs">CartItemInterface</code>
+                            <span class="text-gray-400">→</span>
+                            <code class="text-xs text-magento-orange-600">Quote\Item</code>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="text-magento-gold-600">I</span>
+                            <code class="text-xs">AddressInterface</code>
+                            <span class="text-gray-400">→</span>
+                            <code class="text-xs text-magento-orange-600">Quote\Address</code>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="text-magento-gold-600">I</span>
+                            <code class="text-xs">PaymentInterface</code>
+                            <span class="text-gray-400">→</span>
+                            <code class="text-xs text-magento-orange-600">Quote\Payment</code>
+                        </li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h3 class="font-bold text-magento-charcoal mb-4 border-b border-gray-200 pb-2">Guest APIs</h3>
+                    <ul class="space-y-2 text-sm">
+                        <li class="flex items-center gap-2">
+                            <span class="text-magento-gold-600">I</span>
+                            <code class="text-xs">GuestCartManagementInterface</code>
+                            <span class="text-gray-400">→</span>
+                            <code class="text-xs text-magento-orange-600">GuestCart\GuestCartManagement</code>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="text-magento-gold-600">I</span>
+                            <code class="text-xs">GuestCartRepositoryInterface</code>
+                            <span class="text-gray-400">→</span>
+                            <code class="text-xs text-magento-orange-600">GuestCart\GuestCartRepository</code>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="text-magento-gold-600">I</span>
+                            <code class="text-xs">GuestCouponManagementInterface</code>
+                            <span class="text-gray-400">→</span>
+                            <code class="text-xs text-magento-orange-600">GuestCart\GuestCouponManagement</code>
+                        </li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h3 class="font-bold text-magento-charcoal mb-4 border-b border-gray-200 pb-2">ID Resolution</h3>
+                    <ul class="space-y-2 text-sm">
+                        <li class="flex items-center gap-2">
+                            <span class="text-magento-gold-600">I</span>
+                            <code class="text-xs">MaskedQuoteIdToQuoteIdInterface</code>
+                            <span class="text-gray-400">→</span>
+                            <code class="text-xs text-magento-orange-600">MaskedQuoteIdToQuoteId</code>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="text-magento-gold-600">I</span>
+                            <code class="text-xs">QuoteIdToMaskedQuoteIdInterface</code>
+                            <span class="text-gray-400">→</span>
+                            <code class="text-xs text-magento-orange-600">QuoteIdToMaskedQuoteId</code>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="text-magento-gold-600">I</span>
+                            <code class="text-xs">QuoteMutexInterface</code>
+                            <span class="text-gray-400">→</span>
+                            <code class="text-xs text-magento-orange-600">QuoteMutex</code>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Extension Best Practices -->
+        <section class="mb-12">
+            <div class="flex items-center gap-4 mb-6">
+                <div class="w-3 h-12 bg-charcoal"></div>
+                <h2 class="text-3xl font-bold text-magento-charcoal">Extension Best Practices</h2>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="bg-white border border-gray-200 p-6 shadow-sm">
+                    <h3 class="font-bold text-magento-charcoal mb-3 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-magento-gold-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                        DO: Use Totals Collectors
+                    </h3>
+                    <p class="text-sm text-gray-700">Add custom fees or discounts via sales.xml collectors, not plugins on collectTotals().</p>
+                </div>
+
+                <div class="bg-white border border-gray-200 p-6 shadow-sm">
+                    <h3 class="font-bold text-magento-charcoal mb-3 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-magento-gold-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                        DO: Extend Validation Rules
+                    </h3>
+                    <p class="text-sm text-gray-700">Add custom quote validation via QuoteValidationComposite, not by overriding QuoteValidator.</p>
+                </div>
+
+                <div class="bg-white border border-gray-200 p-6 shadow-sm">
+                    <h3 class="font-bold text-magento-charcoal mb-3 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-magento-orange-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                        </svg>
+                        DON'T: Modify Quote Directly
+                    </h3>
+                    <p class="text-sm text-gray-700">Never modify quote totals outside the collector system - they will be overwritten on next collectTotals().</p>
+                </div>
+
+                <div class="bg-white border border-gray-200 p-6 shadow-sm">
+                    <h3 class="font-bold text-magento-charcoal mb-3 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-magento-orange-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                        </svg>
+                        DON'T: Skip QuoteMutex
+                    </h3>
+                    <p class="text-sm text-gray-700">Always use QuoteMutex when placing orders to prevent race condition duplicate orders.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Navigation -->
+        <nav class="flex justify-between items-center" aria-label="Documentation navigation">
+            <a href="execution-flows.html" class="inline-flex items-center gap-2 px-4 py-2 bg-magento-charcoal-100 text-magento-charcoal font-medium hover:bg-magento-charcoal-200 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-magento-charcoal-500">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17l-5-5m0 0l5-5m-5 5h12"/>
+                </svg>
+                Execution Flows
+            </a>
+            <a href="integrations.html" class="inline-flex items-center gap-2 px-4 py-2 bg-magento-gold-600 text-white font-medium hover:bg-magento-gold-700 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-magento-gold-600">
+                Integrations
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                </svg>
+            </a>
+        </nav>
+
+    </div>
+
+    <footer class="bg-charcoal text-white py-8 mt-16">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                <p class="text-sm text-gray-400">Magento_Quote Plugins & Observers | The Magento Core Documentation Project</p>
+                <p class="text-sm text-gray-400">Last updated: December 2025 | Magento 2.4.x</p>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

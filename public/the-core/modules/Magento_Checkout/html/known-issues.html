@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Known Issues - Magento_Checkout Module</title>
+    <meta name="description" content="Verified known issues, bugs, and gotchas in the Magento_Checkout module with proven workarounds and fixes.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'magento-orange': {
+                            DEFAULT: '#f26423',
+                            50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad', 300: '#f9ae78',
+                            400: '#f58242', 500: '#f26423', 600: '#e34613', 700: '#bc3312',
+                            800: '#962a16', 900: '#792515', 950: '#411009'
+                        },
+                        'magento-gold': {
+                            DEFAULT: '#f1bc1b',
+                            50: '#fffdeb', 100: '#fdf9c8', 200: '#fbf38c', 300: '#f8e651',
+                            400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a', 700: '#b1670c',
+                            800: '#8f5111', 900: '#764311', 950: '#442204'
+                        },
+                        'magento-charcoal': {
+                            DEFAULT: '#2c2c2c',
+                            50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6', 300: '#818181',
+                            400: '#474747', 500: '#2c2c2c', 600: '#262626', 700: '#202020',
+                            800: '#1c1c1c', 900: '#191919', 950: '#121212'
+                        },
+                    },
+                    fontFamily: {
+                        sans: ['Inter Tight', 'system-ui', 'sans-serif'],
+                        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&display=swap');
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-[#FAFAFA] text-magento-charcoal">
+
+    <!-- Skip to content -->
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-magento-orange-800 focus:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-magento-orange-800">
+        Skip to content
+    </a>
+
+    <!-- Header -->
+    <header class="bg-gradient-to-br from-magento-charcoal-500 via-magento-charcoal-600 to-magento-charcoal-700 border-b-8 border-magento-gold-500">
+        <!-- back-to-developer-docs -->
+        <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 pt-4"><a href="/developer/" aria-label="Back to Developer Docs" class="inline-flex items-center gap-1.5 text-sm font-medium text-white/70 hover:text-white transition-colors no-underline"><span aria-hidden="true">←</span> Developer Docs</a></div>
+        <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+            <nav class="mb-8" aria-label="Breadcrumb">
+                <ol class="flex items-center gap-2 text-sm text-gray-400">
+                    <li><a href="../../../index.html" class="hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-magento-orange-500">Home</a></li>
+                    <li aria-hidden="true">/</li>
+                    <li><a href="index.html" class="hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-magento-orange-500">Magento_Checkout</a></li>
+                    <li aria-hidden="true">/</li>
+                    <li><span class="text-magento-gold-400">Known Issues</span></li>
+                </ol>
+            </nav>
+            <div id="main-content">
+                <h1 class="text-4xl sm:text-5xl font-bold tracking-tight text-white mb-4">Known Issues & Gotchas</h1>
+                <p class="text-lg sm:text-xl text-gray-300 max-w-3xl">Verified bugs, edge cases, and anti-patterns in the Checkout module with proven workarounds.</p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="max-w-6xl mx-auto px-6 py-8 md:py-12">
+
+        <!-- Issue Summary -->
+        <section class="bg-white mb-12 p-8 border-t-4 border-magento-orange-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-magento-charcoal mb-6 mt-0">Issue Summary</h2>
+
+            <div class="grid grid-cols-3 gap-4 mb-6">
+                <div class="bg-magento-orange-100 p-4 border-l-4 border-magento-orange-600 text-center">
+                    <div class="text-3xl font-bold text-magento-orange-600">3</div>
+                    <div class="text-sm text-magento-orange-800 font-medium">Critical</div>
+                </div>
+                <div class="bg-magento-gold-100 p-4 border-l-4 border-magento-gold-600 text-center">
+                    <div class="text-3xl font-bold text-magento-gold-600">4</div>
+                    <div class="text-sm text-magento-gold-800 font-medium">Major</div>
+                </div>
+                <div class="bg-magento-charcoal-100 p-4 border-l-4 border-magento-charcoal text-center">
+                    <div class="text-3xl font-bold text-magento-charcoal">2</div>
+                    <div class="text-sm text-gray-600 font-medium">Minor</div>
+                </div>
+            </div>
+
+            <div class="bg-magento-charcoal-50 p-4 border-l-4 border-magento-charcoal">
+                <p class="text-sm text-gray-700">
+                    <strong>Severity Guide:</strong>
+                    <span class="text-magento-orange-600">Critical</span> = Data loss/security risk |
+                    <span class="text-magento-gold-600">Major</span> = Significant UX/functionality impact |
+                    <span class="text-magento-charcoal">Minor</span> = Edge cases, cosmetic issues
+                </p>
+            </div>
+        </section>
+
+        <!-- Critical Issues -->
+        <section class="mb-12">
+            <div class="flex items-center gap-4 mb-8">
+                <div class="w-3 h-12 bg-magento-orange-600"></div>
+                <h2 class="text-3xl font-bold text-magento-charcoal">Critical Issues (3)</h2>
+            </div>
+
+            <!-- Issue 1 -->
+            <div class="bg-white mb-6 border border-gray-200 shadow-sm">
+                <div class="bg-magento-orange-600 p-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-white font-bold">Session Race Condition on Concurrent Requests</h3>
+                        <span class="bg-white text-magento-orange-600 px-2 py-1 text-xs font-bold">CRITICAL</span>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <p class="text-gray-700 mb-4">
+                        When multiple AJAX requests are made simultaneously during checkout (e.g., address validation + shipping estimate),
+                        PHP session locking can cause race conditions where the quote state becomes inconsistent.
+                    </p>
+
+                    <div class="grid md:grid-cols-2 gap-4 mb-4">
+                        <div class="bg-magento-charcoal-50 p-4">
+                            <h4 class="font-bold text-magento-charcoal text-sm mb-2">Symptoms</h4>
+                            <ul class="text-sm text-gray-600 space-y-1">
+                                <li>- Quote items disappear during checkout</li>
+                                <li>- Shipping methods not loading</li>
+                                <li>- "Quote not found" errors</li>
+                                <li>- Inconsistent totals display</li>
+                            </ul>
+                        </div>
+                        <div class="bg-magento-charcoal-50 p-4">
+                            <h4 class="font-bold text-magento-charcoal text-sm mb-2">Affected Versions</h4>
+                            <p class="text-sm text-gray-600">2.3.x - 2.4.x (partially addressed in 2.4.6)</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-magento-orange-50 border-l-4 border-magento-orange-500 p-4">
+                        <h4 class="font-bold text-magento-orange-900 mb-2">Workaround</h4>
+                        <ul class="text-sm text-magento-orange-800 space-y-1">
+                            <li>1. Serialize checkout AJAX requests (avoid parallel calls)</li>
+                            <li>2. Implement request queuing in JavaScript</li>
+                            <li>3. Use Redis for session storage to reduce lock contention</li>
+                            <li>4. Consider async session handlers (session.lazy_write)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Issue 2 -->
+            <div class="bg-white mb-6 border border-gray-200 shadow-sm">
+                <div class="bg-magento-orange-600 p-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-white font-bold">Address Validation Bypass via Direct API</h3>
+                        <span class="bg-white text-magento-orange-600 px-2 py-1 text-xs font-bold">CRITICAL</span>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <p class="text-gray-700 mb-4">
+                        Direct REST API calls to payment-information endpoint can bypass frontend address validation,
+                        allowing orders with incomplete or invalid addresses to be placed.
+                    </p>
+
+                    <div class="grid md:grid-cols-2 gap-4 mb-4">
+                        <div class="bg-magento-charcoal-50 p-4">
+                            <h4 class="font-bold text-magento-charcoal text-sm mb-2">Risk</h4>
+                            <ul class="text-sm text-gray-600 space-y-1">
+                                <li>- Undeliverable orders</li>
+                                <li>- Shipping cost miscalculation</li>
+                                <li>- Tax calculation errors</li>
+                            </ul>
+                        </div>
+                        <div class="bg-magento-charcoal-50 p-4">
+                            <h4 class="font-bold text-magento-charcoal text-sm mb-2">API Endpoint</h4>
+                            <p class="text-sm text-gray-600 font-mono">/V1/carts/mine/payment-information</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-magento-orange-50 border-l-4 border-magento-orange-500 p-4">
+                        <h4 class="font-bold text-magento-orange-900 mb-2">Workaround</h4>
+                        <ul class="text-sm text-magento-orange-800 space-y-1">
+                            <li>1. Add server-side address validation plugin on PaymentInformationManagement</li>
+                            <li>2. Validate required fields before order placement</li>
+                            <li>3. Use address validation service (e.g., Google, SmartyStreets)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Issue 3 -->
+            <div class="bg-white mb-6 border border-gray-200 shadow-sm">
+                <div class="bg-magento-orange-600 p-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-white font-bold">Double Order Placement on Slow Networks</h3>
+                        <span class="bg-white text-magento-orange-600 px-2 py-1 text-xs font-bold">CRITICAL</span>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <p class="text-gray-700 mb-4">
+                        If the "Place Order" button is clicked multiple times before the response returns (slow network),
+                        multiple orders can be created. The default frontend disables the button but can be bypassed.
+                    </p>
+
+                    <div class="grid md:grid-cols-2 gap-4 mb-4">
+                        <div class="bg-magento-charcoal-50 p-4">
+                            <h4 class="font-bold text-magento-charcoal text-sm mb-2">Symptoms</h4>
+                            <ul class="text-sm text-gray-600 space-y-1">
+                                <li>- Multiple orders with same items</li>
+                                <li>- Customer charged multiple times</li>
+                                <li>- Inventory oversold</li>
+                            </ul>
+                        </div>
+                        <div class="bg-magento-charcoal-50 p-4">
+                            <h4 class="font-bold text-magento-charcoal text-sm mb-2">Root Cause</h4>
+                            <p class="text-sm text-gray-600">No server-side idempotency check</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-magento-orange-50 border-l-4 border-magento-orange-500 p-4">
+                        <h4 class="font-bold text-magento-orange-900 mb-2">Workaround</h4>
+                        <ul class="text-sm text-magento-orange-800 space-y-1">
+                            <li>1. Implement idempotency key in checkout requests</li>
+                            <li>2. Check for existing order with same quote before creating new</li>
+                            <li>3. Use database lock on quote during order placement</li>
+                            <li>4. Add rate limiting on payment-information endpoint</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Major Issues -->
+        <section class="mb-12">
+            <div class="flex items-center gap-4 mb-8">
+                <div class="w-3 h-12 bg-magento-gold-500"></div>
+                <h2 class="text-3xl font-bold text-magento-charcoal">Major Issues (4)</h2>
+            </div>
+
+            <!-- Issue 4 -->
+            <div class="bg-white mb-6 border border-gray-200 shadow-sm">
+                <div class="bg-magento-gold-500 p-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-magento-charcoal font-bold">Shipping Methods Not Refreshing on Address Change</h3>
+                        <span class="bg-charcoal text-white px-2 py-1 text-xs font-bold">MAJOR</span>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <p class="text-gray-700 mb-4">
+                        After changing the shipping address, available shipping methods may not refresh until the page is reloaded.
+                        This is particularly common with custom shipping carriers or when country/region changes.
+                    </p>
+
+                    <div class="bg-magento-gold-50 border-l-4 border-magento-gold-500 p-4">
+                        <h4 class="font-bold text-brown mb-2">Workaround</h4>
+                        <p class="text-sm text-brown">
+                            Force shipping rates refresh by triggering <code class="bg-magento-gold-100 px-1">Magento_Checkout/js/action/select-shipping-address</code>
+                            action with the updated address, or clear the shipping rates cache in customer-data.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Issue 5 -->
+            <div class="bg-white mb-6 border border-gray-200 shadow-sm">
+                <div class="bg-magento-gold-500 p-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-magento-charcoal font-bold">Guest Checkout Email Validation Inconsistent</h3>
+                        <span class="bg-charcoal text-white px-2 py-1 text-xs font-bold">MAJOR</span>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <p class="text-gray-700 mb-4">
+                        Guest checkout email validation differs between frontend and API. Some invalid email formats
+                        pass API validation but fail frontend validation, causing confusion.
+                    </p>
+
+                    <div class="bg-magento-gold-50 border-l-4 border-magento-gold-500 p-4">
+                        <h4 class="font-bold text-brown mb-2">Workaround</h4>
+                        <p class="text-sm text-brown">
+                            Add consistent email validation on both frontend (Knockout validator) and backend
+                            (plugin on GuestPaymentInformationManagement). Use PHP's filter_var with FILTER_VALIDATE_EMAIL.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Issue 6 -->
+            <div class="bg-white mb-6 border border-gray-200 shadow-sm">
+                <div class="bg-magento-gold-500 p-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-magento-charcoal font-bold">Agreements Checkbox State Lost on Step Navigation</h3>
+                        <span class="bg-charcoal text-white px-2 py-1 text-xs font-bold">MAJOR</span>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <p class="text-gray-700 mb-4">
+                        If a customer goes back from payment to shipping step and returns, the terms and conditions
+                        checkbox state may be lost, requiring re-acceptance.
+                    </p>
+
+                    <div class="bg-magento-gold-50 border-l-4 border-magento-gold-500 p-4">
+                        <h4 class="font-bold text-brown mb-2">Workaround</h4>
+                        <p class="text-sm text-brown">
+                            Store agreement acceptance state in localStorage or quote extension attributes.
+                            Use a mixin on <code class="bg-magento-gold-100 px-1">Magento_CheckoutAgreements/js/view/checkout-agreements</code>.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Issue 7 -->
+            <div class="bg-white mb-6 border border-gray-200 shadow-sm">
+                <div class="bg-magento-gold-500 p-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-magento-charcoal font-bold">Totals Not Updating After Coupon Apply</h3>
+                        <span class="bg-charcoal text-white px-2 py-1 text-xs font-bold">MAJOR</span>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <p class="text-gray-700 mb-4">
+                        When applying a coupon code in checkout, the sidebar totals may not update until
+                        the customer interacts with another element or refreshes the page.
+                    </p>
+
+                    <div class="bg-magento-gold-50 border-l-4 border-magento-gold-500 p-4">
+                        <h4 class="font-bold text-brown mb-2">Workaround</h4>
+                        <p class="text-sm text-brown">
+                            After coupon apply, trigger <code class="bg-magento-gold-100 px-1">quote.totals()</code> observable update
+                            and invalidate the <code class="bg-magento-gold-100 px-1">checkout-data</code> customer-data section.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Minor Issues -->
+        <section class="mb-12">
+            <div class="flex items-center gap-4 mb-8">
+                <div class="w-3 h-12 bg-charcoal"></div>
+                <h2 class="text-3xl font-bold text-magento-charcoal">Minor Issues (2)</h2>
+            </div>
+
+            <!-- Issue 8 -->
+            <div class="bg-white mb-6 border border-gray-200 shadow-sm">
+                <div class="bg-charcoal p-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-white font-bold">Checkout Step Indicator Accessibility</h3>
+                        <span class="bg-gray-300 text-magento-charcoal px-2 py-1 text-xs font-bold">MINOR</span>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <p class="text-gray-700 mb-4">
+                        The checkout step progress indicator (shipping → payment) lacks proper ARIA attributes
+                        for screen reader users.
+                    </p>
+
+                    <div class="bg-magento-charcoal-50 border-l-4 border-magento-charcoal p-4">
+                        <h4 class="font-bold text-magento-charcoal mb-2">Fix</h4>
+                        <p class="text-sm text-gray-700">
+                            Add <code class="bg-gray-200 px-1">role="progressbar"</code>, <code class="bg-gray-200 px-1">aria-valuenow</code>,
+                            and <code class="bg-gray-200 px-1">aria-valuetext</code> attributes to the step indicator template.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Issue 9 -->
+            <div class="bg-white mb-6 border border-gray-200 shadow-sm">
+                <div class="bg-charcoal p-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-white font-bold">Loading Spinner Remains After Error</h3>
+                        <span class="bg-gray-300 text-magento-charcoal px-2 py-1 text-xs font-bold">MINOR</span>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <p class="text-gray-700 mb-4">
+                        If an AJAX request fails during checkout, the loading spinner may remain visible
+                        instead of being dismissed, leaving the checkout appearing frozen.
+                    </p>
+
+                    <div class="bg-magento-charcoal-50 border-l-4 border-magento-charcoal p-4">
+                        <h4 class="font-bold text-magento-charcoal mb-2">Fix</h4>
+                        <p class="text-sm text-gray-700">
+                            Ensure error handlers call <code class="bg-gray-200 px-1">fullScreenLoader.stopLoader()</code>
+                            in all code paths. Add global AJAX error handler to dismiss loader.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Best Practices -->
+        <section class="mb-12">
+            <div class="flex items-center gap-4 mb-8">
+                <div class="w-3 h-12 bg-magento-orange-500"></div>
+                <h2 class="text-3xl font-bold text-magento-charcoal">Prevention Best Practices</h2>
+            </div>
+
+            <div class="bg-white p-6 border border-gray-200 shadow-sm">
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="border-l-4 border-magento-orange-500 pl-4">
+                        <h3 class="font-bold text-magento-charcoal mb-2">Session Handling</h3>
+                        <ul class="text-sm text-gray-700 space-y-1">
+                            <li>- Use Redis or Memcached for sessions</li>
+                            <li>- Serialize frontend checkout requests</li>
+                            <li>- Implement request queuing for AJAX</li>
+                        </ul>
+                    </div>
+                    <div class="border-l-4 border-magento-gold-500 pl-4">
+                        <h3 class="font-bold text-magento-charcoal mb-2">Data Validation</h3>
+                        <ul class="text-sm text-gray-700 space-y-1">
+                            <li>- Add server-side address validation</li>
+                            <li>- Validate before CartManagement::placeOrder()</li>
+                            <li>- Use consistent validation on frontend/backend</li>
+                        </ul>
+                    </div>
+                    <div class="border-l-4 border-magento-charcoal pl-4">
+                        <h3 class="font-bold text-magento-charcoal mb-2">Error Handling</h3>
+                        <ul class="text-sm text-gray-700 space-y-1">
+                            <li>- Always hide loaders in error callbacks</li>
+                            <li>- Display user-friendly error messages</li>
+                            <li>- Log detailed errors server-side</li>
+                        </ul>
+                    </div>
+                    <div class="border-l-4 border-magento-orange-500 pl-4">
+                        <h3 class="font-bold text-magento-charcoal mb-2">Testing</h3>
+                        <ul class="text-sm text-gray-700 space-y-1">
+                            <li>- Test with slow network simulation</li>
+                            <li>- Test concurrent request scenarios</li>
+                            <li>- Test guest and customer checkout paths</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Navigation -->
+        <nav class="flex justify-between items-center" aria-label="Documentation navigation">
+            <a href="integrations.html" class="inline-flex items-center gap-2 px-4 py-2 bg-magento-charcoal-100 text-magento-charcoal font-medium hover:bg-magento-charcoal-200 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-magento-charcoal-500">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17l-5-5m0 0l5-5m-5 5h12"/>
+                </svg>
+                Integrations
+            </a>
+            <a href="index.html" class="inline-flex items-center gap-2 px-4 py-2 bg-magento-orange-800 text-white font-medium hover:bg-magento-orange-900 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-magento-orange-800">
+                Back to Overview
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                </svg>
+            </a>
+        </nav>
+
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-charcoal text-white py-8 mt-16">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                <p class="text-sm text-gray-400">
+                    Magento_Checkout Known Issues | Part of The Magento Core Documentation Project
+                </p>
+                <p class="text-sm text-gray-400">
+                    Last updated: December 2025 | Magento 2.4.x
+                </p>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

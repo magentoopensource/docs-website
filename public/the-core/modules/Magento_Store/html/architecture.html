@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Architecture - Magento_Store Module</title>
+    <style>
+        :root {
+            --orange: #F26423;
+            --yellow: #F1BC1B;
+            --charcoal: #2C2C2C;
+            --light-gray: #F5F5F5;
+            --white: #FFFFFF;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background-color: var(--light-gray);
+            color: var(--charcoal);
+            line-height: 1.6;
+        }
+
+        .header {
+            background-color: var(--charcoal);
+            color: var(--white);
+            padding: 2rem;
+            position: relative;
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--orange) 0%, var(--orange) 50%, var(--yellow) 50%, var(--yellow) 100%);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .breadcrumb {
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+        }
+
+        .breadcrumb a {
+            color: var(--yellow);
+            text-decoration: none;
+        }
+
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+        .breadcrumb span {
+            color: var(--light-gray);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        .main-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .section {
+            background-color: var(--white);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .section h2 {
+            color: var(--charcoal);
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid var(--orange);
+            display: inline-block;
+        }
+
+        .section h3 {
+            color: var(--charcoal);
+            font-size: 1.25rem;
+            margin: 1.5rem 0 1rem 0;
+        }
+
+        .section p {
+            margin-bottom: 1rem;
+            color: #444;
+        }
+
+        .hierarchy-diagram {
+            background-color: var(--charcoal);
+            color: var(--white);
+            padding: 2rem;
+            margin: 1.5rem 0;
+            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+            font-size: 0.875rem;
+            overflow-x: auto;
+        }
+
+        .hierarchy-level {
+            margin-bottom: 0.5rem;
+        }
+
+        .level-website {
+            color: var(--orange);
+            font-weight: bold;
+        }
+
+        .level-group {
+            color: var(--yellow);
+            margin-left: 2rem;
+        }
+
+        .level-store {
+            color: #8FD9A8;
+            margin-left: 4rem;
+        }
+
+        .interface-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .interface-card {
+            background-color: var(--light-gray);
+            padding: 1.5rem;
+            border-left: 4px solid var(--orange);
+        }
+
+        .interface-card:nth-child(even) {
+            border-left-color: var(--yellow);
+        }
+
+        .interface-name {
+            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--charcoal);
+            margin-bottom: 0.5rem;
+        }
+
+        .interface-desc {
+            font-size: 0.875rem;
+            color: #666;
+            margin-bottom: 1rem;
+        }
+
+        .method-list {
+            font-size: 0.8rem;
+            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+            color: #555;
+        }
+
+        .method-list li {
+            margin-bottom: 0.25rem;
+            list-style: none;
+            padding-left: 1rem;
+            position: relative;
+        }
+
+        .method-list li::before {
+            content: '->';
+            position: absolute;
+            left: 0;
+            color: var(--orange);
+        }
+
+        .code-block {
+            background-color: var(--charcoal);
+            color: #E0E0E0;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            overflow-x: auto;
+            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+            font-size: 0.875rem;
+            line-height: 1.5;
+        }
+
+        .code-block .keyword {
+            color: var(--orange);
+        }
+
+        .code-block .class-name {
+            color: var(--yellow);
+        }
+
+        .code-block .string {
+            color: #8FD9A8;
+        }
+
+        .code-block .comment {
+            color: #888;
+        }
+
+        .schema-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .schema-table th {
+            background-color: var(--charcoal);
+            color: var(--white);
+            padding: 0.75rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .schema-table td {
+            padding: 0.75rem;
+            border-bottom: 1px solid #E0E0E0;
+            font-size: 0.875rem;
+        }
+
+        .schema-table tr:hover {
+            background-color: var(--light-gray);
+        }
+
+        .column-name {
+            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+            font-weight: 600;
+        }
+
+        .type-badge {
+            display: inline-block;
+            padding: 0.125rem 0.5rem;
+            font-size: 0.75rem;
+            background-color: var(--light-gray);
+            border: 1px solid #DDD;
+        }
+
+        .pk-badge {
+            background-color: var(--orange);
+            color: var(--white);
+            border: none;
+        }
+
+        .fk-badge {
+            background-color: var(--yellow);
+            color: var(--charcoal);
+            border: none;
+        }
+
+        .scope-diagram {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .scope-box {
+            background-color: var(--light-gray);
+            padding: 1.5rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .scope-box.default {
+            border-top: 4px solid var(--charcoal);
+        }
+
+        .scope-box.website {
+            border-top: 4px solid var(--orange);
+        }
+
+        .scope-box.store {
+            border-top: 4px solid var(--yellow);
+        }
+
+        .scope-title {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .scope-const {
+            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+            font-size: 0.75rem;
+            color: #666;
+        }
+
+        .scope-arrow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--charcoal);
+        }
+
+        .callout {
+            background-color: #FFF3E0;
+            border-left: 4px solid var(--orange);
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .callout-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .footer {
+            background-color: var(--charcoal);
+            color: var(--white);
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .footer a {
+            color: var(--yellow);
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.75rem;
+            }
+
+            .interface-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .scope-diagram {
+                grid-template-columns: 1fr;
+            }
+
+            .scope-arrow {
+                transform: rotate(90deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <!-- back-to-developer-docs -->
+        <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 pt-4"><a href="/developer/" aria-label="Back to Developer Docs" class="inline-flex items-center gap-1.5 text-sm font-medium text-white/70 hover:text-white transition-colors no-underline"><span aria-hidden="true">←</span> Developer Docs</a></div>
+        <div class="header-content">
+            <nav class="breadcrumb">
+                <a href="../../../index.html">Documentation</a>
+                <span> / </span>
+                <a href="index.html">Magento_Store</a>
+                <span> / </span>
+                <span>Architecture</span>
+            </nav>
+            <h1>Architecture</h1>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <section class="section">
+            <h2>Store Hierarchy</h2>
+            <p>
+                Magento implements a three-tier hierarchy that enables complex multi-store architectures.
+                Understanding this hierarchy is critical because configuration scope, catalog assignment,
+                and URL routing all depend on it.
+            </p>
+
+            <div class="hierarchy-diagram">
+                <div class="hierarchy-level level-website">WEBSITE (Top Level)</div>
+                <div class="hierarchy-level" style="margin-left: 1rem; color: #888;">├── Owns payment methods, shipping methods, customer sharing</div>
+                <div class="hierarchy-level" style="margin-left: 1rem; color: #888;">├── Base currency is set at website level</div>
+                <div class="hierarchy-level" style="margin-left: 1rem; color: #888;">└── Multiple websites share the same Magento installation</div>
+                <br>
+                <div class="hierarchy-level level-group">    STORE GROUP (Middle Level - also called "Store")</div>
+                <div class="hierarchy-level" style="margin-left: 3rem; color: #888;">├── Owns the root category (catalog structure)</div>
+                <div class="hierarchy-level" style="margin-left: 3rem; color: #888;">├── Groups store views for a single catalog</div>
+                <div class="hierarchy-level" style="margin-left: 3rem; color: #888;">└── Multiple groups can exist under one website</div>
+                <br>
+                <div class="hierarchy-level level-store">        STORE VIEW (Bottom Level)</div>
+                <div class="hierarchy-level" style="margin-left: 5rem; color: #888;">├── Owns language/locale settings</div>
+                <div class="hierarchy-level" style="margin-left: 5rem; color: #888;">├── Display currency configuration</div>
+                <div class="hierarchy-level" style="margin-left: 5rem; color: #888;">├── Theme assignment</div>
+                <div class="hierarchy-level" style="margin-left: 5rem; color: #888;">└── URL configuration and redirects</div>
+            </div>
+
+            <div class="callout">
+                <div class="callout-title">Terminology Confusion</div>
+                <p>
+                    The term "Store" is used inconsistently in Magento. In the admin UI, "Store" refers to a
+                    <strong>Store Group</strong> (middle tier), while "Store View" is the bottom tier. In code,
+                    <code>StoreInterface</code> represents a <strong>Store View</strong>. The database table
+                    <code>store</code> also represents Store Views, not Store Groups.
+                </p>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>Scope Configuration System</h2>
+            <p>
+                Configuration values can be set at three scopes, with more specific scopes overriding less specific ones.
+                The <code>ScopeInterface</code> defines the constants used throughout Magento for scope resolution.
+            </p>
+
+            <div class="scope-diagram">
+                <div class="scope-box default">
+                    <div class="scope-title">Default</div>
+                    <div class="scope-const">SCOPE_DEFAULT</div>
+                </div>
+                <div class="scope-box website">
+                    <div class="scope-title">Website</div>
+                    <div class="scope-const">SCOPE_WEBSITE</div>
+                </div>
+                <div class="scope-box store">
+                    <div class="scope-title">Store View</div>
+                    <div class="scope-const">SCOPE_STORE</div>
+                </div>
+            </div>
+
+            <div class="code-block">
+<span class="comment">// ScopeInterface constants</span>
+<span class="keyword">interface</span> <span class="class-name">ScopeInterface</span>
+{
+    <span class="keyword">const</span> SCOPE_STORES   = <span class="string">'stores'</span>;    <span class="comment">// Plural form</span>
+    <span class="keyword">const</span> SCOPE_WEBSITES = <span class="string">'websites'</span>;  <span class="comment">// Plural form</span>
+    <span class="keyword">const</span> SCOPE_GROUPS   = <span class="string">'groups'</span>;    <span class="comment">// Plural form</span>
+
+    <span class="keyword">const</span> SCOPE_STORE   = <span class="string">'store'</span>;     <span class="comment">// Singular form</span>
+    <span class="keyword">const</span> SCOPE_WEBSITE = <span class="string">'website'</span>;   <span class="comment">// Singular form</span>
+    <span class="keyword">const</span> SCOPE_GROUP   = <span class="string">'group'</span>;     <span class="comment">// Singular form</span>
+}
+            </div>
+
+            <h3>Configuration Retrieval Pattern</h3>
+            <div class="code-block">
+<span class="comment">// Getting scoped configuration</span>
+$scopeConfig->getValue(
+    <span class="string">'general/locale/code'</span>,
+    <span class="class-name">ScopeInterface</span>::SCOPE_STORE,
+    $storeCode  <span class="comment">// null = current store</span>
+);
+
+<span class="comment">// isSetFlag for boolean configs</span>
+$scopeConfig->isSetFlag(
+    <span class="string">'general/single_store_mode/enabled'</span>,
+    <span class="class-name">ScopeInterface</span>::SCOPE_STORE
+);
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>Core Service Interfaces</h2>
+            <div class="interface-grid">
+                <div class="interface-card">
+                    <div class="interface-name">StoreManagerInterface</div>
+                    <div class="interface-desc">
+                        The most injected interface in Magento. Provides access to all store entities
+                        and manages current store context.
+                    </div>
+                    <ul class="method-list">
+                        <li>getStore($storeId = null)</li>
+                        <li>getStores($withDefault, $codeKey)</li>
+                        <li>getWebsite($websiteId = null)</li>
+                        <li>getWebsites($withDefault, $codeKey)</li>
+                        <li>getGroup($groupId = null)</li>
+                        <li>getGroups($withDefault)</li>
+                        <li>getDefaultStoreView()</li>
+                        <li>setCurrentStore($store)</li>
+                        <li>hasSingleStore()</li>
+                        <li>isSingleStoreMode()</li>
+                        <li>reinitStores()</li>
+                    </ul>
+                </div>
+
+                <div class="interface-card">
+                    <div class="interface-name">StoreResolverInterface</div>
+                    <div class="interface-desc">
+                        Resolves the current store ID from URL path, GET parameters, or cookies.
+                        Called during application bootstrap.
+                    </div>
+                    <ul class="method-list">
+                        <li>getCurrentStoreId()</li>
+                    </ul>
+                </div>
+
+                <div class="interface-card">
+                    <div class="interface-name">StoreRepositoryInterface</div>
+                    <div class="interface-desc">
+                        Repository for Store View entities. Provides CRUD operations with caching.
+                    </div>
+                    <ul class="method-list">
+                        <li>get($code)</li>
+                        <li>getById($id)</li>
+                        <li>getList()</li>
+                        <li>getActiveStoreByCode($code)</li>
+                        <li>getActiveStoreById($id)</li>
+                        <li>clean()</li>
+                    </ul>
+                </div>
+
+                <div class="interface-card">
+                    <div class="interface-name">WebsiteRepositoryInterface</div>
+                    <div class="interface-desc">
+                        Repository for Website entities. Includes default website resolution.
+                    </div>
+                    <ul class="method-list">
+                        <li>get($code)</li>
+                        <li>getById($id)</li>
+                        <li>getList()</li>
+                        <li>getDefault()</li>
+                        <li>clean()</li>
+                    </ul>
+                </div>
+
+                <div class="interface-card">
+                    <div class="interface-name">GroupRepositoryInterface</div>
+                    <div class="interface-desc">
+                        Repository for Store Group entities. Links websites to their store groups.
+                    </div>
+                    <ul class="method-list">
+                        <li>get($id)</li>
+                        <li>getList()</li>
+                        <li>clean()</li>
+                    </ul>
+                </div>
+
+                <div class="interface-card">
+                    <div class="interface-name">StoreCookieManagerInterface</div>
+                    <div class="interface-desc">
+                        Manages store code persistence in cookies for store switching functionality.
+                    </div>
+                    <ul class="method-list">
+                        <li>getStoreCodeFromCookie()</li>
+                        <li>setStoreCookie($store)</li>
+                        <li>deleteStoreCookie($store)</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>Database Schema</h2>
+
+            <h3>store_website</h3>
+            <table class="schema-table">
+                <thead>
+                    <tr>
+                        <th>Column</th>
+                        <th>Type</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="column-name">website_id</span></td>
+                        <td><span class="type-badge pk-badge">PK</span> <span class="type-badge">smallint</span></td>
+                        <td>Primary key, auto-increment</td>
+                    </tr>
+                    <tr>
+                        <td><span class="column-name">code</span></td>
+                        <td><span class="type-badge">varchar(32)</span></td>
+                        <td>Unique website code (e.g., "base", "b2b")</td>
+                    </tr>
+                    <tr>
+                        <td><span class="column-name">name</span></td>
+                        <td><span class="type-badge">varchar(64)</span></td>
+                        <td>Website display name</td>
+                    </tr>
+                    <tr>
+                        <td><span class="column-name">sort_order</span></td>
+                        <td><span class="type-badge">smallint</span></td>
+                        <td>Display sort order</td>
+                    </tr>
+                    <tr>
+                        <td><span class="column-name">default_group_id</span></td>
+                        <td><span class="type-badge">smallint</span></td>
+                        <td>Default store group ID</td>
+                    </tr>
+                    <tr>
+                        <td><span class="column-name">is_default</span></td>
+                        <td><span class="type-badge">smallint</span></td>
+                        <td>Whether this is the default website</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>store_group</h3>
+            <table class="schema-table">
+                <thead>
+                    <tr>
+                        <th>Column</th>
+                        <th>Type</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="column-name">group_id</span></td>
+                        <td><span class="type-badge pk-badge">PK</span> <span class="type-badge">smallint</span></td>
+                        <td>Primary key, auto-increment</td>
+                    </tr>
+                    <tr>
+                        <td><span class="column-name">website_id</span></td>
+                        <td><span class="type-badge fk-badge">FK</span> <span class="type-badge">smallint</span></td>
+                        <td>References store_website.website_id</td>
+                    </tr>
+                    <tr>
+                        <td><span class="column-name">name</span></td>
+                        <td><span class="type-badge">varchar(255)</span></td>
+                        <td>Store group display name</td>
+                    </tr>
+                    <tr>
+                        <td><span class="column-name">root_category_id</span></td>
+                        <td><span class="type-badge">int</span></td>
+                        <td>Root category for this store's catalog</td>
+                    </tr>
+                    <tr>
+                        <td><span class="column-name">default_store_id</span></td>
+                        <td><span class="type-badge">smallint</span></td>
+                        <td>Default store view ID</td>
+                    </tr>
+                    <tr>
+                        <td><span class="column-name">code</span></td>
+                        <td><span class="type-badge">varchar(32)</span></td>
+                        <td>Unique store group code</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>store</h3>
+            <table class="schema-table">
+                <thead>
+                    <tr>
+                        <th>Column</th>
+                        <th>Type</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="column-name">store_id</span></td>
+                        <td><span class="type-badge pk-badge">PK</span> <span class="type-badge">smallint</span></td>
+                        <td>Primary key, auto-increment</td>
+                    </tr>
+                    <tr>
+                        <td><span class="column-name">code</span></td>
+                        <td><span class="type-badge">varchar(32)</span></td>
+                        <td>Unique store view code (e.g., "default", "french")</td>
+                    </tr>
+                    <tr>
+                        <td><span class="column-name">website_id</span></td>
+                        <td><span class="type-badge fk-badge">FK</span> <span class="type-badge">smallint</span></td>
+                        <td>References store_website.website_id</td>
+                    </tr>
+                    <tr>
+                        <td><span class="column-name">group_id</span></td>
+                        <td><span class="type-badge fk-badge">FK</span> <span class="type-badge">smallint</span></td>
+                        <td>References store_group.group_id</td>
+                    </tr>
+                    <tr>
+                        <td><span class="column-name">name</span></td>
+                        <td><span class="type-badge">varchar(255)</span></td>
+                        <td>Store view display name</td>
+                    </tr>
+                    <tr>
+                        <td><span class="column-name">sort_order</span></td>
+                        <td><span class="type-badge">smallint</span></td>
+                        <td>Display sort order</td>
+                    </tr>
+                    <tr>
+                        <td><span class="column-name">is_active</span></td>
+                        <td><span class="type-badge">smallint</span></td>
+                        <td>Whether store view is active</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="section">
+            <h2>StoreManager Initialization</h2>
+            <p>
+                The <code>StoreManager</code> is the concrete implementation of <code>StoreManagerInterface</code>.
+                It relies on several repositories and the <code>StoreResolver</code> to determine the current store context.
+            </p>
+
+            <div class="code-block">
+<span class="keyword">class</span> <span class="class-name">StoreManager</span> <span class="keyword">implements</span> <span class="class-name">StoreManagerInterface</span>
+{
+    <span class="comment">// Environment variable for run code (store/website code)</span>
+    <span class="keyword">const</span> PARAM_RUN_CODE = <span class="string">'MAGE_RUN_CODE'</span>;
+
+    <span class="comment">// Environment variable for run type (store|website)</span>
+    <span class="keyword">const</span> PARAM_RUN_TYPE = <span class="string">'MAGE_RUN_TYPE'</span>;
+
+    <span class="comment">// Config path for single store mode</span>
+    <span class="keyword">const</span> XML_PATH_SINGLE_STORE_MODE_ENABLED = <span class="string">'general/single_store_mode/enabled'</span>;
+
+    <span class="keyword">public function</span> <span class="class-name">getStore</span>($storeId = <span class="keyword">null</span>)
+    {
+        <span class="comment">// If no store ID, resolve from StoreResolver</span>
+        <span class="keyword">if</span> (!isset($storeId)) {
+            <span class="keyword">if</span> (<span class="keyword">null</span> === $this->currentStoreId) {
+                Profiler::start(<span class="string">'store.resolve'</span>);
+                $this->currentStoreId = $this->storeResolver->getCurrentStoreId();
+                Profiler::stop(<span class="string">'store.resolve'</span>);
+            }
+            $storeId = $this->currentStoreId;
+        }
+
+        <span class="comment">// Return StoreInterface instance</span>
+        <span class="keyword">return</span> is_numeric($storeId)
+            ? $this->storeRepository->getById($storeId)
+            : $this->storeRepository->get($storeId);
+    }
+}
+            </div>
+
+            <div class="callout">
+                <div class="callout-title">Performance Note</div>
+                <p>
+                    The <code>getStore()</code> method is called thousands of times per request. The result is cached
+                    in <code>$currentStoreId</code> after first resolution. Repository methods also cache their results
+                    to avoid repeated database queries.
+                </p>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p><a href="index.html">Back to Magento_Store Overview</a></p>
+        <p><a href="../../../index.html">Documentation Index</a></p>
+    </footer>
+</body>
+</html>

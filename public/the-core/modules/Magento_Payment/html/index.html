@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magento_Payment Module - Payment Gateway Framework</title>
+    <meta name="description" content="Deep architectural documentation for Magento 2 Payment module. Payment method abstraction, Gateway command pattern, and payment processing infrastructure.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'magento-orange': {
+                            DEFAULT: '#f26423',
+                            50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad', 300: '#f9ae78',
+                            400: '#f58242', 500: '#f26423', 600: '#e34613', 700: '#bc3312',
+                            800: '#962a16', 900: '#792515', 950: '#411009'
+                        },
+                        'magento-gold': {
+                            DEFAULT: '#f1bc1b',
+                            50: '#fffdeb', 100: '#fdf9c8', 200: '#fbf38c', 300: '#f8e651',
+                            400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a', 700: '#b1670c',
+                            800: '#8f5111', 900: '#764311', 950: '#442204'
+                        },
+                        'magento-charcoal': {
+                            DEFAULT: '#2c2c2c',
+                            50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6', 300: '#818181',
+                            400: '#474747', 500: '#2c2c2c', 600: '#262626', 700: '#202020',
+                            800: '#1c1c1c', 900: '#191919', 950: '#121212'
+                        },
+                    },
+                    fontFamily: {
+                        sans: ['Inter Tight', 'system-ui', 'sans-serif'],
+                        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&display=swap');
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+        .nav-link { transition: all 0.2s ease; }
+        .nav-link:hover { transform: translateX(4px); }
+    </style>
+</head>
+<body class="bg-[#FAFAFA] text-magento-charcoal">
+
+    <!-- Skip to content -->
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-magento-orange-800 focus:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-magento-orange-800">
+        Skip to content
+    </a>
+
+    <!-- Header -->
+    <header class="bg-gradient-to-br from-magento-charcoal-500 via-magento-charcoal-600 to-magento-charcoal-700 border-b-8 border-magento-orange-500">
+        <!-- back-to-developer-docs -->
+        <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 pt-4"><a href="/developer/" aria-label="Back to Developer Docs" class="inline-flex items-center gap-1.5 text-sm font-medium text-white/70 hover:text-white transition-colors no-underline"><span aria-hidden="true">←</span> Developer Docs</a></div>
+        <div class="max-w-6xl mx-auto px-6 py-12">
+            <nav class="mb-8" aria-label="Breadcrumb">
+                <ol class="flex items-center gap-2 text-sm text-gray-400">
+                    <li><a href="../../../index.html" class="hover:text-white transition-colors">Home</a></li>
+                    <li><span class="mx-2">/</span></li>
+                    <li><span class="text-magento-orange-400">Magento_Payment</span></li>
+                </ol>
+            </nav>
+            <div id="main-content">
+                <div class="flex items-center gap-4 mb-4">
+                    <div class="w-16 h-16 bg-magento-orange-500 flex items-center justify-center">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="text-4xl font-bold text-white">Magento_Payment</h1>
+                        <p class="text-gray-300 text-lg">Payment Gateway Framework & Method Abstraction</p>
+                    </div>
+                </div>
+                <p class="text-gray-300 max-w-3xl mt-4">
+                    The foundation for all payment processing in Magento. Provides the Gateway Command Pattern for building payment integrations,
+                    method configuration infrastructure, and the abstraction layer that powers checkout payment handling.
+                </p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="max-w-6xl mx-auto px-6 py-12">
+
+        <!-- Stats Grid -->
+        <section class="mb-12">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="bg-white p-6 shadow-sm border-t-4 border-magento-orange-500">
+                    <div class="text-3xl font-bold text-magento-charcoal mb-1">219</div>
+                    <div class="text-sm text-gray-600">PHP Components</div>
+                </div>
+                <div class="bg-white p-6 shadow-sm border-t-4 border-magento-gold-500">
+                    <div class="text-3xl font-bold text-magento-charcoal mb-1">62</div>
+                    <div class="text-sm text-gray-600">Gateway Classes</div>
+                </div>
+                <div class="bg-white p-6 shadow-sm border-t-4 border-magento-orange-500">
+                    <div class="text-3xl font-bold text-magento-charcoal mb-1">14</div>
+                    <div class="text-sm text-gray-600">Credit Card Types</div>
+                </div>
+                <div class="bg-white p-6 shadow-sm border-t-4 border-magento-gold-500">
+                    <div class="text-3xl font-bold text-magento-charcoal mb-1">2</div>
+                    <div class="text-sm text-gray-600">Plugins</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Component Breakdown -->
+        <section class="bg-white p-8 shadow-sm mb-12 border-l-4 border-magento-orange-500">
+            <h2 class="text-2xl font-bold text-magento-charcoal mb-6">Component Breakdown</h2>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div>
+                    <h3 class="font-semibold text-magento-charcoal mb-3">Core Classes</h3>
+                    <ul class="space-y-2 text-sm text-gray-700">
+                        <li class="flex justify-between"><span>API Interfaces</span><span class="font-mono text-magento-charcoal">4</span></li>
+                        <li class="flex justify-between"><span>Models</span><span class="font-mono text-magento-charcoal">54</span></li>
+                        <li class="flex justify-between"><span>Blocks</span><span class="font-mono text-magento-charcoal">14</span></li>
+                        <li class="flex justify-between"><span>Helpers</span><span class="font-mono text-magento-charcoal">2</span></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-magento-charcoal mb-3">Gateway Framework</h3>
+                    <ul class="space-y-2 text-sm text-gray-700">
+                        <li class="flex justify-between"><span>Command Classes</span><span class="font-mono text-magento-charcoal">12</span></li>
+                        <li class="flex justify-between"><span>Http Client</span><span class="font-mono text-magento-charcoal">12</span></li>
+                        <li class="flex justify-between"><span>Data Objects</span><span class="font-mono text-magento-charcoal">10</span></li>
+                        <li class="flex justify-between"><span>Validators</span><span class="font-mono text-magento-charcoal">8</span></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-magento-charcoal mb-3">Extension Points</h3>
+                    <ul class="space-y-2 text-sm text-gray-700">
+                        <li class="flex justify-between"><span>Observers</span><span class="font-mono text-magento-charcoal">3</span></li>
+                        <li class="flex justify-between"><span>Plugins</span><span class="font-mono text-magento-charcoal">2</span></li>
+                        <li class="flex justify-between"><span>Config/Response</span><span class="font-mono text-magento-charcoal">8</span></li>
+                        <li class="flex justify-between"><span>Error Mappers</span><span class="font-mono text-magento-charcoal">5</span></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Module Purpose -->
+        <section class="bg-white p-8 shadow-sm mb-12 border-l-4 border-magento-gold-500">
+            <h2 class="text-2xl font-bold text-magento-charcoal mb-4">What This Module Does</h2>
+            <div class="grid md:grid-cols-2 gap-8">
+                <div>
+                    <h3 class="font-semibold text-magento-charcoal mb-3">Payment Gateway Framework</h3>
+                    <p class="text-gray-700 text-sm mb-4">
+                        Implements the Gateway Command Pattern - a structured approach for building payment integrations.
+                        Commands (authorize, capture, void, refund) are executed through a command pool, with request builders,
+                        HTTP clients, response handlers, and validators working together.
+                    </p>
+                    <ul class="space-y-2 text-sm text-gray-700">
+                        <li class="flex items-start gap-2">
+                            <svg class="w-4 h-4 text-magento-orange-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            <span>CommandPool for operation routing</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <svg class="w-4 h-4 text-magento-orange-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            <span>Request/Response builders</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <svg class="w-4 h-4 text-magento-orange-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            <span>Extensible validation chain</span>
+                        </li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-magento-charcoal mb-3">Payment Method Abstraction</h3>
+                    <p class="text-gray-700 text-sm mb-4">
+                        Provides base classes and interfaces for payment methods. The Model\Method\Adapter class connects
+                        legacy payment methods to the new Gateway framework, while AbstractMethod remains available for
+                        simpler implementations.
+                    </p>
+                    <ul class="space-y-2 text-sm text-gray-700">
+                        <li class="flex items-start gap-2">
+                            <svg class="w-4 h-4 text-magento-gold-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            <span>Method availability rules</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <svg class="w-4 h-4 text-magento-gold-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            <span>Credit card type configuration</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <svg class="w-4 h-4 text-magento-gold-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            <span>Checkout config providers</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Key Concepts -->
+        <section class="bg-charcoal text-white p-8 mb-12">
+            <h2 class="text-2xl font-bold mb-6">Key Architectural Concepts</h2>
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="border-l-4 border-magento-orange-500 pl-4">
+                    <h3 class="font-bold text-magento-orange-400 mb-2">Gateway Command Pattern</h3>
+                    <p class="text-gray-300 text-sm">
+                        Each payment operation (authorize, capture, void, refund) is a separate Command class.
+                        Commands are composed of request builders, HTTP clients, response handlers, and validators.
+                    </p>
+                </div>
+                <div class="border-l-4 border-magento-gold-500 pl-4">
+                    <h3 class="font-bold text-magento-gold-400 mb-2">Method Adapter</h3>
+                    <p class="text-gray-300 text-sm">
+                        The Adapter class bridges the MethodInterface contract with Gateway commands.
+                        Configured entirely through di.xml virtual types - no PHP code required per method.
+                    </p>
+                </div>
+                <div class="border-l-4 border-magento-orange-500 pl-4">
+                    <h3 class="font-bold text-magento-orange-400 mb-2">Vault Integration</h3>
+                    <p class="text-gray-300 text-sm">
+                        Payment module provides hooks for Magento_Vault to store and reuse payment tokens.
+                        TokenUI components and PaymentTokenRepository enable saved cards.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Navigation Cards -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-bold text-magento-charcoal mb-6">Documentation Sections</h2>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+                <a href="architecture.html" class="nav-link block bg-white p-6 shadow-sm border-l-4 border-magento-orange-500 hover:shadow-md">
+                    <h3 class="font-bold text-magento-charcoal mb-2">Architecture</h3>
+                    <p class="text-sm text-gray-600 mb-4">Gateway command pattern, method abstraction layer, and payment configuration structure.</p>
+                    <span class="text-magento-orange-600 text-sm font-semibold">Explore Architecture &rarr;</span>
+                </a>
+
+                <a href="execution-flows.html" class="nav-link block bg-white p-6 shadow-sm border-l-4 border-magento-gold-500 hover:shadow-md">
+                    <h3 class="font-bold text-magento-charcoal mb-2">Execution Flows</h3>
+                    <p class="text-sm text-gray-600 mb-4">Step-by-step traces of authorize, capture, void, and refund operations.</p>
+                    <span class="text-magento-gold-600 text-sm font-semibold">View Flows &rarr;</span>
+                </a>
+
+                <a href="plugins-observers.html" class="nav-link block bg-white p-6 shadow-sm border-l-4 border-charcoal hover:shadow-md">
+                    <h3 class="font-bold text-magento-charcoal mb-2">Plugins & Observers</h3>
+                    <p class="text-sm text-gray-600 mb-4">2 plugins, 3 observers, and DI preferences that modify payment behavior.</p>
+                    <span class="text-magento-charcoal text-sm font-semibold">View Extensions &rarr;</span>
+                </a>
+
+                <a href="integrations.html" class="nav-link block bg-white p-6 shadow-sm border-l-4 border-magento-orange-500 hover:shadow-md">
+                    <h3 class="font-bold text-magento-charcoal mb-2">Integrations</h3>
+                    <p class="text-sm text-gray-600 mb-4">How Payment integrates with Quote, Sales, Checkout, and Vault modules.</p>
+                    <span class="text-magento-orange-600 text-sm font-semibold">View Integrations &rarr;</span>
+                </a>
+
+                <a href="known-issues.html" class="nav-link block bg-white p-6 shadow-sm border-l-4 border-magento-gold-500 hover:shadow-md">
+                    <h3 class="font-bold text-magento-charcoal mb-2">Known Issues</h3>
+                    <p class="text-sm text-gray-600 mb-4">Verified payment-related bugs with workarounds and prevention patterns.</p>
+                    <span class="text-magento-gold-600 text-sm font-semibold">View Issues &rarr;</span>
+                </a>
+
+                <a href="../../../index.html" class="nav-link block bg-charcoal p-6 shadow-sm hover:bg-magento-charcoal-600">
+                    <h3 class="font-bold text-white mb-2">All Modules</h3>
+                    <p class="text-sm text-gray-300 mb-4">Return to the main documentation index.</p>
+                    <span class="text-magento-orange-400 text-sm font-semibold">&larr; Back to Index</span>
+                </a>
+
+            </div>
+        </section>
+
+        <!-- Supported Card Types -->
+        <section class="bg-white p-8 shadow-sm mb-12 border-l-4 border-magento-gold-500">
+            <h2 class="text-2xl font-bold text-magento-charcoal mb-4">Supported Credit Card Types</h2>
+            <p class="text-gray-700 text-sm mb-6">
+                The module provides built-in support for 14 credit card types. These are configured in <code class="bg-gray-100 px-1">etc/payment.xml</code>
+                and can be extended by payment method modules.
+            </p>
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
+                <div class="text-center p-3 bg-gray-50 border border-gray-200">
+                    <div class="font-mono text-sm text-magento-charcoal font-bold">VI</div>
+                    <div class="text-xs text-gray-600">Visa</div>
+                </div>
+                <div class="text-center p-3 bg-gray-50 border border-gray-200">
+                    <div class="font-mono text-sm text-magento-charcoal font-bold">MC</div>
+                    <div class="text-xs text-gray-600">MasterCard</div>
+                </div>
+                <div class="text-center p-3 bg-gray-50 border border-gray-200">
+                    <div class="font-mono text-sm text-magento-charcoal font-bold">AE</div>
+                    <div class="text-xs text-gray-600">Amex</div>
+                </div>
+                <div class="text-center p-3 bg-gray-50 border border-gray-200">
+                    <div class="font-mono text-sm text-magento-charcoal font-bold">DI</div>
+                    <div class="text-xs text-gray-600">Discover</div>
+                </div>
+                <div class="text-center p-3 bg-gray-50 border border-gray-200">
+                    <div class="font-mono text-sm text-magento-charcoal font-bold">JCB</div>
+                    <div class="text-xs text-gray-600">JCB</div>
+                </div>
+                <div class="text-center p-3 bg-gray-50 border border-gray-200">
+                    <div class="font-mono text-sm text-magento-charcoal font-bold">DN</div>
+                    <div class="text-xs text-gray-600">Diners</div>
+                </div>
+                <div class="text-center p-3 bg-gray-50 border border-gray-200">
+                    <div class="font-mono text-sm text-magento-charcoal font-bold">+7</div>
+                    <div class="text-xs text-gray-600">More</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Reference -->
+        <section class="bg-magento-orange-50 border-4 border-magento-orange-500 p-6">
+            <div class="flex items-start gap-3">
+                <svg class="w-6 h-6 text-magento-orange-600 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                </svg>
+                <div>
+                    <p class="font-semibold text-magento-orange-900 mb-2">Quick Reference</p>
+                    <div class="grid md:grid-cols-2 gap-4 text-sm text-magento-orange-800">
+                        <div>
+                            <p><strong>Namespace:</strong> <code class="bg-white px-1">Magento\Payment</code></p>
+                            <p><strong>Location:</strong> <code class="bg-white px-1">vendor/magento/module-payment</code></p>
+                        </div>
+                        <div>
+                            <p><strong>Config Path:</strong> <code class="bg-white px-1">payment/</code></p>
+                            <p><strong>Log File:</strong> <code class="bg-white px-1">var/log/payment.log</code></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-charcoal text-white py-8 mt-16">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                <p class="text-sm text-gray-400">
+                    Magento_Payment Module Documentation | Part of The Magento Core Documentation Project
+                </p>
+                <div class="flex items-center gap-6">
+                    <a href="../../../index.html" class="text-sm text-gray-400 hover:text-white transition">Home</a>
+                    <a href="architecture.html" class="text-sm text-gray-400 hover:text-white transition">Architecture</a>
+                    <a href="known-issues.html" class="text-sm text-gray-400 hover:text-white transition">Known Issues</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

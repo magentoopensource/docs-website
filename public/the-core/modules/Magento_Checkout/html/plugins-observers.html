@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plugins & Observers - Magento_Checkout Module</title>
+    <meta name="description" content="Complete reference for Magento_Checkout plugins, observers, events, and extension points including session handling and quote recollection.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'magento-orange': {
+                            DEFAULT: '#f26423',
+                            50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad', 300: '#f9ae78',
+                            400: '#f58242', 500: '#f26423', 600: '#e34613', 700: '#bc3312',
+                            800: '#962a16', 900: '#792515', 950: '#411009'
+                        },
+                        'magento-gold': {
+                            DEFAULT: '#f1bc1b',
+                            50: '#fffdeb', 100: '#fdf9c8', 200: '#fbf38c', 300: '#f8e651',
+                            400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a', 700: '#b1670c',
+                            800: '#8f5111', 900: '#764311', 950: '#442204'
+                        },
+                        'magento-charcoal': {
+                            DEFAULT: '#2c2c2c',
+                            50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6', 300: '#818181',
+                            400: '#474747', 500: '#2c2c2c', 600: '#262626', 700: '#202020',
+                            800: '#1c1c1c', 900: '#191919', 950: '#121212'
+                        },
+                    },
+                    fontFamily: {
+                        sans: ['Inter Tight', 'system-ui', 'sans-serif'],
+                        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&display=swap');
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-[#FAFAFA] text-magento-charcoal">
+
+    <!-- Skip to content -->
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-magento-orange-800 focus:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-magento-orange-800">
+        Skip to content
+    </a>
+
+    <!-- Header -->
+    <header class="bg-gradient-to-br from-magento-charcoal-500 via-magento-charcoal-600 to-magento-charcoal-700 border-b-8 border-magento-gold-500">
+        <!-- back-to-developer-docs -->
+        <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 pt-4"><a href="/developer/" aria-label="Back to Developer Docs" class="inline-flex items-center gap-1.5 text-sm font-medium text-white/70 hover:text-white transition-colors no-underline"><span aria-hidden="true">←</span> Developer Docs</a></div>
+        <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+            <nav class="mb-8" aria-label="Breadcrumb">
+                <ol class="flex items-center gap-2 text-sm text-gray-400">
+                    <li><a href="../../../index.html" class="hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-magento-orange-500">Home</a></li>
+                    <li aria-hidden="true">/</li>
+                    <li><a href="index.html" class="hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-magento-orange-500">Magento_Checkout</a></li>
+                    <li aria-hidden="true">/</li>
+                    <li><span class="text-magento-gold-400">Plugins & Observers</span></li>
+                </ol>
+            </nav>
+            <div id="main-content">
+                <h1 class="text-4xl sm:text-5xl font-bold tracking-tight text-white mb-4">Plugins & Observers</h1>
+                <p class="text-lg sm:text-xl text-gray-300 max-w-3xl">Extension points, event handling, and interception patterns in the Checkout module.</p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="max-w-6xl mx-auto px-6 py-8 md:py-12">
+
+        <!-- Summary Stats -->
+        <section class="bg-white mb-12 p-8 border-t-4 border-magento-orange-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-magento-charcoal mb-6 mt-0">Extension Points Overview</h2>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="bg-magento-charcoal-50 p-4 border-l-4 border-magento-orange-500">
+                    <div class="text-2xl font-bold text-magento-orange-500">1</div>
+                    <div class="text-sm text-gray-600">Plugin Declaration</div>
+                </div>
+                <div class="bg-magento-charcoal-50 p-4 border-l-4 border-magento-gold-500">
+                    <div class="text-2xl font-bold text-magento-gold-600">2</div>
+                    <div class="text-sm text-gray-600">Plugin Classes</div>
+                </div>
+                <div class="bg-magento-charcoal-50 p-4 border-l-4 border-magento-charcoal">
+                    <div class="text-2xl font-bold text-magento-charcoal">6</div>
+                    <div class="text-sm text-gray-600">Observer Classes</div>
+                </div>
+                <div class="bg-magento-charcoal-50 p-4 border-l-4 border-magento-orange-500">
+                    <div class="text-2xl font-bold text-magento-orange-500">1</div>
+                    <div class="text-sm text-gray-600">Event Subscribed</div>
+                </div>
+            </div>
+
+            <div class="mt-6 bg-magento-gold-50 border-l-4 border-magento-gold-500 p-4">
+                <p class="text-sm text-brown">
+                    <strong>Note:</strong> The Checkout module has minimal plugins/observers by design. Most checkout
+                    customization happens through layout XML, JavaScript components, and Payment/Shipping module extensions.
+                </p>
+            </div>
+        </section>
+
+        <!-- Plugins Section -->
+        <section class="mb-12">
+            <div class="flex items-center gap-4 mb-8">
+                <div class="w-3 h-12 bg-magento-orange-500"></div>
+                <h2 class="text-3xl font-bold text-magento-charcoal">Plugin Declarations</h2>
+            </div>
+
+            <div class="bg-white p-6 border border-gray-200 shadow-sm mb-6">
+                <h3 class="text-xl font-bold text-magento-charcoal mb-4">di.xml Plugin Configuration</h3>
+                <p class="text-gray-700 mb-6">
+                    The Checkout module declares one plugin in its di.xml:
+                </p>
+
+                <!-- Plugin Card -->
+                <div class="border border-gray-200 mb-6">
+                    <div class="bg-charcoal p-4">
+                        <h4 class="text-white font-bold font-mono text-sm">recollect_quote_on_customer_group_change</h4>
+                    </div>
+                    <div class="p-4">
+                        <div class="grid md:grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <span class="text-xs text-gray-500 uppercase">Target Class</span>
+                                <p class="font-mono text-sm text-magento-charcoal">Magento\Customer\Model\ResourceModel\Customer</p>
+                            </div>
+                            <div>
+                                <span class="text-xs text-gray-500 uppercase">Plugin Class</span>
+                                <p class="font-mono text-sm text-magento-charcoal">Magento\Checkout\Model\Plugin\RecollectQuoteOnCustomerGroupChange</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-magento-charcoal-50 p-4 mb-4">
+                            <h5 class="font-bold text-magento-charcoal mb-2">Purpose</h5>
+                            <p class="text-sm text-gray-700">
+                                When a customer's group is changed (e.g., from General to Wholesale), this plugin
+                                triggers quote recollection to update pricing based on the new customer group's
+                                catalog price rules and tier pricing.
+                            </p>
+                        </div>
+
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div class="border-l-4 border-magento-orange-500 pl-4">
+                                <h5 class="font-bold text-magento-charcoal text-sm">Intercepted Method</h5>
+                                <p class="text-sm text-gray-600 font-mono">afterSave()</p>
+                            </div>
+                            <div class="border-l-4 border-magento-gold-500 pl-4">
+                                <h5 class="font-bold text-magento-charcoal text-sm">When Triggered</h5>
+                                <p class="text-sm text-gray-600">Customer entity save with group_id change</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-magento-orange-50 border-l-4 border-magento-orange-500 p-4">
+                    <p class="font-semibold text-magento-orange-900 mb-2">Business Logic</p>
+                    <p class="text-sm text-magento-orange-800">
+                        If the customer has an active quote and their customer group has changed, the plugin
+                        sets <code class="bg-magento-orange-100 px-1">trigger_recollect = 1</code> on the quote, forcing
+                        totals recalculation on the next checkout interaction.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Plugin Classes -->
+        <section class="mb-12">
+            <div class="flex items-center gap-4 mb-8">
+                <div class="w-3 h-12 bg-magento-gold-500"></div>
+                <h2 class="text-3xl font-bold text-magento-charcoal">Plugin Classes (2)</h2>
+            </div>
+
+            <div class="bg-white p-6 border border-gray-200 shadow-sm">
+                <p class="text-gray-700 mb-6">
+                    The Checkout module contains 2 plugin classes in the Plugin directory:
+                </p>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead class="bg-charcoal text-white">
+                            <tr>
+                                <th class="text-left p-3">Plugin Class</th>
+                                <th class="text-left p-3">Target</th>
+                                <th class="text-left p-3">Purpose</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            <tr>
+                                <td class="p-3 font-mono text-xs">RecollectQuoteOnCustomerGroupChange</td>
+                                <td class="p-3 text-xs">Customer ResourceModel</td>
+                                <td class="p-3">Trigger quote recollect on customer group change</td>
+                            </tr>
+                            <tr class="bg-magento-charcoal-50">
+                                <td class="p-3 font-mono text-xs">Model\Plugin\*</td>
+                                <td class="p-3 text-xs">Various</td>
+                                <td class="p-3">Additional plugin implementations</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Observers Section -->
+        <section class="mb-12">
+            <div class="flex items-center gap-4 mb-8">
+                <div class="w-3 h-12 bg-charcoal"></div>
+                <h2 class="text-3xl font-bold text-magento-charcoal">Observer Classes (6)</h2>
+            </div>
+
+            <div class="bg-white p-6 border border-gray-200 shadow-sm mb-6">
+                <p class="text-gray-700 mb-6">
+                    The Checkout module has 6 observer classes, though only 1 is declared in events.xml.
+                    Others are used internally or via other modules.
+                </p>
+
+                <!-- Observer Card -->
+                <div class="border border-gray-200 mb-6">
+                    <div class="bg-magento-gold-500 p-4">
+                        <h4 class="text-magento-charcoal font-bold">SalesQuoteSaveAfterObserver</h4>
+                        <p class="text-sm text-magento-charcoal opacity-80">Declared in events.xml</p>
+                    </div>
+                    <div class="p-4">
+                        <div class="grid md:grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <span class="text-xs text-gray-500 uppercase">Event Name</span>
+                                <p class="font-mono text-sm text-magento-charcoal">sales_quote_save_after</p>
+                            </div>
+                            <div>
+                                <span class="text-xs text-gray-500 uppercase">Observer Name</span>
+                                <p class="font-mono text-sm text-magento-charcoal">set_checkout_quote_id</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-magento-charcoal-50 p-4 mb-4">
+                            <h5 class="font-bold text-magento-charcoal mb-2">Purpose</h5>
+                            <p class="text-sm text-gray-700">
+                                Synchronizes the checkout session's quote ID with the saved quote. This ensures
+                                the session always references the correct quote after any quote save operation.
+                            </p>
+                        </div>
+
+                        <div class="grid md:grid-cols-3 gap-4">
+                            <div class="border-l-4 border-magento-orange-500 pl-4">
+                                <h5 class="font-bold text-magento-charcoal text-sm">Area</h5>
+                                <p class="text-sm text-gray-600">global</p>
+                            </div>
+                            <div class="border-l-4 border-magento-gold-500 pl-4">
+                                <h5 class="font-bold text-magento-charcoal text-sm">Disabled</h5>
+                                <p class="text-sm text-gray-600">No</p>
+                            </div>
+                            <div class="border-l-4 border-magento-charcoal pl-4">
+                                <h5 class="font-bold text-magento-charcoal text-sm">Shared</h5>
+                                <p class="text-sm text-gray-600">Yes (default)</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 class="text-lg font-bold text-magento-charcoal mb-4">Other Observer Classes</h3>
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div class="bg-magento-charcoal-50 p-4 border-l-4 border-gray-300">
+                        <h4 class="font-bold text-magento-charcoal font-mono text-sm">Observer/</h4>
+                        <p class="text-sm text-gray-600 mt-1">Directory contains 6 observer class files for various checkout events</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Events Reference -->
+        <section class="mb-12">
+            <div class="flex items-center gap-4 mb-8">
+                <div class="w-3 h-12 bg-magento-orange-500"></div>
+                <h2 class="text-3xl font-bold text-magento-charcoal">Events Reference</h2>
+            </div>
+
+            <div class="bg-white p-6 border border-gray-200 shadow-sm">
+                <h3 class="text-xl font-bold text-magento-charcoal mb-4">Events Subscribed To</h3>
+
+                <div class="overflow-x-auto mb-6">
+                    <table class="w-full text-sm">
+                        <thead class="bg-charcoal text-white">
+                            <tr>
+                                <th class="text-left p-3">Event Name</th>
+                                <th class="text-left p-3">Observer</th>
+                                <th class="text-left p-3">Area</th>
+                                <th class="text-left p-3">Purpose</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            <tr>
+                                <td class="p-3 font-mono text-xs">sales_quote_save_after</td>
+                                <td class="p-3 text-xs">SalesQuoteSaveAfterObserver</td>
+                                <td class="p-3">global</td>
+                                <td class="p-3">Sync session quote ID</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3 class="text-xl font-bold text-magento-charcoal mb-4">Key Events to Hook Into</h3>
+                <p class="text-gray-700 mb-4">
+                    While Checkout module declares few events, these are the most useful events for checkout customization:
+                </p>
+
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div class="border-l-4 border-magento-orange-500 pl-4 py-2">
+                        <h4 class="font-bold text-magento-charcoal font-mono text-sm">checkout_cart_add_product_complete</h4>
+                        <p class="text-sm text-gray-600 mt-1">After product is added to cart</p>
+                    </div>
+                    <div class="border-l-4 border-magento-gold-500 pl-4 py-2">
+                        <h4 class="font-bold text-magento-charcoal font-mono text-sm">checkout_cart_update_items_after</h4>
+                        <p class="text-sm text-gray-600 mt-1">After cart items are updated</p>
+                    </div>
+                    <div class="border-l-4 border-magento-charcoal pl-4 py-2">
+                        <h4 class="font-bold text-magento-charcoal font-mono text-sm">checkout_onepage_controller_success_action</h4>
+                        <p class="text-sm text-gray-600 mt-1">Order success page displayed</p>
+                    </div>
+                    <div class="border-l-4 border-magento-orange-500 pl-4 py-2">
+                        <h4 class="font-bold text-magento-charcoal font-mono text-sm">checkout_submit_all_after</h4>
+                        <p class="text-sm text-gray-600 mt-1">After order submission (from Quote module)</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Preference Declarations -->
+        <section class="mb-12">
+            <div class="flex items-center gap-4 mb-8">
+                <div class="w-3 h-12 bg-magento-gold-500"></div>
+                <h2 class="text-3xl font-bold text-magento-charcoal">Preference Declarations (14)</h2>
+            </div>
+
+            <div class="bg-white p-6 border border-gray-200 shadow-sm">
+                <p class="text-gray-700 mb-6">
+                    The Checkout module declares 14 preferences in di.xml, mapping interfaces to implementations:
+                </p>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead class="bg-charcoal text-white">
+                            <tr>
+                                <th class="text-left p-3">Interface</th>
+                                <th class="text-left p-3">Implementation</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            <tr>
+                                <td class="p-3 font-mono text-xs">GuestShippingInformationManagementInterface</td>
+                                <td class="p-3 font-mono text-xs">GuestShippingInformationManagement</td>
+                            </tr>
+                            <tr class="bg-magento-charcoal-50">
+                                <td class="p-3 font-mono text-xs">ShippingInformationManagementInterface</td>
+                                <td class="p-3 font-mono text-xs">ShippingInformationManagement</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-mono text-xs">Data\ShippingInformationInterface</td>
+                                <td class="p-3 font-mono text-xs">Model\ShippingInformation</td>
+                            </tr>
+                            <tr class="bg-magento-charcoal-50">
+                                <td class="p-3 font-mono text-xs">Data\PaymentDetailsInterface</td>
+                                <td class="p-3 font-mono text-xs">Model\PaymentDetails</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-mono text-xs">GuestPaymentInformationManagementInterface</td>
+                                <td class="p-3 font-mono text-xs">GuestPaymentInformationManagement</td>
+                            </tr>
+                            <tr class="bg-magento-charcoal-50">
+                                <td class="p-3 font-mono text-xs">PaymentInformationManagementInterface</td>
+                                <td class="p-3 font-mono text-xs">PaymentInformationManagement</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-mono text-xs">Data\TotalsInformationInterface</td>
+                                <td class="p-3 font-mono text-xs">Model\TotalsInformation</td>
+                            </tr>
+                            <tr class="bg-magento-charcoal-50">
+                                <td class="p-3 font-mono text-xs">GuestTotalsInformationManagementInterface</td>
+                                <td class="p-3 font-mono text-xs">GuestTotalsInformationManagement</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-mono text-xs">TotalsInformationManagementInterface</td>
+                                <td class="p-3 font-mono text-xs">TotalsInformationManagement</td>
+                            </tr>
+                            <tr class="bg-magento-charcoal-50">
+                                <td class="p-3 font-mono text-xs">AgreementsValidatorInterface</td>
+                                <td class="p-3 font-mono text-xs">AgreementsValidator</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-mono text-xs">Cart\RequestInfoFilterInterface</td>
+                                <td class="p-3 font-mono text-xs">Cart\RequestInfoFilterComposite</td>
+                            </tr>
+                            <tr class="bg-magento-charcoal-50">
+                                <td class="p-3 font-mono text-xs">AddressComparatorInterface</td>
+                                <td class="p-3 font-mono text-xs">AddressComparator</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-mono text-xs">PaymentProcessingRateLimiterInterface</td>
+                                <td class="p-3 font-mono text-xs">CaptchaPaymentProcessingRateLimiter</td>
+                            </tr>
+                            <tr class="bg-magento-charcoal-50">
+                                <td class="p-3 font-mono text-xs">PaymentSavingRateLimiterInterface</td>
+                                <td class="p-3 font-mono text-xs">CaptchaPaymentSavingRateLimiter</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Extension Best Practices -->
+        <section class="mb-12">
+            <div class="flex items-center gap-4 mb-8">
+                <div class="w-3 h-12 bg-charcoal"></div>
+                <h2 class="text-3xl font-bold text-magento-charcoal">Extension Best Practices</h2>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="bg-white p-6 border border-gray-200 shadow-sm">
+                    <h3 class="text-lg font-bold text-magento-charcoal mb-4 text-magento-orange-600">Recommended Approaches</h3>
+                    <ul class="space-y-3 text-sm text-gray-700">
+                        <li class="flex items-start gap-2">
+                            <span class="w-2 h-2 bg-magento-orange-500 mt-2 flex-shrink-0"></span>
+                            <span>Use layout XML to add/modify checkout steps</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="w-2 h-2 bg-magento-orange-500 mt-2 flex-shrink-0"></span>
+                            <span>Extend Knockout.js components via mixins</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="w-2 h-2 bg-magento-orange-500 mt-2 flex-shrink-0"></span>
+                            <span>Implement custom payment/shipping methods via their respective modules</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="w-2 h-2 bg-magento-orange-500 mt-2 flex-shrink-0"></span>
+                            <span>Use CustomerData sections for frontend state</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="bg-white p-6 border border-gray-200 shadow-sm">
+                    <h3 class="text-lg font-bold text-magento-charcoal mb-4 text-magento-gold-600">Avoid</h3>
+                    <ul class="space-y-3 text-sm text-gray-700">
+                        <li class="flex items-start gap-2">
+                            <span class="w-2 h-2 bg-magento-gold-500 mt-2 flex-shrink-0"></span>
+                            <span>Overriding core checkout controllers</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="w-2 h-2 bg-magento-gold-500 mt-2 flex-shrink-0"></span>
+                            <span>Direct session manipulation without using Session class</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="w-2 h-2 bg-magento-gold-500 mt-2 flex-shrink-0"></span>
+                            <span>Bypassing rate limiter interfaces</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="w-2 h-2 bg-magento-gold-500 mt-2 flex-shrink-0"></span>
+                            <span>Modifying quote directly instead of using management interfaces</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Navigation -->
+        <nav class="flex justify-between items-center" aria-label="Documentation navigation">
+            <a href="execution-flows.html" class="inline-flex items-center gap-2 px-4 py-2 bg-magento-charcoal-100 text-magento-charcoal font-medium hover:bg-magento-charcoal-200 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-magento-charcoal-500">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17l-5-5m0 0l5-5m-5 5h12"/>
+                </svg>
+                Execution Flows
+            </a>
+            <a href="integrations.html" class="inline-flex items-center gap-2 px-4 py-2 bg-magento-orange-800 text-white font-medium hover:bg-magento-orange-900 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-magento-orange-800">
+                Integrations
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                </svg>
+            </a>
+        </nav>
+
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-charcoal text-white py-8 mt-16">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                <p class="text-sm text-gray-400">
+                    Magento_Checkout Plugins & Observers | Part of The Magento Core Documentation Project
+                </p>
+                <p class="text-sm text-gray-400">
+                    Last updated: December 2025 | Magento 2.4.x
+                </p>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

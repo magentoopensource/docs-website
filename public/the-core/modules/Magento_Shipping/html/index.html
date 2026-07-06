@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magento_Shipping Module - Documentation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'magento-orange': {
+                            DEFAULT: '#f26423',
+                            50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad', 300: '#f9ae78',
+                            400: '#f58242', 500: '#f26423', 600: '#e34613', 700: '#bc3312',
+                            800: '#962a16', 900: '#792515', 950: '#411009'
+                        },
+                        'magento-gold': {
+                            DEFAULT: '#f1bc1b',
+                            50: '#fffdeb', 100: '#fdf9c8', 200: '#fbf38c', 300: '#f8e651',
+                            400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a', 700: '#b1670c',
+                            800: '#8e5210', 900: '#744312', 950: '#432209'
+                        },
+                        'magento-charcoal': {
+                            DEFAULT: '#2c2c2c',
+                            50: '#f6f6f6', 100: '#e7e7e7', 200: '#d1d1d1', 300: '#b0b0b0',
+                            400: '#888888', 500: '#6d6d6d', 600: '#5d5d5d', 700: '#4f4f4f',
+                            800: '#454545', 900: '#3d3d3d', 950: '#2c2c2c'
+                        },
+                        'magento-cream': {
+                            DEFAULT: '#faf8f5'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .gradient-border { background: linear-gradient(135deg, #f26423 0%, #f1bc1b 100%); }
+    </style>
+</head>
+<body class="bg-magento-cream text-magento-charcoal">
+    <!-- Navigation -->
+    <nav class="bg-magento-charcoal text-white py-4 sticky top-0 z-50 shadow-lg">
+        <div class="container mx-auto px-6 flex items-center justify-between">
+            <a href="../../../index.html" class="text-xl font-bold hover:text-magento-gold-500 transition-colors">
+                Magento Core Docs
+            </a>
+            <div class="flex items-center space-x-6">
+                <a href="../../../index.html" class="hover:text-magento-gold-500 transition-colors">All Modules</a>
+                <span class="text-magento-gold-500 font-medium">Magento_Shipping</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="bg-magento-charcoal text-white py-16">
+        <!-- back-to-developer-docs -->
+        <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 pt-4"><a href="/developer/" aria-label="Back to Developer Docs" class="inline-flex items-center gap-1.5 text-sm font-medium text-white/70 hover:text-white transition-colors no-underline"><span aria-hidden="true">←</span> Developer Docs</a></div>
+        <div class="container mx-auto px-6">
+            <div class="flex items-center space-x-4 mb-4">
+                <span class="bg-magento-orange-500 text-white px-3 py-1 text-sm font-semibold rounded">PHASE 1</span>
+                <span class="bg-magento-gold-500 text-magento-charcoal px-3 py-1 text-sm font-semibold rounded">CORE COMMERCE</span>
+            </div>
+            <h1 class="text-5xl font-bold mb-4">Magento_Shipping</h1>
+            <p class="text-xl text-gray-300 max-w-3xl">
+                Carrier abstraction layer, rate calculation, and shipment management for the Magento ecommerce platform.
+            </p>
+        </div>
+    </header>
+
+    <!-- Stats Bar -->
+    <div class="gradient-border">
+        <div class="bg-white py-8">
+            <div class="container mx-auto px-6">
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-6 text-center">
+                    <div class="p-4">
+                        <div class="text-3xl font-bold text-magento-orange-500">104</div>
+                        <div class="text-sm text-gray-600 mt-1">PHP Classes</div>
+                    </div>
+                    <div class="p-4">
+                        <div class="text-3xl font-bold text-magento-orange-500">19</div>
+                        <div class="text-sm text-gray-600 mt-1">Controllers</div>
+                    </div>
+                    <div class="p-4">
+                        <div class="text-3xl font-bold text-magento-orange-500">36</div>
+                        <div class="text-sm text-gray-600 mt-1">Models</div>
+                    </div>
+                    <div class="p-4">
+                        <div class="text-3xl font-bold text-magento-orange-500">18</div>
+                        <div class="text-sm text-gray-600 mt-1">Blocks</div>
+                    </div>
+                    <div class="p-4">
+                        <div class="text-3xl font-bold text-magento-orange-500">1</div>
+                        <div class="text-sm text-gray-600 mt-1">Cron Job</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-6 py-12">
+        <!-- Module Overview -->
+        <section class="mb-16">
+            <h2 class="text-3xl font-bold mb-6">Module Overview</h2>
+            <div class="bg-white shadow-md p-8">
+                <p class="text-lg leading-relaxed mb-6">
+                    The <strong>Magento_Shipping</strong> module provides the carrier abstraction layer that enables
+                    flexible shipping rate calculation and shipment management. It defines the base classes and
+                    interfaces that all shipping carriers (UPS, FedEx, USPS, etc.) must implement to integrate
+                    with Magento's checkout and order fulfillment workflows.
+                </p>
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="font-semibold text-lg mb-3 text-magento-orange-500">Key Responsibilities</h3>
+                        <ul class="space-y-2">
+                            <li class="flex items-start">
+                                <span class="text-magento-gold-500 mr-2">&#9654;</span>
+                                <span>Rate collection from multiple carriers</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-magento-gold-500 mr-2">&#9654;</span>
+                                <span>Shipment creation and tracking</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-magento-gold-500 mr-2">&#9654;</span>
+                                <span>Shipping label generation</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-magento-gold-500 mr-2">&#9654;</span>
+                                <span>Package weight and dimension calculations</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-magento-gold-500 mr-2">&#9654;</span>
+                                <span>Carrier factory and configuration</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-lg mb-3 text-magento-orange-500">What This Module Does NOT Do</h3>
+                        <ul class="space-y-2">
+                            <li class="flex items-start">
+                                <span class="text-gray-400 mr-2">&#10006;</span>
+                                <span>Implement specific carrier APIs (see UPS, FedEx, USPS modules)</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-gray-400 mr-2">&#10006;</span>
+                                <span>Handle payment processing</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-gray-400 mr-2">&#10006;</span>
+                                <span>Manage inventory reservations (see InventoryShipping)</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-gray-400 mr-2">&#10006;</span>
+                                <span>Define table rate rules (see OfflineShipping)</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Core Classes -->
+        <section class="mb-16">
+            <h2 class="text-3xl font-bold mb-6">Core Classes</h2>
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="bg-white shadow-md p-6 border-l-4 border-magento-orange-500">
+                    <h3 class="font-bold text-lg mb-2">Carrier\AbstractCarrier</h3>
+                    <p class="text-gray-600 text-sm mb-3">Model/Carrier/AbstractCarrier.php</p>
+                    <p>Base class for all shipping carriers. Provides configuration access, rate calculation
+                       framework, and handling fee logic.</p>
+                </div>
+                <div class="bg-white shadow-md p-6 border-l-4 border-magento-orange-500">
+                    <h3 class="font-bold text-lg mb-2">Carrier\AbstractCarrierOnline</h3>
+                    <p class="text-gray-600 text-sm mb-3">Model/Carrier/AbstractCarrierOnline.php</p>
+                    <p>Extended base for carriers requiring API calls. Adds shipping labels,
+                       tracking, container types, and delivery confirmation.</p>
+                </div>
+                <div class="bg-white shadow-md p-6 border-l-4 border-magento-gold-500">
+                    <h3 class="font-bold text-lg mb-2">Shipping</h3>
+                    <p class="text-gray-600 text-sm mb-3">Model/Shipping.php</p>
+                    <p>Main rate collection orchestrator. Iterates through enabled carriers,
+                       collects rates, and aggregates results into a single response.</p>
+                </div>
+                <div class="bg-white shadow-md p-6 border-l-4 border-magento-gold-500">
+                    <h3 class="font-bold text-lg mb-2">CarrierFactory</h3>
+                    <p class="text-gray-600 text-sm mb-3">Model/CarrierFactory.php</p>
+                    <p>Factory class for instantiating carrier models based on carrier code
+                       and store configuration.</p>
+                </div>
+                <div class="bg-white shadow-md p-6 border-l-4 border-gray-400">
+                    <h3 class="font-bold text-lg mb-2">Tracking\Result</h3>
+                    <p class="text-gray-600 text-sm mb-3">Model/Tracking/Result.php</p>
+                    <p>Container for tracking information collected from carrier APIs.
+                       Used by the tracking popup and shipment view.</p>
+                </div>
+                <div class="bg-white shadow-md p-6 border-l-4 border-gray-400">
+                    <h3 class="font-bold text-lg mb-2">Shipping\Labels</h3>
+                    <p class="text-gray-600 text-sm mb-3">Model/Shipping/Labels.php</p>
+                    <p>Extends Shipping for admin area. Adds shipping label creation
+                       functionality for supported carriers.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Carrier Interface -->
+        <section class="mb-16">
+            <h2 class="text-3xl font-bold mb-6">Carrier Interface Contract</h2>
+            <div class="bg-white shadow-md p-8">
+                <p class="mb-6">All carriers must implement <code class="bg-gray-100 px-2 py-1 rounded">AbstractCarrierInterface</code>:</p>
+                <div class="bg-magento-charcoal text-white p-6 font-mono text-sm overflow-x-auto">
+<pre>interface AbstractCarrierInterface
+{
+    // Core rate methods
+    public function collectRates(RateRequest $request);
+    public function getConfigData($field);
+
+    // Shipment operations
+    public function requestToShipment($request);
+    public function returnOfShipment($request);
+
+    // Carrier capabilities
+    public function isActive();
+    public function isTrackingAvailable();
+    public function isShippingLabelsAvailable();
+
+    // Container/packaging
+    public function getContainerTypes($params = null);
+    public function getDeliveryConfirmationTypes($params = null);
+
+    // Validation
+    public function checkAvailableShipCountries($request);
+    public function proccessAdditionalValidation($request);
+
+    // Pricing
+    public function getFinalPriceWithHandlingFee($cost);
+    public function getTotalNumOfBoxes($weight);
+}</pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- Configuration -->
+        <section class="mb-16">
+            <h2 class="text-3xl font-bold mb-6">Configuration</h2>
+            <div class="bg-white shadow-md p-8">
+                <h3 class="font-bold text-lg mb-4">Admin Configuration Paths</h3>
+                <table class="w-full text-left">
+                    <thead class="bg-magento-charcoal text-white">
+                        <tr>
+                            <th class="p-3">Path</th>
+                            <th class="p-3">Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b">
+                            <td class="p-3 font-mono text-sm">shipping/origin/*</td>
+                            <td class="p-3">Store origin address (country, region, postal code)</td>
+                        </tr>
+                        <tr class="border-b bg-gray-50">
+                            <td class="p-3 font-mono text-sm">shipping/shipping_policy/*</td>
+                            <td class="p-3">Custom shipping policy text displayed at checkout</td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="p-3 font-mono text-sm">carriers/[code]/active</td>
+                            <td class="p-3">Enable/disable specific carrier</td>
+                        </tr>
+                        <tr class="border-b bg-gray-50">
+                            <td class="p-3 font-mono text-sm">carriers/[code]/title</td>
+                            <td class="p-3">Carrier display name at checkout</td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="p-3 font-mono text-sm">carriers/[code]/sallowspecific</td>
+                            <td class="p-3">Ship to all or specific countries</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Documentation Pages -->
+        <section class="mb-16">
+            <h2 class="text-3xl font-bold mb-6">Documentation</h2>
+            <div class="grid md:grid-cols-3 gap-6">
+                <a href="architecture.html" class="bg-white shadow-md p-6 hover:shadow-lg transition-shadow border-t-4 border-magento-orange-500">
+                    <h3 class="font-bold text-lg mb-2">Architecture</h3>
+                    <p class="text-gray-600">Carrier pattern, rate collection, and class hierarchy.</p>
+                </a>
+                <a href="execution-flows.html" class="bg-white shadow-md p-6 hover:shadow-lg transition-shadow border-t-4 border-magento-orange-500">
+                    <h3 class="font-bold text-lg mb-2">Execution Flows</h3>
+                    <p class="text-gray-600">Rate calculation, shipment creation, and tracking flows.</p>
+                </a>
+                <a href="plugins-observers.html" class="bg-white shadow-md p-6 hover:shadow-lg transition-shadow border-t-4 border-magento-gold-500">
+                    <h3 class="font-bold text-lg mb-2">DI &amp; Config</h3>
+                    <p class="text-gray-600">Preferences, virtual types, and cron configuration.</p>
+                </a>
+                <a href="integrations.html" class="bg-white shadow-md p-6 hover:shadow-lg transition-shadow border-t-4 border-magento-gold-500">
+                    <h3 class="font-bold text-lg mb-2">Integrations</h3>
+                    <p class="text-gray-600">Quote, Sales, Checkout, and carrier module relationships.</p>
+                </a>
+                <a href="known-issues.html" class="bg-white shadow-md p-6 hover:shadow-lg transition-shadow border-t-4 border-gray-400">
+                    <h3 class="font-bold text-lg mb-2">Known Issues</h3>
+                    <p class="text-gray-600">Common gotchas and workarounds for shipping development.</p>
+                </a>
+            </div>
+        </section>
+
+        <!-- Module Dependencies -->
+        <section class="mb-16">
+            <h2 class="text-3xl font-bold mb-6">Module Dependencies</h2>
+            <div class="bg-white shadow-md p-8">
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="font-semibold text-lg mb-4 text-magento-orange-500">Required By (sequence)</h3>
+                        <ul class="space-y-2">
+                            <li class="flex items-center">
+                                <span class="w-3 h-3 bg-magento-orange-500 rounded-full mr-3"></span>
+                                <span>Magento_Store</span>
+                            </li>
+                            <li class="flex items-center">
+                                <span class="w-3 h-3 bg-magento-orange-500 rounded-full mr-3"></span>
+                                <span>Magento_Catalog</span>
+                            </li>
+                            <li class="flex items-center">
+                                <span class="w-3 h-3 bg-magento-gold-500 rounded-full mr-3"></span>
+                                <span>Magento_Ui</span>
+                            </li>
+                            <li class="flex items-center">
+                                <span class="w-3 h-3 bg-magento-gold-500 rounded-full mr-3"></span>
+                                <span>Magento_User</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-lg mb-4 text-magento-orange-500">Dependent Carrier Modules</h3>
+                        <ul class="space-y-2">
+                            <li class="flex items-center">
+                                <span class="w-3 h-3 bg-gray-400 rounded-full mr-3"></span>
+                                <span>Magento_Ups</span>
+                            </li>
+                            <li class="flex items-center">
+                                <span class="w-3 h-3 bg-gray-400 rounded-full mr-3"></span>
+                                <span>Magento_Usps</span>
+                            </li>
+                            <li class="flex items-center">
+                                <span class="w-3 h-3 bg-gray-400 rounded-full mr-3"></span>
+                                <span>Magento_Fedex</span>
+                            </li>
+                            <li class="flex items-center">
+                                <span class="w-3 h-3 bg-gray-400 rounded-full mr-3"></span>
+                                <span>Magento_Dhl</span>
+                            </li>
+                            <li class="flex items-center">
+                                <span class="w-3 h-3 bg-gray-400 rounded-full mr-3"></span>
+                                <span>Magento_OfflineShipping</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Reference -->
+        <section class="mb-16">
+            <h2 class="text-3xl font-bold mb-6">Quick Reference</h2>
+            <div class="bg-white shadow-md p-8">
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="font-semibold text-lg mb-4">Key Files</h3>
+                        <ul class="space-y-2 font-mono text-sm">
+                            <li class="p-2 bg-gray-50 rounded">Model/Carrier/AbstractCarrier.php</li>
+                            <li class="p-2 bg-gray-50 rounded">Model/Carrier/AbstractCarrierOnline.php</li>
+                            <li class="p-2 bg-gray-50 rounded">Model/Shipping.php</li>
+                            <li class="p-2 bg-gray-50 rounded">Model/CarrierFactory.php</li>
+                            <li class="p-2 bg-gray-50 rounded">etc/di.xml</li>
+                            <li class="p-2 bg-gray-50 rounded">etc/adminhtml/system.xml</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-lg mb-4">Cron Jobs</h3>
+                        <table class="w-full text-sm">
+                            <thead class="bg-magento-charcoal text-white">
+                                <tr>
+                                    <th class="p-2 text-left">Job</th>
+                                    <th class="p-2 text-left">Schedule</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-b">
+                                    <td class="p-2">aggregate_sales_report_shipment_data</td>
+                                    <td class="p-2">Daily at midnight</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <h3 class="font-semibold text-lg mb-4 mt-6">Logging</h3>
+                        <p class="text-sm text-gray-600">
+                            Carrier debug output writes to <code class="bg-gray-100 px-1">var/log/shipping.log</code>
+                            via the VirtualLogger configured in di.xml.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-magento-charcoal text-white py-8 mt-16">
+        <div class="container mx-auto px-6 text-center">
+            <p class="text-gray-400">Magento Core Documentation Project</p>
+            <p class="text-sm text-gray-500 mt-2">Module: Magento_Shipping | Components: 104</p>
+        </div>
+    </footer>
+</body>
+</html>

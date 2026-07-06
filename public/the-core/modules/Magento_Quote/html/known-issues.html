@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Known Issues - Magento_Quote Module</title>
+    <meta name="description" content="Magento_Quote known issues including totals race conditions, masked ID security, item option handling, and address validation edge cases.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'magento-orange': {
+                            DEFAULT: '#f26423',
+                            50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad', 300: '#f9ae78',
+                            400: '#f58242', 500: '#f26423', 600: '#e34613', 700: '#bc3312',
+                            800: '#962a16', 900: '#792515', 950: '#411009'
+                        },
+                        'magento-gold': {
+                            DEFAULT: '#f1bc1b',
+                            50: '#fffdeb', 100: '#fdf9c8', 200: '#fbf38c', 300: '#f8e651',
+                            400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a', 700: '#b1670c',
+                            800: '#8f5111', 900: '#764311', 950: '#442204'
+                        },
+                        'magento-charcoal': {
+                            DEFAULT: '#2c2c2c',
+                            50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6', 300: '#818181',
+                            400: '#474747', 500: '#2c2c2c', 600: '#262626', 700: '#202020',
+                            800: '#1c1c1c', 900: '#191919', 950: '#121212'
+                        },
+                    },
+                    fontFamily: {
+                        sans: ['Inter Tight', 'system-ui', 'sans-serif'],
+                        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&display=swap');
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+        pre { background: #1a1a1a; color: #e5e5e5; padding: 1rem; overflow-x: auto; font-size: 0.875rem; line-height: 1.5; }
+        code { font-family: 'JetBrains Mono', 'Fira Code', monospace; }
+        .code-keyword { color: #f1bc1b; }
+        .code-string { color: #98c379; }
+        .code-comment { color: #6b7280; }
+        .code-class { color: #f26423; }
+    </style>
+</head>
+<body class="bg-[#FAFAFA] text-magento-charcoal">
+
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-magento-orange-600 focus:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-magento-orange-600">
+        Skip to content
+    </a>
+
+    <header class="bg-gradient-to-br from-magento-charcoal-500 via-magento-charcoal-600 to-magento-charcoal-700 border-b-8 border-magento-orange-500">
+        <!-- back-to-developer-docs -->
+        <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 pt-4"><a href="/developer/" aria-label="Back to Developer Docs" class="inline-flex items-center gap-1.5 text-sm font-medium text-white/70 hover:text-white transition-colors no-underline"><span aria-hidden="true">←</span> Developer Docs</a></div>
+        <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 py-8">
+            <nav class="mb-4" aria-label="Breadcrumb">
+                <ol class="flex items-center gap-2 text-sm text-gray-400">
+                    <li><a href="../../../index.html" class="hover:text-white transition-colors">Home</a></li>
+                    <li aria-hidden="true">/</li>
+                    <li><a href="index.html" class="hover:text-white transition-colors">Magento_Quote</a></li>
+                    <li aria-hidden="true">/</li>
+                    <li><span class="text-magento-orange-400">Known Issues</span></li>
+                </ol>
+            </nav>
+            <h1 id="main-content" class="text-3xl sm:text-4xl font-bold tracking-tight text-white">Known Issues & Gotchas</h1>
+            <p class="text-gray-300 mt-2">Verified issues with workarounds and prevention strategies</p>
+        </div>
+    </header>
+
+    <div class="max-w-6xl mx-auto px-6 py-8 md:py-12">
+
+        <!-- Critical Issues -->
+        <section class="mb-12">
+            <div class="flex items-center gap-4 mb-6">
+                <div class="w-3 h-12 bg-magento-orange-500"></div>
+                <h2 class="text-3xl font-bold text-magento-charcoal">Critical Issues</h2>
+            </div>
+
+            <div class="space-y-6">
+                <!-- Issue 1: Duplicate Orders -->
+                <div class="bg-white border-l-4 border-magento-orange-500 p-6 shadow-sm">
+                    <div class="flex items-start justify-between mb-4">
+                        <div>
+                            <span class="inline-block px-2 py-1 bg-magento-orange-100 text-magento-orange-800 text-xs font-semibold mb-2">CRITICAL</span>
+                            <h3 class="text-lg font-bold text-magento-charcoal">Duplicate Order Placement Race Condition</h3>
+                        </div>
+                    </div>
+                    <p class="text-gray-700 mb-4">Double-clicking "Place Order" or concurrent API calls can create duplicate orders if the QuoteMutex is not properly used.</p>
+
+                    <div class="mb-4">
+                        <h4 class="font-semibold text-magento-charcoal mb-2">Symptoms</h4>
+                        <ul class="text-sm text-gray-600 space-y-1">
+                            <li>• Customer charged twice for the same order</li>
+                            <li>• Two orders with identical items appear in admin</li>
+                            <li>• Inventory decremented twice</li>
+                        </ul>
+                    </div>
+
+                    <div class="mb-4">
+                        <h4 class="font-semibold text-magento-charcoal mb-2">Root Cause</h4>
+                        <p class="text-sm text-gray-600">The placeOrder operation is not atomic. If two requests hit the same quote before either completes, both may succeed in creating orders.</p>
+                    </div>
+
+                    <div class="bg-magento-gold-50 border border-magento-gold-200 p-4">
+                        <h4 class="font-semibold text-brown mb-2">Workaround</h4>
+                        <pre><code><span class="code-comment">// Always use QuoteMutex for order placement</span>
+<span class="code-variable">$this</span>->quoteMutex-><span class="code-class">execute</span>(
+    [<span class="code-variable">$cartId</span>],
+    <span class="code-keyword">function</span> () <span class="code-keyword">use</span> (<span class="code-variable">$quote</span>) {
+        <span class="code-comment">// Re-load quote inside mutex to check is_active</span>
+        <span class="code-variable">$quote</span> = <span class="code-variable">$this</span>->quoteRepository-><span class="code-class">get</span>(<span class="code-variable">$quote</span>->getId());
+        <span class="code-keyword">if</span> (!<span class="code-variable">$quote</span>-><span class="code-class">getIsActive</span>()) {
+            <span class="code-keyword">throw new</span> <span class="code-class">LocalizedException</span>(__(<span class="code-string">'Quote already converted'</span>));
+        }
+        <span class="code-keyword">return</span> <span class="code-variable">$this</span>-><span class="code-class">placeOrder</span>(<span class="code-variable">$quote</span>);
+    }
+);</code></pre>
+                    </div>
+                </div>
+
+                <!-- Issue 2: Totals Not Updated -->
+                <div class="bg-white border-l-4 border-magento-orange-500 p-6 shadow-sm">
+                    <div class="flex items-start justify-between mb-4">
+                        <div>
+                            <span class="inline-block px-2 py-1 bg-magento-orange-100 text-magento-orange-800 text-xs font-semibold mb-2">CRITICAL</span>
+                            <h3 class="text-lg font-bold text-magento-charcoal">Stale Totals After Product Price Change</h3>
+                        </div>
+                    </div>
+                    <p class="text-gray-700 mb-4">When product prices are updated in the admin, existing cart items may show outdated prices until the customer modifies their cart.</p>
+
+                    <div class="mb-4">
+                        <h4 class="font-semibold text-magento-charcoal mb-2">Symptoms</h4>
+                        <ul class="text-sm text-gray-600 space-y-1">
+                            <li>• Cart shows old prices after admin price update</li>
+                            <li>• Customer pays different amount than displayed</li>
+                            <li>• Price discrepancy between cart and order</li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-magento-gold-50 border border-magento-gold-200 p-4">
+                        <h4 class="font-semibold text-brown mb-2">Workaround</h4>
+                        <p class="text-sm text-brown mb-2">The UpdateQuoteItems plugin marks quotes for recollection. Ensure this plugin is active and run:</p>
+                        <pre><code><span class="code-comment">// Force totals recollection on cart access</span>
+<span class="code-variable">$quote</span>-><span class="code-class">setTotalsCollectedFlag</span>(<span class="code-keyword">false</span>);
+<span class="code-variable">$quote</span>-><span class="code-class">collectTotals</span>();
+<span class="code-variable">$this</span>->quoteRepository-><span class="code-class">save</span>(<span class="code-variable">$quote</span>);</code></pre>
+                    </div>
+                </div>
+
+                <!-- Issue 3: Masked ID Enumeration -->
+                <div class="bg-white border-l-4 border-magento-orange-500 p-6 shadow-sm">
+                    <div class="flex items-start justify-between mb-4">
+                        <div>
+                            <span class="inline-block px-2 py-1 bg-magento-orange-100 text-magento-orange-800 text-xs font-semibold mb-2">CRITICAL</span>
+                            <h3 class="text-lg font-bold text-magento-charcoal">Guest Cart ID Enumeration Vulnerability</h3>
+                        </div>
+                    </div>
+                    <p class="text-gray-700 mb-4">Masked quote IDs are generated using predictable random sources in some configurations, potentially allowing cart enumeration attacks.</p>
+
+                    <div class="mb-4">
+                        <h4 class="font-semibold text-magento-charcoal mb-2">Risk</h4>
+                        <ul class="text-sm text-gray-600 space-y-1">
+                            <li>• Attackers may access other customers' cart contents</li>
+                            <li>• Personal data exposure (addresses, items)</li>
+                            <li>• Potential for cart manipulation</li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-magento-gold-50 border border-magento-gold-200 p-4">
+                        <h4 class="font-semibold text-brown mb-2">Workaround</h4>
+                        <p class="text-sm text-brown">Implement rate limiting on guest cart endpoints and consider additional validation layers. Magento 2.4.4+ improved masked ID generation entropy.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Major Issues -->
+        <section class="mb-12">
+            <div class="flex items-center gap-4 mb-6">
+                <div class="w-3 h-12 bg-magento-gold-500"></div>
+                <h2 class="text-3xl font-bold text-magento-charcoal">Major Issues</h2>
+            </div>
+
+            <div class="space-y-6">
+                <!-- Issue 4: Item Options Comparison -->
+                <div class="bg-white border-l-4 border-magento-gold-500 p-6 shadow-sm">
+                    <div class="flex items-start justify-between mb-4">
+                        <div>
+                            <span class="inline-block px-2 py-1 bg-magento-gold-100 text-magento-gold-800 text-xs font-semibold mb-2">MAJOR</span>
+                            <h3 class="text-lg font-bold text-magento-charcoal">Incorrect Item Merging with Complex Options</h3>
+                        </div>
+                    </div>
+                    <p class="text-gray-700 mb-4">When adding products with complex custom options, items may incorrectly merge or fail to merge based on option comparison logic.</p>
+
+                    <div class="mb-4">
+                        <h4 class="font-semibold text-magento-charcoal mb-2">Symptoms</h4>
+                        <ul class="text-sm text-gray-600 space-y-1">
+                            <li>• Same product with different options shows as single line</li>
+                            <li>• Or opposite: identical items not merging, showing duplicates</li>
+                            <li>• Configurable product variants not comparing correctly</li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-magento-gold-50 border border-magento-gold-200 p-4">
+                        <h4 class="font-semibold text-brown mb-2">Workaround</h4>
+                        <p class="text-sm text-brown">Implement a custom <code>Quote\Model\Quote\Item\Option\ComparatorInterface</code> that handles your specific option comparison needs.</p>
+                    </div>
+                </div>
+
+                <!-- Issue 5: Address Validation Bypass -->
+                <div class="bg-white border-l-4 border-magento-gold-500 p-6 shadow-sm">
+                    <div class="flex items-start justify-between mb-4">
+                        <div>
+                            <span class="inline-block px-2 py-1 bg-magento-gold-100 text-magento-gold-800 text-xs font-semibold mb-2">MAJOR</span>
+                            <h3 class="text-lg font-bold text-magento-charcoal">Address Validation Bypassed via API</h3>
+                        </div>
+                    </div>
+                    <p class="text-gray-700 mb-4">REST/GraphQL APIs may not apply the same address validation as the frontend checkout, allowing invalid addresses to be saved.</p>
+
+                    <div class="mb-4">
+                        <h4 class="font-semibold text-magento-charcoal mb-2">Symptoms</h4>
+                        <ul class="text-sm text-gray-600 space-y-1">
+                            <li>• Orders with incomplete addresses</li>
+                            <li>• Missing required fields pass validation</li>
+                            <li>• Invalid country/region combinations accepted</li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-magento-gold-50 border border-magento-gold-200 p-4">
+                        <h4 class="font-semibold text-brown mb-2">Workaround</h4>
+                        <p class="text-sm text-brown">Add custom validation rules to QuoteValidationComposite that explicitly validate all address fields regardless of entry method.</p>
+                    </div>
+                </div>
+
+                <!-- Issue 6: Shipping Rates Cache -->
+                <div class="bg-white border-l-4 border-magento-gold-500 p-6 shadow-sm">
+                    <div class="flex items-start justify-between mb-4">
+                        <div>
+                            <span class="inline-block px-2 py-1 bg-magento-gold-100 text-magento-gold-800 text-xs font-semibold mb-2">MAJOR</span>
+                            <h3 class="text-lg font-bold text-magento-charcoal">Shipping Rates Not Refreshed on Address Change</h3>
+                        </div>
+                    </div>
+                    <p class="text-gray-700 mb-4">Shipping rates may be cached and not recalculated when the shipping address is updated, showing rates for the previous address.</p>
+
+                    <div class="bg-magento-gold-50 border border-magento-gold-200 p-4">
+                        <h4 class="font-semibold text-brown mb-2">Workaround</h4>
+                        <pre><code><span class="code-comment">// Force shipping rate recollection</span>
+<span class="code-variable">$address</span>-><span class="code-class">setCollectShippingRates</span>(<span class="code-keyword">true</span>);
+<span class="code-variable">$address</span>-><span class="code-class">collectShippingRates</span>();
+<span class="code-variable">$quote</span>-><span class="code-class">collectTotals</span>();</code></pre>
+                    </div>
+                </div>
+
+                <!-- Issue 7: Quote Cleanup -->
+                <div class="bg-white border-l-4 border-magento-gold-500 p-6 shadow-sm">
+                    <div class="flex items-start justify-between mb-4">
+                        <div>
+                            <span class="inline-block px-2 py-1 bg-magento-gold-100 text-magento-gold-800 text-xs font-semibold mb-2">MAJOR</span>
+                            <h3 class="text-lg font-bold text-magento-charcoal">Abandoned Quote Table Bloat</h3>
+                        </div>
+                    </div>
+                    <p class="text-gray-700 mb-4">The quote table grows indefinitely with abandoned carts, causing database performance degradation over time.</p>
+
+                    <div class="mb-4">
+                        <h4 class="font-semibold text-magento-charcoal mb-2">Impact</h4>
+                        <ul class="text-sm text-gray-600 space-y-1">
+                            <li>• Slow cart operations on large tables</li>
+                            <li>• Database storage consumption</li>
+                            <li>• Slower backups and migrations</li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-magento-gold-50 border border-magento-gold-200 p-4">
+                        <h4 class="font-semibold text-brown mb-2">Workaround</h4>
+                        <p class="text-sm text-brown">Configure quote lifetime in admin: Stores > Configuration > Sales > Checkout > Quote Lifetime. Run the quote cleanup cron job regularly.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Minor Issues -->
+        <section class="mb-12">
+            <div class="flex items-center gap-4 mb-6">
+                <div class="w-3 h-12 bg-charcoal"></div>
+                <h2 class="text-3xl font-bold text-magento-charcoal">Minor Issues</h2>
+            </div>
+
+            <div class="space-y-6">
+                <!-- Issue 8 -->
+                <div class="bg-white border-l-4 border-charcoal p-6 shadow-sm">
+                    <div class="flex items-start justify-between mb-4">
+                        <div>
+                            <span class="inline-block px-2 py-1 bg-gray-100 text-magento-charcoal text-xs font-semibold mb-2">MINOR</span>
+                            <h3 class="text-lg font-bold text-magento-charcoal">Coupon Case Sensitivity</h3>
+                        </div>
+                    </div>
+                    <p class="text-gray-700 mb-4">Coupon code comparison is case-sensitive in some areas and case-insensitive in others, leading to inconsistent behavior.</p>
+                    <div class="bg-magento-charcoal-50 border border-gray-200 p-4">
+                        <h4 class="font-semibold text-magento-charcoal mb-2">Workaround</h4>
+                        <p class="text-sm text-gray-600">Standardize all coupon codes to uppercase in your SalesRule configuration and validate input accordingly.</p>
+                    </div>
+                </div>
+
+                <!-- Issue 9 -->
+                <div class="bg-white border-l-4 border-charcoal p-6 shadow-sm">
+                    <div class="flex items-start justify-between mb-4">
+                        <div>
+                            <span class="inline-block px-2 py-1 bg-gray-100 text-magento-charcoal text-xs font-semibold mb-2">MINOR</span>
+                            <h3 class="text-lg font-bold text-magento-charcoal">Virtual Product Shipping Address</h3>
+                        </div>
+                    </div>
+                    <p class="text-gray-700 mb-4">Carts containing only virtual products may still require shipping address input in some checkout configurations.</p>
+                    <div class="bg-magento-charcoal-50 border border-gray-200 p-4">
+                        <h4 class="font-semibold text-magento-charcoal mb-2">Workaround</h4>
+                        <p class="text-sm text-gray-600">Check <code>$quote->isVirtual()</code> before requiring shipping address in custom checkout implementations.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Prevention Best Practices -->
+        <section class="bg-white mb-12 p-8 border-t-4 border-magento-orange-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-magento-charcoal mb-6">Prevention Best Practices</h2>
+
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="border-l-4 border-magento-gold-500 pl-4">
+                    <h3 class="font-bold text-magento-charcoal mb-2">Always Use QuoteMutex</h3>
+                    <p class="text-sm text-gray-700">Wrap any quote modification that affects order placement in the QuoteMutex to prevent race conditions.</p>
+                </div>
+                <div class="border-l-4 border-magento-orange-500 pl-4">
+                    <h3 class="font-bold text-magento-charcoal mb-2">Force Totals Recollection</h3>
+                    <p class="text-sm text-gray-700">When displaying cart to customer after any change, call <code>collectTotals()</code> to ensure accurate pricing.</p>
+                </div>
+                <div class="border-l-4 border-charcoal pl-4">
+                    <h3 class="font-bold text-magento-charcoal mb-2">Validate Before Order</h3>
+                    <p class="text-sm text-gray-700">Always run the full QuoteValidationComposite before attempting order placement, especially for API integrations.</p>
+                </div>
+                <div class="border-l-4 border-magento-gold-500 pl-4">
+                    <h3 class="font-bold text-magento-charcoal mb-2">Clean Old Quotes</h3>
+                    <p class="text-sm text-gray-700">Configure quote lifetime and ensure the <code>sales_clean_quotes</code> cron job runs regularly.</p>
+                </div>
+                <div class="border-l-4 border-magento-orange-500 pl-4">
+                    <h3 class="font-bold text-magento-charcoal mb-2">Rate Limit Guest APIs</h3>
+                    <p class="text-sm text-gray-700">Implement rate limiting on guest cart endpoints to prevent enumeration and abuse attacks.</p>
+                </div>
+                <div class="border-l-4 border-charcoal pl-4">
+                    <h3 class="font-bold text-magento-charcoal mb-2">Test Option Comparison</h3>
+                    <p class="text-sm text-gray-700">Test product option comparison thoroughly for configurable, bundle, and custom option products.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Navigation -->
+        <nav class="flex justify-between items-center" aria-label="Documentation navigation">
+            <a href="integrations.html" class="inline-flex items-center gap-2 px-4 py-2 bg-magento-charcoal-100 text-magento-charcoal font-medium hover:bg-magento-charcoal-200 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-magento-charcoal-500">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17l-5-5m0 0l5-5m-5 5h12"/>
+                </svg>
+                Integrations
+            </a>
+            <a href="index.html" class="inline-flex items-center gap-2 px-4 py-2 bg-magento-gold-600 text-white font-medium hover:bg-magento-gold-700 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-magento-gold-600">
+                Module Overview
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                </svg>
+            </a>
+        </nav>
+
+    </div>
+
+    <footer class="bg-charcoal text-white py-8 mt-16">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                <p class="text-sm text-gray-400">Magento_Quote Known Issues | The Magento Core Documentation Project</p>
+                <p class="text-sm text-gray-400">Last updated: December 2025 | Magento 2.4.x</p>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

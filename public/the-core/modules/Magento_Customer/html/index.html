@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magento_Customer Module - Complete Learning Resource | THE MAGENTO CORE</title>
+    <meta name="description" content="Comprehensive architectural analysis, execution flows, and integration guides for Magento's Customer module">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'magento-orange': {
+                            DEFAULT: '#f26423',
+                            50: '#fef5ee',
+                            100: '#fee9d6',
+                            200: '#fbd0ad',
+                            300: '#f9ae78',
+                            400: '#f58242',
+                            500: '#f26423',
+                            600: '#e34613',
+                            700: '#bc3312',
+                            800: '#962a16',
+                            900: '#792515',
+                            950: '#411009'
+                        },
+                        'magento-charcoal': {
+                            DEFAULT: '#2c2c2c',
+                            50: '#f1f1f1',
+                            100: '#d9d9d9',
+                            200: '#b6b6b6',
+                            300: '#818181',
+                            400: '#474747',
+                            500: '#2c2c2c',
+                            600: '#262626',
+                            700: '#202020',
+                            800: '#1c1c1c',
+                            900: '#191919',
+                            950: '#121212'
+                        },
+                        'magento-gold': {
+                            DEFAULT: '#f1bc1b',
+                            50: '#fffdeb',
+                            100: '#fdf9c8',
+                            200: '#fbf38c',
+                            300: '#f8e651',
+                            400: '#f7d728',
+                            500: '#f1bc1b',
+                            600: '#d5900a',
+                            700: '#b1670c',
+                            800: '#8f5111',
+                            900: '#764311',
+                            950: '#442204'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter Tight', 'system-ui', 'sans-serif'],
+                        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&display=swap');
+        .doc-card {
+            transition: all 200ms ease;
+        }
+        .doc-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .doc-card {
+                transition: none;
+            }
+            .doc-card:hover {
+                transform: none;
+            }
+        }
+    </style>
+</head>
+<body class="bg-[#FAFAFA] text-magento-charcoal">
+
+    <!-- Skip to content link for keyboard navigation -->
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-magento-orange focus:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-magento-orange">
+        Skip to content
+    </a>
+
+    <!-- Hero Header -->
+    <header class="bg-gradient-to-br from-magento-charcoal-500 via-magento-charcoal-600 to-magento-charcoal-700 border-b-8 border-magento-orange-500">
+        <!-- back-to-developer-docs -->
+        <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 pt-4"><a href="/developer/" aria-label="Back to Developer Docs" class="inline-flex items-center gap-1.5 text-sm font-medium text-white/70 hover:text-white transition-colors no-underline"><span aria-hidden="true">←</span> Developer Docs</a></div>
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
+
+            <!-- Breadcrumb Navigation -->
+            <nav aria-label="Breadcrumb" class="mb-8">
+                <ol class="flex flex-wrap items-center gap-2 text-sm text-magento-charcoal-300">
+                    <li>
+                        <a href="../../../index.html" class="hover:text-magento-orange transition-colors underline underline-offset-4 focus:outline-none focus:ring-2 focus:ring-magento-orange">Home</a>
+                    </li>
+                    <li aria-hidden="true">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                        </svg>
+                    </li>
+                    <li>
+                        <a href="../../index.html" class="hover:text-magento-orange transition-colors underline underline-offset-4 focus:outline-none focus:ring-2 focus:ring-magento-orange">Modules</a>
+                    </li>
+                    <li aria-hidden="true">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                        </svg>
+                    </li>
+                    <li class="text-white font-medium">Magento_Customer</li>
+                </ol>
+            </nav>
+
+            <!-- Hero Content -->
+            <div id="main-content">
+                    <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white mb-4">
+                        Magento_Customer Module
+                    </h1>
+                    <p class="text-base sm:text-lg text-magento-charcoal-200 max-w-2xl mb-6 leading-7">
+                        Complete learning resource: Comprehensive architectural analysis, annotated code tutorials, and integration guides for Magento's Customer module.
+                    </p>
+
+                    <!-- Metadata Badges -->
+                    <div class="flex flex-wrap gap-3 text-sm">
+                        <span class="inline-flex items-center gap-1.5 bg-magento-orange/20 text-magento-orange-200 px-3 py-1.5 font-medium border border-magento-orange/30">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                            </svg>
+                            499 Components
+                        </span>
+                        <span class="inline-flex items-center gap-1.5 bg-magento-gold/20 text-magento-gold-200 px-3 py-1.5 font-medium border border-magento-gold/30">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
+                            </svg>
+                            123 Integrations
+                        </span>
+                        <span class="inline-flex items-center gap-1.5 bg-magento-charcoal-400/40 text-magento-charcoal-100 px-3 py-1.5 font-medium border border-magento-charcoal-300/30">
+                            Magento 2.4.x
+                        </span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
+
+        <!-- Quick Stats Section -->
+        <section class="bg-white mb-12 p-6 sm:p-8 border-t-4 border-magento-gold shadow-sm">
+            <h2 class="text-2xl sm:text-3xl font-semibold text-magento-charcoal mb-6 tracking-tight">Quick Stats</h2>
+            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="border-l-4 border-magento-orange pl-4">
+                    <h3 class="font-semibold text-magento-charcoal mb-2 text-lg">499 Components</h3>
+                    <p class="text-sm text-magento-charcoal-300 leading-relaxed">219 models, 29 interfaces, 20 plugins, 16 observers, 13 events</p>
+                </div>
+                <div class="border-l-4 border-magento-gold pl-4">
+                    <h3 class="font-semibold text-magento-charcoal mb-2 text-lg">123 Integration Points</h3>
+                    <p class="text-sm text-magento-charcoal-300 leading-relaxed">40 preferences, 29 injections, 20 intercepts, 16 observes</p>
+                </div>
+                <div class="border-l-4 border-magento-charcoal pl-4">
+                    <h3 class="font-semibold text-magento-charcoal mb-2 text-lg">Magento 2.4.x</h3>
+                    <p class="text-sm text-magento-charcoal-300 leading-relaxed">PHP 8.1, 8.2, 8.3, 8.4 compatible</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Documentation Cards Section -->
+        <section class="mb-16">
+            <div class="flex items-center gap-4 mb-8">
+                <div class="w-1 h-12 bg-magento-orange"></div>
+                <h2 class="text-2xl sm:text-3xl font-bold text-magento-charcoal tracking-tight">Complete Documentation</h2>
+            </div>
+
+            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+
+                <!-- Architecture Overview Card -->
+                <article class="doc-card bg-white border border-magento-charcoal-200 shadow-sm">
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-magento-orange flex items-center justify-center flex-shrink-0">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                                </svg>
+                            </div>
+                            <span class="inline-flex items-center px-3 py-1 text-xs font-semibold bg-magento-orange-50 text-magento-orange-700 uppercase tracking-wide">
+                                Foundation
+                            </span>
+                        </div>
+                        <h3 class="text-xl font-bold text-magento-charcoal mb-2">Architecture Overview</h3>
+                        <p class="text-sm text-magento-charcoal-300 mb-4 leading-relaxed">
+                            Module position in ecosystem, all 38 service contracts, database schema, extension points, and security patterns.
+                        </p>
+                        <a href="architecture.html" class="block w-full text-center px-4 py-3 bg-magento-orange text-white font-semibold hover:bg-magento-orange-600 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-magento-orange min-h-[44px]">
+                            View Architecture
+                        </a>
+                    </div>
+                </article>
+
+                <!-- Execution Flows Card -->
+                <article class="doc-card bg-white border border-magento-charcoal-200 shadow-sm">
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-magento-orange flex items-center justify-center flex-shrink-0">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                                </svg>
+                            </div>
+                            <span class="inline-flex items-center px-3 py-1 text-xs font-semibold bg-magento-orange-50 text-magento-orange-700 uppercase tracking-wide">
+                                Flows
+                            </span>
+                        </div>
+                        <h3 class="text-xl font-bold text-magento-charcoal mb-2">Execution Flows</h3>
+                        <p class="text-sm text-magento-charcoal-300 mb-4 leading-relaxed">
+                            Step-by-step traces of customer registration, login, save operations, address management, and password reset workflows.
+                        </p>
+                        <a href="execution-flows.html" class="block w-full text-center px-4 py-3 bg-magento-orange text-white font-semibold hover:bg-magento-orange-600 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-magento-orange min-h-[44px]">
+                            View Execution Flows
+                        </a>
+                    </div>
+                </article>
+
+                <!-- Plugins & Observers Card -->
+                <article class="doc-card bg-white border border-magento-charcoal-200 shadow-sm">
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-magento-gold flex items-center justify-center flex-shrink-0">
+                                <svg class="w-6 h-6 text-magento-charcoal" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z"/>
+                                </svg>
+                            </div>
+                            <span class="inline-flex items-center px-3 py-1 text-xs font-semibold bg-magento-gold-50 text-magento-gold-900 uppercase tracking-wide">
+                                Extensibility
+                            </span>
+                        </div>
+                        <h3 class="text-xl font-bold text-magento-charcoal mb-2">Plugins & Observers</h3>
+                        <p class="text-sm text-magento-charcoal-300 mb-4 leading-relaxed">
+                            Complete reference for all 19 plugins and 16 observers with sortOrder, intercept points, and performance considerations.
+                        </p>
+                        <a href="plugins-observers.html" class="block w-full text-center px-4 py-3 bg-magento-charcoal text-white font-semibold hover:bg-magento-charcoal-600 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-magento-charcoal min-h-[44px]">
+                            View Plugins & Observers
+                        </a>
+                    </div>
+                </article>
+
+                <!-- Module Integrations Card -->
+                <article class="doc-card bg-white border border-magento-charcoal-200 shadow-sm">
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-magento-gold flex items-center justify-center flex-shrink-0">
+                                <svg class="w-6 h-6 text-magento-charcoal" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14v6m-3-3h6M6 10h2a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v2a2 2 0 002 2zm10 0h2a2 2 0 002-2V6a2 2 0 00-2-2h-2a2 2 0 00-2 2v2a2 2 0 002 2zM6 20h2a2 2 0 002-2v-2a2 2 0 00-2-2H6a2 2 0 00-2 2v2a2 2 0 002 2z"/>
+                                </svg>
+                            </div>
+                            <span class="inline-flex items-center px-3 py-1 text-xs font-semibold bg-magento-gold-50 text-magento-gold-900 uppercase tracking-wide">
+                                Integrations
+                            </span>
+                        </div>
+                        <h3 class="text-xl font-bold text-magento-charcoal mb-2">Module Integrations</h3>
+                        <p class="text-sm text-magento-charcoal-300 mb-4 leading-relaxed">
+                            How Customer integrates with Sales, Quote, Checkout, Wishlist, PageCache, and other core modules.
+                        </p>
+                        <a href="integrations.html" class="block w-full text-center px-4 py-3 bg-magento-charcoal text-white font-semibold hover:bg-magento-charcoal-600 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-magento-charcoal min-h-[44px]">
+                            View Integrations
+                        </a>
+                    </div>
+                </article>
+
+                <!-- Known Issues Card -->
+                <article class="doc-card bg-white border border-magento-charcoal-200 shadow-sm">
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-magento-orange flex items-center justify-center flex-shrink-0">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                </svg>
+                            </div>
+                            <span class="inline-flex items-center px-3 py-1 text-xs font-semibold bg-magento-orange-50 text-magento-orange-700 uppercase tracking-wide">
+                                Issues
+                            </span>
+                        </div>
+                        <h3 class="text-xl font-bold text-magento-charcoal mb-2">Known Issues</h3>
+                        <p class="text-sm text-magento-charcoal-300 mb-4 leading-relaxed">
+                            Real-world GitHub issues with proven workarounds. 100% verified with root cause analysis.
+                        </p>
+                        <a href="known-issues.html" class="block w-full text-center px-4 py-3 bg-magento-orange text-white font-semibold hover:bg-magento-orange-600 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-magento-orange min-h-[44px]">
+                            View Known Issues
+                        </a>
+                    </div>
+                </article>
+
+                <!-- Performance Optimization Card -->
+                <article class="doc-card bg-white border border-magento-charcoal-200 shadow-sm">
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-magento-gold flex items-center justify-center flex-shrink-0">
+                                <svg class="w-6 h-6 text-magento-charcoal" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                                </svg>
+                            </div>
+                            <span class="inline-flex items-center px-3 py-1 text-xs font-semibold bg-magento-gold-50 text-magento-gold-900 uppercase tracking-wide">
+                                Optimization
+                            </span>
+                        </div>
+                        <h3 class="text-xl font-bold text-magento-charcoal mb-2">Performance</h3>
+                        <p class="text-sm text-magento-charcoal-300 mb-4 leading-relaxed">
+                            Database optimization, caching strategies, and performance benchmarks with 26x improvements.
+                        </p>
+                        <a href="performance-optimization.html" class="block w-full text-center px-4 py-3 bg-magento-charcoal text-white font-semibold hover:bg-magento-charcoal-600 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-magento-charcoal min-h-[44px]">
+                            View Performance Guide
+                        </a>
+                    </div>
+                </article>
+
+                <!-- Anti-Patterns Card -->
+                <article class="doc-card bg-white border border-magento-charcoal-200 shadow-sm">
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-magento-charcoal flex items-center justify-center flex-shrink-0">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
+                                </svg>
+                            </div>
+                            <span class="inline-flex items-center px-3 py-1 text-xs font-semibold bg-magento-charcoal-50 text-magento-charcoal uppercase tracking-wide">
+                                Best Practices
+                            </span>
+                        </div>
+                        <h3 class="text-xl font-bold text-magento-charcoal mb-2">Anti-Patterns</h3>
+                        <p class="text-sm text-magento-charcoal-300 mb-4 leading-relaxed">
+                            Common mistakes and how to avoid them. Data access, caching, observers, and performance anti-patterns.
+                        </p>
+                        <a href="anti-patterns.html" class="block w-full text-center px-4 py-3 bg-magento-charcoal text-white font-semibold hover:bg-magento-charcoal-600 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-magento-charcoal min-h-[44px]">
+                            View Anti-Patterns
+                        </a>
+                    </div>
+                </article>
+
+                <!-- Version Compatibility Card -->
+                <article class="doc-card bg-white border border-magento-charcoal-200 shadow-sm">
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-magento-gold flex items-center justify-center flex-shrink-0">
+                                <svg class="w-6 h-6 text-magento-charcoal" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                                </svg>
+                            </div>
+                            <span class="inline-flex items-center px-3 py-1 text-xs font-semibold bg-magento-gold-50 text-magento-gold-900 uppercase tracking-wide">
+                                Compatibility
+                            </span>
+                        </div>
+                        <h3 class="text-xl font-bold text-magento-charcoal mb-2">Version Compatibility</h3>
+                        <p class="text-sm text-magento-charcoal-300 mb-4 leading-relaxed">
+                            Breaking changes, deprecations, and upgrade notes across Magento 2.4.x versions.
+                        </p>
+                        <a href="version-compatibility.html" class="block w-full text-center px-4 py-3 bg-magento-charcoal text-white font-semibold hover:bg-magento-charcoal-600 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-magento-charcoal min-h-[44px]">
+                            View Compatibility
+                        </a>
+                    </div>
+                </article>
+
+                <!-- Mage-OS Differences Card -->
+                <article class="doc-card bg-white border border-magento-charcoal-200 shadow-sm">
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-magento-orange flex items-center justify-center flex-shrink-0">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                </svg>
+                            </div>
+                            <span class="inline-flex items-center px-3 py-1 text-xs font-semibold bg-magento-orange-50 text-magento-orange-700 uppercase tracking-wide">
+                                Mage-OS
+                            </span>
+                        </div>
+                        <h3 class="text-xl font-bold text-magento-charcoal mb-2">Mage-OS Differences</h3>
+                        <p class="text-sm text-magento-charcoal-300 mb-4 leading-relaxed">
+                            Differences between Magento Open Source and Mage-OS for this module.
+                        </p>
+                        <a href="mage-os-differences.html" class="block w-full text-center px-4 py-3 bg-magento-orange text-white font-semibold hover:bg-magento-orange-600 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-magento-orange min-h-[44px]">
+                            View Mage-OS Differences
+                        </a>
+                    </div>
+                </article>
+
+            </div>
+        </section>
+
+        <!-- Getting Started Section -->
+        <section class="bg-white border-t-4 border-magento-orange p-6 sm:p-8 shadow-sm">
+            <h2 class="text-2xl sm:text-3xl font-semibold text-magento-charcoal mb-6 tracking-tight">Getting Started</h2>
+            <div class="grid sm:grid-cols-2 gap-8">
+
+                <!-- For New Developers -->
+                <div>
+                    <h3 class="font-semibold text-magento-charcoal mb-4 text-lg">For Developers New to Magento</h3>
+                    <ol class="space-y-3 text-sm text-magento-charcoal-300 leading-relaxed">
+                        <li class="flex gap-3">
+                            <span class="flex-shrink-0 w-6 h-6 bg-magento-orange text-white flex items-center justify-center text-xs font-bold shadow-sm">1</span>
+                            <span class="flex-1">Start with <a href="architecture.html" class="text-magento-orange hover:underline focus:outline-none focus:ring-2 focus:ring-magento-orange">Architecture</a></span>
+                        </li>
+                        <li class="flex gap-3">
+                            <span class="flex-shrink-0 w-6 h-6 bg-magento-orange text-white flex items-center justify-center text-xs font-bold shadow-sm">2</span>
+                            <span class="flex-1">Pick one <a href="execution-flows.html" class="text-magento-orange hover:underline focus:outline-none focus:ring-2 focus:ring-magento-orange">Execution Flow</a></span>
+                        </li>
+                        <li class="flex gap-3">
+                            <span class="flex-shrink-0 w-6 h-6 bg-magento-orange text-white flex items-center justify-center text-xs font-bold shadow-sm">3</span>
+                            <span class="flex-1">Study <a href="plugins-observers.html" class="text-magento-orange hover:underline focus:outline-none focus:ring-2 focus:ring-magento-orange">Plugins & Observers</a></span>
+                        </li>
+                        <li class="flex gap-3">
+                            <span class="flex-shrink-0 w-6 h-6 bg-magento-orange text-white flex items-center justify-center text-xs font-bold shadow-sm">4</span>
+                            <span class="flex-1">Review <a href="integrations.html" class="text-magento-orange hover:underline focus:outline-none focus:ring-2 focus:ring-magento-orange">Integrations</a></span>
+                        </li>
+                        <li class="flex gap-3">
+                            <span class="flex-shrink-0 w-6 h-6 bg-magento-orange text-white flex items-center justify-center text-xs font-bold shadow-sm">5</span>
+                            <span class="flex-1">Check <a href="anti-patterns.html" class="text-magento-orange hover:underline focus:outline-none focus:ring-2 focus:ring-magento-orange">Anti-Patterns</a></span>
+                        </li>
+                    </ol>
+                </div>
+
+                <!-- For Veterans -->
+                <div>
+                    <h3 class="font-semibold text-magento-charcoal mb-4 text-lg">For Magento Veterans</h3>
+                    <ul class="space-y-3 text-sm text-magento-charcoal-300 leading-relaxed">
+                        <li class="flex gap-3">
+                            <svg class="w-5 h-5 text-magento-orange mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                            <span class="flex-1">Need service contract? <a href="architecture.html" class="text-magento-orange hover:underline focus:outline-none focus:ring-2 focus:ring-magento-orange">Architecture</a></span>
+                        </li>
+                        <li class="flex gap-3">
+                            <svg class="w-5 h-5 text-magento-orange mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                            <span class="flex-1">Debugging operation? <a href="execution-flows.html" class="text-magento-orange hover:underline focus:outline-none focus:ring-2 focus:ring-magento-orange">Flows</a></span>
+                        </li>
+                        <li class="flex gap-3">
+                            <svg class="w-5 h-5 text-magento-orange mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                            <span class="flex-1">Production issue? <a href="known-issues.html" class="text-magento-orange hover:underline focus:outline-none focus:ring-2 focus:ring-magento-orange">Known Issues</a></span>
+                        </li>
+                        <li class="flex gap-3">
+                            <svg class="w-5 h-5 text-magento-orange mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                            <span class="flex-1">Slow operations? <a href="performance-optimization.html" class="text-magento-orange hover:underline focus:outline-none focus:ring-2 focus:ring-magento-orange">Performance</a></span>
+                        </li>
+                    </ul>
+                </div>
+
+            </div>
+        </section>
+
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-magento-charcoal text-white py-8 mt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                <p class="text-sm text-magento-charcoal-300">Magento Core Documentation | Magento_Customer Module</p>
+                <div class="flex items-center gap-6">
+                    <a href="../../../index.html" class="text-sm text-magento-charcoal-300 hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-magento-orange min-h-[44px] flex items-center">Documentation Home</a>
+                    <a href="https://github.com/magento/magento2" class="text-sm text-magento-charcoal-300 hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-magento-orange min-h-[44px] flex items-center">GitHub</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

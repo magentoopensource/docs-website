@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anti-Patterns - Magento_Customer | Magento Core Documentation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'magento-orange': {
+                            DEFAULT: '#f26423',
+                            50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad', 300: '#f9ae78',
+                            400: '#f58242', 500: '#f26423', 600: '#e34613', 700: '#bc3312',
+                            800: '#962a16', 900: '#792515', 950: '#411009'
+                        },
+                        'magento-gold': {
+                            DEFAULT: '#f1bc1b',
+                            50: '#fffdeb', 100: '#fdf9c8', 200: '#fbf38c', 300: '#f8e651',
+                            400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a', 700: '#b1670c',
+                            800: '#8f5111', 900: '#764311', 950: '#442204'
+                        },
+                        'magento-charcoal': {
+                            DEFAULT: '#2c2c2c',
+                            50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6', 300: '#818181',
+                            400: '#474747', 500: '#2c2c2c', 600: '#262626', 700: '#202020',
+                            800: '#1c1c1c', 900: '#191919', 950: '#121212'
+                        },
+                    },
+                    fontFamily: {
+                        sans: ['Inter Tight', 'system-ui', 'sans-serif'],
+                        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&display=swap');
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+        /* Syntax highlighting colors (VS Code Dark+ theme) */
+        .hljs { background: transparent; }
+        .hljs-comment { color: #6a9955; }
+        .hljs-keyword { color: #569cd6; }
+        .hljs-function .hljs-title, .hljs-title.function_ { color: #dcdcaa; }
+        .hljs-variable, .hljs-variable.language_ { color: #9cdcfe; }
+        .hljs-string { color: #ce9178; }
+        .hljs-number { color: #b5cea8; }
+        .hljs-literal, .hljs-built_in { color: #569cd6; }
+        .hljs-params { color: #d4d4d4; }
+        .hljs-type, .hljs-title.class_ { color: #4ec9b0; }
+        .hljs-attr, .hljs-attribute { color: #9cdcfe; }
+        .hljs-tag, .hljs-name { color: #569cd6; }
+        .hljs-selector-tag, .hljs-selector-class { color: #d7ba7d; }
+        .hljs-meta { color: #569cd6; }
+        .hljs-operator { color: #d4d4d4; }
+    </style>
+</head>
+<body class="bg-[#FAFAFA] text-magento-charcoal">
+<!-- Skip to main content link for accessibility -->
+<a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-magento-orange-500 focus:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-magento-orange-600">
+    Skip to main content
+</a>
+
+
+<header class="bg-gradient-to-br from-magento-charcoal-500 via-magento-charcoal-600 to-magento-charcoal-700 border-b-8 border-magento-orange-500">
+        <!-- back-to-developer-docs -->
+        <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 pt-4"><a href="/developer/" aria-label="Back to Developer Docs" class="inline-flex items-center gap-1.5 text-sm font-medium text-white/70 hover:text-white transition-colors no-underline"><span aria-hidden="true">←</span> Developer Docs</a></div>
+    <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
+        <nav aria-label="Breadcrumb" class="mb-8">
+            <ol class="flex flex-wrap items-center gap-2 text-sm text-gray-400">
+                <li><a href="../../../index.html" class="hover:text-magento-orange-500 underline transition-colors underline-offset-4">Home</a></li>
+                <li aria-hidden="true"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></li>
+                <li><a href="index.html" class="hover:text-magento-orange-500 underline transition-colors underline-offset-4">Magento_Customer</a></li>
+                <li aria-hidden="true"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></li>
+                <li><span class="text-gray-300 font-medium" aria-current="page">Anti-Patterns</span></li>
+            </ol>
+        </nav>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div>
+                <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white mb-4">Anti-Patterns</h1>
+                <p class="text-base sm:text-lg text-gray-300 max-w-2xl mb-6">Common mistakes developers make when working with the Magento_Customer module, why they're problematic, and correct implementations.</p>
+                <div class="flex flex-wrap gap-3 text-sm">
+                    <span class="inline-flex items-center gap-1.5 bg-magento-orange-500/20 text-magento-orange-300 px-3 py-1.5 border border-magento-orange-500/40">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                        Best Practices
+                    </span>
+                    <span class="inline-flex items-center gap-1.5 bg-white/10 text-gray-300 px-3 py-1.5 border border-white/20">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        6 Categories
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main id="main-content" class="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+
+    <div class="bg-white mb-8 p-8 border-t-4 border-magento-gold-500 shadow-sm">
+        <h2 class="text-2xl font-bold text-magento-charcoal mb-6 border-b-2 border-magento-orange-500 pb-3">Table of Contents</h2>
+        <ul class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <li><a href="#data-access" class="text-magento-orange-500 hover:underline block">Data Access Anti-Patterns</a></li>
+            <li><a href="#cache" class="text-magento-orange-500 hover:underline block">Cache Anti-Patterns</a></li>
+            <li><a href="#observer" class="text-magento-orange-500 hover:underline block">Observer Anti-Patterns</a></li>
+            <li><a href="#performance" class="text-magento-orange-500 hover:underline block">Performance Anti-Patterns</a></li>
+            <li><a href="#security" class="text-magento-orange-500 hover:underline block">Security Anti-Patterns</a></li>
+            <li><a href="#testing" class="text-magento-orange-500 hover:underline block">Testing Anti-Patterns</a></li>
+        </ul>
+    </div>
+
+    <section id="data-access" class="mb-12">
+        <h2 class="text-3xl font-bold text-magento-charcoal mb-6 border-b-4 border-magento-orange-500 pb-3">Data Access Anti-Patterns</h2>
+
+        <div class="bg-white p-8 border-t-4 border-magento-gold-500 shadow-sm mb-8">
+            <h3 class="text-2xl font-semibold text-magento-charcoal mb-4 flex items-center gap-3">
+                <span class="text-3xl">❌</span>
+                Anti-Pattern 1: Direct Model Usage Instead of Repository
+            </h3>
+
+            <div class="bg-magento-orange-50 border-l-4 border-magento-orange-600 p-6 mb-6">
+                <h4 class="font-bold text-magento-orange-900 mb-3 text-lg">Why It's Bad</h4>
+                <ul class="space-y-2 text-magento-orange-800">
+                    <li class="flex gap-2"><span class="font-bold">→</span> Bypasses Service Contracts: Extensions won't intercept this operation</li>
+                    <li class="flex gap-2"><span class="font-bold">→</span> Skips Plugins: Plugins on CustomerRepositoryInterface won't execute</li>
+                    <li class="flex gap-2"><span class="font-bold">→</span> No Event Dispatch: customer_save_after_data_object event not fired</li>
+                    <li class="flex gap-2"><span class="font-bold">→</span> Breaks API Compatibility: Third-party code expecting repository pattern won't work</li>
+                </ul>
+            </div>
+
+            <div class="mb-6">
+                <div class="bg-magento-charcoal text-white px-4 py-2 text-sm font-medium flex justify-between items-center">
+                    <span>Bad Code Example</span>
+                    <span class="bg-magento-orange-600 px-3 py-1 text-xs font-bold uppercase">Bad</span>
+                </div>
+                <pre class="bg-magento-charcoal-800 text-gray-100 p-4 text-sm overflow-x-auto m-0"><code class="language-php">&lt;?php
+namespace Vendor\Module\Model;
+
+use Magento\Customer\Model\CustomerFactory;
+
+class CustomerService
+{
+    private CustomerFactory $customerFactory;
+
+    public function updateCustomerName(int $customerId, string $firstname, string $lastname): void
+    {
+        // WRONG: Direct model manipulation
+        $customer = $this->customerFactory->create();
+        $customer->load($customerId);
+        $customer->setFirstname($firstname);
+        $customer->setLastname($lastname);
+        $customer->save();
+    }
+}</code></pre>
+            </div>
+
+            <div class="mb-6">
+                <div class="bg-magento-charcoal text-white px-4 py-2 text-sm font-medium flex justify-between items-center">
+                    <span>Good Code Example</span>
+                    <span class="bg-magento-gold-600 px-3 py-1 text-xs font-bold uppercase">Good</span>
+                </div>
+                <pre class="bg-magento-charcoal-800 text-gray-100 p-4 text-sm overflow-x-auto m-0"><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace Vendor\Module\Model;
+
+use Magento\Customer\Api\CustomerRepositoryInterface;
+
+class CustomerService
+{
+    private CustomerRepositoryInterface $customerRepository;
+
+    public function updateCustomerName(int $customerId, string $firstname, string $lastname): void
+    {
+        // CORRECT: Use repository service contract
+        $customer = $this->customerRepository->getById($customerId);
+        $customer->setFirstname($firstname);
+        $customer->setLastname($lastname);
+        $this->customerRepository->save($customer);
+    }
+}</code></pre>
+            </div>
+
+            <div class="bg-magento-gold-50 border-l-4 border-magento-gold-600 p-6">
+                <h4 class="font-bold text-magento-gold-900 mb-3 text-lg">Why It's Better</h4>
+                <ul class="space-y-2 text-magento-gold-800">
+                    <li class="flex gap-2"><span class="font-bold">✓</span> Service Contract Compliance: Follows Magento's service contract pattern</li>
+                    <li class="flex gap-2"><span class="font-bold">✓</span> Plugin Support: All plugins execute correctly</li>
+                    <li class="flex gap-2"><span class="font-bold">✓</span> Transaction Safety: Ensures atomic save operations</li>
+                    <li class="flex gap-2"><span class="font-bold">✓</span> Event Dispatch: Proper event chain fires</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="bg-white p-8 border-t-4 border-magento-gold-500 shadow-sm mb-8">
+            <h3 class="text-2xl font-semibold text-magento-charcoal mb-4 flex items-center gap-3">
+                <span class="text-3xl">❌</span>
+                Anti-Pattern 2: Loading Full Customer When Only ID Needed
+            </h3>
+
+            <div class="bg-magento-orange-50 border-l-4 border-magento-orange-600 p-6 mb-6">
+                <h4 class="font-bold text-magento-orange-900 mb-3 text-lg">Why It's Bad</h4>
+                <ul class="space-y-2 text-magento-orange-800">
+                    <li class="flex gap-2"><span class="font-bold">→</span> Performance Waste: Loads all EAV attributes (10+ SQL queries) when only 1 field needed</li>
+                    <li class="flex gap-2"><span class="font-bold">→</span> Memory Overhead: Loads entire customer object into memory</li>
+                    <li class="flex gap-2"><span class="font-bold">→</span> Slow Response: 100-500ms customer load vs. 5-10ms direct query</li>
+                </ul>
+            </div>
+
+            <div class="bg-magento-gold-50 border-l-4 border-magento-gold-600 p-6">
+                <h4 class="font-bold text-magento-gold-900 mb-3 text-lg">Correct Approach: Direct SQL Query</h4>
+                <p class="text-magento-gold-800 mb-3"><strong>Performance Gain:</strong> <span class="inline-block bg-magento-gold-200 px-3 py-1 font-bold text-magento-gold-900">10-50x faster</span></p>
+                <p class="text-magento-gold-800">Use ResourceConnection for single-field lookups instead of loading full customer entity.</p>
+            </div>
+        </div>
+
+        <div class="bg-white p-8 border-t-4 border-magento-gold-500 shadow-sm mb-8">
+            <h3 class="text-2xl font-semibold text-magento-charcoal mb-4 flex items-center gap-3">
+                <span class="text-3xl">❌</span>
+                Anti-Pattern 3: Excessive Custom EAV Attributes
+            </h3>
+
+            <div class="bg-magento-orange-50 border-l-4 border-magento-orange-600 p-6 mb-6">
+                <h4 class="font-bold text-magento-orange-900 mb-3 text-lg">Why It's Bad</h4>
+                <ul class="space-y-2 text-magento-orange-800">
+                    <li class="flex gap-2"><span class="font-bold">→</span> Query Complexity: Each EAV attribute = 1 LEFT JOIN (50 attributes = 50 JOINs)</li>
+                    <li class="flex gap-2"><span class="font-bold">→</span> Slow Customer Load: 2000ms+ load time with 50+ custom attributes</li>
+                    <li class="flex gap-2"><span class="font-bold">→</span> Database Stress: Complex execution plans, potential table locks</li>
+                </ul>
+            </div>
+
+            <div class="bg-magento-gold-50 border-l-4 border-magento-gold-600 p-6">
+                <h4 class="font-bold text-magento-gold-900 mb-3 text-lg">Correct Approach: Extension Attributes + Custom Table</h4>
+                <p class="text-magento-gold-800 mb-3"><strong>Performance Gain:</strong> <span class="inline-block bg-magento-gold-200 px-3 py-1 font-bold text-magento-gold-900">10-100x faster</span></p>
+                <ul class="space-y-2 text-magento-gold-800">
+                    <li class="flex gap-2"><span class="font-bold">✓</span> Single JOIN: Only 1 JOIN to extended data table</li>
+                    <li class="flex gap-2"><span class="font-bold">✓</span> Fast Queries: 20-50ms vs. 2000ms</li>
+                    <li class="flex gap-2"><span class="font-bold">✓</span> Lazy Loading: Extended data only loaded when needed</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section id="cache" class="mb-12">
+        <h2 class="text-3xl font-bold text-magento-charcoal mb-6 border-b-4 border-magento-orange-500 pb-3">Cache Anti-Patterns</h2>
+
+        <div class="bg-white p-8 border-t-4 border-magento-gold-500 shadow-sm mb-8">
+            <h3 class="text-2xl font-semibold text-magento-charcoal mb-4 flex items-center gap-3">
+                <span class="text-3xl">❌</span>
+                Anti-Pattern 4: Ignoring Customer Group Cache After Group Change
+            </h3>
+
+            <div class="bg-magento-orange-50 border-l-4 border-magento-orange-600 p-6 mb-6">
+                <h4 class="font-bold text-magento-orange-900 mb-3 text-lg">Why It's Bad</h4>
+                <ul class="space-y-2 text-magento-orange-800">
+                    <li class="flex gap-2"><span class="font-bold">→</span> Stale Prices: Full Page Cache serves old pricing based on previous customer group</li>
+                    <li class="flex gap-2"><span class="font-bold">→</span> Wrong Promotions: Catalog rules don't apply immediately</li>
+                    <li class="flex gap-2"><span class="font-bold">→</span> Customer Confusion: "Why are prices still the same?"</li>
+                    <li class="flex gap-2"><span class="font-bold">→</span> Revenue Impact: Potential overcharging or undercharging</li>
+                </ul>
+            </div>
+
+            <div class="bg-magento-gold-50 border-l-4 border-magento-gold-600 p-6">
+                <h4 class="font-bold text-magento-gold-900 mb-3 text-lg">Why It's Better</h4>
+                <ul class="space-y-2 text-magento-gold-800">
+                    <li class="flex gap-2"><span class="font-bold">✓</span> Fresh Pricing: FPC cleared, next page load shows correct prices</li>
+                    <li class="flex gap-2"><span class="font-bold">✓</span> Correct Business Logic: Group-based rules apply immediately</li>
+                    <li class="flex gap-2"><span class="font-bold">✓</span> Data Integrity: Cache state matches database state</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section id="observer" class="mb-12">
+        <h2 class="text-3xl font-bold text-magento-charcoal mb-6 border-b-4 border-magento-orange-500 pb-3">Observer Anti-Patterns</h2>
+
+        <div class="bg-white p-8 border-t-4 border-magento-gold-500 shadow-sm mb-8">
+            <h3 class="text-2xl font-semibold text-magento-charcoal mb-4 flex items-center gap-3">
+                <span class="text-3xl">❌</span>
+                Anti-Pattern 6: Synchronous External API Calls in Observers
+            </h3>
+
+            <div class="bg-magento-orange-50 border-l-4 border-magento-orange-600 p-6 mb-6">
+                <h4 class="font-bold text-magento-orange-900 mb-3 text-lg">Why It's Bad</h4>
+                <ul class="space-y-2 text-magento-orange-800">
+                    <li class="flex gap-2"><span class="font-bold">→</span> Slow Saves: Customer save operations take 200-1000ms longer</li>
+                    <li class="flex gap-2"><span class="font-bold">→</span> Failure Coupling: External API failure causes customer save to fail</li>
+                    <li class="flex gap-2"><span class="font-bold">→</span> Poor UX: Admin users wait for external API during customer edits</li>
+                </ul>
+            </div>
+
+            <div class="bg-magento-gold-50 border-l-4 border-magento-gold-600 p-6">
+                <h4 class="font-bold text-magento-gold-900 mb-3 text-lg">Performance Gain</h4>
+                <p class="text-magento-gold-800 mb-3"><strong>10x faster:</strong> <span class="inline-block bg-magento-gold-200 px-3 py-1 font-bold text-magento-gold-900">51ms (with queue) vs. 500ms (synchronous API call)</span></p>
+                <p class="text-magento-gold-800">Use async queue pattern for external API calls instead of blocking observer execution.</p>
+            </div>
+        </div>
+
+        <div class="bg-white p-8 border-t-4 border-magento-gold-500 shadow-sm mb-8">
+            <h3 class="text-2xl font-semibold text-magento-charcoal mb-4 flex items-center gap-3">
+                <span class="text-3xl">❌</span>
+                Anti-Pattern 7: Bulk Operations Not Disabling Observers
+            </h3>
+
+            <div class="bg-magento-orange-50 border-l-4 border-magento-orange-600 p-6 mb-6">
+                <h4 class="font-bold text-magento-orange-900 mb-3 text-lg">Why It's Bad</h4>
+                <ul class="space-y-2 text-magento-orange-800">
+                    <li class="flex gap-2"><span class="font-bold">→</span> Extremely Slow: 10,000 saves × 50ms = 500 seconds (8+ minutes)</li>
+                    <li class="flex gap-2"><span class="font-bold">→</span> Unnecessary Work: Email sync, audit logs not needed for bulk operations</li>
+                    <li class="flex gap-2"><span class="font-bold">→</span> Timeout Risk: Script may hit max_execution_time</li>
+                </ul>
+            </div>
+
+            <div class="bg-magento-gold-50 border-l-4 border-magento-gold-600 p-6">
+                <h4 class="font-bold text-magento-gold-900 mb-3 text-lg">Performance Gain</h4>
+                <p class="text-magento-gold-800 mb-3"><strong>1000x faster:</strong> <span class="inline-block bg-magento-gold-200 px-3 py-1 font-bold text-magento-gold-900">0.5 seconds vs. 500 seconds for 10,000 customers</span></p>
+                <p class="text-magento-gold-800">Use direct SQL UPDATE for bulk operations instead of looping through repository saves.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="summary" class="mb-12">
+        <h2 class="text-3xl font-bold text-magento-charcoal mb-6 border-b-4 border-magento-orange-500 pb-3">Quick Reference Summary</h2>
+
+        <div class="bg-white p-8 border-t-4 border-magento-gold-500 shadow-sm overflow-x-auto">
+            <table class="min-w-full border-collapse">
+                <thead class="bg-magento-charcoal text-white">
+                    <tr>
+                        <th class="px-4 py-3 text-left text-sm font-semibold">Anti-Pattern</th>
+                        <th class="px-4 py-3 text-left text-sm font-semibold">Impact</th>
+                        <th class="px-4 py-3 text-left text-sm font-semibold">Correct Approach</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-charcoal/10">
+                    <tr class="hover:bg-[#FAFAFA]">
+                        <td class="px-4 py-3 text-sm">Direct model usage</td>
+                        <td class="px-4 py-3 text-sm">Bypasses plugins, events</td>
+                        <td class="px-4 py-3 text-sm">Use repository interface</td>
+                    </tr>
+                    <tr class="hover:bg-[#FAFAFA]">
+                        <td class="px-4 py-3 text-sm">Loading full customer for one field</td>
+                        <td class="px-4 py-3 text-sm">10-50x slower</td>
+                        <td class="px-4 py-3 text-sm">Direct SQL query for field</td>
+                    </tr>
+                    <tr class="hover:bg-[#FAFAFA]">
+                        <td class="px-4 py-3 text-sm">Excessive EAV attributes</td>
+                        <td class="px-4 py-3 text-sm">2000ms+ load time</td>
+                        <td class="px-4 py-3 text-sm">Extension attributes + custom table</td>
+                    </tr>
+                    <tr class="hover:bg-[#FAFAFA]">
+                        <td class="px-4 py-3 text-sm">Sync external API in observer</td>
+                        <td class="px-4 py-3 text-sm">10-100x slower saves</td>
+                        <td class="px-4 py-3 text-sm">Async queue pattern</td>
+                    </tr>
+                    <tr class="hover:bg-[#FAFAFA]">
+                        <td class="px-4 py-3 text-sm">Bulk ops with observers</td>
+                        <td class="px-4 py-3 text-sm">25x slower</td>
+                        <td class="px-4 py-3 text-sm">Disable observers or direct SQL</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <footer class="mt-16 pt-8 border-t-4 border-magento-gold-500">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm text-magento-charcoal/80">
+            <div>
+                <h3 class="font-semibold text-magento-charcoal mb-2">Document Info</h3>
+                <p>Version: 1.0.0</p>
+                <p>Last Updated: 2025-12-04</p>
+                <p>Magento Version: 2.4.x</p>
+            </div>
+            <div>
+                <h3 class="font-semibold text-magento-charcoal mb-2">Related Documentation</h3>
+                <ul class="space-y-1">
+                    <li><a href="performance-optimization.html" class="text-magento-orange-500 hover:underline transition-colors">Performance Optimization</a></li>
+                    <li><a href="known-issues.html" class="text-magento-orange-500 hover:underline transition-colors">Known Issues</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="font-semibold text-magento-charcoal mb-2">Navigation</h3>
+                <ul class="space-y-1">
+                    <li><a href="../../../index.html" class="text-magento-orange-500 hover:underline transition-colors">Home</a></li>
+                    <li><a href="../index.html" class="text-magento-orange-500 hover:underline transition-colors">Magento_Customer Module</a></li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+
+</main>
+
+</body>
+</html>

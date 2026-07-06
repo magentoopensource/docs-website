@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Architecture - Magento_Eav | THE MAGENTO CORE</title>
+    <meta name="description" content="EAV architecture documentation - data model, entity types, value tables, attribute sets, and attribute groups">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        orange: {
+                            DEFAULT: '#F26423',
+                            50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad', 300: '#f9ae78',
+                            400: '#f58242', 500: '#f26423', 600: '#e34613', 700: '#bc3312',
+                            800: '#962a16', 900: '#792515', 950: '#411009'
+                        },
+                        yellow: {
+                            DEFAULT: '#F1BC1B',
+                            50: '#fffbeb', 100: '#fdf9c8', 200: '#fbf38c', 300: '#f8e651',
+                            400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a', 700: '#b1670c',
+                            800: '#8f5111', 900: '#764311', 950: '#442204'
+                        },
+                        charcoal: {
+                            DEFAULT: '#2c2c2c',
+                            50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6', 300: '#818181',
+                            400: '#474747', 500: '#2c2c2c', 600: '#262626', 700: '#202020',
+                            800: '#1c1c1c', 900: '#191919', 950: '#121212'
+                        },
+                        brown: '#442204',
+                        'off-white': '#FAFAFA',
+                    },
+                    fontFamily: {
+                        sans: ['Inter Tight', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter Tight', system-ui, sans-serif; }
+        .code-block { background: #1c1c1c; color: #f1f1f1; }
+    </style>
+</head>
+<body class="bg-off-white text-charcoal">
+
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-charcoal focus:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
+        Skip to content
+    </a>
+
+    <header class="bg-gradient-to-br from-charcoal-500 via-charcoal-600 to-charcoal-700 border-b-8 border-orange-500">
+        <!-- back-to-developer-docs -->
+        <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 pt-4"><a href="/developer/" aria-label="Back to Developer Docs" class="inline-flex items-center gap-1.5 text-sm font-medium text-white/70 hover:text-white transition-colors no-underline"><span aria-hidden="true">←</span> Developer Docs</a></div>
+        <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+            <nav aria-label="Breadcrumb" class="mb-6">
+                <ol class="flex flex-wrap items-center gap-2 text-sm text-gray-400">
+                    <li><a href="../../../index.html" class="hover:text-orange-500 underline underline-offset-4">Home</a></li>
+                    <li aria-hidden="true"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></li>
+                    <li><a href="index.html" class="hover:text-orange-500 underline underline-offset-4">Magento_Eav</a></li>
+                    <li aria-hidden="true"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></li>
+                    <li class="text-white font-medium">Architecture</li>
+                </ol>
+            </nav>
+            <div id="main-content">
+                <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white mb-4">Architecture</h1>
+                <p class="text-base sm:text-lg text-gray-300 max-w-3xl">EAV data model, entity types, value tables, attribute sets and groups.</p>
+            </div>
+        </div>
+    </header>
+
+    <div class="max-w-6xl mx-auto px-6 py-8 md:py-12">
+
+        <!-- EAV Data Model -->
+        <section class="bg-white mb-12 p-8 border-t-4 border-orange-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-charcoal mb-6">EAV Data Model</h2>
+            <p class="text-gray-700 mb-6">
+                The Entity-Attribute-Value (EAV) pattern separates attribute storage from entity storage,
+                allowing unlimited custom attributes without modifying the database schema. This flexibility
+                comes at the cost of query complexity.
+            </p>
+
+            <div class="code-block p-6 font-mono text-sm overflow-x-auto mb-6">
+<div><span class="text-orange-400 font-bold">ENTITY TYPE</span> (eav_entity_type)</div>
+<div class="text-gray-500">    |  catalog_product, catalog_category, customer, customer_address</div>
+<div class="text-gray-500">    |</div>
+<div class="text-gray-500">    +--&gt;</div> <span class="text-yellow-400">ATTRIBUTE SET</span> (eav_attribute_set)
+<div class="text-gray-500">    |       |  "Default", "Clothing", "Electronics"</div>
+<div class="text-gray-500">    |       |</div>
+<div class="text-gray-500">    |       +--&gt;</div> <span class="text-green-400">ATTRIBUTE GROUP</span> (eav_attribute_group)
+<div class="text-gray-500">    |               |  "Product Details", "Images", "SEO"</div>
+<div class="text-gray-500">    |               |</div>
+<div class="text-gray-500">    |               +--&gt;</div> <span class="text-purple-400">ATTRIBUTE</span> (eav_attribute)
+<div class="text-gray-500">    |                       name, price, description, color...</div>
+<div class="text-gray-500">    |</div>
+<div class="text-gray-500">    +--&gt;</div> <span class="text-orange-400 font-bold">ENTITY</span> (entity-specific table)
+<div class="text-gray-500">            |  catalog_product_entity, customer_entity...</div>
+<div class="text-gray-500">            |</div>
+<div class="text-gray-500">            +--&gt;</div> <span class="text-purple-400">VALUES</span> (typed value tables)
+<div class="text-gray-500">                    eav_entity_varchar, eav_entity_int...</div>
+            </div>
+
+            <div class="bg-orange-50 border-l-4 border-orange-500 p-4">
+                <div class="font-semibold text-charcoal mb-2">Terminology</div>
+                <p class="text-gray-700">
+                    <strong>Entity Type:</strong> The "class" of entity (product, customer).<br>
+                    <strong>Attribute Set:</strong> A collection of attributes assigned to an entity.<br>
+                    <strong>Attribute Group:</strong> A tab within an attribute set for organization.<br>
+                    <strong>Attribute:</strong> A single property (name, color, price).
+                </p>
+            </div>
+        </section>
+
+        <!-- Value Tables by Type -->
+        <section class="bg-white mb-12 p-8 border-t-4 border-yellow-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-charcoal mb-6">Value Tables by Type</h2>
+            <p class="text-gray-700 mb-6">
+                EAV stores attribute values in separate tables based on data type. This allows proper
+                indexing and type-specific operations. The <code class="bg-gray-100 px-1">backend_type</code> column in
+                <code class="bg-gray-100 px-1">eav_attribute</code> determines which table stores the value.
+            </p>
+
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-2 mb-8">
+                <div class="bg-charcoal text-white p-4 text-center">
+                    <div class="font-semibold">VARCHAR</div>
+                    <div class="text-yellow-400 text-xs font-mono mt-1">eav_entity_varchar</div>
+                </div>
+                <div class="bg-charcoal text-white p-4 text-center">
+                    <div class="font-semibold">INT</div>
+                    <div class="text-yellow-400 text-xs font-mono mt-1">eav_entity_int</div>
+                </div>
+                <div class="bg-charcoal text-white p-4 text-center">
+                    <div class="font-semibold">DECIMAL</div>
+                    <div class="text-yellow-400 text-xs font-mono mt-1">eav_entity_decimal</div>
+                </div>
+                <div class="bg-charcoal text-white p-4 text-center">
+                    <div class="font-semibold">TEXT</div>
+                    <div class="text-yellow-400 text-xs font-mono mt-1">eav_entity_text</div>
+                </div>
+                <div class="bg-charcoal text-white p-4 text-center">
+                    <div class="font-semibold">DATETIME</div>
+                    <div class="text-yellow-400 text-xs font-mono mt-1">eav_entity_datetime</div>
+                </div>
+            </div>
+
+            <h3 class="text-xl font-bold text-charcoal mb-4">Value Table Structure</h3>
+            <p class="text-gray-700 mb-4">All value tables share a common structure with store-scoped values:</p>
+
+            <div class="code-block p-4 font-mono text-sm overflow-x-auto mb-6">
+<span class="text-gray-500">// Common columns in all eav_entity_* value tables</span>
+value_id       <span class="text-gray-500">// Primary key (auto-increment)</span>
+entity_type_id <span class="text-gray-500">// FK to eav_entity_type</span>
+attribute_id   <span class="text-gray-500">// FK to eav_attribute</span>
+store_id       <span class="text-gray-500">// FK to store (0 = default/admin)</span>
+entity_id      <span class="text-gray-500">// FK to entity table (product_id, customer_id)</span>
+value          <span class="text-gray-500">// The actual value (type varies by table)</span>
+
+<span class="text-gray-500">// Unique constraint: entity_id + attribute_id + store_id</span>
+<span class="text-gray-500">// This enables store-scoped attribute overrides</span>
+            </div>
+
+            <div class="bg-orange-50 border-l-4 border-orange-500 p-4">
+                <div class="font-semibold text-charcoal mb-2">Static vs EAV Attributes</div>
+                <p class="text-gray-700">
+                    Attributes with <code class="bg-gray-100 px-1">backend_type='static'</code> are stored directly in the entity
+                    table (e.g., <code class="bg-gray-100 px-1">sku</code> in <code class="bg-gray-100 px-1">catalog_product_entity</code>). This avoids
+                    JOINs for frequently accessed attributes.
+                </p>
+            </div>
+        </section>
+
+        <!-- Core Database Tables -->
+        <section class="bg-white mb-12 p-8 border-t-4 border-orange-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-charcoal mb-6">Core Database Tables</h2>
+
+            <div class="grid md:grid-cols-2 gap-4">
+                <div class="border-l-4 border-orange-500 pl-4 bg-gray-50 p-4">
+                    <div class="font-mono text-sm font-semibold text-charcoal mb-2">eav_entity_type</div>
+                    <div class="text-sm text-gray-600 mb-3">Defines entity types and their configurations.</div>
+                    <ul class="text-xs font-mono text-gray-500 space-y-1">
+                        <li>-&gt; entity_type_id (PK)</li>
+                        <li>-&gt; entity_type_code (product, customer)</li>
+                        <li>-&gt; entity_model (resource model class)</li>
+                        <li>-&gt; attribute_model (custom attribute class)</li>
+                        <li>-&gt; entity_table (main entity table)</li>
+                        <li>-&gt; default_attribute_set_id</li>
+                        <li>-&gt; additional_attribute_table</li>
+                    </ul>
+                </div>
+
+                <div class="border-l-4 border-yellow-500 pl-4 bg-gray-50 p-4">
+                    <div class="font-mono text-sm font-semibold text-charcoal mb-2">eav_attribute</div>
+                    <div class="text-sm text-gray-600 mb-3">Attribute definitions with model references.</div>
+                    <ul class="text-xs font-mono text-gray-500 space-y-1">
+                        <li>-&gt; attribute_id (PK)</li>
+                        <li>-&gt; entity_type_id (FK)</li>
+                        <li>-&gt; attribute_code (unique per type)</li>
+                        <li>-&gt; backend_type (varchar/int/decimal/text/datetime/static)</li>
+                        <li>-&gt; backend_model (validation class)</li>
+                        <li>-&gt; frontend_model (display class)</li>
+                        <li>-&gt; frontend_input (text/select/multiselect/boolean)</li>
+                        <li>-&gt; source_model (options class)</li>
+                        <li>-&gt; is_required, is_user_defined, is_unique</li>
+                    </ul>
+                </div>
+
+                <div class="border-l-4 border-orange-500 pl-4 bg-gray-50 p-4">
+                    <div class="font-mono text-sm font-semibold text-charcoal mb-2">eav_attribute_set</div>
+                    <div class="text-sm text-gray-600 mb-3">Groups of attributes for entity assignment.</div>
+                    <ul class="text-xs font-mono text-gray-500 space-y-1">
+                        <li>-&gt; attribute_set_id (PK)</li>
+                        <li>-&gt; entity_type_id (FK)</li>
+                        <li>-&gt; attribute_set_name</li>
+                        <li>-&gt; sort_order</li>
+                    </ul>
+                </div>
+
+                <div class="border-l-4 border-yellow-500 pl-4 bg-gray-50 p-4">
+                    <div class="font-mono text-sm font-semibold text-charcoal mb-2">eav_attribute_group</div>
+                    <div class="text-sm text-gray-600 mb-3">Tabs within attribute sets.</div>
+                    <ul class="text-xs font-mono text-gray-500 space-y-1">
+                        <li>-&gt; attribute_group_id (PK)</li>
+                        <li>-&gt; attribute_set_id (FK)</li>
+                        <li>-&gt; attribute_group_name</li>
+                        <li>-&gt; attribute_group_code</li>
+                        <li>-&gt; tab_group_code</li>
+                        <li>-&gt; sort_order</li>
+                    </ul>
+                </div>
+
+                <div class="border-l-4 border-orange-500 pl-4 bg-gray-50 p-4">
+                    <div class="font-mono text-sm font-semibold text-charcoal mb-2">eav_entity_attribute</div>
+                    <div class="text-sm text-gray-600 mb-3">Links attributes to sets/groups.</div>
+                    <ul class="text-xs font-mono text-gray-500 space-y-1">
+                        <li>-&gt; entity_attribute_id (PK)</li>
+                        <li>-&gt; entity_type_id (FK)</li>
+                        <li>-&gt; attribute_set_id (FK)</li>
+                        <li>-&gt; attribute_group_id (FK)</li>
+                        <li>-&gt; attribute_id (FK)</li>
+                        <li>-&gt; sort_order</li>
+                    </ul>
+                </div>
+
+                <div class="border-l-4 border-yellow-500 pl-4 bg-gray-50 p-4">
+                    <div class="font-mono text-sm font-semibold text-charcoal mb-2">eav_attribute_option</div>
+                    <div class="text-sm text-gray-600 mb-3">Options for select/multiselect attributes.</div>
+                    <ul class="text-xs font-mono text-gray-500 space-y-1">
+                        <li>-&gt; option_id (PK)</li>
+                        <li>-&gt; attribute_id (FK)</li>
+                        <li>-&gt; sort_order</li>
+                    </ul>
+                </div>
+
+                <div class="border-l-4 border-orange-500 pl-4 bg-gray-50 p-4">
+                    <div class="font-mono text-sm font-semibold text-charcoal mb-2">eav_attribute_option_value</div>
+                    <div class="text-sm text-gray-600 mb-3">Store-scoped option labels.</div>
+                    <ul class="text-xs font-mono text-gray-500 space-y-1">
+                        <li>-&gt; value_id (PK)</li>
+                        <li>-&gt; option_id (FK)</li>
+                        <li>-&gt; store_id (FK)</li>
+                        <li>-&gt; value (the label text)</li>
+                    </ul>
+                </div>
+
+                <div class="border-l-4 border-yellow-500 pl-4 bg-gray-50 p-4">
+                    <div class="font-mono text-sm font-semibold text-charcoal mb-2">eav_attribute_label</div>
+                    <div class="text-sm text-gray-600 mb-3">Store-scoped attribute labels.</div>
+                    <ul class="text-xs font-mono text-gray-500 space-y-1">
+                        <li>-&gt; attribute_label_id (PK)</li>
+                        <li>-&gt; attribute_id (FK)</li>
+                        <li>-&gt; store_id (FK)</li>
+                        <li>-&gt; value (the label text)</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Attribute Model Pattern -->
+        <section class="bg-white mb-12 p-8 border-t-4 border-yellow-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-charcoal mb-6">Attribute Model Pattern</h2>
+            <p class="text-gray-700 mb-6">
+                Each attribute can have three types of associated models that control its behavior
+                during save, load, and display operations.
+            </p>
+
+            <div class="grid md:grid-cols-3 gap-4 mb-8">
+                <div class="bg-gray-50 p-6 border-t-4 border-orange-500">
+                    <div class="font-bold text-charcoal mb-2">Backend Model</div>
+                    <p class="text-sm text-gray-600">
+                        Validates and transforms data before save. Examples: ArrayBackend, Datetime, Increment.
+                        Method: beforeSave(), afterSave(), validate()
+                    </p>
+                </div>
+                <div class="bg-gray-50 p-6 border-t-4 border-yellow-500">
+                    <div class="font-bold text-charcoal mb-2">Frontend Model</div>
+                    <p class="text-sm text-gray-600">
+                        Formats values for display. Examples: Datetime (date formatting), Image (generates URLs).
+                        Method: getValue()
+                    </p>
+                </div>
+                <div class="bg-gray-50 p-6 border-t-4 border-charcoal">
+                    <div class="font-bold text-charcoal mb-2">Source Model</div>
+                    <p class="text-sm text-gray-600">
+                        Provides options for select/multiselect inputs. Examples: Boolean, Table, Config.
+                        Method: getAllOptions(), getOptionText()
+                    </p>
+                </div>
+            </div>
+
+            <h3 class="text-xl font-bold text-charcoal mb-4">Example: Creating a Custom Attribute</h3>
+            <div class="code-block p-4 font-mono text-sm overflow-x-auto">
+<span class="text-gray-500">// In Setup/Patch/Data/AddCustomAttribute.php</span>
+$eavSetup = $this-&gt;eavSetupFactory-&gt;create();
+
+$eavSetup-&gt;addAttribute(
+    <span class="text-yellow-400">Product</span>::ENTITY,
+    <span class="text-green-400">'custom_attribute'</span>,
+    [
+        <span class="text-green-400">'type'</span>         =&gt; <span class="text-green-400">'varchar'</span>,          <span class="text-gray-500">// backend_type</span>
+        <span class="text-green-400">'label'</span>        =&gt; <span class="text-green-400">'Custom Attribute'</span>,
+        <span class="text-green-400">'input'</span>        =&gt; <span class="text-green-400">'select'</span>,           <span class="text-gray-500">// frontend_input</span>
+        <span class="text-green-400">'source'</span>       =&gt; <span class="text-yellow-400">CustomSource</span>::<span class="text-orange-400">class</span>, <span class="text-gray-500">// source_model</span>
+        <span class="text-green-400">'backend'</span>      =&gt; <span class="text-yellow-400">ArrayBackend</span>::<span class="text-orange-400">class</span>,  <span class="text-gray-500">// backend_model</span>
+        <span class="text-green-400">'required'</span>     =&gt; <span class="text-orange-400">false</span>,
+        <span class="text-green-400">'global'</span>       =&gt; <span class="text-yellow-400">ScopedAttribute</span>::SCOPE_STORE,
+        <span class="text-green-400">'visible'</span>      =&gt; <span class="text-orange-400">true</span>,
+        <span class="text-green-400">'user_defined'</span> =&gt; <span class="text-orange-400">true</span>,
+        <span class="text-green-400">'group'</span>        =&gt; <span class="text-green-400">'General'</span>,
+    ]
+);
+            </div>
+        </section>
+
+        <!-- Entity Type Configuration -->
+        <section class="bg-white mb-12 p-8 border-t-4 border-orange-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-charcoal mb-6">Entity Type Configuration</h2>
+            <p class="text-gray-700 mb-6">
+                Each entity type defines its storage configuration in <code class="bg-gray-100 px-1">eav_entity_type</code>.
+                This tells EAV how to load and save entities of that type.
+            </p>
+
+            <div class="code-block p-4 font-mono text-sm overflow-x-auto">
+<span class="text-gray-500">// eav_entity_type row for products</span>
+entity_type_id            = <span class="text-yellow-400">4</span>
+entity_type_code          = <span class="text-green-400">'catalog_product'</span>
+entity_model              = <span class="text-green-400">'Magento\Catalog\Model\ResourceModel\Product'</span>
+attribute_model           = <span class="text-green-400">'Magento\Catalog\Model\ResourceModel\Eav\Attribute'</span>
+entity_table              = <span class="text-green-400">'catalog_product_entity'</span>
+additional_attribute_table = <span class="text-green-400">'catalog_eav_attribute'</span>
+entity_attribute_collection = <span class="text-green-400">'Magento\Catalog\Model\ResourceModel\Product\Attribute\Collection'</span>
+
+<span class="text-gray-500">// Products use extended tables:</span>
+<span class="text-gray-500">// - catalog_eav_attribute extends eav_attribute with catalog-specific columns</span>
+<span class="text-gray-500">// - catalog_product_entity_* extends eav_entity_* for product values</span>
+            </div>
+        </section>
+
+        <!-- Navigation -->
+        <nav class="flex flex-col sm:flex-row gap-4 justify-between" aria-label="Page navigation">
+            <a href="index.html" class="inline-flex items-center gap-2 px-6 py-3 bg-charcoal text-white font-semibold hover:bg-charcoal-600 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-charcoal">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                Module Overview
+            </a>
+            <a href="execution-flows.html" class="inline-flex items-center gap-2 px-6 py-3 bg-orange-500 text-white font-semibold hover:bg-orange-600 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
+                Execution Flows
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </a>
+        </nav>
+
+    </div>
+
+    <footer class="bg-charcoal text-white py-8 mt-16">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                <p class="text-sm text-gray-400">Magento Documentation | Magento_Eav Architecture</p>
+                <div class="flex items-center gap-6">
+                    <a href="index.html" class="text-sm text-gray-400 hover:text-white transition">Module Overview</a>
+                    <a href="../../../index.html" class="text-sm text-gray-400 hover:text-white transition">Documentation Home</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magento_Customer Plugins and Observers | Magento Core Documentation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'magento-orange': {
+                            DEFAULT: '#f26423',
+                            50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad', 300: '#f9ae78',
+                            400: '#f58242', 500: '#f26423', 600: '#e34613', 700: '#bc3312',
+                            800: '#962a16', 900: '#792515', 950: '#411009'
+                        },
+                        'magento-gold': {
+                            DEFAULT: '#f1bc1b',
+                            50: '#fffdeb', 100: '#fdf9c8', 200: '#fbf38c', 300: '#f8e651',
+                            400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a', 700: '#b1670c',
+                            800: '#8f5111', 900: '#764311', 950: '#442204'
+                        },
+                        'magento-charcoal': {
+                            DEFAULT: '#2c2c2c',
+                            50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6', 300: '#818181',
+                            400: '#474747', 500: '#2c2c2c', 600: '#262626', 700: '#202020',
+                            800: '#1c1c1c', 900: '#191919', 950: '#121212'
+                        },
+                    },
+                    fontFamily: {
+                        sans: ['Inter Tight', 'system-ui', 'sans-serif'],
+                        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&display=swap');
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+        /* Syntax highlighting colors (VS Code Dark+ theme) */
+        .hljs { background: transparent; }
+        .hljs-comment { color: #6a9955; }
+        .hljs-keyword { color: #569cd6; }
+        .hljs-function .hljs-title, .hljs-title.function_ { color: #dcdcaa; }
+        .hljs-variable, .hljs-variable.language_ { color: #9cdcfe; }
+        .hljs-string { color: #ce9178; }
+        .hljs-number { color: #b5cea8; }
+        .hljs-literal, .hljs-built_in { color: #569cd6; }
+        .hljs-params { color: #d4d4d4; }
+        .hljs-type, .hljs-title.class_ { color: #4ec9b0; }
+        .hljs-attr, .hljs-attribute { color: #9cdcfe; }
+        .hljs-tag, .hljs-name { color: #569cd6; }
+        .hljs-selector-tag, .hljs-selector-class { color: #d7ba7d; }
+        .hljs-meta { color: #569cd6; }
+        .hljs-operator { color: #d4d4d4; }
+    </style>
+</head>
+<body class="bg-[#FAFAFA] text-magento-charcoal">
+<!-- Skip to main content link for accessibility -->
+<a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-magento-orange-500 focus:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-magento-orange-600">
+    Skip to main content
+</a>
+
+
+<header class="bg-gradient-to-br from-magento-charcoal-500 via-magento-charcoal-600 to-magento-charcoal-700 border-b-8 border-magento-orange-500">
+        <!-- back-to-developer-docs -->
+        <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 pt-4"><a href="/developer/" aria-label="Back to Developer Docs" class="inline-flex items-center gap-1.5 text-sm font-medium text-white/70 hover:text-white transition-colors no-underline"><span aria-hidden="true">←</span> Developer Docs</a></div>
+    <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
+        <nav aria-label="Breadcrumb" class="mb-8">
+            <ol class="flex flex-wrap items-center gap-2 text-sm text-gray-400">
+                <li><a href="../../../index.html" class="hover:text-magento-orange-500 underline transition-colors underline-offset-4">Home</a></li>
+                <li aria-hidden="true"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></li>
+                <li><a href="index.html" class="hover:text-magento-orange-500 underline transition-colors underline-offset-4">Magento_Customer</a></li>
+                <li aria-hidden="true"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></li>
+                <li><span class="text-gray-300 font-medium" aria-current="page">Plugins & Observers</span></li>
+            </ol>
+        </nav>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div>
+                <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white mb-4">Plugins & Observers</h1>
+                <p class="text-base sm:text-lg text-gray-300 max-w-2xl mb-6">Complete reference for all plugins and observers in the Magento_Customer module with execution priority and event mappings.</p>
+                <div class="flex flex-wrap gap-3 text-sm">
+                    <span class="inline-flex items-center gap-1.5 bg-magento-orange-500/20 text-magento-gold-400 px-3 py-1.5 border border-magento-orange-500/40">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z"/></svg>
+                        19 Plugins
+                    </span>
+                    <span class="inline-flex items-center gap-1.5 bg-white/10 text-gray-300 px-3 py-1.5 border border-white/20">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                        16 Observers
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main id="main-content" class="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+
+    <div class="bg-white mb-12 p-8 border-t-4 border-magento-gold-500 shadow-sm">
+        <h2 class="text-2xl font-bold text-magento-charcoal mb-6">Quick Stats</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="border-l-4 border-magento-orange-500 pl-4">
+                <div class="text-3xl font-bold text-magento-orange-500">19</div>
+                <div class="text-sm text-magento-charcoal/70">Total Plugins</div>
+            </div>
+            <div class="border-l-4 border-magento-orange-500 pl-4">
+                <div class="text-3xl font-bold text-magento-orange-500">16</div>
+                <div class="text-sm text-magento-charcoal/70">Total Observers</div>
+            </div>
+            <div class="border-l-4 border-magento-orange-500 pl-4">
+                <div class="text-3xl font-bold text-magento-orange-500">5</div>
+                <div class="text-sm text-magento-charcoal/70">Areas Covered</div>
+            </div>
+            <div class="border-l-4 border-magento-orange-500 pl-4">
+                <div class="text-3xl font-bold text-magento-orange-500">12</div>
+                <div class="text-sm text-magento-charcoal/70">Core Events</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white mb-12 p-8 border-t-4 border-magento-gold-500 shadow-sm">
+        <h2 class="text-2xl font-bold text-magento-charcoal mb-4">Plugins Overview</h2>
+        <p class="text-lg text-magento-charcoal/90 leading-relaxed mb-6">
+            The Magento_Customer module implements <strong>19 plugins</strong> across different areas to intercept and modify behavior at critical execution points.
+        </p>
+
+        <div class="bg-magento-gold-50 border-l-4 border-magento-gold-500 p-6 shadow-sm mb-6">
+            <h3 class="text-lg font-semibold text-magento-charcoal mb-2">Plugin Execution Priority</h3>
+            <ul class="space-y-2 text-magento-charcoal/90">
+                <li class="flex gap-2"><span class="text-magento-orange-500 font-bold">-1:</span> TransactionWrapper (must run first to open transaction)</li>
+                <li class="flex gap-2"><span class="text-magento-orange-500 font-bold">1:</span> Data validation plugins</li>
+                <li class="flex gap-2"><span class="text-magento-orange-500 font-bold">10:</span> Standard business logic plugins (default)</li>
+                <li class="flex gap-2"><span class="text-magento-orange-500 font-bold">100+:</span> Cosmetic or non-critical plugins</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="bg-white mb-12 p-8 border-t-4 border-magento-gold-500 shadow-sm">
+        <h2 class="text-2xl font-bold text-magento-charcoal mb-6">Global Plugins</h2>
+        <p class="text-magento-charcoal/90 mb-6">These plugins are registered in <code class="bg-[#FAFAFA] px-2 py-1 text-sm">etc/di.xml</code> and apply across all areas (frontend, admin, API).</p>
+
+        <div class="overflow-x-auto mb-8">
+            <table class="min-w-full text-sm border border-magento-charcoal/20">
+                <thead class="bg-[#FAFAFA]">
+                    <tr>
+                        <th class="px-3 py-2 text-left border-b border-magento-charcoal/20 font-semibold text-magento-charcoal">Plugin Name</th>
+                        <th class="px-3 py-2 text-left border-b border-magento-charcoal/20 font-semibold text-magento-charcoal">Intercepts</th>
+                        <th class="px-3 py-2 text-left border-b border-magento-charcoal/20 font-semibold text-magento-charcoal">Sort Order</th>
+                        <th class="px-3 py-2 text-left border-b border-magento-charcoal/20 font-semibold text-magento-charcoal">Purpose</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white">
+                    <tr>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10 font-medium">TransactionWrapper</td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10"><code class="text-xs">CustomerRepositoryInterface</code></td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10">-1</td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10">Wraps customer repository operations in database transactions</td>
+                    </tr>
+                    <tr>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10 font-medium">CustomerNotification</td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10"><code class="text-xs">Framework\App\ActionInterface</code></td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10">10</td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10">Displays admin-triggered notifications in frontend</td>
+                    </tr>
+                    <tr>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10 font-medium">CustomerFlushFormKey</td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10"><code class="text-xs">PageCache\Observer\FlushFormKey</code></td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10">10</td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10">Regenerates form_key on login/logout to prevent CSRF</td>
+                    </tr>
+                    <tr>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10 font-medium">SaveCustomerGroupExcludedWebsite</td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10"><code class="text-xs">GroupRepositoryInterface::save</code></td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10">10</td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10">Saves excluded website associations for customer groups</td>
+                    </tr>
+                    <tr>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10 font-medium">DeleteCustomerGroupExcludedWebsite</td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10"><code class="text-xs">GroupRepositoryInterface::delete</code></td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10">10</td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10">Cleanup excluded website records on group deletion</td>
+                    </tr>
+                    <tr>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10 font-medium">GetByIdCustomerGroupExcludedWebsite</td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10"><code class="text-xs">GroupRepositoryInterface::getById</code></td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10">10</td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10">Populates excluded websites when loading group</td>
+                    </tr>
+                    <tr>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10 font-medium">GetListCustomerGroupExcludedWebsite</td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10"><code class="text-xs">GroupRepositoryInterface::getList</code></td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10">10</td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10">Populates excluded websites for all groups in results</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="border-l-4 border-magento-orange-500 pl-6 mb-8">
+            <h3 class="text-xl font-semibold text-magento-charcoal mb-3">TransactionWrapper Plugin</h3>
+            <p class="text-sm text-magento-charcoal/80 mb-3"><strong>Critical Business Logic:</strong> Ensures atomicity of customer operations</p>
+
+            <div class="code-block shadow-md overflow-hidden mb-4">
+              <div class="code-header bg-magento-charcoal-700 px-4 py-2 flex justify-between items-center border-b border-magento-charcoal-600">
+                <span class="text-magento-gold-400 text-sm font-semibold tracking-wide">XML</span>
+              </div>
+              <pre class="bg-magento-charcoal-800 p-4 overflow-x-auto m-0 text-sm leading-relaxed"><code class="language-xml text-gray-100">&lt;type name="Magento\Customer\Api\CustomerRepositoryInterface"&gt;
+    &lt;plugin name="transactionWrapper"
+            type="Magento\Customer\Model\Plugin\CustomerRepository\TransactionWrapper"
+            sortOrder="-1"/&gt;
+&lt;/type&gt;</code></pre>
+            </div>
+
+            <h4 class="text-base font-semibold text-magento-charcoal mb-2">Methods Intercepted:</h4>
+            <ul class="space-y-1 text-sm text-magento-charcoal/90 mb-4">
+                <li class="flex gap-2"><span class="text-magento-orange-500">→</span> save()</li>
+                <li class="flex gap-2"><span class="text-magento-orange-500">→</span> delete()</li>
+                <li class="flex gap-2"><span class="text-magento-orange-500">→</span> deleteById()</li>
+            </ul>
+
+            <h4 class="text-base font-semibold text-magento-charcoal mb-2">Behavior:</h4>
+            <ol class="space-y-1 text-sm text-magento-charcoal/90">
+                <li class="flex gap-2"><span class="text-magento-orange-500 font-bold">1.</span> beforeSave: Opens database transaction</li>
+                <li class="flex gap-2"><span class="text-magento-orange-500 font-bold">2.</span> Original Method: Customer save logic executes</li>
+                <li class="flex gap-2"><span class="text-magento-orange-500 font-bold">3.</span> afterSave: Commits transaction (or rolls back on exception)</li>
+            </ol>
+
+            <div class="bg-magento-gold-50 border-l-4 border-magento-gold-500 p-4 shadow-sm mt-4">
+                <p class="text-sm text-magento-charcoal/90"><strong>Result:</strong> Customer + addresses + EAV attributes saved atomically. Prevents partial customer saves if address save fails.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white mb-12 p-8 border-t-4 border-magento-gold-500 shadow-sm">
+        <h2 class="text-2xl font-bold text-magento-charcoal mb-6">Frontend Plugins</h2>
+        <p class="text-magento-charcoal/90 mb-6">These plugins are registered in <code class="bg-[#FAFAFA] px-2 py-1 text-sm">etc/frontend/di.xml</code> and only apply to storefront requests.</p>
+
+        <div class="overflow-x-auto mb-8">
+            <table class="min-w-full text-sm border border-magento-charcoal/20">
+                <thead class="bg-[#FAFAFA]">
+                    <tr>
+                        <th class="px-3 py-2 text-left border-b border-magento-charcoal/20 font-semibold text-magento-charcoal">Plugin Name</th>
+                        <th class="px-3 py-2 text-left border-b border-magento-charcoal/20 font-semibold text-magento-charcoal">Intercepts</th>
+                        <th class="px-3 py-2 text-left border-b border-magento-charcoal/20 font-semibold text-magento-charcoal">Purpose</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white">
+                    <tr>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10 font-medium">DepersonalizePlugin</td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10"><code class="text-xs">Framework\View\Layout</code></td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10">Removes customer-specific data from cached pages (FPC)</td>
+                    </tr>
+                    <tr>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10 font-medium">ContextPlugin</td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10"><code class="text-xs">Framework\App\ActionInterface</code></td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10">Injects customer context for page cache variations</td>
+                    </tr>
+                    <tr>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10 font-medium">Account</td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10"><code class="text-xs">Customer\Controller\AccountInterface</code></td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10">Validates customer access to account pages</td>
+                    </tr>
+                    <tr>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10 font-medium">ConfigPlugin</td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10"><code class="text-xs">Checkout\Block\Cart\Sidebar</code></td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10">Configures minicart behavior by customer group</td>
+                    </tr>
+                    <tr>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10 font-medium">SessionChecker</td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10"><code class="text-xs">Framework\Session\SessionManagerInterface</code></td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10">Validates session before processing customer sections</td>
+                    </tr>
+                    <tr>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10 font-medium">ClearSessionsAfterLogoutPlugin</td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10"><code class="text-xs">Customer\Model\Session</code></td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10">Clears all active sessions on logout (multi-session mgmt)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="border-l-4 border-magento-orange-500 pl-6">
+            <h3 class="text-xl font-semibold text-magento-charcoal mb-3">DepersonalizePlugin (Critical for Full Page Cache)</h3>
+            <p class="text-sm text-magento-charcoal/80 mb-4"><strong>Purpose:</strong> Removes customer-specific data from cached pages to enable aggressive FPC caching.</p>
+
+            <h4 class="text-base font-semibold text-magento-charcoal mb-2">What Gets Depersonalized:</h4>
+            <ul class="space-y-1 text-sm text-magento-charcoal/90 mb-4">
+                <li class="flex gap-2"><span class="text-magento-orange-500">•</span> Customer name</li>
+                <li class="flex gap-2"><span class="text-magento-orange-500">•</span> Customer email</li>
+                <li class="flex gap-2"><span class="text-magento-orange-500">•</span> Customer group</li>
+                <li class="flex gap-2"><span class="text-magento-orange-500">•</span> Cart item count</li>
+                <li class="flex gap-2"><span class="text-magento-orange-500">•</span> Wishlist item count</li>
+                <li class="flex gap-2"><span class="text-magento-orange-500">•</span> Recently viewed products</li>
+            </ul>
+
+            <div class="bg-magento-gold-50 border-l-4 border-magento-gold-500 p-4 shadow-sm">
+                <p class="text-sm text-magento-charcoal/90"><strong>How Personalization is Restored:</strong> Customer sections (private content) load personalized data via AJAX:</p>
+                <code class="text-xs bg-[#FAFAFA] px-2 py-1">GET /customer/section/load/sections/cart,customer,wishlist</code>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white mb-12 p-8 border-t-4 border-magento-gold-500 shadow-sm">
+        <h2 class="text-2xl font-bold text-magento-charcoal mb-6">Admin Plugins</h2>
+        <p class="text-magento-charcoal/90 mb-6">These plugins are registered in <code class="bg-[#FAFAFA] px-2 py-1 text-sm">etc/adminhtml/di.xml</code> and only apply to admin area.</p>
+
+        <div class="overflow-x-auto">
+            <table class="min-w-full text-sm border border-magento-charcoal/20">
+                <thead class="bg-[#FAFAFA]">
+                    <tr>
+                        <th class="px-3 py-2 text-left border-b border-magento-charcoal/20 font-semibold text-magento-charcoal">Plugin Name</th>
+                        <th class="px-3 py-2 text-left border-b border-magento-charcoal/20 font-semibold text-magento-charcoal">Intercepts</th>
+                        <th class="px-3 py-2 text-left border-b border-magento-charcoal/20 font-semibold text-magento-charcoal">Purpose</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white">
+                    <tr>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10 font-medium">CustomerGridIndexAfterWebsiteDelete</td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10"><code class="text-xs">Store\Api\WebsiteRepositoryInterface::delete</code></td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10">Reindexes customer grid after website deletion</td>
+                    </tr>
+                    <tr>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10 font-medium">DeleteCustomerGroupExcludedWebsite</td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10"><code class="text-xs">Store\Api\WebsiteRepositoryInterface::delete</code></td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10">Cleanup excluded website records when website deleted</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="bg-white mb-12 p-8 border-t-4 border-magento-gold-500 shadow-sm">
+        <h2 class="text-2xl font-bold text-magento-charcoal mb-6">REST API Plugins</h2>
+        <p class="text-magento-charcoal/90 mb-6">These plugins are registered in <code class="bg-[#FAFAFA] px-2 py-1 text-sm">etc/webapi_rest/di.xml</code> and only apply to REST API requests.</p>
+
+        <div class="overflow-x-auto">
+            <table class="min-w-full text-sm border border-magento-charcoal/20">
+                <thead class="bg-[#FAFAFA]">
+                    <tr>
+                        <th class="px-3 py-2 text-left border-b border-magento-charcoal/20 font-semibold text-magento-charcoal">Plugin Name</th>
+                        <th class="px-3 py-2 text-left border-b border-magento-charcoal/20 font-semibold text-magento-charcoal">Intercepts</th>
+                        <th class="px-3 py-2 text-left border-b border-magento-charcoal/20 font-semibold text-magento-charcoal">Sort Order</th>
+                        <th class="px-3 py-2 text-left border-b border-magento-charcoal/20 font-semibold text-magento-charcoal">Purpose</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white">
+                    <tr>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10 font-medium">CustomerAuthorization</td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10"><code class="text-xs">CustomerRepositoryInterface</code></td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10">10</td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10">Validates customer token authorization</td>
+                    </tr>
+                    <tr>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10 font-medium">UpdateCustomer</td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10"><code class="text-xs">CustomerRepositoryInterface::save</code></td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10">10</td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10">Populates customer data from REST request body</td>
+                    </tr>
+                    <tr>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10 font-medium">ValidateCustomerData</td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10"><code class="text-xs">Webapi\Controller\Rest</code></td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10">1</td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10">Validates customer data format before processing</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="bg-white mb-12 p-8 border-t-4 border-magento-gold-500 shadow-sm">
+        <h2 class="text-2xl font-bold text-magento-charcoal mb-6">Observers Overview</h2>
+        <p class="text-lg text-magento-charcoal/90 leading-relaxed mb-6">
+            The Magento_Customer module implements <strong>16 observers</strong> that react to events dispatched during customer operations.
+        </p>
+
+        <div class="bg-magento-gold-50 border-l-4 border-magento-gold-500 p-6 shadow-sm">
+            <h3 class="text-lg font-semibold text-magento-charcoal mb-2">Observer Execution</h3>
+            <ul class="space-y-2 text-magento-charcoal/90">
+                <li class="flex gap-2"><span class="text-magento-orange-500 font-bold">→</span> <strong>Synchronous:</strong> Observers execute immediately when event is dispatched (blocking)</li>
+                <li class="flex gap-2"><span class="text-magento-orange-500 font-bold">→</span> <strong>Transaction Safety:</strong> Observers run inside TransactionWrapper transaction, so exceptions rollback entire operation</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="bg-white mb-12 p-8 border-t-4 border-magento-gold-500 shadow-sm">
+        <h2 class="text-2xl font-bold text-magento-charcoal mb-6">Customer Lifecycle Observers</h2>
+
+        <div class="overflow-x-auto mb-8">
+            <table class="min-w-full text-sm border border-magento-charcoal/20">
+                <thead class="bg-[#FAFAFA]">
+                    <tr>
+                        <th class="px-3 py-2 text-left border-b border-magento-charcoal/20 font-semibold text-magento-charcoal">Observer Name</th>
+                        <th class="px-3 py-2 text-left border-b border-magento-charcoal/20 font-semibold text-magento-charcoal">Event</th>
+                        <th class="px-3 py-2 text-left border-b border-magento-charcoal/20 font-semibold text-magento-charcoal">Purpose</th>
+                        <th class="px-3 py-2 text-left border-b border-magento-charcoal/20 font-semibold text-magento-charcoal">Area</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white">
+                    <tr>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10 font-medium">UpgradeOrderCustomerEmailObserver</td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10"><code class="text-xs">customer_save_after_data_object</code></td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10">Synchronizes customer email changes to historical orders</td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10">global</td>
+                    </tr>
+                    <tr>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10 font-medium">UpgradeQuoteCustomerEmailObserver</td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10"><code class="text-xs">customer_save_after_data_object</code></td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10">Synchronizes customer email changes to active cart</td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10">global</td>
+                    </tr>
+                    <tr>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10 font-medium">UpgradeCustomerPasswordObserver</td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10"><code class="text-xs">customer_customer_authenticated</code></td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10">Upgrades password hash to current algorithm on login</td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10">global</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="border-l-4 border-magento-orange-500 pl-6">
+            <h3 class="text-xl font-semibold text-magento-charcoal mb-3">UpgradeOrderCustomerEmailObserver</h3>
+            <p class="text-sm text-magento-charcoal/80 mb-3"><strong>Critical Business Logic:</strong> Synchronizes customer email changes to historical orders</p>
+
+            <h4 class="text-base font-semibold text-magento-charcoal mb-2">Database Impact:</h4>
+            <div class="code-block shadow-md overflow-hidden mb-4">
+              <div class="code-header bg-magento-charcoal-700 px-4 py-2 flex justify-between items-center border-b border-magento-charcoal-600">
+                <span class="text-magento-gold-400 text-sm font-semibold tracking-wide">SQL</span>
+              </div>
+              <pre class="bg-magento-charcoal-800 p-4 overflow-x-auto m-0 text-sm leading-relaxed"><code class="language-sql text-gray-100">UPDATE sales_order
+SET customer_email = 'new@example.com'
+WHERE customer_id = 123
+  AND customer_email = 'old@example.com'</code></pre>
+            </div>
+
+            <div class="bg-magento-gold-50 border-l-4 border-magento-gold-500 p-4 shadow-sm">
+                <p class="text-sm text-magento-charcoal/90"><strong>Why This Exists:</strong> Order lookup in admin uses customer_email filter. If email changes, admin can't find customer's orders. This keeps order email in sync with current customer email.</p>
+                <p class="text-sm text-magento-charcoal/90 mt-2"><strong>Performance:</strong> May update hundreds of orders for long-time customers.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white mb-12 p-8 border-t-4 border-magento-gold-500 shadow-sm">
+        <h2 class="text-2xl font-bold text-magento-charcoal mb-6">Address Observers</h2>
+
+        <div class="overflow-x-auto mb-8">
+            <table class="min-w-full text-sm border border-magento-charcoal/20">
+                <thead class="bg-[#FAFAFA]">
+                    <tr>
+                        <th class="px-3 py-2 text-left border-b border-magento-charcoal/20 font-semibold text-magento-charcoal">Observer Name</th>
+                        <th class="px-3 py-2 text-left border-b border-magento-charcoal/20 font-semibold text-magento-charcoal">Event</th>
+                        <th class="px-3 py-2 text-left border-b border-magento-charcoal/20 font-semibold text-magento-charcoal">Purpose</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white">
+                    <tr>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10 font-medium">BeforeAddressSaveObserver</td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10"><code class="text-xs">customer_address_save_before</code></td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10">Validates and processes VAT number before address save</td>
+                    </tr>
+                    <tr>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10 font-medium">AfterAddressSaveObserver</td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10"><code class="text-xs">customer_address_save_after</code></td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10">Changes customer group based on VAT validation result</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="border-l-4 border-magento-orange-500 pl-6">
+            <h3 class="text-xl font-semibold text-magento-charcoal mb-3">AfterAddressSaveObserver - Critical Side Effect</h3>
+
+            <div class="bg-magento-gold-50 border-l-4 border-magento-gold-500 p-4 shadow-sm mb-4">
+                <p class="text-base font-semibold text-magento-charcoal mb-2">Warning: Saving an address can change customer group!</p>
+                <p class="text-sm text-magento-charcoal/90">Based on VAT validation, this observer can move customers between groups (e.g., Regular → Intra-EU), affecting:</p>
+            </div>
+
+            <ul class="space-y-1 text-sm text-magento-charcoal/90 mb-4">
+                <li class="flex gap-2"><span class="text-magento-orange-500">•</span> Product prices (group pricing)</li>
+                <li class="flex gap-2"><span class="text-magento-orange-500">•</span> Catalog rules</li>
+                <li class="flex gap-2"><span class="text-magento-orange-500">•</span> Shopping cart prices</li>
+                <li class="flex gap-2"><span class="text-magento-orange-500">•</span> Tax calculations</li>
+            </ul>
+
+            <p class="text-sm text-magento-charcoal/80"><strong>Transaction Safety:</strong> Customer group change occurs in same transaction as address save. Rollback if fails.</p>
+        </div>
+    </div>
+
+    <div class="bg-white mb-12 p-8 border-t-4 border-magento-gold-500 shadow-sm">
+        <h2 class="text-2xl font-bold text-magento-charcoal mb-6">Authentication Observers</h2>
+
+        <div class="overflow-x-auto">
+            <table class="min-w-full text-sm border border-magento-charcoal/20">
+                <thead class="bg-[#FAFAFA]">
+                    <tr>
+                        <th class="px-3 py-2 text-left border-b border-magento-charcoal/20 font-semibold text-magento-charcoal">Observer Name</th>
+                        <th class="px-3 py-2 text-left border-b border-magento-charcoal/20 font-semibold text-magento-charcoal">Event</th>
+                        <th class="px-3 py-2 text-left border-b border-magento-charcoal/20 font-semibold text-magento-charcoal">Purpose</th>
+                        <th class="px-3 py-2 text-left border-b border-magento-charcoal/20 font-semibold text-magento-charcoal">Area</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white">
+                    <tr>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10 font-medium">LogLastLoginAtObserver</td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10"><code class="text-xs">customer_login</code></td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10">Records customer login timestamp</td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10">frontend</td>
+                    </tr>
+                    <tr>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10 font-medium">LogLastLogoutAtObserver</td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10"><code class="text-xs">customer_logout</code></td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10">Records customer logout timestamp</td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10">frontend</td>
+                    </tr>
+                    <tr>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10 font-medium">CustomerLoginSuccessObserver</td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10"><code class="text-xs">customer_login</code></td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10">Extensibility point for custom login logic</td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10">frontend</td>
+                    </tr>
+                    <tr>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10 font-medium">CustomerGroupAuthenticate</td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10"><code class="text-xs">customer_customer_authenticated</code></td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10">Validates customer group is active and allowed</td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10">global</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="bg-white mb-12 p-8 border-t-4 border-magento-gold-500 shadow-sm">
+        <h2 class="text-2xl font-bold text-magento-charcoal mb-6">Visitor Tracking Observers</h2>
+
+        <div class="overflow-x-auto">
+            <table class="min-w-full text-sm border border-magento-charcoal/20">
+                <thead class="bg-[#FAFAFA]">
+                    <tr>
+                        <th class="px-3 py-2 text-left border-b border-magento-charcoal/20 font-semibold text-magento-charcoal">Observer Name</th>
+                        <th class="px-3 py-2 text-left border-b border-magento-charcoal/20 font-semibold text-magento-charcoal">Event</th>
+                        <th class="px-3 py-2 text-left border-b border-magento-charcoal/20 font-semibold text-magento-charcoal">Purpose</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white">
+                    <tr>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10 font-medium">InitByRequestObserver</td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10"><code class="text-xs">controller_action_predispatch</code></td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10">Initialize visitor tracking on every page request</td>
+                    </tr>
+                    <tr>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10 font-medium">SaveByRequestObserver</td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10"><code class="text-xs">controller_action_postdispatch</code></td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10">Update visitor last_visit_at timestamp after request</td>
+                    </tr>
+                    <tr>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10 font-medium">BindCustomerLoginObserver</td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10"><code class="text-xs">customer_data_object_login</code></td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10">Link anonymous visitor session to customer account</td>
+                    </tr>
+                    <tr>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10 font-medium">BindQuoteCreateObserver</td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10"><code class="text-xs">sales_quote_save_after</code></td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10">Link quote (cart) to visitor session for analytics</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="bg-white mb-12 p-8 border-t-4 border-magento-gold-500 shadow-sm">
+        <h2 class="text-2xl font-bold text-magento-charcoal mb-6">Integration Observers</h2>
+
+        <div class="border-l-4 border-magento-orange-500 pl-6">
+            <h3 class="text-xl font-semibold text-magento-charcoal mb-3">AddCustomerGroupExcludedWebsite</h3>
+            <p class="text-sm text-magento-charcoal/80 mb-2"><strong>Event:</strong> <code class="bg-[#FAFAFA] px-2 py-1">catalog_rule_collection_load_after</code></p>
+            <p class="text-sm text-magento-charcoal/80 mb-4"><strong>Purpose:</strong> Filters catalog rules to exclude customer groups not allowed on current website</p>
+
+            <h4 class="text-base font-semibold text-magento-charcoal mb-2">Behavior:</h4>
+            <ol class="space-y-1 text-sm text-magento-charcoal/90 mb-4">
+                <li class="flex gap-2"><span class="text-magento-orange-500 font-bold">1.</span> Get current website ID</li>
+                <li class="flex gap-2"><span class="text-magento-orange-500 font-bold">2.</span> Load excluded customer groups for this website</li>
+                <li class="flex gap-2"><span class="text-magento-orange-500 font-bold">3.</span> Remove rules that apply to excluded groups</li>
+            </ol>
+
+            <div class="bg-magento-gold-50 border-l-4 border-magento-gold-500 p-4 shadow-sm">
+                <p class="text-sm text-magento-charcoal/90"><strong>B2B Feature:</strong> Prevents wholesale pricing from appearing on retail website.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white mb-12 p-8 border-t-4 border-magento-gold-500 shadow-sm">
+        <h2 class="text-2xl font-bold text-magento-charcoal mb-6">Observer Best Practices</h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="border-l-4 border-magento-orange-500 pl-4">
+                <h3 class="text-lg font-semibold text-magento-charcoal mb-2">1. Keep Observers Lightweight</h3>
+                <p class="text-sm text-magento-charcoal/80 mb-3"><span class="text-magento-orange-500 font-bold">Bad:</span> Complex business logic in observers</p>
+                <p class="text-sm text-magento-charcoal/80"><span class="text-magento-orange-500 font-bold">Good:</span> Delegate to service classes</p>
+            </div>
+
+            <div class="border-l-4 border-magento-orange-500 pl-4">
+                <h3 class="text-lg font-semibold text-magento-charcoal mb-2">2. Check for Data Changes</h3>
+                <p class="text-sm text-magento-charcoal/80">Don't perform expensive operations if data didn't change. Compare original vs current values.</p>
+            </div>
+
+            <div class="border-l-4 border-magento-orange-500 pl-4">
+                <h3 class="text-lg font-semibold text-magento-charcoal mb-2">3. Handle Exceptions</h3>
+                <p class="text-sm text-magento-charcoal/80">Observers run in transactions. Unhandled exceptions rollback entire operation. Catch and log when appropriate.</p>
+            </div>
+
+            <div class="border-l-4 border-magento-orange-500 pl-4">
+                <h3 class="text-lg font-semibold text-magento-charcoal mb-2">4. Avoid Circular Dependencies</h3>
+                <p class="text-sm text-magento-charcoal/80">Use session flags or different events to prevent infinite loops when observer triggers same event.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white mb-12 p-8 border-t-4 border-magento-gold-500 shadow-sm">
+        <h2 class="text-2xl font-bold text-magento-charcoal mb-6">Performance Monitoring</h2>
+
+        <div class="bg-magento-gold-50 border-l-4 border-magento-gold-500 p-6 shadow-sm mb-6">
+            <h3 class="text-lg font-semibold text-magento-charcoal mb-3">Slow Observers to Watch</h3>
+            <ul class="space-y-2 text-magento-charcoal/90">
+                <li class="flex gap-2"><span class="text-magento-orange-500 font-bold">1.</span> <strong>UpgradeOrderCustomerEmailObserver:</strong> May update hundreds of orders</li>
+                <li class="flex gap-2"><span class="text-magento-orange-500 font-bold">2.</span> <strong>BeforeAddressSaveObserver:</strong> External VAT API call (1-3 seconds)</li>
+                <li class="flex gap-2"><span class="text-magento-orange-500 font-bold">3.</span> <strong>AfterAddressSaveObserver:</strong> May trigger customer save (cascade)</li>
+            </ul>
+        </div>
+
+        <div class="border-l-4 border-magento-orange-500 pl-6">
+            <h3 class="text-xl font-semibold text-magento-charcoal mb-2">Profiling</h3>
+            <p class="text-sm text-magento-charcoal/90 mb-3">Use Magento profiler to measure observer execution time:</p>
+            <div class="bg-magento-charcoal text-white p-4 text-xs overflow-x-auto">
+                <code>bin/magento dev:profiler:enable html</code>
+            </div>
+            <p class="text-sm text-magento-charcoal/90 mt-3">Then check event dispatch times in profiler output.</p>
+        </div>
+    </div>
+
+    <footer class="mt-16 pt-8 border-t-4 border-magento-gold-500">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm text-magento-charcoal/80">
+            <div>
+                <h3 class="font-semibold text-magento-charcoal mb-2">Document Info</h3>
+                <p>Version: 1.0.0</p>
+                <p>Last Updated: 2025-12-03</p>
+                <p>Magento Version: 2.4.8</p>
+            </div>
+            <div>
+                <h3 class="font-semibold text-magento-charcoal mb-2">Related Documentation</h3>
+                <ul class="space-y-1">
+                    <li><a href="architecture.html" class="text-magento-orange-500 hover:underline transition-colors">Architecture</a></li>
+                    <li><a href="execution-flows.html" class="text-magento-orange-500 hover:underline transition-colors">Execution Flows</a></li>
+                    <li><a href="integrations.html" class="text-magento-orange-500 hover:underline transition-colors">Module Integrations</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="font-semibold text-magento-charcoal mb-2">Navigation</h3>
+                <ul class="space-y-1">
+                    <li><a href="../../../index.html" class="text-magento-orange-500 hover:underline transition-colors">Home</a></li>
+                    <li><a href="../index.html" class="text-magento-orange-500 hover:underline transition-colors">Magento_Customer Module</a></li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+
+</main>
+
+</body>
+</html>

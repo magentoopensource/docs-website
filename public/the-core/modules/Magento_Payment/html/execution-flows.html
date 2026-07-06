@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Execution Flows - Magento_Payment Module</title>
+    <meta name="description" content="Step-by-step traces of authorize, capture, void, and refund payment operations in Magento 2.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'magento-orange': {
+                            DEFAULT: '#F26423',
+                            50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad', 300: '#f9ae78',
+                            400: '#f58242', 500: '#f26423', 600: '#e34613', 700: '#bc3312',
+                            800: '#962a16', 900: '#792515', 950: '#411009'
+                        },
+                        'magento-gold': {
+                            DEFAULT: '#F1BC1B',
+                            50: '#fffdeb', 100: '#fdf9c8', 200: '#fbf38c', 300: '#f8e651',
+                            400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a', 700: '#b1670c',
+                            800: '#8f5111', 900: '#764311', 950: '#442204'
+                        },
+                        'magento-charcoal': {
+                            DEFAULT: '#2c2c2c',
+                            50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6', 300: '#818181',
+                            400: '#474747', 500: '#2c2c2c', 600: '#262626', 700: '#202020',
+                            800: '#1c1c1c', 900: '#191919', 950: '#121212'
+                        },
+                        
+                    },
+                    fontFamily: {
+                        sans: ['Inter Tight', 'system-ui', 'sans-serif'],
+                        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&display=swap');
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+        pre { background: #1c1c1c; border-radius: 0; }
+        code { font-family: 'JetBrains Mono', 'Fira Code', monospace; }
+        .flow-step { position: relative; padding-left: 2rem; }
+        .flow-step::before {
+            content: '';
+            position: absolute;
+            left: 0.5rem;
+            top: 1.75rem;
+            bottom: -1rem;
+            width: 2px;
+            background: #d9d9d9;
+        }
+        .flow-step:last-child::before { display: none; }
+        .flow-number {
+            position: absolute;
+            left: 0;
+            top: 0.25rem;
+            width: 1.25rem;
+            height: 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body class="bg-[#FAFAFA] text-magento-charcoal">
+
+    <!-- Header -->
+    <header class="bg-gradient-to-br from-magento-charcoal-500 via-magento-charcoal-600 to-magento-charcoal-700 border-b-8 border-magento-gold-500">
+        <!-- back-to-developer-docs -->
+        <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 pt-4"><a href="/developer/" aria-label="Back to Developer Docs" class="inline-flex items-center gap-1.5 text-sm font-medium text-white/70 hover:text-white transition-colors no-underline"><span aria-hidden="true">←</span> Developer Docs</a></div>
+        <div class="max-w-6xl mx-auto px-6 py-8">
+            <nav class="mb-4" aria-label="Breadcrumb">
+                <ol class="flex items-center gap-2 text-sm text-gray-400">
+                    <li><a href="../../../index.html" class="hover:text-white transition-colors">Home</a></li>
+                    <li><span class="mx-2">/</span></li>
+                    <li><a href="index.html" class="hover:text-white transition-colors">Magento_Payment</a></li>
+                    <li><span class="mx-2">/</span></li>
+                    <li><span class="text-magento-gold-400">Execution Flows</span></li>
+                </ol>
+            </nav>
+            <h1 class="text-3xl font-bold text-white">Execution Flows</h1>
+            <p class="text-gray-300 mt-2">Step-by-step traces of payment operations with Gateway commands</p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="max-w-6xl mx-auto px-6 py-12">
+
+        <!-- Flow 1: Authorization -->
+        <section class="bg-white p-8 shadow-sm mb-8 border-l-4 border-magento-orange-500">
+            <h2 class="text-2xl font-bold text-magento-charcoal mb-2">Flow 1: Payment Authorization</h2>
+            <p class="text-gray-600 mb-6">When order is placed with payment_action = "authorize"</p>
+
+            <div class="space-y-6">
+                <div class="flow-step">
+                    <div class="flow-number bg-magento-orange-500 text-white rounded-full">1</div>
+                    <div class="bg-gray-50 p-4 border border-gray-200">
+                        <h3 class="font-semibold text-magento-charcoal">Order Placement Triggers Payment</h3>
+                        <p class="text-sm text-gray-700 mt-1">
+                            <code class="bg-white px-1">Sales\Model\Order\Payment::place()</code> is called during order save.
+                        </p>
+                        <div class="bg-charcoal text-gray-100 p-3 mt-3 text-xs overflow-x-auto">
+                            <pre><code>// Order\Payment::place()
+$this->_authorize(true, $baseTotalDue);
+// Calls MethodInterface::authorize()</code></pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flow-step">
+                    <div class="flow-number bg-magento-orange-500 text-white rounded-full">2</div>
+                    <div class="bg-gray-50 p-4 border border-gray-200">
+                        <h3 class="font-semibold text-magento-charcoal">Method Adapter Routes to Gateway</h3>
+                        <p class="text-sm text-gray-700 mt-1">
+                            <code class="bg-white px-1">Method\Adapter::authorize()</code> resolves "authorize" command from CommandPool.
+                        </p>
+                        <div class="bg-charcoal text-gray-100 p-3 mt-3 text-xs overflow-x-auto">
+                            <pre><code>// Method\Adapter::authorize()
+$this->executeCommand('authorize', [
+    'payment' => $paymentDataObject,
+    'amount' => $amount
+]);</code></pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flow-step">
+                    <div class="flow-number bg-magento-orange-500 text-white rounded-full">3</div>
+                    <div class="bg-gray-50 p-4 border border-gray-200">
+                        <h3 class="font-semibold text-magento-charcoal">Request Builder Constructs Payload</h3>
+                        <p class="text-sm text-gray-700 mt-1">
+                            <code class="bg-white px-1">BuilderComposite</code> chains multiple builders to create the API request.
+                        </p>
+                        <div class="bg-charcoal text-gray-100 p-3 mt-3 text-xs overflow-x-auto">
+                            <pre><code>// Example builder output
+[
+    'amount' => 99.99,
+    'currency' => 'USD',
+    'card' => ['number' => '4111...', 'exp' => '12/25'],
+    'billing_address' => [...],
+    'merchant_id' => 'abc123'
+]</code></pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flow-step">
+                    <div class="flow-number bg-magento-orange-500 text-white rounded-full">4</div>
+                    <div class="bg-gray-50 p-4 border border-gray-200">
+                        <h3 class="font-semibold text-magento-charcoal">HTTP Client Sends to Gateway</h3>
+                        <p class="text-sm text-gray-700 mt-1">
+                            <code class="bg-white px-1">TransferFactory</code> creates transfer object, <code class="bg-white px-1">ClientInterface</code> sends request.
+                        </p>
+                        <div class="bg-charcoal text-gray-100 p-3 mt-3 text-xs overflow-x-auto">
+                            <pre><code>// Gateway\Http\Client\Zend or Curl
+POST https://api.gateway.com/authorize
+Content-Type: application/json
+Authorization: Bearer {token}
+
+{"amount": 99.99, "currency": "USD", ...}</code></pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flow-step">
+                    <div class="flow-number bg-magento-orange-500 text-white rounded-full">5</div>
+                    <div class="bg-gray-50 p-4 border border-gray-200">
+                        <h3 class="font-semibold text-magento-charcoal">Response Handler Updates Payment</h3>
+                        <p class="text-sm text-gray-700 mt-1">
+                            <code class="bg-white px-1">HandlerInterface</code> extracts transaction ID and stores in payment.
+                        </p>
+                        <div class="bg-charcoal text-gray-100 p-3 mt-3 text-xs overflow-x-auto">
+                            <pre><code>// Response handler
+$payment->setTransactionId($response['transaction_id']);
+$payment->setIsTransactionClosed(false);
+$payment->setAdditionalInformation('auth_code', $response['auth_code']);</code></pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flow-step">
+                    <div class="flow-number bg-magento-orange-500 text-white rounded-full">6</div>
+                    <div class="bg-gray-50 p-4 border border-gray-200">
+                        <h3 class="font-semibold text-magento-charcoal">Validator Confirms Success</h3>
+                        <p class="text-sm text-gray-700 mt-1">
+                            <code class="bg-white px-1">ValidatorInterface</code> checks response codes and throws exception on failure.
+                        </p>
+                        <div class="bg-charcoal text-gray-100 p-3 mt-3 text-xs overflow-x-auto">
+                            <pre><code>// Validator checks
+if ($response['status'] !== 'approved') {
+    throw new CommandException(__('Payment authorization failed'));
+}
+return $this->createResult(true, []);</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Flow 2: Capture -->
+        <section class="bg-white p-8 shadow-sm mb-8 border-l-4 border-magento-gold-500">
+            <h2 class="text-2xl font-bold text-magento-charcoal mb-2">Flow 2: Payment Capture</h2>
+            <p class="text-gray-600 mb-6">When invoice is created with "Capture Online" option</p>
+
+            <div class="space-y-6">
+                <div class="flow-step">
+                    <div class="flow-number bg-magento-gold-500 text-magento-charcoal rounded-full">1</div>
+                    <div class="bg-gray-50 p-4 border border-gray-200">
+                        <h3 class="font-semibold text-magento-charcoal">Invoice Service Initiates Capture</h3>
+                        <p class="text-sm text-gray-700 mt-1">
+                            <code class="bg-white px-1">Sales\Model\Order\Payment::capture()</code> called from invoice creation.
+                        </p>
+                        <div class="bg-charcoal text-gray-100 p-3 mt-3 text-xs overflow-x-auto">
+                            <pre><code>// InvoiceService triggers
+$payment->capture($invoice);
+// For previously authorized payments:
+$this->_capture($invoice);</code></pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flow-step">
+                    <div class="flow-number bg-magento-gold-500 text-magento-charcoal rounded-full">2</div>
+                    <div class="bg-gray-50 p-4 border border-gray-200">
+                        <h3 class="font-semibold text-magento-charcoal">Gateway Capture Command Executes</h3>
+                        <p class="text-sm text-gray-700 mt-1">
+                            Request builder includes original transaction ID for reference.
+                        </p>
+                        <div class="bg-charcoal text-gray-100 p-3 mt-3 text-xs overflow-x-auto">
+                            <pre><code>// Capture request builder
+[
+    'transaction_id' => $payment->getParentTransactionId(),
+    'amount' => $invoice->getBaseGrandTotal(),
+    'currency' => $order->getBaseCurrencyCode()
+]</code></pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flow-step">
+                    <div class="flow-number bg-magento-gold-500 text-magento-charcoal rounded-full">3</div>
+                    <div class="bg-gray-50 p-4 border border-gray-200">
+                        <h3 class="font-semibold text-magento-charcoal">Transaction Created</h3>
+                        <p class="text-sm text-gray-700 mt-1">
+                            Capture transaction linked to authorization as parent.
+                        </p>
+                        <div class="bg-charcoal text-gray-100 p-3 mt-3 text-xs overflow-x-auto">
+                            <pre><code>// Response handler creates transaction
+$payment->setTransactionId($response['capture_id']);
+$payment->setParentTransactionId($response['auth_id']);
+// Transaction type: capture</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Flow 3: Void -->
+        <section class="bg-white p-8 shadow-sm mb-8 border-l-4 border-charcoal">
+            <h2 class="text-2xl font-bold text-magento-charcoal mb-2">Flow 3: Authorization Void</h2>
+            <p class="text-gray-600 mb-6">When order is cancelled before capture</p>
+
+            <div class="space-y-6">
+                <div class="flow-step">
+                    <div class="flow-number bg-charcoal text-white rounded-full">1</div>
+                    <div class="bg-gray-50 p-4 border border-gray-200">
+                        <h3 class="font-semibold text-magento-charcoal">Order Cancel Triggers Void</h3>
+                        <p class="text-sm text-gray-700 mt-1">
+                            <code class="bg-white px-1">Order\Payment::cancel()</code> checks if void is possible.
+                        </p>
+                        <div class="bg-charcoal text-gray-100 p-3 mt-3 text-xs overflow-x-auto">
+                            <pre><code>// Order\Payment::cancel()
+if ($this->canVoid()) {
+    $this->void(new \Magento\Framework\DataObject());
+}</code></pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flow-step">
+                    <div class="flow-number bg-charcoal text-white rounded-full">2</div>
+                    <div class="bg-gray-50 p-4 border border-gray-200">
+                        <h3 class="font-semibold text-magento-charcoal">Gateway Void Command</h3>
+                        <p class="text-sm text-gray-700 mt-1">
+                            Sends void request with original authorization transaction ID.
+                        </p>
+                        <div class="bg-charcoal text-gray-100 p-3 mt-3 text-xs overflow-x-auto">
+                            <pre><code>// Void request
+[
+    'transaction_id' => $payment->getLastTransId(),
+    'reason' => 'Order cancelled'
+]</code></pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flow-step">
+                    <div class="flow-number bg-charcoal text-white rounded-full">3</div>
+                    <div class="bg-gray-50 p-4 border border-gray-200">
+                        <h3 class="font-semibold text-magento-charcoal">Authorization Closed</h3>
+                        <p class="text-sm text-gray-700 mt-1">
+                            Original auth transaction marked as closed.
+                        </p>
+                        <div class="bg-charcoal text-gray-100 p-3 mt-3 text-xs overflow-x-auto">
+                            <pre><code>// After void
+$authTransaction->setIsClosed(true);
+// New void transaction created
+$payment->setTransactionId($response['void_id'] . '-void');</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Flow 4: Refund -->
+        <section class="bg-white p-8 shadow-sm mb-8 border-l-4 border-magento-orange-500">
+            <h2 class="text-2xl font-bold text-magento-charcoal mb-2">Flow 4: Online Refund</h2>
+            <p class="text-gray-600 mb-6">When credit memo is created with "Refund" option</p>
+
+            <div class="space-y-6">
+                <div class="flow-step">
+                    <div class="flow-number bg-magento-orange-500 text-white rounded-full">1</div>
+                    <div class="bg-gray-50 p-4 border border-gray-200">
+                        <h3 class="font-semibold text-magento-charcoal">Credit Memo Initiates Refund</h3>
+                        <p class="text-sm text-gray-700 mt-1">
+                            <code class="bg-white px-1">Order\Payment::refund()</code> called from creditmemo service.
+                        </p>
+                        <div class="bg-charcoal text-gray-100 p-3 mt-3 text-xs overflow-x-auto">
+                            <pre><code>// Creditmemo service
+$payment->refund($creditmemo);
+// Triggers MethodInterface::refund()</code></pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flow-step">
+                    <div class="flow-number bg-magento-orange-500 text-white rounded-full">2</div>
+                    <div class="bg-gray-50 p-4 border border-gray-200">
+                        <h3 class="font-semibold text-magento-charcoal">Gateway Refund Command</h3>
+                        <p class="text-sm text-gray-700 mt-1">
+                            References capture transaction for partial or full refund.
+                        </p>
+                        <div class="bg-charcoal text-gray-100 p-3 mt-3 text-xs overflow-x-auto">
+                            <pre><code>// Refund request builder
+[
+    'transaction_id' => $payment->getRefundTransactionId(),
+    'amount' => $creditmemo->getBaseGrandTotal(),
+    'invoice_id' => $invoice->getIncrementId()
+]</code></pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flow-step">
+                    <div class="flow-number bg-magento-orange-500 text-white rounded-full">3</div>
+                    <div class="bg-gray-50 p-4 border border-gray-200">
+                        <h3 class="font-semibold text-magento-charcoal">Refund Transaction Created</h3>
+                        <p class="text-sm text-gray-700 mt-1">
+                            New refund transaction linked to capture as parent.
+                        </p>
+                        <div class="bg-charcoal text-gray-100 p-3 mt-3 text-xs overflow-x-auto">
+                            <pre><code>// Response handler
+$payment->setTransactionId($response['refund_id']);
+$creditmemo->setTransactionId($response['refund_id']);
+// If full refund, capture transaction closed</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Flow 5: Payment Method Selection -->
+        <section class="bg-white p-8 shadow-sm mb-8 border-l-4 border-magento-gold-500">
+            <h2 class="text-2xl font-bold text-magento-charcoal mb-2">Flow 5: Checkout Payment Method Loading</h2>
+            <p class="text-gray-600 mb-6">When checkout page loads available payment methods</p>
+
+            <div class="space-y-6">
+                <div class="flow-step">
+                    <div class="flow-number bg-magento-gold-500 text-magento-charcoal rounded-full">1</div>
+                    <div class="bg-gray-50 p-4 border border-gray-200">
+                        <h3 class="font-semibold text-magento-charcoal">Checkout Config Provider Invoked</h3>
+                        <p class="text-sm text-gray-700 mt-1">
+                            <code class="bg-white px-1">CompositeConfigProvider</code> collects all payment config.
+                        </p>
+                        <div class="bg-charcoal text-gray-100 p-3 mt-3 text-xs overflow-x-auto">
+                            <pre><code>// checkout/index/index renders
+window.checkoutConfig = {
+    payment: {
+        // Each method adds its config here
+    }
+}</code></pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flow-step">
+                    <div class="flow-number bg-magento-gold-500 text-magento-charcoal rounded-full">2</div>
+                    <div class="bg-gray-50 p-4 border border-gray-200">
+                        <h3 class="font-semibold text-magento-charcoal">Payment Method List Filtered</h3>
+                        <p class="text-sm text-gray-700 mt-1">
+                            <code class="bg-white px-1">PaymentMethodList::getActiveList()</code> filters by availability rules.
+                        </p>
+                        <div class="bg-charcoal text-gray-100 p-3 mt-3 text-xs overflow-x-auto">
+                            <pre><code>// Filtering criteria:
+// - isActive() for current store
+// - isAvailable($quote) checks:
+//   - min/max order total
+//   - allowed countries
+//   - specific customer groups
+//   - SpecificationInterface rules</code></pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flow-step">
+                    <div class="flow-number bg-magento-gold-500 text-magento-charcoal rounded-full">3</div>
+                    <div class="bg-gray-50 p-4 border border-gray-200">
+                        <h3 class="font-semibold text-magento-charcoal">JS Component Renders Methods</h3>
+                        <p class="text-sm text-gray-700 mt-1">
+                            RequireJS components render each payment method in checkout.
+                        </p>
+                        <div class="bg-charcoal text-gray-100 p-3 mt-3 text-xs overflow-x-auto">
+                            <pre><code>// Magento_Checkout/js/view/payment/list
+// Iterates over available methods
+// Each method has its own component:
+// Magento_Payment/js/view/payment/cc-form</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Event Dispatch Points -->
+        <section class="bg-charcoal text-white p-8 mb-8">
+            <h2 class="text-2xl font-bold mb-6">Key Event Dispatch Points</h2>
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="border-l-4 border-magento-orange-500 pl-4">
+                    <h3 class="font-bold text-magento-orange-400 mb-2">sales_order_save_before</h3>
+                    <p class="text-gray-300 text-sm">
+                        Observed by <code class="bg-magento-charcoal-600 px-1">SalesOrderBeforeSaveObserver</code> to validate payment data before order save.
+                    </p>
+                </div>
+                <div class="border-l-4 border-magento-gold-500 pl-4">
+                    <h3 class="font-bold text-magento-gold-400 mb-2">sales_order_status_unassign</h3>
+                    <p class="text-gray-300 text-sm">
+                        <code class="bg-magento-charcoal-600 px-1">UpdateOrderStatusForPaymentMethodsObserver</code> updates status mapping when status unassigned.
+                    </p>
+                </div>
+                <div class="border-l-4 border-magento-orange-500 pl-4">
+                    <h3 class="font-bold text-magento-orange-400 mb-2">payment_method_is_active</h3>
+                    <p class="text-gray-300 text-sm">
+                        Dispatched during method availability check. Allows plugins to enable/disable methods dynamically.
+                    </p>
+                </div>
+                <div class="border-l-4 border-magento-gold-500 pl-4">
+                    <h3 class="font-bold text-magento-gold-400 mb-2">sales_order_payment_*</h3>
+                    <p class="text-gray-300 text-sm">
+                        Various events for payment operations: _place_start, _place_end, _cancel, _void, etc.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Error Handling -->
+        <section class="bg-white p-8 shadow-sm mb-8 border-l-4 border-magento-orange-500">
+            <h2 class="text-2xl font-bold text-magento-charcoal mb-6">Error Handling Flow</h2>
+
+            <div class="bg-charcoal text-gray-100 p-4 mb-6 overflow-x-auto">
+                <pre class="text-sm"><code>Gateway Response → Validator → ErrorMessageMapper → Exception
+
+// 1. Validator checks response
+$result = $validator->validate($response);
+if (!$result->isValid()) {
+    $errorCodes = $result->getFailsDescription();
+}
+
+// 2. ErrorMessageMapper translates codes
+// Configured in error_mapping.xml:
+&lt;error_messages&gt;
+    &lt;message code="1001" translate="true"&gt;Card declined&lt;/message&gt;
+    &lt;message code="1002" translate="true"&gt;Insufficient funds&lt;/message&gt;
+&lt;/error_messages&gt;
+
+// 3. CommandException thrown with customer-friendly message
+throw new CommandException(__($mappedMessage));</code></pre>
+            </div>
+
+            <div class="bg-magento-gold-50 border-l-4 border-magento-gold-500 p-4">
+                <p class="text-sm text-magento-gold-900">
+                    <strong>Best Practice:</strong> Always implement error_mapping.xml for your payment gateway. Raw gateway error codes
+                    should never be shown to customers. Map them to localized, user-friendly messages.
+                </p>
+            </div>
+        </section>
+
+        <!-- Navigation -->
+        <nav class="flex flex-wrap gap-4 justify-between items-center pt-8 border-t border-gray-200">
+            <a href="architecture.html" class="inline-flex items-center gap-2 text-magento-charcoal hover:text-magento-orange-600 transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                </svg>
+                Architecture
+            </a>
+            <a href="plugins-observers.html" class="inline-flex items-center gap-2 text-magento-orange-600 hover:text-magento-orange-700 font-semibold transition-colors">
+                Plugins & Observers
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+            </a>
+        </nav>
+
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-charcoal text-white py-8 mt-16">
+        <div class="max-w-6xl mx-auto px-6 text-center">
+            <p class="text-sm text-gray-400">
+                Magento_Payment Execution Flows | Part of The Magento Core Documentation Project
+            </p>
+        </div>
+    </footer>
+
+</body>
+</html>

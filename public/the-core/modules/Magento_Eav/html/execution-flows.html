@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Execution Flows - Magento_Eav | THE MAGENTO CORE</title>
+    <meta name="description" content="EAV execution flows - attribute loading, entity save, attribute set assignment, and option value resolution">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        orange: {
+                            DEFAULT: '#F26423',
+                            50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad', 300: '#f9ae78',
+                            400: '#f58242', 500: '#f26423', 600: '#e34613', 700: '#bc3312',
+                            800: '#962a16', 900: '#792515', 950: '#411009'
+                        },
+                        yellow: {
+                            DEFAULT: '#F1BC1B',
+                            50: '#fffbeb', 100: '#fdf9c8', 200: '#fbf38c', 300: '#f8e651',
+                            400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a', 700: '#b1670c',
+                            800: '#8f5111', 900: '#764311', 950: '#442204'
+                        },
+                        charcoal: {
+                            DEFAULT: '#2c2c2c',
+                            50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6', 300: '#818181',
+                            400: '#474747', 500: '#2c2c2c', 600: '#262626', 700: '#202020',
+                            800: '#1c1c1c', 900: '#191919', 950: '#121212'
+                        },
+                        brown: '#442204',
+                        'off-white': '#FAFAFA',
+                    },
+                    fontFamily: {
+                        sans: ['Inter Tight', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter Tight', system-ui, sans-serif; }
+        .code-block { background: #1c1c1c; color: #f1f1f1; }
+    </style>
+</head>
+<body class="bg-off-white text-charcoal">
+
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-charcoal focus:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
+        Skip to content
+    </a>
+
+    <header class="bg-gradient-to-br from-charcoal-500 via-charcoal-600 to-charcoal-700 border-b-8 border-orange-500">
+        <!-- back-to-developer-docs -->
+        <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 pt-4"><a href="/developer/" aria-label="Back to Developer Docs" class="inline-flex items-center gap-1.5 text-sm font-medium text-white/70 hover:text-white transition-colors no-underline"><span aria-hidden="true">←</span> Developer Docs</a></div>
+        <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+            <nav aria-label="Breadcrumb" class="mb-6">
+                <ol class="flex flex-wrap items-center gap-2 text-sm text-gray-400">
+                    <li><a href="../../../index.html" class="hover:text-orange-500 underline underline-offset-4">Home</a></li>
+                    <li aria-hidden="true"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></li>
+                    <li><a href="index.html" class="hover:text-orange-500 underline underline-offset-4">Magento_Eav</a></li>
+                    <li aria-hidden="true"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></li>
+                    <li class="text-white font-medium">Execution Flows</li>
+                </ol>
+            </nav>
+            <div id="main-content">
+                <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white mb-4">Execution Flows</h1>
+                <p class="text-base sm:text-lg text-gray-300 max-w-3xl">Attribute loading, entity save, attribute set assignment, and option value resolution.</p>
+            </div>
+        </div>
+    </header>
+
+    <div class="max-w-6xl mx-auto px-6 py-8 md:py-12">
+
+        <!-- Flow 1: Entity Load -->
+        <section class="bg-white mb-12 p-8 border-t-4 border-orange-500 shadow-sm">
+            <div class="flex items-center gap-3 mb-6">
+                <span class="bg-orange-500 text-white px-3 py-1 text-xs font-semibold uppercase">Critical Flow</span>
+                <h2 class="text-2xl font-bold text-charcoal">1. Entity Load with EAV Attributes</h2>
+            </div>
+            <p class="text-gray-700 mb-6">
+                Loading an EAV entity requires joining multiple value tables to retrieve all attribute values.
+                This flow shows how a product or customer entity is loaded with its EAV data.
+            </p>
+
+            <div class="code-block p-6 font-mono text-sm overflow-x-auto mb-6">
+<div><span class="text-orange-400 font-bold">[1]</span> <span class="text-green-400">Repository</span>::<span class="text-yellow-400">getById</span>($entityId)</div>
+<div class="text-gray-500">    |</div>
+<div><span class="text-orange-400 font-bold">[2]</span> <span class="text-green-400">AbstractEntity</span>::<span class="text-yellow-400">load</span>($object, $entityId)</div>
+<div class="text-gray-500">    |</div>
+<div><span class="text-orange-400 font-bold">[3]</span> Load static attributes from entity table</div>
+<div class="text-gray-500">    |  SELECT * FROM catalog_product_entity WHERE entity_id = ?</div>
+<div class="text-gray-500">    |</div>
+<div><span class="text-orange-400 font-bold">[4]</span> <span class="text-green-400">AttributeLoader</span>::<span class="text-yellow-400">loadAllAttributes</span>($entityType)</div>
+<div class="text-gray-500">    |  // Get all attributes for this entity type (cached)</div>
+<div class="text-gray-500">    |</div>
+<div><span class="text-orange-400 font-bold">[5]</span> For each backend_type (varchar, int, decimal, text, datetime):</div>
+<div class="text-gray-500">    |</div>
+<div class="text-gray-500">    +--&gt;</div> <span class="text-green-400">AbstractEntity</span>::<span class="text-yellow-400">_getLoadAttributesSelect</span>()
+<div class="text-gray-500">    |      SELECT attribute_id, store_id, value</div>
+<div class="text-gray-500">    |      FROM catalog_product_entity_varchar</div>
+<div class="text-gray-500">    |      WHERE entity_id = ? AND store_id IN (0, ?)</div>
+<div class="text-gray-500">    |</div>
+<div><span class="text-orange-400 font-bold">[6]</span> Apply store scope fallback</div>
+<div class="text-gray-500">    |  // Store value overrides default (store_id=0) if exists</div>
+<div class="text-gray-500">    |</div>
+<div><span class="text-orange-400 font-bold">[7]</span> Run <span class="text-green-400">Frontend Model</span>::<span class="text-yellow-400">getValue</span>() for formatting</div>
+<div class="text-gray-500">    |</div>
+<div><span class="text-orange-400 font-bold">[8]</span> Return hydrated entity object</div>
+            </div>
+
+            <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4">
+                <div class="font-semibold text-charcoal mb-2">N+1 Query Warning</div>
+                <p class="text-gray-700">
+                    Loading multiple entities individually causes N+1 queries. Use collections with
+                    <code class="bg-gray-100 px-1">addAttributeToSelect('*')</code> or specific attributes to batch-load values.
+                </p>
+            </div>
+        </section>
+
+        <!-- Flow 2: Entity Save -->
+        <section class="bg-white mb-12 p-8 border-t-4 border-yellow-500 shadow-sm">
+            <div class="flex items-center gap-3 mb-6">
+                <span class="bg-orange-500 text-white px-3 py-1 text-xs font-semibold uppercase">Critical Flow</span>
+                <h2 class="text-2xl font-bold text-charcoal">2. Entity Save with EAV Values</h2>
+            </div>
+            <p class="text-gray-700 mb-6">
+                Saving an EAV entity writes to multiple tables: the entity table and all relevant
+                value tables based on which attributes have been modified.
+            </p>
+
+            <div class="code-block p-6 font-mono text-sm overflow-x-auto mb-6">
+<div><span class="text-orange-400 font-bold">[1]</span> <span class="text-green-400">Repository</span>::<span class="text-yellow-400">save</span>($entity)</div>
+<div class="text-gray-500">    |</div>
+<div><span class="text-orange-400 font-bold">[2]</span> <span class="text-green-400">AbstractEntity</span>::<span class="text-yellow-400">save</span>($object)</div>
+<div class="text-gray-500">    |</div>
+<div><span class="text-orange-400 font-bold">[3]</span> Run <span class="text-green-400">Backend Model</span>::<span class="text-yellow-400">validate</span>() for each attribute</div>
+<div class="text-gray-500">    |  // Throws exception if validation fails</div>
+<div class="text-gray-500">    |</div>
+<div><span class="text-orange-400 font-bold">[4]</span> Run <span class="text-green-400">Backend Model</span>::<span class="text-yellow-400">beforeSave</span>() for each attribute</div>
+<div class="text-gray-500">    |  // Transform values (e.g., serialize arrays)</div>
+<div class="text-gray-500">    |</div>
+<div><span class="text-orange-400 font-bold">[5]</span> Save static attributes to entity table</div>
+<div class="text-gray-500">    |  INSERT/UPDATE catalog_product_entity</div>
+<div class="text-gray-500">    |</div>
+<div><span class="text-orange-400 font-bold">[6]</span> For each modified EAV attribute:</div>
+<div class="text-gray-500">    |</div>
+<div class="text-gray-500">    +--&gt;</div> Determine value table from backend_type
+<div class="text-gray-500">    |</div>
+<div class="text-gray-500">    +--&gt;</div> If value is null: DELETE from value table
+<div class="text-gray-500">    |</div>
+<div class="text-gray-500">    +--&gt;</div> If value exists: INSERT ... ON DUPLICATE KEY UPDATE
+<div class="text-gray-500">    |</div>
+<div><span class="text-orange-400 font-bold">[7]</span> Run <span class="text-green-400">Backend Model</span>::<span class="text-yellow-400">afterSave</span>() for each attribute</div>
+<div class="text-gray-500">    |</div>
+<div><span class="text-orange-400 font-bold">[8]</span> Dispatch <span class="text-yellow-400">model_save_after</span> event</div>
+            </div>
+
+            <h3 class="text-xl font-bold text-charcoal mb-4">Store Scope Handling</h3>
+            <div class="code-block p-4 font-mono text-sm overflow-x-auto">
+<span class="text-gray-500">// Saving a product with store-scoped attribute</span>
+$product-&gt;setStoreId(1); <span class="text-gray-500">// French store</span>
+$product-&gt;setName(<span class="text-green-400">'Produit Exemple'</span>);
+$productRepository-&gt;save($product);
+
+<span class="text-gray-500">// This creates TWO rows in catalog_product_entity_varchar:</span>
+<span class="text-gray-500">// 1. entity_id=X, attribute_id=Y, store_id=0, value='Default Name'</span>
+<span class="text-gray-500">// 2. entity_id=X, attribute_id=Y, store_id=1, value='Produit Exemple'</span>
+
+<span class="text-gray-500">// To use default value (delete store-specific):</span>
+$product-&gt;setName(<span class="text-orange-400">false</span>); <span class="text-gray-500">// or $product-&gt;setData('name', false)</span>
+            </div>
+        </section>
+
+        <!-- Flow 3: Attribute Configuration Loading -->
+        <section class="bg-white mb-12 p-8 border-t-4 border-orange-500 shadow-sm">
+            <div class="flex items-center gap-3 mb-6">
+                <span class="bg-yellow-500 text-charcoal px-3 py-1 text-xs font-semibold uppercase">Important Flow</span>
+                <h2 class="text-2xl font-bold text-charcoal">3. Attribute Configuration Loading</h2>
+            </div>
+            <p class="text-gray-700 mb-6">
+                The <code class="bg-gray-100 px-1">Eav\Model\Config</code> class loads and caches all entity types and their
+                attributes. This happens once and is cached for subsequent requests.
+            </p>
+
+            <ol class="space-y-4 mb-6">
+                <li class="relative pl-14 py-4 bg-gray-50">
+                    <span class="absolute left-0 top-0 bottom-0 w-10 bg-charcoal text-white flex items-center justify-center font-bold">1</span>
+                    <div class="font-mono text-sm font-semibold text-charcoal">Eav\Model\Config::getEntityType($entityType)</div>
+                    <div class="text-sm text-gray-600 mt-1">Check cache for entity type configuration</div>
+                </li>
+                <li class="relative pl-14 py-4 bg-gray-50">
+                    <span class="absolute left-0 top-0 bottom-0 w-10 bg-orange-500 text-white flex items-center justify-center font-bold">2</span>
+                    <div class="font-mono text-sm font-semibold text-charcoal">Load from eav_entity_type table</div>
+                    <div class="text-sm text-gray-600 mt-1">Get entity model, attribute model, table names</div>
+                </li>
+                <li class="relative pl-14 py-4 bg-gray-50">
+                    <span class="absolute left-0 top-0 bottom-0 w-10 bg-charcoal text-white flex items-center justify-center font-bold">3</span>
+                    <div class="font-mono text-sm font-semibold text-charcoal">Eav\Model\Config::getAttributes($entityType)</div>
+                    <div class="text-sm text-gray-600 mt-1">Load all attributes for entity type from cache or database</div>
+                </li>
+                <li class="relative pl-14 py-4 bg-gray-50">
+                    <span class="absolute left-0 top-0 bottom-0 w-10 bg-orange-500 text-white flex items-center justify-center font-bold">4</span>
+                    <div class="font-mono text-sm font-semibold text-charcoal">Join eav_attribute + additional_attribute_table</div>
+                    <div class="text-sm text-gray-600 mt-1">E.g., eav_attribute + catalog_eav_attribute for products</div>
+                </li>
+                <li class="relative pl-14 py-4 bg-gray-50">
+                    <span class="absolute left-0 top-0 bottom-0 w-10 bg-charcoal text-white flex items-center justify-center font-bold">5</span>
+                    <div class="font-mono text-sm font-semibold text-charcoal">Cache with tag 'eav'</div>
+                    <div class="text-sm text-gray-600 mt-1">Stored in configured cache backend (Redis, file, etc.)</div>
+                </li>
+            </ol>
+
+            <div class="bg-orange-50 border-l-4 border-orange-500 p-4">
+                <div class="font-semibold text-charcoal mb-2">Cache Invalidation</div>
+                <p class="text-gray-700">
+                    After adding/modifying attributes, flush the EAV cache:
+                    <code class="bg-gray-100 px-1">bin/magento cache:flush eav</code>
+                </p>
+            </div>
+        </section>
+
+        <!-- Flow 4: Attribute Option Resolution -->
+        <section class="bg-white mb-12 p-8 border-t-4 border-yellow-500 shadow-sm">
+            <div class="flex items-center gap-3 mb-6">
+                <span class="bg-yellow-500 text-charcoal px-3 py-1 text-xs font-semibold uppercase">Important Flow</span>
+                <h2 class="text-2xl font-bold text-charcoal">4. Attribute Option Resolution</h2>
+            </div>
+            <p class="text-gray-700 mb-6">
+                For select/multiselect attributes, option values are stored as IDs. The source model
+                resolves these IDs to human-readable labels.
+            </p>
+
+            <div class="code-block p-6 font-mono text-sm overflow-x-auto mb-6">
+<div><span class="text-orange-400 font-bold">[1]</span> Entity loaded with <span class="text-yellow-400">color = 45</span> <span class="text-gray-500">(option_id)</span></div>
+<div class="text-gray-500">    |</div>
+<div><span class="text-orange-400 font-bold">[2]</span> Template calls <span class="text-green-400">$product</span>-&gt;<span class="text-yellow-400">getAttributeText</span>(<span class="text-yellow-400">'color'</span>)</div>
+<div class="text-gray-500">    |</div>
+<div><span class="text-orange-400 font-bold">[3]</span> Get attribute by code from <span class="text-green-400">Eav\Model\Config</span></div>
+<div class="text-gray-500">    |</div>
+<div><span class="text-orange-400 font-bold">[4]</span> Get <span class="text-green-400">Source Model</span> from attribute (e.g., Table source)</div>
+<div class="text-gray-500">    |</div>
+<div><span class="text-orange-400 font-bold">[5]</span> <span class="text-green-400">Source\Table</span>::<span class="text-yellow-400">getOptionText</span>(45)</div>
+<div class="text-gray-500">    |</div>
+<div class="text-gray-500">    +--&gt;</div> Query eav_attribute_option_value
+<div class="text-gray-500">    |      WHERE option_id = 45 AND store_id IN (0, current_store)</div>
+<div class="text-gray-500">    |</div>
+<div><span class="text-orange-400 font-bold">[6]</span> Return label: <span class="text-yellow-400">"Blue"</span> <span class="text-gray-500">(or store-specific translation)</span></div>
+            </div>
+
+            <div class="code-block p-4 font-mono text-sm overflow-x-auto">
+<span class="text-gray-500">// Getting option text in code</span>
+$colorLabel = $product-&gt;getAttributeText(<span class="text-green-400">'color'</span>); <span class="text-gray-500">// "Blue"</span>
+
+<span class="text-gray-500">// Getting all options for an attribute</span>
+$attribute = $eavConfig-&gt;getAttribute(<span class="text-yellow-400">Product</span>::ENTITY, <span class="text-green-400">'color'</span>);
+$options = $attribute-&gt;getSource()-&gt;getAllOptions();
+<span class="text-gray-500">// Returns: [['value' =&gt; 45, 'label' =&gt; 'Blue'], ...]</span>
+
+<span class="text-gray-500">// Custom source model implementation</span>
+<span class="text-orange-400">class</span> <span class="text-yellow-400">CustomSource</span> <span class="text-orange-400">extends</span> <span class="text-yellow-400">AbstractSource</span>
+{
+    <span class="text-orange-400">public function</span> <span class="text-yellow-400">getAllOptions</span>()
+    {
+        <span class="text-orange-400">return</span> [
+            [<span class="text-green-400">'value'</span> =&gt; <span class="text-green-400">''</span>, <span class="text-green-400">'label'</span> =&gt; <span class="text-yellow-400">__</span>(<span class="text-green-400">'-- Select --'</span>)],
+            [<span class="text-green-400">'value'</span> =&gt; <span class="text-green-400">'option1'</span>, <span class="text-green-400">'label'</span> =&gt; <span class="text-yellow-400">__</span>(<span class="text-green-400">'Option 1'</span>)],
+            [<span class="text-green-400">'value'</span> =&gt; <span class="text-green-400">'option2'</span>, <span class="text-green-400">'label'</span> =&gt; <span class="text-yellow-400">__</span>(<span class="text-green-400">'Option 2'</span>)],
+        ];
+    }
+}
+            </div>
+        </section>
+
+        <!-- Flow 5: Attribute Set Assignment -->
+        <section class="bg-white mb-12 p-8 border-t-4 border-orange-500 shadow-sm">
+            <div class="flex items-center gap-3 mb-6">
+                <span class="bg-charcoal text-white px-3 py-1 text-xs font-semibold uppercase">Standard Flow</span>
+                <h2 class="text-2xl font-bold text-charcoal">5. Attribute Set Assignment</h2>
+            </div>
+            <p class="text-gray-700 mb-6">
+                When creating a new entity, it must be assigned an attribute set. This determines
+                which attributes are available and how they're organized in the admin form.
+            </p>
+
+            <div class="code-block p-6 font-mono text-sm overflow-x-auto">
+<div><span class="text-orange-400 font-bold">[1]</span> Admin creates new product</div>
+<div class="text-gray-500">    |</div>
+<div><span class="text-orange-400 font-bold">[2]</span> Select attribute set (e.g., "Clothing")</div>
+<div class="text-gray-500">    |</div>
+<div><span class="text-orange-400 font-bold">[3]</span> Load attribute set: <span class="text-green-400">AttributeSetRepository</span>::<span class="text-yellow-400">get</span>($setId)</div>
+<div class="text-gray-500">    |</div>
+<div><span class="text-orange-400 font-bold">[4]</span> Load groups in set: <span class="text-green-400">eav_attribute_group</span></div>
+<div class="text-gray-500">    |  WHERE attribute_set_id = ? ORDER BY sort_order</div>
+<div class="text-gray-500">    |</div>
+<div><span class="text-orange-400 font-bold">[5]</span> Load attributes per group: <span class="text-green-400">eav_entity_attribute</span></div>
+<div class="text-gray-500">    |  WHERE attribute_group_id = ? ORDER BY sort_order</div>
+<div class="text-gray-500">    |</div>
+<div><span class="text-orange-400 font-bold">[6]</span> Render form tabs (groups) with fields (attributes)</div>
+<div class="text-gray-500">    |</div>
+<div><span class="text-orange-400 font-bold">[7]</span> On save: set <span class="text-yellow-400">attribute_set_id</span> on entity</div>
+            </div>
+        </section>
+
+        <!-- Flow 6: Backend Model Validation -->
+        <section class="bg-white mb-12 p-8 border-t-4 border-yellow-500 shadow-sm">
+            <div class="flex items-center gap-3 mb-6">
+                <span class="bg-charcoal text-white px-3 py-1 text-xs font-semibold uppercase">Standard Flow</span>
+                <h2 class="text-2xl font-bold text-charcoal">6. Backend Model Validation</h2>
+            </div>
+            <p class="text-gray-700 mb-6">
+                Backend models provide hooks for validation and data transformation during save operations.
+            </p>
+
+            <div class="code-block p-4 font-mono text-sm overflow-x-auto">
+<span class="text-gray-500">// Example: ArrayBackend for multiselect attributes</span>
+<span class="text-orange-400">class</span> <span class="text-yellow-400">ArrayBackend</span> <span class="text-orange-400">extends</span> <span class="text-yellow-400">AbstractBackend</span>
+{
+    <span class="text-orange-400">public function</span> <span class="text-yellow-400">beforeSave</span>($object)
+    {
+        $attributeCode = $this-&gt;getAttribute()-&gt;getAttributeCode();
+        $data = $object-&gt;getData($attributeCode);
+
+        <span class="text-gray-500">// Convert array to comma-separated string for storage</span>
+        <span class="text-orange-400">if</span> (is_array($data)) {
+            $object-&gt;setData($attributeCode, implode(<span class="text-green-400">','</span>, array_filter($data)));
+        }
+
+        <span class="text-orange-400">return</span> $this;
+    }
+
+    <span class="text-orange-400">public function</span> <span class="text-yellow-400">afterLoad</span>($object)
+    {
+        $attributeCode = $this-&gt;getAttribute()-&gt;getAttributeCode();
+        $data = $object-&gt;getData($attributeCode);
+
+        <span class="text-gray-500">// Convert back to array on load</span>
+        <span class="text-orange-400">if</span> ($data && !is_array($data)) {
+            $object-&gt;setData($attributeCode, explode(<span class="text-green-400">','</span>, $data));
+        }
+
+        <span class="text-orange-400">return</span> $this;
+    }
+}
+
+<span class="text-gray-500">// Validation example</span>
+<span class="text-orange-400">public function</span> <span class="text-yellow-400">validate</span>($object)
+{
+    $value = $object-&gt;getData($this-&gt;getAttribute()-&gt;getAttributeCode());
+
+    <span class="text-orange-400">if</span> ($this-&gt;getAttribute()-&gt;getIsRequired() && empty($value)) {
+        <span class="text-orange-400">throw new</span> <span class="text-yellow-400">LocalizedException</span>(
+            <span class="text-yellow-400">__</span>(<span class="text-green-400">'"%1" is required.'</span>, $this-&gt;getAttribute()-&gt;getFrontendLabel())
+        );
+    }
+
+    <span class="text-orange-400">return true</span>;
+}
+            </div>
+        </section>
+
+        <!-- Navigation -->
+        <nav class="flex flex-col sm:flex-row gap-4 justify-between" aria-label="Page navigation">
+            <a href="architecture.html" class="inline-flex items-center gap-2 px-6 py-3 bg-charcoal text-white font-semibold hover:bg-charcoal-600 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-charcoal">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                Architecture
+            </a>
+            <a href="plugins-observers.html" class="inline-flex items-center gap-2 px-6 py-3 bg-orange-500 text-white font-semibold hover:bg-orange-600 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
+                Plugins &amp; Observers
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </a>
+        </nav>
+
+    </div>
+
+    <footer class="bg-charcoal text-white py-8 mt-16">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                <p class="text-sm text-gray-400">Magento Documentation | Magento_Eav Execution Flows</p>
+                <div class="flex items-center gap-6">
+                    <a href="index.html" class="text-sm text-gray-400 hover:text-white transition">Module Overview</a>
+                    <a href="../../../index.html" class="text-sm text-gray-400 hover:text-white transition">Documentation Home</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

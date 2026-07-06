@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Execution Flows - Magento_Quote Module</title>
+    <meta name="description" content="Magento_Quote execution flows including add to cart, totals collection, address assignment, and quote-to-order conversion.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'magento-orange': {
+                            DEFAULT: '#f26423',
+                            50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad', 300: '#f9ae78',
+                            400: '#f58242', 500: '#f26423', 600: '#e34613', 700: '#bc3312',
+                            800: '#962a16', 900: '#792515', 950: '#411009'
+                        },
+                        'magento-gold': {
+                            DEFAULT: '#f1bc1b',
+                            50: '#fffdeb', 100: '#fdf9c8', 200: '#fbf38c', 300: '#f8e651',
+                            400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a', 700: '#b1670c',
+                            800: '#8f5111', 900: '#764311', 950: '#442204'
+                        },
+                        'magento-charcoal': {
+                            DEFAULT: '#2c2c2c',
+                            50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6', 300: '#818181',
+                            400: '#474747', 500: '#2c2c2c', 600: '#262626', 700: '#202020',
+                            800: '#1c1c1c', 900: '#191919', 950: '#121212'
+                        },
+                    },
+                    fontFamily: {
+                        sans: ['Inter Tight', 'system-ui', 'sans-serif'],
+                        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&display=swap');
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+        pre { background: #1a1a1a; color: #e5e5e5; padding: 1rem; overflow-x: auto; font-size: 0.875rem; line-height: 1.5; }
+        code { font-family: 'JetBrains Mono', 'Fira Code', monospace; }
+        .code-keyword { color: #f1bc1b; }
+        .code-string { color: #98c379; }
+        .code-comment { color: #6b7280; }
+        .code-class { color: #f26423; }
+        .code-method { color: #61afef; }
+        .code-variable { color: #e5c07b; }
+    </style>
+</head>
+<body class="bg-[#FAFAFA] text-magento-charcoal">
+
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-magento-gold-600 focus:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-magento-gold-600">
+        Skip to content
+    </a>
+
+    <header class="bg-gradient-to-br from-magento-charcoal-500 via-magento-charcoal-600 to-magento-charcoal-700 border-b-8 border-magento-orange-500">
+        <!-- back-to-developer-docs -->
+        <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 pt-4"><a href="/developer/" aria-label="Back to Developer Docs" class="inline-flex items-center gap-1.5 text-sm font-medium text-white/70 hover:text-white transition-colors no-underline"><span aria-hidden="true">←</span> Developer Docs</a></div>
+        <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 py-8">
+            <nav class="mb-4" aria-label="Breadcrumb">
+                <ol class="flex items-center gap-2 text-sm text-gray-400">
+                    <li><a href="../../../index.html" class="hover:text-white transition-colors">Home</a></li>
+                    <li aria-hidden="true">/</li>
+                    <li><a href="index.html" class="hover:text-white transition-colors">Magento_Quote</a></li>
+                    <li aria-hidden="true">/</li>
+                    <li><span class="text-magento-orange-400">Execution Flows</span></li>
+                </ol>
+            </nav>
+            <h1 id="main-content" class="text-3xl sm:text-4xl font-bold tracking-tight text-white">Execution Flows</h1>
+            <p class="text-gray-300 mt-2">Step-by-step traces of cart operations with events and plugins</p>
+        </div>
+    </header>
+
+    <div class="max-w-6xl mx-auto px-6 py-8 md:py-12">
+
+        <!-- Flow 1: Add to Cart -->
+        <section class="bg-white mb-12 p-8 border-t-4 border-magento-gold-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-magento-charcoal mb-2">1. Add to Cart Flow</h2>
+            <p class="text-gray-600 mb-6">Adding a product to the shopping cart via CartItemRepositoryInterface::save()</p>
+
+            <div class="space-y-4">
+                <div class="flex items-start gap-4">
+                    <div class="w-10 h-10 bg-magento-gold-500 text-magento-charcoal flex items-center justify-center font-bold flex-shrink-0">1</div>
+                    <div class="flex-1">
+                        <h3 class="font-bold text-magento-charcoal">Resolve Quote</h3>
+                        <p class="text-sm text-gray-600 mb-2">Get or create active quote for customer/guest</p>
+                        <pre><code><span class="code-variable">$quote</span> = <span class="code-variable">$this</span>-><span class="code-method">quoteRepository</span>-><span class="code-method">getActive</span>(<span class="code-variable">$cartId</span>);
+<span class="code-comment">// For guest: resolves masked ID to quote ID first</span></code></pre>
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-4">
+                    <div class="w-10 h-10 bg-magento-gold-500 text-magento-charcoal flex items-center justify-center font-bold flex-shrink-0">2</div>
+                    <div class="flex-1">
+                        <h3 class="font-bold text-magento-charcoal">Load Product</h3>
+                        <p class="text-sm text-gray-600 mb-2">Fetch product with required options validation</p>
+                        <pre><code><span class="code-variable">$product</span> = <span class="code-variable">$this</span>-><span class="code-method">productRepository</span>-><span class="code-method">getById</span>(
+    <span class="code-variable">$cartItem</span>-><span class="code-method">getSku</span>(),
+    <span class="code-keyword">false</span>,
+    <span class="code-variable">$quote</span>-><span class="code-method">getStoreId</span>()
+);</code></pre>
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-4">
+                    <div class="w-10 h-10 bg-magento-gold-500 text-magento-charcoal flex items-center justify-center font-bold flex-shrink-0">3</div>
+                    <div class="flex-1">
+                        <h3 class="font-bold text-magento-charcoal">Quote::addProduct()</h3>
+                        <p class="text-sm text-gray-600 mb-2">Add product to quote with buy request processing</p>
+                        <pre><code><span class="code-variable">$result</span> = <span class="code-variable">$quote</span>-><span class="code-method">addProduct</span>(<span class="code-variable">$product</span>, <span class="code-variable">$request</span>);
+<span class="code-comment">// Dispatches: sales_quote_product_add_after</span>
+<span class="code-comment">// Creates Quote\Item with options</span></code></pre>
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-4">
+                    <div class="w-10 h-10 bg-magento-gold-500 text-magento-charcoal flex items-center justify-center font-bold flex-shrink-0">4</div>
+                    <div class="flex-1">
+                        <h3 class="font-bold text-magento-charcoal">Collect Totals</h3>
+                        <p class="text-sm text-gray-600 mb-2">Recalculate all cart totals with new item</p>
+                        <pre><code><span class="code-variable">$quote</span>-><span class="code-method">collectTotals</span>();
+<span class="code-comment">// Runs all collectors: subtotal, discount, shipping, tax, grand_total</span></code></pre>
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-4">
+                    <div class="w-10 h-10 bg-magento-gold-500 text-magento-charcoal flex items-center justify-center font-bold flex-shrink-0">5</div>
+                    <div class="flex-1">
+                        <h3 class="font-bold text-magento-charcoal">Save Quote</h3>
+                        <p class="text-sm text-gray-600 mb-2">Persist quote with items, addresses, and totals</p>
+                        <pre><code><span class="code-variable">$this</span>-><span class="code-method">quoteRepository</span>-><span class="code-method">save</span>(<span class="code-variable">$quote</span>);
+<span class="code-comment">// Dispatches: sales_quote_save_after</span></code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-6 bg-magento-orange-50 border-l-4 border-magento-orange-500 p-4">
+                <p class="font-semibold text-magento-orange-900 mb-1">Events Fired</p>
+                <p class="text-sm text-magento-orange-800 font-mono">sales_quote_product_add_after, sales_quote_item_qty_set_after, sales_quote_collect_totals_before, sales_quote_collect_totals_after, sales_quote_save_after</p>
+            </div>
+        </section>
+
+        <!-- Flow 2: Totals Collection -->
+        <section class="bg-white mb-12 p-8 border-t-4 border-magento-orange-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-magento-charcoal mb-2">2. Totals Collection Flow</h2>
+            <p class="text-gray-600 mb-6">The complete totals calculation sequence when Quote::collectTotals() is called</p>
+
+            <div class="space-y-4">
+                <div class="flex items-start gap-4">
+                    <div class="w-10 h-10 bg-magento-orange-500 text-white flex items-center justify-center font-bold flex-shrink-0">1</div>
+                    <div class="flex-1">
+                        <h3 class="font-bold text-magento-charcoal">Initialize Collection</h3>
+                        <p class="text-sm text-gray-600 mb-2">Reset totals and prepare addresses for collection</p>
+                        <pre><code><span class="code-comment">// Dispatches: sales_quote_collect_totals_before</span>
+<span class="code-variable">$this</span>-><span class="code-method">setTotalsCollectedFlag</span>(<span class="code-keyword">false</span>);
+<span class="code-variable">$this</span>-><span class="code-method">setSubtotal</span>(0)-><span class="code-method">setBaseSubtotal</span>(0);</code></pre>
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-4">
+                    <div class="w-10 h-10 bg-magento-orange-500 text-white flex items-center justify-center font-bold flex-shrink-0">2</div>
+                    <div class="flex-1">
+                        <h3 class="font-bold text-magento-charcoal">Collect Per Address</h3>
+                        <p class="text-sm text-gray-600 mb-2">Each address runs its own totals collection</p>
+                        <pre><code><span class="code-keyword">foreach</span> (<span class="code-variable">$this</span>-><span class="code-method">getAllAddresses</span>() <span class="code-keyword">as</span> <span class="code-variable">$address</span>) {
+    <span class="code-variable">$address</span>-><span class="code-method">setCollectShippingRates</span>(<span class="code-keyword">true</span>);
+    <span class="code-variable">$address</span>-><span class="code-method">collectTotals</span>();
+}</code></pre>
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-4">
+                    <div class="w-10 h-10 bg-magento-orange-500 text-white flex items-center justify-center font-bold flex-shrink-0">3</div>
+                    <div class="flex-1">
+                        <h3 class="font-bold text-magento-charcoal">Run Collectors in Order</h3>
+                        <p class="text-sm text-gray-600 mb-2">Each collector modifies the quote/address totals</p>
+                        <pre><code><span class="code-comment">// Collector order from sales.xml:</span>
+<span class="code-comment">// 1. subtotal    - Calculate item prices</span>
+<span class="code-comment">// 2. discount    - Apply cart rules/coupons</span>
+<span class="code-comment">// 3. shipping    - Calculate shipping cost</span>
+<span class="code-comment">// 4. tax         - Calculate taxes</span>
+<span class="code-comment">// 5. grand_total - Sum everything</span></code></pre>
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-4">
+                    <div class="w-10 h-10 bg-magento-orange-500 text-white flex items-center justify-center font-bold flex-shrink-0">4</div>
+                    <div class="flex-1">
+                        <h3 class="font-bold text-magento-charcoal">Aggregate Quote Totals</h3>
+                        <p class="text-sm text-gray-600 mb-2">Sum address totals into quote-level totals</p>
+                        <pre><code><span class="code-variable">$this</span>-><span class="code-method">setSubtotal</span>(
+    <span class="code-variable">$this</span>-><span class="code-method">getSubtotal</span>() + <span class="code-variable">$address</span>-><span class="code-method">getSubtotal</span>()
+);
+<span class="code-variable">$this</span>-><span class="code-method">setGrandTotal</span>(
+    <span class="code-variable">$this</span>-><span class="code-method">getGrandTotal</span>() + <span class="code-variable">$address</span>-><span class="code-method">getGrandTotal</span>()
+);</code></pre>
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-4">
+                    <div class="w-10 h-10 bg-magento-orange-500 text-white flex items-center justify-center font-bold flex-shrink-0">5</div>
+                    <div class="flex-1">
+                        <h3 class="font-bold text-magento-charcoal">Finalize Collection</h3>
+                        <p class="text-sm text-gray-600 mb-2">Mark totals as collected and dispatch event</p>
+                        <pre><code><span class="code-variable">$this</span>-><span class="code-method">setTotalsCollectedFlag</span>(<span class="code-keyword">true</span>);
+<span class="code-comment">// Dispatches: sales_quote_collect_totals_after</span></code></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Flow 3: Quote to Order -->
+        <section class="bg-white mb-12 p-8 border-t-4 border-charcoal shadow-sm">
+            <h2 class="text-2xl font-bold text-magento-charcoal mb-2">3. Quote to Order Conversion</h2>
+            <p class="text-gray-600 mb-6">The order placement flow via CartManagementInterface::placeOrder()</p>
+
+            <div class="space-y-4">
+                <div class="flex items-start gap-4">
+                    <div class="w-10 h-10 bg-charcoal text-white flex items-center justify-center font-bold flex-shrink-0">1</div>
+                    <div class="flex-1">
+                        <h3 class="font-bold text-magento-charcoal">Validate Quote</h3>
+                        <p class="text-sm text-gray-600 mb-2">Run all validation rules before order creation</p>
+                        <pre><code><span class="code-variable">$validationResult</span> = <span class="code-variable">$this</span>-><span class="code-method">quoteValidator</span>-><span class="code-method">validate</span>(<span class="code-variable">$quote</span>);
+<span class="code-comment">// Checks: addresses, shipping method, payment, min amount</span>
+<span class="code-keyword">if</span> (!<span class="code-variable">$validationResult</span>-><span class="code-method">isValid</span>()) {
+    <span class="code-keyword">throw new</span> <span class="code-class">LocalizedException</span>(<span class="code-variable">$validationResult</span>-><span class="code-method">getErrors</span>());
+}</code></pre>
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-4">
+                    <div class="w-10 h-10 bg-charcoal text-white flex items-center justify-center font-bold flex-shrink-0">2</div>
+                    <div class="flex-1">
+                        <h3 class="font-bold text-magento-charcoal">Acquire Quote Lock</h3>
+                        <p class="text-sm text-gray-600 mb-2">Prevent concurrent order placement (QuoteMutex)</p>
+                        <pre><code><span class="code-variable">$this</span>-><span class="code-method">quoteMutex</span>-><span class="code-method">execute</span>(
+    [<span class="code-variable">$cartId</span>],
+    <span class="code-keyword">function</span> () <span class="code-keyword">use</span> (<span class="code-variable">$quote</span>, <span class="code-variable">$paymentMethod</span>) {
+        <span class="code-keyword">return</span> <span class="code-variable">$this</span>-><span class="code-method">submitQuote</span>(<span class="code-variable">$quote</span>, <span class="code-variable">$paymentMethod</span>);
+    }
+);</code></pre>
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-4">
+                    <div class="w-10 h-10 bg-charcoal text-white flex items-center justify-center font-bold flex-shrink-0">3</div>
+                    <div class="flex-1">
+                        <h3 class="font-bold text-magento-charcoal">Submit Quote</h3>
+                        <p class="text-sm text-gray-600 mb-2">Convert quote to order using QuoteManagement</p>
+                        <pre><code><span class="code-variable">$order</span> = <span class="code-variable">$this</span>-><span class="code-method">quoteManagement</span>-><span class="code-method">submit</span>(<span class="code-variable">$quote</span>);
+<span class="code-comment">// Dispatches: sales_model_service_quote_submit_before</span>
+<span class="code-comment">// Creates Order from Quote data</span>
+<span class="code-comment">// Dispatches: sales_model_service_quote_submit_success</span></code></pre>
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-4">
+                    <div class="w-10 h-10 bg-charcoal text-white flex items-center justify-center font-bold flex-shrink-0">4</div>
+                    <div class="flex-1">
+                        <h3 class="font-bold text-magento-charcoal">Deactivate Quote</h3>
+                        <p class="text-sm text-gray-600 mb-2">Mark quote as inactive and link to order</p>
+                        <pre><code><span class="code-variable">$quote</span>-><span class="code-method">setIsActive</span>(<span class="code-keyword">false</span>);
+<span class="code-variable">$quote</span>-><span class="code-method">setReservedOrderId</span>(<span class="code-variable">$order</span>-><span class="code-method">getIncrementId</span>());
+<span class="code-variable">$this</span>-><span class="code-method">quoteRepository</span>-><span class="code-method">save</span>(<span class="code-variable">$quote</span>);</code></pre>
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-4">
+                    <div class="w-10 h-10 bg-charcoal text-white flex items-center justify-center font-bold flex-shrink-0">5</div>
+                    <div class="flex-1">
+                        <h3 class="font-bold text-magento-charcoal">SubmitObserver Triggers</h3>
+                        <p class="text-sm text-gray-600 mb-2">Observers handle post-order tasks</p>
+                        <pre><code><span class="code-comment">// SubmitObserver handles:</span>
+<span class="code-comment">// - Inventory deduction (via sales_order_place_after)</span>
+<span class="code-comment">// - Email notifications</span>
+<span class="code-comment">// - Customer balance deduction</span></code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-6 bg-magento-gold-50 border-l-4 border-magento-gold-500 p-4">
+                <p class="font-semibold text-brown mb-1">Critical: Quote Mutex</p>
+                <p class="text-sm text-brown">The QuoteMutex prevents race conditions where a customer might double-click "Place Order" and create duplicate orders. Always use the mutex when modifying quote state during order placement.</p>
+            </div>
+        </section>
+
+        <!-- Flow 4: Guest Cart Creation -->
+        <section class="bg-white mb-12 p-8 border-t-4 border-magento-gold-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-magento-charcoal mb-2">4. Guest Cart Creation Flow</h2>
+            <p class="text-gray-600 mb-6">Creating and managing anonymous shopping carts with masked IDs</p>
+
+            <div class="space-y-4">
+                <div class="flex items-start gap-4">
+                    <div class="w-10 h-10 bg-magento-gold-500 text-magento-charcoal flex items-center justify-center font-bold flex-shrink-0">1</div>
+                    <div class="flex-1">
+                        <h3 class="font-bold text-magento-charcoal">Create Empty Cart</h3>
+                        <p class="text-sm text-gray-600 mb-2">GuestCartManagementInterface::createEmptyCart()</p>
+                        <pre><code><span class="code-comment">// POST /V1/guest-carts</span>
+<span class="code-variable">$quoteId</span> = <span class="code-variable">$this</span>-><span class="code-method">quoteManagement</span>-><span class="code-method">createEmptyCart</span>();
+<span class="code-comment">// Creates quote with customer_id = NULL, is_active = 1</span></code></pre>
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-4">
+                    <div class="w-10 h-10 bg-magento-gold-500 text-magento-charcoal flex items-center justify-center font-bold flex-shrink-0">2</div>
+                    <div class="flex-1">
+                        <h3 class="font-bold text-magento-charcoal">Generate Masked ID</h3>
+                        <p class="text-sm text-gray-600 mb-2">Create UUID token for anonymous access</p>
+                        <pre><code><span class="code-variable">$maskedId</span> = <span class="code-variable">$this</span>-><span class="code-method">quoteIdMaskFactory</span>-><span class="code-method">create</span>();
+<span class="code-variable">$maskedId</span>-><span class="code-method">setQuoteId</span>(<span class="code-variable">$quoteId</span>)
+         -><span class="code-method">setMaskedId</span>(<span class="code-variable">$this</span>-><span class="code-method">randomGenerator</span>-><span class="code-method">getUniqueHash</span>());
+<span class="code-variable">$maskedId</span>-><span class="code-method">save</span>();
+<span class="code-comment">// Returns masked ID like: "pwa-abc123xyz789"</span></code></pre>
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-4">
+                    <div class="w-10 h-10 bg-magento-gold-500 text-magento-charcoal flex items-center justify-center font-bold flex-shrink-0">3</div>
+                    <div class="flex-1">
+                        <h3 class="font-bold text-magento-charcoal">Resolve Masked ID</h3>
+                        <p class="text-sm text-gray-600 mb-2">All guest operations resolve masked ID first</p>
+                        <pre><code><span class="code-comment">// MaskedQuoteIdToQuoteIdInterface</span>
+<span class="code-variable">$quoteId</span> = <span class="code-variable">$this</span>-><span class="code-method">maskedQuoteIdToQuoteId</span>-><span class="code-method">execute</span>(<span class="code-variable">$maskedCartId</span>);
+<span class="code-comment">// Throws NoSuchEntityException if not found</span></code></pre>
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-4">
+                    <div class="w-10 h-10 bg-magento-gold-500 text-magento-charcoal flex items-center justify-center font-bold flex-shrink-0">4</div>
+                    <div class="flex-1">
+                        <h3 class="font-bold text-magento-charcoal">Merge on Login</h3>
+                        <p class="text-sm text-gray-600 mb-2">Guest cart merges with customer cart on authentication</p>
+                        <pre><code><span class="code-comment">// GuestCartManagementInterface::assignCustomer()</span>
+<span class="code-variable">$this</span>-><span class="code-method">quoteManagement</span>-><span class="code-method">assignCustomer</span>(
+    <span class="code-variable">$guestQuoteId</span>,
+    <span class="code-variable">$customerId</span>,
+    <span class="code-variable">$storeId</span>
+);
+<span class="code-comment">// Items from guest cart are merged into customer's active cart</span></code></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Flow 5: Coupon Application -->
+        <section class="bg-white mb-12 p-8 border-t-4 border-magento-orange-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-magento-charcoal mb-2">5. Coupon Application Flow</h2>
+            <p class="text-gray-600 mb-6">Applying discount codes via CouponManagementInterface::set()</p>
+
+            <div class="space-y-4">
+                <div class="flex items-start gap-4">
+                    <div class="w-10 h-10 bg-magento-orange-500 text-white flex items-center justify-center font-bold flex-shrink-0">1</div>
+                    <div class="flex-1">
+                        <h3 class="font-bold text-magento-charcoal">Validate Coupon Code</h3>
+                        <p class="text-sm text-gray-600 mb-2">Check code exists and is active</p>
+                        <pre><code><span class="code-variable">$quote</span>-><span class="code-method">getShippingAddress</span>()-><span class="code-method">setCollectShippingRates</span>(<span class="code-keyword">true</span>);
+<span class="code-variable">$quote</span>-><span class="code-method">setCouponCode</span>(<span class="code-variable">$couponCode</span>);
+<span class="code-variable">$quote</span>-><span class="code-method">collectTotals</span>();</code></pre>
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-4">
+                    <div class="w-10 h-10 bg-magento-orange-500 text-white flex items-center justify-center font-bold flex-shrink-0">2</div>
+                    <div class="flex-1">
+                        <h3 class="font-bold text-magento-charcoal">SalesRule Collector Runs</h3>
+                        <p class="text-sm text-gray-600 mb-2">Discount collector processes cart rules</p>
+                        <pre><code><span class="code-comment">// Magento_SalesRule handles discount calculation</span>
+<span class="code-comment">// - Finds rules matching coupon code</span>
+<span class="code-comment">// - Validates conditions (cart amount, customer group, etc.)</span>
+<span class="code-comment">// - Calculates discount per item/shipping</span></code></pre>
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-4">
+                    <div class="w-10 h-10 bg-magento-orange-500 text-white flex items-center justify-center font-bold flex-shrink-0">3</div>
+                    <div class="flex-1">
+                        <h3 class="font-bold text-magento-charcoal">Verify Application</h3>
+                        <p class="text-sm text-gray-600 mb-2">Confirm coupon was actually applied</p>
+                        <pre><code><span class="code-keyword">if</span> (<span class="code-variable">$quote</span>-><span class="code-method">getCouponCode</span>() !== <span class="code-variable">$couponCode</span>) {
+    <span class="code-keyword">throw new</span> <span class="code-class">NoSuchEntityException</span>(
+        __(<span class="code-string">'The coupon code isn\'t valid.'</span>)
+    );
+}
+<span class="code-variable">$this</span>-><span class="code-method">quoteRepository</span>-><span class="code-method">save</span>(<span class="code-variable">$quote</span>);</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-6 bg-magento-orange-50 border-l-4 border-magento-orange-500 p-4">
+                <p class="font-semibold text-magento-orange-900 mb-1">Why Verification?</p>
+                <p class="text-sm text-magento-orange-800">The coupon may be rejected if conditions aren't met (wrong customer group, cart total too low, expired, usage limit reached). The collector will silently clear the coupon if invalid, so we must verify it persisted.</p>
+            </div>
+        </section>
+
+        <!-- Navigation -->
+        <nav class="flex justify-between items-center" aria-label="Documentation navigation">
+            <a href="architecture.html" class="inline-flex items-center gap-2 px-4 py-2 bg-magento-charcoal-100 text-magento-charcoal font-medium hover:bg-magento-charcoal-200 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-magento-charcoal-500">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17l-5-5m0 0l5-5m-5 5h12"/>
+                </svg>
+                Architecture
+            </a>
+            <a href="plugins-observers.html" class="inline-flex items-center gap-2 px-4 py-2 bg-magento-gold-600 text-white font-medium hover:bg-magento-gold-700 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-magento-gold-600">
+                Plugins & Observers
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                </svg>
+            </a>
+        </nav>
+
+    </div>
+
+    <footer class="bg-charcoal text-white py-8 mt-16">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                <p class="text-sm text-gray-400">Magento_Quote Execution Flows | The Magento Core Documentation Project</p>
+                <p class="text-sm text-gray-400">Last updated: December 2025 | Magento 2.4.x</p>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

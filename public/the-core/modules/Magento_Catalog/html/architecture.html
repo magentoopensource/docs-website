@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Architecture Overview - Magento_Catalog | THE MAGENTO CORE</title>
+    <meta name="description" content="Complete architectural analysis of Magento_Catalog: EAV implementation, 148 service contracts, 63 database tables, product types, and category tree structure">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        orange: {
+                            DEFAULT: '#F26423',
+                            50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad', 300: '#f9ae78',
+                            400: '#f58242', 500: '#f26423', 600: '#e34613', 700: '#bc3312',
+                            800: '#962a16', 900: '#792515', 950: '#411009'
+                        },
+                        yellow: {
+                            DEFAULT: '#F1BC1B',
+                            50: '#fffbeb', 100: '#fdf9c8', 200: '#fbf38c', 300: '#f8e651',
+                            400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a', 700: '#b1670c',
+                            800: '#8f5111', 900: '#764311', 950: '#442204'
+                        },
+                        charcoal: {
+                            DEFAULT: '#2c2c2c',
+                            50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6', 300: '#818181',
+                            400: '#474747', 500: '#2c2c2c', 600: '#262626', 700: '#202020',
+                            800: '#1c1c1c', 900: '#191919', 950: '#121212'
+                        },
+                        brown: '#442204',
+                        'off-white': '#FAFAFA',
+                    },
+                    fontFamily: {
+                        sans: ['Inter Tight', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter Tight', system-ui, sans-serif; }
+        .code-block { background: #1c1c1c; color: #f1f1f1; }
+        .toc-link { transition: all 0.15s ease; }
+        .toc-link:hover { transform: translateX(4px); }
+    </style>
+</head>
+<body class="bg-off-white text-charcoal">
+
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-charcoal focus:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
+        Skip to content
+    </a>
+
+    <header class="bg-gradient-to-br from-charcoal-500 via-charcoal-600 to-charcoal-700 border-b-8 border-orange-500">
+        <!-- back-to-developer-docs -->
+        <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 pt-4"><a href="/developer/" aria-label="Back to Developer Docs" class="inline-flex items-center gap-1.5 text-sm font-medium text-white/70 hover:text-white transition-colors no-underline"><span aria-hidden="true">←</span> Developer Docs</a></div>
+        <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+            <nav aria-label="Breadcrumb" class="mb-6">
+                <ol class="flex flex-wrap items-center gap-2 text-sm text-gray-400">
+                    <li><a href="../../../index.html" class="hover:text-orange-500 underline underline-offset-4">Home</a></li>
+                    <li aria-hidden="true"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></li>
+                    <li><a href="index.html" class="hover:text-orange-500 underline underline-offset-4">Magento_Catalog</a></li>
+                    <li aria-hidden="true"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></li>
+                    <li class="text-white font-medium">Architecture</li>
+                </ol>
+            </nav>
+            <div id="main-content">
+                <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white mb-4">Architecture Overview</h1>
+                <p class="text-base sm:text-lg text-gray-300 max-w-3xl mb-6">Deep dive into Magento's largest module: EAV implementation, 148 service contracts, 63 database tables, 6 indexers, and the foundation of all product/category functionality.</p>
+                <div class="flex flex-wrap gap-3 text-sm">
+                    <span class="inline-flex items-center gap-1.5 bg-orange-500/20 text-orange-300 px-3 py-1.5 font-medium border border-orange-500/30">148 Interfaces</span>
+                    <span class="inline-flex items-center gap-1.5 bg-yellow-500/20 text-yellow-300 px-3 py-1.5 font-medium border border-yellow-500/30">63 Tables</span>
+                    <span class="inline-flex items-center gap-1.5 bg-charcoal-400/40 text-charcoal-100 px-3 py-1.5 font-medium border border-charcoal-300/30">6 Indexers</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="max-w-6xl mx-auto px-6 py-8 md:py-12">
+
+        <!-- Table of Contents -->
+        <nav class="bg-white border-l-4 border-yellow-500 p-6 mb-12 shadow-sm" aria-label="Table of contents">
+            <h2 class="text-lg font-bold text-charcoal mb-4">On This Page</h2>
+            <ul class="space-y-2 text-sm">
+                <li><a href="#module-position" class="toc-link block text-charcoal-400 hover:text-orange-600 font-medium">Module Position in Ecosystem</a></li>
+                <li><a href="#eav-architecture" class="toc-link block text-charcoal-400 hover:text-orange-600 font-medium">EAV Architecture</a></li>
+                <li><a href="#service-contracts" class="toc-link block text-charcoal-400 hover:text-orange-600 font-medium">Service Contracts (148 Interfaces)</a></li>
+                <li><a href="#database-schema" class="toc-link block text-charcoal-400 hover:text-orange-600 font-medium">Database Schema (63 Tables)</a></li>
+                <li><a href="#product-types" class="toc-link block text-charcoal-400 hover:text-orange-600 font-medium">Product Types</a></li>
+                <li><a href="#category-tree" class="toc-link block text-charcoal-400 hover:text-orange-600 font-medium">Category Tree Structure</a></li>
+                <li><a href="#indexers" class="toc-link block text-charcoal-400 hover:text-orange-600 font-medium">Indexers (6 Core)</a></li>
+                <li><a href="#dependencies" class="toc-link block text-charcoal-400 hover:text-orange-600 font-medium">Module Dependencies</a></li>
+            </ul>
+        </nav>
+
+        <!-- Module Position -->
+        <section id="module-position" class="bg-white mb-12 p-8 border-t-4 border-orange-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-charcoal mb-6">Module Position in Ecosystem</h2>
+            <div class="grid md:grid-cols-2 gap-8">
+                <div>
+                    <p class="text-gray-700 mb-4">Magento_Catalog is the largest and most complex module in Magento 2. It serves as the foundation for all product and category management, implementing the Entity-Attribute-Value (EAV) pattern for flexible attribute storage.</p>
+                    <div class="border-l-4 border-yellow-500 pl-4 bg-yellow-50 py-3">
+                        <p class="text-sm text-gray-700"><strong>Critical Insight:</strong> Understanding the EAV architecture is essential before working with any catalog-related functionality. Misunderstanding it leads to N+1 queries, performance issues, and incorrect data retrieval.</p>
+                    </div>
+                </div>
+                <div class="bg-charcoal-50 p-4">
+                    <h3 class="font-bold text-charcoal mb-3">Module Stats</h3>
+                    <ul class="space-y-2 text-sm text-gray-700">
+                        <li class="flex justify-between"><span>Total PHP Files:</span><strong>2120</strong></li>
+                        <li class="flex justify-between"><span>Service Contracts:</span><strong>148</strong></li>
+                        <li class="flex justify-between"><span>Database Tables:</span><strong>63</strong></li>
+                        <li class="flex justify-between"><span>Models:</span><strong>1118</strong></li>
+                        <li class="flex justify-between"><span>Blocks:</span><strong>338</strong></li>
+                        <li class="flex justify-between"><span>Controllers:</span><strong>182</strong></li>
+                        <li class="flex justify-between"><span>Indexers:</span><strong>6</strong></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- EAV Architecture -->
+        <section id="eav-architecture" class="bg-white mb-12 p-8 border-t-4 border-yellow-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-charcoal mb-6">EAV Architecture</h2>
+            <p class="text-gray-700 mb-6">Entity-Attribute-Value (EAV) is Magento's flexible data storage pattern that allows unlimited custom attributes without schema changes. Products and Categories are EAV entities.</p>
+
+            <div class="grid md:grid-cols-3 gap-6 mb-8">
+                <div class="border-l-4 border-orange-500 pl-4">
+                    <h3 class="font-bold text-charcoal mb-2">Entity</h3>
+                    <p class="text-sm text-gray-600">The main record (product/category) stored in <code class="bg-gray-100 px-1">catalog_product_entity</code></p>
+                </div>
+                <div class="border-l-4 border-yellow-500 pl-4">
+                    <h3 class="font-bold text-charcoal mb-2">Attribute</h3>
+                    <p class="text-sm text-gray-600">Definition of a field (name, type, scope) in <code class="bg-gray-100 px-1">eav_attribute</code></p>
+                </div>
+                <div class="border-l-4 border-charcoal pl-4">
+                    <h3 class="font-bold text-charcoal mb-2">Value</h3>
+                    <p class="text-sm text-gray-600">Actual data split by type: <code class="bg-gray-100 px-1">_varchar</code>, <code class="bg-gray-100 px-1">_int</code>, <code class="bg-gray-100 px-1">_decimal</code>, <code class="bg-gray-100 px-1">_datetime</code>, <code class="bg-gray-100 px-1">_text</code></p>
+                </div>
+            </div>
+
+            <h3 class="font-bold text-charcoal mb-3">EAV Tables for Products</h3>
+            <div class="code-block p-4 text-sm overflow-x-auto mb-6">
+                <pre>catalog_product_entity          -- Main entity table (entity_id, sku, type_id, attribute_set_id)
+catalog_product_entity_varchar  -- String values (name, url_key, meta_title)
+catalog_product_entity_int      -- Integer values (status, visibility, tax_class_id)
+catalog_product_entity_decimal  -- Decimal values (price, weight, special_price)
+catalog_product_entity_datetime -- Date values (special_from_date, news_from_date)
+catalog_product_entity_text     -- Long text (description, short_description)</pre>
+            </div>
+
+            <div class="bg-orange-50 border-l-4 border-orange-500 p-4">
+                <h4 class="font-bold text-charcoal mb-2">Performance Warning</h4>
+                <p class="text-sm text-gray-700">EAV requires multiple JOINs to retrieve a complete entity. This is why Magento has <strong>Flat Tables</strong> and <strong>Indexers</strong> to denormalize data for read-heavy operations. Always use the Flat catalog for frontend queries when possible.</p>
+            </div>
+        </section>
+
+        <!-- Service Contracts -->
+        <section id="service-contracts" class="bg-white mb-12 p-8 border-t-4 border-orange-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-charcoal mb-6">Service Contracts (148 Interfaces)</h2>
+            <p class="text-gray-700 mb-6">Magento_Catalog exposes 148 service contract interfaces: 36 top-level repository/management interfaces and 35 Data interfaces (DTOs). These form the stable API layer.</p>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <div>
+                    <h3 class="font-bold text-charcoal mb-4">Core Repository Interfaces</h3>
+                    <ul class="space-y-2 text-sm">
+                        <li class="border-l-4 border-orange-500 pl-3 py-1 bg-orange-50">
+                            <code class="font-medium">ProductRepositoryInterface</code>
+                            <span class="block text-gray-600">CRUD operations for products</span>
+                        </li>
+                        <li class="border-l-4 border-orange-500 pl-3 py-1 bg-orange-50">
+                            <code class="font-medium">CategoryRepositoryInterface</code>
+                            <span class="block text-gray-600">CRUD operations for categories</span>
+                        </li>
+                        <li class="border-l-4 border-yellow-500 pl-3 py-1 bg-yellow-50">
+                            <code class="font-medium">ProductAttributeRepositoryInterface</code>
+                            <span class="block text-gray-600">Manage product attributes</span>
+                        </li>
+                        <li class="border-l-4 border-yellow-500 pl-3 py-1 bg-yellow-50">
+                            <code class="font-medium">CategoryAttributeRepositoryInterface</code>
+                            <span class="block text-gray-600">Manage category attributes</span>
+                        </li>
+                        <li class="border-l-4 border-charcoal pl-3 py-1 bg-gray-50">
+                            <code class="font-medium">AttributeSetRepositoryInterface</code>
+                            <span class="block text-gray-600">Manage attribute sets</span>
+                        </li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-bold text-charcoal mb-4">Key Data Interfaces (DTOs)</h3>
+                    <ul class="space-y-2 text-sm">
+                        <li class="border-l-4 border-orange-500 pl-3 py-1 bg-orange-50">
+                            <code class="font-medium">ProductInterface</code>
+                            <span class="block text-gray-600">Product data transfer object</span>
+                        </li>
+                        <li class="border-l-4 border-orange-500 pl-3 py-1 bg-orange-50">
+                            <code class="font-medium">CategoryInterface</code>
+                            <span class="block text-gray-600">Category data transfer object</span>
+                        </li>
+                        <li class="border-l-4 border-yellow-500 pl-3 py-1 bg-yellow-50">
+                            <code class="font-medium">ProductAttributeInterface</code>
+                            <span class="block text-gray-600">Attribute metadata DTO</span>
+                        </li>
+                        <li class="border-l-4 border-yellow-500 pl-3 py-1 bg-yellow-50">
+                            <code class="font-medium">ProductLinkInterface</code>
+                            <span class="block text-gray-600">Related/cross-sell/upsell links</span>
+                        </li>
+                        <li class="border-l-4 border-charcoal pl-3 py-1 bg-gray-50">
+                            <code class="font-medium">ProductCustomOptionInterface</code>
+                            <span class="block text-gray-600">Custom options DTO</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Database Schema -->
+        <section id="database-schema" class="bg-white mb-12 p-8 border-t-4 border-yellow-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-charcoal mb-6">Database Schema (63 Tables)</h2>
+            <p class="text-gray-700 mb-6">Magento_Catalog defines 63 database tables covering EAV storage, flat tables, indexer data, gallery, links, and more.</p>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+                <div class="bg-orange-50 p-4 border-l-4 border-orange-500">
+                    <h4 class="font-bold text-charcoal mb-2">Product EAV (6 tables)</h4>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        <li>catalog_product_entity</li>
+                        <li>catalog_product_entity_varchar</li>
+                        <li>catalog_product_entity_int</li>
+                        <li>catalog_product_entity_decimal</li>
+                        <li>catalog_product_entity_datetime</li>
+                        <li>catalog_product_entity_text</li>
+                    </ul>
+                </div>
+                <div class="bg-yellow-50 p-4 border-l-4 border-yellow-500">
+                    <h4 class="font-bold text-charcoal mb-2">Category EAV (6 tables)</h4>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        <li>catalog_category_entity</li>
+                        <li>catalog_category_entity_varchar</li>
+                        <li>catalog_category_entity_int</li>
+                        <li>catalog_category_entity_decimal</li>
+                        <li>catalog_category_entity_datetime</li>
+                        <li>catalog_category_entity_text</li>
+                    </ul>
+                </div>
+                <div class="bg-gray-50 p-4 border-l-4 border-charcoal">
+                    <h4 class="font-bold text-charcoal mb-2">Relationships (8 tables)</h4>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        <li>catalog_category_product</li>
+                        <li>catalog_category_product_index</li>
+                        <li>catalog_product_link</li>
+                        <li>catalog_product_link_type</li>
+                        <li>catalog_product_relation</li>
+                        <li>catalog_product_super_link</li>
+                        <li>catalog_product_website</li>
+                        <li>catalog_product_super_attribute</li>
+                    </ul>
+                </div>
+                <div class="bg-orange-50 p-4 border-l-4 border-orange-500">
+                    <h4 class="font-bold text-charcoal mb-2">Price Index (5 tables)</h4>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        <li>catalog_product_index_price</li>
+                        <li>catalog_product_index_price_final_idx</li>
+                        <li>catalog_product_index_price_opt_idx</li>
+                        <li>catalog_product_index_tier_price</li>
+                        <li>catalog_product_index_website</li>
+                    </ul>
+                </div>
+                <div class="bg-yellow-50 p-4 border-l-4 border-yellow-500">
+                    <h4 class="font-bold text-charcoal mb-2">Gallery (4 tables)</h4>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        <li>catalog_product_entity_gallery</li>
+                        <li>catalog_product_entity_media_gallery</li>
+                        <li>catalog_product_entity_media_gallery_value</li>
+                        <li>catalog_product_entity_media_gallery_value_to_entity</li>
+                    </ul>
+                </div>
+                <div class="bg-gray-50 p-4 border-l-4 border-charcoal">
+                    <h4 class="font-bold text-charcoal mb-2">Flat Tables (4 tables)</h4>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        <li>catalog_product_flat_* (per store)</li>
+                        <li>catalog_category_flat_* (per store)</li>
+                        <li>catalog_product_index_eav</li>
+                        <li>catalog_product_index_eav_decimal</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="bg-charcoal text-white p-4">
+                <h4 class="font-bold mb-2">Key Schema Relationships</h4>
+                <pre class="text-sm overflow-x-auto">catalog_product_entity.entity_id  →  catalog_product_entity_*.entity_id (EAV values)
+catalog_product_entity.entity_id  →  catalog_category_product.product_id (category assignment)
+catalog_category_entity.entity_id →  catalog_category_product.category_id (category assignment)
+catalog_product_entity.entity_id  →  catalog_product_link.product_id (related/upsell/crosssell)</pre>
+            </div>
+        </section>
+
+        <!-- Product Types -->
+        <section id="product-types" class="bg-white mb-12 p-8 border-t-4 border-orange-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-charcoal mb-6">Product Types</h2>
+            <p class="text-gray-700 mb-6">Magento_Catalog defines the base product types. Additional types are added by other modules (Bundle, Configurable, Grouped, Downloadable).</p>
+
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="border-l-4 border-orange-500 pl-4 py-3 bg-orange-50">
+                    <h3 class="font-bold text-charcoal mb-2">Simple Product</h3>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        <li><strong>Type ID:</strong> simple</li>
+                        <li><strong>Model:</strong> Magento\Catalog\Model\Product\Type\Simple</li>
+                        <li><strong>Index Priority:</strong> 10</li>
+                        <li><strong>Composable:</strong> Yes (can be part of configurable/bundle)</li>
+                        <li><strong>Refundable:</strong> Yes</li>
+                    </ul>
+                </div>
+                <div class="border-l-4 border-yellow-500 pl-4 py-3 bg-yellow-50">
+                    <h3 class="font-bold text-charcoal mb-2">Virtual Product</h3>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        <li><strong>Type ID:</strong> virtual</li>
+                        <li><strong>Model:</strong> Magento\Catalog\Model\Product\Type\Virtual</li>
+                        <li><strong>Index Priority:</strong> 20</li>
+                        <li><strong>Composable:</strong> Yes</li>
+                        <li><strong>Refundable:</strong> No (is_real_product = false)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="mt-6 bg-yellow-50 border-l-4 border-yellow-500 p-4">
+                <h4 class="font-bold text-charcoal mb-2">Extended Product Types (Other Modules)</h4>
+                <ul class="text-sm text-gray-700 space-y-1">
+                    <li><strong>configurable</strong> - Magento_ConfigurableProduct</li>
+                    <li><strong>bundle</strong> - Magento_Bundle</li>
+                    <li><strong>grouped</strong> - Magento_GroupedProduct</li>
+                    <li><strong>downloadable</strong> - Magento_Downloadable</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Category Tree -->
+        <section id="category-tree" class="bg-white mb-12 p-8 border-t-4 border-yellow-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-charcoal mb-6">Category Tree Structure</h2>
+            <p class="text-gray-700 mb-6">Categories use a nested set model with path-based hierarchy. Each store has a root category, and all navigation categories are descendants.</p>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <div>
+                    <h3 class="font-bold text-charcoal mb-3">Key Fields</h3>
+                    <ul class="space-y-2 text-sm">
+                        <li class="border-l-4 border-orange-500 pl-3 py-1">
+                            <strong>entity_id:</strong> Unique category identifier
+                        </li>
+                        <li class="border-l-4 border-orange-500 pl-3 py-1">
+                            <strong>parent_id:</strong> Direct parent category
+                        </li>
+                        <li class="border-l-4 border-yellow-500 pl-3 py-1">
+                            <strong>path:</strong> Full ancestry (e.g., "1/2/15/42")
+                        </li>
+                        <li class="border-l-4 border-yellow-500 pl-3 py-1">
+                            <strong>level:</strong> Depth in tree (root = 0)
+                        </li>
+                        <li class="border-l-4 border-charcoal pl-3 py-1">
+                            <strong>children_count:</strong> Number of direct children
+                        </li>
+                    </ul>
+                </div>
+                <div class="code-block p-4">
+                    <pre class="text-sm">Root Category (ID: 1, path: "1", level: 0)
+└── Default Category (ID: 2, path: "1/2", level: 1)
+    ├── Men (ID: 11, path: "1/2/11", level: 2)
+    │   ├── Tops (ID: 12, path: "1/2/11/12")
+    │   └── Bottoms (ID: 13, path: "1/2/11/13")
+    └── Women (ID: 14, path: "1/2/14", level: 2)
+        └── Dresses (ID: 15, path: "1/2/14/15")</pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- Indexers -->
+        <section id="indexers" class="bg-white mb-12 p-8 border-t-4 border-orange-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-charcoal mb-6">Indexers (6 Core)</h2>
+            <p class="text-gray-700 mb-6">Magento_Catalog provides 6 core indexers that denormalize EAV data for performance and maintain relationship indexes.</p>
+
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="border-l-4 border-orange-500 pl-4 py-3">
+                    <h3 class="font-bold text-charcoal mb-2">catalog_product_flat</h3>
+                    <p class="text-sm text-gray-600 mb-2">Reorganize EAV product structure to flat structure for fast frontend queries.</p>
+                    <span class="inline-block bg-orange-100 text-orange-800 text-xs px-2 py-1">Performance Critical</span>
+                </div>
+                <div class="border-l-4 border-orange-500 pl-4 py-3">
+                    <h3 class="font-bold text-charcoal mb-2">catalog_category_flat</h3>
+                    <p class="text-sm text-gray-600 mb-2">Reorganize EAV category structure to flat structure.</p>
+                    <span class="inline-block bg-orange-100 text-orange-800 text-xs px-2 py-1">Performance Critical</span>
+                </div>
+                <div class="border-l-4 border-yellow-500 pl-4 py-3">
+                    <h3 class="font-bold text-charcoal mb-2">catalog_category_product</h3>
+                    <p class="text-sm text-gray-600 mb-2">Indexed category/products association for navigation.</p>
+                    <span class="inline-block bg-yellow-100 text-brown text-xs px-2 py-1">Shared Index</span>
+                </div>
+                <div class="border-l-4 border-yellow-500 pl-4 py-3">
+                    <h3 class="font-bold text-charcoal mb-2">catalog_product_category</h3>
+                    <p class="text-sm text-gray-600 mb-2">Indexed product/categories association (reverse lookup).</p>
+                    <span class="inline-block bg-yellow-100 text-brown text-xs px-2 py-1">Shared Index</span>
+                </div>
+                <div class="border-l-4 border-charcoal pl-4 py-3">
+                    <h3 class="font-bold text-charcoal mb-2">catalog_product_price</h3>
+                    <p class="text-sm text-gray-600 mb-2">Index product prices including tier prices and special prices.</p>
+                    <span class="inline-block bg-gray-100 text-charcoal text-xs px-2 py-1">Price Calculation</span>
+                </div>
+                <div class="border-l-4 border-charcoal pl-4 py-3">
+                    <h3 class="font-bold text-charcoal mb-2">catalog_product_attribute</h3>
+                    <p class="text-sm text-gray-600 mb-2">Index product EAV attributes for layered navigation.</p>
+                    <span class="inline-block bg-gray-100 text-charcoal text-xs px-2 py-1">Layered Nav</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Dependencies -->
+        <section id="dependencies" class="bg-white mb-12 p-8 border-t-4 border-yellow-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-charcoal mb-6">Module Dependencies</h2>
+            <p class="text-gray-700 mb-6">Magento_Catalog has strict sequence dependencies that determine load order.</p>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <div>
+                    <h3 class="font-bold text-charcoal mb-4">Required Dependencies (module.xml sequence)</h3>
+                    <ul class="space-y-3">
+                        <li class="border-l-4 border-orange-500 pl-4 py-2 bg-orange-50">
+                            <strong class="text-charcoal">Magento_Eav</strong>
+                            <p class="text-sm text-gray-600">EAV framework for attribute storage</p>
+                        </li>
+                        <li class="border-l-4 border-yellow-500 pl-4 py-2 bg-yellow-50">
+                            <strong class="text-charcoal">Magento_Cms</strong>
+                            <p class="text-sm text-gray-600">CMS block widgets in categories</p>
+                        </li>
+                        <li class="border-l-4 border-charcoal pl-4 py-2 bg-gray-50">
+                            <strong class="text-charcoal">Magento_Indexer</strong>
+                            <p class="text-sm text-gray-600">Indexer framework for flat tables</p>
+                        </li>
+                        <li class="border-l-4 border-charcoal pl-4 py-2 bg-gray-50">
+                            <strong class="text-charcoal">Magento_Customer</strong>
+                            <p class="text-sm text-gray-600">Customer group pricing</p>
+                        </li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-bold text-charcoal mb-4">Modules That Depend on Catalog</h3>
+                    <ul class="space-y-2 text-sm text-gray-700">
+                        <li>Magento_ConfigurableProduct</li>
+                        <li>Magento_Bundle</li>
+                        <li>Magento_GroupedProduct</li>
+                        <li>Magento_Downloadable</li>
+                        <li>Magento_CatalogInventory</li>
+                        <li>Magento_CatalogSearch</li>
+                        <li>Magento_CatalogRule</li>
+                        <li>Magento_CatalogUrlRewrite</li>
+                        <li>Magento_Quote</li>
+                        <li>Magento_Sales</li>
+                        <li>Magento_Checkout</li>
+                        <li>... and 50+ more modules</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Navigation -->
+        <nav class="flex flex-col sm:flex-row gap-4 justify-between" aria-label="Page navigation">
+            <a href="index.html" class="inline-flex items-center gap-2 px-6 py-3 bg-charcoal text-white font-semibold hover:bg-charcoal-600 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-charcoal">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                Back to Overview
+            </a>
+            <a href="execution-flows.html" class="inline-flex items-center gap-2 px-6 py-3 bg-orange-500 text-white font-semibold hover:bg-orange-600 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
+                Execution Flows
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </a>
+        </nav>
+
+    </div>
+
+    <footer class="bg-charcoal text-white py-8 mt-16">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                <p class="text-sm text-gray-400">Magento Documentation | Magento_Catalog Architecture</p>
+                <div class="flex items-center gap-6">
+                    <a href="index.html" class="text-sm text-gray-400 hover:text-white transition">Module Overview</a>
+                    <a href="../../../index.html" class="text-sm text-gray-400 hover:text-white transition">Documentation Home</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

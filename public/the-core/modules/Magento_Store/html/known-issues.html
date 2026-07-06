@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Known Issues - Magento_Store Module</title>
+    <style>
+        :root {
+            --orange: #F26423;
+            --yellow: #F1BC1B;
+            --charcoal: #2C2C2C;
+            --light-gray: #F5F5F5;
+            --white: #FFFFFF;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background-color: var(--light-gray);
+            color: var(--charcoal);
+            line-height: 1.6;
+        }
+
+        .header {
+            background-color: var(--charcoal);
+            color: var(--white);
+            padding: 2rem;
+            position: relative;
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--orange) 0%, var(--orange) 50%, var(--yellow) 50%, var(--yellow) 100%);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .breadcrumb {
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+        }
+
+        .breadcrumb a {
+            color: var(--yellow);
+            text-decoration: none;
+        }
+
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+        .breadcrumb span {
+            color: var(--light-gray);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        .main-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .issue-card {
+            background-color: var(--white);
+            margin-bottom: 1.5rem;
+            border-left: 4px solid var(--charcoal);
+        }
+
+        .issue-card.critical {
+            border-left-color: var(--orange);
+        }
+
+        .issue-card.major {
+            border-left-color: var(--yellow);
+        }
+
+        .issue-card.minor {
+            border-left-color: var(--charcoal);
+        }
+
+        .issue-header {
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 1rem;
+            cursor: pointer;
+            background-color: var(--white);
+        }
+
+        .issue-header:hover {
+            background-color: var(--light-gray);
+        }
+
+        .issue-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--charcoal);
+            flex: 1;
+        }
+
+        .issue-meta {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .severity-badge {
+            padding: 0.25rem 0.75rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .severity-badge.critical {
+            background-color: var(--orange);
+            color: var(--white);
+        }
+
+        .severity-badge.major {
+            background-color: var(--yellow);
+            color: var(--charcoal);
+        }
+
+        .severity-badge.minor {
+            background-color: var(--light-gray);
+            color: var(--charcoal);
+        }
+
+        .issue-body {
+            padding: 0 1.5rem 1.5rem;
+        }
+
+        .issue-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .issue-section h4 {
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+
+        .issue-section p {
+            color: #444;
+            margin-bottom: 0.5rem;
+        }
+
+        .code-block {
+            background-color: var(--charcoal);
+            color: #E0E0E0;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            overflow-x: auto;
+            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+            font-size: 0.875rem;
+            line-height: 1.5;
+        }
+
+        .code-block .keyword {
+            color: var(--orange);
+        }
+
+        .code-block .class-name {
+            color: var(--yellow);
+        }
+
+        .code-block .string {
+            color: #8FD9A8;
+        }
+
+        .code-block .comment {
+            color: #888;
+        }
+
+        .code-block .bad {
+            color: #FF6B6B;
+        }
+
+        .code-block .good {
+            color: #8FD9A8;
+        }
+
+        .affected-list {
+            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+            font-size: 0.875rem;
+            background-color: var(--light-gray);
+            padding: 0.75rem 1rem;
+        }
+
+        .affected-list li {
+            list-style: none;
+            padding: 0.25rem 0;
+        }
+
+        .tags {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            background-color: var(--light-gray);
+            padding: 0.125rem 0.5rem;
+            font-size: 0.75rem;
+            color: #666;
+        }
+
+        .summary-section {
+            background-color: var(--white);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .summary-section h2 {
+            color: var(--charcoal);
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid var(--orange);
+            display: inline-block;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .summary-item {
+            text-align: center;
+            padding: 1rem;
+            background-color: var(--light-gray);
+        }
+
+        .summary-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--charcoal);
+        }
+
+        .summary-label {
+            font-size: 0.875rem;
+            color: #666;
+        }
+
+        .footer {
+            background-color: var(--charcoal);
+            color: var(--white);
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .footer a {
+            color: var(--yellow);
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.75rem;
+            }
+
+            .issue-header {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <!-- back-to-developer-docs -->
+        <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 pt-4"><a href="/developer/" aria-label="Back to Developer Docs" class="inline-flex items-center gap-1.5 text-sm font-medium text-white/70 hover:text-white transition-colors no-underline"><span aria-hidden="true">←</span> Developer Docs</a></div>
+        <div class="header-content">
+            <nav class="breadcrumb">
+                <a href="../../../index.html">Documentation</a>
+                <span> / </span>
+                <a href="index.html">Magento_Store</a>
+                <span> / </span>
+                <span>Known Issues</span>
+            </nav>
+            <h1>Known Issues</h1>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <section class="summary-section">
+            <h2>Issue Summary</h2>
+            <div class="summary-grid">
+                <div class="summary-item">
+                    <div class="summary-number">10</div>
+                    <div class="summary-label">Total Issues</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-number" style="color: var(--orange);">3</div>
+                    <div class="summary-label">Critical</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-number" style="color: var(--yellow);">4</div>
+                    <div class="summary-label">Major</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-number">3</div>
+                    <div class="summary-label">Minor</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Critical Issues -->
+        <article class="issue-card critical">
+            <div class="issue-header">
+                <div class="issue-title">StoreManager::setCurrentStore() Not Thread-Safe</div>
+                <div class="issue-meta">
+                    <span class="severity-badge critical">Critical</span>
+                </div>
+            </div>
+            <div class="issue-body">
+                <div class="issue-section">
+                    <h4>Description</h4>
+                    <p>
+                        Calling <code>setCurrentStore()</code> modifies a shared singleton state. In async contexts
+                        (message queue consumers, parallel processes), this can cause one process to affect another's
+                        store context, leading to incorrect configuration, prices, or content being returned.
+                    </p>
+                </div>
+                <div class="issue-section">
+                    <h4>Affected Code</h4>
+                    <ul class="affected-list">
+                        <li>Magento\Store\Model\StoreManager::setCurrentStore()</li>
+                        <li>All code using $storeManager->getStore() after modification</li>
+                    </ul>
+                </div>
+                <div class="issue-section">
+                    <h4>Workaround</h4>
+                    <div class="code-block">
+<span class="comment">// BAD: Modifies shared state</span>
+<span class="bad">$storeManager->setCurrentStore('french');
+$result = $this->doSomething();
+$storeManager->setCurrentStore('default'); // Might not restore correctly</span>
+
+<span class="comment">// GOOD: Use store emulation pattern</span>
+<span class="good">$originalStore = $storeManager->getStore()->getId();
+try {
+    $storeManager->setCurrentStore('french');
+    $result = $this->doSomething();
+} finally {
+    $storeManager->setCurrentStore($originalStore);
+}</span>
+
+<span class="comment">// BETTER: Use App\Emulation for admin operations</span>
+<span class="good">$this->emulation->startEnvironmentEmulation($storeId);
+try {
+    $result = $this->doSomething();
+} finally {
+    $this->emulation->stopEnvironmentEmulation();
+}</span>
+                    </div>
+                </div>
+                <div class="issue-section">
+                    <h4>Tags</h4>
+                    <div class="tags">
+                        <span class="tag">thread-safety</span>
+                        <span class="tag">async</span>
+                        <span class="tag">message-queue</span>
+                        <span class="tag">state-management</span>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <article class="issue-card critical">
+            <div class="issue-header">
+                <div class="issue-title">Store Terminology Confusion (Store vs Store Group vs Store View)</div>
+                <div class="issue-meta">
+                    <span class="severity-badge critical">Critical</span>
+                </div>
+            </div>
+            <div class="issue-body">
+                <div class="issue-section">
+                    <h4>Description</h4>
+                    <p>
+                        The term "Store" is used inconsistently throughout Magento. In the Admin UI, "Store" refers to
+                        a Store Group (middle tier), while "Store View" is the bottom tier. In code,
+                        <code>StoreInterface</code> and the <code>store</code> database table represent Store Views.
+                        This causes confusion when developers mix up the entities.
+                    </p>
+                </div>
+                <div class="issue-section">
+                    <h4>Correct Terminology</h4>
+                    <div class="code-block">
+<span class="comment">// Database table mapping:</span>
+store_website  <span class="good">-> WebsiteInterface</span>  <span class="comment">// Top level (payment, shipping scope)</span>
+store_group    <span class="good">-> GroupInterface</span>    <span class="comment">// Middle (owns root category)</span>
+store          <span class="good">-> StoreInterface</span>    <span class="comment">// Bottom (language, theme, URLs)</span>
+
+<span class="comment">// Admin UI labels:</span>
+<span class="string">"Website"</span>     = Website (correct)
+<span class="string">"Store"</span>       = Store Group (confusing!)
+<span class="string">"Store View"</span>  = Store (correct but verbose)
+                    </div>
+                </div>
+                <div class="issue-section">
+                    <h4>Workaround</h4>
+                    <p>
+                        When documenting or discussing: always use "Store View" for the bottom tier, "Store Group"
+                        for the middle tier, and "Website" for the top tier. In code reviews, verify that the
+                        correct entity is being used.
+                    </p>
+                </div>
+                <div class="issue-section">
+                    <h4>Tags</h4>
+                    <div class="tags">
+                        <span class="tag">documentation</span>
+                        <span class="tag">terminology</span>
+                        <span class="tag">architecture</span>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <article class="issue-card critical">
+            <div class="issue-header">
+                <div class="issue-title">Store Resolution Race Condition on First Request</div>
+                <div class="issue-meta">
+                    <span class="severity-badge critical">Critical</span>
+                </div>
+            </div>
+            <div class="issue-body">
+                <div class="issue-section">
+                    <h4>Description</h4>
+                    <p>
+                        Under high concurrency on a cold cache, multiple requests hitting store resolution
+                        simultaneously can cause race conditions where stores are resolved incorrectly or
+                        the cache is populated with stale data.
+                    </p>
+                </div>
+                <div class="issue-section">
+                    <h4>Affected Code</h4>
+                    <ul class="affected-list">
+                        <li>Magento\Store\Model\StoreResolver::getCurrentStoreId()</li>
+                        <li>Magento\Store\Model\StoresData::getStoresData()</li>
+                    </ul>
+                </div>
+                <div class="issue-section">
+                    <h4>Workaround</h4>
+                    <p>
+                        Warm caches before high-traffic events. Use <code>bin/magento cache:flush</code> followed
+                        by a cache warming script that hits each store view URL before going live.
+                    </p>
+                </div>
+                <div class="issue-section">
+                    <h4>Tags</h4>
+                    <div class="tags">
+                        <span class="tag">race-condition</span>
+                        <span class="tag">caching</span>
+                        <span class="tag">performance</span>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <!-- Major Issues -->
+        <article class="issue-card major">
+            <div class="issue-header">
+                <div class="issue-title">reinitStores() Performance Impact</div>
+                <div class="issue-meta">
+                    <span class="severity-badge major">Major</span>
+                </div>
+            </div>
+            <div class="issue-body">
+                <div class="issue-section">
+                    <h4>Description</h4>
+                    <p>
+                        Calling <code>reinitStores()</code> clears all store-related caches including scope config,
+                        store repositories, and resolver caches. This is expensive and can cause performance
+                        degradation if called repeatedly or in loops.
+                    </p>
+                </div>
+                <div class="issue-section">
+                    <h4>Workaround</h4>
+                    <div class="code-block">
+<span class="comment">// BAD: Calling in a loop</span>
+<span class="bad">foreach ($stores as $store) {
+    $this->updateStore($store);
+    $storeManager->reinitStores(); // EXPENSIVE - each iteration!
+}</span>
+
+<span class="comment">// GOOD: Call once after all updates</span>
+<span class="good">foreach ($stores as $store) {
+    $this->updateStore($store);
+}
+$storeManager->reinitStores(); // Once at the end</span>
+                    </div>
+                </div>
+                <div class="issue-section">
+                    <h4>Tags</h4>
+                    <div class="tags">
+                        <span class="tag">performance</span>
+                        <span class="tag">caching</span>
+                        <span class="tag">batch-operations</span>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <article class="issue-card major">
+            <div class="issue-header">
+                <div class="issue-title">Store Cookie Not Cleared on Store Deletion</div>
+                <div class="issue-meta">
+                    <span class="severity-badge major">Major</span>
+                </div>
+            </div>
+            <div class="issue-body">
+                <div class="issue-section">
+                    <h4>Description</h4>
+                    <p>
+                        When a store view is deleted, existing users may still have the store code in their cookies.
+                        While the <code>storeCookieValidate</code> plugin handles this gracefully by clearing invalid
+                        cookies, it adds overhead to every request until cookies expire.
+                    </p>
+                </div>
+                <div class="issue-section">
+                    <h4>Workaround</h4>
+                    <p>
+                        After deleting a store view, consider flushing Varnish/CDN caches and wait for natural
+                        cookie expiration. The system handles invalid cookies automatically but logging may show
+                        increased NoSuchEntityException entries during the transition period.
+                    </p>
+                </div>
+                <div class="issue-section">
+                    <h4>Tags</h4>
+                    <div class="tags">
+                        <span class="tag">cookies</span>
+                        <span class="tag">store-deletion</span>
+                        <span class="tag">user-experience</span>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <article class="issue-card major">
+            <div class="issue-header">
+                <div class="issue-title">Scope Fallback Not Always Intuitive</div>
+                <div class="issue-meta">
+                    <span class="severity-badge major">Major</span>
+                </div>
+            </div>
+            <div class="issue-body">
+                <div class="issue-section">
+                    <h4>Description</h4>
+                    <p>
+                        Configuration fallback follows store -> website -> default. However, this means a value
+                        set at the website level will apply to ALL store views under that website, which may not
+                        be the intended behavior when adding a new store view.
+                    </p>
+                </div>
+                <div class="issue-section">
+                    <h4>Example Scenario</h4>
+                    <div class="code-block">
+<span class="comment">// Website "EU" has payment method disabled at website level</span>
+core_config_data:
+  scope=<span class="string">'websites'</span>, scope_id=<span class="class-name">2</span>, path=<span class="string">'payment/checkmo/active'</span>, value=<span class="string">'0'</span>
+
+<span class="comment">// Adding new store view "German" under EU website</span>
+<span class="comment">// Expected: German store inherits from EU website (checkmo=0) ✓</span>
+<span class="comment">// But: Developer might expect fresh default values</span>
+
+<span class="comment">// To override for German store specifically:</span>
+core_config_data:
+  scope=<span class="string">'stores'</span>, scope_id=<span class="class-name">5</span>, path=<span class="string">'payment/checkmo/active'</span>, value=<span class="string">'1'</span>
+                    </div>
+                </div>
+                <div class="issue-section">
+                    <h4>Tags</h4>
+                    <div class="tags">
+                        <span class="tag">configuration</span>
+                        <span class="tag">scope</span>
+                        <span class="tag">inheritance</span>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <article class="issue-card major">
+            <div class="issue-header">
+                <div class="issue-title">hasSingleStore() Caching Issues</div>
+                <div class="issue-meta">
+                    <span class="severity-badge major">Major</span>
+                </div>
+            </div>
+            <div class="issue-body">
+                <div class="issue-section">
+                    <h4>Description</h4>
+                    <p>
+                        The <code>hasSingleStore()</code> method has a TODO comment noting it should be cached.
+                        When called frequently (e.g., in layout XML conditions), it queries the store list
+                        multiple times per request.
+                    </p>
+                </div>
+                <div class="issue-section">
+                    <h4>Affected Code</h4>
+                    <div class="code-block">
+<span class="comment">// From StoreManager.php - note the TODO</span>
+<span class="keyword">public function</span> <span class="class-name">hasSingleStore</span>()
+{
+    <span class="comment">// TODO: MAGETWO-39902 add cache, move value to consts</span>
+    <span class="keyword">return</span> $this->isSingleStoreAllowed && <span class="class-name">count</span>($this-><span class="class-name">getStores</span>(<span class="keyword">true</span>)) < 3;
+}
+                    </div>
+                </div>
+                <div class="issue-section">
+                    <h4>Workaround</h4>
+                    <p>
+                        Cache the result locally if calling multiple times within the same request context.
+                        The store list is cached, so the performance impact is usually acceptable.
+                    </p>
+                </div>
+                <div class="issue-section">
+                    <h4>Tags</h4>
+                    <div class="tags">
+                        <span class="tag">performance</span>
+                        <span class="tag">caching</span>
+                        <span class="tag">technical-debt</span>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <!-- Minor Issues -->
+        <article class="issue-card minor">
+            <div class="issue-header">
+                <div class="issue-title">MAGE_RUN_CODE/MAGE_RUN_TYPE Environment Variables</div>
+                <div class="issue-meta">
+                    <span class="severity-badge minor">Minor</span>
+                </div>
+            </div>
+            <div class="issue-body">
+                <div class="issue-section">
+                    <h4>Description</h4>
+                    <p>
+                        Legacy environment variables <code>MAGE_RUN_CODE</code> and <code>MAGE_RUN_TYPE</code>
+                        are still supported but not well documented. They can conflict with URL-based store
+                        resolution if not configured correctly in web server configuration.
+                    </p>
+                </div>
+                <div class="issue-section">
+                    <h4>Workaround</h4>
+                    <div class="code-block">
+<span class="comment">// nginx.conf example - set per-domain</span>
+server {
+    server_name de.example.com;
+    set $MAGE_RUN_CODE <span class="string">"german"</span>;
+    set $MAGE_RUN_TYPE <span class="string">"store"</span>;
+    <span class="comment">// ... include magento config</span>
+}
+
+<span class="comment">// Or use store code in URL instead (no env vars needed)</span>
+<span class="comment">// web/url/use_store = 1</span>
+https://example.com/german/products
+                    </div>
+                </div>
+                <div class="issue-section">
+                    <h4>Tags</h4>
+                    <div class="tags">
+                        <span class="tag">configuration</span>
+                        <span class="tag">environment</span>
+                        <span class="tag">nginx</span>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <article class="issue-card minor">
+            <div class="issue-header">
+                <div class="issue-title">Store Admin (ID: 0) Edge Cases</div>
+                <div class="issue-meta">
+                    <span class="severity-badge minor">Minor</span>
+                </div>
+            </div>
+            <div class="issue-body">
+                <div class="issue-section">
+                    <h4>Description</h4>
+                    <p>
+                        The admin store (ID: 0) is a special store that exists for backend operations.
+                        Some methods return different results when including or excluding the admin store,
+                        which can cause confusion.
+                    </p>
+                </div>
+                <div class="issue-section">
+                    <h4>Examples</h4>
+                    <div class="code-block">
+<span class="comment">// Without admin store (default)</span>
+$stores = $storeManager-><span class="class-name">getStores</span>(); <span class="comment">// [1 => Store, 2 => Store]</span>
+
+<span class="comment">// With admin store</span>
+$stores = $storeManager-><span class="class-name">getStores</span>(<span class="keyword">true</span>); <span class="comment">// [0 => Admin, 1 => Store, 2 => Store]</span>
+
+<span class="comment">// Iterating - be aware of ID 0</span>
+<span class="keyword">foreach</span> ($storeManager-><span class="class-name">getStores</span>(<span class="keyword">true</span>) <span class="keyword">as</span> $store) {
+    <span class="keyword">if</span> ($store-><span class="class-name">getId</span>() == 0) {
+        <span class="keyword">continue</span>; <span class="comment">// Skip admin</span>
+    }
+}
+                    </div>
+                </div>
+                <div class="issue-section">
+                    <h4>Tags</h4>
+                    <div class="tags">
+                        <span class="tag">edge-case</span>
+                        <span class="tag">admin-store</span>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <article class="issue-card minor">
+            <div class="issue-header">
+                <div class="issue-title">ScopeInterface Constant Naming (Singular vs Plural)</div>
+                <div class="issue-meta">
+                    <span class="severity-badge minor">Minor</span>
+                </div>
+            </div>
+            <div class="issue-body">
+                <div class="issue-section">
+                    <h4>Description</h4>
+                    <p>
+                        <code>ScopeInterface</code> defines both singular (<code>SCOPE_STORE</code>) and
+                        plural (<code>SCOPE_STORES</code>) constants. The plural forms are used for database
+                        scope values while singular forms are used in method calls. This can cause confusion
+                        about which to use.
+                    </p>
+                </div>
+                <div class="issue-section">
+                    <h4>Usage Guide</h4>
+                    <div class="code-block">
+<span class="comment">// For ScopeConfigInterface methods - use SINGULAR</span>
+$scopeConfig-><span class="class-name">getValue</span>(
+    $path,
+    <span class="class-name">ScopeInterface</span>::<span class="good">SCOPE_STORE</span>, <span class="comment">// Correct</span>
+    $storeCode
+);
+
+<span class="comment">// In core_config_data table - uses PLURAL</span>
+<span class="comment">// scope column contains: 'default', 'websites', 'stores'</span>
+
+<span class="comment">// Both resolve to the same behavior internally</span>
+                    </div>
+                </div>
+                <div class="issue-section">
+                    <h4>Tags</h4>
+                    <div class="tags">
+                        <span class="tag">naming</span>
+                        <span class="tag">constants</span>
+                        <span class="tag">convention</span>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </main>
+
+    <footer class="footer">
+        <p><a href="index.html">Back to Magento_Store Overview</a></p>
+        <p><a href="../../../index.html">Documentation Index</a></p>
+    </footer>
+</body>
+</html>

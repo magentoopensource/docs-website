@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Integrations - Magento_Quote Module</title>
+    <meta name="description" content="Magento_Quote module integrations with Catalog, Sales, Customer, Checkout, CatalogInventory, and Payment modules.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'magento-orange': {
+                            DEFAULT: '#f26423',
+                            50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad', 300: '#f9ae78',
+                            400: '#f58242', 500: '#f26423', 600: '#e34613', 700: '#bc3312',
+                            800: '#962a16', 900: '#792515', 950: '#411009'
+                        },
+                        'magento-gold': {
+                            DEFAULT: '#f1bc1b',
+                            50: '#fffdeb', 100: '#fdf9c8', 200: '#fbf38c', 300: '#f8e651',
+                            400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a', 700: '#b1670c',
+                            800: '#8f5111', 900: '#764311', 950: '#442204'
+                        },
+                        'magento-charcoal': {
+                            DEFAULT: '#2c2c2c',
+                            50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6', 300: '#818181',
+                            400: '#474747', 500: '#2c2c2c', 600: '#262626', 700: '#202020',
+                            800: '#1c1c1c', 900: '#191919', 950: '#121212'
+                        },
+                    },
+                    fontFamily: {
+                        sans: ['Inter Tight', 'system-ui', 'sans-serif'],
+                        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&display=swap');
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-[#FAFAFA] text-magento-charcoal">
+
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-magento-gold-600 focus:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-magento-gold-600">
+        Skip to content
+    </a>
+
+    <header class="bg-gradient-to-br from-magento-charcoal-500 via-magento-charcoal-600 to-magento-charcoal-700 border-b-8 border-magento-gold-500">
+        <!-- back-to-developer-docs -->
+        <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 pt-4"><a href="/developer/" aria-label="Back to Developer Docs" class="inline-flex items-center gap-1.5 text-sm font-medium text-white/70 hover:text-white transition-colors no-underline"><span aria-hidden="true">←</span> Developer Docs</a></div>
+        <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 py-8">
+            <nav class="mb-4" aria-label="Breadcrumb">
+                <ol class="flex items-center gap-2 text-sm text-gray-400">
+                    <li><a href="../../../index.html" class="hover:text-white transition-colors">Home</a></li>
+                    <li aria-hidden="true">/</li>
+                    <li><a href="index.html" class="hover:text-white transition-colors">Magento_Quote</a></li>
+                    <li aria-hidden="true">/</li>
+                    <li><span class="text-magento-gold-400">Integrations</span></li>
+                </ol>
+            </nav>
+            <h1 id="main-content" class="text-3xl sm:text-4xl font-bold tracking-tight text-white">Integrations</h1>
+            <p class="text-gray-300 mt-2">Cross-module dependencies and data flow patterns</p>
+        </div>
+    </header>
+
+    <div class="max-w-6xl mx-auto px-6 py-8 md:py-12">
+
+        <!-- Dependency Overview -->
+        <section class="bg-white mb-12 p-8 border-t-4 border-magento-gold-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-magento-charcoal mb-6">Module Dependencies</h2>
+            <p class="text-gray-700 mb-6">The Quote module sits at the center of Magento's commerce flow, bridging catalog and sales operations.</p>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <div>
+                    <h3 class="font-bold text-magento-charcoal mb-4 flex items-center gap-2">
+                        <span class="w-4 h-4 bg-magento-orange-500"></span>
+                        Hard Dependencies
+                    </h3>
+                    <ul class="space-y-3">
+                        <li class="bg-magento-charcoal-50 p-4 border-l-4 border-magento-orange-500">
+                            <h4 class="font-bold text-magento-charcoal">Magento_Catalog</h4>
+                            <p class="text-sm text-gray-600">Product data, pricing, options, and inventory checks for cart items</p>
+                        </li>
+                        <li class="bg-magento-charcoal-50 p-4 border-l-4 border-magento-orange-500">
+                            <h4 class="font-bold text-magento-charcoal">Magento_Customer</h4>
+                            <p class="text-sm text-gray-600">Customer data, addresses, and group-based pricing</p>
+                        </li>
+                        <li class="bg-magento-charcoal-50 p-4 border-l-4 border-magento-orange-500">
+                            <h4 class="font-bold text-magento-charcoal">Magento_Store</h4>
+                            <p class="text-sm text-gray-600">Store context, currency, and website scope</p>
+                        </li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h3 class="font-bold text-magento-charcoal mb-4 flex items-center gap-2">
+                        <span class="w-4 h-4 bg-magento-gold-500"></span>
+                        Soft Dependencies
+                    </h3>
+                    <ul class="space-y-3">
+                        <li class="bg-magento-charcoal-50 p-4 border-l-4 border-magento-gold-500">
+                            <h4 class="font-bold text-magento-charcoal">Magento_Sales</h4>
+                            <p class="text-sm text-gray-600">Quote-to-order conversion and order entity creation</p>
+                        </li>
+                        <li class="bg-magento-charcoal-50 p-4 border-l-4 border-magento-gold-500">
+                            <h4 class="font-bold text-magento-charcoal">Magento_CatalogInventory</h4>
+                            <p class="text-sm text-gray-600">Stock validation and reservation during checkout</p>
+                        </li>
+                        <li class="bg-magento-charcoal-50 p-4 border-l-4 border-magento-gold-500">
+                            <h4 class="font-bold text-magento-charcoal">Magento_SalesRule</h4>
+                            <p class="text-sm text-gray-600">Cart price rules and coupon processing</p>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Catalog Integration -->
+        <section class="mb-12">
+            <div class="flex items-center gap-4 mb-6">
+                <div class="w-3 h-12 bg-magento-orange-500"></div>
+                <h2 class="text-3xl font-bold text-magento-charcoal">Catalog Integration</h2>
+            </div>
+
+            <div class="bg-white border border-gray-200 p-6 shadow-sm">
+                <p class="text-gray-700 mb-6">Quote integrates with Catalog for product data, pricing, and inventory validation.</p>
+
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <h3 class="font-bold text-magento-charcoal mb-3">Data Flow: Quote ← Catalog</h3>
+                        <ul class="space-y-2 text-sm">
+                            <li class="flex items-start gap-2">
+                                <span class="text-magento-orange-500 mt-1">→</span>
+                                <span>Product prices via <code class="bg-gray-100 px-1">Catalog\Model\Product::getFinalPrice()</code></span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-magento-orange-500 mt-1">→</span>
+                                <span>Custom options via product options repository</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-magento-orange-500 mt-1">→</span>
+                                <span>Tier pricing based on customer group and qty</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-magento-orange-500 mt-1">→</span>
+                                <span>Product weight for shipping calculations</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-magento-charcoal mb-3">Data Flow: Quote → Catalog</h3>
+                        <ul class="space-y-2 text-sm">
+                            <li class="flex items-start gap-2">
+                                <span class="text-magento-gold-500 mt-1">←</span>
+                                <span>Quote plugins clean items on product delete</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-magento-gold-500 mt-1">←</span>
+                                <span>Quote recollection on product price changes</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-magento-gold-500 mt-1">←</span>
+                                <span>Tier price updates trigger quote recollect</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sales Integration -->
+        <section class="bg-white mb-12 p-8 border-t-4 border-charcoal shadow-sm">
+            <h2 class="text-2xl font-bold text-magento-charcoal mb-6">Sales Integration</h2>
+            <p class="text-gray-700 mb-6">Quote data is converted to Order entities when the customer places an order.</p>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="bg-charcoal text-white">
+                            <th class="px-4 py-3 text-left font-semibold">Quote Entity</th>
+                            <th class="px-4 py-3 text-left font-semibold">Order Entity</th>
+                            <th class="px-4 py-3 text-left font-semibold">Converter</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-3 font-mono text-magento-orange-600">Quote</td>
+                            <td class="px-4 py-3 font-mono">Sales\Model\Order</td>
+                            <td class="px-4 py-3 text-gray-600">Quote\Model\Quote\Address\ToOrder</td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-3 font-mono text-magento-orange-600">Quote\Item</td>
+                            <td class="px-4 py-3 font-mono">Sales\Model\Order\Item</td>
+                            <td class="px-4 py-3 text-gray-600">Quote\Model\Quote\Item\ToOrderItem</td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-3 font-mono text-magento-orange-600">Quote\Address</td>
+                            <td class="px-4 py-3 font-mono">Sales\Model\Order\Address</td>
+                            <td class="px-4 py-3 text-gray-600">Quote\Model\Quote\Address\ToOrderAddress</td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-3 font-mono text-magento-orange-600">Quote\Payment</td>
+                            <td class="px-4 py-3 font-mono">Sales\Model\Order\Payment</td>
+                            <td class="px-4 py-3 text-gray-600">Quote\Model\Quote\Payment\ToOrderPayment</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="mt-6 bg-magento-gold-50 border-l-4 border-magento-gold-500 p-4">
+                <p class="font-semibold text-brown mb-1">Fieldset Mapping</p>
+                <p class="text-sm text-brown">The Quote module defines extensive fieldset mappings in <code>etc/fieldset.xml</code> that control which quote fields are copied to orders during conversion.</p>
+            </div>
+        </section>
+
+        <!-- Checkout Integration -->
+        <section class="mb-12">
+            <div class="flex items-center gap-4 mb-6">
+                <div class="w-3 h-12 bg-magento-gold-500"></div>
+                <h2 class="text-3xl font-bold text-magento-charcoal">Checkout Integration</h2>
+            </div>
+
+            <div class="bg-white border border-gray-200 p-6 shadow-sm">
+                <p class="text-gray-700 mb-6">Checkout consumes Quote services for the multi-step checkout process.</p>
+
+                <div class="grid md:grid-cols-3 gap-4">
+                    <div class="border border-gray-200 p-4">
+                        <h3 class="font-bold text-magento-charcoal mb-2">Shipping Step</h3>
+                        <ul class="text-sm text-gray-600 space-y-1">
+                            <li>• ShippingMethodManagementInterface</li>
+                            <li>• ShipmentEstimationInterface</li>
+                            <li>• BillingAddressManagementInterface</li>
+                        </ul>
+                    </div>
+                    <div class="border border-gray-200 p-4">
+                        <h3 class="font-bold text-magento-charcoal mb-2">Payment Step</h3>
+                        <ul class="text-sm text-gray-600 space-y-1">
+                            <li>• PaymentMethodManagementInterface</li>
+                            <li>• CartTotalRepositoryInterface</li>
+                            <li>• CouponManagementInterface</li>
+                        </ul>
+                    </div>
+                    <div class="border border-gray-200 p-4">
+                        <h3 class="font-bold text-magento-charcoal mb-2">Order Placement</h3>
+                        <ul class="text-sm text-gray-600 space-y-1">
+                            <li>• CartManagementInterface::placeOrder()</li>
+                            <li>• QuoteValidationRuleInterface</li>
+                            <li>• QuoteMutexInterface</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- REST API Reference -->
+        <section class="bg-white mb-12 p-8 border-t-4 border-magento-orange-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-magento-charcoal mb-6">REST API Reference (63 endpoints)</h2>
+            <p class="text-gray-700 mb-6">Complete API surface for headless commerce integrations.</p>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="bg-charcoal text-white">
+                            <th class="px-4 py-3 text-left font-semibold">Category</th>
+                            <th class="px-4 py-3 text-left font-semibold">Admin</th>
+                            <th class="px-4 py-3 text-left font-semibold">Customer</th>
+                            <th class="px-4 py-3 text-left font-semibold">Guest</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-3 font-semibold">Cart CRUD</td>
+                            <td class="px-4 py-3 font-mono text-xs">/V1/carts/:cartId</td>
+                            <td class="px-4 py-3 font-mono text-xs">/V1/carts/mine</td>
+                            <td class="px-4 py-3 font-mono text-xs">/V1/guest-carts/:cartId</td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-3 font-semibold">Items</td>
+                            <td class="px-4 py-3 font-mono text-xs">/V1/carts/:cartId/items</td>
+                            <td class="px-4 py-3 font-mono text-xs">/V1/carts/mine/items</td>
+                            <td class="px-4 py-3 font-mono text-xs">/V1/guest-carts/:cartId/items</td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-3 font-semibold">Shipping</td>
+                            <td class="px-4 py-3 font-mono text-xs">/V1/carts/:cartId/shipping-methods</td>
+                            <td class="px-4 py-3 font-mono text-xs">/V1/carts/mine/shipping-methods</td>
+                            <td class="px-4 py-3 font-mono text-xs">/V1/guest-carts/:cartId/shipping-methods</td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-3 font-semibold">Payment</td>
+                            <td class="px-4 py-3 font-mono text-xs">/V1/carts/:cartId/payment-methods</td>
+                            <td class="px-4 py-3 font-mono text-xs">/V1/carts/mine/payment-methods</td>
+                            <td class="px-4 py-3 font-mono text-xs">/V1/guest-carts/:cartId/payment-methods</td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-3 font-semibold">Billing</td>
+                            <td class="px-4 py-3 font-mono text-xs">/V1/carts/:cartId/billing-address</td>
+                            <td class="px-4 py-3 font-mono text-xs">/V1/carts/mine/billing-address</td>
+                            <td class="px-4 py-3 font-mono text-xs">/V1/guest-carts/:cartId/billing-address</td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-3 font-semibold">Coupons</td>
+                            <td class="px-4 py-3 font-mono text-xs">/V1/carts/:cartId/coupons</td>
+                            <td class="px-4 py-3 font-mono text-xs">/V1/carts/mine/coupons</td>
+                            <td class="px-4 py-3 font-mono text-xs">/V1/guest-carts/:cartId/coupons</td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-3 font-semibold">Totals</td>
+                            <td class="px-4 py-3 font-mono text-xs">/V1/carts/:cartId/totals</td>
+                            <td class="px-4 py-3 font-mono text-xs">/V1/carts/mine/totals</td>
+                            <td class="px-4 py-3 font-mono text-xs">/V1/guest-carts/:cartId/totals</td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-3 font-semibold">Order</td>
+                            <td class="px-4 py-3 font-mono text-xs">/V1/carts/:cartId/order</td>
+                            <td class="px-4 py-3 font-mono text-xs">/V1/carts/mine/order</td>
+                            <td class="px-4 py-3 font-mono text-xs">/V1/guest-carts/:cartId/order</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- GraphQL Integration -->
+        <section class="mb-12">
+            <div class="flex items-center gap-4 mb-6">
+                <div class="w-3 h-12 bg-charcoal"></div>
+                <h2 class="text-3xl font-bold text-magento-charcoal">GraphQL Integration</h2>
+            </div>
+
+            <div class="bg-white border border-gray-200 p-6 shadow-sm">
+                <p class="text-gray-700 mb-6">Quote data is exposed via Magento's GraphQL schema for PWA and headless implementations.</p>
+
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <h3 class="font-bold text-magento-charcoal mb-3">Key Mutations</h3>
+                        <ul class="space-y-2 text-sm font-mono">
+                            <li class="bg-magento-charcoal-50 p-2">createEmptyCart</li>
+                            <li class="bg-magento-charcoal-50 p-2">addProductsToCart</li>
+                            <li class="bg-magento-charcoal-50 p-2">updateCartItems</li>
+                            <li class="bg-magento-charcoal-50 p-2">removeItemFromCart</li>
+                            <li class="bg-magento-charcoal-50 p-2">applyCouponToCart</li>
+                            <li class="bg-magento-charcoal-50 p-2">setShippingAddressesOnCart</li>
+                            <li class="bg-magento-charcoal-50 p-2">setBillingAddressOnCart</li>
+                            <li class="bg-magento-charcoal-50 p-2">setPaymentMethodOnCart</li>
+                            <li class="bg-magento-charcoal-50 p-2">placeOrder</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-magento-charcoal mb-3">Key Queries</h3>
+                        <ul class="space-y-2 text-sm font-mono">
+                            <li class="bg-magento-charcoal-50 p-2">cart { items, prices, shipping_addresses }</li>
+                            <li class="bg-magento-charcoal-50 p-2">customerCart</li>
+                        </ul>
+                        <div class="mt-4 bg-magento-orange-50 border-l-4 border-magento-orange-500 p-3">
+                            <p class="text-sm text-magento-orange-800"><strong>Note:</strong> GraphQL mutations are defined in Magento_QuoteGraphQl module, not Magento_Quote.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Navigation -->
+        <nav class="flex justify-between items-center" aria-label="Documentation navigation">
+            <a href="plugins-observers.html" class="inline-flex items-center gap-2 px-4 py-2 bg-magento-charcoal-100 text-magento-charcoal font-medium hover:bg-magento-charcoal-200 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-magento-charcoal-500">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17l-5-5m0 0l5-5m-5 5h12"/>
+                </svg>
+                Plugins & Observers
+            </a>
+            <a href="known-issues.html" class="inline-flex items-center gap-2 px-4 py-2 bg-magento-gold-600 text-white font-medium hover:bg-magento-gold-700 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-magento-gold-600">
+                Known Issues
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                </svg>
+            </a>
+        </nav>
+
+    </div>
+
+    <footer class="bg-charcoal text-white py-8 mt-16">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                <p class="text-sm text-gray-400">Magento_Quote Integrations | The Magento Core Documentation Project</p>
+                <p class="text-sm text-gray-400">Last updated: December 2025 | Magento 2.4.x</p>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

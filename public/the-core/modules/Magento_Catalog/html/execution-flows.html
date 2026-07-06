@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Execution Flows - Magento_Catalog | THE MAGENTO CORE</title>
+    <meta name="description" content="Step-by-step traces of product save, product load, category operations, price calculation, and indexer execution in Magento_Catalog">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        orange: {
+                            DEFAULT: '#F26423',
+                            50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad', 300: '#f9ae78',
+                            400: '#f58242', 500: '#f26423', 600: '#e34613', 700: '#bc3312',
+                            800: '#962a16', 900: '#792515', 950: '#411009'
+                        },
+                        yellow: {
+                            DEFAULT: '#F1BC1B',
+                            50: '#fffbeb', 100: '#fdf9c8', 200: '#fbf38c', 300: '#f8e651',
+                            400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a', 700: '#b1670c',
+                            800: '#8f5111', 900: '#764311', 950: '#442204'
+                        },
+                        charcoal: {
+                            DEFAULT: '#2c2c2c',
+                            50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6', 300: '#818181',
+                            400: '#474747', 500: '#2c2c2c', 600: '#262626', 700: '#202020',
+                            800: '#1c1c1c', 900: '#191919', 950: '#121212'
+                        },
+                        brown: '#442204',
+                        'off-white': '#FAFAFA',
+                    },
+                    fontFamily: {
+                        sans: ['Inter Tight', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter Tight', system-ui, sans-serif; }
+        .code-block { background: #1c1c1c; color: #f1f1f1; }
+        .step-number {
+            width: 32px; height: 32px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 14px;
+        }
+        .flow-step { border-left: 3px solid #d9d9d9; margin-left: 15px; padding-left: 24px; }
+        .flow-step:last-child { border-left-color: transparent; }
+    </style>
+</head>
+<body class="bg-off-white text-charcoal">
+
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-charcoal focus:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
+        Skip to content
+    </a>
+
+    <header class="bg-gradient-to-br from-charcoal-500 via-charcoal-600 to-charcoal-700 border-b-8 border-orange-500">
+        <!-- back-to-developer-docs -->
+        <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 pt-4"><a href="/developer/" aria-label="Back to Developer Docs" class="inline-flex items-center gap-1.5 text-sm font-medium text-white/70 hover:text-white transition-colors no-underline"><span aria-hidden="true">←</span> Developer Docs</a></div>
+        <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+            <nav aria-label="Breadcrumb" class="mb-6">
+                <ol class="flex flex-wrap items-center gap-2 text-sm text-gray-400">
+                    <li><a href="../../../index.html" class="hover:text-orange-500 underline underline-offset-4">Home</a></li>
+                    <li aria-hidden="true"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></li>
+                    <li><a href="index.html" class="hover:text-orange-500 underline underline-offset-4">Magento_Catalog</a></li>
+                    <li aria-hidden="true"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></li>
+                    <li class="text-white font-medium">Execution Flows</li>
+                </ol>
+            </nav>
+            <div id="main-content">
+                <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white mb-4">Execution Flows</h1>
+                <p class="text-base sm:text-lg text-gray-300 max-w-3xl mb-6">Step-by-step traces through product save, product load, category operations, price calculation, and indexer execution flows.</p>
+            </div>
+        </div>
+    </header>
+
+    <div class="max-w-6xl mx-auto px-6 py-8 md:py-12">
+
+        <!-- Table of Contents -->
+        <nav class="bg-white border-l-4 border-yellow-500 p-6 mb-12 shadow-sm" aria-label="Table of contents">
+            <h2 class="text-lg font-bold text-charcoal mb-4">Execution Flows</h2>
+            <ul class="space-y-2 text-sm">
+                <li><a href="#product-save" class="block text-charcoal-400 hover:text-orange-600 font-medium">1. Product Save via Repository</a></li>
+                <li><a href="#product-load" class="block text-charcoal-400 hover:text-orange-600 font-medium">2. Product Load via Repository</a></li>
+                <li><a href="#category-save" class="block text-charcoal-400 hover:text-orange-600 font-medium">3. Category Save Flow</a></li>
+                <li><a href="#price-calculation" class="block text-charcoal-400 hover:text-orange-600 font-medium">4. Price Calculation</a></li>
+                <li><a href="#indexer-execution" class="block text-charcoal-400 hover:text-orange-600 font-medium">5. Indexer Execution</a></li>
+                <li><a href="#frontend-product-view" class="block text-charcoal-400 hover:text-orange-600 font-medium">6. Frontend Product View</a></li>
+            </ul>
+        </nav>
+
+        <!-- Product Save Flow -->
+        <section id="product-save" class="bg-white mb-12 p-8 border-t-4 border-orange-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-charcoal mb-6">1. Product Save via Repository</h2>
+            <p class="text-gray-700 mb-6">The <code class="bg-gray-100 px-1">ProductRepositoryInterface::save()</code> method is the primary entry point for persisting product data. This flow handles validation, EAV attribute storage, media gallery, and triggers indexer invalidation.</p>
+
+            <div class="space-y-6">
+                <div class="flow-step pb-6">
+                    <div class="flex items-start gap-4">
+                        <div class="step-number bg-orange-500 text-white flex-shrink-0">1</div>
+                        <div>
+                            <h3 class="font-bold text-charcoal mb-2">Entry Point: ProductRepository::save()</h3>
+                            <p class="text-sm text-gray-600 mb-2">Receives ProductInterface object. Validates SKU uniqueness if creating new product.</p>
+                            <div class="code-block p-3 text-xs overflow-x-auto">
+                                <pre>Magento\Catalog\Model\ProductRepository::save($product, $saveOptions = false)</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flow-step pb-6">
+                    <div class="flex items-start gap-4">
+                        <div class="step-number bg-orange-500 text-white flex-shrink-0">2</div>
+                        <div>
+                            <h3 class="font-bold text-charcoal mb-2">Validation & Preparation</h3>
+                            <ul class="text-sm text-gray-600 space-y-1 mb-2">
+                                <li>- Validate required attributes (name, sku, price, status, visibility)</li>
+                                <li>- Process extension attributes (stock, categories, tier prices)</li>
+                                <li>- Handle media gallery entries</li>
+                                <li>- Resolve attribute set if not provided</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flow-step pb-6">
+                    <div class="flex items-start gap-4">
+                        <div class="step-number bg-yellow-500 text-charcoal flex-shrink-0">3</div>
+                        <div>
+                            <h3 class="font-bold text-charcoal mb-2">Before Save Plugins</h3>
+                            <p class="text-sm text-gray-600 mb-2">Plugins intercept before persisting. Key plugins include:</p>
+                            <ul class="text-sm text-gray-600 space-y-1">
+                                <li>- <code class="bg-gray-100 px-1">InventoryPlugin</code>: Reserve stock</li>
+                                <li>- <code class="bg-gray-100 px-1">CategoryLinkPlugin</code>: Process category assignments</li>
+                                <li>- <code class="bg-gray-100 px-1">UrlRewritePlugin</code>: Generate URL rewrites</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flow-step pb-6">
+                    <div class="flex items-start gap-4">
+                        <div class="step-number bg-orange-500 text-white flex-shrink-0">4</div>
+                        <div>
+                            <h3 class="font-bold text-charcoal mb-2">ResourceModel::save() - EAV Persistence</h3>
+                            <p class="text-sm text-gray-600 mb-2">The core persistence layer saves entity and all EAV attribute values.</p>
+                            <div class="code-block p-3 text-xs overflow-x-auto">
+                                <pre>// Transaction starts
+INSERT INTO catalog_product_entity (sku, type_id, attribute_set_id, ...)
+INSERT INTO catalog_product_entity_varchar (entity_id, attribute_id, store_id, value)
+INSERT INTO catalog_product_entity_int (entity_id, attribute_id, store_id, value)
+INSERT INTO catalog_product_entity_decimal (entity_id, attribute_id, store_id, value)
+// ... for each attribute type
+// Transaction commits</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flow-step pb-6">
+                    <div class="flex items-start gap-4">
+                        <div class="step-number bg-yellow-500 text-charcoal flex-shrink-0">5</div>
+                        <div>
+                            <h3 class="font-bold text-charcoal mb-2">Event: catalog_product_save_after</h3>
+                            <p class="text-sm text-gray-600 mb-2">Observers process post-save logic:</p>
+                            <ul class="text-sm text-gray-600 space-y-1">
+                                <li>- <code class="bg-gray-100 px-1">ImageResizeAfterProductSave</code>: Queue image resize</li>
+                                <li>- <code class="bg-gray-100 px-1">IndexerPlugin</code>: Invalidate affected indexes</li>
+                                <li>- <code class="bg-gray-100 px-1">FullPageCache</code>: Flush product cache tags</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flow-step">
+                    <div class="flex items-start gap-4">
+                        <div class="step-number bg-charcoal text-white flex-shrink-0">6</div>
+                        <div>
+                            <h3 class="font-bold text-charcoal mb-2">Indexer Invalidation</h3>
+                            <p class="text-sm text-gray-600 mb-2">If indexers are in "Update on Schedule" mode, changelogs are updated. Otherwise, partial reindex runs.</p>
+                            <ul class="text-sm text-gray-600 space-y-1">
+                                <li>- catalog_product_price</li>
+                                <li>- catalog_product_flat (if enabled)</li>
+                                <li>- catalog_category_product</li>
+                                <li>- catalogsearch_fulltext</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-8 bg-yellow-50 border-l-4 border-yellow-500 p-4">
+                <h4 class="font-bold text-charcoal mb-2">Performance Note</h4>
+                <p class="text-sm text-gray-700">Saving products with many attributes or media gallery images can be slow. Use <code class="bg-gray-100 px-1">$saveOptions = true</code> to skip validation for bulk imports. Always batch save operations and consider disabling indexers during large imports.</p>
+            </div>
+        </section>
+
+        <!-- Product Load Flow -->
+        <section id="product-load" class="bg-white mb-12 p-8 border-t-4 border-yellow-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-charcoal mb-6">2. Product Load via Repository</h2>
+            <p class="text-gray-700 mb-6">Loading a product via <code class="bg-gray-100 px-1">ProductRepositoryInterface::get()</code> or <code class="bg-gray-100 px-1">getById()</code> retrieves the entity and all its EAV attributes based on the current store scope.</p>
+
+            <div class="space-y-6">
+                <div class="flow-step pb-6">
+                    <div class="flex items-start gap-4">
+                        <div class="step-number bg-orange-500 text-white flex-shrink-0">1</div>
+                        <div>
+                            <h3 class="font-bold text-charcoal mb-2">Entry: ProductRepository::get($sku) or getById($id)</h3>
+                            <p class="text-sm text-gray-600">Check instance cache first. If not cached, proceed to load.</p>
+                            <div class="code-block p-3 text-xs overflow-x-auto mt-2">
+                                <pre>// Instance cache check
+if (isset($this->instances[$sku][$storeId])) {
+    return $this->instances[$sku][$storeId];
+}</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flow-step pb-6">
+                    <div class="flex items-start gap-4">
+                        <div class="step-number bg-orange-500 text-white flex-shrink-0">2</div>
+                        <div>
+                            <h3 class="font-bold text-charcoal mb-2">ResourceModel::load() - EAV Assembly</h3>
+                            <p class="text-sm text-gray-600 mb-2">Multiple JOINs retrieve all attribute values for the entity:</p>
+                            <div class="code-block p-3 text-xs overflow-x-auto">
+                                <pre>SELECT e.*,
+       t_varchar.value AS name,
+       t_decimal.value AS price,
+       t_int.value AS status
+FROM catalog_product_entity e
+LEFT JOIN catalog_product_entity_varchar t_varchar
+    ON e.entity_id = t_varchar.entity_id
+    AND t_varchar.attribute_id = 73 /* name */
+    AND t_varchar.store_id IN (0, 1)
+LEFT JOIN catalog_product_entity_decimal t_decimal
+    ON e.entity_id = t_decimal.entity_id
+    AND t_decimal.attribute_id = 77 /* price */
+-- ... repeated for each attribute</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flow-step pb-6">
+                    <div class="flex items-start gap-4">
+                        <div class="step-number bg-yellow-500 text-charcoal flex-shrink-0">3</div>
+                        <div>
+                            <h3 class="font-bold text-charcoal mb-2">Extension Attributes Loading</h3>
+                            <p class="text-sm text-gray-600 mb-2">After entity load, extension attributes are hydrated via <code class="bg-gray-100 px-1">ReadExtensions</code>:</p>
+                            <ul class="text-sm text-gray-600 space-y-1">
+                                <li>- Stock data (qty, is_in_stock)</li>
+                                <li>- Category links</li>
+                                <li>- Tier prices</li>
+                                <li>- Bundle/Configurable options (if applicable)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flow-step">
+                    <div class="flex items-start gap-4">
+                        <div class="step-number bg-charcoal text-white flex-shrink-0">4</div>
+                        <div>
+                            <h3 class="font-bold text-charcoal mb-2">Event: catalog_product_load_after</h3>
+                            <p class="text-sm text-gray-600">Observers can modify the loaded product. Entity is then cached and returned.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-8 bg-orange-50 border-l-4 border-orange-500 p-4">
+                <h4 class="font-bold text-charcoal mb-2">N+1 Query Warning</h4>
+                <p class="text-sm text-gray-700">Loading products in a loop causes N+1 query issues. Always use <code class="bg-gray-100 px-1">ProductCollectionFactory</code> with <code class="bg-gray-100 px-1">addAttributeToSelect()</code> for batch loading. The Flat Catalog avoids EAV JOINs for frontend queries.</p>
+            </div>
+        </section>
+
+        <!-- Category Save Flow -->
+        <section id="category-save" class="bg-white mb-12 p-8 border-t-4 border-orange-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-charcoal mb-6">3. Category Save Flow</h2>
+            <p class="text-gray-700 mb-6">Category save is similar to product save but includes tree path recalculation and children_count updates.</p>
+
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="border-l-4 border-orange-500 pl-4 py-3">
+                    <h3 class="font-bold text-charcoal mb-2">Key Operations</h3>
+                    <ol class="text-sm text-gray-600 space-y-2 list-decimal list-inside">
+                        <li>Validate parent category exists</li>
+                        <li>Calculate path: parent_path + "/" + entity_id</li>
+                        <li>Set level = parent_level + 1</li>
+                        <li>Update parent's children_count</li>
+                        <li>Save EAV attributes</li>
+                        <li>Recalculate children paths if moved</li>
+                        <li>Trigger reindex of category tree</li>
+                    </ol>
+                </div>
+                <div class="border-l-4 border-yellow-500 pl-4 py-3">
+                    <h3 class="font-bold text-charcoal mb-2">Events Dispatched</h3>
+                    <ul class="text-sm text-gray-600 space-y-2">
+                        <li><code class="bg-gray-100 px-1">catalog_category_prepare_save</code></li>
+                        <li><code class="bg-gray-100 px-1">catalog_category_save_before</code></li>
+                        <li><code class="bg-gray-100 px-1">catalog_category_save_after</code></li>
+                        <li><code class="bg-gray-100 px-1">clean_cache_by_tags</code> (FPC)</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Price Calculation -->
+        <section id="price-calculation" class="bg-white mb-12 p-8 border-t-4 border-yellow-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-charcoal mb-6">4. Price Calculation Flow</h2>
+            <p class="text-gray-700 mb-6">Price calculation is one of the most complex flows in Catalog. The final price depends on base price, special price, tier prices, catalog rules, customer group, and tax configuration.</p>
+
+            <div class="space-y-6">
+                <div class="flow-step pb-6">
+                    <div class="flex items-start gap-4">
+                        <div class="step-number bg-orange-500 text-white flex-shrink-0">1</div>
+                        <div>
+                            <h3 class="font-bold text-charcoal mb-2">Get Base Price</h3>
+                            <p class="text-sm text-gray-600">Read <code class="bg-gray-100 px-1">price</code> attribute from EAV or indexed price table.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flow-step pb-6">
+                    <div class="flex items-start gap-4">
+                        <div class="step-number bg-orange-500 text-white flex-shrink-0">2</div>
+                        <div>
+                            <h3 class="font-bold text-charcoal mb-2">Apply Special Price</h3>
+                            <p class="text-sm text-gray-600">If <code class="bg-gray-100 px-1">special_price</code> is set and within <code class="bg-gray-100 px-1">special_from_date</code> / <code class="bg-gray-100 px-1">special_to_date</code>, use it.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flow-step pb-6">
+                    <div class="flex items-start gap-4">
+                        <div class="step-number bg-yellow-500 text-charcoal flex-shrink-0">3</div>
+                        <div>
+                            <h3 class="font-bold text-charcoal mb-2">Apply Tier Prices</h3>
+                            <p class="text-sm text-gray-600">Check <code class="bg-gray-100 px-1">catalog_product_entity_tier_price</code> for quantity-based discounts by customer group.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flow-step pb-6">
+                    <div class="flex items-start gap-4">
+                        <div class="step-number bg-yellow-500 text-charcoal flex-shrink-0">4</div>
+                        <div>
+                            <h3 class="font-bold text-charcoal mb-2">Apply Catalog Price Rules</h3>
+                            <p class="text-sm text-gray-600">Query <code class="bg-gray-100 px-1">catalogrule_product_price</code> for applicable rule discounts.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flow-step">
+                    <div class="flex items-start gap-4">
+                        <div class="step-number bg-charcoal text-white flex-shrink-0">5</div>
+                        <div>
+                            <h3 class="font-bold text-charcoal mb-2">Return Final Price</h3>
+                            <p class="text-sm text-gray-600">Lowest applicable price is returned. For display, tax may be added based on configuration.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-8 bg-orange-50 border-l-4 border-orange-500 p-4">
+                <h4 class="font-bold text-charcoal mb-2">Critical Warning: getPrice() vs getFinalPrice()</h4>
+                <p class="text-sm text-gray-700"><strong>$product->getPrice()</strong> returns the BASE price attribute only. <strong>$product->getFinalPrice()</strong> runs the full price calculation. This is a common source of bugs. Always use <code class="bg-gray-100 px-1">getFinalPrice()</code> for customer-facing prices.</p>
+            </div>
+        </section>
+
+        <!-- Indexer Execution -->
+        <section id="indexer-execution" class="bg-white mb-12 p-8 border-t-4 border-orange-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-charcoal mb-6">5. Indexer Execution Flow</h2>
+            <p class="text-gray-700 mb-6">Indexers transform EAV data into flat, query-optimized tables. They can run in "Update on Save" (immediate) or "Update on Schedule" (cron-based) modes.</p>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <div>
+                    <h3 class="font-bold text-charcoal mb-4">Update on Save Mode</h3>
+                    <ol class="space-y-3 text-sm">
+                        <li class="flex gap-3">
+                            <span class="step-number bg-orange-500 text-white text-xs">1</span>
+                            <span>Entity save triggers IndexerPlugin</span>
+                        </li>
+                        <li class="flex gap-3">
+                            <span class="step-number bg-orange-500 text-white text-xs">2</span>
+                            <span>Plugin calls Indexer::reindexRow($id)</span>
+                        </li>
+                        <li class="flex gap-3">
+                            <span class="step-number bg-orange-500 text-white text-xs">3</span>
+                            <span>Flat table updated immediately</span>
+                        </li>
+                        <li class="flex gap-3">
+                            <span class="step-number bg-orange-500 text-white text-xs">4</span>
+                            <span>Cache tags invalidated</span>
+                        </li>
+                    </ol>
+                </div>
+                <div>
+                    <h3 class="font-bold text-charcoal mb-4">Update on Schedule Mode</h3>
+                    <ol class="space-y-3 text-sm">
+                        <li class="flex gap-3">
+                            <span class="step-number bg-yellow-500 text-charcoal text-xs">1</span>
+                            <span>Entity save writes to changelog table</span>
+                        </li>
+                        <li class="flex gap-3">
+                            <span class="step-number bg-yellow-500 text-charcoal text-xs">2</span>
+                            <span>Cron job runs indexer:reindex</span>
+                        </li>
+                        <li class="flex gap-3">
+                            <span class="step-number bg-yellow-500 text-charcoal text-xs">3</span>
+                            <span>Mview reads changelog, reindexes affected IDs</span>
+                        </li>
+                        <li class="flex gap-3">
+                            <span class="step-number bg-yellow-500 text-charcoal text-xs">4</span>
+                            <span>Changelog entries marked processed</span>
+                        </li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="mt-6 code-block p-4 text-sm">
+                <pre># Reindex all catalog indexers
+bin/magento indexer:reindex catalog_product_flat catalog_category_flat \
+    catalog_category_product catalog_product_price catalog_product_attribute
+
+# Check indexer status
+bin/magento indexer:status</pre>
+            </div>
+        </section>
+
+        <!-- Frontend Product View -->
+        <section id="frontend-product-view" class="bg-white mb-12 p-8 border-t-4 border-yellow-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-charcoal mb-6">6. Frontend Product View Flow</h2>
+            <p class="text-gray-700 mb-6">When a customer visits a product page, the request flows through controller, block, and template layers with full-page cache optimization.</p>
+
+            <div class="space-y-6">
+                <div class="flow-step pb-6">
+                    <div class="flex items-start gap-4">
+                        <div class="step-number bg-orange-500 text-white flex-shrink-0">1</div>
+                        <div>
+                            <h3 class="font-bold text-charcoal mb-2">Route: /catalog/product/view/id/{id}</h3>
+                            <p class="text-sm text-gray-600">Controller: <code class="bg-gray-100 px-1">Magento\Catalog\Controller\Product\View</code></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flow-step pb-6">
+                    <div class="flex items-start gap-4">
+                        <div class="step-number bg-orange-500 text-white flex-shrink-0">2</div>
+                        <div>
+                            <h3 class="font-bold text-charcoal mb-2">Product Load with View Helper</h3>
+                            <p class="text-sm text-gray-600"><code class="bg-gray-100 px-1">ProductViewHelper::prepareAndRender()</code> loads product with design settings.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flow-step pb-6">
+                    <div class="flex items-start gap-4">
+                        <div class="step-number bg-yellow-500 text-charcoal flex-shrink-0">3</div>
+                        <div>
+                            <h3 class="font-bold text-charcoal mb-2">Layout Processing</h3>
+                            <p class="text-sm text-gray-600 mb-2">Layout handles applied in order:</p>
+                            <ul class="text-sm text-gray-600 space-y-1">
+                                <li>- default</li>
+                                <li>- catalog_product_view</li>
+                                <li>- catalog_product_view_type_{type_id}</li>
+                                <li>- catalog_product_view_id_{product_id}</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flow-step pb-6">
+                    <div class="flex items-start gap-4">
+                        <div class="step-number bg-yellow-500 text-charcoal flex-shrink-0">4</div>
+                        <div>
+                            <h3 class="font-bold text-charcoal mb-2">Block Rendering</h3>
+                            <p class="text-sm text-gray-600">Key blocks: <code class="bg-gray-100 px-1">product.info</code>, <code class="bg-gray-100 px-1">product.info.price</code>, <code class="bg-gray-100 px-1">product.info.media</code>, <code class="bg-gray-100 px-1">product.info.options</code></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flow-step">
+                    <div class="flex items-start gap-4">
+                        <div class="step-number bg-charcoal text-white flex-shrink-0">5</div>
+                        <div>
+                            <h3 class="font-bold text-charcoal mb-2">Full Page Cache</h3>
+                            <p class="text-sm text-gray-600">Response cached with tags: <code class="bg-gray-100 px-1">cat_p_{id}</code>, <code class="bg-gray-100 px-1">cat_c_{category_ids}</code>. Hole-punching for private data (cart, customer).</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Navigation -->
+        <nav class="flex flex-col sm:flex-row gap-4 justify-between" aria-label="Page navigation">
+            <a href="architecture.html" class="inline-flex items-center gap-2 px-6 py-3 bg-charcoal text-white font-semibold hover:bg-charcoal-600 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-charcoal">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                Architecture
+            </a>
+            <a href="plugins-observers.html" class="inline-flex items-center gap-2 px-6 py-3 bg-orange-500 text-white font-semibold hover:bg-orange-600 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
+                Plugins & Observers
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </a>
+        </nav>
+
+    </div>
+
+    <footer class="bg-charcoal text-white py-8 mt-16">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                <p class="text-sm text-gray-400">Magento Documentation | Magento_Catalog Execution Flows</p>
+                <div class="flex items-center gap-6">
+                    <a href="index.html" class="text-sm text-gray-400 hover:text-white transition">Module Overview</a>
+                    <a href="../../../index.html" class="text-sm text-gray-400 hover:text-white transition">Documentation Home</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

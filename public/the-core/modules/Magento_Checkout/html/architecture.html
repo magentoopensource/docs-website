@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Architecture - Magento_Checkout Module</title>
+    <meta name="description" content="Checkout module architecture including multi-step checkout design, session management, Knockout.js components, and service contract patterns.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'magento-orange': {
+                            DEFAULT: '#f26423',
+                            50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad', 300: '#f9ae78',
+                            400: '#f58242', 500: '#f26423', 600: '#e34613', 700: '#bc3312',
+                            800: '#962a16', 900: '#792515', 950: '#411009'
+                        },
+                        'magento-gold': {
+                            DEFAULT: '#f1bc1b',
+                            50: '#fffdeb', 100: '#fdf9c8', 200: '#fbf38c', 300: '#f8e651',
+                            400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a', 700: '#b1670c',
+                            800: '#8f5111', 900: '#764311', 950: '#442204'
+                        },
+                        'magento-charcoal': {
+                            DEFAULT: '#2c2c2c',
+                            50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6', 300: '#818181',
+                            400: '#474747', 500: '#2c2c2c', 600: '#262626', 700: '#202020',
+                            800: '#1c1c1c', 900: '#191919', 950: '#121212'
+                        },
+                    },
+                    fontFamily: {
+                        sans: ['Inter Tight', 'system-ui', 'sans-serif'],
+                        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&display=swap');
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+        pre { background: #1c1c1c; color: #e5e5e5; padding: 1rem; overflow-x: auto; font-size: 0.875rem; }
+        code { font-family: 'Monaco', 'Consolas', monospace; }
+    </style>
+</head>
+<body class="bg-[#FAFAFA] text-magento-charcoal">
+
+    <!-- Skip to content -->
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-magento-orange-800 focus:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-magento-orange-800">
+        Skip to content
+    </a>
+
+    <!-- Header -->
+    <header class="bg-gradient-to-br from-magento-charcoal-500 via-magento-charcoal-600 to-magento-charcoal-700 border-b-8 border-magento-gold-500">
+        <!-- back-to-developer-docs -->
+        <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 pt-4"><a href="/developer/" aria-label="Back to Developer Docs" class="inline-flex items-center gap-1.5 text-sm font-medium text-white/70 hover:text-white transition-colors no-underline"><span aria-hidden="true">←</span> Developer Docs</a></div>
+        <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+            <nav class="mb-8" aria-label="Breadcrumb">
+                <ol class="flex items-center gap-2 text-sm text-gray-400">
+                    <li><a href="../../../index.html" class="hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-magento-orange-500">Home</a></li>
+                    <li aria-hidden="true">/</li>
+                    <li><a href="index.html" class="hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-magento-orange-500">Magento_Checkout</a></li>
+                    <li aria-hidden="true">/</li>
+                    <li><span class="text-magento-gold-400">Architecture</span></li>
+                </ol>
+            </nav>
+            <div id="main-content">
+                <h1 class="text-4xl sm:text-5xl font-bold tracking-tight text-white mb-4">Architecture</h1>
+                <p class="text-lg sm:text-xl text-gray-300 max-w-3xl">Multi-step checkout design, session management, Knockout.js component architecture, and service contract patterns.</p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="max-w-6xl mx-auto px-6 py-8 md:py-12">
+
+        <!-- Checkout Architecture Overview -->
+        <section class="bg-white mb-12 p-8 border-t-4 border-magento-orange-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-magento-charcoal mb-4 mt-0">Checkout Architecture Overview</h2>
+            <p class="text-gray-700 mb-6 leading-relaxed">
+                The Magento Checkout module implements a two-step checkout process by default: shipping and payment/review.
+                The architecture heavily relies on Knockout.js for frontend components, with a RESTful backend API
+                that enables headless checkout implementations. The checkout session maintains state across
+                the multi-step process using PHP sessions and browser-side storage.
+            </p>
+
+            <div class="bg-magento-charcoal-50 border-l-4 border-magento-gold-500 p-4 mb-6">
+                <p class="font-semibold text-magento-charcoal mb-2">Key Architectural Principle</p>
+                <p class="text-sm text-gray-700">
+                    The checkout separates guest and authenticated customer flows at the API level, with dedicated
+                    interfaces (Guest* vs regular) that handle authorization differently while sharing core business logic.
+                </p>
+            </div>
+        </section>
+
+        <!-- Service Contracts -->
+        <section class="mb-12">
+            <div class="flex items-center gap-4 mb-8">
+                <div class="w-3 h-12 bg-magento-orange-500"></div>
+                <h2 class="text-3xl font-bold text-magento-charcoal">Service Contracts (26 Interfaces)</h2>
+            </div>
+
+            <!-- Management Interfaces -->
+            <div class="bg-white mb-6 p-6 border border-gray-200 shadow-sm">
+                <h3 class="text-xl font-bold text-magento-charcoal mb-4">Management Interfaces</h3>
+                <p class="text-gray-700 mb-4">These interfaces define the checkout operations for customers and guests:</p>
+
+                <div class="space-y-4">
+                    <div class="border-l-4 border-magento-orange-500 pl-4 py-2">
+                        <h4 class="font-bold text-magento-charcoal font-mono text-sm">PaymentInformationManagementInterface</h4>
+                        <p class="text-sm text-gray-600 mt-1">Save payment info and place order for authenticated customers</p>
+                        <ul class="text-sm text-gray-700 mt-2 space-y-1">
+                            <li><code class="bg-gray-100 px-1">savePaymentInformationAndPlaceOrder($cartId, PaymentInterface, AddressInterface)</code></li>
+                            <li><code class="bg-gray-100 px-1">savePaymentInformation($cartId, PaymentInterface, AddressInterface)</code></li>
+                            <li><code class="bg-gray-100 px-1">getPaymentInformation($cartId)</code></li>
+                        </ul>
+                    </div>
+
+                    <div class="border-l-4 border-magento-gold-500 pl-4 py-2">
+                        <h4 class="font-bold text-magento-charcoal font-mono text-sm">GuestPaymentInformationManagementInterface</h4>
+                        <p class="text-sm text-gray-600 mt-1">Same operations for guest customers using cart mask ID</p>
+                        <ul class="text-sm text-gray-700 mt-2 space-y-1">
+                            <li><code class="bg-gray-100 px-1">savePaymentInformationAndPlaceOrder($cartId, $email, PaymentInterface, AddressInterface)</code></li>
+                            <li><code class="bg-gray-100 px-1">savePaymentInformation($cartId, $email, PaymentInterface, AddressInterface)</code></li>
+                        </ul>
+                    </div>
+
+                    <div class="border-l-4 border-magento-charcoal pl-4 py-2">
+                        <h4 class="font-bold text-magento-charcoal font-mono text-sm">ShippingInformationManagementInterface</h4>
+                        <p class="text-sm text-gray-600 mt-1">Handle shipping address and method selection</p>
+                        <ul class="text-sm text-gray-700 mt-2 space-y-1">
+                            <li><code class="bg-gray-100 px-1">saveAddressInformation($cartId, ShippingInformationInterface)</code></li>
+                        </ul>
+                    </div>
+
+                    <div class="border-l-4 border-magento-orange-500 pl-4 py-2">
+                        <h4 class="font-bold text-magento-charcoal font-mono text-sm">TotalsInformationManagementInterface</h4>
+                        <p class="text-sm text-gray-600 mt-1">Calculate and return cart totals based on address</p>
+                        <ul class="text-sm text-gray-700 mt-2 space-y-1">
+                            <li><code class="bg-gray-100 px-1">calculate($cartId, TotalsInformationInterface)</code></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Interfaces -->
+            <div class="bg-white mb-6 p-6 border border-gray-200 shadow-sm">
+                <h3 class="text-xl font-bold text-magento-charcoal mb-4">Data Interfaces</h3>
+                <p class="text-gray-700 mb-4">Transfer objects for checkout data:</p>
+
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div class="bg-magento-charcoal-50 p-4">
+                        <h4 class="font-bold text-magento-charcoal font-mono text-sm">ShippingInformationInterface</h4>
+                        <ul class="text-sm text-gray-600 mt-2 space-y-1">
+                            <li>getShippingAddress()</li>
+                            <li>getBillingAddress()</li>
+                            <li>getShippingMethodCode()</li>
+                            <li>getShippingCarrierCode()</li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-magento-charcoal-50 p-4">
+                        <h4 class="font-bold text-magento-charcoal font-mono text-sm">PaymentDetailsInterface</h4>
+                        <ul class="text-sm text-gray-600 mt-2 space-y-1">
+                            <li>getPaymentMethods()</li>
+                            <li>getTotals()</li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-magento-charcoal-50 p-4">
+                        <h4 class="font-bold text-magento-charcoal font-mono text-sm">TotalsInformationInterface</h4>
+                        <ul class="text-sm text-gray-600 mt-2 space-y-1">
+                            <li>getAddress()</li>
+                            <li>getShippingMethodCode()</li>
+                            <li>getShippingCarrierCode()</li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-magento-charcoal-50 p-4">
+                        <h4 class="font-bold text-magento-charcoal font-mono text-sm">AgreementsValidatorInterface</h4>
+                        <ul class="text-sm text-gray-600 mt-2 space-y-1">
+                            <li>isValid($agreementIds)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rate Limiting Interfaces -->
+            <div class="bg-white p-6 border border-gray-200 shadow-sm">
+                <h3 class="text-xl font-bold text-magento-charcoal mb-4">Security Interfaces</h3>
+
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div class="border-l-4 border-magento-gold-500 pl-4 py-2">
+                        <h4 class="font-bold text-magento-charcoal font-mono text-sm">PaymentProcessingRateLimiterInterface</h4>
+                        <p class="text-sm text-gray-600 mt-1">Rate limit payment processing attempts</p>
+                        <p class="text-xs text-gray-500 mt-1">Default: CaptchaPaymentProcessingRateLimiter</p>
+                    </div>
+                    <div class="border-l-4 border-magento-orange-500 pl-4 py-2">
+                        <h4 class="font-bold text-magento-charcoal font-mono text-sm">PaymentSavingRateLimiterInterface</h4>
+                        <p class="text-sm text-gray-600 mt-1">Rate limit payment information save attempts</p>
+                        <p class="text-xs text-gray-500 mt-1">Default: CaptchaPaymentSavingRateLimiter</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Session Management -->
+        <section class="mb-12">
+            <div class="flex items-center gap-4 mb-8">
+                <div class="w-3 h-12 bg-magento-gold-500"></div>
+                <h2 class="text-3xl font-bold text-magento-charcoal">Session Management</h2>
+            </div>
+
+            <div class="bg-white p-6 border border-gray-200 shadow-sm mb-6">
+                <h3 class="text-xl font-bold text-magento-charcoal mb-4">Checkout Session</h3>
+                <p class="text-gray-700 mb-4">
+                    The <code class="bg-gray-100 px-1">Magento\Checkout\Model\Session</code> class manages the checkout state
+                    with a dedicated session namespace.
+                </p>
+
+                <pre><code class="language-php">&lt;!-- di.xml Virtual Type Configuration --&gt;
+&lt;virtualType name="Magento\Checkout\Model\Session\Storage"
+             type="Magento\Framework\Session\Storage"&gt;
+    &lt;arguments&gt;
+        &lt;argument name="namespace" xsi:type="string"&gt;checkout&lt;/argument&gt;
+    &lt;/arguments&gt;
+&lt;/virtualType&gt;
+
+&lt;type name="Magento\Checkout\Model\Session"&gt;
+    &lt;arguments&gt;
+        &lt;argument name="storage" xsi:type="object"&gt;
+            Magento\Checkout\Model\Session\Storage
+        &lt;/argument&gt;
+    &lt;/arguments&gt;
+&lt;/type&gt;</code></pre>
+
+                <h4 class="font-bold text-magento-charcoal mt-6 mb-3">Key Session Methods</h4>
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div class="bg-magento-charcoal-50 p-4">
+                        <code class="text-sm font-mono text-magento-charcoal">getQuote()</code>
+                        <p class="text-sm text-gray-600 mt-1">Returns the current quote object, loading or creating as needed</p>
+                    </div>
+                    <div class="bg-magento-charcoal-50 p-4">
+                        <code class="text-sm font-mono text-magento-charcoal">getQuoteId()</code>
+                        <p class="text-sm text-gray-600 mt-1">Returns the quote ID from session storage</p>
+                    </div>
+                    <div class="bg-magento-charcoal-50 p-4">
+                        <code class="text-sm font-mono text-magento-charcoal">setQuoteId($quoteId)</code>
+                        <p class="text-sm text-gray-600 mt-1">Stores quote ID in session</p>
+                    </div>
+                    <div class="bg-magento-charcoal-50 p-4">
+                        <code class="text-sm font-mono text-magento-charcoal">clearQuote()</code>
+                        <p class="text-sm text-gray-600 mt-1">Clears quote from session (used after order placement)</p>
+                    </div>
+                    <div class="bg-magento-charcoal-50 p-4">
+                        <code class="text-sm font-mono text-magento-charcoal">getLastSuccessQuoteId()</code>
+                        <p class="text-sm text-gray-600 mt-1">Returns quote ID of last successful order</p>
+                    </div>
+                    <div class="bg-magento-charcoal-50 p-4">
+                        <code class="text-sm font-mono text-magento-charcoal">getLastRealOrderId()</code>
+                        <p class="text-sm text-gray-600 mt-1">Returns increment ID of last placed order</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-magento-gold-50 border-l-4 border-magento-gold-500 p-4">
+                <p class="font-semibold text-brown mb-2">Session Quote Synchronization</p>
+                <p class="text-sm text-brown">
+                    The <code class="bg-magento-gold-100 px-1">SalesQuoteSaveAfterObserver</code> listens to <code class="bg-magento-gold-100 px-1">sales_quote_save_after</code>
+                    event to keep the session's quote ID synchronized when quotes are saved.
+                </p>
+            </div>
+        </section>
+
+        <!-- Knockout.js Architecture -->
+        <section class="mb-12">
+            <div class="flex items-center gap-4 mb-8">
+                <div class="w-3 h-12 bg-charcoal"></div>
+                <h2 class="text-3xl font-bold text-magento-charcoal">Frontend Architecture (Knockout.js)</h2>
+            </div>
+
+            <div class="bg-white p-6 border border-gray-200 shadow-sm mb-6">
+                <h3 class="text-xl font-bold text-magento-charcoal mb-4">Component Structure</h3>
+                <p class="text-gray-700 mb-4">
+                    The checkout frontend uses 208 JavaScript components organized in a hierarchical structure.
+                    Components are loaded via RequireJS and managed by Knockout.js observables.
+                </p>
+
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <h4 class="font-bold text-magento-charcoal mb-3">Core Components</h4>
+                        <ul class="text-sm text-gray-700 space-y-2">
+                            <li class="flex items-start gap-2">
+                                <span class="w-2 h-2 bg-magento-orange-500 mt-2 flex-shrink-0"></span>
+                                <span><code class="bg-gray-100 px-1">checkout</code> - Main checkout container</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="w-2 h-2 bg-magento-orange-500 mt-2 flex-shrink-0"></span>
+                                <span><code class="bg-gray-100 px-1">steps</code> - Multi-step navigation</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="w-2 h-2 bg-magento-orange-500 mt-2 flex-shrink-0"></span>
+                                <span><code class="bg-gray-100 px-1">shipping</code> - Shipping step container</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="w-2 h-2 bg-magento-orange-500 mt-2 flex-shrink-0"></span>
+                                <span><code class="bg-gray-100 px-1">payment</code> - Payment step container</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="w-2 h-2 bg-magento-orange-500 mt-2 flex-shrink-0"></span>
+                                <span><code class="bg-gray-100 px-1">sidebar</code> - Order summary sidebar</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-magento-charcoal mb-3">Data Models</h4>
+                        <ul class="text-sm text-gray-700 space-y-2">
+                            <li class="flex items-start gap-2">
+                                <span class="w-2 h-2 bg-magento-gold-500 mt-2 flex-shrink-0"></span>
+                                <span><code class="bg-gray-100 px-1">quote</code> - Quote state management</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="w-2 h-2 bg-magento-gold-500 mt-2 flex-shrink-0"></span>
+                                <span><code class="bg-gray-100 px-1">checkout-data</code> - Checkout data persistence</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="w-2 h-2 bg-magento-gold-500 mt-2 flex-shrink-0"></span>
+                                <span><code class="bg-gray-100 px-1">customer-data</code> - Customer section data</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="w-2 h-2 bg-magento-gold-500 mt-2 flex-shrink-0"></span>
+                                <span><code class="bg-gray-100 px-1">shipping-rates</code> - Available shipping methods</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="w-2 h-2 bg-magento-gold-500 mt-2 flex-shrink-0"></span>
+                                <span><code class="bg-gray-100 px-1">payment-methods</code> - Available payment methods</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 border border-gray-200 shadow-sm">
+                <h3 class="text-xl font-bold text-magento-charcoal mb-4">CustomerData Sections (14 Classes)</h3>
+                <p class="text-gray-700 mb-4">
+                    CustomerData provides cached, invalidatable frontend data sections:
+                </p>
+
+                <div class="grid md:grid-cols-3 gap-4">
+                    <div class="bg-magento-charcoal-50 p-3 border-l-4 border-magento-orange-500">
+                        <code class="text-sm font-mono">Cart</code>
+                        <p class="text-xs text-gray-600 mt-1">Mini-cart contents</p>
+                    </div>
+                    <div class="bg-magento-charcoal-50 p-3 border-l-4 border-magento-gold-500">
+                        <code class="text-sm font-mono">DirectoryData</code>
+                        <p class="text-xs text-gray-600 mt-1">Countries and regions</p>
+                    </div>
+                    <div class="bg-magento-charcoal-50 p-3 border-l-4 border-magento-charcoal">
+                        <code class="text-sm font-mono">DefaultItem</code>
+                        <p class="text-xs text-gray-600 mt-1">Default item renderer</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- REST API Architecture -->
+        <section class="mb-12">
+            <div class="flex items-center gap-4 mb-8">
+                <div class="w-3 h-12 bg-magento-orange-500"></div>
+                <h2 class="text-3xl font-bold text-magento-charcoal">REST API Architecture (12 Endpoints)</h2>
+            </div>
+
+            <div class="bg-white p-6 border border-gray-200 shadow-sm">
+                <p class="text-gray-700 mb-6">
+                    The checkout module exposes REST endpoints for both guest and authenticated checkout flows.
+                    Guest endpoints use a masked cart ID for security.
+                </p>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead class="bg-charcoal text-white">
+                            <tr>
+                                <th class="text-left p-3">Method</th>
+                                <th class="text-left p-3">Endpoint</th>
+                                <th class="text-left p-3">Auth</th>
+                                <th class="text-left p-3">Operation</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            <tr class="bg-magento-orange-50">
+                                <td class="p-3 font-mono">POST</td>
+                                <td class="p-3 font-mono text-xs">/V1/carts/mine/shipping-information</td>
+                                <td class="p-3">Customer</td>
+                                <td class="p-3">Save shipping address and method</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-mono">POST</td>
+                                <td class="p-3 font-mono text-xs">/V1/guest-carts/:cartId/shipping-information</td>
+                                <td class="p-3">Guest</td>
+                                <td class="p-3">Save shipping (guest)</td>
+                            </tr>
+                            <tr class="bg-magento-orange-50">
+                                <td class="p-3 font-mono">POST</td>
+                                <td class="p-3 font-mono text-xs">/V1/carts/mine/payment-information</td>
+                                <td class="p-3">Customer</td>
+                                <td class="p-3">Save payment and place order</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-mono">POST</td>
+                                <td class="p-3 font-mono text-xs">/V1/guest-carts/:cartId/payment-information</td>
+                                <td class="p-3">Guest</td>
+                                <td class="p-3">Save payment and place order (guest)</td>
+                            </tr>
+                            <tr class="bg-magento-orange-50">
+                                <td class="p-3 font-mono">GET</td>
+                                <td class="p-3 font-mono text-xs">/V1/carts/mine/payment-information</td>
+                                <td class="p-3">Customer</td>
+                                <td class="p-3">Get payment methods and totals</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-mono">GET</td>
+                                <td class="p-3 font-mono text-xs">/V1/guest-carts/:cartId/payment-information</td>
+                                <td class="p-3">Guest</td>
+                                <td class="p-3">Get payment info (guest)</td>
+                            </tr>
+                            <tr class="bg-magento-orange-50">
+                                <td class="p-3 font-mono">POST</td>
+                                <td class="p-3 font-mono text-xs">/V1/carts/mine/set-payment-information</td>
+                                <td class="p-3">Customer</td>
+                                <td class="p-3">Save payment without order</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-mono">POST</td>
+                                <td class="p-3 font-mono text-xs">/V1/guest-carts/:cartId/set-payment-information</td>
+                                <td class="p-3">Guest</td>
+                                <td class="p-3">Save payment without order (guest)</td>
+                            </tr>
+                            <tr class="bg-magento-orange-50">
+                                <td class="p-3 font-mono">POST</td>
+                                <td class="p-3 font-mono text-xs">/V1/carts/mine/totals-information</td>
+                                <td class="p-3">Customer</td>
+                                <td class="p-3">Calculate totals for address</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-mono">POST</td>
+                                <td class="p-3 font-mono text-xs">/V1/guest-carts/:cartId/totals-information</td>
+                                <td class="p-3">Guest</td>
+                                <td class="p-3">Calculate totals (guest)</td>
+                            </tr>
+                            <tr class="bg-magento-orange-50">
+                                <td class="p-3 font-mono">POST</td>
+                                <td class="p-3 font-mono text-xs">/V1/carts/:cartId/shipping-information</td>
+                                <td class="p-3">Admin</td>
+                                <td class="p-3">Save shipping (admin)</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-mono">POST</td>
+                                <td class="p-3 font-mono text-xs">/V1/carts/:cartId/totals-information</td>
+                                <td class="p-3">Admin</td>
+                                <td class="p-3">Calculate totals (admin)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Directory Structure -->
+        <section class="mb-12">
+            <div class="flex items-center gap-4 mb-8">
+                <div class="w-3 h-12 bg-magento-gold-500"></div>
+                <h2 class="text-3xl font-bold text-magento-charcoal">Directory Structure</h2>
+            </div>
+
+            <div class="bg-white p-6 border border-gray-200 shadow-sm">
+                <pre class="text-sm"><code>module-checkout/
+├── Api/                          # 26 service contract interfaces
+│   ├── Data/                     # Data transfer interfaces
+│   │   ├── PaymentDetailsInterface.php
+│   │   ├── ShippingInformationInterface.php
+│   │   └── TotalsInformationInterface.php
+│   ├── GuestPaymentInformationManagementInterface.php
+│   ├── GuestShippingInformationManagementInterface.php
+│   ├── PaymentInformationManagementInterface.php
+│   ├── PaymentProcessingRateLimiterInterface.php
+│   └── ShippingInformationManagementInterface.php
+├── Block/                        # 72 block classes
+│   ├── Checkout/                 # Checkout page blocks
+│   ├── Cart/                     # Cart blocks
+│   ├── Onepage/                  # One-page checkout blocks
+│   └── Link.php                  # Checkout link block
+├── Controller/                   # 50 controllers
+│   ├── Cart/                     # Cart actions
+│   ├── Onepage/                  # Checkout step actions
+│   ├── Sidebar/                  # Sidebar AJAX actions
+│   └── Index/                    # Main checkout page
+├── CustomerData/                 # 14 customer data sections
+│   ├── Cart.php
+│   ├── DefaultItem.php
+│   └── DirectoryData.php
+├── Helper/                       # 6 helper classes
+│   ├── Data.php                  # General checkout helpers
+│   └── ExpressRedirect.php       # Express checkout redirect
+├── Model/                        # 80 model classes
+│   ├── Session.php               # Checkout session
+│   ├── Cart.php                  # Cart model
+│   ├── PaymentInformationManagement.php
+│   ├── GuestPaymentInformationManagement.php
+│   ├── ShippingInformationManagement.php
+│   └── Type/                     # Checkout type models
+├── Observer/                     # 6 observer classes
+│   └── SalesQuoteSaveAfterObserver.php
+├── Plugin/                       # 2 plugin classes
+│   └── RecollectQuoteOnCustomerGroupChange.php
+├── ViewModel/                    # 2 view models
+├── view/
+│   └── frontend/
+│       ├── layout/               # 32 layout XML files
+│       ├── templates/            # Checkout templates
+│       └── web/
+│           └── js/               # 208 JavaScript components
+└── etc/
+    ├── di.xml                    # 14 preferences, 1 plugin
+    ├── events.xml                # 1 observer
+    ├── webapi.xml                # 12 REST endpoints
+    └── frontend/                 # Frontend-specific config</code></pre>
+            </div>
+        </section>
+
+        <!-- Navigation -->
+        <nav class="flex justify-between items-center" aria-label="Documentation navigation">
+            <a href="index.html" class="inline-flex items-center gap-2 px-4 py-2 bg-magento-charcoal-100 text-magento-charcoal font-medium hover:bg-magento-charcoal-200 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-magento-charcoal-500">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17l-5-5m0 0l5-5m-5 5h12"/>
+                </svg>
+                Module Overview
+            </a>
+            <a href="execution-flows.html" class="inline-flex items-center gap-2 px-4 py-2 bg-magento-orange-800 text-white font-medium hover:bg-magento-orange-900 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-magento-orange-800">
+                Execution Flows
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                </svg>
+            </a>
+        </nav>
+
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-charcoal text-white py-8 mt-16">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                <p class="text-sm text-gray-400">
+                    Magento_Checkout Architecture | Part of The Magento Core Documentation Project
+                </p>
+                <p class="text-sm text-gray-400">
+                    Last updated: December 2025 | Magento 2.4.x
+                </p>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

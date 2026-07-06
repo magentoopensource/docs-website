@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plugins &amp; Observers - Magento_Store Module</title>
+    <style>
+        :root {
+            --orange: #F26423;
+            --yellow: #F1BC1B;
+            --charcoal: #2C2C2C;
+            --light-gray: #F5F5F5;
+            --white: #FFFFFF;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background-color: var(--light-gray);
+            color: var(--charcoal);
+            line-height: 1.6;
+        }
+
+        .header {
+            background-color: var(--charcoal);
+            color: var(--white);
+            padding: 2rem;
+            position: relative;
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--orange) 0%, var(--orange) 50%, var(--yellow) 50%, var(--yellow) 100%);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .breadcrumb {
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+        }
+
+        .breadcrumb a {
+            color: var(--yellow);
+            text-decoration: none;
+        }
+
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+        .breadcrumb span {
+            color: var(--light-gray);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        .main-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .section {
+            background-color: var(--white);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .section h2 {
+            color: var(--charcoal);
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid var(--orange);
+            display: inline-block;
+        }
+
+        .section h3 {
+            color: var(--charcoal);
+            font-size: 1.25rem;
+            margin: 1.5rem 0 1rem 0;
+        }
+
+        .section p {
+            margin-bottom: 1rem;
+            color: #444;
+        }
+
+        .preference-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+        }
+
+        .preference-table th {
+            background-color: var(--charcoal);
+            color: var(--white);
+            padding: 0.75rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .preference-table td {
+            padding: 0.75rem;
+            border-bottom: 1px solid #E0E0E0;
+            font-size: 0.875rem;
+        }
+
+        .preference-table tr:hover {
+            background-color: var(--light-gray);
+        }
+
+        .interface-name {
+            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+            color: var(--orange);
+            font-weight: 600;
+        }
+
+        .class-name {
+            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+            color: var(--charcoal);
+        }
+
+        .plugin-card {
+            background-color: var(--light-gray);
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border-left: 4px solid var(--orange);
+        }
+
+        .plugin-card:nth-child(even) {
+            border-left-color: var(--yellow);
+        }
+
+        .plugin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .plugin-name {
+            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--charcoal);
+        }
+
+        .plugin-type {
+            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+            font-size: 0.875rem;
+            color: #666;
+        }
+
+        .plugin-target {
+            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+            font-size: 0.875rem;
+            background-color: var(--white);
+            padding: 0.25rem 0.5rem;
+            color: var(--charcoal);
+        }
+
+        .plugin-methods {
+            margin-top: 1rem;
+        }
+
+        .method-item {
+            padding: 0.5rem 0;
+            border-top: 1px solid #DDD;
+        }
+
+        .method-name {
+            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+            font-weight: 600;
+            color: var(--orange);
+        }
+
+        .method-desc {
+            font-size: 0.875rem;
+            color: #666;
+            margin-top: 0.25rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.125rem 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge.before {
+            background-color: var(--yellow);
+            color: var(--charcoal);
+        }
+
+        .badge.after {
+            background-color: var(--orange);
+            color: var(--white);
+        }
+
+        .badge.around {
+            background-color: var(--charcoal);
+            color: var(--white);
+        }
+
+        .code-block {
+            background-color: var(--charcoal);
+            color: #E0E0E0;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            overflow-x: auto;
+            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+            font-size: 0.875rem;
+            line-height: 1.5;
+        }
+
+        .code-block .keyword {
+            color: var(--orange);
+        }
+
+        .code-block .tag {
+            color: var(--yellow);
+        }
+
+        .code-block .attr {
+            color: #8FD9A8;
+        }
+
+        .code-block .string {
+            color: #FFD180;
+        }
+
+        .code-block .comment {
+            color: #888;
+        }
+
+        .virtual-type-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .virtual-type-card {
+            background-color: var(--light-gray);
+            padding: 1rem;
+            border-left: 4px solid var(--charcoal);
+        }
+
+        .virtual-type-name {
+            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--charcoal);
+            margin-bottom: 0.5rem;
+        }
+
+        .virtual-type-base {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .virtual-type-args {
+            margin-top: 0.5rem;
+            font-size: 0.75rem;
+            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+            color: #888;
+        }
+
+        .callout {
+            background-color: #FFF3E0;
+            border-left: 4px solid var(--orange);
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .callout-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .footer {
+            background-color: var(--charcoal);
+            color: var(--white);
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .footer a {
+            color: var(--yellow);
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.75rem;
+            }
+
+            .virtual-type-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .preference-table {
+                font-size: 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <!-- back-to-developer-docs -->
+        <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 pt-4"><a href="/developer/" aria-label="Back to Developer Docs" class="inline-flex items-center gap-1.5 text-sm font-medium text-white/70 hover:text-white transition-colors no-underline"><span aria-hidden="true">←</span> Developer Docs</a></div>
+        <div class="header-content">
+            <nav class="breadcrumb">
+                <a href="../../../index.html">Documentation</a>
+                <span> / </span>
+                <a href="index.html">Magento_Store</a>
+                <span> / </span>
+                <span>Plugins &amp; Observers</span>
+            </nav>
+            <h1>Plugins &amp; Observers</h1>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <section class="section">
+            <h2>DI Preferences</h2>
+            <p>
+                The Store module defines many DI preferences to bind interfaces to concrete implementations.
+                These are among the most fundamental bindings in Magento.
+            </p>
+
+            <h3>Core Service Bindings</h3>
+            <table class="preference-table">
+                <thead>
+                    <tr>
+                        <th>Interface</th>
+                        <th>Implementation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="interface-name">StoreManagerInterface</span></td>
+                        <td><span class="class-name">Magento\Store\Model\StoreManager</span></td>
+                    </tr>
+                    <tr>
+                        <td><span class="interface-name">StoreResolverInterface</span></td>
+                        <td><span class="class-name">Magento\Store\Model\StoreResolver</span></td>
+                    </tr>
+                    <tr>
+                        <td><span class="interface-name">StoreRepositoryInterface</span></td>
+                        <td><span class="class-name">Magento\Store\Model\StoreRepository</span></td>
+                    </tr>
+                    <tr>
+                        <td><span class="interface-name">WebsiteRepositoryInterface</span></td>
+                        <td><span class="class-name">Magento\Store\Model\WebsiteRepository</span></td>
+                    </tr>
+                    <tr>
+                        <td><span class="interface-name">GroupRepositoryInterface</span></td>
+                        <td><span class="class-name">Magento\Store\Model\GroupRepository</span></td>
+                    </tr>
+                    <tr>
+                        <td><span class="interface-name">StoreCookieManagerInterface</span></td>
+                        <td><span class="class-name">Magento\Store\Model\StoreCookieManager</span></td>
+                    </tr>
+                    <tr>
+                        <td><span class="interface-name">StoreConfigManagerInterface</span></td>
+                        <td><span class="class-name">Magento\Store\Model\Service\StoreConfigManager</span></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Data Interface Bindings</h3>
+            <table class="preference-table">
+                <thead>
+                    <tr>
+                        <th>Interface</th>
+                        <th>Implementation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="interface-name">Data\StoreInterface</span></td>
+                        <td><span class="class-name">Magento\Store\Model\Store</span></td>
+                    </tr>
+                    <tr>
+                        <td><span class="interface-name">Data\WebsiteInterface</span></td>
+                        <td><span class="class-name">Magento\Store\Model\Website</span></td>
+                    </tr>
+                    <tr>
+                        <td><span class="interface-name">Data\GroupInterface</span></td>
+                        <td><span class="class-name">Magento\Store\Model\Group</span></td>
+                    </tr>
+                    <tr>
+                        <td><span class="interface-name">Data\StoreConfigInterface</span></td>
+                        <td><span class="class-name">Magento\Store\Model\Data\StoreConfig</span></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Framework Bindings</h3>
+            <table class="preference-table">
+                <thead>
+                    <tr>
+                        <th>Interface</th>
+                        <th>Implementation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="interface-name">ScopeResolverInterface</span></td>
+                        <td><span class="class-name">Magento\Store\Model\Resolver\Store</span></td>
+                    </tr>
+                    <tr>
+                        <td><span class="interface-name">App\ScopeResolverInterface</span></td>
+                        <td><span class="class-name">Magento\Store\Model\Resolver\Store</span></td>
+                    </tr>
+                    <tr>
+                        <td><span class="interface-name">LocaleResolverInterface</span></td>
+                        <td><span class="class-name">Magento\Store\Model\Resolver\Locale</span></td>
+                    </tr>
+                    <tr>
+                        <td><span class="interface-name">UrlModifierInterface</span></td>
+                        <td><span class="class-name">Magento\Store\Url\Plugin\RouteParamsResolver</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="section">
+            <h2>Plugins</h2>
+            <p>
+                The Store module defines several plugins that intercept core application behavior
+                for store context management.
+            </p>
+
+            <div class="plugin-card">
+                <div class="plugin-header">
+                    <div>
+                        <div class="plugin-name">storeCheck</div>
+                        <div class="plugin-type">Magento\Store\App\FrontController\Plugin\RequestPreprocessor</div>
+                    </div>
+                    <div class="plugin-target">Magento\Framework\App\FrontControllerInterface</div>
+                </div>
+                <div class="plugin-methods">
+                    <div class="method-item">
+                        <span class="badge before">before</span>
+                        <span class="method-name">beforeDispatch</span>
+                        <div class="method-desc">
+                            Validates store code from URL/request before dispatching. Redirects to correct
+                            store URL if store code in URL is invalid or missing when required.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="plugin-card">
+                <div class="plugin-header">
+                    <div>
+                        <div class="plugin-name">storeUrlSecurityInfo</div>
+                        <div class="plugin-type">Magento\Store\Url\Plugin\SecurityInfo</div>
+                    </div>
+                    <div class="plugin-target">Magento\Framework\Url\SecurityInfoInterface</div>
+                </div>
+                <div class="plugin-methods">
+                    <div class="method-item">
+                        <span class="badge around">around</span>
+                        <span class="method-name">aroundIsSecure</span>
+                        <div class="method-desc">
+                            Determines if a URL should use HTTPS based on store-level configuration
+                            for secure URLs in frontend/admin.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="plugin-card">
+                <div class="plugin-header">
+                    <div>
+                        <div class="plugin-name">storeUrlRouteParamsResolver</div>
+                        <div class="plugin-type">Magento\Store\Url\Plugin\RouteParamsResolver</div>
+                    </div>
+                    <div class="plugin-target">Magento\Framework\Url\RouteParamsResolverInterface</div>
+                </div>
+                <div class="plugin-methods">
+                    <div class="method-item">
+                        <span class="badge before">before</span>
+                        <span class="method-name">beforeSetRouteParams</span>
+                        <div class="method-desc">
+                            Extracts <code>_scope</code> and <code>_scope_to_url</code> parameters from
+                            route params for multi-store URL generation.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="plugin-card">
+                <div class="plugin-header">
+                    <div>
+                        <div class="plugin-name">storeCookieValidate</div>
+                        <div class="plugin-type">Magento\Store\Model\Plugin\StoreCookie</div>
+                    </div>
+                    <div class="plugin-target">Magento\Framework\App\FrontControllerInterface</div>
+                </div>
+                <div class="plugin-methods">
+                    <div class="method-item">
+                        <span class="badge before">before</span>
+                        <span class="method-name">beforeDispatch</span>
+                        <div class="method-desc">
+                            Validates store cookie value. If the stored store code is invalid (store deleted
+                            or disabled), clears the cookie to prevent errors.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="plugin-card">
+                <div class="plugin-header">
+                    <div>
+                        <div class="plugin-name">genericHeaderPlugin</div>
+                        <div class="plugin-type">Magento\Store\Model\HeaderProvider\UpgradeInsecure</div>
+                    </div>
+                    <div class="plugin-target">Magento\Framework\App\Response\HeaderManager</div>
+                </div>
+                <div class="plugin-methods">
+                    <div class="method-item">
+                        <span class="badge after">after</span>
+                        <span class="method-name">afterGetHeaderValue</span>
+                        <div class="method-desc">
+                            Adds <code>Upgrade-Insecure-Requests</code> header based on store configuration
+                            to enforce HTTPS upgrade for browsers.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>Virtual Types</h2>
+            <p>
+                The Store module defines virtual types for specialized collection fetching strategies
+                and cached data access.
+            </p>
+
+            <div class="virtual-type-grid">
+                <div class="virtual-type-card">
+                    <div class="virtual-type-name">simpleCollectionFetchStrategy</div>
+                    <div class="virtual-type-base">Base: Magento\Store\Model\ResourceModel\Website\Collection\FetchStrategy</div>
+                    <div class="virtual-type-args">Optimized fetch strategy for website collections</div>
+                </div>
+
+                <div class="virtual-type-card">
+                    <div class="virtual-type-name">simpleStoreFetchStrategy</div>
+                    <div class="virtual-type-base">Base: Magento\Store\Model\ResourceModel\Store\Collection\FetchStrategy</div>
+                    <div class="virtual-type-args">Optimized fetch strategy for store collections</div>
+                </div>
+
+                <div class="virtual-type-card">
+                    <div class="virtual-type-name">simpleGroupFetchStrategy</div>
+                    <div class="virtual-type-base">Base: Magento\Store\Model\ResourceModel\Group\Collection\FetchStrategy</div>
+                    <div class="virtual-type-args">Optimized fetch strategy for group collections</div>
+                </div>
+
+                <div class="virtual-type-card">
+                    <div class="virtual-type-name">storeRelationsLogger</div>
+                    <div class="virtual-type-base">Base: Magento\Framework\Logger\Monolog</div>
+                    <div class="virtual-type-args">Logger for store relation operations (debug purposes)</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>Configuration XML Example</h2>
+            <p>
+                Example of the di.xml structure showing how preferences and plugins are defined.
+            </p>
+
+            <div class="code-block">
+<span class="tag">&lt;config</span> <span class="attr">xmlns:xsi</span>=<span class="string">"..."</span><span class="tag">&gt;</span>
+    <span class="comment">&lt;!-- Service preferences --&gt;</span>
+    <span class="tag">&lt;preference</span>
+        <span class="attr">for</span>=<span class="string">"Magento\Store\Model\StoreManagerInterface"</span>
+        <span class="attr">type</span>=<span class="string">"Magento\Store\Model\StoreManager"</span><span class="tag">/&gt;</span>
+
+    <span class="tag">&lt;preference</span>
+        <span class="attr">for</span>=<span class="string">"Magento\Store\Api\StoreResolverInterface"</span>
+        <span class="attr">type</span>=<span class="string">"Magento\Store\Model\StoreResolver"</span><span class="tag">/&gt;</span>
+
+    <span class="comment">&lt;!-- Plugins --&gt;</span>
+    <span class="tag">&lt;type</span> <span class="attr">name</span>=<span class="string">"Magento\Framework\App\FrontControllerInterface"</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;plugin</span>
+            <span class="attr">name</span>=<span class="string">"storeCheck"</span>
+            <span class="attr">type</span>=<span class="string">"Magento\Store\App\FrontController\Plugin\RequestPreprocessor"</span>
+            <span class="attr">sortOrder</span>=<span class="string">"10"</span><span class="tag">/&gt;</span>
+        <span class="tag">&lt;plugin</span>
+            <span class="attr">name</span>=<span class="string">"storeCookieValidate"</span>
+            <span class="attr">type</span>=<span class="string">"Magento\Store\Model\Plugin\StoreCookie"</span>
+            <span class="attr">sortOrder</span>=<span class="string">"20"</span><span class="tag">/&gt;</span>
+    <span class="tag">&lt;/type&gt;</span>
+
+    <span class="comment">&lt;!-- Virtual type for cached collection --&gt;</span>
+    <span class="tag">&lt;virtualType</span>
+        <span class="attr">name</span>=<span class="string">"simpleCollectionFetchStrategy"</span>
+        <span class="attr">type</span>=<span class="string">"Magento\Store\Model\ResourceModel\Website\Collection\FetchStrategy"</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;arguments&gt;</span>
+            <span class="tag">&lt;argument</span> <span class="attr">name</span>=<span class="string">"cache"</span> <span class="attr">xsi:type</span>=<span class="string">"object"</span><span class="tag">&gt;</span>
+                Magento\Framework\App\Cache\Type\Collection
+            <span class="tag">&lt;/argument&gt;</span>
+        <span class="tag">&lt;/arguments&gt;</span>
+    <span class="tag">&lt;/virtualType&gt;</span>
+<span class="tag">&lt;/config&gt;</span>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>Observers</h2>
+            <p>
+                The Store module does not define its own events.xml file in the core module. However,
+                other modules observe store-related events.
+            </p>
+
+            <div class="callout">
+                <div class="callout-title">No events.xml in Magento_Store</div>
+                <p>
+                    The Magento_Store module is a foundational module that other modules depend on.
+                    It primarily uses the DI system (preferences and plugins) rather than the event/observer
+                    pattern. Store-related events like <code>store_add</code>, <code>store_delete</code>,
+                    and <code>store_edit</code> are dispatched but observed by other modules.
+                </p>
+            </div>
+
+            <h3>Events Dispatched by Store Module</h3>
+            <table class="preference-table">
+                <thead>
+                    <tr>
+                        <th>Event Name</th>
+                        <th>Dispatched From</th>
+                        <th>Data</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="interface-name">store_add</span></td>
+                        <td>Store::afterSave()</td>
+                        <td>store object</td>
+                    </tr>
+                    <tr>
+                        <td><span class="interface-name">store_edit</span></td>
+                        <td>Store::afterSave()</td>
+                        <td>store object</td>
+                    </tr>
+                    <tr>
+                        <td><span class="interface-name">store_delete</span></td>
+                        <td>Store::afterDelete()</td>
+                        <td>store object</td>
+                    </tr>
+                    <tr>
+                        <td><span class="interface-name">store_group_save</span></td>
+                        <td>Group::afterSave()</td>
+                        <td>group object</td>
+                    </tr>
+                    <tr>
+                        <td><span class="interface-name">website_save_after</span></td>
+                        <td>Website::afterSave()</td>
+                        <td>website object</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p><a href="index.html">Back to Magento_Store Overview</a></p>
+        <p><a href="../../../index.html">Documentation Index</a></p>
+    </footer>
+</body>
+</html>

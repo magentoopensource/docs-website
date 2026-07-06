@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Execution Flows - Magento_Shipping Module</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'magento-orange': {
+                            DEFAULT: '#f26423',
+                            50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad', 300: '#f9ae78',
+                            400: '#f58242', 500: '#f26423', 600: '#e34613', 700: '#bc3312',
+                            800: '#962a16', 900: '#792515', 950: '#411009'
+                        },
+                        'magento-gold': {
+                            DEFAULT: '#f1bc1b',
+                            50: '#fffdeb', 100: '#fdf9c8', 200: '#fbf38c', 300: '#f8e651',
+                            400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a', 700: '#b1670c',
+                            800: '#8e5210', 900: '#744312', 950: '#432209'
+                        },
+                        'magento-charcoal': {
+                            DEFAULT: '#2c2c2c',
+                            50: '#f6f6f6', 100: '#e7e7e7', 200: '#d1d1d1', 300: '#b0b0b0',
+                            400: '#888888', 500: '#6d6d6d', 600: '#5d5d5d', 700: '#4f4f4f',
+                            800: '#454545', 900: '#3d3d3d', 950: '#2c2c2c'
+                        },
+                        'magento-cream': {
+                            DEFAULT: '#faf8f5'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-magento-cream text-magento-charcoal">
+    <!-- Navigation -->
+    <nav class="bg-magento-charcoal text-white py-4 sticky top-0 z-50 shadow-lg">
+        <div class="container mx-auto px-6 flex items-center justify-between">
+            <a href="../../../index.html" class="text-xl font-bold hover:text-magento-gold-500 transition-colors">
+                Magento Core Docs
+            </a>
+            <div class="flex items-center space-x-6">
+                <a href="index.html" class="hover:text-magento-gold-500 transition-colors">Magento_Shipping</a>
+                <span class="text-magento-gold-500 font-medium">Execution Flows</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <header class="bg-magento-charcoal text-white py-12">
+        <!-- back-to-developer-docs -->
+        <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 pt-4"><a href="/developer/" aria-label="Back to Developer Docs" class="inline-flex items-center gap-1.5 text-sm font-medium text-white/70 hover:text-white transition-colors no-underline"><span aria-hidden="true">←</span> Developer Docs</a></div>
+        <div class="container mx-auto px-6">
+            <h1 class="text-4xl font-bold mb-2">Execution Flows</h1>
+            <p class="text-gray-300">Rate calculation, shipment creation, tracking, and label generation</p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-6 py-12">
+
+        <!-- Flow 1: Rate Collection -->
+        <section class="mb-16">
+            <h2 class="text-3xl font-bold mb-6">1. Rate Collection (Checkout)</h2>
+            <div class="bg-white shadow-md p-8">
+                <p class="mb-6">
+                    During checkout, shipping rates are collected when the customer enters their shipping address.
+                    This flow is triggered by the Quote module's address rate request.
+                </p>
+                <div class="bg-magento-charcoal text-white p-6 font-mono text-xs overflow-x-auto mb-6">
+<pre>
+CHECKOUT SHIPPING STEP
+=======================
+
+Customer enters address
+         |
+         v
++---------------------------+
+| Quote\Address             |
+| ::collectShippingRates()  |
++------------+--------------+
+             |
+             v
++---------------------------+
+| RateCollectorInterface    |
+| ::collectRates($request)  |  --> Shipping::collectRates()
++------------+--------------+
+             |
+             v
++---------------------------+
+| ScopeConfig::getValue()   |
+| 'carriers/*' config       |
++------------+--------------+
+             |
+     +-------+-------+-------+-------+
+     |       |       |       |       |
+     v       v       v       v       v
+ +------+ +------+ +------+ +------+ +------+
+ | UPS  | | USPS | |FedEx | | Flat | | Free |
+ | Rate | | Rate | | Rate | | Rate | | Ship |
+ +--+---+ +--+---+ +--+---+ +--+---+ +--+---+
+    |        |        |        |        |
+    v        v        v        v        v
++---------------------------+
+| CarrierResult             |
+| ::appendResult()          |
++------------+--------------+
+             |
+             v
++---------------------------+
+| Quote\Address             |
+| ::setShippingRates()      |
++---------------------------+
+             |
+             v
++---------------------------+
+| Displayed at checkout     |
+| as radio button options   |
++---------------------------+
+</pre>
+                </div>
+
+                <h3 class="font-bold text-lg mb-4">Key Method: Shipping::collectRates()</h3>
+                <ol class="list-decimal list-inside space-y-2 text-sm">
+                    <li>Sets origin address from store config if not provided in request</li>
+                    <li>Gets list of enabled carriers from <code class="bg-gray-100 px-1">carriers/*</code> config</li>
+                    <li>Iterates through carriers, calling <code class="bg-gray-100 px-1">collectCarrierRates()</code></li>
+                    <li>For each carrier: validates country availability, creates via factory, calls <code class="bg-gray-100 px-1">collectRates()</code></li>
+                    <li>Aggregates all rate results into CarrierResult</li>
+                    <li>Returns aggregated result to Quote for display</li>
+                </ol>
+            </div>
+        </section>
+
+        <!-- Flow 2: Carrier Rate Request -->
+        <section class="mb-16">
+            <h2 class="text-3xl font-bold mb-6">2. Single Carrier Rate Request</h2>
+            <div class="bg-white shadow-md p-8">
+                <div class="bg-magento-charcoal text-white p-6 font-mono text-xs overflow-x-auto mb-6">
+<pre>
+Shipping::collectCarrierRates($carrierCode, $request)
+                   |
+                   v
+         +------------------+
+         | prepareCarrier() |
+         +--------+---------+
+                  |
+     +------------+------------+
+     |                         |
+     v                         v
++-----------+           +---------------+
+| isActive? |--NO-----> | Skip carrier  |
++-----------+           +---------------+
+     | YES
+     v
++--------------------+
+| checkAvailable     |
+| ShipCountries()    |
++--------+-----------+
+         |
+    +----+----+
+    |         |
+    v         v
++-------+  +-------+
+| true  |  | Error |---> append Error to result
++---+---+  +-------+
+    |
+    v
++------------------------+
+| processAdditional      |
+| Validation()           |
++--------+---------------+
+         |
+    +----+----+
+    |         |
+    v         v
++-------+  +-------+
+| true  |  | false |---> skip carrier silently
++---+---+  +-------+
+    |
+    v
++------------------------+
+| Check shipment_        |
+| requesttype config     |
++--------+---------------+
+         |
+    +----+----+
+    |         |
+    v         v
++--------+ +----------------+
+| false  | | true           |
++---+----+ | compose        |
+    |      | Packages()     |
+    |      +-------+--------+
+    |              |
+    +------+-------+
+           |
+           v
++------------------------+
+| carrier->collectRates  |
+| ($request)             |
++--------+---------------+
+         |
+         v
++------------------------+
+| Result (methods/error) |
++--------+---------------+
+         |
+         v
++------------------------+
+| getResult()->append    |
+| Result($result)        |
++------------------------+
+</pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- Flow 3: Shipment Creation -->
+        <section class="mb-16">
+            <h2 class="text-3xl font-bold mb-6">3. Shipment Creation (Admin)</h2>
+            <div class="bg-white shadow-md p-8">
+                <p class="mb-6">
+                    Shipments are created from the admin order view. This flow handles the creation of the
+                    shipment record and optionally generates shipping labels.
+                </p>
+                <div class="bg-magento-charcoal text-white p-6 font-mono text-xs overflow-x-auto mb-6">
+<pre>
+ADMIN: Order View -> Ship
+=========================
+
++----------------------------+
+| Controller\Adminhtml\      |
+| Order\Shipment\NewAction   |
++------------+---------------+
+             |
+             v
++----------------------------+
+| ShipmentLoader::load()     |
+| (builds Shipment model)    |
++------------+---------------+
+             |
+             v
++----------------------------+
+| Render create form         |
+| Block\Adminhtml\Create     |
++------------+---------------+
+             |
+             v [Submit Form]
++----------------------------+
+| Controller\Adminhtml\      |
+| Order\Shipment\Save        |
++------------+---------------+
+             |
+     +-------+--------+
+     |                |
+     v                v
++----------+   +------------------+
+| No Label |   | Create Label?    |
++----+-----+   +--------+---------+
+     |                  |
+     |                  v
+     |         +------------------+
+     |         | Shipping\Labels  |
+     |         | ::requestTo      |
+     |         | Shipment()       |
+     |         +--------+---------+
+     |                  |
+     |                  v
+     |         +------------------+
+     |         | carrier->        |
+     |         | requestToShipment|
+     |         +--------+---------+
+     |                  |
+     |                  v
+     |         +------------------+
+     |         | Store label data |
+     |         | on Shipment      |
+     |         +--------+---------+
+     |                  |
+     +--------+---------+
+              |
+              v
++----------------------------+
+| ShipmentRepository::save() |
++------------+---------------+
+             |
+             v
++----------------------------+
+| Create shipment tracks     |
+| (tracking numbers)         |
++------------+---------------+
+             |
+             v
++----------------------------+
+| Dispatch event:            |
+| sales_order_shipment_      |
+| save_after                 |
++----------------------------+
+</pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- Flow 4: Tracking Lookup -->
+        <section class="mb-16">
+            <h2 class="text-3xl font-bold mb-6">4. Tracking Lookup (Frontend)</h2>
+            <div class="bg-white shadow-md p-8">
+                <p class="mb-6">
+                    Customers can view tracking information via a popup window accessed from their order
+                    confirmation email or account order history.
+                </p>
+                <div class="bg-magento-charcoal text-white p-6 font-mono text-xs overflow-x-auto mb-6">
+<pre>
+TRACKING POPUP
+==============
+
+Customer clicks tracking link
+         |
+         v
++----------------------------+
+| Controller\Tracking\Popup  |
++------------+---------------+
+             |
+             v
++----------------------------+
+| Load order/shipment/track  |
+| from hash parameter        |
++------------+---------------+
+             |
+             v
++----------------------------+
+| Info::getTrackingInfo()    |
++------------+---------------+
+             |
+     +-------+-------+
+     |               |
+     v               v
++----------+   +--------------+
+| By Order |   | By Shipment  |
+| ID       |   | ID           |
++----+-----+   +------+-------+
+     |                |
+     +-------+--------+
+             |
+             v
++----------------------------+
+| Get all tracks for entity  |
+| ShipmentTrackCollection    |
++------------+---------------+
+             |
+             v (for each track)
++----------------------------+
+| CarrierFactory::create()   |
+| ($carrierCode)             |
++------------+---------------+
+             |
+             v
++----------------------------+
+| carrier->getTracking       |
+| ($trackNumber)             |
++------------+---------------+
+             |
+             v
++----------------------------+
+| Carrier calls external API |
+| (UPS/FedEx/USPS/etc)       |
++------------+---------------+
+             |
+             v
++----------------------------+
+| Return Tracking\Result     |
+| with Status objects        |
++------------+---------------+
+             |
+             v
++----------------------------+
+| Render Block\Tracking\     |
+| Popup with tracking data   |
++----------------------------+
+</pre>
+                </div>
+
+                <h3 class="font-bold text-lg mb-4">Tracking Status Fields</h3>
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div class="p-4 bg-gray-50">
+                        <h4 class="font-semibold mb-2">Basic Info</h4>
+                        <ul class="text-sm space-y-1">
+                            <li><code class="bg-gray-200 px-1 rounded">tracking</code> - Tracking number</li>
+                            <li><code class="bg-gray-200 px-1 rounded">carrier</code> - Carrier code</li>
+                            <li><code class="bg-gray-200 px-1 rounded">carrier_title</code> - Display name</li>
+                            <li><code class="bg-gray-200 px-1 rounded">url</code> - Carrier tracking URL</li>
+                        </ul>
+                    </div>
+                    <div class="p-4 bg-gray-50">
+                        <h4 class="font-semibold mb-2">Delivery Info</h4>
+                        <ul class="text-sm space-y-1">
+                            <li><code class="bg-gray-200 px-1 rounded">status</code> - Current status</li>
+                            <li><code class="bg-gray-200 px-1 rounded">deliverydate</code> - Expected delivery</li>
+                            <li><code class="bg-gray-200 px-1 rounded">deliverytime</code> - Delivery time</li>
+                            <li><code class="bg-gray-200 px-1 rounded">signedby</code> - Signature</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Flow 5: Label Generation -->
+        <section class="mb-16">
+            <h2 class="text-3xl font-bold mb-6">5. Shipping Label Generation</h2>
+            <div class="bg-white shadow-md p-8">
+                <p class="mb-6">
+                    Shipping labels are generated during shipment creation when the carrier supports labels.
+                    This requires integration with the carrier's API.
+                </p>
+                <div class="bg-magento-charcoal text-white p-6 font-mono text-xs overflow-x-auto mb-6">
+<pre>
+LABEL GENERATION FLOW
+=====================
+
++--------------------------------+
+| Controller\Adminhtml\Order\    |
+| Shipment\CreateLabel           |
++--------------+-----------------+
+               |
+               v
++--------------------------------+
+| Shipping\Labels                |
+| ::requestToShipment()          |
++--------------+-----------------+
+               |
+               v
++--------------------------------+
+| Build Shipment\Request from    |
+| order and package data         |
++--------------+-----------------+
+               |
+               v
++--------------------------------+
+| CarrierFactory::create()       |
++--------------+-----------------+
+               |
+               v
++--------------------------------+
+| AbstractCarrierOnline          |
+| ::requestToShipment($request)  |
++--------------+-----------------+
+               |
+     +---------+----------+
+     |                    |
+     v                    v
++----------+      +----------------+
+| Success  |      | Error          |
++----+-----+      +-------+--------+
+     |                    |
+     v                    v
++-------------+   +----------------+
+| Get label   |   | Throw          |
+| content &   |   | Localized      |
+| tracking #  |   | Exception      |
++------+------+   +----------------+
+       |
+       v
++--------------------------------+
+| Shipment::setShippingLabel()   |
+| (store binary label data)      |
++--------------+-----------------+
+               |
+               v
++--------------------------------+
+| Create ShipmentTrack with      |
+| tracking number from response  |
++--------------+-----------------+
+               |
+               v
++--------------------------------+
+| ShipmentRepository::save()     |
++--------------------------------+
+</pre>
+                </div>
+
+                <div class="p-4 bg-magento-gold-500 bg-opacity-20">
+                    <h4 class="font-bold mb-2">Label Data Storage</h4>
+                    <p class="text-sm">
+                        Labels are stored as binary data in <code class="bg-gray-100 px-1">sales_shipment.shipping_label</code>.
+                        The format (PDF, PNG, GIF) depends on the carrier's response.
+                        Use <code class="bg-gray-100 px-1">Shipment::getShippingLabel()</code> to retrieve.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Flow 6: Report Aggregation -->
+        <section class="mb-16">
+            <h2 class="text-3xl font-bold mb-6">6. Shipment Report Aggregation (Cron)</h2>
+            <div class="bg-white shadow-md p-8">
+                <p class="mb-6">
+                    A daily cron job aggregates shipment data for reporting. This runs at midnight.
+                </p>
+                <div class="bg-magento-charcoal text-white p-6 font-mono text-sm overflow-x-auto mb-6">
+<pre>&lt;!-- etc/crontab.xml --&gt;
+&lt;job name="aggregate_sales_report_shipment_data"
+     instance="Magento\Shipping\Model\Observer"
+     method="aggregateSalesReportShipmentData"&gt;
+    &lt;schedule&gt;0 0 * * *&lt;/schedule&gt;
+&lt;/job&gt;</pre>
+                </div>
+                <div class="bg-magento-charcoal text-white p-6 font-mono text-xs overflow-x-auto">
+<pre>
+CRON: aggregate_sales_report_shipment_data
+==========================================
+
++--------------------------------+
+| Magento\Shipping\Model\Observer|
+| ::aggregateSalesReportShipment |
+|    Data()                      |
++--------------+-----------------+
+               |
+               v
++--------------------------------+
+| ResourceModel\Report\Shipping  |
+| ::aggregate()                  |
++--------------+-----------------+
+               |
+               v
++--------------------------------+
+| Query sales_shipment table     |
+| Group by date, store, status   |
++--------------+-----------------+
+               |
+               v
++--------------------------------+
+| Insert into                    |
+| sales_shipping_aggregated      |
+| _order table                   |
++--------------------------------+
+</pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- Error Handling -->
+        <section class="mb-16">
+            <h2 class="text-3xl font-bold mb-6">Error Handling Patterns</h2>
+            <div class="bg-white shadow-md p-8">
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="p-4 border-l-4 border-magento-orange-500">
+                        <h4 class="font-bold mb-2">Rate Collection Errors</h4>
+                        <p class="text-sm text-gray-600 mb-2">
+                            When a carrier fails during rate collection, an Error result is appended:
+                        </p>
+                        <div class="bg-gray-100 p-3 rounded font-mono text-xs">
+                            $error = $this->_rateErrorFactory->create();<br>
+                            $error->setCarrier($this->_code);<br>
+                            $error->setCarrierTitle($this->getConfigData('title'));<br>
+                            $error->setErrorMessage(__('Carrier unavailable'));<br>
+                            return $error;
+                        </div>
+                    </div>
+                    <div class="p-4 border-l-4 border-magento-gold-500">
+                        <h4 class="font-bold mb-2">Country Restriction</h4>
+                        <p class="text-sm text-gray-600 mb-2">
+                            When destination country is not allowed, carrier is skipped:
+                        </p>
+                        <div class="bg-gray-100 p-3 rounded font-mono text-xs">
+                            $result = $carrier->checkAvailableShipCountries($request);<br>
+                            if (false === $result) {<br>
+                            &nbsp;&nbsp;// Skip silently (admin configured)<br>
+                            &nbsp;&nbsp;return $this;<br>
+                            }
+                        </div>
+                    </div>
+                    <div class="p-4 border-l-4 border-gray-400">
+                        <h4 class="font-bold mb-2">Label Generation Errors</h4>
+                        <p class="text-sm text-gray-600 mb-2">
+                            Label failures throw LocalizedException:
+                        </p>
+                        <div class="bg-gray-100 p-3 rounded font-mono text-xs">
+                            if ($result->hasErrors()) {<br>
+                            &nbsp;&nbsp;throw new LocalizedException(<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;__($result->getErrors())<br>
+                            &nbsp;&nbsp;);<br>
+                            }
+                        </div>
+                    </div>
+                    <div class="p-4 border-l-4 border-gray-400">
+                        <h4 class="font-bold mb-2">Tracking Errors</h4>
+                        <p class="text-sm text-gray-600 mb-2">
+                            Tracking failures use Tracking\Result\Error:
+                        </p>
+                        <div class="bg-gray-100 p-3 rounded font-mono text-xs">
+                            $error = $this->_trackErrorFactory->create();<br>
+                            $error->setTracking($trackNumber);<br>
+                            $error->setCarrier($this->_code);<br>
+                            $error->setErrorMessage(__('Unable to retrieve tracking'));<br>
+                            $result->append($error);
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Navigation -->
+        <section class="mt-16 pt-8 border-t border-gray-200">
+            <div class="flex justify-between items-center">
+                <a href="architecture.html" class="text-magento-orange-500 hover:underline">&larr; Architecture</a>
+                <a href="plugins-observers.html" class="text-magento-orange-500 hover:underline">DI &amp; Config &rarr;</a>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-magento-charcoal text-white py-8 mt-16">
+        <div class="container mx-auto px-6 text-center">
+            <p class="text-gray-400">Magento Core Documentation Project</p>
+            <p class="text-sm text-gray-500 mt-2">Magento_Shipping - Execution Flows</p>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magento_Checkout Module - Deep Architectural Documentation</title>
+    <meta name="description" content="Comprehensive documentation for Magento 2 Checkout module including multi-step checkout flows, payment processing, shipping information management, and session handling.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'magento-orange': {
+                            DEFAULT: '#f26423',
+                            50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad', 300: '#f9ae78',
+                            400: '#f58242', 500: '#f26423', 600: '#e34613', 700: '#bc3312',
+                            800: '#962a16', 900: '#792515', 950: '#411009'
+                        },
+                        'magento-gold': {
+                            DEFAULT: '#f1bc1b',
+                            50: '#fffdeb', 100: '#fdf9c8', 200: '#fbf38c', 300: '#f8e651',
+                            400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a', 700: '#b1670c',
+                            800: '#8f5111', 900: '#764311', 950: '#442204'
+                        },
+                        'magento-charcoal': {
+                            DEFAULT: '#2c2c2c',
+                            50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6', 300: '#818181',
+                            400: '#474747', 500: '#2c2c2c', 600: '#262626', 700: '#202020',
+                            800: '#1c1c1c', 900: '#191919', 950: '#121212'
+                        },
+                    },
+                    fontFamily: {
+                        sans: ['Inter Tight', 'system-ui', 'sans-serif'],
+                        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&display=swap');
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-[#FAFAFA] text-magento-charcoal">
+
+    <!-- Skip to content -->
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-magento-orange-800 focus:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-magento-orange-800">
+        Skip to content
+    </a>
+
+    <!-- Header -->
+    <header class="bg-gradient-to-br from-magento-charcoal-500 via-magento-charcoal-600 to-magento-charcoal-700 border-b-8 border-magento-orange-500">
+        <!-- back-to-developer-docs -->
+        <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 pt-4"><a href="/developer/" aria-label="Back to Developer Docs" class="inline-flex items-center gap-1.5 text-sm font-medium text-white/70 hover:text-white transition-colors no-underline"><span aria-hidden="true">←</span> Developer Docs</a></div>
+        <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+            <nav class="mb-8" aria-label="Breadcrumb">
+                <ol class="flex items-center gap-2 text-sm text-gray-400">
+                    <li><a href="../../../index.html" class="hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-magento-orange-500">Home</a></li>
+                    <li aria-hidden="true">/</li>
+                    <li><span class="text-magento-orange-400">Magento_Checkout</span></li>
+                </ol>
+            </nav>
+            <div id="main-content">
+                <h1 class="text-4xl sm:text-5xl font-bold tracking-tight text-white mb-4">Magento_Checkout</h1>
+                <p class="text-lg sm:text-xl text-gray-300 max-w-3xl mb-6">Multi-step checkout process, shipping and payment information management, session handling, and order placement workflows.</p>
+                <div class="flex flex-wrap gap-3 text-sm">
+                    <span class="inline-flex items-center gap-2 bg-magento-orange-500/20 text-magento-orange-300 px-4 py-2 font-medium border border-magento-orange-500/30">
+                        132 Components
+                    </span>
+                    <span class="inline-flex items-center gap-2 bg-magento-gold-500/20 text-magento-gold-300 px-4 py-2 font-medium border border-magento-gold-500/30">
+                        20 Interfaces
+                    </span>
+                    <span class="inline-flex items-center gap-2 bg-magento-charcoal-400/40 text-gray-200 px-4 py-2 font-medium border border-magento-charcoal-400/30">
+                        104 JS Components
+                    </span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="max-w-6xl mx-auto px-6 py-8 md:py-12">
+
+        <!-- Module Overview -->
+        <section class="bg-white mb-12 p-8 border-t-4 border-magento-orange-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-magento-charcoal mb-4 mt-0">Module Overview</h2>
+            <p class="text-gray-700 mb-6 leading-relaxed">
+                The Magento_Checkout module orchestrates the entire checkout process, from cart to order placement.
+                It manages the multi-step checkout flow, shipping address collection, shipping method selection,
+                payment information handling, and the final order creation. This module is heavily JavaScript-driven,
+                using Knockout.js components for the frontend checkout experience.
+            </p>
+
+            <!-- Key Stats Grid -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                <div class="bg-magento-charcoal-50 p-4 border-l-4 border-magento-orange-500">
+                    <div class="text-2xl font-bold text-magento-orange-500">132</div>
+                    <div class="text-sm text-gray-600">PHP Components</div>
+                </div>
+                <div class="bg-magento-charcoal-50 p-4 border-l-4 border-magento-gold-500">
+                    <div class="text-2xl font-bold text-magento-gold-600">20</div>
+                    <div class="text-sm text-gray-600">Service Contracts</div>
+                </div>
+                <div class="bg-magento-charcoal-50 p-4 border-l-4 border-magento-orange-500">
+                    <div class="text-2xl font-bold text-magento-orange-500">104</div>
+                    <div class="text-sm text-gray-600">JS Components</div>
+                </div>
+                <div class="bg-magento-charcoal-50 p-4 border-l-4 border-magento-gold-500">
+                    <div class="text-2xl font-bold text-magento-gold-600">12</div>
+                    <div class="text-sm text-gray-600">REST Endpoints</div>
+                </div>
+            </div>
+
+            <!-- Component Breakdown -->
+            <h3 class="text-lg font-bold text-magento-charcoal mb-4">Component Breakdown</h3>
+            <div class="grid md:grid-cols-3 gap-4">
+                <div class="border border-gray-200 p-4">
+                    <h4 class="font-semibold text-magento-charcoal mb-2">Backend PHP</h4>
+                    <ul class="text-sm text-gray-700 space-y-1">
+                        <li class="flex justify-between"><span>Models</span><span class="font-mono">40</span></li>
+                        <li class="flex justify-between"><span>Blocks</span><span class="font-mono">36</span></li>
+                        <li class="flex justify-between"><span>Controllers</span><span class="font-mono">25</span></li>
+                        <li class="flex justify-between"><span>API Interfaces</span><span class="font-mono">20</span></li>
+                    </ul>
+                </div>
+                <div class="border border-gray-200 p-4">
+                    <h4 class="font-semibold text-magento-charcoal mb-2">Support Classes</h4>
+                    <ul class="text-sm text-gray-700 space-y-1">
+                        <li class="flex justify-between"><span>CustomerData</span><span class="font-mono">7</span></li>
+                        <li class="flex justify-between"><span>Helpers</span><span class="font-mono">3</span></li>
+                        <li class="flex justify-between"><span>Observers</span><span class="font-mono">3</span></li>
+                        <li class="flex justify-between"><span>ViewModels</span><span class="font-mono">1</span></li>
+                    </ul>
+                </div>
+                <div class="border border-gray-200 p-4">
+                    <h4 class="font-semibold text-magento-charcoal mb-2">Frontend</h4>
+                    <ul class="text-sm text-gray-700 space-y-1">
+                        <li class="flex justify-between"><span>JavaScript Files</span><span class="font-mono">104</span></li>
+                        <li class="flex justify-between"><span>Layout XML</span><span class="font-mono">16</span></li>
+                        <li class="flex justify-between"><span>Plugins</span><span class="font-mono">1</span></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Documentation Sections -->
+        <section class="mb-12">
+            <div class="flex items-center gap-4 mb-8">
+                <div class="w-3 h-12 bg-magento-gold-500"></div>
+                <h2 class="text-3xl font-bold text-magento-charcoal">Documentation</h2>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6">
+                <!-- Architecture -->
+                <a href="architecture.html" class="block bg-white border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow hover:border-magento-orange-300 focus:outline-none focus:ring-2 focus:ring-magento-orange-500">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 bg-magento-orange-500 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-magento-charcoal mb-2">Architecture</h3>
+                            <p class="text-sm text-gray-700">Multi-step checkout design, session management, Knockout.js component architecture, and service contract patterns.</p>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Execution Flows -->
+                <a href="execution-flows.html" class="block bg-white border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow hover:border-magento-orange-300 focus:outline-none focus:ring-2 focus:ring-magento-orange-500">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 bg-magento-gold-500 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-6 h-6 text-magento-charcoal" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-magento-charcoal mb-2">Execution Flows</h3>
+                            <p class="text-sm text-gray-700">Step-by-step checkout flow, shipping save, payment processing, order placement, and guest checkout handling.</p>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Plugins & Observers -->
+                <a href="plugins-observers.html" class="block bg-white border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow hover:border-magento-orange-300 focus:outline-none focus:ring-2 focus:ring-magento-orange-500">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 bg-charcoal flex items-center justify-center flex-shrink-0">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-magento-charcoal mb-2">Plugins & Observers</h3>
+                            <p class="text-sm text-gray-700">Checkout session handling, quote recollection triggers, rate limiting plugins, and event subscriptions.</p>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Integrations -->
+                <a href="integrations.html" class="block bg-white border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow hover:border-magento-orange-300 focus:outline-none focus:ring-2 focus:ring-magento-orange-500">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 bg-magento-orange-500 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-magento-charcoal mb-2">Integrations</h3>
+                            <p class="text-sm text-gray-700">Quote, Sales, Payment, Shipping, Customer, and CatalogInventory module dependencies and data flow.</p>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Known Issues -->
+                <a href="known-issues.html" class="block bg-white border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow hover:border-magento-orange-300 focus:outline-none focus:ring-2 focus:ring-magento-orange-500 md:col-span-2">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 bg-magento-gold-500 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-6 h-6 text-magento-charcoal" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-magento-charcoal mb-2">Known Issues & Gotchas</h3>
+                            <p class="text-sm text-gray-700">Session race conditions, address validation bypasses, payment state inconsistencies, and shipping method edge cases with verified workarounds.</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </section>
+
+        <!-- Key Features -->
+        <section class="bg-white mb-12 p-8 border-t-4 border-magento-gold-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-magento-charcoal mb-6">Key Features</h2>
+
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="border-l-4 border-magento-orange-500 pl-4">
+                    <h3 class="font-bold text-magento-charcoal mb-2">Multi-Step Checkout</h3>
+                    <p class="text-sm text-gray-700">Configurable checkout steps with shipping address, shipping method, payment information, and order review.</p>
+                </div>
+                <div class="border-l-4 border-magento-gold-500 pl-4">
+                    <h3 class="font-bold text-magento-charcoal mb-2">Guest Checkout</h3>
+                    <p class="text-sm text-gray-700">Full checkout capability for guest customers without account creation requirement.</p>
+                </div>
+                <div class="border-l-4 border-magento-charcoal pl-4">
+                    <h3 class="font-bold text-magento-charcoal mb-2">Session Management</h3>
+                    <p class="text-sm text-gray-700">Quote session handling with automatic cleanup and persistence across page loads.</p>
+                </div>
+                <div class="border-l-4 border-magento-orange-500 pl-4">
+                    <h3 class="font-bold text-magento-charcoal mb-2">REST API Support</h3>
+                    <p class="text-sm text-gray-700">12 REST endpoints for headless checkout implementations and PWA integrations.</p>
+                </div>
+                <div class="border-l-4 border-magento-gold-500 pl-4">
+                    <h3 class="font-bold text-magento-charcoal mb-2">Agreements Validation</h3>
+                    <p class="text-sm text-gray-700">Terms and conditions acceptance with configurable agreement types and validation.</p>
+                </div>
+                <div class="border-l-4 border-magento-charcoal pl-4">
+                    <h3 class="font-bold text-magento-charcoal mb-2">Rate Limiting</h3>
+                    <p class="text-sm text-gray-700">Built-in CAPTCHA-based rate limiting for payment processing to prevent abuse.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Module Dependencies -->
+        <section class="mb-12">
+            <div class="flex items-center gap-4 mb-8">
+                <div class="w-3 h-12 bg-magento-orange-500"></div>
+                <h2 class="text-3xl font-bold text-magento-charcoal">Module Dependencies</h2>
+            </div>
+
+            <div class="bg-white border border-gray-200 p-6 shadow-sm">
+                <p class="text-gray-700 mb-4">The Checkout module depends on these core modules (defined in module.xml sequence):</p>
+
+                <div class="grid md:grid-cols-3 gap-4">
+                    <div class="bg-magento-charcoal-50 p-4 border-l-4 border-magento-orange-500">
+                        <h4 class="font-bold text-magento-charcoal">Magento_Sales</h4>
+                        <p class="text-sm text-gray-600">Order creation, invoicing, and sales entity management</p>
+                    </div>
+                    <div class="bg-magento-charcoal-50 p-4 border-l-4 border-magento-gold-500">
+                        <h4 class="font-bold text-magento-charcoal">Magento_Quote</h4>
+                        <p class="text-sm text-gray-600">Shopping cart and quote management, totals calculation</p>
+                    </div>
+                    <div class="bg-magento-charcoal-50 p-4 border-l-4 border-magento-charcoal">
+                        <h4 class="font-bold text-magento-charcoal">Magento_CatalogInventory</h4>
+                        <p class="text-sm text-gray-600">Stock validation during checkout process</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Reference -->
+        <section class="bg-charcoal text-white p-8 mb-12">
+            <h2 class="text-2xl font-bold mb-6">Quick Reference</h2>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <div>
+                    <h3 class="text-lg font-bold text-magento-orange-400 mb-3">Key Service Contracts</h3>
+                    <ul class="space-y-2 text-sm text-gray-300 font-mono">
+                        <li>PaymentInformationManagementInterface</li>
+                        <li>GuestPaymentInformationManagementInterface</li>
+                        <li>ShippingInformationManagementInterface</li>
+                        <li>GuestShippingInformationManagementInterface</li>
+                        <li>TotalsInformationManagementInterface</li>
+                        <li>AgreementsValidatorInterface</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-magento-gold-400 mb-3">Key REST Endpoints</h3>
+                    <ul class="space-y-2 text-sm text-gray-300 font-mono">
+                        <li>POST /V1/carts/mine/payment-information</li>
+                        <li>POST /V1/guest-carts/:cartId/payment-information</li>
+                        <li>POST /V1/carts/mine/shipping-information</li>
+                        <li>POST /V1/guest-carts/:cartId/shipping-information</li>
+                        <li>GET /V1/carts/mine/payment-information</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Navigation -->
+        <nav class="flex justify-between items-center" aria-label="Documentation navigation">
+            <a href="../../../index.html" class="inline-flex items-center gap-2 px-4 py-2 bg-magento-charcoal-100 text-magento-charcoal font-medium hover:bg-magento-charcoal-200 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-magento-charcoal-500">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17l-5-5m0 0l5-5m-5 5h12"/>
+                </svg>
+                Back to Index
+            </a>
+            <a href="architecture.html" class="inline-flex items-center gap-2 px-4 py-2 bg-magento-orange-800 text-white font-medium hover:bg-magento-orange-900 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-magento-orange-800">
+                Architecture
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                </svg>
+            </a>
+        </nav>
+
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-charcoal text-white py-8 mt-16">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                <p class="text-sm text-gray-400">
+                    Magento_Checkout Module Documentation | Part of The Magento Core Documentation Project
+                </p>
+                <p class="text-sm text-gray-400">
+                    Last updated: December 2025 | Magento 2.4.x
+                </p>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>
