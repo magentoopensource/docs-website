@@ -591,19 +591,32 @@ def build_page(md_path):
             border-radius: 0;
         }}
 
-        /* ── Tables: no border-radius, charcoal header ── */
-        .prose table {{ width: 100%; border-collapse: collapse; }}
+        /* ── Tables: Bauhaus — charcoal header, filled light panel, square grid ── */
+        .prose table {{ width: 100%; border-collapse: collapse; font-size: 0.9rem; background-color: #f4f4f4; }}
         .prose th {{
             background-color: #2C2C2C;
             color: #ffffff;
             font-weight: 600;
             text-align: left;
-            padding: 0.75rem 1rem;
-            border-bottom: 2px solid #2C2C2C;
+            padding: 0.6rem 1rem;
+            border: 1px solid #2C2C2C;
+            border-radius: 0;
+            white-space: nowrap;
+        }}
+        .prose td {{
+            padding: 0.6rem 1rem;
+            border: 1px solid #dcdcdc;
+            vertical-align: top;
+            line-height: 1.6;
             border-radius: 0;
         }}
-        .prose td {{ padding: 0.75rem 1rem; border-bottom: 1px solid #e5e5e5; }}
-        .prose tr:hover {{ background-color: #fafafa; }}
+        .prose tbody tr:hover {{ background-color: #ececec; }}
+        /* Code inside table cells: plain monospace on the panel — not a dark chip (matches plain-text tables) */
+        .prose td code, .prose th code {{
+            background-color: transparent;
+            color: inherit;
+            padding: 0;
+        }}
 
         /* ── Blockquote: Bauhaus style — border-4 yellow, square, no left-only border ── */
         .prose blockquote {{
