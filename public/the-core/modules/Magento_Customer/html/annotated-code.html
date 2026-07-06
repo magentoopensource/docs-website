@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Annotated Code &amp; Style Reference | Magento Core Documentation</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'magento-orange': {
+              DEFAULT: '#f26423',
+              50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad', 300: '#f9ae78',
+              400: '#f58242', 500: '#f26423', 600: '#e34613', 700: '#bc3312',
+              800: '#962a16', 900: '#792515', 950: '#411009'
+            },
+            'magento-gold': {
+              DEFAULT: '#f1bc1b',
+              50: '#fffdeb', 100: '#fdf9c8', 200: '#fbf38c', 300: '#f8e651',
+              400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a', 700: '#b1670c',
+              800: '#8f5111', 900: '#764311', 950: '#442204'
+            },
+            'magento-charcoal': {
+              DEFAULT: '#2c2c2c',
+              50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6', 300: '#818181',
+              400: '#474747', 500: '#2c2c2c', 600: '#262626', 700: '#202020',
+              800: '#1c1c1c', 900: '#191919', 950: '#121212'
+            },
+          },
+          fontFamily: {
+            sans: ['Inter Tight', 'system-ui', 'sans-serif'],
+            mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', 'monospace'],
+          },
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&display=swap');
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <!-- Syntax Highlighting Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+  <style>
+    [x-cloak] { display: none !important; }
+    pre[class*="language-"] { margin: 0; }
+
+    /* ============================================= */
+    /* SYNTAX HIGHLIGHTING - VS Code Dark+ Theme    */
+    /* ============================================= */
+    /* Use with highlight.js and language-* classes */
+    .hljs { background: transparent; }
+    .hljs-comment { color: #6a9955; }                          /* Green - comments */
+    .hljs-keyword { color: #569cd6; }                          /* Blue - keywords (if, else, function, class) */
+    .hljs-function .hljs-title, .hljs-title.function_ { color: #dcdcaa; }  /* Yellow - function names */
+    .hljs-variable, .hljs-variable.language_ { color: #9cdcfe; }           /* Light blue - variables */
+    .hljs-string { color: #ce9178; }                           /* Orange - strings */
+    .hljs-number { color: #b5cea8; }                           /* Light green - numbers */
+    .hljs-literal, .hljs-built_in { color: #569cd6; }          /* Blue - literals (true, false, null) */
+    .hljs-params { color: #d4d4d4; }                           /* Gray - parameters */
+    .hljs-type, .hljs-title.class_ { color: #4ec9b0; }         /* Teal - types and class names */
+    .hljs-attr, .hljs-attribute { color: #9cdcfe; }            /* Light blue - attributes */
+    .hljs-tag, .hljs-name { color: #569cd6; }                  /* Blue - XML/HTML tags */
+    .hljs-selector-tag, .hljs-selector-class { color: #d7ba7d; } /* Gold - CSS selectors */
+    .hljs-meta { color: #569cd6; }                             /* Blue - meta/preprocessor */
+    .hljs-operator { color: #d4d4d4; }                         /* Gray - operators */
+
+    /* Code block styling */
+    .code-block pre { border-radius: 0; }
+    .code-block code { font-family: 'Consolas', 'Monaco', 'Menlo', monospace; }
+  </style>
+  <script>
+    function copyCode(button) {
+      const codeBlock = button.closest('.code-block').querySelector('code');
+      const text = codeBlock.textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        const span = button.querySelector('span');
+        const originalText = span.textContent;
+        span.textContent = 'Copied!';
+        button.classList.add('text-magento-gold-400');
+        setTimeout(() => {
+          span.textContent = originalText;
+          button.classList.remove('text-magento-gold-400');
+        }, 2000);
+      });
+    }
+  </script>
+</head>
+<body class="bg-[#FAFAFA] text-magento-charcoal">
+<!-- Skip to main content link for accessibility -->
+<a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-magento-orange-500 focus:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-magento-orange-600">
+    Skip to main content
+</a>
+
+<header class="bg-gradient-to-br from-magento-charcoal-500 via-magento-charcoal-600 to-magento-charcoal-700 border-b-8 border-magento-orange-500">
+        <!-- back-to-developer-docs -->
+        <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 pt-4"><a href="/developer/" aria-label="Back to Developer Docs" class="inline-flex items-center gap-1.5 text-sm font-medium text-white/70 hover:text-white transition-colors no-underline"><span aria-hidden="true">←</span> Developer Docs</a></div>
+    <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
+        <nav aria-label="Breadcrumb" class="mb-8">
+            <ol class="flex flex-wrap items-center gap-2 text-sm text-gray-400">
+                <li><a href="../../../index.html" class="hover:text-magento-orange-500 underline underline-offset-4 transition-colors">Home</a></li>
+                <li aria-hidden="true"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></li>
+                <li><a href="index.html" class="hover:text-magento-orange-500 underline underline-offset-4 transition-colors">Magento_Customer</a></li>
+                <li aria-hidden="true"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></li>
+                <li><span class="text-gray-300 font-medium" aria-current="page">Style Reference</span></li>
+            </ol>
+        </nav>
+        <div>
+            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white mb-4">Annotated Code &amp; Style Reference</h1>
+            <p class="text-base sm:text-lg text-gray-300 max-w-2xl mb-6">Master template for all Magento Core documentation. Includes annotated CustomerRepositoryInterface code and a complete component library for consistent styling.</p>
+            <div class="flex flex-wrap gap-3 text-sm">
+                <span class="inline-flex items-center gap-1.5 bg-magento-orange-500/20 text-magento-gold-400 px-3 py-1.5 border border-magento-orange-500/40">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/></svg>
+                    Master Template
+                </span>
+                <span class="inline-flex items-center gap-1.5 bg-magento-gold-500/20 text-magento-gold-400 px-3 py-1.5 border border-magento-gold-500/40">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+                    Code Examples
+                </span>
+                <span class="inline-flex items-center gap-1.5 bg-white/10 text-gray-300 px-3 py-1.5 border border-white/20">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/></svg>
+                    Component Library
+                </span>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main id="main-content" class="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+
+    <div class="bg-white mb-12 p-8 border-t-4 border-magento-gold-500 shadow-sm">
+        <h2 class="text-2xl font-bold text-magento-charcoal mb-4">The Primary Service Contract</h2>
+        <p class="text-magento-charcoal/80">CustomerRepositoryInterface is the main CRUD interface for customer data persistence in Magento</p>
+    </div>
+
+      <section class="mb-12">
+        <h2 class="text-3xl font-bold text-gray-900 mb-6">Architectural Position</h2>
+        
+        <div class="bg-gray-50 border-l-4 border-magento-orange-500 p-6 mb-6">
+          <h3 class="text-lg font-semibold text-gray-900 mb-4">Layer Hierarchy</h3>
+          <div class="space-y-2 text-sm">
+            <div class="bg-white p-3 border-l-4 border-magento-gold-500">
+              <strong>Controllers / API Endpoints / Commands</strong> → Call this interface
+            </div>
+            <div class="ml-4 text-gray-500">↓</div>
+            <div class="bg-white p-3 border-l-4 border-magento-orange-500">
+              <strong>CustomerRepositoryInterface</strong> (Service Contract - You are here!)
+            </div>
+            <div class="ml-4 text-gray-500">↓</div>
+            <div class="bg-white p-3 border-l-4 border-magento-gold-500">
+              <strong>Model\ResourceModel\CustomerRepository</strong> (Implementation via DI)
+            </div>
+            <div class="ml-4 text-gray-500">↓</div>
+            <div class="bg-white p-3 border-l-4 border-magento-charcoal-300">
+              <strong>Database</strong> (customer_entity + EAV tables)
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-magento-gold-50 border-l-4 border-magento-gold-500 p-6">
+          <h3 class="text-lg font-semibold text-magento-charcoal-800 mb-3">Why Service Contracts?</h3>
+          <ul class="text-sm text-magento-charcoal-700 space-y-2">
+            <li><strong>Backward Compatibility:</strong> @api interfaces cannot change signatures</li>
+            <li><strong>Decoupling:</strong> Controllers don't depend on implementation details</li>
+            <li><strong>Plugin Intercept Points:</strong> Plugins can only intercept interfaces</li>
+            <li><strong>API Exposure:</strong> REST/SOAP APIs auto-generate from service contracts</li>
+            <li><strong>Testability:</strong> Easy to mock in unit tests</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="mb-12">
+        <h2 class="text-3xl font-bold text-gray-900 mb-6">Plugins Intercepting This Interface</h2>
+        
+        <div class="grid md:grid-cols-2 gap-6">
+          <div class="bg-magento-orange-50 border border-magento-orange-200 p-4">
+            <div class="flex items-center mb-3">
+              <span class="bg-magento-orange-600 text-white text-xs font-bold px-2 py-1 mr-2">sortOrder: -1</span>
+              <h3 class="text-lg font-semibold text-magento-orange-900">TransactionWrapper</h3>
+            </div>
+            <ul class="text-sm text-magento-orange-800 space-y-1">
+              <li>Opens database transaction BEFORE save/delete</li>
+              <li>Commits AFTER successful operation</li>
+              <li>Rolls back on ANY exception</li>
+              <li>Ensures customer + addresses + EAV saved atomically</li>
+            </ul>
+          </div>
+
+          <div class="bg-magento-gold-50 border border-magento-gold-500  p-4">
+            <div class="flex items-center mb-3">
+              <span class="bg-magento-charcoal-500 text-white text-xs font-bold px-2 py-1 mr-2">webapi_rest</span>
+              <h3 class="text-lg font-semibold text-magento-gold-900">UpdateCustomer</h3>
+            </div>
+            <p class="text-sm text-magento-gold-900">REST API specific: Merges request body into customer DTO</p>
+          </div>
+
+          <div class="bg-magento-gold-50 border border-magento-gold-500  p-4">
+            <div class="flex items-center mb-3">
+              <span class="bg-magento-charcoal-500 text-white text-xs font-bold px-2 py-1 mr-2">API areas</span>
+              <h3 class="text-lg font-semibold text-magento-gold-900">CustomerAuthorization</h3>
+            </div>
+            <ul class="text-sm text-magento-gold-800 space-y-1">
+              <li>Validates API token customer matches requested customer ID</li>
+              <li>Prevents customer A from accessing customer B's data</li>
+            </ul>
+          </div>
+
+          <div class="bg-magento-gold-50 border border-magento-gold-200 p-4">
+            <div class="flex items-center mb-3">
+              <span class="bg-magento-charcoal-500 text-white text-xs font-bold px-2 py-1 mr-2">Third-party</span>
+              <h3 class="text-lg font-semibold text-magento-gold-900">Custom Plugins</h3>
+            </div>
+            <p class="text-sm text-magento-gold-800">Data enrichment, validation, logging/audit, integration with external systems</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="mb-12">
+        <h2 class="text-3xl font-bold text-gray-900 mb-6">Method: save()</h2>
+        
+        <div class="bg-magento-gold-50 border-l-4 border-magento-gold-500 p-4 mb-6">
+          <p class="text-sm text-magento-gold-800"><strong>Signature:</strong> <code class="bg-magento-gold-100 px-2 py-1">save(CustomerInterface $customer, $passwordHash = null): CustomerInterface</code></p>
+        </div>
+
+        <div class="code-block mb-6 shadow-md overflow-hidden">
+          <div class="code-header bg-magento-charcoal-700 px-4 py-2 flex justify-between items-center border-b border-magento-charcoal-600">
+            <span class="text-magento-gold-400 text-sm font-semibold tracking-wide">PHP</span>
+            <button onclick="copyCode(this)" class="copy-btn flex items-center gap-1.5 text-gray-400 hover:text-white text-xs font-medium transition-colors">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+              </svg>
+              <span>Copy</span>
+            </button>
+          </div>
+          <pre class="bg-magento-charcoal-800 p-4 overflow-x-auto m-0 text-sm leading-relaxed"><code class="language-php text-gray-100"><span class="hljs-comment">/**
+ * Create or update a customer.
+ *
+ * EXECUTION FLOW:
+ * 1. TransactionWrapper::beforeSave() - Opens database transaction
+ * 2. Validation (email format, required fields, uniqueness)
+ * 3. Convert DTO to Model (CustomerInterface → Customer)
+ * 4. Set password_hash if provided
+ * 5. Database persistence (INSERT/UPDATE customer_entity + EAV)
+ * 6. Save addresses if included
+ * 7. EVENT: customer_save_after_data_object
+ *    - Triggers email sync observers
+ * 8. TransactionWrapper::afterSave() - Commits transaction
+ * 9. Return saved CustomerInterface DTO
+ *
+ * TRANSACTION SAFETY:
+ * The TransactionWrapper plugin ensures:
+ * - Customer + addresses saved atomically
+ * - Email sync observers run in same transaction
+ * - Validation failures rollback everything
+ *
+ * PASSWORD HANDLING:
+ * CREATE with password:
+ *   $hash = $encryptor-&gt;getHash($plainPassword, true);
+ *   $repository-&gt;save($customer, $hash);
+ *
+ * UPDATE without changing password:
+ *   $repository-&gt;save($customer); // Don't pass hash
+ *
+ * @param CustomerInterface $customer Customer data object
+ * @param string|null $passwordHash Hashed password (optional)
+ * @return CustomerInterface Saved customer with generated ID
+ */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">function</span> <span class="hljs-title">save</span>(<span class="hljs-params">
+    \<span class="hljs-title">Magento</span>\<span class="hljs-title">Customer</span>\<span class="hljs-title">Api</span>\<span class="hljs-title">Data</span>\<span class="hljs-title">CustomerInterface</span> <span class="hljs-variable">$customer</span>,
+    <span class="hljs-variable">$passwordHash</span> = <span class="hljs-literal">null</span>
+</span>);</code></pre>
+        </div>
+
+        <div class="bg-magento-orange-50 border-l-4 border-magento-orange-500 p-6 mb-6 shadow-sm">
+          <h3 class="text-lg font-semibold text-magento-orange-900 mb-3">Critical Side Effect: Email Synchronization</h3>
+          <p class="text-sm text-magento-orange-800 mb-3">When customer email changes, observers automatically update:</p>
+          <ul class="text-sm text-magento-orange-800 list-disc list-inside space-y-1">
+            <li>All historical orders get new email (UpgradeOrderCustomerEmailObserver)</li>
+            <li>Active quote gets new email (UpgradeQuoteCustomerEmailObserver)</li>
+            <li>This happens in the SAME transaction as customer save</li>
+          </ul>
+          <pre class="text-xs bg-magento-orange-100 p-3 mt-3 overflow-x-auto"><code>UPDATE sales_order SET customer_email = ? WHERE customer_id = ?
+UPDATE quote SET customer_email = ? WHERE customer_id = ? AND is_active = 1</code></pre>
+        </div>
+
+        <div class="bg-magento-gold-50 border-l-4 border-magento-gold-500 p-6">
+          <h3 class="text-lg font-semibold text-magento-gold-900 mb-3">Error Handling</h3>
+          <div class="code-block shadow-md overflow-hidden">
+            <div class="code-header bg-magento-charcoal-700 px-4 py-2 flex justify-between items-center border-b border-magento-charcoal-600">
+              <span class="text-magento-gold-400 text-sm font-semibold tracking-wide">PHP</span>
+              <button onclick="copyCode(this)" class="copy-btn flex items-center gap-1.5 text-gray-400 hover:text-white text-xs font-medium transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                <span>Copy</span>
+              </button>
+            </div>
+            <pre class="bg-magento-charcoal-800 p-4 overflow-x-auto m-0 text-sm leading-relaxed"><code class="language-php text-gray-100"><span class="hljs-keyword">try</span> {
+    <span class="hljs-variable">$customer</span> = <span class="hljs-variable">$this</span>-&gt;<span class="hljs-title">customerRepository</span>-&gt;<span class="hljs-title">save</span>(<span class="hljs-variable">$customer</span>, <span class="hljs-variable">$passwordHash</span>);
+} <span class="hljs-keyword">catch</span> (\<span class="hljs-title">Magento</span>\<span class="hljs-title">Framework</span>\<span class="hljs-title">Exception</span>\<span class="hljs-title">InputException</span> <span class="hljs-variable">$e</span>) {
+    <span class="hljs-comment">// Validation error (invalid email, missing required fields)</span>
+    <span class="hljs-keyword">foreach</span> (<span class="hljs-variable">$e</span>-&gt;<span class="hljs-title">getErrors</span>() <span class="hljs-keyword">as</span> <span class="hljs-variable">$error</span>) {
+        <span class="hljs-variable">$this</span>-&gt;<span class="hljs-title">messageManager</span>-&gt;<span class="hljs-title">addErrorMessage</span>(<span class="hljs-variable">$error</span>-&gt;<span class="hljs-title">getMessage</span>());
+    }
+} <span class="hljs-keyword">catch</span> (\<span class="hljs-title">Magento</span>\<span class="hljs-title">Framework</span>\<span class="hljs-title">Exception</span>\<span class="hljs-title">State</span>\<span class="hljs-title">InputMismatchException</span> <span class="hljs-variable">$e</span>) {
+    <span class="hljs-comment">// Email already exists (unique constraint violation)</span>
+    <span class="hljs-variable">$this</span>-&gt;<span class="hljs-title">messageManager</span>-&gt;<span class="hljs-title">addErrorMessage</span>(<span class="hljs-variable">$e</span>-&gt;<span class="hljs-title">getMessage</span>());
+} <span class="hljs-keyword">catch</span> (\<span class="hljs-title">Magento</span>\<span class="hljs-title">Framework</span>\<span class="hljs-title">Exception</span>\<span class="hljs-title">LocalizedException</span> <span class="hljs-variable">$e</span>) {
+    <span class="hljs-comment">// Business logic error</span>
+    <span class="hljs-variable">$this</span>-&gt;<span class="hljs-title">messageManager</span>-&gt;<span class="hljs-title">addErrorMessage</span>(<span class="hljs-variable">$e</span>-&gt;<span class="hljs-title">getMessage</span>());
+} <span class="hljs-keyword">catch</span> (\<span class="hljs-title">Exception</span> <span class="hljs-variable">$e</span>) {
+    <span class="hljs-comment">// Unexpected error</span>
+    <span class="hljs-variable">$this</span>-&gt;<span class="hljs-title">logger</span>-&gt;<span class="hljs-title">critical</span>(<span class="hljs-variable">$e</span>);
+    <span class="hljs-variable">$this</span>-&gt;<span class="hljs-title">messageManager</span>-&gt;<span class="hljs-title">addErrorMessage</span>(<span class="hljs-title">__</span>(<span class="hljs-string">'Unable to save customer.'</span>));
+}</code></pre>
+          </div>
+        </div>
+      </section>
+
+      <section class="mb-12">
+        <h2 class="text-3xl font-bold text-gray-900 mb-6">Method: getById()</h2>
+        
+        <div class="bg-magento-gold-50 border-l-4 border-magento-gold-500 p-4 mb-6 shadow-sm">
+          <p class="text-sm text-magento-gold-800"><strong>Signature:</strong> <code class="bg-magento-gold-100 px-2 py-1">getById(int $customerId): CustomerInterface</code></p>
+          <p class="text-sm text-magento-gold-700 mt-2"><strong>Performance:</strong> This is the FASTEST way to load a customer (primary key lookup O(1))</p>
+        </div>
+
+        <div class="code-block mb-6 shadow-md overflow-hidden">
+          <div class="code-header bg-magento-charcoal-700 px-4 py-2 flex justify-between items-center border-b border-magento-charcoal-600">
+            <span class="text-magento-gold-400 text-sm font-semibold tracking-wide">PHP</span>
+            <button onclick="copyCode(this)" class="copy-btn flex items-center gap-1.5 text-gray-400 hover:text-white text-xs font-medium transition-colors">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+              <span>Copy</span>
+            </button>
+          </div>
+          <pre class="bg-magento-charcoal-800 p-4 overflow-x-auto m-0 text-sm leading-relaxed"><code class="language-php text-gray-100"><span class="hljs-comment">/**
+ * Get customer by Customer ID.
+ *
+ * PREFERRED LOOKUP METHOD - Uses primary key (entity_id)
+ *
+ * Database query: SELECT * FROM customer_entity WHERE entity_id = ?
+ * Performance: O(1) - direct primary key lookup
+ *
+ * This method loads:
+ * - customer_entity row (main table)
+ * - All EAV attributes (joins to customer_entity_varchar, _int, etc.)
+ * - Custom attributes (if defined)
+ * - Extension attributes (if defined)
+ *
+ * Does NOT load:
+ * - Addresses (must call AddressRepositoryInterface separately)
+ *
+ * WHERE TO GET CUSTOMER ID:
+ * - Customer session: $this-&gt;session-&gt;getCustomerId()
+ * - Order: $order-&gt;getCustomerId()
+ * - Quote: $quote-&gt;getCustomerId()
+ * - URL parameter: $this-&gt;getRequest()-&gt;getParam('customer_id')
+ *
+ * @param int $customerId Customer ID (entity_id)
+ * @return CustomerInterface Customer data object
+ * @throws NoSuchEntityException If customer doesn't exist
+ */</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">function</span> <span class="hljs-title">getById</span>(<span class="hljs-params"><span class="hljs-variable">$customerId</span></span>);</code></pre>
+        </div>
+
+        <div class="bg-magento-gold-50 border-l-4 border-magento-gold-500 p-6">
+          <h3 class="text-lg font-semibold text-magento-gold-900 mb-3">Usage Example</h3>
+          <div class="code-block shadow-md overflow-hidden">
+            <div class="code-header bg-magento-charcoal-700 px-4 py-2 flex justify-between items-center border-b border-magento-charcoal-600">
+              <span class="text-magento-gold-400 text-sm font-semibold tracking-wide">PHP</span>
+              <button onclick="copyCode(this)" class="copy-btn flex items-center gap-1.5 text-gray-400 hover:text-white text-xs font-medium transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                <span>Copy</span>
+              </button>
+            </div>
+            <pre class="bg-magento-charcoal-800 p-4 overflow-x-auto m-0 text-sm leading-relaxed"><code class="language-php text-gray-100"><span class="hljs-comment">// Fast: Primary key lookup</span>
+<span class="hljs-variable">$customerId</span> = <span class="hljs-variable">$this</span>-&gt;<span class="hljs-title">session</span>-&gt;<span class="hljs-title">getCustomerId</span>();
+<span class="hljs-variable">$customer</span> = <span class="hljs-variable">$this</span>-&gt;<span class="hljs-title">customerRepository</span>-&gt;<span class="hljs-title">getById</span>(<span class="hljs-variable">$customerId</span>);
+
+<span class="hljs-comment">// Slow: Secondary index lookup (email + website_id)</span>
+<span class="hljs-variable">$customer</span> = <span class="hljs-variable">$this</span>-&gt;<span class="hljs-title">customerRepository</span>-&gt;<span class="hljs-title">get</span>(<span class="hljs-string">'john@example.com'</span>, <span class="hljs-variable">$websiteId</span>);
+
+<span class="hljs-comment">// Always prefer getById() when you have the ID!</span></code></pre>
+          </div>
+        </div>
+      </section>
+
+      <section class="mb-12">
+        <h2 class="text-3xl font-bold text-gray-900 mb-6">Method: getList()</h2>
+        
+        <div class="bg-magento-gold-50 border-l-4 border-magento-gold-500 p-4 mb-6">
+          <p class="text-sm text-magento-gold-800"><strong>Signature:</strong> <code class="bg-magento-gold-100 px-2 py-1">getList(SearchCriteriaInterface $searchCriteria): CustomerSearchResultsInterface</code></p>
+        </div>
+
+        <div class="code-block mb-6 shadow-md overflow-hidden">
+          <div class="code-header bg-magento-charcoal-700 px-4 py-2 flex justify-between items-center border-b border-magento-charcoal-600">
+            <span class="text-magento-gold-400 text-sm font-semibold tracking-wide">PHP</span>
+            <button onclick="copyCode(this)" class="copy-btn flex items-center gap-1.5 text-gray-400 hover:text-white text-xs font-medium transition-colors">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+              <span>Copy</span>
+            </button>
+          </div>
+          <pre class="bg-magento-charcoal-800 p-4 overflow-x-auto m-0 text-sm leading-relaxed"><code class="language-php text-gray-100"><span class="hljs-comment">/**
+ * Retrieve customers which match specified criteria.
+ *
+ * Example usage:
+ */</span>
+<span class="hljs-variable">$searchCriteria</span> = <span class="hljs-variable">$this</span>-&gt;<span class="hljs-title">searchCriteriaBuilder</span>
+    -&gt;<span class="hljs-title">addFilter</span>(<span class="hljs-string">'email'</span>, <span class="hljs-string">'%@example.com'</span>, <span class="hljs-string">'like'</span>)
+    -&gt;<span class="hljs-title">addFilter</span>(<span class="hljs-string">'group_id'</span>, [<span class="hljs-number">1</span>, <span class="hljs-number">2</span>], <span class="hljs-string">'in'</span>)
+    -&gt;<span class="hljs-title">addFilter</span>(<span class="hljs-string">'website_id'</span>, <span class="hljs-variable">$websiteId</span>)
+    -&gt;<span class="hljs-title">setPageSize</span>(<span class="hljs-number">50</span>)
+    -&gt;<span class="hljs-title">setCurrentPage</span>(<span class="hljs-number">1</span>)
+    -&gt;<span class="hljs-title">addSortOrder</span>(
+        <span class="hljs-variable">$this</span>-&gt;<span class="hljs-title">sortOrderBuilder</span>
+            -&gt;<span class="hljs-title">setField</span>(<span class="hljs-string">'created_at'</span>)
+            -&gt;<span class="hljs-title">setDirection</span>(<span class="hljs-string">'DESC'</span>)
+            -&gt;<span class="hljs-title">create</span>()
+    )
+    -&gt;<span class="hljs-title">create</span>();
+
+<span class="hljs-variable">$results</span> = <span class="hljs-variable">$this</span>-&gt;<span class="hljs-title">customerRepository</span>-&gt;<span class="hljs-title">getList</span>(<span class="hljs-variable">$searchCriteria</span>);
+
+<span class="hljs-built_in">echo</span> <span class="hljs-string">"Total customers: "</span> . <span class="hljs-variable">$results</span>-&gt;<span class="hljs-title">getTotalCount</span>();
+<span class="hljs-keyword">foreach</span> (<span class="hljs-variable">$results</span>-&gt;<span class="hljs-title">getItems</span>() <span class="hljs-keyword">as</span> <span class="hljs-variable">$customer</span>) {
+    <span class="hljs-built_in">echo</span> <span class="hljs-variable">$customer</span>-&gt;<span class="hljs-title">getEmail</span>() . <span class="hljs-string">"\n"</span>;
+}</code></pre>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-6">
+          <div class="bg-magento-gold-50 border border-magento-gold-200 p-4">
+            <h3 class="text-lg font-semibold text-magento-gold-900 mb-3">Filter Conditions</h3>
+            <ul class="text-sm text-magento-gold-800 space-y-1 font-mono">
+              <li>'eq' - equals (default)</li>
+              <li>'neq' - not equals</li>
+              <li>'like' - SQL LIKE with %</li>
+              <li>'in' - IN array</li>
+              <li>'gt' - greater than</li>
+              <li>'lt' - less than</li>
+              <li>'null' - IS NULL</li>
+            </ul>
+          </div>
+
+          <div class="bg-magento-orange-50 border border-magento-orange-200 p-4">
+            <h3 class="text-lg font-semibold text-magento-orange-900 mb-3">Performance Tips</h3>
+            <ul class="text-sm text-magento-orange-800 space-y-2">
+              <li><strong>Always use pagination</strong> - setPageSize()</li>
+              <li><strong>Filter on indexed fields</strong> (email, website_id)</li>
+              <li><strong>Avoid multiple EAV filters</strong> (adds JOINs)</li>
+              <li><strong>Use specific filters</strong> to reduce result set</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="mb-12">
+        <h2 class="text-3xl font-bold text-gray-900 mb-6">Complete Usage Example</h2>
+        
+        <div class="code-block shadow-md overflow-hidden">
+          <div class="code-header bg-magento-charcoal-700 px-4 py-2 flex justify-between items-center border-b border-magento-charcoal-600">
+            <span class="text-magento-gold-400 text-sm font-semibold tracking-wide">PHP</span>
+            <button onclick="copyCode(this)" class="copy-btn flex items-center gap-1.5 text-gray-400 hover:text-white text-xs font-medium transition-colors">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+              <span>Copy</span>
+            </button>
+          </div>
+          <pre class="bg-magento-charcoal-800 p-4 overflow-x-auto m-0 text-sm leading-relaxed"><code class="language-php text-gray-100"><span class="hljs-keyword">namespace</span> <span class="hljs-title">Vendor</span>\<span class="hljs-title">Module</span>\<span class="hljs-title">Model</span>;
+
+<span class="hljs-keyword">use</span> <span class="hljs-title">Magento</span>\<span class="hljs-title">Customer</span>\<span class="hljs-title">Api</span>\<span class="hljs-title">CustomerInterfaceFactory</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Magento</span>\<span class="hljs-title">Customer</span>\<span class="hljs-title">Api</span>\<span class="hljs-title">CustomerRepositoryInterface</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Magento</span>\<span class="hljs-title">Framework</span>\<span class="hljs-title">Encryption</span>\<span class="hljs-title">EncryptorInterface</span>;
+<span class="hljs-keyword">use</span> <span class="hljs-title">Magento</span>\<span class="hljs-title">Store</span>\<span class="hljs-title">Model</span>\<span class="hljs-title">StoreManagerInterface</span>;
+
+<span class="hljs-keyword">class</span> <span class="hljs-title">CustomerService</span>
+{
+    <span class="hljs-keyword">private</span> <span class="hljs-variable">$customerFactory</span>;
+    <span class="hljs-keyword">private</span> <span class="hljs-variable">$customerRepository</span>;
+    <span class="hljs-keyword">private</span> <span class="hljs-variable">$encryptor</span>;
+    <span class="hljs-keyword">private</span> <span class="hljs-variable">$storeManager</span>;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">function</span> <span class="hljs-title">__construct</span>(<span class="hljs-params">
+        <span class="hljs-title">CustomerInterfaceFactory</span> <span class="hljs-variable">$customerFactory</span>,
+        <span class="hljs-title">CustomerRepositoryInterface</span> <span class="hljs-variable">$customerRepository</span>,
+        <span class="hljs-title">EncryptorInterface</span> <span class="hljs-variable">$encryptor</span>,
+        <span class="hljs-title">StoreManagerInterface</span> <span class="hljs-variable">$storeManager</span>
+    </span>) {
+        <span class="hljs-variable">$this</span>-&gt;<span class="hljs-title">customerFactory</span> = <span class="hljs-variable">$customerFactory</span>;
+        <span class="hljs-variable">$this</span>-&gt;<span class="hljs-title">customerRepository</span> = <span class="hljs-variable">$customerRepository</span>;
+        <span class="hljs-variable">$this</span>-&gt;<span class="hljs-title">encryptor</span> = <span class="hljs-variable">$encryptor</span>;
+        <span class="hljs-variable">$this</span>-&gt;<span class="hljs-title">storeManager</span> = <span class="hljs-variable">$storeManager</span>;
+    }
+
+    <span class="hljs-comment">/**
+     * Create new customer account
+     */</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">function</span> <span class="hljs-title">createCustomer</span>(<span class="hljs-params"><span class="hljs-variable">$email</span>, <span class="hljs-variable">$firstname</span>, <span class="hljs-variable">$lastname</span>, <span class="hljs-variable">$password</span></span>)
+    {
+        <span class="hljs-variable">$websiteId</span> = <span class="hljs-variable">$this</span>-&gt;<span class="hljs-title">storeManager</span>-&gt;<span class="hljs-title">getWebsite</span>()-&gt;<span class="hljs-title">getId</span>();
+        <span class="hljs-variable">$storeId</span> = <span class="hljs-variable">$this</span>-&gt;<span class="hljs-title">storeManager</span>-&gt;<span class="hljs-title">getStore</span>()-&gt;<span class="hljs-title">getId</span>();
+
+        <span class="hljs-comment">// Create customer DTO</span>
+        <span class="hljs-variable">$customer</span> = <span class="hljs-variable">$this</span>-&gt;<span class="hljs-title">customerFactory</span>-&gt;<span class="hljs-title">create</span>();
+        <span class="hljs-variable">$customer</span>-&gt;<span class="hljs-title">setWebsiteId</span>(<span class="hljs-variable">$websiteId</span>);
+        <span class="hljs-variable">$customer</span>-&gt;<span class="hljs-title">setStoreId</span>(<span class="hljs-variable">$storeId</span>);
+        <span class="hljs-variable">$customer</span>-&gt;<span class="hljs-title">setEmail</span>(<span class="hljs-variable">$email</span>);
+        <span class="hljs-variable">$customer</span>-&gt;<span class="hljs-title">setFirstname</span>(<span class="hljs-variable">$firstname</span>);
+        <span class="hljs-variable">$customer</span>-&gt;<span class="hljs-title">setLastname</span>(<span class="hljs-variable">$lastname</span>);
+        <span class="hljs-variable">$customer</span>-&gt;<span class="hljs-title">setGroupId</span>(<span class="hljs-number">1</span>); <span class="hljs-comment">// General group</span>
+
+        <span class="hljs-comment">// Hash password</span>
+        <span class="hljs-variable">$passwordHash</span> = <span class="hljs-variable">$this</span>-&gt;<span class="hljs-title">encryptor</span>-&gt;<span class="hljs-title">getHash</span>(<span class="hljs-variable">$password</span>, <span class="hljs-literal">true</span>);
+
+        <span class="hljs-keyword">try</span> {
+            <span class="hljs-comment">// Save customer (TransactionWrapper ensures atomicity)</span>
+            <span class="hljs-variable">$savedCustomer</span> = <span class="hljs-variable">$this</span>-&gt;<span class="hljs-title">customerRepository</span>-&gt;<span class="hljs-title">save</span>(<span class="hljs-variable">$customer</span>, <span class="hljs-variable">$passwordHash</span>);
+            <span class="hljs-keyword">return</span> <span class="hljs-variable">$savedCustomer</span>;
+        } <span class="hljs-keyword">catch</span> (\<span class="hljs-title">Magento</span>\<span class="hljs-title">Framework</span>\<span class="hljs-title">Exception</span>\<span class="hljs-title">InputException</span> <span class="hljs-variable">$e</span>) {
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> \<span class="hljs-title">Exception</span>(<span class="hljs-string">'Invalid customer data: '</span> . <span class="hljs-variable">$e</span>-&gt;<span class="hljs-title">getMessage</span>());
+        } <span class="hljs-keyword">catch</span> (\<span class="hljs-title">Magento</span>\<span class="hljs-title">Framework</span>\<span class="hljs-title">Exception</span>\<span class="hljs-title">State</span>\<span class="hljs-title">InputMismatchException</span> <span class="hljs-variable">$e</span>) {
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> \<span class="hljs-title">Exception</span>(<span class="hljs-string">'Email already exists'</span>);
+        }
+    }
+
+    <span class="hljs-comment">/**
+     * Update customer information
+     */</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">function</span> <span class="hljs-title">updateCustomer</span>(<span class="hljs-params"><span class="hljs-variable">$customerId</span>, <span class="hljs-variable">$firstname</span>, <span class="hljs-variable">$lastname</span></span>)
+    {
+        <span class="hljs-keyword">try</span> {
+            <span class="hljs-comment">// Load existing customer (fast primary key lookup)</span>
+            <span class="hljs-variable">$customer</span> = <span class="hljs-variable">$this</span>-&gt;<span class="hljs-title">customerRepository</span>-&gt;<span class="hljs-title">getById</span>(<span class="hljs-variable">$customerId</span>);
+
+            <span class="hljs-comment">// Update fields</span>
+            <span class="hljs-variable">$customer</span>-&gt;<span class="hljs-title">setFirstname</span>(<span class="hljs-variable">$firstname</span>);
+            <span class="hljs-variable">$customer</span>-&gt;<span class="hljs-title">setLastname</span>(<span class="hljs-variable">$lastname</span>);
+
+            <span class="hljs-comment">// Save (no password hash = password unchanged)</span>
+            <span class="hljs-variable">$savedCustomer</span> = <span class="hljs-variable">$this</span>-&gt;<span class="hljs-title">customerRepository</span>-&gt;<span class="hljs-title">save</span>(<span class="hljs-variable">$customer</span>);
+
+            <span class="hljs-keyword">return</span> <span class="hljs-variable">$savedCustomer</span>;
+        } <span class="hljs-keyword">catch</span> (\<span class="hljs-title">Magento</span>\<span class="hljs-title">Framework</span>\<span class="hljs-title">Exception</span>\<span class="hljs-title">NoSuchEntityException</span> <span class="hljs-variable">$e</span>) {
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> \<span class="hljs-title">Exception</span>(<span class="hljs-string">'Customer not found'</span>);
+        }
+    }
+}</code></pre>
+        </div>
+      </section>
+
+      <!-- ============================================= -->
+      <!-- STYLE REFERENCE - MASTER COMPONENT LIBRARY   -->
+      <!-- ============================================= -->
+
+      <section class="mb-12 border-t-4 border-magento-charcoal-300 pt-12">
+        <h2 class="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+          <svg class="w-8 h-8 text-magento-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/></svg>
+          Style Reference - Component Library
+        </h2>
+        <p class="text-magento-charcoal-400 mb-8">This section documents all styling patterns used across the Magento Core documentation. Use these as templates when building new documentation pages.</p>
+
+        <!-- TAILWIND CONFIG & HEAD TEMPLATE -->
+        <div class="bg-white mb-8 p-8 border-t-4 border-magento-gold-500 shadow-sm">
+          <h3 class="text-2xl font-bold text-magento-charcoal mb-4">Tailwind Config & Head Template</h3>
+          <p class="text-magento-charcoal/80 mb-6">Copy this complete head section for new documentation pages. Includes Tailwind config, fonts, Alpine.js, and highlight.js.</p>
+
+          <div class="code-block mb-6 shadow-md overflow-hidden">
+            <div class="code-header bg-magento-charcoal-700 px-4 py-2 flex justify-between items-center border-b border-magento-charcoal-600">
+              <span class="text-magento-gold-400 text-sm font-semibold tracking-wide">HTML - Complete Head Template</span>
+              <button onclick="copyCode(this)" class="copy-btn flex items-center gap-1.5 text-gray-400 hover:text-white text-xs font-medium transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                </svg>
+                <span>Copy</span>
+              </button>
+            </div>
+            <pre class="bg-magento-charcoal-800 p-4 overflow-x-auto m-0 text-sm leading-relaxed"><code class="language-html text-gray-100">&lt;!DOCTYPE html&gt;
+&lt;html lang="en" class="scroll-smooth"&gt;
+&lt;head&gt;
+  &lt;meta charset="UTF-8"&gt;
+  &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+  &lt;title&gt;Page Title | Magento Core Documentation&lt;/title&gt;
+  &lt;script src="https://cdn.tailwindcss.com"&gt;&lt;/script&gt;
+  &lt;script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"&gt;&lt;/script&gt;
+  &lt;script&gt;
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'magento-orange': {
+              DEFAULT: '#f26423',
+              50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad', 300: '#f9ae78',
+              400: '#f58242', 500: '#f26423', 600: '#e34613', 700: '#bc3312',
+              800: '#962a16', 900: '#792515', 950: '#411009'
+            },
+            'magento-gold': {
+              DEFAULT: '#f1bc1b',
+              50: '#fffdeb', 100: '#fdf9c8', 200: '#fbf38c', 300: '#f8e651',
+              400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a', 700: '#b1670c',
+              800: '#8f5111', 900: '#764311', 950: '#442204'
+            },
+            'magento-charcoal': {
+              DEFAULT: '#2c2c2c',
+              50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6', 300: '#818181',
+              400: '#474747', 500: '#2c2c2c', 600: '#262626', 700: '#202020',
+              800: '#1c1c1c', 900: '#191919', 950: '#121212'
+            },
+          },
+          fontFamily: {
+            sans: ['Inter Tight', 'system-ui', 'sans-serif'],
+            mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', 'monospace'],
+          },
+        }
+      }
+    }
+  &lt;/script&gt;
+  &lt;style&gt;
+    @import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&amp;display=swap');
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  &lt;/style&gt;
+  &lt;!-- Syntax Highlighting (include if page has code blocks) --&gt;
+  &lt;script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"&gt;&lt;/script&gt;
+  &lt;script&gt;hljs.highlightAll();&lt;/script&gt;
+  &lt;style&gt;
+    [x-cloak] { display: none !important; }
+    /* VS Code Dark+ Theme */
+    .hljs { background: transparent; }
+    .hljs-comment { color: #6a9955; }
+    .hljs-keyword { color: #569cd6; }
+    .hljs-function .hljs-title, .hljs-title.function_ { color: #dcdcaa; }
+    .hljs-variable, .hljs-variable.language_ { color: #9cdcfe; }
+    .hljs-string { color: #ce9178; }
+    .hljs-number { color: #b5cea8; }
+    .hljs-literal, .hljs-built_in { color: #569cd6; }
+    .hljs-type, .hljs-title.class_ { color: #4ec9b0; }
+    .hljs-tag, .hljs-name { color: #569cd6; }
+  &lt;/style&gt;
+&lt;/head&gt;</code></pre>
+          </div>
+
+          <h4 class="text-lg font-semibold text-magento-charcoal mb-3">Brand Color Reference</h4>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div class="border border-magento-charcoal/20 p-4">
+              <div class="flex gap-2 mb-3">
+                <div class="w-8 h-8 bg-magento-orange-500 border border-magento-charcoal/20"></div>
+                <div class="w-8 h-8 bg-magento-orange-600 border border-magento-charcoal/20"></div>
+                <div class="w-8 h-8 bg-magento-orange-700 border border-magento-charcoal/20"></div>
+              </div>
+              <p class="font-semibold text-magento-charcoal">magento-orange</p>
+              <p class="text-sm text-magento-charcoal/70">Primary accent, CTAs, borders</p>
+              <code class="text-xs bg-magento-charcoal-50 px-1">#f26423</code>
+            </div>
+            <div class="border border-magento-charcoal/20 p-4">
+              <div class="flex gap-2 mb-3">
+                <div class="w-8 h-8 bg-magento-gold-400 border border-magento-charcoal/20"></div>
+                <div class="w-8 h-8 bg-magento-gold-500 border border-magento-charcoal/20"></div>
+                <div class="w-8 h-8 bg-magento-gold-600 border border-magento-charcoal/20"></div>
+              </div>
+              <p class="font-semibold text-magento-charcoal">magento-gold</p>
+              <p class="text-sm text-magento-charcoal/70">Callouts, tips, highlights</p>
+              <code class="text-xs bg-magento-charcoal-50 px-1">#f1bc1b</code>
+            </div>
+            <div class="border border-magento-charcoal/20 p-4">
+              <div class="flex gap-2 mb-3">
+                <div class="w-8 h-8 bg-magento-charcoal-500 border border-magento-charcoal/20"></div>
+                <div class="w-8 h-8 bg-magento-charcoal-700 border border-magento-charcoal/20"></div>
+                <div class="w-8 h-8 bg-magento-charcoal-800 border border-magento-charcoal/20"></div>
+              </div>
+              <p class="font-semibold text-magento-charcoal">magento-charcoal</p>
+              <p class="text-sm text-magento-charcoal/70">Text, headers, code blocks</p>
+              <code class="text-xs bg-magento-charcoal-50 px-1">#2c2c2c</code>
+            </div>
+          </div>
+
+          <div class="bg-magento-orange-50 border-l-4 border-magento-orange-500 p-4">
+            <p class="text-sm text-magento-orange-800"><strong>Important:</strong> Only use these three brand colors. Never use vanilla Tailwind colors like <code class="bg-white/50 px-1">blue-500</code>, <code class="bg-white/50 px-1">purple-600</code>, or <code class="bg-white/50 px-1">green-500</code>.</p>
+          </div>
+        </div>
+
+        <!-- EXECUTION FLOW STEPS -->
+        <div class="bg-white mb-8 p-8 border-t-4 border-magento-gold-500 shadow-sm">
+          <h3 class="text-2xl font-bold text-magento-charcoal mb-4">Execution Flow Steps</h3>
+          <p class="text-magento-charcoal/80 mb-6">Use for step-by-step processes, execution sequences, or numbered workflows.</p>
+
+          <div class="space-y-4">
+            <div class="bg-gradient-to-r from-magento-orange-50 to-transparent border-l-4 border-magento-orange pl-6 pr-4 py-5 shadow-sm">
+              <div class="flex items-center gap-4 mb-3">
+                <div class="w-10 h-10 bg-magento-orange text-white flex items-center justify-center font-bold text-lg flex-shrink-0 shadow-md">1</div>
+                <h4 class="text-lg font-bold text-magento-charcoal m-0">Step Title</h4>
+              </div>
+              <div class="ml-14">
+                <p class="text-magento-charcoal-400 leading-relaxed">Step description with single paragraph.</p>
+              </div>
+            </div>
+
+            <div class="bg-gradient-to-r from-magento-orange-50 to-transparent border-l-4 border-magento-orange pl-6 pr-4 py-5 shadow-sm">
+              <div class="flex items-center gap-4 mb-3">
+                <div class="w-10 h-10 bg-magento-orange text-white flex items-center justify-center font-bold text-lg flex-shrink-0 shadow-md">2</div>
+                <h4 class="text-lg font-bold text-magento-charcoal m-0">Step With List Items</h4>
+              </div>
+              <div class="ml-14">
+                <ul class="space-y-2 text-magento-charcoal-400">
+                  <li class="flex gap-2"><span class="text-magento-orange-500 font-bold">→</span> First action item</li>
+                  <li class="flex gap-2"><span class="text-magento-orange-500 font-bold">→</span> Second action item</li>
+                  <li class="flex gap-2"><span class="text-magento-orange-500 font-bold">→</span> Third action item</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="bg-gradient-to-r from-magento-orange-50 to-transparent border-l-4 border-magento-orange pl-6 pr-4 py-5 shadow-sm">
+              <div class="flex items-center gap-4 mb-3">
+                <div class="w-10 h-10 bg-magento-orange text-white flex items-center justify-center font-bold text-lg flex-shrink-0 shadow-md">3</div>
+                <h4 class="text-lg font-bold text-magento-charcoal m-0">Step With Code Reference</h4>
+              </div>
+              <div class="ml-14">
+                <p class="text-magento-charcoal-400 leading-relaxed">Call service contract: <code class="bg-white/50 px-2 py-1 text-magento-charcoal">ServiceInterface::method($param)</code></p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- KEY POINTS CALLOUT -->
+        <div class="bg-white mb-8 p-8 border-t-4 border-magento-gold-500 shadow-sm">
+          <h3 class="text-2xl font-bold text-magento-charcoal mb-4">Key Points Callout</h3>
+          <p class="text-magento-charcoal/80 mb-6">Use at the end of execution flows or sections to highlight important takeaways.</p>
+
+          <div class="bg-magento-gold-50 border-l-4 border-magento-gold-500 p-6 shadow-sm">
+            <div class="flex items-center gap-3 mb-4">
+              <svg class="w-6 h-6 text-magento-gold-700 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+              </svg>
+              <h4 class="text-lg font-bold text-magento-gold-900">Key Points</h4>
+            </div>
+            <div class="space-y-4 ml-9">
+              <div class="flex gap-3">
+                <svg class="w-5 h-5 text-magento-gold-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+                <div>
+                  <p class="font-semibold text-magento-gold-900">Point Title</p>
+                  <p class="text-sm text-magento-gold-800 leading-relaxed">Detailed explanation of this key point with additional context.</p>
+                </div>
+              </div>
+              <div class="flex gap-3">
+                <svg class="w-5 h-5 text-magento-gold-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+                <div>
+                  <p class="font-semibold text-magento-gold-900">Another Key Point</p>
+                  <p class="text-sm text-magento-gold-800 leading-relaxed">Second important takeaway from this section.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ENTRY POINT SECTION -->
+        <div class="bg-white mb-8 p-8 border-t-4 border-magento-gold-500 shadow-sm">
+          <h3 class="text-2xl font-bold text-magento-charcoal mb-4">Entry Point Section</h3>
+          <p class="text-magento-charcoal/80 mb-6">Use to document API endpoints, controllers, or service entry points.</p>
+
+          <div class="border-l-4 border-magento-orange-500 pl-4">
+            <h4 class="text-lg font-semibold text-magento-charcoal mb-2">Entry Point</h4>
+            <p class="text-sm text-magento-charcoal/80 mb-1"><strong>Controller:</strong> <code class="bg-[#FAFAFA] px-2 py-1">Magento\Module\Controller\Action::execute()</code></p>
+            <p class="text-sm text-magento-charcoal/80 mb-1"><strong>Route:</strong> <code class="bg-[#FAFAFA] px-2 py-1">POST /module/action/endpoint</code></p>
+            <p class="text-sm text-magento-charcoal/80"><strong>Area:</strong> frontend</p>
+          </div>
+        </div>
+
+        <!-- WARNING/ERROR CALLOUTS -->
+        <div class="bg-white mb-8 p-8 border-t-4 border-magento-gold-500 shadow-sm">
+          <h3 class="text-2xl font-bold text-magento-charcoal mb-4">Warning &amp; Error Callouts</h3>
+          <p class="text-magento-charcoal/80 mb-6">Use for highlighting problems, anti-patterns, or critical warnings.</p>
+
+          <div class="space-y-4">
+            <div class="bg-magento-orange-50 border-l-4 border-magento-orange-600 p-6">
+              <h4 class="font-bold text-magento-orange-900 mb-3 text-lg">Why It's Bad</h4>
+              <ul class="space-y-2 text-magento-orange-800">
+                <li class="flex gap-2"><span class="font-bold">→</span> First reason this approach is problematic</li>
+                <li class="flex gap-2"><span class="font-bold">→</span> Second consequence of this anti-pattern</li>
+                <li class="flex gap-2"><span class="font-bold">→</span> Third issue that will arise</li>
+              </ul>
+            </div>
+
+            <div class="bg-magento-orange-50 border-l-4 border-magento-orange-500 p-4">
+              <div class="flex">
+                <div class="flex-shrink-0">
+                  <svg class="h-5 w-5 text-magento-orange-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                  </svg>
+                </div>
+                <div class="ml-3">
+                  <p class="text-sm font-semibold text-magento-orange-800">CRITICAL SEVERITY</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SUCCESS/SOLUTION CALLOUTS -->
+        <div class="bg-white mb-8 p-8 border-t-4 border-magento-gold-500 shadow-sm">
+          <h3 class="text-2xl font-bold text-magento-charcoal mb-4">Success &amp; Solution Callouts</h3>
+          <p class="text-magento-charcoal/80 mb-6">Use for highlighting correct approaches, best practices, or solutions.</p>
+
+          <div class="bg-magento-gold-50 border-l-4 border-magento-gold-600 p-6">
+            <h4 class="font-bold text-magento-gold-900 mb-3 text-lg">Why It's Better</h4>
+            <ul class="space-y-2 text-magento-gold-800">
+              <li class="flex gap-2"><span class="font-bold">✓</span> First benefit of this approach</li>
+              <li class="flex gap-2"><span class="font-bold">✓</span> Second advantage</li>
+              <li class="flex gap-2"><span class="font-bold">✓</span> Third positive outcome</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- BAD/GOOD CODE COMPARISON -->
+        <div class="bg-white mb-8 p-8 border-t-4 border-magento-gold-500 shadow-sm">
+          <h3 class="text-2xl font-bold text-magento-charcoal mb-4">Bad/Good Code Comparison</h3>
+          <p class="text-magento-charcoal/80 mb-6">Use for anti-pattern documentation showing incorrect vs correct implementations.</p>
+
+          <div class="space-y-4">
+            <div>
+              <div class="bg-magento-charcoal text-white px-4 py-2 text-sm font-medium flex justify-between items-center">
+                <span>Bad Code Example</span>
+                <span class="bg-magento-orange-600 px-3 py-1 text-xs font-bold uppercase">Bad</span>
+              </div>
+              <pre class="bg-magento-charcoal-800 text-gray-100 p-4 text-sm overflow-x-auto m-0"><code>// WRONG: Direct model manipulation
+$customer = $this->customerFactory->create();
+$customer->load($customerId);
+$customer->save();</code></pre>
+            </div>
+
+            <div>
+              <div class="bg-magento-charcoal text-white px-4 py-2 text-sm font-medium flex justify-between items-center">
+                <span>Good Code Example</span>
+                <span class="bg-magento-gold-600 px-3 py-1 text-xs font-bold uppercase">Good</span>
+              </div>
+              <pre class="bg-magento-charcoal-800 text-gray-100 p-4 text-sm overflow-x-auto m-0"><code>// CORRECT: Use repository service contract
+$customer = $this->customerRepository->getById($customerId);
+$this->customerRepository->save($customer);</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- STATISTICS GRID -->
+        <div class="bg-white mb-8 p-8 border-t-4 border-magento-gold-500 shadow-sm">
+          <h3 class="text-2xl font-bold text-magento-charcoal mb-4">Statistics Grid</h3>
+          <p class="text-magento-charcoal/80 mb-6">Use for displaying key metrics, issue counts, or summary statistics.</p>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="border-l-4 border-magento-orange-500 pl-4">
+              <div class="text-3xl font-bold text-magento-orange-500">42</div>
+              <div class="text-sm text-magento-charcoal/70">Metric Label</div>
+            </div>
+            <div class="border-l-4 border-magento-gold-500 pl-4">
+              <div class="text-3xl font-bold text-magento-gold-600">128</div>
+              <div class="text-sm text-magento-charcoal/70">Another Metric</div>
+            </div>
+            <div class="border-l-4 border-magento-charcoal-300 pl-4">
+              <div class="text-3xl font-bold text-magento-charcoal">99%</div>
+              <div class="text-sm text-magento-charcoal/70">Success Rate</div>
+            </div>
+            <div class="border-l-4 border-magento-orange-500 pl-4">
+              <div class="text-3xl font-bold text-magento-orange-500">15ms</div>
+              <div class="text-sm text-magento-charcoal/70">Response Time</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DATA TABLE -->
+        <div class="bg-white mb-8 p-8 border-t-4 border-magento-gold-500 shadow-sm">
+          <h3 class="text-2xl font-bold text-magento-charcoal mb-4">Data Table</h3>
+          <p class="text-magento-charcoal/80 mb-6">Use for structured data, issue metadata, or comparison tables.</p>
+
+          <div class="overflow-x-auto">
+            <table class="min-w-full text-sm border border-magento-charcoal/20">
+              <tbody class="bg-white">
+                <tr>
+                  <td class="px-4 py-2 border-b border-magento-charcoal/10 font-semibold w-1/3">Property</td>
+                  <td class="px-4 py-2 border-b border-magento-charcoal/10">Value or description</td>
+                </tr>
+                <tr>
+                  <td class="px-4 py-2 border-b border-magento-charcoal/10 font-semibold">Link Property</td>
+                  <td class="px-4 py-2 border-b border-magento-charcoal/10">
+                    <a href="#" class="text-magento-orange-500 hover:underline">#12345</a>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="px-4 py-2 border-b border-magento-charcoal/10 font-semibold">Status</td>
+                  <td class="px-4 py-2 border-b border-magento-charcoal/10">Active</td>
+                </tr>
+                <tr>
+                  <td class="px-4 py-2 font-semibold">Last Property</td>
+                  <td class="px-4 py-2">Final value (no bottom border)</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- TWO COLUMN GRID -->
+        <div class="bg-white mb-8 p-8 border-t-4 border-magento-gold-500 shadow-sm">
+          <h3 class="text-2xl font-bold text-magento-charcoal mb-4">Two Column Grid</h3>
+          <p class="text-magento-charcoal/80 mb-6">Use for side-by-side content, related information, or comparison layouts.</p>
+
+          <div class="grid md:grid-cols-2 gap-6">
+            <div class="bg-magento-gold-50 border border-magento-gold-200 p-4">
+              <h4 class="text-lg font-semibold text-magento-gold-900 mb-3">Left Column Title</h4>
+              <ul class="text-sm text-magento-gold-800 space-y-1">
+                <li>First item in list</li>
+                <li>Second item in list</li>
+                <li>Third item in list</li>
+              </ul>
+            </div>
+
+            <div class="bg-magento-orange-50 border border-magento-orange-200 p-4">
+              <h4 class="text-lg font-semibold text-magento-orange-900 mb-3">Right Column Title</h4>
+              <ul class="text-sm text-magento-orange-800 space-y-2">
+                <li><strong>Bold item:</strong> with description</li>
+                <li><strong>Another bold:</strong> with more info</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- TABLE OF CONTENTS -->
+        <div class="bg-white mb-8 p-8 border-t-4 border-magento-gold-500 shadow-sm">
+          <h3 class="text-2xl font-bold text-magento-charcoal mb-4">Table of Contents</h3>
+          <p class="text-magento-charcoal/80 mb-6">Use at the top of long pages for navigation.</p>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <h4 class="text-lg font-semibold text-magento-charcoal mb-2">Category One</h4>
+              <ul class="space-y-2">
+                <li><a href="#section-1" class="text-magento-orange-500 hover:underline transition-colors">Section 1 Link</a></li>
+                <li><a href="#section-2" class="text-magento-orange-500 hover:underline transition-colors">Section 2 Link</a></li>
+              </ul>
+            </div>
+            <div>
+              <h4 class="text-lg font-semibold text-magento-charcoal mb-2">Category Two</h4>
+              <ul class="space-y-2">
+                <li><a href="#section-3" class="text-magento-orange-500 hover:underline transition-colors">Section 3 Link</a></li>
+                <li><a href="#section-4" class="text-magento-orange-500 hover:underline transition-colors">Section 4 Link</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- PLUGIN/CARD GRID -->
+        <div class="bg-white mb-8 p-8 border-t-4 border-magento-gold-500 shadow-sm">
+          <h3 class="text-2xl font-bold text-magento-charcoal mb-4">Plugin/Card Grid</h3>
+          <p class="text-magento-charcoal/80 mb-6">Use for listing plugins, observers, or related components with metadata.</p>
+
+          <div class="grid md:grid-cols-2 gap-6">
+            <div class="bg-magento-orange-50 border border-magento-orange-200 p-4">
+              <div class="flex items-center mb-3">
+                <span class="bg-magento-orange-600 text-white text-xs font-bold px-2 py-1 mr-2">sortOrder: -1</span>
+                <h4 class="text-lg font-semibold text-magento-orange-900">Plugin Name</h4>
+              </div>
+              <ul class="text-sm text-magento-orange-800 space-y-1">
+                <li>What this plugin does</li>
+                <li>When it executes</li>
+                <li>Important behavior</li>
+              </ul>
+            </div>
+
+            <div class="bg-magento-gold-50 border border-magento-gold-500 p-4">
+              <div class="flex items-center mb-3">
+                <span class="bg-magento-charcoal-500 text-white text-xs font-bold px-2 py-1 mr-2">webapi_rest</span>
+                <h4 class="text-lg font-semibold text-magento-gold-900">Another Plugin</h4>
+              </div>
+              <p class="text-sm text-magento-gold-900">Single line description of this plugin's purpose.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION HEADERS -->
+        <div class="bg-white mb-8 p-8 border-t-4 border-magento-gold-500 shadow-sm">
+          <h3 class="text-2xl font-bold text-magento-charcoal mb-4">Section Headers</h3>
+          <p class="text-magento-charcoal/80 mb-6">Various header styles for different section types.</p>
+
+          <div class="space-y-8">
+            <div>
+              <p class="text-sm text-magento-charcoal/60 mb-2">Page Section Header:</p>
+              <h4 class="text-3xl font-bold text-magento-charcoal border-b-4 border-magento-orange-500 pb-3">Major Section Title</h4>
+            </div>
+
+            <div>
+              <p class="text-sm text-magento-charcoal/60 mb-2">Content Card Header:</p>
+              <h4 class="text-2xl font-bold text-magento-charcoal mb-4 border-b-2 border-magento-orange-500 pb-3">Card Section Title</h4>
+            </div>
+
+            <div>
+              <p class="text-sm text-magento-charcoal/60 mb-2">Subsection Header:</p>
+              <h4 class="text-xl font-semibold text-magento-charcoal mb-3">Subsection Title</h4>
+            </div>
+          </div>
+        </div>
+
+        <!-- HEADER TAGS -->
+        <div class="bg-white mb-8 p-8 border-t-4 border-magento-gold-500 shadow-sm">
+          <h3 class="text-2xl font-bold text-magento-charcoal mb-4">Header Tags/Badges</h3>
+          <p class="text-magento-charcoal/80 mb-6">Use in page headers to show metadata, categories, or status.</p>
+
+          <div class="bg-magento-charcoal-600 p-4">
+            <div class="flex flex-wrap gap-3 text-sm">
+              <span class="inline-flex items-center gap-1.5 bg-magento-orange-500/20 text-magento-gold-400 px-3 py-1.5 border border-magento-orange-500/40">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                Primary Tag
+              </span>
+              <span class="inline-flex items-center gap-1.5 bg-white/10 text-gray-300 px-3 py-1.5 border border-white/20">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                Secondary Tag
+              </span>
+              <span class="inline-flex items-center gap-1.5 bg-magento-gold-500/20 text-magento-gold-400 px-3 py-1.5 border border-magento-gold-500/40">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                Gold Tag
+              </span>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+    </div>
+  </main>
+
+  <footer class="bg-white border-t mt-16 py-8">
+    <div class="max-w-7xl mx-auto px-4 text-center text-sm text-gray-500">
+      <p>Last Updated: 2025-12-31 | <a href="index.html" class="text-magento-orange-800 hover:underline transition-colors">Back to Home</a></p>
+    </div>
+  </footer>
+
+  <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="fixed bottom-8 right-8 bg-magento-orange-600 text-white p-3  shadow-lg hover:bg-magento-orange-700" aria-label="Back to top">
+    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/>
+    </svg>
+  </button>
+</body>
+</html>

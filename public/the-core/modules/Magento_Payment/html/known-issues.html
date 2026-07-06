@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Known Issues - Magento_Payment Module</title>
+    <meta name="description" content="Verified payment-related bugs and issues with workarounds in Magento 2.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'magento-orange': {
+                            DEFAULT: '#f26423',
+                            50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad', 300: '#f9ae78',
+                            400: '#f58242', 500: '#f26423', 600: '#e34613', 700: '#bc3312',
+                            800: '#962a16', 900: '#792515', 950: '#411009'
+                        },
+                        'magento-gold': {
+                            DEFAULT: '#f1bc1b',
+                            50: '#fffdeb', 100: '#fdf9c8', 200: '#fbf38c', 300: '#f8e651',
+                            400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a', 700: '#b1670c',
+                            800: '#8f5111', 900: '#764311', 950: '#442204'
+                        },
+                        'magento-charcoal': {
+                            DEFAULT: '#2c2c2c',
+                            50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6', 300: '#818181',
+                            400: '#474747', 500: '#2c2c2c', 600: '#262626', 700: '#202020',
+                            800: '#1c1c1c', 900: '#191919', 950: '#121212'
+                        },
+                    },
+                    fontFamily: {
+                        sans: ['Inter Tight', 'system-ui', 'sans-serif'],
+                        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&display=swap');
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+        pre { background: #1c1c1c; border-radius: 0; }
+        code { font-family: 'JetBrains Mono', 'Fira Code', monospace; }
+    </style>
+</head>
+<body class="bg-[#FAFAFA] text-magento-charcoal">
+
+    <!-- Header -->
+    <header class="bg-gradient-to-br from-magento-charcoal-500 via-magento-charcoal-600 to-magento-charcoal-700 border-b-8 border-magento-gold-500">
+        <!-- back-to-developer-docs -->
+        <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 pt-4"><a href="/developer/" aria-label="Back to Developer Docs" class="inline-flex items-center gap-1.5 text-sm font-medium text-white/70 hover:text-white transition-colors no-underline"><span aria-hidden="true">←</span> Developer Docs</a></div>
+        <div class="max-w-6xl mx-auto px-6 py-8">
+            <nav class="mb-4" aria-label="Breadcrumb">
+                <ol class="flex items-center gap-2 text-sm text-gray-400">
+                    <li><a href="../../../index.html" class="hover:text-white transition-colors">Home</a></li>
+                    <li><span class="mx-2">/</span></li>
+                    <li><a href="index.html" class="hover:text-white transition-colors">Magento_Payment</a></li>
+                    <li><span class="mx-2">/</span></li>
+                    <li><span class="text-magento-gold-400">Known Issues</span></li>
+                </ol>
+            </nav>
+            <h1 class="text-3xl font-bold text-white">Known Issues</h1>
+            <p class="text-gray-300 mt-2">Verified payment bugs with workarounds and prevention patterns</p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="max-w-6xl mx-auto px-6 py-12">
+
+        <!-- Issue Summary -->
+        <section class="bg-white p-6 shadow-sm mb-8 border-l-4 border-magento-orange-500">
+            <div class="grid grid-cols-3 gap-4 text-center">
+                <div>
+                    <div class="text-3xl font-bold text-magento-orange-600">3</div>
+                    <div class="text-sm text-gray-600">Critical Issues</div>
+                </div>
+                <div>
+                    <div class="text-3xl font-bold text-magento-gold-600">4</div>
+                    <div class="text-sm text-gray-600">Major Issues</div>
+                </div>
+                <div>
+                    <div class="text-3xl font-bold text-magento-charcoal">2</div>
+                    <div class="text-sm text-gray-600">Minor Issues</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Critical Issues -->
+        <section class="mb-12">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-4 h-8 bg-magento-orange-600"></div>
+                <h2 class="text-2xl font-bold text-magento-charcoal">Critical Issues</h2>
+            </div>
+
+            <div class="space-y-6">
+                <!-- Issue 1 -->
+                <article class="bg-white shadow-sm border-l-4 border-magento-orange-600">
+                    <div class="p-6">
+                        <div class="flex items-start justify-between mb-4">
+                            <div>
+                                <span class="inline-block bg-magento-orange-100 text-magento-orange-800 px-2 py-1 text-xs font-semibold mb-2">CRITICAL</span>
+                                <h3 class="text-xl font-bold text-magento-charcoal">Payment Method Becomes Unavailable Mid-Checkout</h3>
+                            </div>
+                        </div>
+
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div>
+                                <h4 class="font-semibold text-magento-charcoal mb-2">Problem</h4>
+                                <p class="text-sm text-gray-700 mb-4">
+                                    If a payment method's availability rules change (min/max order total, allowed countries) while
+                                    customer is in checkout, they can encounter a silent failure when placing the order. The quote
+                                    still has the payment method set, but it's no longer valid.
+                                </p>
+
+                                <h4 class="font-semibold text-magento-charcoal mb-2">Impact</h4>
+                                <ul class="text-sm text-gray-700 space-y-1">
+                                    <li>- Order placement fails with generic error</li>
+                                    <li>- Customer loses their cart configuration</li>
+                                    <li>- Payment gateway may have pending authorization</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-magento-charcoal mb-2">Workaround</h4>
+                                <div class="bg-charcoal text-gray-100 p-3 text-xs overflow-x-auto">
+                                    <pre><code>// Add validation before order placement
+class ValidatePaymentPlugin
+{
+    public function beforePlace(
+        \Magento\Quote\Model\QuoteManagement $subject,
+        CartInterface $quote,
+        PaymentInterface $payment = null
+    ) {
+        $method = $quote->getPayment()->getMethod();
+        $instance = $this->methodFactory->create($method);
+
+        if (!$instance->isAvailable($quote)) {
+            throw new LocalizedException(
+                __('Selected payment method is no longer available.')
+            );
+        }
+    }
+}</code></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Issue 2 -->
+                <article class="bg-white shadow-sm border-l-4 border-magento-orange-600">
+                    <div class="p-6">
+                        <div class="flex items-start justify-between mb-4">
+                            <div>
+                                <span class="inline-block bg-magento-orange-100 text-magento-orange-800 px-2 py-1 text-xs font-semibold mb-2">CRITICAL</span>
+                                <h3 class="text-xl font-bold text-magento-charcoal">Gateway Response Handler Swallows Exceptions</h3>
+                            </div>
+                        </div>
+
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div>
+                                <h4 class="font-semibold text-magento-charcoal mb-2">Problem</h4>
+                                <p class="text-sm text-gray-700 mb-4">
+                                    If a response handler throws an exception after a successful gateway authorization, the exception
+                                    may be caught and order placement fails, but the authorization remains active on the gateway.
+                                    Customer is charged later or funds are held.
+                                </p>
+
+                                <h4 class="font-semibold text-magento-charcoal mb-2">Impact</h4>
+                                <ul class="text-sm text-gray-700 space-y-1">
+                                    <li>- Orphaned authorizations on payment gateway</li>
+                                    <li>- Customer funds held without order</li>
+                                    <li>- Manual reconciliation required</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-magento-charcoal mb-2">Workaround</h4>
+                                <div class="bg-charcoal text-gray-100 p-3 text-xs overflow-x-auto">
+                                    <pre><code>// Implement void command on failure
+class SafeResponseHandler implements HandlerInterface
+{
+    public function handle(array $handlingSubject, array $response)
+    {
+        try {
+            // Normal handler logic
+            $this->processResponse($handlingSubject, $response);
+        } catch (\Exception $e) {
+            // Void the transaction
+            $this->voidCommand->execute($handlingSubject);
+            throw $e;
+        }
+    }
+}</code></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Issue 3 -->
+                <article class="bg-white shadow-sm border-l-4 border-magento-orange-600">
+                    <div class="p-6">
+                        <div class="flex items-start justify-between mb-4">
+                            <div>
+                                <span class="inline-block bg-magento-orange-100 text-magento-orange-800 px-2 py-1 text-xs font-semibold mb-2">CRITICAL</span>
+                                <h3 class="text-xl font-bold text-magento-charcoal">Sensitive Data in additional_information</h3>
+                            </div>
+                        </div>
+
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div>
+                                <h4 class="font-semibold text-magento-charcoal mb-2">Problem</h4>
+                                <p class="text-sm text-gray-700 mb-4">
+                                    Custom payment methods sometimes store full credit card numbers, CVV, or other sensitive data
+                                    in the payment additional_information field. This data is persisted to the database unencrypted
+                                    and may be exposed in admin, logs, or exports.
+                                </p>
+
+                                <h4 class="font-semibold text-magento-charcoal mb-2">Impact</h4>
+                                <ul class="text-sm text-gray-700 space-y-1">
+                                    <li>- PCI compliance violation</li>
+                                    <li>- Data breach risk</li>
+                                    <li>- Legal liability</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-magento-charcoal mb-2">Prevention</h4>
+                                <div class="bg-charcoal text-gray-100 p-3 text-xs overflow-x-auto">
+                                    <pre><code>// NEVER store these in additional_information:
+// - Full card number (cc_number)
+// - CVV/CVC (cc_cid)
+// - Full expiration date
+
+// Instead, store only:
+$payment->setAdditionalInformation([
+    'cc_type' => 'VI',        // OK
+    'cc_last4' => '1111',     // OK
+    'transaction_id' => '...', // OK
+    'auth_code' => '...',      // OK
+]);
+
+// Use Vault for tokenization</code></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <!-- Major Issues -->
+        <section class="mb-12">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-4 h-8 bg-magento-gold-500"></div>
+                <h2 class="text-2xl font-bold text-magento-charcoal">Major Issues</h2>
+            </div>
+
+            <div class="space-y-6">
+                <!-- Issue 4 -->
+                <article class="bg-white shadow-sm border-l-4 border-magento-gold-500">
+                    <div class="p-6">
+                        <div class="flex items-start justify-between mb-4">
+                            <div>
+                                <span class="inline-block bg-magento-gold-100 text-magento-gold-800 px-2 py-1 text-xs font-semibold mb-2">MAJOR</span>
+                                <h3 class="text-xl font-bold text-magento-charcoal">Method sortOrder Conflicts</h3>
+                            </div>
+                        </div>
+
+                        <p class="text-sm text-gray-700 mb-4">
+                            Multiple payment methods with the same sortOrder display in unpredictable order. The "default" payment
+                            method selection in checkout may not match merchant expectations.
+                        </p>
+
+                        <h4 class="font-semibold text-magento-charcoal mb-2">Workaround</h4>
+                        <p class="text-sm text-gray-700">
+                            Ensure unique sortOrder values for all payment methods. Use increments of 10 (e.g., 10, 20, 30) to allow
+                            insertion of new methods later.
+                        </p>
+                    </div>
+                </article>
+
+                <!-- Issue 5 -->
+                <article class="bg-white shadow-sm border-l-4 border-magento-gold-500">
+                    <div class="p-6">
+                        <div class="flex items-start justify-between mb-4">
+                            <div>
+                                <span class="inline-block bg-magento-gold-100 text-magento-gold-800 px-2 py-1 text-xs font-semibold mb-2">MAJOR</span>
+                                <h3 class="text-xl font-bold text-magento-charcoal">Capture Fails Without Clear Error</h3>
+                            </div>
+                        </div>
+
+                        <p class="text-sm text-gray-700 mb-4">
+                            When invoice capture fails due to expired authorization, the error message is often generic ("Unable to
+                            capture payment"). Admin users don't know if they need to re-authorize or if there's a gateway issue.
+                        </p>
+
+                        <h4 class="font-semibold text-magento-charcoal mb-2">Workaround</h4>
+                        <div class="bg-charcoal text-gray-100 p-3 text-xs overflow-x-auto">
+                            <pre><code>// Implement detailed error mapping
+&lt;!-- error_mapping.xml --&gt;
+&lt;error_messages&gt;
+    &lt;message code="auth_expired"&gt;
+        Authorization has expired. Please create a new order.
+    &lt;/message&gt;
+    &lt;message code="insufficient_funds"&gt;
+        Card declined: Insufficient funds.
+    &lt;/message&gt;
+&lt;/error_messages&gt;</code></pre>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Issue 6 -->
+                <article class="bg-white shadow-sm border-l-4 border-magento-gold-500">
+                    <div class="p-6">
+                        <div class="flex items-start justify-between mb-4">
+                            <div>
+                                <span class="inline-block bg-magento-gold-100 text-magento-gold-800 px-2 py-1 text-xs font-semibold mb-2">MAJOR</span>
+                                <h3 class="text-xl font-bold text-magento-charcoal">Free Payment Method with Negative Totals</h3>
+                            </div>
+                        </div>
+
+                        <p class="text-sm text-gray-700 mb-4">
+                            When discounts or store credit make the order total $0 or negative, the "Free" payment method should
+                            activate. However, some configurations cause the method to not appear, leaving customers unable to complete
+                            checkout.
+                        </p>
+
+                        <h4 class="font-semibold text-magento-charcoal mb-2">Workaround</h4>
+                        <p class="text-sm text-gray-700">
+                            Ensure <code class="bg-gray-100 px-1">payment/free/active</code> is enabled. Check that the Free method's
+                            SpecificationInterface rules don't conflict with zero-total orders.
+                        </p>
+                    </div>
+                </article>
+
+                <!-- Issue 7 -->
+                <article class="bg-white shadow-sm border-l-4 border-magento-gold-500">
+                    <div class="p-6">
+                        <div class="flex items-start justify-between mb-4">
+                            <div>
+                                <span class="inline-block bg-magento-gold-100 text-magento-gold-800 px-2 py-1 text-xs font-semibold mb-2">MAJOR</span>
+                                <h3 class="text-xl font-bold text-magento-charcoal">Partial Refund Transaction ID Collision</h3>
+                            </div>
+                        </div>
+
+                        <p class="text-sm text-gray-700 mb-4">
+                            Multiple partial refunds may use the same base transaction ID, causing lookups to fail or return wrong
+                            transaction data. This affects reconciliation and dispute handling.
+                        </p>
+
+                        <h4 class="font-semibold text-magento-charcoal mb-2">Workaround</h4>
+                        <div class="bg-charcoal text-gray-100 p-3 text-xs overflow-x-auto">
+                            <pre><code>// Generate unique refund transaction IDs
+$payment->setTransactionId(
+    $gatewayRefundId . '-refund-' . time()
+);</code></pre>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <!-- Minor Issues -->
+        <section class="mb-12">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-4 h-8 bg-charcoal"></div>
+                <h2 class="text-2xl font-bold text-magento-charcoal">Minor Issues</h2>
+            </div>
+
+            <div class="space-y-6">
+                <!-- Issue 8 -->
+                <article class="bg-white shadow-sm border-l-4 border-charcoal">
+                    <div class="p-6">
+                        <div class="flex items-start justify-between mb-4">
+                            <div>
+                                <span class="inline-block bg-gray-100 text-gray-800 px-2 py-1 text-xs font-semibold mb-2">MINOR</span>
+                                <h3 class="text-xl font-bold text-magento-charcoal">Payment Method Icons Not Displaying</h3>
+                            </div>
+                        </div>
+
+                        <p class="text-sm text-gray-700 mb-4">
+                            Custom payment method icons configured in admin don't display in checkout due to missing CSS or
+                            incorrect path configuration.
+                        </p>
+
+                        <h4 class="font-semibold text-magento-charcoal mb-2">Workaround</h4>
+                        <p class="text-sm text-gray-700">
+                            Use absolute paths in config or implement a custom ConfigProvider that returns full URLs for icons.
+                        </p>
+                    </div>
+                </article>
+
+                <!-- Issue 9 -->
+                <article class="bg-white shadow-sm border-l-4 border-charcoal">
+                    <div class="p-6">
+                        <div class="flex items-start justify-between mb-4">
+                            <div>
+                                <span class="inline-block bg-gray-100 text-gray-800 px-2 py-1 text-xs font-semibold mb-2">MINOR</span>
+                                <h3 class="text-xl font-bold text-magento-charcoal">payment.log Grows Unbounded</h3>
+                            </div>
+                        </div>
+
+                        <p class="text-sm text-gray-700 mb-4">
+                            The <code class="bg-gray-100 px-1">var/log/payment.log</code> file can grow very large on high-traffic
+                            sites, especially with debug logging enabled for payment methods.
+                        </p>
+
+                        <h4 class="font-semibold text-magento-charcoal mb-2">Workaround</h4>
+                        <p class="text-sm text-gray-700">
+                            Implement log rotation via cron or system-level logrotate. Disable debug logging in production
+                            (<code class="bg-gray-100 px-1">payment/method/debug = 0</code>).
+                        </p>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <!-- Prevention Best Practices -->
+        <section class="bg-charcoal text-white p-8 mb-8">
+            <h2 class="text-2xl font-bold mb-6">Prevention Best Practices</h2>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <div>
+                    <h3 class="font-bold text-magento-orange-400 mb-4">Security</h3>
+                    <ul class="space-y-2 text-sm text-gray-300">
+                        <li class="flex items-start gap-2">
+                            <svg class="w-4 h-4 text-magento-orange-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            <span>Never store full card numbers in database</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <svg class="w-4 h-4 text-magento-orange-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            <span>Use Vault for tokenization</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <svg class="w-4 h-4 text-magento-orange-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            <span>Mask sensitive data in logs</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <svg class="w-4 h-4 text-magento-orange-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            <span>Use HTTPS for all gateway communication</span>
+                        </li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-bold text-magento-gold-400 mb-4">Reliability</h3>
+                    <ul class="space-y-2 text-sm text-gray-300">
+                        <li class="flex items-start gap-2">
+                            <svg class="w-4 h-4 text-magento-gold-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            <span>Implement void on handler failure</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <svg class="w-4 h-4 text-magento-gold-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            <span>Set appropriate gateway timeouts</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <svg class="w-4 h-4 text-magento-gold-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            <span>Use unique transaction IDs</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <svg class="w-4 h-4 text-magento-gold-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            <span>Implement comprehensive error mapping</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Navigation -->
+        <nav class="flex flex-wrap gap-4 justify-between items-center pt-8 border-t border-gray-200">
+            <a href="integrations.html" class="inline-flex items-center gap-2 text-magento-charcoal hover:text-magento-orange-600 transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                </svg>
+                Integrations
+            </a>
+            <a href="index.html" class="inline-flex items-center gap-2 text-magento-orange-600 hover:text-magento-orange-700 font-semibold transition-colors">
+                Back to Overview
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+            </a>
+        </nav>
+
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-charcoal text-white py-8 mt-16">
+        <div class="max-w-6xl mx-auto px-6 text-center">
+            <p class="text-sm text-gray-400">
+                Magento_Payment Known Issues | Part of The Magento Core Documentation Project
+            </p>
+        </div>
+    </footer>
+
+</body>
+</html>

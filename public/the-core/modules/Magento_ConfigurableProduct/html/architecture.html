@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magento_ConfigurableProduct - Architecture | THE MAGENTO CORE</title>
+    <meta name="description" content="ConfigurableProduct architecture: super attributes, parent-child linking, pricing system, and variation generator">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        orange: {
+                            DEFAULT: '#F26423',
+                            50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad', 300: '#f9ae78',
+                            400: '#f58242', 500: '#f26423', 600: '#e34613', 700: '#bc3312',
+                            800: '#962a16', 900: '#792515', 950: '#411009'
+                        },
+                        yellow: {
+                            DEFAULT: '#F1BC1B',
+                            50: '#fffbeb', 100: '#fdf9c8', 200: '#fbf38c', 300: '#f8e651',
+                            400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a', 700: '#b1670c',
+                            800: '#8f5111', 900: '#764311', 950: '#442204'
+                        },
+                        charcoal: {
+                            DEFAULT: '#2c2c2c',
+                            50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6', 300: '#818181',
+                            400: '#474747', 500: '#2c2c2c', 600: '#262626', 700: '#202020',
+                            800: '#1c1c1c', 900: '#191919', 950: '#121212'
+                        },
+                        brown: '#442204',
+                        'off-white': '#FAFAFA',
+                    },
+                    fontFamily: {
+                        sans: ['Inter Tight', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter Tight', system-ui, sans-serif; }
+        .code-block { background: #1c1c1c; color: #f1f1f1; }
+    </style>
+</head>
+<body class="bg-off-white text-charcoal">
+
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-charcoal focus:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
+        Skip to content
+    </a>
+
+    <header class="bg-gradient-to-br from-charcoal-500 via-charcoal-600 to-charcoal-700 border-b-8 border-orange-500">
+        <!-- back-to-developer-docs -->
+        <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 pt-4"><a href="/developer/" aria-label="Back to Developer Docs" class="inline-flex items-center gap-1.5 text-sm font-medium text-white/70 hover:text-white transition-colors no-underline"><span aria-hidden="true">←</span> Developer Docs</a></div>
+        <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+            <nav aria-label="Breadcrumb" class="mb-6">
+                <ol class="flex flex-wrap items-center gap-2 text-sm text-gray-400">
+                    <li><a href="../../../index.html" class="hover:text-orange-500 underline underline-offset-4">Home</a></li>
+                    <li aria-hidden="true"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></li>
+                    <li><a href="index.html" class="hover:text-orange-500 underline underline-offset-4">ConfigurableProduct</a></li>
+                    <li aria-hidden="true"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></li>
+                    <li class="text-white font-medium">Architecture</li>
+                </ol>
+            </nav>
+            <div id="main-content">
+                <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white mb-4">Module Architecture</h1>
+                <p class="text-base sm:text-lg text-gray-300 max-w-3xl mb-6">Super attributes, product linking, and pricing architecture for configurable products.</p>
+            </div>
+        </div>
+    </header>
+
+    <div class="max-w-6xl mx-auto px-6 py-8 md:py-12">
+
+        <!-- Conceptual Overview -->
+        <section class="bg-white mb-12 p-8 border-t-4 border-orange-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-charcoal mb-4">Conceptual Overview</h2>
+            <p class="text-gray-700 mb-6">A configurable product is a composite product type that allows customers to select from predefined attribute options to choose a specific product variant. The configurable product itself has no stock or price - these come from the simple product children.</p>
+
+            <div class="bg-gray-100 p-6 text-center">
+                <div class="inline-block bg-orange-500 text-white px-6 py-3 font-semibold mb-4">Configurable Product (T-Shirt)</div>
+                <div class="text-2xl text-charcoal mb-4">&darr;</div>
+                <div class="flex flex-wrap justify-center gap-4 mb-4">
+                    <div class="bg-yellow-500 text-charcoal px-4 py-2 font-semibold">Color (Super Attribute)</div>
+                    <div class="bg-yellow-500 text-charcoal px-4 py-2 font-semibold">Size (Super Attribute)</div>
+                </div>
+                <div class="text-2xl text-charcoal mb-4">&darr;</div>
+                <div class="flex flex-wrap justify-center gap-2">
+                    <div class="bg-charcoal text-white px-3 py-1.5 text-sm">Red - S</div>
+                    <div class="bg-charcoal text-white px-3 py-1.5 text-sm">Red - M</div>
+                    <div class="bg-charcoal text-white px-3 py-1.5 text-sm">Red - L</div>
+                    <div class="bg-charcoal text-white px-3 py-1.5 text-sm">Blue - S</div>
+                    <div class="bg-charcoal text-white px-3 py-1.5 text-sm">Blue - M</div>
+                    <div class="bg-charcoal text-white px-3 py-1.5 text-sm">Blue - L</div>
+                </div>
+                <p class="mt-4 text-sm text-gray-600">Simple Product Children (Actual SKUs with stock/price)</p>
+            </div>
+        </section>
+
+        <!-- Super Attributes -->
+        <section class="bg-white mb-12 p-8 border-t-4 border-yellow-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-charcoal mb-4">Super Attributes System</h2>
+            <p class="text-gray-700 mb-6">Super attributes are EAV attributes designated as configuration axes for a configurable product. Only attributes with <code class="bg-gray-100 px-1">select</code> frontend input type and global scope can be used as super attributes.</p>
+
+            <h3 class="font-bold text-charcoal mb-3 mt-6">Super Attribute Requirements</h3>
+            <div class="grid md:grid-cols-2 gap-6 mb-6">
+                <div class="border-l-4 border-orange-500 pl-4 bg-gray-50 p-4">
+                    <h4 class="font-bold text-charcoal mb-2">Attribute Properties</h4>
+                    <ul class="text-sm text-gray-700 space-y-1 list-disc list-inside">
+                        <li><code class="bg-gray-100 px-1 text-xs">frontend_input = 'select'</code></li>
+                        <li><code class="bg-gray-100 px-1 text-xs">is_global = 1</code> (Global scope)</li>
+                        <li><code class="bg-gray-100 px-1 text-xs">is_user_defined = 1</code> (or core like color/size)</li>
+                        <li>Must have predefined options</li>
+                    </ul>
+                </div>
+                <div class="border-l-4 border-yellow-500 pl-4 bg-gray-50 p-4">
+                    <h4 class="font-bold text-charcoal mb-2">Attribute Storage</h4>
+                    <ul class="text-sm text-gray-700 space-y-1 list-disc list-inside">
+                        <li><code class="bg-gray-100 px-1 text-xs">catalog_product_super_attribute</code> table</li>
+                        <li>Links attribute_id to product_id</li>
+                        <li>Position determines display order</li>
+                        <li>Store-specific labels supported</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3 class="font-bold text-charcoal mb-3">Database Schema</h3>
+            <div class="code-block p-4 text-sm overflow-x-auto mb-6">
+<pre><span class="text-gray-500">-- Super attribute definition (links attribute to configurable product)</span>
+<span class="text-orange-400">CREATE TABLE</span> catalog_product_super_attribute (
+    product_super_attribute_id <span class="text-orange-400">INT UNSIGNED AUTO_INCREMENT</span>,
+    product_id <span class="text-orange-400">INT UNSIGNED</span>,      <span class="text-gray-500">-- Configurable product entity_id</span>
+    attribute_id <span class="text-orange-400">SMALLINT UNSIGNED</span>, <span class="text-gray-500">-- EAV attribute_id</span>
+    position <span class="text-orange-400">SMALLINT UNSIGNED</span>,     <span class="text-gray-500">-- Display order</span>
+    <span class="text-orange-400">PRIMARY KEY</span> (product_super_attribute_id),
+    <span class="text-orange-400">UNIQUE</span> (product_id, attribute_id)
+);
+
+<span class="text-gray-500">-- Store-specific labels for super attributes</span>
+<span class="text-orange-400">CREATE TABLE</span> catalog_product_super_attribute_label (
+    value_id <span class="text-orange-400">INT UNSIGNED AUTO_INCREMENT</span>,
+    product_super_attribute_id <span class="text-orange-400">INT UNSIGNED</span>,
+    store_id <span class="text-orange-400">SMALLINT UNSIGNED</span>,
+    use_default <span class="text-orange-400">SMALLINT UNSIGNED DEFAULT</span> 0,
+    value <span class="text-orange-400">VARCHAR</span>(255),
+    <span class="text-orange-400">PRIMARY KEY</span> (value_id)
+);</pre>
+            </div>
+
+            <h3 class="font-bold text-charcoal mb-3">Loading Super Attributes</h3>
+            <div class="code-block p-4 text-sm overflow-x-auto">
+<pre><span class="text-gray-500">// Get configurable attributes for a product</span>
+<span class="text-yellow-400">$configurableType</span> = <span class="text-yellow-400">$product</span>-><span class="text-yellow-300">getTypeInstance</span>();
+<span class="text-yellow-400">$superAttributes</span> = <span class="text-yellow-400">$configurableType</span>-><span class="text-yellow-300">getConfigurableAttributes</span>(<span class="text-yellow-400">$product</span>);
+
+<span class="text-orange-400">foreach</span> (<span class="text-yellow-400">$superAttributes</span> <span class="text-orange-400">as</span> <span class="text-yellow-400">$attribute</span>) {
+    <span class="text-yellow-400">$attributeCode</span> = <span class="text-yellow-400">$attribute</span>-><span class="text-yellow-300">getProductAttribute</span>()-><span class="text-yellow-300">getAttributeCode</span>();
+    <span class="text-yellow-400">$label</span> = <span class="text-yellow-400">$attribute</span>-><span class="text-yellow-300">getLabel</span>();
+    <span class="text-yellow-400">$position</span> = <span class="text-yellow-400">$attribute</span>-><span class="text-yellow-300">getPosition</span>();
+
+    <span class="text-gray-500">// Get available options from child products</span>
+    <span class="text-yellow-400">$options</span> = <span class="text-yellow-400">$attribute</span>-><span class="text-yellow-300">getOptions</span>();
+}</pre>
+            </div>
+        </section>
+
+        <!-- Parent-Child Linking -->
+        <section class="bg-white mb-12 p-8 border-t-4 border-orange-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-charcoal mb-4">Parent-Child Product Linking</h2>
+            <p class="text-gray-700 mb-6">The super_link table establishes the relationship between configurable parents and simple product children. Each child must have values for all super attributes of the parent.</p>
+
+            <h3 class="font-bold text-charcoal mb-3">Link Table Schema</h3>
+            <div class="code-block p-4 text-sm overflow-x-auto mb-6">
+<pre><span class="text-gray-500">-- Links simple products to configurable parent</span>
+<span class="text-orange-400">CREATE TABLE</span> catalog_product_super_link (
+    link_id <span class="text-orange-400">INT UNSIGNED AUTO_INCREMENT</span>,
+    product_id <span class="text-orange-400">INT UNSIGNED</span>,  <span class="text-gray-500">-- Child simple product entity_id</span>
+    parent_id <span class="text-orange-400">INT UNSIGNED</span>,   <span class="text-gray-500">-- Parent configurable product entity_id</span>
+    <span class="text-orange-400">PRIMARY KEY</span> (link_id),
+    <span class="text-orange-400">UNIQUE</span> (product_id, parent_id),
+    <span class="text-orange-400">FOREIGN KEY</span> (product_id) <span class="text-orange-400">REFERENCES</span> catalog_product_entity(entity_id),
+    <span class="text-orange-400">FOREIGN KEY</span> (parent_id) <span class="text-orange-400">REFERENCES</span> catalog_product_entity(entity_id)
+);</pre>
+            </div>
+
+            <div class="bg-orange-50 border-l-4 border-orange-500 p-4 mb-6">
+                <h4 class="font-bold text-charcoal mb-2">Important Constraint</h4>
+                <p class="text-sm text-gray-700">A simple product can be linked to multiple configurable parents, but the combination of (product_id, parent_id) must be unique. This enables the same simple product to appear as an option in multiple configurables.</p>
+            </div>
+
+            <h3 class="font-bold text-charcoal mb-3">Getting Child Products</h3>
+            <div class="code-block p-4 text-sm overflow-x-auto">
+<pre><span class="text-gray-500">// Get all linked simple products</span>
+<span class="text-yellow-400">$configurableType</span> = <span class="text-yellow-400">$product</span>-><span class="text-yellow-300">getTypeInstance</span>();
+
+<span class="text-gray-500">// Full product objects (loads EAV attributes)</span>
+<span class="text-yellow-400">$usedProducts</span> = <span class="text-yellow-400">$configurableType</span>-><span class="text-yellow-300">getUsedProducts</span>(<span class="text-yellow-400">$product</span>);
+
+<span class="text-gray-500">// Just product IDs (faster, no EAV load)</span>
+<span class="text-yellow-400">$childIds</span> = <span class="text-yellow-400">$configurableType</span>-><span class="text-yellow-300">getChildrenIds</span>(<span class="text-yellow-400">$product</span>-><span class="text-yellow-300">getId</span>());
+
+<span class="text-gray-500">// Find specific child by attribute values</span>
+<span class="text-yellow-400">$attributes</span> = [<span class="text-green-400">'color'</span> => <span class="text-green-400">'red'</span>, <span class="text-green-400">'size'</span> => <span class="text-green-400">'M'</span>];
+<span class="text-yellow-400">$child</span> = <span class="text-yellow-400">$configurableType</span>-><span class="text-yellow-300">getProductByAttributes</span>(<span class="text-yellow-400">$attributes</span>, <span class="text-yellow-400">$product</span>);</pre>
+            </div>
+        </section>
+
+        <!-- Pricing Architecture -->
+        <section class="bg-white mb-12 p-8 border-t-4 border-yellow-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-charcoal mb-4">Pricing Architecture</h2>
+            <p class="text-gray-700 mb-6">Configurable products don't have their own price. Instead, the price is derived from the child products. Magento provides flexible price resolution strategies.</p>
+
+            <h3 class="font-bold text-charcoal mb-3">Price Resolution Flow</h3>
+            <div class="bg-gray-100 p-6 text-center mb-6">
+                <div class="inline-block bg-orange-500 text-white px-6 py-3 font-semibold mb-4">ConfigurablePriceResolver</div>
+                <div class="text-2xl text-charcoal mb-4">&darr;</div>
+                <div class="flex flex-wrap justify-center gap-4 mb-4">
+                    <div class="bg-yellow-500 text-charcoal px-4 py-2 font-semibold">FinalPriceResolver</div>
+                    <div class="bg-yellow-500 text-charcoal px-4 py-2 font-semibold">RegularPriceResolver</div>
+                </div>
+                <div class="text-2xl text-charcoal mb-4">&darr;</div>
+                <div class="inline-block bg-charcoal text-white px-6 py-3 font-semibold mb-4">LowestPriceOptionsProvider</div>
+                <div class="text-2xl text-charcoal mb-4">&darr;</div>
+                <div class="flex flex-wrap justify-center gap-2">
+                    <div class="bg-charcoal text-white px-3 py-1.5 text-sm">Child 1 Price</div>
+                    <div class="bg-charcoal text-white px-3 py-1.5 text-sm">Child 2 Price</div>
+                    <div class="bg-charcoal text-white px-3 py-1.5 text-sm">Child N Price</div>
+                </div>
+            </div>
+
+            <h3 class="font-bold text-charcoal mb-3">Price Type Classes</h3>
+            <table class="w-full text-sm mb-6">
+                <thead>
+                    <tr class="bg-charcoal text-white">
+                        <th class="text-left p-3">Class</th>
+                        <th class="text-left p-3">Purpose</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="border-b border-gray-200">
+                        <td class="p-3"><code class="bg-charcoal-800 text-yellow-400 px-2 py-0.5 text-xs">ConfigurablePriceResolver</code></td>
+                        <td class="p-3 text-gray-700">Main resolver that delegates to specific price type resolvers</td>
+                    </tr>
+                    <tr class="border-b border-gray-200 bg-gray-50">
+                        <td class="p-3"><code class="bg-charcoal-800 text-yellow-400 px-2 py-0.5 text-xs">FinalPrice</code></td>
+                        <td class="p-3 text-gray-700">Calculates final price (lowest among salable children)</td>
+                    </tr>
+                    <tr class="border-b border-gray-200">
+                        <td class="p-3"><code class="bg-charcoal-800 text-yellow-400 px-2 py-0.5 text-xs">ConfigurableRegularPrice</code></td>
+                        <td class="p-3 text-gray-700">Calculates regular price before discounts</td>
+                    </tr>
+                    <tr class="border-b border-gray-200 bg-gray-50">
+                        <td class="p-3"><code class="bg-charcoal-800 text-yellow-400 px-2 py-0.5 text-xs">LowestPriceOptionsProvider</code></td>
+                        <td class="p-3 text-gray-700">Finds the child product with lowest price</td>
+                    </tr>
+                    <tr class="border-b border-gray-200">
+                        <td class="p-3"><code class="bg-charcoal-800 text-yellow-400 px-2 py-0.5 text-xs">ConfigurableOptionsProvider</code></td>
+                        <td class="p-3 text-gray-700">Provides all option prices for frontend display</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3 class="font-bold text-charcoal mb-3">Price Calculation Example</h3>
+            <div class="code-block p-4 text-sm overflow-x-auto">
+<pre><span class="text-gray-500">// Getting configurable product price</span>
+<span class="text-yellow-400">$priceInfo</span> = <span class="text-yellow-400">$product</span>-><span class="text-yellow-300">getPriceInfo</span>();
+
+<span class="text-gray-500">// Final price (lowest salable child)</span>
+<span class="text-yellow-400">$finalPrice</span> = <span class="text-yellow-400">$priceInfo</span>-><span class="text-yellow-300">getPrice</span>(<span class="text-green-400">'final_price'</span>)-><span class="text-yellow-300">getAmount</span>();
+
+<span class="text-gray-500">// Regular price</span>
+<span class="text-yellow-400">$regularPrice</span> = <span class="text-yellow-400">$priceInfo</span>-><span class="text-yellow-300">getPrice</span>(<span class="text-green-400">'regular_price'</span>)-><span class="text-yellow-300">getAmount</span>();
+
+<span class="text-gray-500">// All option prices for swatch/dropdown display</span>
+<span class="text-yellow-400">$optionsProvider</span> = <span class="text-yellow-400">$objectManager</span>-><span class="text-yellow-300">get</span>(<span class="text-yellow-400">ConfigurableOptionsProviderInterface</span>::<span class="text-orange-400">class</span>);
+<span class="text-yellow-400">$options</span> = <span class="text-yellow-400">$optionsProvider</span>-><span class="text-yellow-300">getProducts</span>(<span class="text-yellow-400">$product</span>);</pre>
+            </div>
+        </section>
+
+        <!-- Product Type Model -->
+        <section class="bg-white mb-12 p-8 border-t-4 border-orange-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-charcoal mb-4">Product Type Model</h2>
+            <p class="text-gray-700 mb-6">The <code class="bg-gray-100 px-1">Configurable</code> type class extends <code class="bg-gray-100 px-1">AbstractType</code> and provides all configurable-specific behavior.</p>
+
+            <h3 class="font-bold text-charcoal mb-3">Key Methods</h3>
+            <table class="w-full text-sm mb-6">
+                <thead>
+                    <tr class="bg-charcoal text-white">
+                        <th class="text-left p-3">Method</th>
+                        <th class="text-left p-3">Purpose</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="border-b border-gray-200">
+                        <td class="p-3"><code class="text-xs">getConfigurableAttributes($product)</code></td>
+                        <td class="p-3 text-gray-700">Returns collection of super attributes for the product</td>
+                    </tr>
+                    <tr class="border-b border-gray-200 bg-gray-50">
+                        <td class="p-3"><code class="text-xs">getUsedProducts($product, $attributes)</code></td>
+                        <td class="p-3 text-gray-700">Returns all linked simple products (with optional attribute filter)</td>
+                    </tr>
+                    <tr class="border-b border-gray-200">
+                        <td class="p-3"><code class="text-xs">getProductByAttributes($attributes, $product)</code></td>
+                        <td class="p-3 text-gray-700">Finds the specific child matching attribute values</td>
+                    </tr>
+                    <tr class="border-b border-gray-200 bg-gray-50">
+                        <td class="p-3"><code class="text-xs">isSalable($product)</code></td>
+                        <td class="p-3 text-gray-700">Returns true if at least one child is salable</td>
+                    </tr>
+                    <tr class="border-b border-gray-200">
+                        <td class="p-3"><code class="text-xs">prepareForCartAdvanced($buyRequest, $product)</code></td>
+                        <td class="p-3 text-gray-700">Prepares products for adding to cart (returns [parent, child])</td>
+                    </tr>
+                    <tr class="border-b border-gray-200 bg-gray-50">
+                        <td class="p-3"><code class="text-xs">getSelectedAttributesInfo($product)</code></td>
+                        <td class="p-3 text-gray-700">Gets selected option info for order/cart display</td>
+                    </tr>
+                    <tr class="border-b border-gray-200">
+                        <td class="p-3"><code class="text-xs">getConfigurableOptions($product)</code></td>
+                        <td class="p-3 text-gray-700">Returns all available options for frontend JSON</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3 class="font-bold text-charcoal mb-3">Type Model Flow</h3>
+            <div class="code-block p-4 text-sm overflow-x-auto">
+<pre><span class="text-gray-500">// Product type identification</span>
+<span class="text-yellow-400">$product</span>-><span class="text-yellow-300">getTypeId</span>(); <span class="text-gray-500">// Returns 'configurable'</span>
+<span class="text-yellow-400">$product</span>-><span class="text-yellow-300">getTypeInstance</span>(); <span class="text-gray-500">// Returns Configurable type model</span>
+
+<span class="text-gray-500">// Check if product is configurable</span>
+<span class="text-orange-400">if</span> (<span class="text-yellow-400">$product</span>-><span class="text-yellow-300">getTypeId</span>() === <span class="text-yellow-400">Configurable</span>::TYPE_CODE) {
+    <span class="text-yellow-400">$superAttributes</span> = <span class="text-yellow-400">$product</span>-><span class="text-yellow-300">getTypeInstance</span>()
+        -><span class="text-yellow-300">getConfigurableAttributes</span>(<span class="text-yellow-400">$product</span>);
+}</pre>
+            </div>
+        </section>
+
+        <!-- EntityManager Integration -->
+        <section class="bg-white mb-12 p-8 border-t-4 border-yellow-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-charcoal mb-4">EntityManager Integration</h2>
+            <p class="text-gray-700 mb-6">Configurable product data is persisted through EntityManager handlers that process super attributes and links during product save/load operations.</p>
+
+            <h3 class="font-bold text-charcoal mb-3">Extension Handlers</h3>
+            <div class="code-block p-4 text-sm overflow-x-auto mb-6">
+<pre><span class="text-gray-500">&lt;!-- di.xml EntityManager configuration --&gt;</span>
+<span class="text-orange-400">&lt;type</span> <span class="text-yellow-400">name</span>=<span class="text-green-400">"Magento\Framework\EntityManager\Operation\ExtensionPool"</span><span class="text-orange-400">&gt;</span>
+    <span class="text-orange-400">&lt;arguments&gt;</span>
+        <span class="text-orange-400">&lt;argument</span> <span class="text-yellow-400">name</span>=<span class="text-green-400">"extensionActions"</span> <span class="text-yellow-400">xsi:type</span>=<span class="text-green-400">"array"</span><span class="text-orange-400">&gt;</span>
+            <span class="text-orange-400">&lt;item</span> <span class="text-yellow-400">name</span>=<span class="text-green-400">"Magento\Catalog\Api\Data\ProductInterface"</span><span class="text-orange-400">&gt;</span>
+                <span class="text-orange-400">&lt;item</span> <span class="text-yellow-400">name</span>=<span class="text-green-400">"create"</span><span class="text-orange-400">&gt;</span>
+                    <span class="text-orange-400">&lt;item</span> <span class="text-yellow-400">name</span>=<span class="text-green-400">"create_configurable_options"</span><span class="text-orange-400">&gt;</span>
+                        Magento\ConfigurableProduct\Model\Product\SaveHandler
+                    <span class="text-orange-400">&lt;/item&gt;</span>
+                <span class="text-orange-400">&lt;/item&gt;</span>
+            <span class="text-orange-400">&lt;/item&gt;</span>
+        <span class="text-orange-400">&lt;/argument&gt;</span>
+    <span class="text-orange-400">&lt;/arguments&gt;</span>
+<span class="text-orange-400">&lt;/type&gt;</span></pre>
+            </div>
+
+            <h3 class="font-bold text-charcoal mb-3">Handler Responsibilities</h3>
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="border-l-4 border-orange-500 pl-4 bg-gray-50 p-4">
+                    <h4 class="font-bold text-charcoal mb-2">SaveHandler</h4>
+                    <ul class="text-sm text-gray-700 space-y-1 list-disc list-inside">
+                        <li>Saves super attributes to catalog_product_super_attribute</li>
+                        <li>Saves attribute labels per store</li>
+                        <li>Creates/updates super_link relationships</li>
+                        <li>Validates child products have required attributes</li>
+                    </ul>
+                </div>
+                <div class="border-l-4 border-yellow-500 pl-4 bg-gray-50 p-4">
+                    <h4 class="font-bold text-charcoal mb-2">ReadHandler</h4>
+                    <ul class="text-sm text-gray-700 space-y-1 list-disc list-inside">
+                        <li>Loads super attributes into extension_attributes</li>
+                        <li>Populates configurable_product_options</li>
+                        <li>Loads configurable_product_links (child IDs)</li>
+                        <li>Sets data on product model for type instance</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Variation Generator -->
+        <section class="bg-white mb-12 p-8 border-t-4 border-orange-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-charcoal mb-4">Variation Generator</h2>
+            <p class="text-gray-700 mb-6">The variation generator creates all possible simple product combinations from selected super attributes. This is used in admin when creating configurable products.</p>
+
+            <div class="code-block p-4 text-sm overflow-x-auto">
+<pre><span class="text-gray-500">// Generate all variations programmatically</span>
+<span class="text-yellow-400">$management</span> = <span class="text-yellow-400">$objectManager</span>-><span class="text-yellow-300">get</span>(<span class="text-yellow-400">ConfigurableProductManagementInterface</span>::<span class="text-orange-400">class</span>);
+
+<span class="text-gray-500">// Define attributes and their options</span>
+<span class="text-yellow-400">$options</span> = [
+    [
+        <span class="text-green-400">'attribute_id'</span> => <span class="text-green-400">'93'</span>,  <span class="text-gray-500">// Color</span>
+        <span class="text-green-400">'values'</span> => [
+            [<span class="text-green-400">'value_index'</span> => <span class="text-green-400">'49'</span>],  <span class="text-gray-500">// Black</span>
+            [<span class="text-green-400">'value_index'</span> => <span class="text-green-400">'50'</span>],  <span class="text-gray-500">// Blue</span>
+        ]
+    ],
+    [
+        <span class="text-green-400">'attribute_id'</span> => <span class="text-green-400">'141'</span>, <span class="text-gray-500">// Size</span>
+        <span class="text-green-400">'values'</span> => [
+            [<span class="text-green-400">'value_index'</span> => <span class="text-green-400">'166'</span>], <span class="text-gray-500">// S</span>
+            [<span class="text-green-400">'value_index'</span> => <span class="text-green-400">'167'</span>], <span class="text-gray-500">// M</span>
+            [<span class="text-green-400">'value_index'</span> => <span class="text-green-400">'168'</span>], <span class="text-gray-500">// L</span>
+        ]
+    ]
+];
+
+<span class="text-gray-500">// Generates 6 variations: Black-S, Black-M, Black-L, Blue-S, Blue-M, Blue-L</span>
+<span class="text-yellow-400">$variations</span> = <span class="text-yellow-400">$management</span>-><span class="text-yellow-300">generateVariation</span>(<span class="text-yellow-400">$product</span>, <span class="text-yellow-400">$options</span>);</pre>
+            </div>
+        </section>
+
+    </div>
+
+    <footer class="bg-charcoal text-white py-8 mt-16">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                <p class="text-sm text-gray-400">Magento 2 ConfigurableProduct Module Documentation | Generated December 2024</p>
+                <div class="flex items-center gap-6">
+                    <a href="index.html" class="text-sm text-gray-400 hover:text-white transition">Back to Module Overview</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

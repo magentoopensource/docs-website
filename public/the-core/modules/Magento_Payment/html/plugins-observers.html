@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plugins & Observers - Magento_Payment Module</title>
+    <meta name="description" content="Payment module plugins, observers, and DI preferences in Magento 2.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'magento-orange': {
+                            DEFAULT: '#f26423',
+                            50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad', 300: '#f9ae78',
+                            400: '#f58242', 500: '#f26423', 600: '#e34613', 700: '#bc3312',
+                            800: '#962a16', 900: '#792515', 950: '#411009'
+                        },
+                        'magento-gold': {
+                            DEFAULT: '#f1bc1b',
+                            50: '#fffdeb', 100: '#fdf9c8', 200: '#fbf38c', 300: '#f8e651',
+                            400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a', 700: '#b1670c',
+                            800: '#8f5111', 900: '#764311', 950: '#442204'
+                        },
+                        'magento-charcoal': {
+                            DEFAULT: '#2c2c2c',
+                            50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6', 300: '#818181',
+                            400: '#474747', 500: '#2c2c2c', 600: '#262626', 700: '#202020',
+                            800: '#1c1c1c', 900: '#191919', 950: '#121212'
+                        },
+                    },
+                    fontFamily: {
+                        sans: ['Inter Tight', 'system-ui', 'sans-serif'],
+                        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&display=swap');
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+        pre { background: #1c1c1c; border-radius: 0; }
+        code { font-family: 'JetBrains Mono', 'Fira Code', monospace; }
+    </style>
+</head>
+<body class="bg-[#FAFAFA] text-magento-charcoal">
+
+    <!-- Header -->
+    <header class="bg-gradient-to-br from-magento-charcoal-500 via-magento-charcoal-600 to-magento-charcoal-700 border-b-8 border-magento-charcoal-300">
+        <!-- back-to-developer-docs -->
+        <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 pt-4"><a href="/developer/" aria-label="Back to Developer Docs" class="inline-flex items-center gap-1.5 text-sm font-medium text-white/70 hover:text-white transition-colors no-underline"><span aria-hidden="true">←</span> Developer Docs</a></div>
+        <div class="max-w-6xl mx-auto px-6 py-8">
+            <nav class="mb-4" aria-label="Breadcrumb">
+                <ol class="flex items-center gap-2 text-sm text-gray-400">
+                    <li><a href="../../../index.html" class="hover:text-white transition-colors">Home</a></li>
+                    <li><span class="mx-2">/</span></li>
+                    <li><a href="index.html" class="hover:text-white transition-colors">Magento_Payment</a></li>
+                    <li><span class="mx-2">/</span></li>
+                    <li><span class="text-gray-200">Plugins & Observers</span></li>
+                </ol>
+            </nav>
+            <h1 class="text-3xl font-bold text-white">Plugins & Observers</h1>
+            <p class="text-gray-300 mt-2">Extension points, event subscriptions, and DI preferences</p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="max-w-6xl mx-auto px-6 py-12">
+
+        <!-- Plugins -->
+        <section class="bg-white p-8 shadow-sm mb-8 border-l-4 border-magento-orange-500">
+            <h2 class="text-2xl font-bold text-magento-charcoal mb-6">Plugin Declarations</h2>
+            <p class="text-gray-700 mb-6">
+                The Payment module declares 2 plugins that modify checkout behavior.
+            </p>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm border border-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="text-left p-3 font-semibold border-b border-gray-200">Plugin Name</th>
+                            <th class="text-left p-3 font-semibold border-b border-gray-200">Target Class</th>
+                            <th class="text-left p-3 font-semibold border-b border-gray-200">Area</th>
+                            <th class="text-left p-3 font-semibold border-b border-gray-200">Purpose</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b border-gray-100">
+                            <td class="p-3 font-mono text-xs">PaymentMethodProcess</td>
+                            <td class="p-3 font-mono text-xs text-gray-600">Block\Form\Container</td>
+                            <td class="p-3"><span class="bg-charcoal text-white px-2 py-1 text-xs">global</span></td>
+                            <td class="p-3 text-gray-700">Processes payment method forms in container</td>
+                        </tr>
+                        <tr class="bg-gray-50">
+                            <td class="p-3 font-mono text-xs">ProcessPaymentConfiguration</td>
+                            <td class="p-3 font-mono text-xs text-gray-600">Checkout\Block\Checkout\LayoutProcessor</td>
+                            <td class="p-3"><span class="bg-magento-orange-100 text-magento-orange-800 px-2 py-1 text-xs">frontend</span></td>
+                            <td class="p-3 text-gray-700">Injects payment config into checkout layout</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 class="font-semibold text-magento-charcoal mt-8 mb-4">Plugin Details</h3>
+
+            <div class="space-y-6">
+                <div class="bg-gray-50 p-4 border border-gray-200">
+                    <h4 class="font-semibold text-magento-charcoal mb-2">PaymentMethodProcess</h4>
+                    <p class="text-sm text-gray-700 mb-3">
+                        Located in <code class="bg-white px-1">Plugin\PaymentMethodProcess</code>. Handles Braintree CC Vault integration.
+                    </p>
+                    <div class="bg-charcoal text-gray-100 p-3 text-xs overflow-x-auto">
+                        <pre><code>// di.xml configuration
+&lt;type name="Magento\Payment\Block\Form\Container"&gt;
+    &lt;plugin name="PaymentMethodProcess"
+            type="Magento\Payment\Plugin\PaymentMethodProcess"/&gt;
+&lt;/type&gt;
+
+&lt;type name="Magento\Payment\Plugin\PaymentMethodProcess"&gt;
+    &lt;arguments&gt;
+        &lt;argument name="braintreeCCVault" xsi:type="string"&gt;braintree_cc_vault&lt;/argument&gt;
+    &lt;/arguments&gt;
+&lt;/type&gt;</code></pre>
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 p-4 border border-gray-200">
+                    <h4 class="font-semibold text-magento-charcoal mb-2">ProcessPaymentConfiguration</h4>
+                    <p class="text-sm text-gray-700 mb-3">
+                        Located in <code class="bg-white px-1">Plugin\PaymentConfigurationProcess</code>. Adds payment configuration to checkout JS config.
+                    </p>
+                    <div class="bg-charcoal text-gray-100 p-3 text-xs overflow-x-auto">
+                        <pre><code>// frontend/di.xml
+&lt;type name="Magento\Checkout\Block\Checkout\LayoutProcessor"&gt;
+    &lt;plugin name="ProcessPaymentConfiguration"
+            type="Magento\Payment\Plugin\PaymentConfigurationProcess"/&gt;
+&lt;/type&gt;
+
+// Plugin adds payment component config to:
+// jsLayout > components > checkout > children > steps >
+//   children > billing-step > children > payment</code></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Observers -->
+        <section class="bg-white p-8 shadow-sm mb-8 border-l-4 border-magento-gold-500">
+            <h2 class="text-2xl font-bold text-magento-charcoal mb-6">Observer Declarations</h2>
+            <p class="text-gray-700 mb-6">
+                The Payment module subscribes to 2 events in the global area.
+            </p>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm border border-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="text-left p-3 font-semibold border-b border-gray-200">Event</th>
+                            <th class="text-left p-3 font-semibold border-b border-gray-200">Observer Name</th>
+                            <th class="text-left p-3 font-semibold border-b border-gray-200">Class</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b border-gray-100">
+                            <td class="p-3 font-mono text-xs">sales_order_save_before</td>
+                            <td class="p-3 font-mono text-xs">payment_sales_order_save_before</td>
+                            <td class="p-3 font-mono text-xs text-gray-600">Observer\SalesOrderBeforeSaveObserver</td>
+                        </tr>
+                        <tr class="bg-gray-50">
+                            <td class="p-3 font-mono text-xs">sales_order_status_unassign</td>
+                            <td class="p-3 font-mono text-xs">sales_order_status_update</td>
+                            <td class="p-3 font-mono text-xs text-gray-600">Observer\UpdateOrderStatusForPaymentMethodsObserver</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 class="font-semibold text-magento-charcoal mt-8 mb-4">Observer Details</h3>
+
+            <div class="space-y-6">
+                <div class="bg-gray-50 p-4 border border-gray-200">
+                    <h4 class="font-semibold text-magento-charcoal mb-2">SalesOrderBeforeSaveObserver</h4>
+                    <p class="text-sm text-gray-700 mb-3">
+                        Validates payment data integrity before order is saved to database.
+                    </p>
+                    <div class="bg-charcoal text-gray-100 p-3 text-xs overflow-x-auto">
+                        <pre><code>// Observer\SalesOrderBeforeSaveObserver::execute()
+public function execute(Observer $observer)
+{
+    $order = $observer->getEvent()->getOrder();
+    $payment = $order->getPayment();
+
+    // Validates payment method is still available
+    // Checks payment additional information
+    // Ensures required data is present
+}</code></pre>
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 p-4 border border-gray-200">
+                    <h4 class="font-semibold text-magento-charcoal mb-2">UpdateOrderStatusForPaymentMethodsObserver</h4>
+                    <p class="text-sm text-gray-700 mb-3">
+                        Updates payment method configuration when order status is unassigned.
+                    </p>
+                    <div class="bg-charcoal text-gray-100 p-3 text-xs overflow-x-auto">
+                        <pre><code>// Observer\UpdateOrderStatusForPaymentMethodsObserver::execute()
+public function execute(Observer $observer)
+{
+    $status = $observer->getEvent()->getStatus();
+    $state = $observer->getEvent()->getState();
+
+    // Updates payment/method/order_status config
+    // when a status is unassigned from a state
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- DI Preferences -->
+        <section class="bg-white p-8 shadow-sm mb-8 border-l-4 border-charcoal">
+            <h2 class="text-2xl font-bold text-magento-charcoal mb-6">DI Preferences</h2>
+            <p class="text-gray-700 mb-6">
+                The Payment module declares 8 interface-to-implementation preferences.
+            </p>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm border border-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="text-left p-3 font-semibold border-b border-gray-200">Interface</th>
+                            <th class="text-left p-3 font-semibold border-b border-gray-200">Implementation</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b border-gray-100">
+                            <td class="p-3 font-mono text-xs">Api\Data\PaymentMethodInterface</td>
+                            <td class="p-3 font-mono text-xs text-gray-600">Model\PaymentMethod</td>
+                        </tr>
+                        <tr class="border-b border-gray-100 bg-gray-50">
+                            <td class="p-3 font-mono text-xs">Api\Data\PaymentAdditionalInfoInterface</td>
+                            <td class="p-3 font-mono text-xs text-gray-600">Model\PaymentAdditionalInfo</td>
+                        </tr>
+                        <tr class="border-b border-gray-100">
+                            <td class="p-3 font-mono text-xs">Api\PaymentMethodListInterface</td>
+                            <td class="p-3 font-mono text-xs text-gray-600">Model\PaymentMethodList</td>
+                        </tr>
+                        <tr class="border-b border-gray-100 bg-gray-50">
+                            <td class="p-3 font-mono text-xs">Gateway\Validator\ResultInterface</td>
+                            <td class="p-3 font-mono text-xs text-gray-600">Gateway\Validator\Result</td>
+                        </tr>
+                        <tr class="border-b border-gray-100">
+                            <td class="p-3 font-mono text-xs">Gateway\ConfigFactoryInterface</td>
+                            <td class="p-3 font-mono text-xs text-gray-600">Gateway\Config\ConfigFactory</td>
+                        </tr>
+                        <tr class="border-b border-gray-100 bg-gray-50">
+                            <td class="p-3 font-mono text-xs">Gateway\Command\CommandManagerPoolInterface</td>
+                            <td class="p-3 font-mono text-xs text-gray-600">Gateway\Command\CommandManagerPool</td>
+                        </tr>
+                        <tr class="border-b border-gray-100">
+                            <td class="p-3 font-mono text-xs">Gateway\Data\PaymentDataObjectFactoryInterface</td>
+                            <td class="p-3 font-mono text-xs text-gray-600">Gateway\Data\PaymentDataObjectFactory</td>
+                        </tr>
+                        <tr class="bg-gray-50">
+                            <td class="p-3 font-mono text-xs">Gateway\ErrorMapper\ErrorMessageMapperInterface</td>
+                            <td class="p-3 font-mono text-xs text-gray-600">Gateway\ErrorMapper\ErrorMessageMapper</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Virtual Types -->
+        <section class="bg-white p-8 shadow-sm mb-8 border-l-4 border-magento-orange-500">
+            <h2 class="text-2xl font-bold text-magento-charcoal mb-6">Key Virtual Types</h2>
+            <p class="text-gray-700 mb-6">
+                Virtual types are extensively used to configure payment logging and error mapping.
+            </p>
+
+            <div class="space-y-4">
+                <div class="bg-gray-50 p-4 border border-gray-200">
+                    <h4 class="font-semibold text-magento-charcoal mb-2">Payment Logger</h4>
+                    <div class="bg-charcoal text-gray-100 p-3 text-xs overflow-x-auto">
+                        <pre><code>&lt;!-- Dedicated payment log file --&gt;
+&lt;virtualType name="Magento\Payment\Model\Method\VirtualDebug"
+             type="Magento\Framework\Logger\Handler\Base"&gt;
+    &lt;arguments&gt;
+        &lt;argument name="fileName" xsi:type="string"&gt;/var/log/payment.log&lt;/argument&gt;
+    &lt;/arguments&gt;
+&lt;/virtualType&gt;
+
+&lt;virtualType name="Magento\Payment\Model\Method\VirtualLogger"
+             type="Magento\Framework\Logger\Monolog"&gt;
+    &lt;arguments&gt;
+        &lt;argument name="handlers" xsi:type="array"&gt;
+            &lt;item name="debug" xsi:type="object"&gt;
+                Magento\Payment\Model\Method\VirtualDebug
+            &lt;/item&gt;
+        &lt;/argument&gt;
+    &lt;/arguments&gt;
+&lt;/virtualType&gt;</code></pre>
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 p-4 border border-gray-200">
+                    <h4 class="font-semibold text-magento-charcoal mb-2">Error Mapping Configuration</h4>
+                    <div class="bg-charcoal text-gray-100 p-3 text-xs overflow-x-auto">
+                        <pre><code>&lt;!-- Error mapping reader and schema --&gt;
+&lt;virtualType name="Magento\Payment\Gateway\ErrorMapper\VirtualSchemaLocator"
+             type="Magento\Framework\Config\GenericSchemaLocator"&gt;
+    &lt;arguments&gt;
+        &lt;argument name="moduleName" xsi:type="string"&gt;Magento_Payment&lt;/argument&gt;
+        &lt;argument name="schema" xsi:type="string"&gt;error_mapping.xsd&lt;/argument&gt;
+    &lt;/arguments&gt;
+&lt;/virtualType&gt;
+
+&lt;virtualType name="Magento\Payment\Gateway\ErrorMapper\VirtualConfigReader"
+             type="Magento\Framework\Config\Reader\Filesystem"&gt;
+    &lt;arguments&gt;
+        &lt;argument name="converter" xsi:type="object"&gt;
+            Magento\Payment\Gateway\ErrorMapper\XmlToArrayConverter
+        &lt;/argument&gt;
+        &lt;argument name="schemaLocator" xsi:type="object"&gt;
+            Magento\Payment\Gateway\ErrorMapper\VirtualSchemaLocator
+        &lt;/argument&gt;
+        &lt;argument name="fileName" xsi:type="string"&gt;error_mapping.xml&lt;/argument&gt;
+    &lt;/arguments&gt;
+&lt;/virtualType&gt;</code></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Extension Best Practices -->
+        <section class="bg-charcoal text-white p-8 mb-8">
+            <h2 class="text-2xl font-bold mb-6">Extension Best Practices</h2>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <div>
+                    <h3 class="font-bold text-magento-orange-400 mb-4 flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                        DO
+                    </h3>
+                    <ul class="space-y-2 text-sm text-gray-300">
+                        <li class="flex items-start gap-2">
+                            <span class="text-magento-orange-400">+</span>
+                            Use Gateway framework for new payment methods
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-magento-orange-400">+</span>
+                            Configure methods via di.xml virtual types
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-magento-orange-400">+</span>
+                            Implement error_mapping.xml for user-friendly errors
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-magento-orange-400">+</span>
+                            Use Method\Logger for payment debugging
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-magento-orange-400">+</span>
+                            Implement SpecificationInterface for availability rules
+                        </li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-bold text-magento-gold-400 mb-4 flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                        </svg>
+                        DON'T
+                    </h3>
+                    <ul class="space-y-2 text-sm text-gray-300">
+                        <li class="flex items-start gap-2">
+                            <span class="text-magento-gold-400">-</span>
+                            Extend AbstractMethod for new methods
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-magento-gold-400">-</span>
+                            Store sensitive data in payment additional_info
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-magento-gold-400">-</span>
+                            Log full credit card numbers
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-magento-gold-400">-</span>
+                            Expose raw gateway error codes to customers
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-magento-gold-400">-</span>
+                            Override core payment observers
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Adding Custom Payment Method -->
+        <section class="bg-white p-8 shadow-sm mb-8 border-l-4 border-magento-gold-500">
+            <h2 class="text-2xl font-bold text-magento-charcoal mb-6">Adding a Custom Payment Method</h2>
+            <p class="text-gray-700 mb-6">
+                Minimum configuration required to add a Gateway-based payment method:
+            </p>
+
+            <div class="bg-charcoal text-gray-100 p-4 text-xs overflow-x-auto">
+                <pre><code>&lt;!-- etc/di.xml --&gt;
+&lt;!-- 1. Method Facade --&gt;
+&lt;virtualType name="MyPaymentFacade" type="Magento\Payment\Model\Method\Adapter"&gt;
+    &lt;arguments&gt;
+        &lt;argument name="code" xsi:type="const"&gt;My\Payment\Model\Ui\ConfigProvider::CODE&lt;/argument&gt;
+        &lt;argument name="formBlockType" xsi:type="string"&gt;Magento\Payment\Block\Form&lt;/argument&gt;
+        &lt;argument name="infoBlockType" xsi:type="string"&gt;Magento\Payment\Block\Info&lt;/argument&gt;
+        &lt;argument name="valueHandlerPool" xsi:type="object"&gt;MyPaymentValueHandlerPool&lt;/argument&gt;
+        &lt;argument name="commandPool" xsi:type="object"&gt;MyPaymentCommandPool&lt;/argument&gt;
+    &lt;/arguments&gt;
+&lt;/virtualType&gt;
+
+&lt;!-- 2. Command Pool --&gt;
+&lt;virtualType name="MyPaymentCommandPool" type="Magento\Payment\Gateway\Command\CommandPool"&gt;
+    &lt;arguments&gt;
+        &lt;argument name="commands" xsi:type="array"&gt;
+            &lt;item name="authorize" xsi:type="string"&gt;MyPaymentAuthorizeCommand&lt;/item&gt;
+        &lt;/argument&gt;
+    &lt;/arguments&gt;
+&lt;/virtualType&gt;
+
+&lt;!-- 3. Value Handler Pool --&gt;
+&lt;virtualType name="MyPaymentValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool"&gt;
+    &lt;arguments&gt;
+        &lt;argument name="handlers" xsi:type="array"&gt;
+            &lt;item name="default" xsi:type="string"&gt;MyPaymentConfigValueHandler&lt;/item&gt;
+        &lt;/argument&gt;
+    &lt;/arguments&gt;
+&lt;/virtualType&gt;
+
+&lt;!-- etc/config.xml --&gt;
+&lt;config&gt;
+    &lt;default&gt;
+        &lt;payment&gt;
+            &lt;mypayment&gt;
+                &lt;active&gt;1&lt;/active&gt;
+                &lt;model&gt;MyPaymentFacade&lt;/model&gt;
+                &lt;title&gt;My Payment Method&lt;/title&gt;
+                &lt;payment_action&gt;authorize&lt;/payment_action&gt;
+            &lt;/mypayment&gt;
+        &lt;/payment&gt;
+    &lt;/default&gt;
+&lt;/config&gt;</code></pre>
+            </div>
+        </section>
+
+        <!-- Navigation -->
+        <nav class="flex flex-wrap gap-4 justify-between items-center pt-8 border-t border-gray-200">
+            <a href="execution-flows.html" class="inline-flex items-center gap-2 text-magento-charcoal hover:text-magento-orange-600 transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                </svg>
+                Execution Flows
+            </a>
+            <a href="integrations.html" class="inline-flex items-center gap-2 text-magento-orange-600 hover:text-magento-orange-700 font-semibold transition-colors">
+                Integrations
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+            </a>
+        </nav>
+
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-charcoal text-white py-8 mt-16">
+        <div class="max-w-6xl mx-auto px-6 text-center">
+            <p class="text-sm text-gray-400">
+                Magento_Payment Plugins & Observers | Part of The Magento Core Documentation Project
+            </p>
+        </div>
+    </footer>
+
+</body>
+</html>

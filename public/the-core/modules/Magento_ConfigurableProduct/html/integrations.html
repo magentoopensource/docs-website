@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Integrations - Magento_ConfigurableProduct | THE MAGENTO CORE</title>
+    <meta name="description" content="Module dependencies and cross-module integration patterns for Magento_ConfigurableProduct: Catalog, Quote, Sales, Inventory, Swatches, GraphQL">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        orange: {
+                            DEFAULT: '#F26423',
+                            50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad', 300: '#f9ae78',
+                            400: '#f58242', 500: '#f26423', 600: '#e34613', 700: '#bc3312',
+                            800: '#962a16', 900: '#792515', 950: '#411009'
+                        },
+                        yellow: {
+                            DEFAULT: '#F1BC1B',
+                            50: '#fffbeb', 100: '#fdf9c8', 200: '#fbf38c', 300: '#f8e651',
+                            400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a', 700: '#b1670c',
+                            800: '#8f5111', 900: '#764311', 950: '#442204'
+                        },
+                        charcoal: {
+                            DEFAULT: '#2c2c2c',
+                            50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6', 300: '#818181',
+                            400: '#474747', 500: '#2c2c2c', 600: '#262626', 700: '#202020',
+                            800: '#1c1c1c', 900: '#191919', 950: '#121212'
+                        },
+                        brown: '#442204',
+                        'off-white': '#FAFAFA',
+                    },
+                    fontFamily: {
+                        sans: ['Inter Tight', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter Tight', system-ui, sans-serif; }
+        .code-block { background: #1c1c1c; color: #f1f1f1; }
+    </style>
+</head>
+<body class="bg-off-white text-charcoal">
+
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-charcoal focus:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
+        Skip to content
+    </a>
+
+    <header class="bg-gradient-to-br from-charcoal-500 via-charcoal-600 to-charcoal-700 border-b-8 border-orange-500">
+        <!-- back-to-developer-docs -->
+        <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 pt-4"><a href="/developer/" aria-label="Back to Developer Docs" class="inline-flex items-center gap-1.5 text-sm font-medium text-white/70 hover:text-white transition-colors no-underline"><span aria-hidden="true">←</span> Developer Docs</a></div>
+        <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+            <nav aria-label="Breadcrumb" class="mb-6">
+                <ol class="flex flex-wrap items-center gap-2 text-sm text-gray-400">
+                    <li><a href="../../../index.html" class="hover:text-orange-500 underline underline-offset-4">Home</a></li>
+                    <li aria-hidden="true"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></li>
+                    <li><a href="index.html" class="hover:text-orange-500 underline underline-offset-4">Magento_ConfigurableProduct</a></li>
+                    <li aria-hidden="true"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></li>
+                    <li class="text-white font-medium">Integrations</li>
+                </ol>
+            </nav>
+            <div id="main-content">
+                <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white mb-4">Module <span class="text-orange-500">Integrations</span></h1>
+                <p class="text-base sm:text-lg text-gray-300 max-w-3xl mb-6">Dependencies and cross-module integration patterns</p>
+                <div class="flex flex-wrap gap-3 text-sm">
+                    <span class="inline-flex items-center gap-1.5 bg-orange-500/20 text-orange-300 px-3 py-1.5 font-medium border border-orange-500/30">6 Dependencies</span>
+                    <span class="inline-flex items-center gap-1.5 bg-yellow-500/20 text-yellow-300 px-3 py-1.5 font-medium border border-yellow-500/30">Swatches</span>
+                    <span class="inline-flex items-center gap-1.5 bg-charcoal-400/40 text-charcoal-100 px-3 py-1.5 font-medium border border-charcoal-300/30">GraphQL</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <nav class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-6">
+            <ul class="flex flex-wrap gap-6 py-4 text-sm font-medium">
+                <li><a href="index.html" class="text-charcoal hover:text-orange-500 border-b-2 border-transparent hover:border-orange-500 pb-1">Overview</a></li>
+                <li><a href="architecture.html" class="text-charcoal hover:text-orange-500 border-b-2 border-transparent hover:border-orange-500 pb-1">Architecture</a></li>
+                <li><a href="execution-flows.html" class="text-charcoal hover:text-orange-500 border-b-2 border-transparent hover:border-orange-500 pb-1">Execution Flows</a></li>
+                <li><a href="plugins-observers.html" class="text-charcoal hover:text-orange-500 border-b-2 border-transparent hover:border-orange-500 pb-1">Plugins & Observers</a></li>
+                <li><a href="integrations.html" class="text-orange-500 border-b-2 border-orange-500 pb-1">Integrations</a></li>
+                <li><a href="known-issues.html" class="text-charcoal hover:text-orange-500 border-b-2 border-transparent hover:border-orange-500 pb-1">Known Issues</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="max-w-6xl mx-auto px-6 py-8 md:py-12">
+
+        <!-- Integration Overview -->
+        <section class="bg-white mb-12 p-8 border-t-4 border-orange-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-charcoal mb-4">Integration Overview</h2>
+            <p class="text-gray-600 mb-6">Magento_ConfigurableProduct integrates deeply with the catalog, pricing, inventory, and checkout systems. It depends on 6 core modules and provides integration points for swatches, search, and GraphQL.</p>
+
+            <div class="bg-gray-50 p-6 text-center">
+                <div class="flex flex-wrap justify-center items-center gap-4 mb-4">
+                    <div class="bg-charcoal text-white px-6 py-3 font-semibold min-w-[150px]">Magento_Catalog</div>
+                    <div class="bg-charcoal text-white px-6 py-3 font-semibold min-w-[150px]">Magento_Quote</div>
+                    <div class="bg-charcoal text-white px-6 py-3 font-semibold min-w-[150px]">Magento_Sales</div>
+                </div>
+                <div class="text-2xl font-bold text-charcoal my-4">&#8595;</div>
+                <div class="bg-orange-500 text-white px-8 py-4 font-bold inline-block mb-4">Magento_ConfigurableProduct</div>
+                <div class="text-2xl font-bold text-charcoal my-4">&#8595;</div>
+                <div class="flex flex-wrap justify-center items-center gap-4">
+                    <div class="bg-yellow-500 text-charcoal px-6 py-3 font-semibold min-w-[150px]">Magento_Swatches</div>
+                    <div class="bg-yellow-500 text-charcoal px-6 py-3 font-semibold min-w-[150px]">Magento_CatalogSearch</div>
+                    <div class="bg-yellow-500 text-charcoal px-6 py-3 font-semibold min-w-[150px]">ConfigurableProductGraphQl</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Module Dependencies -->
+        <section class="bg-white mb-12 p-8 border-t-4 border-yellow-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-charcoal mb-6">Module Dependencies</h2>
+            <p class="text-gray-600 mb-6">These modules must be loaded before ConfigurableProduct:</p>
+
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="border-l-4 border-yellow-500 pl-4 bg-gray-50 p-4">
+                    <h4 class="font-bold text-charcoal mb-2"><span class="inline-block bg-yellow-500 text-charcoal px-2 py-0.5 text-xs font-semibold mr-2">Required</span> Magento_Catalog</h4>
+                    <p class="text-sm text-gray-600 mb-3">Provides the core product entity, EAV attributes, and product types framework.</p>
+                    <ul class="text-sm text-gray-600 list-disc list-inside space-y-1">
+                        <li>Product entity and repository</li>
+                        <li>EAV attribute system for super attributes</li>
+                        <li>Product type abstract class</li>
+                        <li>Category and product linking</li>
+                    </ul>
+                </div>
+
+                <div class="border-l-4 border-yellow-500 pl-4 bg-gray-50 p-4">
+                    <h4 class="font-bold text-charcoal mb-2"><span class="inline-block bg-yellow-500 text-charcoal px-2 py-0.5 text-xs font-semibold mr-2">Required</span> Magento_Quote</h4>
+                    <p class="text-sm text-gray-600 mb-3">Cart and quote management for configurable product items.</p>
+                    <ul class="text-sm text-gray-600 list-disc list-inside space-y-1">
+                        <li>Quote item processing</li>
+                        <li>Product option storage</li>
+                        <li>Parent-child quote item linking</li>
+                        <li>Custom option handling</li>
+                    </ul>
+                </div>
+
+                <div class="border-l-4 border-yellow-500 pl-4 bg-gray-50 p-4">
+                    <h4 class="font-bold text-charcoal mb-2"><span class="inline-block bg-yellow-500 text-charcoal px-2 py-0.5 text-xs font-semibold mr-2">Required</span> Magento_Sales</h4>
+                    <p class="text-sm text-gray-600 mb-3">Order management and item processing.</p>
+                    <ul class="text-sm text-gray-600 list-disc list-inside space-y-1">
+                        <li>Order item conversion</li>
+                        <li>Product options in orders</li>
+                        <li>Invoice/shipment item handling</li>
+                        <li>Admin order item display</li>
+                    </ul>
+                </div>
+
+                <div class="border-l-4 border-yellow-500 pl-4 bg-gray-50 p-4">
+                    <h4 class="font-bold text-charcoal mb-2"><span class="inline-block bg-yellow-500 text-charcoal px-2 py-0.5 text-xs font-semibold mr-2">Required</span> Magento_CatalogInventory</h4>
+                    <p class="text-sm text-gray-600 mb-3">Stock management for configurable and child products.</p>
+                    <ul class="text-sm text-gray-600 list-disc list-inside space-y-1">
+                        <li>Stock status aggregation</li>
+                        <li>Quantity validation</li>
+                        <li>Salability checks</li>
+                        <li>Stock indexer integration</li>
+                    </ul>
+                </div>
+
+                <div class="border-l-4 border-yellow-500 pl-4 bg-gray-50 p-4">
+                    <h4 class="font-bold text-charcoal mb-2"><span class="inline-block bg-yellow-500 text-charcoal px-2 py-0.5 text-xs font-semibold mr-2">Required</span> Magento_Checkout</h4>
+                    <p class="text-sm text-gray-600 mb-3">Checkout process handling.</p>
+                    <ul class="text-sm text-gray-600 list-disc list-inside space-y-1">
+                        <li>Add to cart processing</li>
+                        <li>Cart page display</li>
+                        <li>Mini-cart integration</li>
+                        <li>Checkout validation</li>
+                    </ul>
+                </div>
+
+                <div class="border-l-4 border-yellow-500 pl-4 bg-gray-50 p-4">
+                    <h4 class="font-bold text-charcoal mb-2"><span class="inline-block bg-yellow-500 text-charcoal px-2 py-0.5 text-xs font-semibold mr-2">Required</span> Magento_Msrp</h4>
+                    <p class="text-sm text-gray-600 mb-3">Manufacturer's suggested retail price support.</p>
+                    <ul class="text-sm text-gray-600 list-disc list-inside space-y-1">
+                        <li>MSRP display on configurable</li>
+                        <li>MAP pricing rules</li>
+                        <li>Price masking integration</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Key Integrations -->
+        <section class="bg-white mb-12 p-8 border-t-4 border-orange-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-charcoal mb-6">Key Module Integrations</h2>
+
+            <h3 class="text-lg font-bold text-charcoal mb-4">Magento_Swatches Integration</h3>
+            <p class="text-gray-600 mb-4">Visual attribute selection instead of dropdowns:</p>
+            <div class="border-l-4 border-orange-500 pl-4 bg-gray-50 p-4 mb-6">
+                <h4 class="font-bold text-charcoal mb-2">Swatch Renderer</h4>
+                <p class="text-sm text-gray-600 mb-3">When configurable options use swatch attributes (color, size), the frontend renders visual selectors instead of dropdowns. ConfigurableProduct provides the base option data structure that Swatches extends.</p>
+                <ul class="text-sm text-gray-600 list-disc list-inside space-y-1">
+                    <li>Color swatches with hex codes</li>
+                    <li>Image swatches for patterns</li>
+                    <li>Text swatches for sizes</li>
+                    <li>Image switching on option select</li>
+                </ul>
+            </div>
+
+            <div class="code-block p-4 text-sm overflow-x-auto mb-8">
+<pre>// Swatches extends configurable JSON config
+$jsonConfig = $this->getJsonConfig();
+$swatchConfig = $this->getSwatchConfig();
+
+// Combined output for RequireJS
+return [
+    'Magento_ConfigurableProduct/js/configurable' => $jsonConfig,
+    'Magento_Swatches/js/swatch-renderer' => $swatchConfig
+];</pre>
+            </div>
+
+            <h3 class="text-lg font-bold text-charcoal mb-4">Price Indexer Integration</h3>
+            <p class="text-gray-600 mb-4">Configurable product prices are indexed based on their children:</p>
+            <div class="code-block p-4 text-sm overflow-x-auto mb-8">
+<pre>// Configurable price indexer
+// catalog_product_index_price stores the minimum child price
+
+INSERT INTO catalog_product_index_price
+SELECT
+    parent.entity_id,
+    MIN(child.min_price) AS min_price,
+    MIN(child.final_price) AS final_price,
+    MAX(child.max_price) AS max_price
+FROM catalog_product_entity parent
+JOIN catalog_product_super_link link ON parent.entity_id = link.parent_id
+JOIN catalog_product_index_price child ON link.product_id = child.entity_id
+WHERE parent.type_id = 'configurable'
+GROUP BY parent.entity_id</pre>
+            </div>
+
+            <h3 class="text-lg font-bold text-charcoal mb-4">MSI (Multi-Source Inventory) Integration</h3>
+            <p class="text-gray-600 mb-4">ConfigurableProduct works with MSI through stock status aggregation:</p>
+            <div class="overflow-x-auto mb-8">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="bg-charcoal text-white">
+                            <th class="text-left p-3 font-semibold">Component</th>
+                            <th class="text-left p-3 font-semibold">Integration Point</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b border-gray-200">
+                            <td class="p-3"><code class="bg-charcoal text-yellow-500 px-1 py-0.5 text-xs">InventoryConfigurableProduct</code></td>
+                            <td class="p-3">Separate module that bridges ConfigurableProduct with MSI</td>
+                        </tr>
+                        <tr class="border-b border-gray-200 bg-gray-50">
+                            <td class="p-3">Stock aggregation</td>
+                            <td class="p-3">Parent salable if any child has stock in any source</td>
+                        </tr>
+                        <tr class="border-b border-gray-200">
+                            <td class="p-3">Reservation system</td>
+                            <td class="p-3">Reservations created against child product SKU</td>
+                        </tr>
+                        <tr class="border-b border-gray-200 bg-gray-50">
+                            <td class="p-3">Source selection</td>
+                            <td class="p-3">Child product determines fulfillment source</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 class="text-lg font-bold text-charcoal mb-4">GraphQL Integration</h3>
+            <p class="text-gray-600 mb-4">ConfigurableProduct exposes schema extensions for headless:</p>
+            <div class="code-block p-4 text-sm overflow-x-auto mb-8">
+<pre># GraphQL schema extensions (ConfigurableProductGraphQl module)
+
+type ConfigurableProduct implements ProductInterface {
+    configurable_options: [ConfigurableProductOptions]
+    variants: [ConfigurableVariant]
+}
+
+type ConfigurableProductOptions {
+    id: Int
+    attribute_id: String
+    label: String
+    values: [ConfigurableProductOptionsValues]
+}
+
+type ConfigurableVariant {
+    product: SimpleProduct
+    attributes: [ConfigurableAttributeOption]
+}</pre>
+            </div>
+
+            <h3 class="text-lg font-bold text-charcoal mb-4">Elasticsearch/OpenSearch Integration</h3>
+            <p class="text-gray-600 mb-4">Configurable products and their children are indexed for search:</p>
+            <div class="border-l-4 border-orange-500 pl-4 bg-gray-50 p-4">
+                <h4 class="font-bold text-charcoal mb-2">Search Indexing</h4>
+                <ul class="text-sm text-gray-600 list-disc list-inside space-y-1">
+                    <li>Parent configurable indexed with aggregated child data</li>
+                    <li>Filterable attributes include all child values</li>
+                    <li>Price range from min to max child price</li>
+                    <li>Stock status reflects child availability</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Cart/Checkout Integration -->
+        <section class="bg-white mb-12 p-8 border-t-4 border-yellow-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-charcoal mb-6">Cart & Checkout Integration</h2>
+
+            <h3 class="text-lg font-bold text-charcoal mb-4">Quote Item Structure</h3>
+            <p class="text-gray-600 mb-4">When added to cart, configurable products create two linked quote items:</p>
+
+            <div class="overflow-x-auto mb-6">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="bg-charcoal text-white">
+                            <th class="text-left p-3 font-semibold">Item</th>
+                            <th class="text-left p-3 font-semibold">Type</th>
+                            <th class="text-left p-3 font-semibold">Visible</th>
+                            <th class="text-left p-3 font-semibold">Purpose</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b border-gray-200">
+                            <td class="p-3 font-semibold">Parent Item</td>
+                            <td class="p-3">configurable</td>
+                            <td class="p-3">Yes</td>
+                            <td class="p-3">Display in cart, show selected options</td>
+                        </tr>
+                        <tr class="border-b border-gray-200 bg-gray-50">
+                            <td class="p-3 font-semibold">Child Item</td>
+                            <td class="p-3">simple</td>
+                            <td class="p-3">No</td>
+                            <td class="p-3">Actual product for pricing, inventory, fulfillment</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="code-block p-4 text-sm overflow-x-auto mb-8">
+<pre>// Quote item relationship
+$parentItem->getChildren();  // Returns [childItem]
+$childItem->getParentItem();  // Returns parentItem
+
+// Child item flags
+$childItem->isChildrenCalculated(); // true
+$parentItem->isChildrenCalculated(); // true
+
+// Price comes from child
+$parentItem->getPrice(); // Calculated from child</pre>
+            </div>
+
+            <h3 class="text-lg font-bold text-charcoal mb-4">CartItemProcessor</h3>
+            <p class="text-gray-600 mb-4">Handles REST/GraphQL cart operations for configurable items:</p>
+            <div class="code-block p-4 text-sm overflow-x-auto">
+<pre>class CartItemProcessor implements CartItemProcessorInterface
+{
+    public function convertToBuyRequest(CartItemInterface $cartItem)
+    {
+        $productOption = $cartItem->getProductOption();
+        $options = $productOption->getExtensionAttributes()
+            ->getConfigurableItemOptions();
+
+        $superAttribute = [];
+        foreach ($options as $option) {
+            $superAttribute[$option->getOptionId()] = $option->getOptionValue();
+        }
+
+        return new DataObject(['super_attribute' => $superAttribute]);
+    }
+}</pre>
+            </div>
+        </section>
+
+        <!-- Admin Integration -->
+        <section class="bg-white mb-12 p-8 border-t-4 border-orange-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-charcoal mb-6">Admin Integration</h2>
+
+            <h3 class="text-lg font-bold text-charcoal mb-4">Product Edit Form</h3>
+            <p class="text-gray-600 mb-4">Special UI components for configurable product management:</p>
+            <div class="border-l-4 border-orange-500 pl-4 bg-gray-50 p-4 mb-6">
+                <h4 class="font-bold text-charcoal mb-2">Admin UI Components</h4>
+                <ul class="text-sm text-gray-600 list-disc list-inside space-y-1">
+                    <li><strong>Configurations tab</strong> - Manage super attributes and child products</li>
+                    <li><strong>Variation wizard</strong> - Create all combinations from attribute options</li>
+                    <li><strong>Associated products grid</strong> - Manage linked simple products</li>
+                    <li><strong>Bulk price/stock editing</strong> - Update all children at once</li>
+                </ul>
+            </div>
+
+            <h3 class="text-lg font-bold text-charcoal mb-4">Import/Export</h3>
+            <p class="text-gray-600 mb-4">Configurable products have special handling during import:</p>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="bg-charcoal text-white">
+                            <th class="text-left p-3 font-semibold">Column</th>
+                            <th class="text-left p-3 font-semibold">Format</th>
+                            <th class="text-left p-3 font-semibold">Purpose</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b border-gray-200">
+                            <td class="p-3"><code class="bg-charcoal text-yellow-500 px-1 py-0.5 text-xs">configurable_variations</code></td>
+                            <td class="p-3 text-xs">sku=CHILD1,color=Red,size=M|sku=CHILD2...</td>
+                            <td class="p-3">Defines child products and their attribute values</td>
+                        </tr>
+                        <tr class="border-b border-gray-200 bg-gray-50">
+                            <td class="p-3"><code class="bg-charcoal text-yellow-500 px-1 py-0.5 text-xs">configurable_variation_labels</code></td>
+                            <td class="p-3 text-xs">Color=Colour,Size=Taille</td>
+                            <td class="p-3">Store-specific attribute labels</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Navigation -->
+        <nav class="flex flex-col sm:flex-row gap-4 justify-between" aria-label="Page navigation">
+            <a href="plugins-observers.html" class="inline-flex items-center gap-2 px-6 py-3 bg-charcoal text-white font-semibold hover:bg-charcoal-600 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-charcoal">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                Plugins & Observers
+            </a>
+            <a href="known-issues.html" class="inline-flex items-center gap-2 px-6 py-3 bg-orange-500 text-white font-semibold hover:bg-orange-600 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
+                Known Issues
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </a>
+        </nav>
+
+    </div>
+
+    <footer class="bg-charcoal text-white py-8 mt-16">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                <p class="text-sm text-gray-400">Magento Documentation | Magento_ConfigurableProduct Integrations</p>
+                <div class="flex items-center gap-6">
+                    <a href="index.html" class="text-sm text-gray-400 hover:text-white transition">Module Overview</a>
+                    <a href="../../../index.html" class="text-sm text-gray-400 hover:text-white transition">Documentation Home</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

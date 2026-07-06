@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Integrations - Magento_Store Module</title>
+    <style>
+        :root {
+            --orange: #F26423;
+            --yellow: #F1BC1B;
+            --charcoal: #2C2C2C;
+            --light-gray: #F5F5F5;
+            --white: #FFFFFF;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background-color: var(--light-gray);
+            color: var(--charcoal);
+            line-height: 1.6;
+        }
+
+        .header {
+            background-color: var(--charcoal);
+            color: var(--white);
+            padding: 2rem;
+            position: relative;
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--orange) 0%, var(--orange) 50%, var(--yellow) 50%, var(--yellow) 100%);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .breadcrumb {
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+        }
+
+        .breadcrumb a {
+            color: var(--yellow);
+            text-decoration: none;
+        }
+
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+        .breadcrumb span {
+            color: var(--light-gray);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        .main-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .section {
+            background-color: var(--white);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .section h2 {
+            color: var(--charcoal);
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid var(--orange);
+            display: inline-block;
+        }
+
+        .section h3 {
+            color: var(--charcoal);
+            font-size: 1.25rem;
+            margin: 1.5rem 0 1rem 0;
+        }
+
+        .section p {
+            margin-bottom: 1rem;
+            color: #444;
+        }
+
+        .dependency-chart {
+            background-color: var(--charcoal);
+            color: var(--white);
+            padding: 2rem;
+            margin: 1.5rem 0;
+            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+            font-size: 0.8rem;
+            overflow-x: auto;
+        }
+
+        .dep-level {
+            margin-bottom: 0.25rem;
+        }
+
+        .dep-module {
+            color: var(--yellow);
+            font-weight: bold;
+        }
+
+        .dep-framework {
+            color: #8FD9A8;
+        }
+
+        .dep-arrow {
+            color: var(--orange);
+        }
+
+        .dep-comment {
+            color: #888;
+        }
+
+        .integration-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .integration-card {
+            background-color: var(--light-gray);
+            padding: 1.5rem;
+            border-left: 4px solid var(--orange);
+        }
+
+        .integration-card:nth-child(even) {
+            border-left-color: var(--yellow);
+        }
+
+        .integration-card:nth-child(3n) {
+            border-left-color: var(--charcoal);
+        }
+
+        .integration-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--charcoal);
+            margin-bottom: 0.5rem;
+        }
+
+        .integration-desc {
+            font-size: 0.875rem;
+            color: #666;
+            margin-bottom: 1rem;
+        }
+
+        .integration-points {
+            font-size: 0.8rem;
+            color: #555;
+        }
+
+        .integration-points li {
+            margin-bottom: 0.25rem;
+            padding-left: 1rem;
+            position: relative;
+            list-style: none;
+        }
+
+        .integration-points li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0.5rem;
+            width: 6px;
+            height: 6px;
+            background-color: var(--orange);
+        }
+
+        .code-block {
+            background-color: var(--charcoal);
+            color: #E0E0E0;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            overflow-x: auto;
+            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+            font-size: 0.875rem;
+            line-height: 1.5;
+        }
+
+        .code-block .keyword {
+            color: var(--orange);
+        }
+
+        .code-block .class-name {
+            color: var(--yellow);
+        }
+
+        .code-block .string {
+            color: #8FD9A8;
+        }
+
+        .code-block .comment {
+            color: #888;
+        }
+
+        .callout {
+            background-color: #FFF3E0;
+            border-left: 4px solid var(--orange);
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .callout.foundational {
+            background-color: #E3F2FD;
+            border-left-color: var(--charcoal);
+        }
+
+        .callout-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .module-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+        }
+
+        .module-table th {
+            background-color: var(--charcoal);
+            color: var(--white);
+            padding: 0.75rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .module-table td {
+            padding: 0.75rem;
+            border-bottom: 1px solid #E0E0E0;
+            font-size: 0.875rem;
+        }
+
+        .module-table tr:hover {
+            background-color: var(--light-gray);
+        }
+
+        .module-name {
+            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+            font-weight: 600;
+            color: var(--charcoal);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.125rem 0.5rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge.required {
+            background-color: var(--orange);
+            color: var(--white);
+        }
+
+        .badge.optional {
+            background-color: var(--light-gray);
+            color: var(--charcoal);
+            border: 1px solid #DDD;
+        }
+
+        .footer {
+            background-color: var(--charcoal);
+            color: var(--white);
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .footer a {
+            color: var(--yellow);
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.75rem;
+            }
+
+            .integration-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <!-- back-to-developer-docs -->
+        <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 pt-4"><a href="/developer/" aria-label="Back to Developer Docs" class="inline-flex items-center gap-1.5 text-sm font-medium text-white/70 hover:text-white transition-colors no-underline"><span aria-hidden="true">←</span> Developer Docs</a></div>
+        <div class="header-content">
+            <nav class="breadcrumb">
+                <a href="../../../index.html">Documentation</a>
+                <span> / </span>
+                <a href="index.html">Magento_Store</a>
+                <span> / </span>
+                <span>Integrations</span>
+            </nav>
+            <h1>Integrations</h1>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <section class="section">
+            <h2>Foundational Module Status</h2>
+            <p>
+                Magento_Store is one of the most foundational modules in the Magento ecosystem. It has
+                <strong>zero hard dependencies</strong> on other Magento modules, relying only on the
+                Magento Framework. Virtually every other module in Magento depends on Magento_Store.
+            </p>
+
+            <div class="callout foundational">
+                <div class="callout-title">Zero Module Dependencies</div>
+                <p>
+                    The <code>module.xml</code> for Magento_Store contains no <code>&lt;sequence&gt;</code>
+                    entries. This makes it load first among Magento modules, establishing the store context
+                    that all other modules rely upon.
+                </p>
+            </div>
+
+            <div class="dependency-chart">
+<div class="dep-level"><span class="dep-module">Magento_Store</span></div>
+<div class="dep-level">    <span class="dep-arrow">|</span></div>
+<div class="dep-level">    <span class="dep-arrow">+--</span> <span class="dep-framework">Magento\Framework</span> <span class="dep-comment">// Core framework classes</span></div>
+<div class="dep-level">    <span class="dep-arrow">|</span>      <span class="dep-arrow">+--</span> App\ScopeResolverInterface</div>
+<div class="dep-level">    <span class="dep-arrow">|</span>      <span class="dep-arrow">+--</span> App\Config\ScopeConfigInterface</div>
+<div class="dep-level">    <span class="dep-arrow">|</span>      <span class="dep-arrow">+--</span> App\Request\Http</div>
+<div class="dep-level">    <span class="dep-arrow">|</span>      <span class="dep-arrow">+--</span> Url\RouteParamsResolverInterface</div>
+<div class="dep-level">    <span class="dep-arrow">|</span>      <span class="dep-arrow">+--</span> Cache\FrontendInterface</div>
+<div class="dep-level">    <span class="dep-arrow">|</span></div>
+<div class="dep-level">    <span class="dep-arrow">+--</span> <span class="dep-framework">PHP Extensions</span></div>
+<div class="dep-level">           <span class="dep-arrow">+--</span> ext-json</div>
+<div class="dep-level">           <span class="dep-arrow">+--</span> ext-pdo_mysql</div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>Modules That Depend on Store</h2>
+            <p>
+                Nearly every Magento module depends on Magento_Store. Here are the core modules with
+                direct dependencies:
+            </p>
+
+            <table class="module-table">
+                <thead>
+                    <tr>
+                        <th>Module</th>
+                        <th>Dependency Type</th>
+                        <th>Primary Usage</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="module-name">Magento_Catalog</span></td>
+                        <td><span class="badge required">Required</span></td>
+                        <td>Store-scoped products, categories, URLs</td>
+                    </tr>
+                    <tr>
+                        <td><span class="module-name">Magento_Customer</span></td>
+                        <td><span class="badge required">Required</span></td>
+                        <td>Customer account per store, website sharing</td>
+                    </tr>
+                    <tr>
+                        <td><span class="module-name">Magento_Sales</span></td>
+                        <td><span class="badge required">Required</span></td>
+                        <td>Orders linked to store views</td>
+                    </tr>
+                    <tr>
+                        <td><span class="module-name">Magento_Quote</span></td>
+                        <td><span class="badge required">Required</span></td>
+                        <td>Cart scoped to store</td>
+                    </tr>
+                    <tr>
+                        <td><span class="module-name">Magento_Checkout</span></td>
+                        <td><span class="badge required">Required</span></td>
+                        <td>Checkout configuration per store</td>
+                    </tr>
+                    <tr>
+                        <td><span class="module-name">Magento_Cms</span></td>
+                        <td><span class="badge required">Required</span></td>
+                        <td>CMS pages/blocks per store view</td>
+                    </tr>
+                    <tr>
+                        <td><span class="module-name">Magento_Theme</span></td>
+                        <td><span class="badge required">Required</span></td>
+                        <td>Theme assignment per store view</td>
+                    </tr>
+                    <tr>
+                        <td><span class="module-name">Magento_Config</span></td>
+                        <td><span class="badge required">Required</span></td>
+                        <td>Scoped system configuration</td>
+                    </tr>
+                    <tr>
+                        <td><span class="module-name">Magento_UrlRewrite</span></td>
+                        <td><span class="badge required">Required</span></td>
+                        <td>URL rewrites per store view</td>
+                    </tr>
+                    <tr>
+                        <td><span class="module-name">Magento_Indexer</span></td>
+                        <td><span class="badge required">Required</span></td>
+                        <td>Store-specific index data</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="section">
+            <h2>Framework Integrations</h2>
+            <div class="integration-grid">
+                <div class="integration-card">
+                    <div class="integration-name">ScopeConfigInterface</div>
+                    <div class="integration-desc">
+                        Core integration for scope-based configuration retrieval. All system configuration
+                        values are resolved through the store scope hierarchy.
+                    </div>
+                    <ul class="integration-points">
+                        <li>getValue($path, $scopeType, $scopeCode)</li>
+                        <li>isSetFlag($path, $scopeType, $scopeCode)</li>
+                        <li>Fallback: store -> website -> default</li>
+                    </ul>
+                </div>
+
+                <div class="integration-card">
+                    <div class="integration-name">UrlInterface</div>
+                    <div class="integration-desc">
+                        URL generation integrates with store for base URLs, store codes in paths,
+                        and HTTPS enforcement.
+                    </div>
+                    <ul class="integration-points">
+                        <li>getUrl() with _scope parameter</li>
+                        <li>Store-specific base URLs</li>
+                        <li>URL security (HTTPS) per store</li>
+                    </ul>
+                </div>
+
+                <div class="integration-card">
+                    <div class="integration-name">LocaleResolverInterface</div>
+                    <div class="integration-desc">
+                        Locale resolution based on current store view configuration for language,
+                        timezone, and currency formatting.
+                    </div>
+                    <ul class="integration-points">
+                        <li>general/locale/code per store</li>
+                        <li>Timezone per store view</li>
+                        <li>Currency formatting locale</li>
+                    </ul>
+                </div>
+
+                <div class="integration-card">
+                    <div class="integration-name">FrontControllerInterface</div>
+                    <div class="integration-desc">
+                        Store resolution happens before controller dispatch via plugins on the
+                        front controller.
+                    </div>
+                    <ul class="integration-points">
+                        <li>storeCheck plugin (sortOrder: 10)</li>
+                        <li>storeCookieValidate plugin (sortOrder: 20)</li>
+                        <li>URL-based store resolution</li>
+                    </ul>
+                </div>
+
+                <div class="integration-card">
+                    <div class="integration-name">CacheInterface</div>
+                    <div class="integration-desc">
+                        Store data is cached for performance. Cache tags allow selective invalidation
+                        when stores change.
+                    </div>
+                    <ul class="integration-points">
+                        <li>CACHE_TAG = 'store_relations'</li>
+                        <li>Store::CACHE_TAG for store-specific</li>
+                        <li>reinitStores() clears all store caches</li>
+                    </ul>
+                </div>
+
+                <div class="integration-card">
+                    <div class="integration-name">CookieManagerInterface</div>
+                    <div class="integration-desc">
+                        Store selection is persisted in cookies for multi-store switching functionality.
+                    </div>
+                    <ul class="integration-points">
+                        <li>Store code cookie management</li>
+                        <li>Cookie validation on request</li>
+                        <li>Secure cookie handling</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>REST API Integration</h2>
+            <p>
+                The Store module exposes read-only REST endpoints for retrieving store structure information.
+            </p>
+
+            <div class="code-block">
+<span class="comment">// List all store views</span>
+GET /rest/V1/store/storeViews
+Authorization: Bearer {admin_token}
+
+<span class="comment">// Response</span>
+[
+    {
+        <span class="string">"id"</span>: 1,
+        <span class="string">"code"</span>: <span class="string">"default"</span>,
+        <span class="string">"name"</span>: <span class="string">"Default Store View"</span>,
+        <span class="string">"website_id"</span>: 1,
+        <span class="string">"store_group_id"</span>: 1,
+        <span class="string">"is_active"</span>: 1
+    }
+]
+
+<span class="comment">// Get store configuration</span>
+GET /rest/V1/store/storeConfigs
+
+<span class="comment">// Response includes</span>
+{
+    <span class="string">"locale"</span>: <span class="string">"en_US"</span>,
+    <span class="string">"base_currency_code"</span>: <span class="string">"USD"</span>,
+    <span class="string">"default_display_currency_code"</span>: <span class="string">"USD"</span>,
+    <span class="string">"timezone"</span>: <span class="string">"America/Los_Angeles"</span>,
+    <span class="string">"weight_unit"</span>: <span class="string">"lbs"</span>,
+    <span class="string">"base_url"</span>: <span class="string">"https://example.com/"</span>,
+    <span class="string">"base_media_url"</span>: <span class="string">"https://example.com/media/"</span>
+}
+            </div>
+
+            <div class="callout">
+                <div class="callout-title">Read-Only API</div>
+                <p>
+                    The Store REST API only provides GET endpoints. Creating, updating, or deleting stores
+                    must be done through the Admin UI or via direct model/repository operations. This is
+                    intentional to prevent accidental store structure changes via API.
+                </p>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>Database Relationships</h2>
+            <p>
+                Many tables reference the store hierarchy through foreign keys or scope columns.
+            </p>
+
+            <div class="dependency-chart">
+<div class="dep-level"><span class="dep-module">store_website</span></div>
+<div class="dep-level">    <span class="dep-arrow">|</span></div>
+<div class="dep-level">    <span class="dep-arrow">+--</span> <span class="dep-framework">store_group</span>.website_id <span class="dep-comment">FK</span></div>
+<div class="dep-level">    <span class="dep-arrow">|</span>      <span class="dep-arrow">|</span></div>
+<div class="dep-level">    <span class="dep-arrow">|</span>      <span class="dep-arrow">+--</span> <span class="dep-framework">store</span>.group_id <span class="dep-comment">FK</span></div>
+<div class="dep-level">    <span class="dep-arrow">|</span></div>
+<div class="dep-level">    <span class="dep-arrow">+--</span> <span class="dep-framework">store</span>.website_id <span class="dep-comment">FK (direct reference)</span></div>
+<div class="dep-level"></div>
+<div class="dep-level"><span class="dep-comment">// Other tables referencing store</span></div>
+<div class="dep-level"><span class="dep-framework">core_config_data</span>.scope_id <span class="dep-comment">-> store.store_id (when scope='stores')</span></div>
+<div class="dep-level"><span class="dep-framework">catalog_product_entity_*</span>.store_id</div>
+<div class="dep-level"><span class="dep-framework">cms_page_store</span>.store_id</div>
+<div class="dep-level"><span class="dep-framework">sales_order</span>.store_id</div>
+<div class="dep-level"><span class="dep-framework">customer_entity</span>.website_id</div>
+<div class="dep-level"><span class="dep-framework">quote</span>.store_id</div>
+<div class="dep-level"><span class="dep-framework">url_rewrite</span>.store_id</div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>Usage Patterns</h2>
+
+            <h3>Getting Current Store</h3>
+            <div class="code-block">
+<span class="comment">// In any class - inject StoreManagerInterface</span>
+<span class="keyword">public function</span> <span class="class-name">__construct</span>(
+    <span class="class-name">StoreManagerInterface</span> $storeManager
+) {
+    $this->storeManager = $storeManager;
+}
+
+<span class="keyword">public function</span> <span class="class-name">execute</span>()
+{
+    <span class="comment">// Get current store</span>
+    $store = $this->storeManager-><span class="class-name">getStore</span>();
+
+    <span class="comment">// Get store ID</span>
+    $storeId = $store-><span class="class-name">getId</span>();
+
+    <span class="comment">// Get store code</span>
+    $storeCode = $store-><span class="class-name">getCode</span>();
+
+    <span class="comment">// Get website</span>
+    $website = $this->storeManager-><span class="class-name">getWebsite</span>();
+}
+            </div>
+
+            <h3>Multi-Store Queries</h3>
+            <div class="code-block">
+<span class="comment">// Get all stores (excluding admin store)</span>
+$stores = $this->storeManager-><span class="class-name">getStores</span>();
+
+<span class="comment">// Get all stores including admin (store ID 0)</span>
+$allStores = $this->storeManager-><span class="class-name">getStores</span>(<span class="keyword">true</span>);
+
+<span class="comment">// Get stores keyed by code instead of ID</span>
+$storesByCode = $this->storeManager-><span class="class-name">getStores</span>(<span class="keyword">false</span>, <span class="keyword">true</span>);
+
+<span class="comment">// Get all websites</span>
+$websites = $this->storeManager-><span class="class-name">getWebsites</span>();
+            </div>
+
+            <h3>Scoped Configuration</h3>
+            <div class="code-block">
+<span class="comment">// Inject ScopeConfigInterface</span>
+<span class="keyword">public function</span> <span class="class-name">__construct</span>(
+    <span class="class-name">ScopeConfigInterface</span> $scopeConfig
+) {
+    $this->scopeConfig = $scopeConfig;
+}
+
+<span class="comment">// Get config for current store</span>
+$value = $this->scopeConfig-><span class="class-name">getValue</span>(
+    <span class="string">'general/locale/code'</span>,
+    <span class="class-name">ScopeInterface</span>::SCOPE_STORE
+);
+
+<span class="comment">// Get config for specific store</span>
+$value = $this->scopeConfig-><span class="class-name">getValue</span>(
+    <span class="string">'general/locale/code'</span>,
+    <span class="class-name">ScopeInterface</span>::SCOPE_STORE,
+    <span class="string">'french'</span>  <span class="comment">// store code</span>
+);
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p><a href="index.html">Back to Magento_Store Overview</a></p>
+        <p><a href="../../../index.html">Documentation Index</a></p>
+    </footer>
+</body>
+</html>

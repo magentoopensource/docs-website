@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magento_Sales Architecture | Magento Core Documentation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'magento-orange': {
+                            DEFAULT: '#F26423',
+                            50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad', 300: '#f9ae78',
+                            400: '#f58242', 500: '#F26423', 600: '#e34613', 700: '#bc3312',
+                            800: '#962a16', 900: '#792515', 950: '#411009'
+                        },
+                        'magento-gold': {
+                            DEFAULT: '#F1BC1B',
+                            50: '#fffdeb', 100: '#fdf9c8', 200: '#fbf38c', 300: '#f8e651',
+                            400: '#f7d728', 500: '#F1BC1B', 600: '#d5900a', 700: '#b1670c',
+                            800: '#8f5111', 900: '#764311', 950: '#442204'
+                        },
+                        'magento-charcoal': {
+                            DEFAULT: '#2C2C2C',
+                            50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6', 300: '#818181',
+                            400: '#474747', 500: '#2C2C2C', 600: '#262626', 700: '#202020',
+                            800: '#1c1c1c', 900: '#191919', 950: '#121212'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter Tight', 'system-ui', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'Fira Code', 'monospace']
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+        /* VS Code Dark+ Syntax Highlighting */
+        pre code.hljs{display:block;overflow-x:auto;padding:1em}code.hljs{padding:3px 5px}
+        .hljs{background:#1e1e1e;color:#d4d4d4}
+        .hljs-keyword,.hljs-link,.hljs-literal,.hljs-section,.hljs-selector-tag{color:#569cd6}
+        .hljs-addition,.hljs-attribute,.hljs-bullet,.hljs-name,.hljs-string,.hljs-symbol,.hljs-template-tag,.hljs-template-variable,.hljs-title,.hljs-type,.hljs-variable{color:#ce9178}
+        .hljs-comment,.hljs-deletion,.hljs-meta,.hljs-quote{color:#6a9955}
+        .hljs-doctag,.hljs-keyword,.hljs-literal,.hljs-name,.hljs-section,.hljs-selector-tag,.hljs-strong,.hljs-title,.hljs-type{font-weight:700}
+        .hljs-class,.hljs-function,.hljs-title{color:#dcdcaa}
+        .hljs-number{color:#b5cea8}
+        .hljs-built_in,.hljs-class .hljs-title{color:#4ec9b0}
+        .hljs-params{color:#9cdcfe}
+    </style>
+</head>
+<body class="bg-[#FAFAFA] text-magento-charcoal">
+
+<header class="bg-gradient-to-br from-magento-charcoal-500 via-magento-charcoal-600 to-magento-charcoal-700 border-b-8 border-magento-orange-500">
+        <!-- back-to-developer-docs -->
+        <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 pt-4"><a href="/developer/" aria-label="Back to Developer Docs" class="inline-flex items-center gap-1.5 text-sm font-medium text-white/70 hover:text-white transition-colors no-underline"><span aria-hidden="true">←</span> Developer Docs</a></div>
+    <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
+        <nav aria-label="Breadcrumb" class="mb-8">
+            <ol class="flex flex-wrap items-center gap-2 text-sm text-gray-400">
+                <li><a href="../../../index.html" class="hover:text-magento-orange-500 underline underline-offset-4">Home</a></li>
+                <li aria-hidden="true">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                </li>
+                <li><a href="index.html" class="hover:text-magento-orange-500 underline underline-offset-4">Magento_Sales</a></li>
+                <li aria-hidden="true">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                </li>
+                <li class="text-white font-medium">Architecture</li>
+            </ol>
+        </nav>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div>
+                <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white mb-4">Magento_Sales Module Architecture</h1>
+                <p class="text-base sm:text-lg text-gray-300 max-w-2xl mb-6">Complete architectural overview of order management in Magento 2.4.x</p>
+                <div class="flex flex-wrap gap-3 text-sm">
+                    <span class="inline-flex items-center gap-1.5 bg-magento-orange-500/20 text-magento-orange-300 px-3 py-1.5 font-medium border border-magento-orange-500/30">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                        861 Nodes
+                    </span>
+                    <span class="inline-flex items-center gap-1.5 bg-magento-gold-500/20 text-magento-gold-300 px-3 py-1.5 font-medium border border-magento-gold-500/30">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+                        243 Edges
+                    </span>
+                    <span class="inline-flex items-center gap-1.5 bg-jacarta-500/40 text-jacarta-200 px-3 py-1.5 font-medium border border-jacarta-400/30">
+                        6 Dependencies
+                    </span>
+                </div>
+            </div>
+            <div class="hidden lg:block">
+                <svg viewBox="0 0 400 300" class="w-full h-auto" aria-hidden="true">
+                    <!-- Sales Architecture Layer Diagram -->
+                    <!-- API Layer -->
+                    <rect x="50" y="20" width="300" height="45" fill="#f26423" opacity="0.2" stroke="#f26423" stroke-width="2"/>
+                    <text x="200" y="38" text-anchor="middle" fill="#f26423" font-size="10" font-weight="bold">API / SERVICE CONTRACTS</text>
+                    <text x="200" y="52" text-anchor="middle" fill="#818181" font-size="9">OrderRepository · InvoiceRepository · ShipmentRepository</text>
+                    <!-- Business Logic Layer -->
+                    <rect x="50" y="75" width="300" height="50" fill="#f1bc1b" opacity="0.2" stroke="#f1bc1b" stroke-width="2"/>
+                    <text x="200" y="95" text-anchor="middle" fill="#f1bc1b" font-size="10" font-weight="bold">BUSINESS LOGIC</text>
+                    <text x="200" y="110" text-anchor="middle" fill="#818181" font-size="9">Order Management · State Machine · Totals Calculation</text>
+                    <!-- Model Layer -->
+                    <rect x="50" y="135" width="300" height="45" fill="#292562" opacity="0.3" stroke="#5d5ecc" stroke-width="2"/>
+                    <text x="200" y="153" text-anchor="middle" fill="#b7bdec" font-size="10" font-weight="bold">MODELS</text>
+                    <text x="200" y="168" text-anchor="middle" fill="#818181" font-size="9">Order · Invoice · Shipment · Creditmemo</text>
+                    <!-- Resource Model Layer -->
+                    <rect x="50" y="190" width="300" height="40" fill="#2c2c2c" stroke="#474747" stroke-width="2"/>
+                    <text x="200" y="208" text-anchor="middle" fill="#b6b6b6" font-size="10" font-weight="bold">RESOURCE MODELS</text>
+                    <text x="200" y="220" text-anchor="middle" fill="#818181" font-size="9">CRUD Operations · Collections</text>
+                    <!-- Database Layer -->
+                    <rect x="50" y="240" width="300" height="40" fill="#2c2c2c" stroke="#f26423" stroke-width="2"/>
+                    <text x="200" y="258" text-anchor="middle" fill="#f26423" font-size="10" font-weight="bold">DATABASE</text>
+                    <text x="200" y="270" text-anchor="middle" fill="#818181" font-size="9">sales_order · sales_invoice · sales_shipment · sales_creditmemo</text>
+                    <!-- Arrows indicating flow -->
+                    <path d="M200 65 L200 75" stroke="#818181" stroke-width="2" marker-end="url(#arrowhead)"/>
+                    <path d="M200 125 L200 135" stroke="#818181" stroke-width="2" marker-end="url(#arrowhead)"/>
+                    <path d="M200 180 L200 190" stroke="#818181" stroke-width="2" marker-end="url(#arrowhead)"/>
+                    <path d="M200 230 L200 240" stroke="#818181" stroke-width="2" marker-end="url(#arrowhead)"/>
+                    <defs>
+                        <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#818181"/>
+                        </marker>
+                    </defs>
+                </svg>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+
+    <div class="bg-white mb-12 p-8 border-t-4 border-magento-gold-500 shadow-sm">
+        <h2 class="text-2xl font-bold text-magento-charcoal mb-6">Quick Stats</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="border-l-4 border-magento-orange-500 pl-4">
+                <div class="text-3xl font-bold text-magento-orange-500">861</div>
+                <div class="text-sm text-magento-charcoal/70">Total Nodes</div>
+            </div>
+            <div class="border-l-4 border-magento-orange-500 pl-4">
+                <div class="text-3xl font-bold text-magento-orange-500">243</div>
+                <div class="text-sm text-magento-charcoal/70">Total Edges</div>
+            </div>
+            <div class="border-l-4 border-magento-orange-500 pl-4">
+                <div class="text-3xl font-bold text-magento-orange-500">6</div>
+                <div class="text-sm text-magento-charcoal/70">Dependencies</div>
+            </div>
+            <div class="border-l-4 border-magento-orange-500 pl-4">
+                <div class="text-3xl font-bold text-magento-orange-500">2.4.x</div>
+                <div class="text-sm text-magento-charcoal/70">Compatible</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white mb-12 p-8 border-t-4 border-magento-gold-500 shadow-sm">
+        <h2 class="text-2xl font-bold text-magento-charcoal mb-4">Module Overview</h2>
+        <p class="text-lg text-magento-charcoal/90 leading-relaxed mb-6">
+            The <strong>Magento_Sales</strong> module is the core order management system in Magento, responsible for the complete lifecycle of sales transactions from order placement through fulfillment and refunds.
+        </p>
+
+        <h3 class="text-xl font-semibold text-magento-charcoal mb-3 mt-8">What Magento_Sales Does</h3>
+        <ul class="space-y-2 text-magento-charcoal/90">
+            <li class="flex gap-2"><span class="text-magento-orange-500 font-bold">→</span> Order Management: Order placement, state/status management, order history</li>
+            <li class="flex gap-2"><span class="text-magento-orange-500 font-bold">→</span> Invoice Management: Invoice creation, partial invoicing, payment capture</li>
+            <li class="flex gap-2"><span class="text-magento-orange-500 font-bold">→</span> Shipment Management: Shipment creation, tracking, partial shipping</li>
+            <li class="flex gap-2"><span class="text-magento-orange-500 font-bold">→</span> Credit Memo Management: Refunds, returns, credit memo creation</li>
+            <li class="flex gap-2"><span class="text-magento-orange-500 font-bold">→</span> Transaction Management: Payment transaction records and history</li>
+            <li class="flex gap-2"><span class="text-magento-orange-500 font-bold">→</span> Email Notifications: Order, invoice, shipment, and creditmemo emails</li>
+            <li class="flex gap-2"><span class="text-magento-orange-500 font-bold">→</span> Grid Management: Admin grids for orders, invoices, shipments, creditmemos</li>
+            <li class="flex gap-2"><span class="text-magento-orange-500 font-bold">→</span> REST/SOAP APIs: Complete service contract implementation for external integrations</li>
+            <li class="flex gap-2"><span class="text-magento-orange-500 font-bold">→</span> State Machine: Complex order status and state workflows</li>
+            <li class="flex gap-2"><span class="text-magento-orange-500 font-bold">→</span> Totals Calculation: Order totals, tax, shipping, discounts</li>
+        </ul>
+    </div>
+
+    <div class="bg-white mb-12 p-8 border-t-4 border-magento-gold-500 shadow-sm">
+        <h2 class="text-2xl font-bold text-magento-charcoal mb-4">Position in Magento Ecosystem</h2>
+
+        <div class="bg-white border-4 border-magento-gold-500 p-6 mb-6">
+            <h3 class="text-lg font-semibold text-magento-charcoal mb-2">Architectural Layer: Core Business Module</h3>
+            <p class="text-magento-charcoal/90">The Sales module sits at the core business layer of Magento's architecture, bridging checkout (Quote) with fulfillment and integrating with payment, shipping, tax, and customer modules.</p>
+        </div>
+
+        <h3 class="text-xl font-semibold text-magento-charcoal mb-3 mt-8">Direct Dependencies</h3>
+        <ul class="space-y-2 text-magento-charcoal/90 mb-6">
+            <li class="flex gap-2"><span class="text-magento-orange-500 font-bold">→</span> <strong>Magento_Eav:</strong> Order and address entities may use EAV for custom attributes</li>
+            <li class="flex gap-2"><span class="text-magento-orange-500 font-bold">→</span> <strong>Magento_Customer:</strong> Customer association, email synchronization</li>
+            <li class="flex gap-2"><span class="text-magento-orange-500 font-bold">→</span> <strong>Magento_Payment:</strong> Payment method integration, authorization/capture</li>
+            <li class="flex gap-2"><span class="text-magento-orange-500 font-bold">→</span> <strong>Magento_Catalog:</strong> Product information for order items</li>
+            <li class="flex gap-2"><span class="text-magento-orange-500 font-bold">→</span> <strong>Magento_Store:</strong> Multi-store order management</li>
+            <li class="flex gap-2"><span class="text-magento-orange-500 font-bold">→</span> <strong>Magento_Directory:</strong> Country/region data for addresses</li>
+        </ul>
+
+        <h3 class="text-xl font-semibold text-magento-charcoal mb-3 mt-8">Key Dependent Modules</h3>
+        <p class="text-magento-charcoal/90 mb-3">Modules that depend on Magento_Sales:</p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-magento-charcoal/90">
+            <div class="flex gap-2"><span class="text-magento-orange-500">•</span> Magento_Checkout</div>
+            <div class="flex gap-2"><span class="text-magento-orange-500">•</span> Magento_Shipping</div>
+            <div class="flex gap-2"><span class="text-magento-orange-500">•</span> Magento_Tax</div>
+            <div class="flex gap-2"><span class="text-magento-orange-500">•</span> Magento_Backend</div>
+            <div class="flex gap-2"><span class="text-magento-orange-500">•</span> Magento_Reports</div>
+            <div class="flex gap-2"><span class="text-magento-orange-500">•</span> Magento_SalesRule</div>
+            <div class="flex gap-2"><span class="text-magento-orange-500">•</span> Magento_Downloadable</div>
+            <div class="flex gap-2"><span class="text-magento-orange-500">•</span> Magento_GiftMessage</div>
+        </div>
+    </div>
+
+    <div class="bg-white mb-12 p-8 border-t-4 border-magento-gold-500 shadow-sm">
+        <h2 class="text-2xl font-bold text-magento-charcoal mb-4">Service Contracts (API Layer)</h2>
+        <p class="text-magento-charcoal/90 mb-6">The Sales module is the <strong>largest service contract implementation</strong> in Magento, exposing 82 interfaces for order management operations.</p>
+
+        <h3 class="text-xl font-semibold text-magento-charcoal mb-3">Core Management Interfaces</h3>
+
+        <div class="border-l-4 border-magento-orange-500 pl-4 mb-6">
+            <h4 class="text-lg font-semibold text-magento-charcoal mb-2">1. OrderRepositoryInterface</h4>
+            <p class="text-sm text-magento-charcoal/80 mb-2"><strong>Purpose:</strong> Main CRUD interface for order entities</p>
+            <p class="text-sm text-magento-charcoal/80 mb-2"><strong>Location:</strong> <code class="bg-[#FAFAFA] px-2 py-1">Magento\Sales\Api\OrderRepositoryInterface</code></p>
+            <p class="text-sm text-magento-charcoal/80"><strong>Implementation:</strong> <code class="bg-[#FAFAFA] px-2 py-1">Magento\Sales\Model\OrderRepository</code></p>
+
+            <div class="mt-3">
+                <p class="text-sm font-semibold text-magento-charcoal mb-2">Key Methods:</p>
+                <pre class="bg-charcoal text-white p-3 text-xs overflow-x-auto"><code>save(OrderInterface $order): OrderInterface
+get($id): OrderInterface
+getList(SearchCriteriaInterface $searchCriteria): OrderSearchResultsInterface
+delete(OrderInterface $order): bool
+deleteById($id): bool</code></pre>
+            </div>
+        </div>
+
+        <div class="border-l-4 border-magento-orange-500 pl-4 mb-6">
+            <h4 class="text-lg font-semibold text-magento-charcoal mb-2">2. OrderManagementInterface</h4>
+            <p class="text-sm text-magento-charcoal/80 mb-2"><strong>Purpose:</strong> High-level order operations (place order, cancel, hold, etc.)</p>
+            <p class="text-sm text-magento-charcoal/80 mb-2"><strong>Location:</strong> <code class="bg-[#FAFAFA] px-2 py-1">Magento\Sales\Api\OrderManagementInterface</code></p>
+            <p class="text-sm text-magento-charcoal/80"><strong>Implementation:</strong> <code class="bg-[#FAFAFA] px-2 py-1">Magento\Sales\Model\Service\OrderService</code></p>
+
+            <div class="mt-3">
+                <p class="text-sm font-semibold text-magento-charcoal mb-2">Key Methods:</p>
+                <pre class="bg-charcoal text-white p-3 text-xs overflow-x-auto"><code>place(OrderInterface $order): OrderInterface
+cancel($id): bool
+hold($id): bool
+unHold($id): bool
+addComment($id, OrderStatusHistoryInterface $statusHistory): bool
+notify($id): bool
+getStatus($id): string</code></pre>
+            </div>
+        </div>
+
+        <div class="border-l-4 border-magento-orange-500 pl-4 mb-6">
+            <h4 class="text-lg font-semibold text-magento-charcoal mb-2">3. InvoiceRepositoryInterface</h4>
+            <p class="text-sm text-magento-charcoal/80 mb-2"><strong>Purpose:</strong> CRUD operations for invoices</p>
+            <p class="text-sm text-magento-charcoal/80"><strong>Location:</strong> <code class="bg-[#FAFAFA] px-2 py-1">Magento\Sales\Api\InvoiceRepositoryInterface</code></p>
+        </div>
+
+        <div class="border-l-4 border-magento-orange-500 pl-4 mb-6">
+            <h4 class="text-lg font-semibold text-magento-charcoal mb-2">4. ShipmentRepositoryInterface</h4>
+            <p class="text-sm text-magento-charcoal/80 mb-2"><strong>Purpose:</strong> CRUD operations for shipments</p>
+            <p class="text-sm text-magento-charcoal/80"><strong>Location:</strong> <code class="bg-[#FAFAFA] px-2 py-1">Magento\Sales\Api\ShipmentRepositoryInterface</code></p>
+        </div>
+
+        <div class="border-l-4 border-magento-orange-500 pl-4 mb-6">
+            <h4 class="text-lg font-semibold text-magento-charcoal mb-2">5. CreditmemoRepositoryInterface</h4>
+            <p class="text-sm text-magento-charcoal/80 mb-2"><strong>Purpose:</strong> CRUD operations for credit memos (refunds)</p>
+            <p class="text-sm text-magento-charcoal/80"><strong>Location:</strong> <code class="bg-[#FAFAFA] px-2 py-1">Magento\Sales\Api\CreditmemoRepositoryInterface</code></p>
+        </div>
+    </div>
+
+    <div class="bg-white mb-12 p-8 border-t-4 border-magento-gold-500 shadow-sm">
+        <h2 class="text-2xl font-bold text-magento-charcoal mb-4">Database Schema</h2>
+
+        <h3 class="text-xl font-semibold text-magento-charcoal mb-3">Primary Tables</h3>
+
+        <div class="border-l-4 border-magento-orange-500 pl-4 mb-6">
+            <h4 class="text-lg font-semibold text-magento-charcoal mb-2">sales_order</h4>
+            <p class="text-sm text-magento-charcoal/80 mb-3"><strong>Purpose:</strong> Main order data</p>
+
+            <div class="overflow-x-auto">
+                <table class="min-w-full text-sm border border-magento-charcoal/20">
+                    <thead class="bg-[#FAFAFA]">
+                        <tr>
+                            <th class="px-3 py-2 text-left border-b border-magento-charcoal/20 font-semibold text-magento-charcoal">Column</th>
+                            <th class="px-3 py-2 text-left border-b border-magento-charcoal/20 font-semibold text-magento-charcoal">Type</th>
+                            <th class="px-3 py-2 text-left border-b border-magento-charcoal/20 font-semibold text-magento-charcoal">Description</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white">
+                        <tr>
+                            <td class="px-3 py-2 border-b border-magento-charcoal/10"><code>entity_id</code></td>
+                            <td class="px-3 py-2 border-b border-magento-charcoal/10">INT (PK)</td>
+                            <td class="px-3 py-2 border-b border-magento-charcoal/10">Order ID</td>
+                        </tr>
+                        <tr>
+                            <td class="px-3 py-2 border-b border-magento-charcoal/10"><code>increment_id</code></td>
+                            <td class="px-3 py-2 border-b border-magento-charcoal/10">VARCHAR(50)</td>
+                            <td class="px-3 py-2 border-b border-magento-charcoal/10">Human-readable order number</td>
+                        </tr>
+                        <tr>
+                            <td class="px-3 py-2 border-b border-magento-charcoal/10"><code>customer_id</code></td>
+                            <td class="px-3 py-2 border-b border-magento-charcoal/10">INT</td>
+                            <td class="px-3 py-2 border-b border-magento-charcoal/10">FK to customer_entity</td>
+                        </tr>
+                        <tr>
+                            <td class="px-3 py-2 border-b border-magento-charcoal/10"><code>state</code></td>
+                            <td class="px-3 py-2 border-b border-magento-charcoal/10">VARCHAR(32)</td>
+                            <td class="px-3 py-2 border-b border-magento-charcoal/10">Order state (new, processing, complete, etc.)</td>
+                        </tr>
+                        <tr>
+                            <td class="px-3 py-2 border-b border-magento-charcoal/10"><code>status</code></td>
+                            <td class="px-3 py-2 border-b border-magento-charcoal/10">VARCHAR(32)</td>
+                            <td class="px-3 py-2 border-b border-magento-charcoal/10">Order status (configurable)</td>
+                        </tr>
+                        <tr>
+                            <td class="px-3 py-2 border-b border-magento-charcoal/10"><code>grand_total</code></td>
+                            <td class="px-3 py-2 border-b border-magento-charcoal/10">DECIMAL(20,4)</td>
+                            <td class="px-3 py-2 border-b border-magento-charcoal/10">Order total in order currency</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="mt-4 bg-white border-4 border-magento-gold-500 p-4">
+                <p class="text-sm text-magento-charcoal/90"><strong>Important:</strong> State and status are separate. States are fixed (code constants), statuses are configurable (database values).</p>
+            </div>
+        </div>
+
+        <div class="border-l-4 border-magento-orange-500 pl-4 mb-6">
+            <h4 class="text-lg font-semibold text-magento-charcoal mb-2">sales_order_item</h4>
+            <p class="text-sm text-magento-charcoal/80 mb-2"><strong>Purpose:</strong> Individual line items in order</p>
+            <p class="text-sm text-magento-charcoal/80">Key columns: item_id (PK), order_id, product_id, sku, name, qty_ordered, qty_invoiced, qty_shipped, qty_refunded, price</p>
+        </div>
+
+        <div class="border-l-4 border-magento-orange-500 pl-4 mb-6">
+            <h4 class="text-lg font-semibold text-magento-charcoal mb-2">sales_invoice</h4>
+            <p class="text-sm text-magento-charcoal/80 mb-2"><strong>Purpose:</strong> Invoice records</p>
+            <p class="text-sm text-magento-charcoal/80">Key concept: Multiple invoices can exist per order (partial invoicing).</p>
+        </div>
+
+        <div class="border-l-4 border-magento-orange-500 pl-4 mb-6">
+            <h4 class="text-lg font-semibold text-magento-charcoal mb-2">sales_shipment</h4>
+            <p class="text-sm text-magento-charcoal/80 mb-2"><strong>Purpose:</strong> Shipment records</p>
+            <p class="text-sm text-magento-charcoal/80">Includes: shipment items, tracking numbers, shipping labels (BLOB)</p>
+        </div>
+
+        <div class="border-l-4 border-magento-orange-500 pl-4 mb-6">
+            <h4 class="text-lg font-semibold text-magento-charcoal mb-2">sales_creditmemo</h4>
+            <p class="text-sm text-magento-charcoal/80 mb-2"><strong>Purpose:</strong> Credit memo (refund) records</p>
+            <p class="text-sm text-magento-charcoal/80">Includes: refund items, adjustment amounts, refund totals</p>
+        </div>
+
+        <h3 class="text-xl font-semibold text-magento-charcoal mb-3 mt-8">Grid Tables</h3>
+        <p class="text-magento-charcoal/90 mb-3">Magento 2.3+ uses dedicated grid tables for performance:</p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-magento-charcoal/90">
+            <div class="flex gap-2"><span class="text-magento-orange-500">•</span> sales_order_grid - Flattened order data for admin grid</div>
+            <div class="flex gap-2"><span class="text-magento-orange-500">•</span> sales_invoice_grid - Flattened invoice data</div>
+            <div class="flex gap-2"><span class="text-magento-orange-500">•</span> sales_shipment_grid - Flattened shipment data</div>
+            <div class="flex gap-2"><span class="text-magento-orange-500">•</span> sales_creditmemo_grid - Flattened credit memo data</div>
+        </div>
+
+        <div class="mt-4 bg-white border-4 border-magento-gold-500 p-4">
+            <p class="text-sm text-magento-charcoal/90"><strong>Key Concept:</strong> Grid tables are synchronized via observers listening to *_process_relation events. They contain denormalized data for fast admin grid rendering.</p>
+        </div>
+    </div>
+
+    <div class="bg-white mb-12 p-8 border-t-4 border-magento-gold-500 shadow-sm">
+        <h2 class="text-2xl font-bold text-magento-charcoal mb-4">Order State Machine</h2>
+
+        <h3 class="text-xl font-semibold text-magento-charcoal mb-3">States vs. Statuses</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div class="border-l-4 border-magento-orange-500 pl-4">
+                <h4 class="text-base font-semibold text-magento-charcoal mb-2">State (internal, immutable)</h4>
+                <ul class="space-y-1 text-sm text-magento-charcoal/90">
+                    <li class="flex gap-2"><span class="text-magento-orange-500">→</span> Fixed PHP constants</li>
+                    <li class="flex gap-2"><span class="text-magento-orange-500">→</span> Used in business logic</li>
+                    <li class="flex gap-2"><span class="text-magento-orange-500">→</span> Cannot be created/deleted</li>
+                </ul>
+            </div>
+            <div class="border-l-4 border-magento-orange-500 pl-4">
+                <h4 class="text-base font-semibold text-magento-charcoal mb-2">Status (external, configurable)</h4>
+                <ul class="space-y-1 text-sm text-magento-charcoal/90">
+                    <li class="flex gap-2"><span class="text-magento-orange-500">→</span> Database-driven</li>
+                    <li class="flex gap-2"><span class="text-magento-orange-500">→</span> Can be created/customized</li>
+                    <li class="flex gap-2"><span class="text-magento-orange-500">→</span> Mapped to states</li>
+                </ul>
+            </div>
+        </div>
+
+        <h3 class="text-xl font-semibold text-magento-charcoal mb-3">Core Order States</h3>
+        <div class="overflow-x-auto">
+            <table class="min-w-full text-sm border border-magento-charcoal/20">
+                <thead class="bg-[#FAFAFA]">
+                    <tr>
+                        <th class="px-3 py-2 text-left border-b border-magento-charcoal/20 font-semibold text-magento-charcoal">State</th>
+                        <th class="px-3 py-2 text-left border-b border-magento-charcoal/20 font-semibold text-magento-charcoal">Constant</th>
+                        <th class="px-3 py-2 text-left border-b border-magento-charcoal/20 font-semibold text-magento-charcoal">Description</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white">
+                    <tr>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10"><code>new</code></td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10">Order::STATE_NEW</td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10">Order created, not yet processed</td>
+                    </tr>
+                    <tr>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10"><code>pending_payment</code></td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10">Order::STATE_PENDING_PAYMENT</td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10">Awaiting payment confirmation</td>
+                    </tr>
+                    <tr>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10"><code>processing</code></td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10">Order::STATE_PROCESSING</td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10">Order is being fulfilled</td>
+                    </tr>
+                    <tr>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10"><code>complete</code></td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10">Order::STATE_COMPLETE</td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10">Order fully fulfilled</td>
+                    </tr>
+                    <tr>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10"><code>canceled</code></td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10">Order::STATE_CANCELED</td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10">Order canceled</td>
+                    </tr>
+                    <tr>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10"><code>holded</code></td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10">Order::STATE_HOLDED</td>
+                        <td class="px-3 py-2 border-b border-magento-charcoal/10">Order on hold</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="bg-white mb-12 p-8 border-t-4 border-magento-gold-500 shadow-sm">
+        <h2 class="text-2xl font-bold text-magento-charcoal mb-4">Extension Points</h2>
+
+        <h3 class="text-xl font-semibold text-magento-charcoal mb-3">Plugin Intercept Points</h3>
+        <p class="text-magento-charcoal/90 mb-4">The module provides <strong>16 plugins</strong> for customization.</p>
+
+        <div class="bg-white border-4 border-magento-gold-500 p-6 mb-6">
+            <h4 class="text-lg font-semibold text-magento-charcoal mb-2">Critical Intercept Points:</h4>
+            <ul class="space-y-2 text-magento-charcoal/90">
+                <li class="flex gap-2"><span class="text-magento-orange-500 font-bold">1.</span> Controller Authentication Plugins (10 plugins) - Frontend order view authentication</li>
+                <li class="flex gap-2"><span class="text-magento-orange-500 font-bold">2.</span> Order Repository Plugins - Order CRUD operations</li>
+                <li class="flex gap-2"><span class="text-magento-orange-500 font-bold">3.</span> Grid Export Filters - Admin grid export customization</li>
+                <li class="flex gap-2"><span class="text-magento-orange-500 font-bold">4.</span> Address Update Handler - Order address modifications</li>
+                <li class="flex gap-2"><span class="text-magento-orange-500 font-bold">5.</span> Invoice Service - Transaction comment addition after capture</li>
+            </ul>
+        </div>
+
+        <h3 class="text-xl font-semibold text-magento-charcoal mb-3 mt-8">Event-Based Extension Points</h3>
+        <p class="text-magento-charcoal/90 mb-4">The module dispatches <strong>19 core events</strong>:</p>
+
+        <div class="border-l-4 border-magento-orange-500 pl-4">
+            <h4 class="text-base font-semibold text-magento-charcoal mb-2">Order Lifecycle Events:</h4>
+            <ul class="space-y-1 text-sm text-magento-charcoal/90">
+                <li class="flex gap-2"><span class="text-magento-orange-500">→</span> sales_order_place_after (critical for integrations)</li>
+                <li class="flex gap-2"><span class="text-magento-orange-500">→</span> sales_order_save_before</li>
+                <li class="flex gap-2"><span class="text-magento-orange-500">→</span> sales_order_save_after</li>
+                <li class="flex gap-2"><span class="text-magento-orange-500">→</span> sales_order_process_relation (triggers grid sync)</li>
+            </ul>
+
+            <h4 class="text-base font-semibold text-magento-charcoal mb-2 mt-4">Invoice Events:</h4>
+            <ul class="space-y-1 text-sm text-magento-charcoal/90">
+                <li class="flex gap-2"><span class="text-magento-orange-500">→</span> sales_order_invoice_save_before</li>
+                <li class="flex gap-2"><span class="text-magento-orange-500">→</span> sales_order_invoice_save_after</li>
+                <li class="flex gap-2"><span class="text-magento-orange-500">→</span> sales_order_invoice_process_relation (grid sync trigger)</li>
+            </ul>
+
+            <h4 class="text-base font-semibold text-magento-charcoal mb-2 mt-4">Shipment Events:</h4>
+            <ul class="space-y-1 text-sm text-magento-charcoal/90">
+                <li class="flex gap-2"><span class="text-magento-orange-500">→</span> sales_order_shipment_save_before</li>
+                <li class="flex gap-2"><span class="text-magento-orange-500">→</span> sales_order_shipment_save_after</li>
+                <li class="flex gap-2"><span class="text-magento-orange-500">→</span> sales_order_shipment_process_relation (grid sync trigger)</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="bg-white mb-12 p-8 border-t-4 border-magento-gold-500 shadow-sm">
+        <h2 class="text-2xl font-bold text-magento-charcoal mb-4">Performance Considerations</h2>
+
+        <h3 class="text-xl font-semibold text-magento-charcoal mb-3">Caching Strategy</h3>
+        <ul class="space-y-3 text-magento-charcoal/90">
+            <li class="border-l-4 border-magento-orange-500 pl-4">
+                <strong>No FPC for Orders:</strong> Order data is always dynamic. No full page caching for order pages.
+            </li>
+            <li class="border-l-4 border-magento-orange-500 pl-4">
+                <strong>Grid Table Optimization:</strong> Dedicated grid tables for fast admin rendering with asynchronous grid indexing (optional).
+            </li>
+            <li class="border-l-4 border-magento-orange-500 pl-4">
+                <strong>Email Queue:</strong> Asynchronous email sending (optional) reduces order placement time via background cron processing.
+            </li>
+        </ul>
+
+        <h3 class="text-xl font-semibold text-magento-charcoal mb-3 mt-8">Database Performance</h3>
+        <div class="bg-white border-4 border-magento-gold-500 p-6">
+            <h4 class="text-base font-semibold text-magento-charcoal mb-2">Key Indexes:</h4>
+            <ul class="space-y-1 text-sm text-magento-charcoal/90">
+                <li class="flex gap-2"><span class="text-magento-orange-500">•</span> Order: increment_id, customer_id, email, created_at, status, state</li>
+                <li class="flex gap-2"><span class="text-magento-orange-500">•</span> Grid tables: All filterable/sortable columns</li>
+                <li class="flex gap-2"><span class="text-magento-orange-500">•</span> Item tables: order_id, product_id, sku</li>
+            </ul>
+
+            <h4 class="text-base font-semibold text-magento-charcoal mb-2 mt-4">Optimization Tips:</h4>
+            <ul class="space-y-1 text-sm text-magento-charcoal/90">
+                <li class="flex gap-2"><span class="text-magento-orange-500">→</span> Use grid tables for admin operations</li>
+                <li class="flex gap-2"><span class="text-magento-orange-500">→</span> Avoid loading full order with all items if not needed</li>
+                <li class="flex gap-2"><span class="text-magento-orange-500">→</span> Use getList() with SearchCriteria for filtering</li>
+                <li class="flex gap-2"><span class="text-magento-orange-500">→</span> Consider partitioning large order tables (enterprise installations)</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="bg-white mb-12 p-8 border-t-4 border-magento-gold-500 shadow-sm">
+        <h2 class="text-2xl font-bold text-magento-charcoal mb-4">Security &amp; Authorization</h2>
+
+        <div class="border-l-4 border-magento-orange-500 pl-4 mb-6">
+            <h3 class="text-xl font-semibold text-magento-charcoal mb-2">Admin Access Control (ACL)</h3>
+            <p class="text-sm text-magento-charcoal/90 mb-2">Resources defined in etc/acl.xml:</p>
+            <ul class="space-y-1 text-sm text-magento-charcoal/90">
+                <li class="flex gap-2"><span class="text-magento-orange-500">•</span> Magento_Sales::sales - Main sales permission</li>
+                <li class="flex gap-2"><span class="text-magento-orange-500">•</span> Magento_Sales::sales_order - Order management</li>
+                <li class="flex gap-2"><span class="text-magento-orange-500">•</span> Magento_Sales::actions - Order actions (hold, cancel, etc.)</li>
+                <li class="flex gap-2"><span class="text-magento-orange-500">•</span> Magento_Sales::sales_invoice - Invoice management</li>
+                <li class="flex gap-2"><span class="text-magento-orange-500">•</span> Magento_Sales::sales_shipment - Shipment management</li>
+                <li class="flex gap-2"><span class="text-magento-orange-500">•</span> Magento_Sales::sales_creditmemo - Credit memo management</li>
+            </ul>
+        </div>
+
+        <div class="border-l-4 border-magento-orange-500 pl-4">
+            <h3 class="text-xl font-semibold text-magento-charcoal mb-2">Frontend Authorization</h3>
+            <p class="text-sm text-magento-charcoal/90 mb-2"><strong>Customer Order View:</strong></p>
+            <ul class="space-y-1 text-sm text-magento-charcoal/90">
+                <li class="flex gap-2"><span class="text-magento-orange-500">→</span> Plugin on order view controllers validates customer is logged in or has valid secret key</li>
+                <li class="flex gap-2"><span class="text-magento-orange-500">→</span> Guest orders require email + order ID + billing ZIP code</li>
+            </ul>
+        </div>
+    </div>
+
+    <footer class="mt-16 pt-8 border-t-4 border-magento-gold-500">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm text-magento-charcoal/80">
+            <div>
+                <h3 class="font-semibold text-magento-charcoal mb-2">Document Info</h3>
+                <p>Version: 1.0.0</p>
+                <p>Last Updated: 2025-12-04</p>
+                <p>Magento Version: 2.4.x</p>
+                <p>Module Version: 100.4.0+</p>
+            </div>
+            <div>
+                <h3 class="font-semibold text-magento-charcoal mb-2">Related Documentation</h3>
+                <ul class="space-y-1">
+                    <li><a href="execution-flows.html" class="text-magento-orange-500 hover:underline">Execution Flows</a></li>
+                    <li><a href="plugins-observers.html" class="text-magento-orange-500 hover:underline">Plugins &amp; Observers</a></li>
+                    <li><a href="integrations.html" class="text-magento-orange-500 hover:underline">Module Integrations</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="font-semibold text-magento-charcoal mb-2">Navigation</h3>
+                <ul class="space-y-1">
+                    <li><a href="../../../index.html" class="text-magento-orange-500 hover:underline">Home</a></li>
+                    <li><a href="../index.html" class="text-magento-orange-500 hover:underline">Magento_Sales Module</a></li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+
+</main>
+
+</body>
+</html>

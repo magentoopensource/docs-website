@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Architecture - Magento_Shipping Module</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'magento-orange': {
+                            DEFAULT: '#f26423',
+                            50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad', 300: '#f9ae78',
+                            400: '#f58242', 500: '#f26423', 600: '#e34613', 700: '#bc3312',
+                            800: '#962a16', 900: '#792515', 950: '#411009'
+                        },
+                        'magento-gold': {
+                            DEFAULT: '#f1bc1b',
+                            50: '#fffdeb', 100: '#fdf9c8', 200: '#fbf38c', 300: '#f8e651',
+                            400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a', 700: '#b1670c',
+                            800: '#8e5210', 900: '#744312', 950: '#432209'
+                        },
+                        'magento-charcoal': {
+                            DEFAULT: '#2c2c2c',
+                            50: '#f6f6f6', 100: '#e7e7e7', 200: '#d1d1d1', 300: '#b0b0b0',
+                            400: '#888888', 500: '#6d6d6d', 600: '#5d5d5d', 700: '#4f4f4f',
+                            800: '#454545', 900: '#3d3d3d', 950: '#2c2c2c'
+                        },
+                        'magento-cream': {
+                            DEFAULT: '#faf8f5'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .gradient-border { background: linear-gradient(135deg, #f26423 0%, #f1bc1b 100%); }
+    </style>
+</head>
+<body class="bg-magento-cream text-magento-charcoal">
+    <!-- Navigation -->
+    <nav class="bg-magento-charcoal text-white py-4 sticky top-0 z-50 shadow-lg">
+        <div class="container mx-auto px-6 flex items-center justify-between">
+            <a href="../../../index.html" class="text-xl font-bold hover:text-magento-gold-500 transition-colors">
+                Magento Core Docs
+            </a>
+            <div class="flex items-center space-x-6">
+                <a href="index.html" class="hover:text-magento-gold-500 transition-colors">Magento_Shipping</a>
+                <span class="text-magento-gold-500 font-medium">Architecture</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <header class="bg-magento-charcoal text-white py-12">
+        <!-- back-to-developer-docs -->
+        <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 pt-4"><a href="/developer/" aria-label="Back to Developer Docs" class="inline-flex items-center gap-1.5 text-sm font-medium text-white/70 hover:text-white transition-colors no-underline"><span aria-hidden="true">←</span> Developer Docs</a></div>
+        <div class="container mx-auto px-6">
+            <h1 class="text-4xl font-bold mb-2">Architecture</h1>
+            <p class="text-gray-300">Carrier abstraction, rate collection, and class hierarchy</p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-6 py-12">
+
+        <!-- Carrier Pattern Overview -->
+        <section class="mb-16">
+            <h2 class="text-3xl font-bold mb-6">Carrier Abstraction Pattern</h2>
+            <div class="bg-white shadow-md p-8">
+                <p class="mb-6">
+                    Magento's shipping architecture uses a carrier abstraction pattern that separates rate collection
+                    logic from specific carrier implementations. This allows new carriers to be added without modifying
+                    core shipping code.
+                </p>
+                <div class="bg-magento-charcoal text-white p-6 font-mono text-xs overflow-x-auto">
+<pre>
+                    +------------------+
+                    | RateRequest      |
+                    | (Quote\Address)  |
+                    +--------+---------+
+                             |
+                             v
+                    +------------------+
+                    | Shipping         |
+                    | (Rate Collector) |
+                    +--------+---------+
+                             |
+            +----------------+----------------+
+            |                |                |
+            v                v                v
+    +-------+------+  +------+-------+  +-----+--------+
+    | CarrierFactory|  | CarrierFactory|  | CarrierFactory|
+    +-------+------+  +------+-------+  +-----+--------+
+            |                |                |
+            v                v                v
+    +-------+------+  +------+-------+  +-----+--------+
+    | UPS Carrier  |  | USPS Carrier |  | FedEx Carrier|
+    | (Online)     |  | (Online)     |  | (Online)     |
+    +--------------+  +--------------+  +--------------+
+            |                |                |
+            v                v                v
+    +-------+------+  +------+-------+  +-----+--------+
+    | Rate\Result  |  | Rate\Result  |  | Rate\Result  |
+    +--------------+  +--------------+  +--------------+
+            |                |                |
+            +----------------+----------------+
+                             |
+                             v
+                    +------------------+
+                    | CarrierResult    |
+                    | (Aggregated)     |
+                    +------------------+
+</pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- Class Hierarchy -->
+        <section class="mb-16">
+            <h2 class="text-3xl font-bold mb-6">Carrier Class Hierarchy</h2>
+            <div class="bg-white shadow-md p-8">
+                <div class="bg-magento-charcoal text-white p-6 font-mono text-xs overflow-x-auto mb-6">
+<pre>
+AbstractCarrierInterface (interface)
+    |
+    +-- AbstractCarrier (abstract class)
+            |
+            +-- AbstractCarrierOnline (abstract class)
+                    |
+                    +-- Ups\Model\Carrier (concrete)
+                    +-- Usps\Model\Carrier (concrete)
+                    +-- Fedex\Model\Carrier (concrete)
+                    +-- Dhl\Model\Carrier (concrete)
+            |
+            +-- OfflineShipping\Model\Carrier\Flatrate (concrete)
+            +-- OfflineShipping\Model\Carrier\Tablerate (concrete)
+            +-- OfflineShipping\Model\Carrier\Freeshipping (concrete)
+</pre>
+                </div>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="p-4 border-l-4 border-magento-orange-500">
+                        <h4 class="font-bold mb-2">AbstractCarrier</h4>
+                        <p class="text-sm text-gray-600">
+                            Base class providing configuration access, handling fee calculation,
+                            country availability checks, and rate result building. Used by
+                            offline carriers (flat rate, table rate, free shipping).
+                        </p>
+                    </div>
+                    <div class="p-4 border-l-4 border-magento-gold-500">
+                        <h4 class="font-bold mb-2">AbstractCarrierOnline</h4>
+                        <p class="text-sm text-gray-600">
+                            Extends AbstractCarrier with API integration features: shipping labels,
+                            tracking, container types, content types, and return shipments.
+                            Used by UPS, USPS, FedEx, DHL.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Rate Collection Flow -->
+        <section class="mb-16">
+            <h2 class="text-3xl font-bold mb-6">Rate Collection Architecture</h2>
+            <div class="bg-white shadow-md p-8">
+                <h3 class="font-bold text-lg mb-4">Shipping::collectRates()</h3>
+                <p class="mb-4">The main orchestration method that iterates through all enabled carriers:</p>
+                <div class="bg-magento-charcoal text-white p-6 font-mono text-sm overflow-x-auto mb-6">
+<pre>public function collectRates(RateRequest $request)
+{
+    // Set origin from store config if not provided
+    if (!$request->getOrig()) {
+        $request->setCountryId($this->getConfigValue('country_id'));
+        $request->setRegionId($this->getConfigValue('region_id'));
+        $request->setPostcode($this->getConfigValue('postcode'));
+    }
+
+    // Get all carriers or limited set
+    $limitCarrier = $request->getLimitCarrier();
+    if (!$limitCarrier) {
+        $carriers = $this->scopeConfig->getValue('carriers');
+        foreach ($carriers as $carrierCode => $config) {
+            $this->collectCarrierRates($carrierCode, $request);
+        }
+    } else {
+        foreach ((array)$limitCarrier as $carrierCode) {
+            $this->collectCarrierRates($carrierCode, $request);
+        }
+    }
+
+    return $this;
+}</pre>
+                </div>
+
+                <h3 class="font-bold text-lg mb-4">collectCarrierRates()</h3>
+                <p class="mb-4">Prepares and invokes a single carrier:</p>
+                <div class="bg-magento-charcoal text-white p-6 font-mono text-sm overflow-x-auto">
+<pre>public function collectCarrierRates($carrierCode, $request)
+{
+    // Create carrier via factory
+    $carrier = $this->prepareCarrier($carrierCode, $request);
+
+    // Check for package shipment mode
+    if ($carrier->getConfigData('shipment_requesttype')) {
+        $packages = $this->composePackagesForCarrier($carrier, $request);
+        if (!empty($packages)) {
+            $request->setPackages($packages);
+        }
+    }
+
+    // Collect rates from carrier
+    $result = $carrier->collectRates($request);
+
+    // Append to aggregated result
+    if ($result instanceof Result) {
+        $this->getResult()->appendResult($result, $carrier->getConfigData('showmethod'));
+    }
+
+    return $this;
+}</pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- Rate Result Classes -->
+        <section class="mb-16">
+            <h2 class="text-3xl font-bold mb-6">Rate Result Classes</h2>
+            <div class="bg-white shadow-md p-8">
+                <table class="w-full">
+                    <thead class="bg-magento-charcoal text-white">
+                        <tr>
+                            <th class="p-3 text-left">Class</th>
+                            <th class="p-3 text-left">Path</th>
+                            <th class="p-3 text-left">Purpose</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b">
+                            <td class="p-3 font-mono text-sm">Result</td>
+                            <td class="p-3 text-sm text-gray-600">Model/Rate/Result.php</td>
+                            <td class="p-3">Container for shipping methods from a single carrier</td>
+                        </tr>
+                        <tr class="border-b bg-gray-50">
+                            <td class="p-3 font-mono text-sm">Method</td>
+                            <td class="p-3 text-sm text-gray-600">Model/Rate/Result/Method.php</td>
+                            <td class="p-3">Individual shipping method with carrier, method code, price</td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="p-3 font-mono text-sm">Error</td>
+                            <td class="p-3 text-sm text-gray-600">Quote/Model/Quote/Address/RateResult/Error.php</td>
+                            <td class="p-3">Error response when carrier unavailable or fails</td>
+                        </tr>
+                        <tr class="border-b bg-gray-50">
+                            <td class="p-3 font-mono text-sm">CarrierResult</td>
+                            <td class="p-3 text-sm text-gray-600">Model/Rate/CarrierResult.php</td>
+                            <td class="p-3">Aggregated result from all carriers for a request</td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="p-3 font-mono text-sm">PackageResult</td>
+                            <td class="p-3 text-sm text-gray-600">Model/Rate/PackageResult.php</td>
+                            <td class="p-3">Result for multi-package shipments</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Carrier Factory -->
+        <section class="mb-16">
+            <h2 class="text-3xl font-bold mb-6">Carrier Factory</h2>
+            <div class="bg-white shadow-md p-8">
+                <p class="mb-4">
+                    The <code class="bg-gray-100 px-2 py-1 rounded">CarrierFactory</code> creates carrier instances
+                    based on configuration. Each carrier is registered in its module's <code>config.xml</code>:
+                </p>
+                <div class="bg-magento-charcoal text-white p-6 font-mono text-sm overflow-x-auto mb-6">
+<pre>&lt;!-- Example: module-ups/etc/config.xml --&gt;
+&lt;config&gt;
+    &lt;default&gt;
+        &lt;carriers&gt;
+            &lt;ups&gt;
+                &lt;active&gt;0&lt;/active&gt;
+                &lt;model&gt;Magento\Ups\Model\Carrier&lt;/model&gt;
+                &lt;title&gt;United Parcel Service&lt;/title&gt;
+                &lt;!-- ... additional config ... --&gt;
+            &lt;/ups&gt;
+        &lt;/carriers&gt;
+    &lt;/default&gt;
+&lt;/config&gt;</pre>
+                </div>
+                <div class="bg-magento-charcoal text-white p-6 font-mono text-sm overflow-x-auto">
+<pre>// CarrierFactory::create()
+public function create($carrierCode, $storeId = null)
+{
+    $className = $this->scopeConfig->getValue(
+        'carriers/' . $carrierCode . '/model',
+        ScopeInterface::SCOPE_STORE,
+        $storeId
+    );
+
+    $carrier = $this->objectManager->create($className);
+    $carrier->setId($carrierCode);
+    $carrier->setStore($storeId);
+
+    return $carrier;
+}</pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tracking Architecture -->
+        <section class="mb-16">
+            <h2 class="text-3xl font-bold mb-6">Tracking Architecture</h2>
+            <div class="bg-white shadow-md p-8">
+                <div class="bg-magento-charcoal text-white p-6 font-mono text-xs overflow-x-auto mb-6">
+<pre>
++-------------------+     +-------------------+     +-------------------+
+|  Tracking/Popup   | --> |  AbstractCarrier  | --> |  Carrier API      |
+|  (Controller)     |     |  ::getTracking()  |     |  (UPS/FedEx/etc)  |
++-------------------+     +-------------------+     +-------------------+
+                                   |
+                                   v
+                          +-------------------+
+                          | Tracking\Result   |
+                          +-------------------+
+                                   |
+                                   v
+                          +-------------------+
+                          | Result\Status     |
+                          | Result\Error      |
+                          +-------------------+
+</pre>
+                </div>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <h4 class="font-bold mb-2">Tracking Result Classes</h4>
+                        <ul class="space-y-2 text-sm">
+                            <li class="p-2 bg-gray-50 rounded font-mono">Tracking/Result.php</li>
+                            <li class="p-2 bg-gray-50 rounded font-mono">Tracking/Result/Status.php</li>
+                            <li class="p-2 bg-gray-50 rounded font-mono">Tracking/Result/Error.php</li>
+                            <li class="p-2 bg-gray-50 rounded font-mono">Tracking/Result/AbstractResult.php</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="font-bold mb-2">Status Fields</h4>
+                        <ul class="space-y-2 text-sm">
+                            <li><strong>tracking</strong> - Tracking number</li>
+                            <li><strong>carrier</strong> - Carrier code</li>
+                            <li><strong>carrier_title</strong> - Carrier display name</li>
+                            <li><strong>progressdetail</strong> - Array of tracking events</li>
+                            <li><strong>deliverydate</strong> - Expected delivery</li>
+                            <li><strong>signedby</strong> - Signature on delivery</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Shipping Labels -->
+        <section class="mb-16">
+            <h2 class="text-3xl font-bold mb-6">Shipping Label Architecture</h2>
+            <div class="bg-white shadow-md p-8">
+                <p class="mb-4">
+                    Shipping labels are generated via the <code class="bg-gray-100 px-2 py-1 rounded">Shipping\Labels</code>
+                    class (admin area only). This class extends the base Shipping class and adds label creation.
+                </p>
+                <div class="bg-magento-charcoal text-white p-6 font-mono text-sm overflow-x-auto mb-6">
+<pre>// adminhtml/di.xml preference
+&lt;preference for="Magento\Shipping\Model\Shipping"
+            type="Magento\Shipping\Model\Shipping\Labels" /&gt;
+
+// Labels::requestToShipment()
+public function requestToShipment(Shipment $orderShipment, Request $request)
+{
+    $carrier = $this->carrierFactory->create($orderShipment->getOrder()->getShippingMethod());
+
+    // Build shipment request data
+    $request->setOrderShipment($orderShipment);
+    $request->setPackages($packages);
+
+    // Get label from carrier
+    $result = $carrier->requestToShipment($request);
+
+    if ($result->hasErrors()) {
+        throw new LocalizedException(__($result->getErrors()));
+    }
+
+    // Store label data on shipment
+    $orderShipment->setShippingLabel($result->getShippingLabelContent());
+    $orderShipment->setPackages($result->getPackages());
+
+    return $result;
+}</pre>
+                </div>
+                <div class="p-4 bg-magento-gold-500 bg-opacity-20">
+                    <p class="text-sm">
+                        <strong>Note:</strong> Only carriers extending <code>AbstractCarrierOnline</code> support
+                        shipping labels. The <code>isShippingLabelsAvailable()</code> method must return true.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Package Composition -->
+        <section class="mb-16">
+            <h2 class="text-3xl font-bold mb-6">Package Composition</h2>
+            <div class="bg-white shadow-md p-8">
+                <p class="mb-4">
+                    When a carrier has <code>shipment_requesttype</code> enabled, items are composed into packages
+                    using a first-fit decreasing (FFD) bin-packing algorithm:
+                </p>
+                <div class="bg-magento-charcoal text-white p-6 font-mono text-sm overflow-x-auto">
+<pre>// Shipping::composePackagesForCarrier()
+public function composePackagesForCarrier($carrier, $request)
+{
+    $maxWeight = (double)$carrier->getConfigData('max_package_weight');
+    $allItems = $request->getAllItems();
+
+    // Collect weights and prices
+    foreach ($allItems as $item) {
+        // Skip bundles with dynamic shipping
+        // Skip free shipping items
+        // Handle decimal quantities
+        $weightItems[] = ['weight' => $itemWeight, 'price' => $item->getBasePrice()];
+    }
+
+    // Sort by weight descending (FFD algorithm)
+    usort($weightItems, fn($a, $b) => $b['weight'] <=> $a['weight']);
+
+    // Bin-pack into packages
+    return $this->_makePieces($weightItems, $maxWeight);
+}
+
+// First-fit decreasing bin packing
+protected function _makePieces(array $items, float $maxWeight): array
+{
+    $packages = [];
+
+    foreach ($items as $item) {
+        $placed = false;
+        foreach ($packages as &$package) {
+            if ($item['weight'] <= $maxWeight - $package['weight']) {
+                $package['weight'] += $item['weight'];
+                $package['price'] += $item['price'];
+                $placed = true;
+                break;
+            }
+        }
+        if (!$placed) {
+            $packages[] = ['weight' => $item['weight'], 'price' => $item['price']];
+        }
+    }
+
+    return $packages;
+}</pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- Directory Structure -->
+        <section class="mb-16">
+            <h2 class="text-3xl font-bold mb-6">Directory Structure</h2>
+            <div class="bg-white shadow-md p-8">
+                <div class="bg-magento-charcoal text-white p-6 font-mono text-xs overflow-x-auto">
+<pre>module-shipping/
++-- Block/
+|   +-- Adminhtml/
+|   |   +-- Create/              # Shipment creation forms
+|   |   +-- Order/
+|   |   |   +-- Packaging/       # Package grid for labels
+|   |   |   +-- Tracking/        # Tracking management
+|   |   +-- View/                # Shipment view pages
+|   +-- DataProviders/
+|   |   +-- Tracking/            # Tracking block data providers
+|   +-- Tracking/                # Frontend tracking blocks
+|
++-- Controller/
+|   +-- Adminhtml/
+|   |   +-- Order/
+|   |   |   +-- Shipment/        # Shipment CRUD controllers
+|   |   +-- Shipment/            # Mass actions
+|   +-- Tracking/                # Frontend tracking popup
+|
++-- Helper/
+|   +-- Data.php                 # Tracking URL helper
+|
++-- Model/
+|   +-- Carrier/
+|   |   +-- AbstractCarrier.php
+|   |   +-- AbstractCarrierOnline.php
+|   |   +-- CarrierInterface.php
+|   |   +-- Source/              # Config source models
+|   +-- Config/                  # Carrier config readers
+|   +-- Order/                   # Order tracking info
+|   +-- Rate/                    # Rate result classes
+|   +-- ResourceModel/           # Carrier title resources
+|   +-- Shipment/                # Shipment request/item classes
+|   +-- Shipping/                # Labels extension
+|   +-- Tracking/                # Tracking result classes
+|   +-- CarrierFactory.php
+|   +-- Shipping.php             # Main rate collector
+|
++-- etc/
+|   +-- adminhtml/
+|   |   +-- di.xml               # Admin preferences
+|   |   +-- routes.xml
+|   |   +-- system.xml           # Admin config
+|   +-- frontend/
+|   |   +-- routes.xml
+|   +-- config.xml               # Default origin settings
+|   +-- crontab.xml              # Shipment report aggregation
+|   +-- di.xml                   # Main preferences
+|   +-- module.xml
+|
++-- view/
+    +-- adminhtml/               # Admin templates/layouts
+    +-- frontend/                # Tracking popup templates
+</pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- Navigation -->
+        <section class="mt-16 pt-8 border-t border-gray-200">
+            <div class="flex justify-between items-center">
+                <a href="index.html" class="text-magento-orange-500 hover:underline">&larr; Back to Overview</a>
+                <a href="execution-flows.html" class="text-magento-orange-500 hover:underline">Execution Flows &rarr;</a>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-magento-charcoal text-white py-8 mt-16">
+        <div class="container mx-auto px-6 text-center">
+            <p class="text-gray-400">Magento Core Documentation Project</p>
+            <p class="text-sm text-gray-500 mt-2">Magento_Shipping - Architecture</p>
+        </div>
+    </footer>
+</body>
+</html>

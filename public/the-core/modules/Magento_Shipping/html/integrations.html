@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Integrations - Magento_Shipping Module</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'magento-orange': {
+                            DEFAULT: '#f26423',
+                            50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad', 300: '#f9ae78',
+                            400: '#f58242', 500: '#f26423', 600: '#e34613', 700: '#bc3312',
+                            800: '#962a16', 900: '#792515', 950: '#411009'
+                        },
+                        'magento-gold': {
+                            DEFAULT: '#f1bc1b',
+                            50: '#fffdeb', 100: '#fdf9c8', 200: '#fbf38c', 300: '#f8e651',
+                            400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a', 700: '#b1670c',
+                            800: '#8e5210', 900: '#744312', 950: '#432209'
+                        },
+                        'magento-charcoal': {
+                            DEFAULT: '#2c2c2c',
+                            50: '#f6f6f6', 100: '#e7e7e7', 200: '#d1d1d1', 300: '#b0b0b0',
+                            400: '#888888', 500: '#6d6d6d', 600: '#5d5d5d', 700: '#4f4f4f',
+                            800: '#454545', 900: '#3d3d3d', 950: '#2c2c2c'
+                        },
+                        'magento-cream': {
+                            DEFAULT: '#faf8f5'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-magento-cream text-magento-charcoal">
+    <!-- Navigation -->
+    <nav class="bg-magento-charcoal text-white py-4 sticky top-0 z-50 shadow-lg">
+        <div class="container mx-auto px-6 flex items-center justify-between">
+            <a href="../../../index.html" class="text-xl font-bold hover:text-magento-gold-500 transition-colors">
+                Magento Core Docs
+            </a>
+            <div class="flex items-center space-x-6">
+                <a href="index.html" class="hover:text-magento-gold-500 transition-colors">Magento_Shipping</a>
+                <span class="text-magento-gold-500 font-medium">Integrations</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <header class="bg-magento-charcoal text-white py-12">
+        <!-- back-to-developer-docs -->
+        <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 pt-4"><a href="/developer/" aria-label="Back to Developer Docs" class="inline-flex items-center gap-1.5 text-sm font-medium text-white/70 hover:text-white transition-colors no-underline"><span aria-hidden="true">←</span> Developer Docs</a></div>
+        <div class="container mx-auto px-6">
+            <h1 class="text-4xl font-bold mb-2">Integrations</h1>
+            <p class="text-gray-300">Module dependencies, carrier integrations, and cross-module relationships</p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-6 py-12">
+
+        <!-- Module Dependency Diagram -->
+        <section class="mb-16">
+            <h2 class="text-3xl font-bold mb-6">Module Dependency Map</h2>
+            <div class="bg-white shadow-md p-8">
+                <div class="bg-magento-charcoal text-white p-6 font-mono text-xs overflow-x-auto">
+<pre>
+                            CARRIER MODULES
+          +-------+-------+-------+-------+-------+
+          |       |       |       |       |       |
+          v       v       v       v       v       v
+       +-----+ +-----+ +-----+ +-----+ +------+ +--------+
+       | UPS | |USPS | |FedEx| | DHL | |Offline| |Inventory|
+       +--+--+ +--+--+ +--+--+ +--+--+ |Shipping| |Shipping|
+          |       |       |       |    +---+----+ +---+----+
+          |       |       |       |        |          |
+          +-------+-------+-------+--------+----------+
+                          |
+                          v
+              +-----------------------+
+              |   Magento_Shipping    |
+              |   (Carrier Framework) |
+              +-----------+-----------+
+                          |
+          +---------------+---------------+
+          |               |               |
+          v               v               v
+    +----------+    +-----------+   +----------+
+    | Quote    |    | Sales     |   | Checkout |
+    | (Rates)  |    | (Shipment)|   | (Display)|
+    +----+-----+    +-----+-----+   +----+-----+
+         |                |              |
+         v                v              v
+    +----------+    +-----------+   +----------+
+    | Customer |    | Order     |   | Payment  |
+    | Address  |    | Tracking  |   | Info     |
+    +----------+    +-----------+   +----------+
+
+    DEPENDENCIES (module.xml sequence):
+    +-----------------------------------------------+
+    | Magento_Shipping depends on:                  |
+    |   - Magento_Store                             |
+    |   - Magento_Catalog                           |
+    |   - Magento_Ui                                |
+    |   - Magento_User                              |
+    +-----------------------------------------------+
+</pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quote Module Integration -->
+        <section class="mb-16">
+            <h2 class="text-3xl font-bold mb-6">Quote Module Integration</h2>
+            <div class="bg-white shadow-md p-8">
+                <p class="mb-6">
+                    The Quote module is the primary consumer of shipping rate collection. During checkout,
+                    the quote address triggers rate collection through the RateCollectorInterface.
+                </p>
+
+                <h3 class="font-bold text-lg mb-4">Integration Points</h3>
+                <table class="w-full mb-6">
+                    <thead class="bg-magento-charcoal text-white">
+                        <tr>
+                            <th class="p-3 text-left">Quote Class</th>
+                            <th class="p-3 text-left">Shipping Class</th>
+                            <th class="p-3 text-left">Purpose</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b">
+                            <td class="p-3 font-mono text-sm">Quote\Model\Quote\<br>Address</td>
+                            <td class="p-3 font-mono text-sm">Model\Shipping</td>
+                            <td class="p-3">Collects rates via RateCollectorInterface</td>
+                        </tr>
+                        <tr class="border-b bg-gray-50">
+                            <td class="p-3 font-mono text-sm">Quote\Model\Quote\<br>Address\RateRequest</td>
+                            <td class="p-3 font-mono text-sm">Model\Carrier\<br>AbstractCarrier</td>
+                            <td class="p-3">Request object passed to carriers</td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="p-3 font-mono text-sm">Quote\Model\Quote\<br>Address\Rate</td>
+                            <td class="p-3 font-mono text-sm">Model\Rate\Result\<br>Method</td>
+                            <td class="p-3">Individual shipping method result</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3 class="font-bold text-lg mb-4">Rate Request Data Flow</h3>
+                <div class="bg-magento-charcoal text-white p-6 font-mono text-sm overflow-x-auto">
+<pre>// Quote\Model\Quote\Address::collectShippingRates()
+
+$request = $this->rateRequestFactory->create();
+
+// Request contains:
+$request->setAllItems($this->getAllItems());
+$request->setDestCountryId($this->getCountryId());
+$request->setDestRegionId($this->getRegionId());
+$request->setDestPostcode($this->getPostcode());
+$request->setPackageValue($this->getBaseSubtotal());
+$request->setPackageWeight($this->getWeight());
+$request->setPackageQty($this->getItemQty());
+$request->setStoreId($this->getQuote()->getStore()->getId());
+
+// Collect rates via shipping module
+$result = $this->rateCollector->collectRates($request)->getResult();</pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sales Module Integration -->
+        <section class="mb-16">
+            <h2 class="text-3xl font-bold mb-6">Sales Module Integration</h2>
+            <div class="bg-white shadow-md p-8">
+                <p class="mb-6">
+                    The Sales module handles order shipments. Shipping provides controllers and blocks
+                    for shipment management in the admin area.
+                </p>
+
+                <h3 class="font-bold text-lg mb-4">Shipment-Related Tables</h3>
+                <table class="w-full mb-6">
+                    <thead class="bg-magento-charcoal text-white">
+                        <tr>
+                            <th class="p-3 text-left">Table</th>
+                            <th class="p-3 text-left">Purpose</th>
+                            <th class="p-3 text-left">Key Fields</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b">
+                            <td class="p-3 font-mono text-sm">sales_shipment</td>
+                            <td class="p-3">Shipment records</td>
+                            <td class="p-3 text-sm">entity_id, order_id, shipping_label</td>
+                        </tr>
+                        <tr class="border-b bg-gray-50">
+                            <td class="p-3 font-mono text-sm">sales_shipment_item</td>
+                            <td class="p-3">Items in shipment</td>
+                            <td class="p-3 text-sm">entity_id, parent_id, sku, qty</td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="p-3 font-mono text-sm">sales_shipment_track</td>
+                            <td class="p-3">Tracking numbers</td>
+                            <td class="p-3 text-sm">entity_id, parent_id, track_number, carrier_code</td>
+                        </tr>
+                        <tr class="border-b bg-gray-50">
+                            <td class="p-3 font-mono text-sm">sales_shipment_comment</td>
+                            <td class="p-3">Shipment comments</td>
+                            <td class="p-3 text-sm">entity_id, parent_id, comment</td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="p-3 font-mono text-sm">sales_shipping_<br>aggregated_order</td>
+                            <td class="p-3">Aggregated report data</td>
+                            <td class="p-3 text-sm">period, store_id, shipping_description, total_qty</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3 class="font-bold text-lg mb-4">Admin Controllers</h3>
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div class="p-4 bg-gray-50">
+                        <h4 class="font-semibold mb-2">Controller\Adminhtml\Order\Shipment\</h4>
+                        <ul class="text-sm space-y-1">
+                            <li>NewAction - Create shipment form</li>
+                            <li>Save - Save shipment</li>
+                            <li>View - View shipment details</li>
+                            <li>AddTrack - Add tracking number</li>
+                            <li>RemoveTrack - Remove tracking</li>
+                            <li>CreateLabel - Generate label</li>
+                            <li>PrintLabel - Print label</li>
+                            <li>Email - Send shipment email</li>
+                        </ul>
+                    </div>
+                    <div class="p-4 bg-gray-50">
+                        <h4 class="font-semibold mb-2">Mass Actions</h4>
+                        <ul class="text-sm space-y-1">
+                            <li>Pdfshipments - Generate PDF</li>
+                            <li>MassPrintShippingLabel - Bulk label print</li>
+                            <li>PrintPackage - Print package info</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Carrier Module Integration -->
+        <section class="mb-16">
+            <h2 class="text-3xl font-bold mb-6">Carrier Module Integration</h2>
+            <div class="bg-white shadow-md p-8">
+                <p class="mb-6">
+                    Each carrier module extends the shipping framework by registering a carrier model
+                    and implementing the required interfaces.
+                </p>
+
+                <h3 class="font-bold text-lg mb-4">Core Carrier Modules</h3>
+                <table class="w-full mb-6">
+                    <thead class="bg-magento-charcoal text-white">
+                        <tr>
+                            <th class="p-3 text-left">Module</th>
+                            <th class="p-3 text-left">Carrier Code</th>
+                            <th class="p-3 text-left">Base Class</th>
+                            <th class="p-3 text-left">Features</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b">
+                            <td class="p-3 font-mono text-sm">Magento_Ups</td>
+                            <td class="p-3 font-mono">ups</td>
+                            <td class="p-3 text-sm">AbstractCarrierOnline</td>
+                            <td class="p-3 text-sm">Rates, Tracking, Labels</td>
+                        </tr>
+                        <tr class="border-b bg-gray-50">
+                            <td class="p-3 font-mono text-sm">Magento_Usps</td>
+                            <td class="p-3 font-mono">usps</td>
+                            <td class="p-3 text-sm">AbstractCarrierOnline</td>
+                            <td class="p-3 text-sm">Rates, Tracking, Labels</td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="p-3 font-mono text-sm">Magento_Fedex</td>
+                            <td class="p-3 font-mono">fedex</td>
+                            <td class="p-3 text-sm">AbstractCarrierOnline</td>
+                            <td class="p-3 text-sm">Rates, Tracking, Labels</td>
+                        </tr>
+                        <tr class="border-b bg-gray-50">
+                            <td class="p-3 font-mono text-sm">Magento_Dhl</td>
+                            <td class="p-3 font-mono">dhl</td>
+                            <td class="p-3 text-sm">AbstractCarrierOnline</td>
+                            <td class="p-3 text-sm">Rates, Tracking, Labels</td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="p-3 font-mono text-sm">Magento_Offline<br>Shipping</td>
+                            <td class="p-3 font-mono">flatrate,<br>tablerate,<br>freeshipping</td>
+                            <td class="p-3 text-sm">AbstractCarrier</td>
+                            <td class="p-3 text-sm">Rates only</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3 class="font-bold text-lg mb-4">Carrier Registration Pattern</h3>
+                <div class="bg-magento-charcoal text-white p-6 font-mono text-sm overflow-x-auto">
+<pre>&lt;!-- module-ups/etc/config.xml --&gt;
+&lt;config&gt;
+    &lt;default&gt;
+        &lt;carriers&gt;
+            &lt;ups&gt;
+                &lt;active&gt;0&lt;/active&gt;
+                &lt;model&gt;Magento\Ups\Model\Carrier&lt;/model&gt;
+                &lt;title&gt;United Parcel Service&lt;/title&gt;
+                &lt;sallowspecific&gt;0&lt;/sallowspecific&gt;
+                &lt;allowed_methods&gt;1DA,2DA,3DS,GND,STD,...&lt;/allowed_methods&gt;
+                &lt;free_method&gt;GND&lt;/free_method&gt;
+                &lt;shipment_requesttype&gt;0&lt;/shipment_requesttype&gt;
+                &lt;max_package_weight&gt;150&lt;/max_package_weight&gt;
+                &lt;showmethod&gt;0&lt;/showmethod&gt;
+                &lt;!-- ... additional config ... --&gt;
+            &lt;/ups&gt;
+        &lt;/carriers&gt;
+    &lt;/default&gt;
+&lt;/config&gt;</pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- Checkout Integration -->
+        <section class="mb-16">
+            <h2 class="text-3xl font-bold mb-6">Checkout Integration</h2>
+            <div class="bg-white shadow-md p-8">
+                <p class="mb-6">
+                    During checkout, shipping rates are displayed for customer selection. The integration
+                    flows through the Quote module's shipping address.
+                </p>
+
+                <h3 class="font-bold text-lg mb-4">Checkout Flow</h3>
+                <div class="bg-magento-charcoal text-white p-6 font-mono text-xs overflow-x-auto mb-6">
+<pre>
+CHECKOUT SHIPPING STEP
+======================
+
++----------------------------------+
+| Customer enters shipping address |
++----------------+-----------------+
+                 |
+                 v
++----------------------------------+
+| JS: estimate-shipping-methods    |
+| API endpoint                     |
++----------------+-----------------+
+                 |
+                 v
++----------------------------------+
+| Quote\Model\ShippingMethod       |
+| ManagementInterface              |
+| ::estimateByAddress()            |
++----------------+-----------------+
+                 |
+                 v
++----------------------------------+
+| Quote\Model\Quote\Address        |
+| ::collectShippingRates()         |
++----------------+-----------------+
+                 |
+                 v
++----------------------------------+
+| Shipping\Model\Shipping          |
+| ::collectRates()                 |
++----------------+-----------------+
+                 |
+                 v
++----------------------------------+
+| Return array of                  |
+| ShippingMethodInterface          |
++----------------+-----------------+
+                 |
+                 v
++----------------------------------+
+| Display shipping methods as      |
+| radio buttons in checkout        |
++----------------------------------+
+</pre>
+                </div>
+
+                <h3 class="font-bold text-lg mb-4">REST API Endpoints</h3>
+                <table class="w-full">
+                    <thead class="bg-magento-charcoal text-white">
+                        <tr>
+                            <th class="p-3 text-left">Endpoint</th>
+                            <th class="p-3 text-left">Method</th>
+                            <th class="p-3 text-left">Purpose</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b">
+                            <td class="p-3 font-mono text-sm">/V1/carts/:cartId/<br>estimate-shipping-methods</td>
+                            <td class="p-3">POST</td>
+                            <td class="p-3">Estimate shipping for logged-in customer</td>
+                        </tr>
+                        <tr class="border-b bg-gray-50">
+                            <td class="p-3 font-mono text-sm">/V1/guest-carts/:cartId/<br>estimate-shipping-methods</td>
+                            <td class="p-3">POST</td>
+                            <td class="p-3">Estimate shipping for guest</td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="p-3 font-mono text-sm">/V1/carts/:cartId/<br>shipping-information</td>
+                            <td class="p-3">POST</td>
+                            <td class="p-3">Set shipping address and method</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- MSI Integration -->
+        <section class="mb-16">
+            <h2 class="text-3xl font-bold mb-6">Multi-Source Inventory (MSI) Integration</h2>
+            <div class="bg-white shadow-md p-8">
+                <p class="mb-6">
+                    When MSI is enabled, the shipping module integrates with inventory source selection
+                    during shipment creation.
+                </p>
+
+                <h3 class="font-bold text-lg mb-4">MSI Modules</h3>
+                <table class="w-full mb-6">
+                    <thead class="bg-magento-charcoal text-white">
+                        <tr>
+                            <th class="p-3 text-left">Module</th>
+                            <th class="p-3 text-left">Integration Type</th>
+                            <th class="p-3 text-left">Purpose</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b">
+                            <td class="p-3 font-mono text-sm">InventoryShipping</td>
+                            <td class="p-3">Preference</td>
+                            <td class="p-3">Overrides shipment creation for source selection</td>
+                        </tr>
+                        <tr class="border-b bg-gray-50">
+                            <td class="p-3 font-mono text-sm">InventoryShippingAdminUi</td>
+                            <td class="p-3">Plugin</td>
+                            <td class="p-3">Modifies admin UI for source selection</td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="p-3 font-mono text-sm">InventoryInStorePickup<br>ShippingAdminUi</td>
+                            <td class="p-3">Plugin</td>
+                            <td class="p-3">Adds store pickup tracking features</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="p-4 bg-magento-gold-500 bg-opacity-20">
+                    <h4 class="font-bold mb-2">MSI Controller Override</h4>
+                    <p class="text-sm">
+                        When MSI is installed, <code class="bg-gray-100 px-1">Controller\Adminhtml\Order\Shipment\NewAction</code>
+                        is replaced with <code class="bg-gray-100 px-1">InventoryShipping\Controller\...\NewAction</code>
+                        via DI preference. This enables source selection during shipment creation.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Event Integration -->
+        <section class="mb-16">
+            <h2 class="text-3xl font-bold mb-6">Events Related to Shipping</h2>
+            <div class="bg-white shadow-md p-8">
+                <p class="mb-6">
+                    While Magento_Shipping doesn't define its own events, it integrates with Sales module events:
+                </p>
+
+                <table class="w-full">
+                    <thead class="bg-magento-charcoal text-white">
+                        <tr>
+                            <th class="p-3 text-left">Event</th>
+                            <th class="p-3 text-left">Source Module</th>
+                            <th class="p-3 text-left">Shipping Relevance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b">
+                            <td class="p-3 font-mono text-sm">sales_order_shipment_<br>save_before</td>
+                            <td class="p-3">Sales</td>
+                            <td class="p-3">Modify shipment before save</td>
+                        </tr>
+                        <tr class="border-b bg-gray-50">
+                            <td class="p-3 font-mono text-sm">sales_order_shipment_<br>save_after</td>
+                            <td class="p-3">Sales</td>
+                            <td class="p-3">Post-shipment processing (emails, inventory)</td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="p-3 font-mono text-sm">sales_order_place_after</td>
+                            <td class="p-3">Sales</td>
+                            <td class="p-3">Shipping method selected with order</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Navigation -->
+        <section class="mt-16 pt-8 border-t border-gray-200">
+            <div class="flex justify-between items-center">
+                <a href="plugins-observers.html" class="text-magento-orange-500 hover:underline">&larr; DI &amp; Config</a>
+                <a href="known-issues.html" class="text-magento-orange-500 hover:underline">Known Issues &rarr;</a>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-magento-charcoal text-white py-8 mt-16">
+        <div class="container mx-auto px-6 text-center">
+            <p class="text-gray-400">Magento Core Documentation Project</p>
+            <p class="text-sm text-gray-500 mt-2">Magento_Shipping - Integrations</p>
+        </div>
+    </footer>
+</body>
+</html>

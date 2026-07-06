@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magento_Store Module Documentation</title>
+    <style>
+        :root {
+            --orange: #F26423;
+            --yellow: #F1BC1B;
+            --charcoal: #2C2C2C;
+            --light-gray: #F5F5F5;
+            --white: #FFFFFF;
+            --orange-hover: #D55A1F;
+            --yellow-hover: #D9A918;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background-color: var(--light-gray);
+            color: var(--charcoal);
+            line-height: 1.6;
+        }
+
+        .header {
+            background-color: var(--charcoal);
+            color: var(--white);
+            padding: 2rem;
+            position: relative;
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--orange) 0%, var(--orange) 50%, var(--yellow) 50%, var(--yellow) 100%);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .breadcrumb {
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+        }
+
+        .breadcrumb a {
+            color: var(--yellow);
+            text-decoration: none;
+        }
+
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+        .breadcrumb span {
+            color: var(--light-gray);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .module-badge {
+            display: inline-block;
+            background-color: var(--orange);
+            color: var(--white);
+            padding: 0.25rem 0.75rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: 0.5rem;
+        }
+
+        .main-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background-color: var(--white);
+            padding: 1.5rem;
+            text-align: center;
+            border-left: 4px solid var(--orange);
+        }
+
+        .stat-card:nth-child(even) {
+            border-left-color: var(--yellow);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--charcoal);
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .overview-section {
+            background-color: var(--white);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .overview-section h2 {
+            color: var(--charcoal);
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid var(--orange);
+            display: inline-block;
+        }
+
+        .overview-section p {
+            margin-bottom: 1rem;
+            color: #444;
+        }
+
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .nav-card {
+            background-color: var(--white);
+            padding: 1.5rem;
+            text-decoration: none;
+            color: var(--charcoal);
+            border-left: 4px solid var(--orange);
+            transition: all 0.2s ease;
+            display: block;
+        }
+
+        .nav-card:nth-child(even) {
+            border-left-color: var(--yellow);
+        }
+
+        .nav-card:hover {
+            transform: translateX(8px);
+            box-shadow: -4px 4px 0 var(--charcoal);
+        }
+
+        .nav-card h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+            color: var(--charcoal);
+        }
+
+        .nav-card p {
+            font-size: 0.875rem;
+            color: #666;
+        }
+
+        .key-components {
+            background-color: var(--white);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .key-components h2 {
+            color: var(--charcoal);
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid var(--yellow);
+            display: inline-block;
+        }
+
+        .component-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+        }
+
+        .component-item {
+            padding: 1rem;
+            background-color: var(--light-gray);
+            border-left: 3px solid var(--orange);
+        }
+
+        .component-item:nth-child(3n+2) {
+            border-left-color: var(--yellow);
+        }
+
+        .component-item:nth-child(3n) {
+            border-left-color: var(--charcoal);
+        }
+
+        .component-name {
+            font-weight: 600;
+            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+            font-size: 0.875rem;
+            color: var(--charcoal);
+        }
+
+        .component-desc {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 0.25rem;
+        }
+
+        .api-section {
+            background-color: var(--white);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .api-section h2 {
+            color: var(--charcoal);
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid var(--orange);
+            display: inline-block;
+        }
+
+        .api-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .api-table th {
+            background-color: var(--charcoal);
+            color: var(--white);
+            padding: 0.75rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .api-table td {
+            padding: 0.75rem;
+            border-bottom: 1px solid #E0E0E0;
+        }
+
+        .api-table tr:hover {
+            background-color: var(--light-gray);
+        }
+
+        .method-badge {
+            display: inline-block;
+            padding: 0.125rem 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background-color: var(--yellow);
+            color: var(--charcoal);
+        }
+
+        .code {
+            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+            font-size: 0.875rem;
+            background-color: var(--light-gray);
+            padding: 0.125rem 0.375rem;
+        }
+
+        .footer {
+            background-color: var(--charcoal);
+            color: var(--white);
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .footer a {
+            color: var(--yellow);
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.75rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .nav-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <!-- back-to-developer-docs -->
+        <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 pt-4"><a href="/developer/" aria-label="Back to Developer Docs" class="inline-flex items-center gap-1.5 text-sm font-medium text-white/70 hover:text-white transition-colors no-underline"><span aria-hidden="true">←</span> Developer Docs</a></div>
+        <div class="header-content">
+            <nav class="breadcrumb">
+                <a href="../../../index.html">Documentation</a>
+                <span> / </span>
+                <span>Magento_Store</span>
+            </nav>
+            <h1>Magento_Store</h1>
+            <span class="module-badge">Phase 1 - Core Commerce</span>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">215</div>
+                <div class="stat-label">PHP Files</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">13</div>
+                <div class="stat-label">API Interfaces</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">99</div>
+                <div class="stat-label">Model Classes</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">3</div>
+                <div class="stat-label">DB Tables</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">4</div>
+                <div class="stat-label">REST Endpoints</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">25+</div>
+                <div class="stat-label">DI Preferences</div>
+            </div>
+        </div>
+
+        <section class="overview-section">
+            <h2>Module Overview</h2>
+            <p>
+                The <strong>Magento_Store</strong> module is a foundational module that manages the multi-store hierarchy
+                consisting of <strong>Websites</strong>, <strong>Store Groups</strong> (Stores), and <strong>Store Views</strong>.
+                This three-tier structure enables Magento to power complex multi-brand, multi-region, and multi-language
+                ecommerce operations from a single installation.
+            </p>
+            <p>
+                As a <strong>zero-dependency foundational module</strong>, nearly every other Magento module depends on
+                Magento_Store for scope configuration, currency/locale resolution, and URL generation. The module provides
+                the <code class="code">StoreManagerInterface</code> - one of the most frequently injected services across the entire platform.
+            </p>
+            <p>
+                Key responsibilities include: store resolution from URL/cookie/request parameters, scope-based configuration
+                retrieval, single-store mode detection, and the complete repository pattern for managing store entities.
+            </p>
+        </section>
+
+        <nav class="nav-grid" aria-label="Module documentation sections">
+            <a href="architecture.html" class="nav-card">
+                <h3>Architecture</h3>
+                <p>Website/Group/Store hierarchy, scope configuration system, StoreManager patterns, and database schema.</p>
+            </a>
+            <a href="execution-flows.html" class="nav-card">
+                <h3>Execution Flows</h3>
+                <p>Store resolution sequence, scope configuration loading, URL generation, and multi-store routing.</p>
+            </a>
+            <a href="plugins-observers.html" class="nav-card">
+                <h3>Plugins &amp; Observers</h3>
+                <p>DI preferences, store check plugins, URL security plugins, and cookie validation interceptors.</p>
+            </a>
+            <a href="integrations.html" class="nav-card">
+                <h3>Integrations</h3>
+                <p>Framework dependencies, ScopeConfig integration, URL resolvers, and cross-module relationships.</p>
+            </a>
+            <a href="known-issues.html" class="nav-card">
+                <h3>Known Issues</h3>
+                <p>Store switching pitfalls, scope confusion, cache invalidation, and multi-store configuration gotchas.</p>
+            </a>
+        </nav>
+
+        <section class="key-components">
+            <h2>Key Components</h2>
+            <div class="component-grid">
+                <div class="component-item">
+                    <div class="component-name">StoreManagerInterface</div>
+                    <div class="component-desc">Central service for store/website/group access. Most injected interface in Magento.</div>
+                </div>
+                <div class="component-item">
+                    <div class="component-name">StoreResolver</div>
+                    <div class="component-desc">Resolves current store from URL path, GET params, or cookies.</div>
+                </div>
+                <div class="component-item">
+                    <div class="component-name">ScopeInterface</div>
+                    <div class="component-desc">Defines scope type constants: SCOPE_STORE, SCOPE_WEBSITE, SCOPE_GROUP.</div>
+                </div>
+                <div class="component-item">
+                    <div class="component-name">StoreRepository</div>
+                    <div class="component-desc">CRUD operations for store views with caching and active store filtering.</div>
+                </div>
+                <div class="component-item">
+                    <div class="component-name">WebsiteRepository</div>
+                    <div class="component-desc">CRUD operations for websites including default website resolution.</div>
+                </div>
+                <div class="component-item">
+                    <div class="component-name">GroupRepository</div>
+                    <div class="component-desc">CRUD operations for store groups with root category assignment.</div>
+                </div>
+                <div class="component-item">
+                    <div class="component-name">StoreCookieManager</div>
+                    <div class="component-desc">Manages store code persistence in cookies for store switching.</div>
+                </div>
+                <div class="component-item">
+                    <div class="component-name">StoreConfigManager</div>
+                    <div class="component-desc">Retrieves store configuration data for REST API responses.</div>
+                </div>
+                <div class="component-item">
+                    <div class="component-name">App\Config\Source\RuntimeConfigSource</div>
+                    <div class="component-desc">Runtime configuration source for dynamic store config values.</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="api-section">
+            <h2>REST API Endpoints</h2>
+            <table class="api-table">
+                <thead>
+                    <tr>
+                        <th>Method</th>
+                        <th>Endpoint</th>
+                        <th>Service Interface</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="method-badge">GET</span></td>
+                        <td><code class="code">/V1/store/storeViews</code></td>
+                        <td>StoreRepositoryInterface::getList</td>
+                        <td>List all store views</td>
+                    </tr>
+                    <tr>
+                        <td><span class="method-badge">GET</span></td>
+                        <td><code class="code">/V1/store/storeGroups</code></td>
+                        <td>GroupRepositoryInterface::getList</td>
+                        <td>List all store groups</td>
+                    </tr>
+                    <tr>
+                        <td><span class="method-badge">GET</span></td>
+                        <td><code class="code">/V1/store/websites</code></td>
+                        <td>WebsiteRepositoryInterface::getList</td>
+                        <td>List all websites</td>
+                    </tr>
+                    <tr>
+                        <td><span class="method-badge">GET</span></td>
+                        <td><code class="code">/V1/store/storeConfigs</code></td>
+                        <td>StoreConfigManagerInterface::getStoreConfigs</td>
+                        <td>Get store configuration data</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="key-components">
+            <h2>Database Tables</h2>
+            <div class="component-grid">
+                <div class="component-item">
+                    <div class="component-name">store_website</div>
+                    <div class="component-desc">Top-level entity. Fields: website_id, code, name, sort_order, default_group_id, is_default.</div>
+                </div>
+                <div class="component-item">
+                    <div class="component-name">store_group</div>
+                    <div class="component-desc">Middle tier (Store). Fields: group_id, website_id (FK), name, root_category_id, default_store_id, code.</div>
+                </div>
+                <div class="component-item">
+                    <div class="component-name">store</div>
+                    <div class="component-desc">Lowest tier (Store View). Fields: store_id, code, website_id (FK), group_id (FK), name, sort_order, is_active.</div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p>Magento 2 Core Documentation - Generated 2025-12-20</p>
+            <p><a href="../../../index.html">Back to Documentation Index</a></p>
+        </div>
+    </footer>
+</body>
+</html>

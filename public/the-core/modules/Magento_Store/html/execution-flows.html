@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Execution Flows - Magento_Store Module</title>
+    <style>
+        :root {
+            --orange: #F26423;
+            --yellow: #F1BC1B;
+            --charcoal: #2C2C2C;
+            --light-gray: #F5F5F5;
+            --white: #FFFFFF;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background-color: var(--light-gray);
+            color: var(--charcoal);
+            line-height: 1.6;
+        }
+
+        .header {
+            background-color: var(--charcoal);
+            color: var(--white);
+            padding: 2rem;
+            position: relative;
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--orange) 0%, var(--orange) 50%, var(--yellow) 50%, var(--yellow) 100%);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .breadcrumb {
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+        }
+
+        .breadcrumb a {
+            color: var(--yellow);
+            text-decoration: none;
+        }
+
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+        .breadcrumb span {
+            color: var(--light-gray);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        .main-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .flow-section {
+            background-color: var(--white);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .flow-section h2 {
+            color: var(--charcoal);
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .flow-section h3 {
+            color: var(--charcoal);
+            font-size: 1.25rem;
+            margin: 1.5rem 0 1rem 0;
+        }
+
+        .flow-badge {
+            display: inline-block;
+            background-color: var(--orange);
+            color: var(--white);
+            padding: 0.25rem 0.75rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .flow-badge.critical {
+            background-color: var(--orange);
+        }
+
+        .flow-badge.important {
+            background-color: var(--yellow);
+            color: var(--charcoal);
+        }
+
+        .flow-section p {
+            margin-bottom: 1rem;
+            color: #444;
+        }
+
+        .flow-diagram {
+            background-color: var(--charcoal);
+            color: var(--white);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            overflow-x: auto;
+            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+            font-size: 0.8rem;
+            line-height: 1.6;
+        }
+
+        .flow-step {
+            padding: 0.25rem 0;
+        }
+
+        .step-number {
+            color: var(--orange);
+            font-weight: bold;
+        }
+
+        .step-arrow {
+            color: var(--yellow);
+        }
+
+        .step-class {
+            color: #8FD9A8;
+        }
+
+        .step-method {
+            color: var(--yellow);
+        }
+
+        .step-comment {
+            color: #888;
+        }
+
+        .code-block {
+            background-color: var(--charcoal);
+            color: #E0E0E0;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            overflow-x: auto;
+            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+            font-size: 0.875rem;
+            line-height: 1.5;
+        }
+
+        .code-block .keyword {
+            color: var(--orange);
+        }
+
+        .code-block .class-name {
+            color: var(--yellow);
+        }
+
+        .code-block .string {
+            color: #8FD9A8;
+        }
+
+        .code-block .comment {
+            color: #888;
+        }
+
+        .callout {
+            background-color: #FFF3E0;
+            border-left: 4px solid var(--orange);
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .callout.warning {
+            background-color: #FFF8E1;
+            border-left-color: var(--yellow);
+        }
+
+        .callout-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .decision-tree {
+            margin: 1.5rem 0;
+            padding: 1.5rem;
+            background-color: var(--light-gray);
+        }
+
+        .decision-node {
+            margin-bottom: 0.75rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .decision-node::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background-color: var(--charcoal);
+        }
+
+        .decision-node.yes::before {
+            background-color: #8FD9A8;
+        }
+
+        .decision-node.no::before {
+            background-color: var(--orange);
+        }
+
+        .decision-condition {
+            font-weight: 600;
+            color: var(--charcoal);
+        }
+
+        .decision-result {
+            font-size: 0.875rem;
+            color: #666;
+            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+        }
+
+        .sequence-list {
+            list-style: none;
+            counter-reset: step-counter;
+            margin: 1.5rem 0;
+        }
+
+        .sequence-list li {
+            counter-increment: step-counter;
+            padding: 1rem 1rem 1rem 3.5rem;
+            margin-bottom: 0.5rem;
+            background-color: var(--light-gray);
+            position: relative;
+        }
+
+        .sequence-list li::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2.5rem;
+            background-color: var(--charcoal);
+            color: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .sequence-list li:nth-child(even)::before {
+            background-color: var(--orange);
+        }
+
+        .method-signature {
+            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--charcoal);
+        }
+
+        .method-desc {
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+            color: #666;
+        }
+
+        .footer {
+            background-color: var(--charcoal);
+            color: var(--white);
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .footer a {
+            color: var(--yellow);
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.75rem;
+            }
+
+            .flow-diagram {
+                font-size: 0.7rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <!-- back-to-developer-docs -->
+        <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 pt-4"><a href="/developer/" aria-label="Back to Developer Docs" class="inline-flex items-center gap-1.5 text-sm font-medium text-white/70 hover:text-white transition-colors no-underline"><span aria-hidden="true">←</span> Developer Docs</a></div>
+        <div class="header-content">
+            <nav class="breadcrumb">
+                <a href="../../../index.html">Documentation</a>
+                <span> / </span>
+                <a href="index.html">Magento_Store</a>
+                <span> / </span>
+                <span>Execution Flows</span>
+            </nav>
+            <h1>Execution Flows</h1>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <section class="flow-section">
+            <span class="flow-badge critical">Critical Flow</span>
+            <h2>1. Store Resolution Flow</h2>
+            <p>
+                Store resolution occurs during application bootstrap to determine which store view to use
+                for the current request. This affects all scoped configuration, URLs, and content.
+            </p>
+
+            <div class="flow-diagram">
+<div class="flow-step"><span class="step-number">[1]</span> <span class="step-class">HTTP Request</span> arrives at index.php</div>
+<div class="flow-step">    <span class="step-arrow">|</span></div>
+<div class="flow-step"><span class="step-number">[2]</span> <span class="step-class">Bootstrap</span> <span class="step-arrow">-></span> <span class="step-class">Application</span>::launch()</div>
+<div class="flow-step">    <span class="step-arrow">|</span></div>
+<div class="flow-step"><span class="step-number">[3]</span> <span class="step-class">StoreManager</span>::<span class="step-method">getStore()</span> called</div>
+<div class="flow-step">    <span class="step-arrow">|</span></div>
+<div class="flow-step"><span class="step-number">[4]</span> <span class="step-class">StoreResolver</span>::<span class="step-method">getCurrentStoreId()</span></div>
+<div class="flow-step">    <span class="step-arrow">|</span></div>
+<div class="flow-step">    <span class="step-arrow">+--></span> <span class="step-class">StorePathInfoValidator</span>::<span class="step-method">getValidStoreCode()</span> <span class="step-comment">// Check URL path</span></div>
+<div class="flow-step">    <span class="step-arrow">|</span>      <span class="step-comment">e.g., /french/products -> "french"</span></div>
+<div class="flow-step">    <span class="step-arrow">|</span></div>
+<div class="flow-step">    <span class="step-arrow">+--></span> <span class="step-class">Request</span>::<span class="step-method">getParam('___store')</span> <span class="step-comment">// Check GET param</span></div>
+<div class="flow-step">    <span class="step-arrow">|</span>      <span class="step-comment">e.g., ?___store=french</span></div>
+<div class="flow-step">    <span class="step-arrow">|</span></div>
+<div class="flow-step">    <span class="step-arrow">+--></span> <span class="step-class">StoreCookieManager</span>::<span class="step-method">getStoreCodeFromCookie()</span></div>
+<div class="flow-step">    <span class="step-arrow">|</span>      <span class="step-comment">// Check 'store' cookie</span></div>
+<div class="flow-step">    <span class="step-arrow">|</span></div>
+<div class="flow-step"><span class="step-number">[5]</span> Validate store is active and in allowed list</div>
+<div class="flow-step">    <span class="step-arrow">|</span></div>
+<div class="flow-step"><span class="step-number">[6]</span> <span class="step-class">StoreRepository</span>::<span class="step-method">getActiveStoreByCode()</span> or <span class="step-method">getActiveStoreById()</span></div>
+<div class="flow-step">    <span class="step-arrow">|</span></div>
+<div class="flow-step"><span class="step-number">[7]</span> Return <span class="step-class">StoreInterface</span> instance</div>
+            </div>
+
+            <div class="decision-tree">
+                <h4>Store Resolution Priority</h4>
+                <div class="decision-node yes">
+                    <div class="decision-condition">1. URL Path contains store code?</div>
+                    <div class="decision-result">Use store from URL (e.g., /french/catalog/product)</div>
+                </div>
+                <div class="decision-node yes">
+                    <div class="decision-condition">2. GET parameter ___store present?</div>
+                    <div class="decision-result">Use store from parameter, set cookie</div>
+                </div>
+                <div class="decision-node yes">
+                    <div class="decision-condition">3. Store cookie exists?</div>
+                    <div class="decision-result">Use store from cookie</div>
+                </div>
+                <div class="decision-node no">
+                    <div class="decision-condition">4. Fallback</div>
+                    <div class="decision-result">Use default store from MAGE_RUN_CODE or website default</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="flow-section">
+            <span class="flow-badge critical">Critical Flow</span>
+            <h2>2. Scope Configuration Resolution</h2>
+            <p>
+                When <code>ScopeConfigInterface::getValue()</code> is called, configuration values are resolved
+                with proper fallback from store -> website -> default scope.
+            </p>
+
+            <div class="flow-diagram">
+<div class="flow-step"><span class="step-number">[1]</span> <span class="step-class">ScopeConfig</span>::<span class="step-method">getValue</span>(<span class="step-method">'path/to/config'</span>, <span class="step-class">ScopeInterface</span>::SCOPE_STORE, $storeCode)</div>
+<div class="flow-step">    <span class="step-arrow">|</span></div>
+<div class="flow-step"><span class="step-number">[2]</span> <span class="step-class">ScopePool</span>::<span class="step-method">getScope</span>(<span class="step-method">'stores'</span>, $storeCode)</div>
+<div class="flow-step">    <span class="step-arrow">|</span></div>
+<div class="flow-step"><span class="step-number">[3]</span> Check store-level value in <span class="step-class">core_config_data</span></div>
+<div class="flow-step">    <span class="step-arrow">|</span>  <span class="step-comment">scope='stores', scope_id=[store_id]</span></div>
+<div class="flow-step">    <span class="step-arrow">|</span></div>
+<div class="flow-step">    <span class="step-arrow">+--></span> Found? <span class="step-comment">Return value</span></div>
+<div class="flow-step">    <span class="step-arrow">|</span></div>
+<div class="flow-step"><span class="step-number">[4]</span> Check website-level value</div>
+<div class="flow-step">    <span class="step-arrow">|</span>  <span class="step-comment">scope='websites', scope_id=[website_id]</span></div>
+<div class="flow-step">    <span class="step-arrow">|</span></div>
+<div class="flow-step">    <span class="step-arrow">+--></span> Found? <span class="step-comment">Return value</span></div>
+<div class="flow-step">    <span class="step-arrow">|</span></div>
+<div class="flow-step"><span class="step-number">[5]</span> Check default-level value</div>
+<div class="flow-step">    <span class="step-arrow">|</span>  <span class="step-comment">scope='default', scope_id=0</span></div>
+<div class="flow-step">    <span class="step-arrow">|</span></div>
+<div class="flow-step">    <span class="step-arrow">+--></span> Found? <span class="step-comment">Return value</span></div>
+<div class="flow-step">    <span class="step-arrow">|</span></div>
+<div class="flow-step"><span class="step-number">[6]</span> Return null <span class="step-comment">(no value at any scope)</span></div>
+            </div>
+
+            <div class="callout">
+                <div class="callout-title">Caching</div>
+                <p>
+                    Configuration data is heavily cached. The entire <code>core_config_data</code> table is loaded
+                    into memory and cached by scope. Use <code>bin/magento cache:flush config</code> after
+                    programmatic config changes.
+                </p>
+            </div>
+        </section>
+
+        <section class="flow-section">
+            <span class="flow-badge important">Important Flow</span>
+            <h2>3. Store Switching Flow</h2>
+            <p>
+                When a customer switches stores (e.g., via store switcher dropdown), several steps ensure
+                proper redirection and state management.
+            </p>
+
+            <ol class="sequence-list">
+                <li>
+                    <div class="method-signature">Customer clicks store switcher link</div>
+                    <div class="method-desc">Link format: <code>/stores/store/redirect/?___store=french&___from_store=default</code></div>
+                </li>
+                <li>
+                    <div class="method-signature">Redirect controller validates store codes</div>
+                    <div class="method-desc">Ensures both source and target stores exist and are active</div>
+                </li>
+                <li>
+                    <div class="method-signature">StoreCookieManager::setStoreCookie($store)</div>
+                    <div class="method-desc">Persists selected store in cookie for future requests</div>
+                </li>
+                <li>
+                    <div class="method-signature">URL Rewrite lookup for target store</div>
+                    <div class="method-desc">Attempts to find equivalent URL in target store</div>
+                </li>
+                <li>
+                    <div class="method-signature">Redirect to target store URL</div>
+                    <div class="method-desc">Maintains URL path if possible, or redirects to home</div>
+                </li>
+            </ol>
+
+            <div class="code-block">
+<span class="comment">// Store switch link generation</span>
+$urlBuilder->getUrl(<span class="string">'stores/store/redirect'</span>, [
+    <span class="string">'___store'</span>     => $targetStoreCode,
+    <span class="string">'___from_store'</span> => $currentStoreCode,
+    <span class="string">'_query'</span>        => [<span class="string">'uenc'</span> => $encodedUrl]
+]);
+            </div>
+        </section>
+
+        <section class="flow-section">
+            <span class="flow-badge important">Important Flow</span>
+            <h2>4. Multi-Store URL Generation</h2>
+            <p>
+                URL generation must account for store-specific base URLs, URL rewrites, and store codes in path.
+            </p>
+
+            <div class="flow-diagram">
+<div class="flow-step"><span class="step-number">[1]</span> <span class="step-class">UrlInterface</span>::<span class="step-method">getUrl</span>($routePath, $routeParams)</div>
+<div class="flow-step">    <span class="step-arrow">|</span></div>
+<div class="flow-step"><span class="step-number">[2]</span> <span class="step-class">StoreUrlRouteParamsResolver</span> plugin intercepts</div>
+<div class="flow-step">    <span class="step-arrow">|</span></div>
+<div class="flow-step">    <span class="step-arrow">+--></span> Extract <span class="step-method">'_scope'</span> from params (target store)</div>
+<div class="flow-step">    <span class="step-arrow">+--></span> Extract <span class="step-method">'_scope_to_url'</span> (whether to add store code)</div>
+<div class="flow-step">    <span class="step-arrow">|</span></div>
+<div class="flow-step"><span class="step-number">[3]</span> <span class="step-class">Store</span>::<span class="step-method">getBaseUrl</span>($type) <span class="step-comment">// LINK, MEDIA, STATIC, WEB</span></div>
+<div class="flow-step">    <span class="step-arrow">|</span></div>
+<div class="flow-step"><span class="step-number">[4]</span> Check configuration <span class="step-method">'web/url/use_store'</span></div>
+<div class="flow-step">    <span class="step-arrow">|</span></div>
+<div class="flow-step">    <span class="step-arrow">+--></span> <span class="step-class">true</span>: Add store code to path: <span class="step-comment">/french/catalog/product</span></div>
+<div class="flow-step">    <span class="step-arrow">+--></span> <span class="step-class">false</span>: No store code: <span class="step-comment">/catalog/product</span></div>
+<div class="flow-step">    <span class="step-arrow">|</span></div>
+<div class="flow-step"><span class="step-number">[5]</span> Apply HTTPS if required (<span class="step-method">isCurrentlySecure()</span>)</div>
+<div class="flow-step">    <span class="step-arrow">|</span></div>
+<div class="flow-step"><span class="step-number">[6]</span> Return complete URL</div>
+            </div>
+
+            <div class="callout warning">
+                <div class="callout-title">URL Configuration Per Store</div>
+                <p>
+                    Each store can have a different base URL configured in <code>web/unsecure/base_url</code> and
+                    <code>web/secure/base_url</code>. This enables subdomain-based multi-store setups
+                    (e.g., <code>uk.example.com</code>, <code>de.example.com</code>).
+                </p>
+            </div>
+        </section>
+
+        <section class="flow-section">
+            <span class="flow-badge important">Important Flow</span>
+            <h2>5. Store Repository Caching Flow</h2>
+            <p>
+                The <code>StoreRepository</code> implements in-memory caching to avoid repeated database queries.
+            </p>
+
+            <div class="flow-diagram">
+<div class="flow-step"><span class="step-number">[1]</span> <span class="step-class">StoreRepository</span>::<span class="step-method">get</span>($code)</div>
+<div class="flow-step">    <span class="step-arrow">|</span></div>
+<div class="flow-step"><span class="step-number">[2]</span> Check <span class="step-method">$this->entities[$code]</span> (in-memory cache)</div>
+<div class="flow-step">    <span class="step-arrow">|</span></div>
+<div class="flow-step">    <span class="step-arrow">+--></span> Hit? Return cached <span class="step-class">StoreInterface</span></div>
+<div class="flow-step">    <span class="step-arrow">|</span></div>
+<div class="flow-step"><span class="step-number">[3]</span> Miss: <span class="step-class">StoreFactory</span>::<span class="step-method">create</span>()<span class="step-arrow">-></span><span class="step-method">load</span>($code, <span class="step-method">'code'</span>)</div>
+<div class="flow-step">    <span class="step-arrow">|</span></div>
+<div class="flow-step"><span class="step-number">[4]</span> Validate store exists</div>
+<div class="flow-step">    <span class="step-arrow">|</span></div>
+<div class="flow-step">    <span class="step-arrow">+--></span> Not found? Throw <span class="step-class">NoSuchEntityException</span></div>
+<div class="flow-step">    <span class="step-arrow">|</span></div>
+<div class="flow-step"><span class="step-number">[5]</span> Cache in <span class="step-method">$this->entities[$code]</span></div>
+<div class="flow-step">    <span class="step-arrow">|</span></div>
+<div class="flow-step"><span class="step-number">[6]</span> Return <span class="step-class">StoreInterface</span></div>
+            </div>
+
+            <h3>Cache Invalidation</h3>
+            <div class="code-block">
+<span class="comment">// Reinitialize all store data (clears all caches)</span>
+$storeManager-><span class="class-name">reinitStores</span>();
+
+<span class="comment">// This internally calls:</span>
+$this->cache-><span class="class-name">clean</span>(
+    Zend_Cache::CLEANING_MODE_MATCHING_ANY_TAG,
+    [<span class="class-name">StoreResolver</span>::CACHE_TAG, <span class="class-name">Store</span>::CACHE_TAG]
+);
+$this->scopeConfig-><span class="class-name">clean</span>();
+$this->storeRepository-><span class="class-name">clean</span>();
+$this->websiteRepository-><span class="class-name">clean</span>();
+$this->groupRepository-><span class="class-name">clean</span>();
+            </div>
+        </section>
+
+        <section class="flow-section">
+            <span class="flow-badge">Standard Flow</span>
+            <h2>6. Single Store Mode Detection</h2>
+            <p>
+                Single store mode simplifies the admin UI when only one store view exists.
+            </p>
+
+            <div class="flow-diagram">
+<div class="flow-step"><span class="step-number">[1]</span> <span class="step-class">StoreManager</span>::<span class="step-method">isSingleStoreMode</span>()</div>
+<div class="flow-step">    <span class="step-arrow">|</span></div>
+<div class="flow-step"><span class="step-number">[2]</span> Check <span class="step-method">isSingleStoreModeEnabled()</span></div>
+<div class="flow-step">    <span class="step-arrow">|</span>  <span class="step-comment">Config: general/single_store_mode/enabled</span></div>
+<div class="flow-step">    <span class="step-arrow">|</span></div>
+<div class="flow-step">    <span class="step-arrow">+--></span> Disabled? Return <span class="step-class">false</span></div>
+<div class="flow-step">    <span class="step-arrow">|</span></div>
+<div class="flow-step"><span class="step-number">[3]</span> Check <span class="step-method">hasSingleStore()</span></div>
+<div class="flow-step">    <span class="step-arrow">|</span></div>
+<div class="flow-step">    <span class="step-arrow">+--></span> <span class="step-method">count($this->getStores(true))</span> < 3</div>
+<div class="flow-step">    <span class="step-arrow">|</span>  <span class="step-comment">// Admin store (0) + Default (1) = 2 stores minimum</span></div>
+<div class="flow-step">    <span class="step-arrow">|</span></div>
+<div class="flow-step"><span class="step-number">[4]</span> Return <span class="step-class">true</span> if both conditions met</div>
+            </div>
+
+            <div class="callout">
+                <div class="callout-title">Admin Store (ID: 0)</div>
+                <p>
+                    Magento always has an "admin" store with ID 0. This is why <code>hasSingleStore()</code>
+                    checks for < 3 stores: admin (0) + one real store = 2 is still "single store".
+                </p>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p><a href="index.html">Back to Magento_Store Overview</a></p>
+        <p><a href="../../../index.html">Documentation Index</a></p>
+    </footer>
+</body>
+</html>

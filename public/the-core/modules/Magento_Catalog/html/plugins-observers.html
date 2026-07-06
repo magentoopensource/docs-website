@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plugins & Observers - Magento_Catalog | THE MAGENTO CORE</title>
+    <meta name="description" content="Complete reference for 47 plugin declarations and 24 observers in Magento_Catalog with sortOrder, security implications, and performance impact">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        orange: {
+                            DEFAULT: '#F26423',
+                            50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad', 300: '#f9ae78',
+                            400: '#f58242', 500: '#f26423', 600: '#e34613', 700: '#bc3312',
+                            800: '#962a16', 900: '#792515', 950: '#411009'
+                        },
+                        yellow: {
+                            DEFAULT: '#F1BC1B',
+                            50: '#fffbeb', 100: '#fdf9c8', 200: '#fbf38c', 300: '#f8e651',
+                            400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a', 700: '#b1670c',
+                            800: '#8f5111', 900: '#764311', 950: '#442204'
+                        },
+                        charcoal: {
+                            DEFAULT: '#2c2c2c',
+                            50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6', 300: '#818181',
+                            400: '#474747', 500: '#2c2c2c', 600: '#262626', 700: '#202020',
+                            800: '#1c1c1c', 900: '#191919', 950: '#121212'
+                        },
+                        brown: '#442204',
+                        'off-white': '#FAFAFA',
+                    },
+                    fontFamily: {
+                        sans: ['Inter Tight', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter Tight', system-ui, sans-serif; }
+        .code-block { background: #1c1c1c; color: #f1f1f1; }
+    </style>
+</head>
+<body class="bg-off-white text-charcoal">
+
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-charcoal focus:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
+        Skip to content
+    </a>
+
+    <header class="bg-gradient-to-br from-charcoal-500 via-charcoal-600 to-charcoal-700 border-b-8 border-orange-500">
+        <!-- back-to-developer-docs -->
+        <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 pt-4"><a href="/developer/" aria-label="Back to Developer Docs" class="inline-flex items-center gap-1.5 text-sm font-medium text-white/70 hover:text-white transition-colors no-underline"><span aria-hidden="true">←</span> Developer Docs</a></div>
+        <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+            <nav aria-label="Breadcrumb" class="mb-6">
+                <ol class="flex flex-wrap items-center gap-2 text-sm text-gray-400">
+                    <li><a href="../../../index.html" class="hover:text-orange-500 underline underline-offset-4">Home</a></li>
+                    <li aria-hidden="true"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></li>
+                    <li><a href="index.html" class="hover:text-orange-500 underline underline-offset-4">Magento_Catalog</a></li>
+                    <li aria-hidden="true"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></li>
+                    <li class="text-white font-medium">Plugins & Observers</li>
+                </ol>
+            </nav>
+            <div id="main-content">
+                <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white mb-4">Plugins & Observers</h1>
+                <p class="text-base sm:text-lg text-gray-300 max-w-3xl mb-6">Complete reference for all 47 plugin declarations and 24 observer classes in Magento_Catalog with sortOrder, security implications, and performance considerations.</p>
+                <div class="flex flex-wrap gap-3 text-sm">
+                    <span class="inline-flex items-center gap-1.5 bg-orange-500/20 text-orange-300 px-3 py-1.5 font-medium border border-orange-500/30">47 Plugins</span>
+                    <span class="inline-flex items-center gap-1.5 bg-yellow-500/20 text-yellow-300 px-3 py-1.5 font-medium border border-yellow-500/30">24 Observers</span>
+                    <span class="inline-flex items-center gap-1.5 bg-charcoal-400/40 text-charcoal-100 px-3 py-1.5 font-medium border border-charcoal-300/30">14 Events</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="max-w-6xl mx-auto px-6 py-8 md:py-12">
+
+        <!-- Table of Contents -->
+        <nav class="bg-white border-l-4 border-yellow-500 p-6 mb-12 shadow-sm" aria-label="Table of contents">
+            <h2 class="text-lg font-bold text-charcoal mb-4">On This Page</h2>
+            <ul class="space-y-2 text-sm">
+                <li><a href="#plugins-overview" class="block text-charcoal-400 hover:text-orange-600 font-medium">Plugins Overview</a></li>
+                <li><a href="#core-plugins" class="block text-charcoal-400 hover:text-orange-600 font-medium">Core Plugin Classes</a></li>
+                <li><a href="#indexer-plugins" class="block text-charcoal-400 hover:text-orange-600 font-medium">Indexer Plugins</a></li>
+                <li><a href="#observers-overview" class="block text-charcoal-400 hover:text-orange-600 font-medium">Observers Overview</a></li>
+                <li><a href="#events-reference" class="block text-charcoal-400 hover:text-orange-600 font-medium">Events Reference</a></li>
+                <li><a href="#performance" class="block text-charcoal-400 hover:text-orange-600 font-medium">Performance Considerations</a></li>
+            </ul>
+        </nav>
+
+        <!-- Plugins Overview -->
+        <section id="plugins-overview" class="bg-white mb-12 p-8 border-t-4 border-orange-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-charcoal mb-6">Plugins Overview</h2>
+            <p class="text-gray-700 mb-6">Magento_Catalog defines 47 plugin declarations across 5 areas (global, adminhtml, frontend, webapi_rest, webapi_soap). Plugins intercept method calls to modify behavior without modifying core code.</p>
+
+            <div class="grid md:grid-cols-3 gap-6 mb-8">
+                <div class="border-l-4 border-orange-500 pl-4 bg-orange-50 py-3">
+                    <h3 class="font-bold text-charcoal mb-2">Global Area (di.xml)</h3>
+                    <p class="text-sm text-gray-600">23 plugins for core functionality</p>
+                </div>
+                <div class="border-l-4 border-yellow-500 pl-4 bg-yellow-50 py-3">
+                    <h3 class="font-bold text-charcoal mb-2">Adminhtml Area</h3>
+                    <p class="text-sm text-gray-600">5 plugins for admin operations</p>
+                </div>
+                <div class="border-l-4 border-charcoal pl-4 bg-gray-50 py-3">
+                    <h3 class="font-bold text-charcoal mb-2">Frontend/WebAPI</h3>
+                    <p class="text-sm text-gray-600">19 plugins for API and frontend</p>
+                </div>
+            </div>
+
+            <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4">
+                <h4 class="font-bold text-charcoal mb-2">Plugin Execution Order</h4>
+                <p class="text-sm text-gray-700">Plugins execute by <code class="bg-gray-100 px-1">sortOrder</code> (lowest first). Before plugins run in ascending order, After plugins run in descending order. Around plugins wrap the original method.</p>
+            </div>
+        </section>
+
+        <!-- Core Plugins -->
+        <section id="core-plugins" class="bg-white mb-12 p-8 border-t-4 border-yellow-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-charcoal mb-6">Core Plugin Classes</h2>
+
+            <div class="space-y-6">
+                <article class="border-l-4 border-orange-500 pl-4 py-3 bg-orange-50">
+                    <h3 class="font-bold text-charcoal mb-2">catalogTopmenu</h3>
+                    <p class="text-sm text-gray-600 mb-2">Intercepts <code class="bg-gray-100 px-1">Magento\Theme\Block\Html\Topmenu</code></p>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        <li><strong>Type:</strong> <code class="bg-gray-100 px-1">Magento\Catalog\Plugin\Block\Topmenu</code></li>
+                        <li><strong>Purpose:</strong> Adds category tree to navigation menu</li>
+                        <li><strong>Methods:</strong> beforeGetHtml(), afterGetIdentities()</li>
+                    </ul>
+                </article>
+
+                <article class="border-l-4 border-orange-500 pl-4 py-3 bg-orange-50">
+                    <h3 class="font-bold text-charcoal mb-2">catalogLog</h3>
+                    <p class="text-sm text-gray-600 mb-2">Intercepts <code class="bg-gray-100 px-1">Magento\Customer\Model\ResourceModel\Visitor</code></p>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        <li><strong>Type:</strong> <code class="bg-gray-100 px-1">Magento\Catalog\Model\Plugin\Log</code></li>
+                        <li><strong>Purpose:</strong> Cleans product comparison items when visitor data is cleaned</li>
+                        <li><strong>Methods:</strong> afterClean()</li>
+                    </ul>
+                </article>
+
+                <article class="border-l-4 border-yellow-500 pl-4 py-3 bg-yellow-50">
+                    <h3 class="font-bold text-charcoal mb-2">set_page_layout_default_value</h3>
+                    <p class="text-sm text-gray-600 mb-2">Intercepts <code class="bg-gray-100 px-1">Magento\Catalog\Model\Category\DataProvider</code></p>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        <li><strong>Type:</strong> <code class="bg-gray-100 px-1">Magento\Catalog\Model\Plugin\SetPageLayoutDefaultValue</code></li>
+                        <li><strong>Purpose:</strong> Sets default page layout for new categories</li>
+                        <li><strong>Methods:</strong> afterGetData()</li>
+                    </ul>
+                </article>
+
+                <article class="border-l-4 border-yellow-500 pl-4 py-3 bg-yellow-50">
+                    <h3 class="font-bold text-charcoal mb-2">showOutOfStockValueChanged</h3>
+                    <p class="text-sm text-gray-600 mb-2">Intercepts <code class="bg-gray-100 px-1">Magento\Config\Model\Config</code></p>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        <li><strong>Type:</strong> <code class="bg-gray-100 px-1">Magento\Catalog\Model\Plugin\ShowOutOfStockConfig</code></li>
+                        <li><strong>Purpose:</strong> Triggers reindex when "Show Out of Stock" config changes</li>
+                        <li><strong>Methods:</strong> aroundSave()</li>
+                    </ul>
+                </article>
+
+                <article class="border-l-4 border-charcoal pl-4 py-3 bg-gray-50">
+                    <h3 class="font-bold text-charcoal mb-2">attributeValidation</h3>
+                    <p class="text-sm text-gray-600 mb-2">Intercepts EAV attribute backend validation</p>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        <li><strong>Type:</strong> <code class="bg-gray-100 px-1">Magento\Catalog\Plugin\Model\Attribute\Backend\AttributeValidation</code></li>
+                        <li><strong>Purpose:</strong> Adds catalog-specific attribute validation</li>
+                        <li><strong>Methods:</strong> aroundValidate()</li>
+                    </ul>
+                </article>
+
+                <article class="border-l-4 border-charcoal pl-4 py-3 bg-gray-50">
+                    <h3 class="font-bold text-charcoal mb-2">copy_quote_files_to_order</h3>
+                    <p class="text-sm text-gray-600 mb-2">Intercepts quote to order conversion</p>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        <li><strong>Type:</strong> <code class="bg-gray-100 px-1">Magento\Catalog\Model\Plugin\QuoteItemProductOption</code></li>
+                        <li><strong>Purpose:</strong> Copies custom option files from quote to order</li>
+                        <li><strong>Methods:</strong> aroundConvertItem()</li>
+                    </ul>
+                </article>
+            </div>
+        </section>
+
+        <!-- Indexer Plugins -->
+        <section id="indexer-plugins" class="bg-white mb-12 p-8 border-t-4 border-orange-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-charcoal mb-6">Indexer Plugins</h2>
+            <p class="text-gray-700 mb-6">A significant portion of Catalog plugins handle indexer invalidation when related entities change.</p>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="bg-charcoal text-white">
+                            <th class="text-left p-3">Plugin Name</th>
+                            <th class="text-left p-3">Target</th>
+                            <th class="text-left p-3">Indexer Affected</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b border-gray-200 bg-orange-50">
+                            <td class="p-3"><code class="text-xs">invalidatePriceIndexerOnWebsite</code></td>
+                            <td class="p-3">Store\Model\ResourceModel\Website</td>
+                            <td class="p-3">catalog_product_price</td>
+                        </tr>
+                        <tr class="border-b border-gray-200 bg-yellow-50">
+                            <td class="p-3"><code class="text-xs">categoryProductWebsiteAfterDelete</code></td>
+                            <td class="p-3">Store\Model\ResourceModel\Website</td>
+                            <td class="p-3">catalog_category_product</td>
+                        </tr>
+                        <tr class="border-b border-gray-200">
+                            <td class="p-3"><code class="text-xs">storeViewResourceAroundSave</code></td>
+                            <td class="p-3">Store\Model\ResourceModel\Store</td>
+                            <td class="p-3">catalog_category_flat</td>
+                        </tr>
+                        <tr class="border-b border-gray-200 bg-orange-50">
+                            <td class="p-3"><code class="text-xs">catalogProductFlatIndexerStore</code></td>
+                            <td class="p-3">Store\Model\ResourceModel\Store</td>
+                            <td class="p-3">catalog_product_flat</td>
+                        </tr>
+                        <tr class="border-b border-gray-200 bg-yellow-50">
+                            <td class="p-3"><code class="text-xs">categoryStoreAroundSave</code></td>
+                            <td class="p-3">Store\Model\ResourceModel\Store</td>
+                            <td class="p-3">catalog_category_product</td>
+                        </tr>
+                        <tr class="border-b border-gray-200">
+                            <td class="p-3"><code class="text-xs">productAttributesStoreViewSave</code></td>
+                            <td class="p-3">Store\Model\ResourceModel\Store</td>
+                            <td class="p-3">catalog_product_attribute</td>
+                        </tr>
+                        <tr class="border-b border-gray-200 bg-orange-50">
+                            <td class="p-3"><code class="text-xs">invalidatePriceIndexerOnCustomerGroup</code></td>
+                            <td class="p-3">Customer\Model\ResourceModel\Group</td>
+                            <td class="p-3">catalog_product_price</td>
+                        </tr>
+                        <tr class="border-b border-gray-200 bg-yellow-50">
+                            <td class="p-3"><code class="text-xs">invalidateEavIndexerOnAttributeSetSave</code></td>
+                            <td class="p-3">Eav\Model\Entity\Attribute\Set</td>
+                            <td class="p-3">catalog_product_attribute</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Observers Overview -->
+        <section id="observers-overview" class="bg-white mb-12 p-8 border-t-4 border-yellow-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-charcoal mb-6">Observers (24 Classes)</h2>
+            <p class="text-gray-700 mb-6">Magento_Catalog includes 24 observer classes that respond to system events. Located in <code class="bg-gray-100 px-1">Observer/</code> directory.</p>
+
+            <div class="grid md:grid-cols-2 gap-6">
+                <article class="border-l-4 border-orange-500 pl-4 py-3">
+                    <h3 class="font-bold text-charcoal mb-2">ImageResizeAfterProductSave</h3>
+                    <p class="text-sm text-gray-600 mb-2">Event: <code class="bg-gray-100 px-1">catalog_product_save_commit_after</code></p>
+                    <p class="text-sm text-gray-600">Queues image resize operations after product save to avoid blocking the save operation.</p>
+                </article>
+
+                <article class="border-l-4 border-orange-500 pl-4 py-3">
+                    <h3 class="font-bold text-charcoal mb-2">SetSpecialPriceStartDate</h3>
+                    <p class="text-sm text-gray-600 mb-2">Event: <code class="bg-gray-100 px-1">catalog_product_save_before</code></p>
+                    <p class="text-sm text-gray-600">Sets special price start date to today if special price is set but start date is empty.</p>
+                </article>
+
+                <article class="border-l-4 border-yellow-500 pl-4 py-3">
+                    <h3 class="font-bold text-charcoal mb-2">CategoryDesignAuthorization</h3>
+                    <p class="text-sm text-gray-600 mb-2">Event: <code class="bg-gray-100 px-1">catalog_category_prepare_save</code></p>
+                    <p class="text-sm text-gray-600">Checks admin user permissions before allowing design attribute changes on categories.</p>
+                </article>
+
+                <article class="border-l-4 border-yellow-500 pl-4 py-3">
+                    <h3 class="font-bold text-charcoal mb-2">InvalidateCacheOnCategoryDesignChange</h3>
+                    <p class="text-sm text-gray-600 mb-2">Event: <code class="bg-gray-100 px-1">catalog_category_save_after</code></p>
+                    <p class="text-sm text-gray-600">Invalidates full page cache when category design settings change.</p>
+                </article>
+
+                <article class="border-l-4 border-charcoal pl-4 py-3">
+                    <h3 class="font-bold text-charcoal mb-2">SwitchPriceAttributeScopeOnConfigChange</h3>
+                    <p class="text-sm text-gray-600 mb-2">Event: <code class="bg-gray-100 px-1">admin_system_config_changed_section_catalog</code></p>
+                    <p class="text-sm text-gray-600">Updates price attribute scope when catalog price scope config changes.</p>
+                </article>
+
+                <article class="border-l-4 border-charcoal pl-4 py-3">
+                    <h3 class="font-bold text-charcoal mb-2">SynchronizeWebsiteAttributesOnStoreChange</h3>
+                    <p class="text-sm text-gray-600 mb-2">Event: <code class="bg-gray-100 px-1">store_save_after</code></p>
+                    <p class="text-sm text-gray-600">Synchronizes website-scoped EAV attributes when store view changes.</p>
+                </article>
+
+                <article class="border-l-4 border-orange-500 pl-4 py-3">
+                    <h3 class="font-bold text-charcoal mb-2">FlushCategoryPagesCache</h3>
+                    <p class="text-sm text-gray-600 mb-2">Event: <code class="bg-gray-100 px-1">catalog_category_*</code></p>
+                    <p class="text-sm text-gray-600">Flushes FPC for category pages when category data changes.</p>
+                </article>
+
+                <article class="border-l-4 border-orange-500 pl-4 py-3">
+                    <h3 class="font-bold text-charcoal mb-2">CategoryProductIndexer</h3>
+                    <p class="text-sm text-gray-600 mb-2">Event: <code class="bg-gray-100 px-1">catalog_category_save_after</code></p>
+                    <p class="text-sm text-gray-600">Triggers category-product indexer reindex after category save.</p>
+                </article>
+            </div>
+        </section>
+
+        <!-- Events Reference -->
+        <section id="events-reference" class="bg-white mb-12 p-8 border-t-4 border-orange-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-charcoal mb-6">Events Reference</h2>
+            <p class="text-gray-700 mb-6">Key events dispatched by Magento_Catalog defined in <code class="bg-gray-100 px-1">etc/events.xml</code>.</p>
+
+            <div class="space-y-4">
+                <div class="bg-orange-50 border-l-4 border-orange-500 p-4">
+                    <h3 class="font-bold text-charcoal mb-2">Product Events</h3>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        <li><code class="bg-gray-100 px-1">magento_catalog_api_data_productinterface_save_before</code></li>
+                        <li><code class="bg-gray-100 px-1">magento_catalog_api_data_productinterface_save_after</code></li>
+                        <li><code class="bg-gray-100 px-1">magento_catalog_api_data_productinterface_delete_before</code></li>
+                        <li><code class="bg-gray-100 px-1">magento_catalog_api_data_productinterface_delete_after</code></li>
+                        <li><code class="bg-gray-100 px-1">magento_catalog_api_data_productinterface_load_after</code></li>
+                        <li><code class="bg-gray-100 px-1">catalog_product_save_before</code></li>
+                        <li><code class="bg-gray-100 px-1">catalog_product_save_commit_after</code></li>
+                    </ul>
+                </div>
+
+                <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4">
+                    <h3 class="font-bold text-charcoal mb-2">Category Events</h3>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        <li><code class="bg-gray-100 px-1">magento_catalog_api_data_categoryinterface_save_before</code></li>
+                        <li><code class="bg-gray-100 px-1">magento_catalog_api_data_categoryinterface_save_after</code></li>
+                        <li><code class="bg-gray-100 px-1">magento_catalog_api_data_categoryinterface_delete_before</code></li>
+                        <li><code class="bg-gray-100 px-1">magento_catalog_api_data_categoryinterface_delete_after</code></li>
+                        <li><code class="bg-gray-100 px-1">magento_catalog_api_data_categoryinterface_load_after</code></li>
+                        <li><code class="bg-gray-100 px-1">catalog_category_prepare_save</code></li>
+                    </ul>
+                </div>
+
+                <div class="bg-gray-50 border-l-4 border-charcoal p-4">
+                    <h3 class="font-bold text-charcoal mb-2">Configuration Events</h3>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        <li><code class="bg-gray-100 px-1">admin_system_config_changed_section_catalog</code></li>
+                        <li><code class="bg-gray-100 px-1">store_save_after</code></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Performance Considerations -->
+        <section id="performance" class="bg-white mb-12 p-8 border-t-4 border-yellow-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-charcoal mb-6">Performance Considerations</h2>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <div>
+                    <h3 class="font-bold text-charcoal mb-4">Plugin Performance Tips</h3>
+                    <ul class="space-y-3 text-sm text-gray-700">
+                        <li class="border-l-4 border-orange-500 pl-3 py-1">
+                            <strong>Avoid Around plugins when possible</strong> - They wrap the entire method and can significantly impact performance.
+                        </li>
+                        <li class="border-l-4 border-yellow-500 pl-3 py-1">
+                            <strong>Use sortOrder wisely</strong> - Lower sortOrder runs first. Don't use 0 unless necessary.
+                        </li>
+                        <li class="border-l-4 border-charcoal pl-3 py-1">
+                            <strong>Check if already processing</strong> - Prevent infinite loops with state flags.
+                        </li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-bold text-charcoal mb-4">Observer Performance Tips</h3>
+                    <ul class="space-y-3 text-sm text-gray-700">
+                        <li class="border-l-4 border-orange-500 pl-3 py-1">
+                            <strong>Use commit_after events for heavy operations</strong> - Don't block the main save transaction.
+                        </li>
+                        <li class="border-l-4 border-yellow-500 pl-3 py-1">
+                            <strong>Queue async operations</strong> - Use message queues for image processing, indexing.
+                        </li>
+                        <li class="border-l-4 border-charcoal pl-3 py-1">
+                            <strong>Scope observers correctly</strong> - Use area-specific events.xml to avoid unnecessary execution.
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="mt-8 bg-orange-50 border-l-4 border-orange-500 p-4">
+                <h4 class="font-bold text-charcoal mb-2">Security Consideration</h4>
+                <p class="text-sm text-gray-700">Plugins have full access to method arguments and return values. Malicious plugins can intercept sensitive data. Always audit third-party modules for suspicious plugins on security-critical classes like <code class="bg-gray-100 px-1">CustomerRepository</code>, <code class="bg-gray-100 px-1">OrderRepository</code>, or <code class="bg-gray-100 px-1">PaymentInterface</code>.</p>
+            </div>
+        </section>
+
+        <!-- Navigation -->
+        <nav class="flex flex-col sm:flex-row gap-4 justify-between" aria-label="Page navigation">
+            <a href="execution-flows.html" class="inline-flex items-center gap-2 px-6 py-3 bg-charcoal text-white font-semibold hover:bg-charcoal-600 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-charcoal">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                Execution Flows
+            </a>
+            <a href="integrations.html" class="inline-flex items-center gap-2 px-6 py-3 bg-orange-500 text-white font-semibold hover:bg-orange-600 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
+                Integrations
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </a>
+        </nav>
+
+    </div>
+
+    <footer class="bg-charcoal text-white py-8 mt-16">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                <p class="text-sm text-gray-400">Magento Documentation | Magento_Catalog Plugins & Observers</p>
+                <div class="flex items-center gap-6">
+                    <a href="index.html" class="text-sm text-gray-400 hover:text-white transition">Module Overview</a>
+                    <a href="../../../index.html" class="text-sm text-gray-400 hover:text-white transition">Documentation Home</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

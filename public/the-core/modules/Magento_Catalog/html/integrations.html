@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module Integrations - Magento_Catalog | THE MAGENTO CORE</title>
+    <meta name="description" content="How Magento_Catalog integrates with EAV, Inventory, Search, Quote, Sales, CMS, and external systems via GraphQL and REST APIs">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        orange: {
+                            DEFAULT: '#F26423',
+                            50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad', 300: '#f9ae78',
+                            400: '#f58242', 500: '#f26423', 600: '#e34613', 700: '#bc3312',
+                            800: '#962a16', 900: '#792515', 950: '#411009'
+                        },
+                        yellow: {
+                            DEFAULT: '#F1BC1B',
+                            50: '#fffbeb', 100: '#fdf9c8', 200: '#fbf38c', 300: '#f8e651',
+                            400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a', 700: '#b1670c',
+                            800: '#8f5111', 900: '#764311', 950: '#442204'
+                        },
+                        charcoal: {
+                            DEFAULT: '#2c2c2c',
+                            50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6', 300: '#818181',
+                            400: '#474747', 500: '#2c2c2c', 600: '#262626', 700: '#202020',
+                            800: '#1c1c1c', 900: '#191919', 950: '#121212'
+                        },
+                        brown: '#442204',
+                        'off-white': '#FAFAFA',
+                    },
+                    fontFamily: {
+                        sans: ['Inter Tight', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter Tight', system-ui, sans-serif; }
+        .code-block { background: #1c1c1c; color: #f1f1f1; }
+    </style>
+</head>
+<body class="bg-off-white text-charcoal">
+
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-charcoal focus:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
+        Skip to content
+    </a>
+
+    <header class="bg-gradient-to-br from-charcoal-500 via-charcoal-600 to-charcoal-700 border-b-8 border-orange-500">
+        <!-- back-to-developer-docs -->
+        <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 pt-4"><a href="/developer/" aria-label="Back to Developer Docs" class="inline-flex items-center gap-1.5 text-sm font-medium text-white/70 hover:text-white transition-colors no-underline"><span aria-hidden="true">←</span> Developer Docs</a></div>
+        <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+            <nav aria-label="Breadcrumb" class="mb-6">
+                <ol class="flex flex-wrap items-center gap-2 text-sm text-gray-400">
+                    <li><a href="../../../index.html" class="hover:text-orange-500 underline underline-offset-4">Home</a></li>
+                    <li aria-hidden="true"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></li>
+                    <li><a href="index.html" class="hover:text-orange-500 underline underline-offset-4">Magento_Catalog</a></li>
+                    <li aria-hidden="true"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></li>
+                    <li class="text-white font-medium">Integrations</li>
+                </ol>
+            </nav>
+            <div id="main-content">
+                <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white mb-4">Module Integrations</h1>
+                <p class="text-base sm:text-lg text-gray-300 max-w-3xl mb-6">How Magento_Catalog integrates with EAV, Inventory, Search, Quote, Sales, CMS, and exposes data via GraphQL and REST APIs.</p>
+            </div>
+        </div>
+    </header>
+
+    <div class="max-w-6xl mx-auto px-6 py-8 md:py-12">
+
+        <!-- Table of Contents -->
+        <nav class="bg-white border-l-4 border-yellow-500 p-6 mb-12 shadow-sm" aria-label="Table of contents">
+            <h2 class="text-lg font-bold text-charcoal mb-4">Integrations</h2>
+            <ul class="space-y-2 text-sm">
+                <li><a href="#eav-integration" class="block text-charcoal-400 hover:text-orange-600 font-medium">EAV Framework</a></li>
+                <li><a href="#inventory-integration" class="block text-charcoal-400 hover:text-orange-600 font-medium">Inventory (MSI)</a></li>
+                <li><a href="#search-integration" class="block text-charcoal-400 hover:text-orange-600 font-medium">Search (Elasticsearch/OpenSearch)</a></li>
+                <li><a href="#quote-sales" class="block text-charcoal-400 hover:text-orange-600 font-medium">Quote & Sales</a></li>
+                <li><a href="#cms-integration" class="block text-charcoal-400 hover:text-orange-600 font-medium">CMS Integration</a></li>
+                <li><a href="#api-integration" class="block text-charcoal-400 hover:text-orange-600 font-medium">REST & GraphQL APIs</a></li>
+            </ul>
+        </nav>
+
+        <!-- EAV Integration -->
+        <section id="eav-integration" class="bg-white mb-12 p-8 border-t-4 border-orange-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-charcoal mb-6">EAV Framework Integration</h2>
+            <p class="text-gray-700 mb-6">Magento_Catalog is tightly coupled with Magento_Eav. Products and Categories are EAV entities, meaning their attributes are stored dynamically in separate tables based on data type.</p>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <div>
+                    <h3 class="font-bold text-charcoal mb-4">Integration Points</h3>
+                    <ul class="space-y-3 text-sm">
+                        <li class="border-l-4 border-orange-500 pl-3 py-1">
+                            <strong>Entity Types:</strong> catalog_product, catalog_category
+                        </li>
+                        <li class="border-l-4 border-orange-500 pl-3 py-1">
+                            <strong>Attribute Backend:</strong> Custom backends for images, prices, tier prices
+                        </li>
+                        <li class="border-l-4 border-yellow-500 pl-3 py-1">
+                            <strong>Attribute Frontend:</strong> Custom frontends for display formatting
+                        </li>
+                        <li class="border-l-4 border-yellow-500 pl-3 py-1">
+                            <strong>Attribute Source:</strong> Custom sources for dropdowns (status, visibility)
+                        </li>
+                    </ul>
+                </div>
+                <div class="code-block p-4 text-sm">
+                    <pre>// EAV Entity Type Registration
+eav_entity_type
+├── entity_type_code: catalog_product
+├── entity_model: Magento\Catalog\Model\ResourceModel\Product
+├── attribute_model: Magento\Catalog\Model\ResourceModel\Eav\Attribute
+└── entity_table: catalog_product_entity
+
+// Attribute Tables
+catalog_product_entity_varchar (name, url_key, meta_title)
+catalog_product_entity_int (status, visibility)
+catalog_product_entity_decimal (price, weight)
+catalog_product_entity_datetime (special_from_date)
+catalog_product_entity_text (description)</pre>
+                </div>
+            </div>
+
+            <div class="mt-6 bg-yellow-50 border-l-4 border-yellow-500 p-4">
+                <h4 class="font-bold text-charcoal mb-2">Key Classes</h4>
+                <ul class="text-sm text-gray-700 space-y-1">
+                    <li><code class="bg-gray-100 px-1">Magento\Catalog\Model\ResourceModel\Product</code> - EAV resource model</li>
+                    <li><code class="bg-gray-100 px-1">Magento\Catalog\Model\ResourceModel\Eav\Attribute</code> - Catalog attribute model</li>
+                    <li><code class="bg-gray-100 px-1">Magento\Catalog\Setup\Patch\Data\*</code> - Attribute creation patches</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Inventory Integration -->
+        <section id="inventory-integration" class="bg-white mb-12 p-8 border-t-4 border-yellow-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-charcoal mb-6">Inventory (MSI) Integration</h2>
+            <p class="text-gray-700 mb-6">Catalog integrates with both legacy CatalogInventory and modern Multi-Source Inventory (MSI) for stock management.</p>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="border-l-4 border-orange-500 pl-4 py-3 bg-orange-50">
+                    <h3 class="font-bold text-charcoal mb-3">Legacy CatalogInventory</h3>
+                    <ul class="text-sm text-gray-600 space-y-2">
+                        <li><strong>Stock Item:</strong> qty, is_in_stock, min_qty, backorders</li>
+                        <li><strong>Stock Status:</strong> Real-time salability check</li>
+                        <li><strong>Extension Attributes:</strong> stock_item on ProductInterface</li>
+                    </ul>
+                    <div class="code-block p-3 text-xs mt-3">
+                        <pre>// Load stock via extension
+$product->getExtensionAttributes()
+    ->getStockItem()
+    ->getQty();</pre>
+                    </div>
+                </div>
+                <div class="border-l-4 border-yellow-500 pl-4 py-3 bg-yellow-50">
+                    <h3 class="font-bold text-charcoal mb-3">Multi-Source Inventory (MSI)</h3>
+                    <ul class="text-sm text-gray-600 space-y-2">
+                        <li><strong>Sources:</strong> Multiple stock locations</li>
+                        <li><strong>Stocks:</strong> Aggregated view per sales channel</li>
+                        <li><strong>Reservations:</strong> Pending quantity deductions</li>
+                    </ul>
+                    <div class="code-block p-3 text-xs mt-3">
+                        <pre>// Check salability via MSI
+$isSalable = $productSalability
+    ->isSalable($sku, $stockId);</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-6 bg-orange-50 border-l-4 border-orange-500 p-4">
+                <h4 class="font-bold text-charcoal mb-2">Critical: Product Save Stock Race Condition</h4>
+                <p class="text-sm text-gray-700">When saving products via API, stock data may not be properly processed if not included in extension attributes. Always explicitly set stock_item extension attribute when saving via ProductRepository.</p>
+            </div>
+        </section>
+
+        <!-- Search Integration -->
+        <section id="search-integration" class="bg-white mb-12 p-8 border-t-4 border-orange-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-charcoal mb-6">Search Integration</h2>
+            <p class="text-gray-700 mb-6">Magento_Catalog provides the foundation for product search, which is extended by CatalogSearch and search engine adapters (Elasticsearch, OpenSearch).</p>
+
+            <div class="space-y-6">
+                <div class="border-l-4 border-orange-500 pl-4 py-3">
+                    <h3 class="font-bold text-charcoal mb-2">Search Indexer Flow</h3>
+                    <ol class="text-sm text-gray-600 space-y-2 list-decimal list-inside">
+                        <li>Product save triggers <code class="bg-gray-100 px-1">catalogsearch_fulltext</code> indexer</li>
+                        <li>Indexer reads searchable attributes from EAV</li>
+                        <li>Data pushed to Elasticsearch/OpenSearch index</li>
+                        <li>Frontend queries search engine, gets product IDs</li>
+                        <li>Product collection loads matching products</li>
+                    </ol>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="border-l-4 border-yellow-500 pl-4 py-3 bg-yellow-50">
+                        <h3 class="font-bold text-charcoal mb-2">Searchable Attributes</h3>
+                        <p class="text-sm text-gray-600 mb-2">Attributes with <code class="bg-gray-100 px-1">is_searchable = 1</code>:</p>
+                        <ul class="text-sm text-gray-600 space-y-1">
+                            <li>- name, sku, description, short_description</li>
+                            <li>- Custom attributes marked searchable</li>
+                        </ul>
+                    </div>
+                    <div class="border-l-4 border-charcoal pl-4 py-3 bg-gray-50">
+                        <h3 class="font-bold text-charcoal mb-2">Filterable Attributes</h3>
+                        <p class="text-sm text-gray-600 mb-2">For layered navigation:</p>
+                        <ul class="text-sm text-gray-600 space-y-1">
+                            <li>- <code class="bg-gray-100 px-1">is_filterable = 1</code> (category page)</li>
+                            <li>- <code class="bg-gray-100 px-1">is_filterable_in_search = 1</code> (search)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quote & Sales -->
+        <section id="quote-sales" class="bg-white mb-12 p-8 border-t-4 border-yellow-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-charcoal mb-6">Quote & Sales Integration</h2>
+            <p class="text-gray-700 mb-6">Catalog products are added to quotes (carts) and converted to order items during checkout.</p>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <div>
+                    <h3 class="font-bold text-charcoal mb-4">Quote Integration</h3>
+                    <ul class="space-y-3 text-sm">
+                        <li class="border-l-4 border-orange-500 pl-3 py-1">
+                            <strong>Add to Cart:</strong> ProductInterface → QuoteItem
+                        </li>
+                        <li class="border-l-4 border-orange-500 pl-3 py-1">
+                            <strong>Price Calculation:</strong> Uses Catalog pricing rules
+                        </li>
+                        <li class="border-l-4 border-yellow-500 pl-3 py-1">
+                            <strong>Options:</strong> Custom options attached to quote item
+                        </li>
+                        <li class="border-l-4 border-yellow-500 pl-3 py-1">
+                            <strong>Stock Reservation:</strong> MSI creates reservation
+                        </li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-bold text-charcoal mb-4">Sales Integration</h3>
+                    <ul class="space-y-3 text-sm">
+                        <li class="border-l-4 border-orange-500 pl-3 py-1">
+                            <strong>Order Item:</strong> QuoteItem → OrderItem
+                        </li>
+                        <li class="border-l-4 border-orange-500 pl-3 py-1">
+                            <strong>Product Snapshot:</strong> Name, SKU, price frozen at order time
+                        </li>
+                        <li class="border-l-4 border-charcoal pl-3 py-1">
+                            <strong>Inventory Deduction:</strong> Stock deducted on shipment
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="mt-6 code-block p-4 text-sm">
+                <pre>// Add product to cart
+$quoteRepository->getActiveForCustomer($customerId);
+$quote->addProduct($product, $request);
+$quoteRepository->save($quote);
+
+// Quote item stores product reference
+$item->getProductId();      // catalog_product_entity.entity_id
+$item->getSku();            // Frozen at add-to-cart time
+$item->getProduct();        // Loads current product data</pre>
+            </div>
+        </section>
+
+        <!-- CMS Integration -->
+        <section id="cms-integration" class="bg-white mb-12 p-8 border-t-4 border-orange-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-charcoal mb-6">CMS Integration</h2>
+            <p class="text-gray-700 mb-6">Catalog depends on CMS for widgets and category landing pages.</p>
+
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="border-l-4 border-orange-500 pl-4 py-3 bg-orange-50">
+                    <h3 class="font-bold text-charcoal mb-2">Category CMS Block</h3>
+                    <p class="text-sm text-gray-600 mb-2">Categories can display CMS blocks:</p>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        <li>- <code class="bg-gray-100 px-1">landing_page</code> attribute</li>
+                        <li>- Static block rendered above/below products</li>
+                        <li>- Design settings from category attributes</li>
+                    </ul>
+                </div>
+                <div class="border-l-4 border-yellow-500 pl-4 py-3 bg-yellow-50">
+                    <h3 class="font-bold text-charcoal mb-2">Product Widgets</h3>
+                    <p class="text-sm text-gray-600 mb-2">Catalog provides CMS widgets:</p>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        <li>- Catalog Product Link</li>
+                        <li>- Catalog Product List</li>
+                        <li>- Catalog New Products List</li>
+                        <li>- Recently Viewed Products</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- API Integration -->
+        <section id="api-integration" class="bg-white mb-12 p-8 border-t-4 border-yellow-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-charcoal mb-6">REST & GraphQL APIs</h2>
+            <p class="text-gray-700 mb-6">Magento_Catalog exposes comprehensive REST and GraphQL endpoints for headless commerce.</p>
+
+            <div class="mb-8">
+                <h3 class="font-bold text-charcoal mb-4">REST API Endpoints</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="bg-charcoal text-white">
+                                <th class="text-left p-3">Method</th>
+                                <th class="text-left p-3">Endpoint</th>
+                                <th class="text-left p-3">Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-b border-gray-200 bg-orange-50">
+                                <td class="p-3"><span class="bg-orange-500 text-white px-2 py-0.5 text-xs">GET</span></td>
+                                <td class="p-3"><code class="text-xs">/V1/products/{sku}</code></td>
+                                <td class="p-3">Get product by SKU</td>
+                            </tr>
+                            <tr class="border-b border-gray-200">
+                                <td class="p-3"><span class="bg-yellow-500 text-charcoal px-2 py-0.5 text-xs">POST</span></td>
+                                <td class="p-3"><code class="text-xs">/V1/products</code></td>
+                                <td class="p-3">Create product</td>
+                            </tr>
+                            <tr class="border-b border-gray-200 bg-orange-50">
+                                <td class="p-3"><span class="bg-charcoal text-white px-2 py-0.5 text-xs">PUT</span></td>
+                                <td class="p-3"><code class="text-xs">/V1/products/{sku}</code></td>
+                                <td class="p-3">Update product</td>
+                            </tr>
+                            <tr class="border-b border-gray-200">
+                                <td class="p-3"><span class="bg-orange-500 text-white px-2 py-0.5 text-xs">GET</span></td>
+                                <td class="p-3"><code class="text-xs">/V1/categories/{id}</code></td>
+                                <td class="p-3">Get category</td>
+                            </tr>
+                            <tr class="border-b border-gray-200 bg-orange-50">
+                                <td class="p-3"><span class="bg-orange-500 text-white px-2 py-0.5 text-xs">GET</span></td>
+                                <td class="p-3"><code class="text-xs">/V1/products/attributes</code></td>
+                                <td class="p-3">List attributes</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div>
+                <h3 class="font-bold text-charcoal mb-4">GraphQL Queries</h3>
+                <div class="code-block p-4 text-sm overflow-x-auto">
+                    <pre>query GetProduct($sku: String!) {
+  products(filter: { sku: { eq: $sku } }) {
+    items {
+      id
+      sku
+      name
+      price_range {
+        minimum_price {
+          final_price { value currency }
+        }
+      }
+      media_gallery {
+        url
+        label
+      }
+      ... on ConfigurableProduct {
+        variants {
+          product { sku }
+          attributes { code label value_index }
+        }
+      }
+    }
+  }
+}
+
+query GetCategories {
+  categories(filters: { parent_id: { eq: "2" } }) {
+    items {
+      id
+      name
+      url_path
+      children {
+        id
+        name
+      }
+    }
+  }
+}</pre>
+                </div>
+            </div>
+
+            <div class="mt-6 bg-orange-50 border-l-4 border-orange-500 p-4">
+                <h4 class="font-bold text-charcoal mb-2">API Authentication</h4>
+                <p class="text-sm text-gray-700">REST requires OAuth tokens or Integration tokens. GraphQL supports anonymous (limited) and customer token authentication. Admin operations require admin token with appropriate ACL resources.</p>
+            </div>
+        </section>
+
+        <!-- Navigation -->
+        <nav class="flex flex-col sm:flex-row gap-4 justify-between" aria-label="Page navigation">
+            <a href="plugins-observers.html" class="inline-flex items-center gap-2 px-6 py-3 bg-charcoal text-white font-semibold hover:bg-charcoal-600 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-charcoal">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                Plugins & Observers
+            </a>
+            <a href="known-issues.html" class="inline-flex items-center gap-2 px-6 py-3 bg-orange-500 text-white font-semibold hover:bg-orange-600 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
+                Known Issues
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </a>
+        </nav>
+
+    </div>
+
+    <footer class="bg-charcoal text-white py-8 mt-16">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                <p class="text-sm text-gray-400">Magento Documentation | Magento_Catalog Integrations</p>
+                <div class="flex items-center gap-6">
+                    <a href="index.html" class="text-sm text-gray-400 hover:text-white transition">Module Overview</a>
+                    <a href="../../../index.html" class="text-sm text-gray-400 hover:text-white transition">Documentation Home</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Known Issues - Magento_Shipping Module</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'magento-orange': {
+                            DEFAULT: '#f26423',
+                            50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad', 300: '#f9ae78',
+                            400: '#f58242', 500: '#f26423', 600: '#e34613', 700: '#bc3312',
+                            800: '#962a16', 900: '#792515', 950: '#411009'
+                        },
+                        'magento-gold': {
+                            DEFAULT: '#f1bc1b',
+                            50: '#fffdeb', 100: '#fdf9c8', 200: '#fbf38c', 300: '#f8e651',
+                            400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a', 700: '#b1670c',
+                            800: '#8e5210', 900: '#744312', 950: '#432209'
+                        },
+                        'magento-charcoal': {
+                            DEFAULT: '#2c2c2c',
+                            50: '#f6f6f6', 100: '#e7e7e7', 200: '#d1d1d1', 300: '#b0b0b0',
+                            400: '#888888', 500: '#6d6d6d', 600: '#5d5d5d', 700: '#4f4f4f',
+                            800: '#454545', 900: '#3d3d3d', 950: '#2c2c2c'
+                        },
+                        'magento-cream': {
+                            DEFAULT: '#faf8f5'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-magento-cream text-magento-charcoal">
+    <!-- Navigation -->
+    <nav class="bg-magento-charcoal text-white py-4 sticky top-0 z-50 shadow-lg">
+        <div class="container mx-auto px-6 flex items-center justify-between">
+            <a href="../../../index.html" class="text-xl font-bold hover:text-magento-gold-500 transition-colors">
+                Magento Core Docs
+            </a>
+            <div class="flex items-center space-x-6">
+                <a href="index.html" class="hover:text-magento-gold-500 transition-colors">Magento_Shipping</a>
+                <span class="text-magento-gold-500 font-medium">Known Issues</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <header class="bg-magento-charcoal text-white py-12">
+        <!-- back-to-developer-docs -->
+        <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 pt-4"><a href="/developer/" aria-label="Back to Developer Docs" class="inline-flex items-center gap-1.5 text-sm font-medium text-white/70 hover:text-white transition-colors no-underline"><span aria-hidden="true">←</span> Developer Docs</a></div>
+        <div class="container mx-auto px-6">
+            <h1 class="text-4xl font-bold mb-2">Known Issues</h1>
+            <p class="text-gray-300">Common gotchas, edge cases, and workarounds for shipping development</p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-6 py-12">
+
+        <!-- Severity Legend -->
+        <section class="mb-8">
+            <div class="flex flex-wrap gap-4">
+                <span class="px-3 py-1 bg-magento-orange-500 text-white text-sm font-semibold rounded">CRITICAL</span>
+                <span class="px-3 py-1 bg-magento-gold-500 text-magento-charcoal text-sm font-semibold rounded">MAJOR</span>
+                <span class="px-3 py-1 bg-gray-400 text-white text-sm font-semibold rounded">MINOR</span>
+            </div>
+        </section>
+
+        <!-- Critical Issues -->
+        <section class="mb-16">
+            <h2 class="text-3xl font-bold mb-6">Critical Issues</h2>
+
+            <!-- Issue 1 -->
+            <div class="bg-white shadow-md p-8 mb-6 border-l-4 border-magento-orange-500">
+                <div class="flex items-start justify-between mb-4">
+                    <h3 class="font-bold text-xl">Rate collection silently fails for invalid carriers</h3>
+                    <span class="px-3 py-1 bg-magento-orange-500 text-white text-sm font-semibold rounded">CRITICAL</span>
+                </div>
+                <div class="mb-4">
+                    <p class="text-sm text-gray-600 mb-2">Affected: Model/Shipping.php:310-314</p>
+                    <p>
+                        When <code class="bg-gray-100 px-1">prepareCarrier()</code> throws a RuntimeException,
+                        the exception is caught and the carrier is silently skipped. This can cause carriers to
+                        disappear from checkout without any visible error.
+                    </p>
+                </div>
+                <div class="bg-magento-charcoal text-white p-4 font-mono text-sm mb-4 overflow-x-auto">
+<pre>public function collectCarrierRates($carrierCode, $request)
+{
+    try {
+        $carrier = $this->prepareCarrier($carrierCode, $request);
+    } catch (\RuntimeException $exception) {
+        return $this;  // Silent failure!
+    }
+    // ...
+}</pre>
+                </div>
+                <div class="p-4 bg-magento-orange-500 bg-opacity-10 border-l-4 border-magento-orange-500">
+                    <h4 class="font-bold text-magento-charcoal mb-2">Workaround</h4>
+                    <p class="text-sm text-magento-charcoal">
+                        Enable carrier debug logging by setting <code class="bg-magento-orange-500 bg-opacity-20 px-1 rounded">carriers/[code]/debug</code>
+                        to 1 in config. Check <code class="bg-magento-orange-500 bg-opacity-20 px-1 rounded">var/log/shipping.log</code> for
+                        carrier initialization failures. Add custom logging in a plugin on <code class="bg-magento-orange-500 bg-opacity-20 px-1 rounded">collectCarrierRates()</code>.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Issue 2 -->
+            <div class="bg-white shadow-md p-8 mb-6 border-l-4 border-magento-orange-500">
+                <div class="flex items-start justify-between mb-4">
+                    <h3 class="font-bold text-xl">Package composition fails silently for overweight items</h3>
+                    <span class="px-3 py-1 bg-magento-orange-500 text-white text-sm font-semibold rounded">CRITICAL</span>
+                </div>
+                <div class="mb-4">
+                    <p class="text-sm text-gray-600 mb-2">Affected: Model/Shipping.php:420-422</p>
+                    <p>
+                        When an item exceeds the carrier's <code class="bg-gray-100 px-1">max_package_weight</code>,
+                        <code class="bg-gray-100 px-1">composePackagesForCarrier()</code> returns an empty array.
+                        This causes the carrier to return no rates for the entire order with no error message.
+                    </p>
+                </div>
+                <div class="bg-magento-charcoal text-white p-4 font-mono text-sm mb-4 overflow-x-auto">
+<pre>if ($checkWeight && $maxWeight && $itemWeight > $maxWeight) {
+    return [];  // Entire order fails, no error shown
+}</pre>
+                </div>
+                <div class="p-4 bg-magento-orange-500 bg-opacity-10 border-l-4 border-magento-orange-500">
+                    <h4 class="font-bold text-magento-charcoal mb-2">Workaround</h4>
+                    <p class="text-sm text-magento-charcoal">
+                        Use a plugin around <code class="bg-magento-orange-500 bg-opacity-20 px-1 rounded">composePackagesForCarrier()</code>
+                        to detect empty returns and log/display a warning. Alternatively, set realistic
+                        <code class="bg-magento-orange-500 bg-opacity-20 px-1 rounded">max_package_weight</code> values and validate product
+                        weights during import.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Issue 3 -->
+            <div class="bg-white shadow-md p-8 mb-6 border-l-4 border-magento-orange-500">
+                <div class="flex items-start justify-between mb-4">
+                    <h3 class="font-bold text-xl">Origin address not validated before rate collection</h3>
+                    <span class="px-3 py-1 bg-magento-orange-500 text-white text-sm font-semibold rounded">CRITICAL</span>
+                </div>
+                <div class="mb-4">
+                    <p class="text-sm text-gray-600 mb-2">Affected: Model/Shipping.php:207-232</p>
+                    <p>
+                        If store origin address is incomplete (missing postcode, region, etc.), rates may be
+                        collected with invalid origin data. Carriers may return incorrect rates or fail silently.
+                    </p>
+                </div>
+                <div class="p-4 bg-magento-orange-500 bg-opacity-10 border-l-4 border-magento-orange-500">
+                    <h4 class="font-bold text-magento-charcoal mb-2">Workaround</h4>
+                    <p class="text-sm text-magento-charcoal">
+                        Always configure complete origin address in <strong>Stores &gt; Configuration &gt;
+                        Sales &gt; Shipping Settings &gt; Origin</strong>. Consider adding a system health
+                        check that validates origin address completeness.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Major Issues -->
+        <section class="mb-16">
+            <h2 class="text-3xl font-bold mb-6">Major Issues</h2>
+
+            <!-- Issue 4 -->
+            <div class="bg-white shadow-md p-8 mb-6 border-l-4 border-magento-gold-500">
+                <div class="flex items-start justify-between mb-4">
+                    <h3 class="font-bold text-xl">Carrier order in checkout is config-dependent, not sortOrder</h3>
+                    <span class="px-3 py-1 bg-magento-gold-500 text-magento-charcoal text-sm font-semibold rounded">MAJOR</span>
+                </div>
+                <div class="mb-4">
+                    <p class="text-sm text-gray-600 mb-2">Affected: Model/Shipping.php:237-245</p>
+                    <p>
+                        Carriers are collected in the order they appear in <code class="bg-gray-100 px-1">carriers/*</code>
+                        config, which depends on module load order and config.xml merging. The carrier's
+                        <code class="bg-gray-100 px-1">sortOrder</code> config is not consistently used.
+                    </p>
+                </div>
+                <div class="p-4 bg-magento-orange-500 bg-opacity-10 border-l-4 border-magento-orange-500">
+                    <h4 class="font-bold text-magento-charcoal mb-2">Workaround</h4>
+                    <p class="text-sm text-magento-charcoal">
+                        Sort shipping methods in the frontend using JavaScript after rates are loaded. Or use
+                        a plugin on <code class="bg-magento-orange-500 bg-opacity-20 px-1 rounded">getResult()</code> to reorder
+                        methods by sortOrder before returning.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Issue 5 -->
+            <div class="bg-white shadow-md p-8 mb-6 border-l-4 border-magento-gold-500">
+                <div class="flex items-start justify-between mb-4">
+                    <h3 class="font-bold text-xl">Tracking popup exposes order details via hash</h3>
+                    <span class="px-3 py-1 bg-magento-gold-500 text-magento-charcoal text-sm font-semibold rounded">MAJOR</span>
+                </div>
+                <div class="mb-4">
+                    <p class="text-sm text-gray-600 mb-2">Affected: Controller/Tracking/Popup.php</p>
+                    <p>
+                        The tracking popup URL uses a predictable hash parameter. While hashed, the hash
+                        algorithm uses order/shipment IDs which could potentially be enumerated.
+                    </p>
+                </div>
+                <div class="p-4 bg-magento-orange-500 bg-opacity-10 border-l-4 border-magento-orange-500">
+                    <h4 class="font-bold text-magento-charcoal mb-2">Workaround</h4>
+                    <p class="text-sm text-magento-charcoal">
+                        Limit tracking popup access by IP or require customer login. Consider implementing
+                        rate limiting on the tracking endpoint.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Issue 6 -->
+            <div class="bg-white shadow-md p-8 mb-6 border-l-4 border-magento-gold-500">
+                <div class="flex items-start justify-between mb-4">
+                    <h3 class="font-bold text-xl">Label generation locks shipment during API call</h3>
+                    <span class="px-3 py-1 bg-magento-gold-500 text-magento-charcoal text-sm font-semibold rounded">MAJOR</span>
+                </div>
+                <div class="mb-4">
+                    <p class="text-sm text-gray-600 mb-2">Affected: Model/Shipping/Labels.php</p>
+                    <p>
+                        When generating shipping labels, the carrier API is called synchronously. If the
+                        carrier API is slow or times out, the admin session may timeout, leaving the
+                        shipment in an inconsistent state.
+                    </p>
+                </div>
+                <div class="p-4 bg-magento-orange-500 bg-opacity-10 border-l-4 border-magento-orange-500">
+                    <h4 class="font-bold text-magento-charcoal mb-2">Workaround</h4>
+                    <p class="text-sm text-magento-charcoal">
+                        Increase PHP and web server timeouts for admin. Consider using async label generation
+                        via message queue for high-volume operations. Retry failed labels rather than
+                        abandoning shipments.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Issue 7 -->
+            <div class="bg-white shadow-md p-8 mb-6 border-l-4 border-magento-gold-500">
+                <div class="flex items-start justify-between mb-4">
+                    <h3 class="font-bold text-xl">Free shipping items affect package composition</h3>
+                    <span class="px-3 py-1 bg-magento-gold-500 text-magento-charcoal text-sm font-semibold rounded">MAJOR</span>
+                </div>
+                <div class="mb-4">
+                    <p class="text-sm text-gray-600 mb-2">Affected: Model/Shipping.php:376-378</p>
+                    <p>
+                        Items with <code class="bg-gray-100 px-1">free_shipping</code> flag are skipped
+                        during package composition. This can cause package weight calculations to be incorrect
+                        for carriers that ship all items together.
+                    </p>
+                </div>
+                <div class="bg-magento-charcoal text-white p-4 font-mono text-sm mb-4 overflow-x-auto">
+<pre>if ($item->getFreeShipping()) {
+    continue;  // Weight not included in package
+}</pre>
+                </div>
+                <div class="p-4 bg-magento-orange-500 bg-opacity-10 border-l-4 border-magento-orange-500">
+                    <h4 class="font-bold text-magento-charcoal mb-2">Workaround</h4>
+                    <p class="text-sm text-magento-charcoal">
+                        Override <code class="bg-magento-orange-500 bg-opacity-20 px-1 rounded">composePackagesForCarrier()</code> if
+                        you need accurate weight for all items regardless of free shipping status.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Minor Issues -->
+        <section class="mb-16">
+            <h2 class="text-3xl font-bold mb-6">Minor Issues</h2>
+
+            <!-- Issue 8 -->
+            <div class="bg-white shadow-md p-8 mb-6 border-l-4 border-gray-400">
+                <div class="flex items-start justify-between mb-4">
+                    <h3 class="font-bold text-xl">shipping.log grows unbounded</h3>
+                    <span class="px-3 py-1 bg-gray-400 text-white text-sm font-semibold rounded">MINOR</span>
+                </div>
+                <div class="mb-4">
+                    <p class="text-sm text-gray-600 mb-2">Affected: etc/di.xml (VirtualDebug)</p>
+                    <p>
+                        The shipping debug log has no rotation or size limit configured. On high-traffic
+                        sites with debug enabled, this file can grow very large.
+                    </p>
+                </div>
+                <div class="p-4 bg-magento-orange-500 bg-opacity-10 border-l-4 border-magento-orange-500">
+                    <h4 class="font-bold text-magento-charcoal mb-2">Workaround</h4>
+                    <p class="text-sm text-magento-charcoal">
+                        Add logrotate configuration for <code class="bg-magento-orange-500 bg-opacity-20 px-1 rounded">var/log/shipping.log</code>.
+                        Disable debug mode in production unless actively troubleshooting.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Issue 9 -->
+            <div class="bg-white shadow-md p-8 mb-6 border-l-4 border-gray-400">
+                <div class="flex items-start justify-between mb-4">
+                    <h3 class="font-bold text-xl">Typo in method name: proccessAdditionalValidation</h3>
+                    <span class="px-3 py-1 bg-gray-400 text-white text-sm font-semibold rounded">MINOR</span>
+                </div>
+                <div class="mb-4">
+                    <p class="text-sm text-gray-600 mb-2">Affected: Model/Carrier/AbstractCarrierInterface.php:86</p>
+                    <p>
+                        The method <code class="bg-gray-100 px-1">proccessAdditionalValidation()</code>
+                        has a typo ("proccess" instead of "process"). This is a legacy issue and changing
+                        it would break backwards compatibility.
+                    </p>
+                </div>
+                <div class="p-4 bg-magento-orange-500 bg-opacity-10 border-l-4 border-magento-orange-500">
+                    <h4 class="font-bold text-magento-charcoal mb-2">Note</h4>
+                    <p class="text-sm text-magento-charcoal">
+                        A newer method <code class="bg-magento-orange-500 bg-opacity-20 px-1 rounded">processAdditionalValidation()</code>
+                        (correct spelling) exists in AbstractCarrier but the interface still uses the misspelled version.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Issue 10 -->
+            <div class="bg-white shadow-md p-8 mb-6 border-l-4 border-gray-400">
+                <div class="flex items-start justify-between mb-4">
+                    <h3 class="font-bold text-xl">Cron report aggregation can timeout on large datasets</h3>
+                    <span class="px-3 py-1 bg-gray-400 text-white text-sm font-semibold rounded">MINOR</span>
+                </div>
+                <div class="mb-4">
+                    <p class="text-sm text-gray-600 mb-2">Affected: Model/Observer.php</p>
+                    <p>
+                        The daily shipment report aggregation cron processes all historical data without
+                        batching. On stores with millions of shipments, this can timeout.
+                    </p>
+                </div>
+                <div class="p-4 bg-magento-orange-500 bg-opacity-10 border-l-4 border-magento-orange-500">
+                    <h4 class="font-bold text-magento-charcoal mb-2">Workaround</h4>
+                    <p class="text-sm text-magento-charcoal">
+                        Archive old shipment data periodically. Consider implementing incremental aggregation
+                        via custom cron job that only processes new records.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Best Practices -->
+        <section class="mb-16">
+            <h2 class="text-3xl font-bold mb-6">Prevention Best Practices</h2>
+            <div class="bg-white shadow-md p-8">
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="font-bold text-lg mb-4 text-magento-orange-500">Configuration</h3>
+                        <ul class="space-y-3 text-sm">
+                            <li class="flex items-start">
+                                <span class="text-magento-orange-500 mr-2">&#10004;</span>
+                                <span>Always configure complete origin address before enabling carriers</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-magento-orange-500 mr-2">&#10004;</span>
+                                <span>Set realistic max_package_weight limits per carrier</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-magento-orange-500 mr-2">&#10004;</span>
+                                <span>Validate product weights during import</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-magento-orange-500 mr-2">&#10004;</span>
+                                <span>Disable carrier debug logging in production</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg mb-4 text-magento-orange-500">Development</h3>
+                        <ul class="space-y-3 text-sm">
+                            <li class="flex items-start">
+                                <span class="text-magento-orange-500 mr-2">&#10004;</span>
+                                <span>Always return Error objects instead of null/false for failures</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-magento-orange-500 mr-2">&#10004;</span>
+                                <span>Implement proper timeout handling in carrier API calls</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-magento-orange-500 mr-2">&#10004;</span>
+                                <span>Add logging at key decision points in custom carriers</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-magento-orange-500 mr-2">&#10004;</span>
+                                <span>Test with overweight items and multiple package scenarios</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg mb-4 text-magento-orange-500">Operations</h3>
+                        <ul class="space-y-3 text-sm">
+                            <li class="flex items-start">
+                                <span class="text-magento-orange-500 mr-2">&#10004;</span>
+                                <span>Configure log rotation for var/log/shipping.log</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-magento-orange-500 mr-2">&#10004;</span>
+                                <span>Monitor carrier API response times</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-magento-orange-500 mr-2">&#10004;</span>
+                                <span>Archive old shipment data periodically</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-magento-orange-500 mr-2">&#10004;</span>
+                                <span>Set up alerts for missing shipping rates at checkout</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg mb-4 text-magento-orange-500">Testing</h3>
+                        <ul class="space-y-3 text-sm">
+                            <li class="flex items-start">
+                                <span class="text-magento-orange-500 mr-2">&#10004;</span>
+                                <span>Test rate collection with all carriers disabled</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-magento-orange-500 mr-2">&#10004;</span>
+                                <span>Test with international addresses</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-magento-orange-500 mr-2">&#10004;</span>
+                                <span>Test with items exceeding max package weight</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-magento-orange-500 mr-2">&#10004;</span>
+                                <span>Test carrier API timeout scenarios</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Navigation -->
+        <section class="mt-16 pt-8 border-t border-gray-200">
+            <div class="flex justify-between items-center">
+                <a href="integrations.html" class="text-magento-orange-500 hover:underline">&larr; Integrations</a>
+                <a href="index.html" class="text-magento-orange-500 hover:underline">Back to Overview &rarr;</a>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-magento-charcoal text-white py-8 mt-16">
+        <div class="container mx-auto px-6 text-center">
+            <p class="text-gray-400">Magento Core Documentation Project</p>
+            <p class="text-sm text-gray-500 mt-2">Magento_Shipping - Known Issues</p>
+        </div>
+    </footer>
+</body>
+</html>

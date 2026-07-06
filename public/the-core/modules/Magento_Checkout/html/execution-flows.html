@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Execution Flows - Magento_Checkout Module</title>
+    <meta name="description" content="Step-by-step checkout execution flows including shipping information save, payment processing, order placement, and guest checkout handling.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'magento-orange': {
+                            DEFAULT: '#f26423',
+                            50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad', 300: '#f9ae78',
+                            400: '#f58242', 500: '#f26423', 600: '#e34613', 700: '#bc3312',
+                            800: '#962a16', 900: '#792515', 950: '#411009'
+                        },
+                        'magento-gold': {
+                            DEFAULT: '#f1bc1b',
+                            50: '#fffdeb', 100: '#fdf9c8', 200: '#fbf38c', 300: '#f8e651',
+                            400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a', 700: '#b1670c',
+                            800: '#8f5111', 900: '#764311', 950: '#442204'
+                        },
+                        'magento-charcoal': {
+                            DEFAULT: '#2c2c2c',
+                            50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6', 300: '#818181',
+                            400: '#474747', 500: '#2c2c2c', 600: '#262626', 700: '#202020',
+                            800: '#1c1c1c', 900: '#191919', 950: '#121212'
+                        },
+                    },
+                    fontFamily: {
+                        sans: ['Inter Tight', 'system-ui', 'sans-serif'],
+                        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&display=swap');
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+        .flow-step { position: relative; padding-left: 2rem; }
+        .flow-step::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0.75rem;
+            width: 0.75rem;
+            height: 0.75rem;
+            background: #f26423;
+        }
+        .flow-step::after {
+            content: '';
+            position: absolute;
+            left: 0.3125rem;
+            top: 1.5rem;
+            width: 2px;
+            height: calc(100% - 0.75rem);
+            background: #d9d9d9;
+        }
+        .flow-step:last-child::after { display: none; }
+    </style>
+</head>
+<body class="bg-[#FAFAFA] text-magento-charcoal">
+
+    <!-- Skip to content -->
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-magento-orange-800 focus:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-magento-orange-800">
+        Skip to content
+    </a>
+
+    <!-- Header -->
+    <header class="bg-gradient-to-br from-magento-charcoal-500 via-magento-charcoal-600 to-magento-charcoal-700 border-b-8 border-magento-orange-500">
+        <!-- back-to-developer-docs -->
+        <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 pt-4"><a href="/developer/" aria-label="Back to Developer Docs" class="inline-flex items-center gap-1.5 text-sm font-medium text-white/70 hover:text-white transition-colors no-underline"><span aria-hidden="true">←</span> Developer Docs</a></div>
+        <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+            <nav class="mb-8" aria-label="Breadcrumb">
+                <ol class="flex items-center gap-2 text-sm text-gray-400">
+                    <li><a href="../../../index.html" class="hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-magento-orange-500">Home</a></li>
+                    <li aria-hidden="true">/</li>
+                    <li><a href="index.html" class="hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-magento-orange-500">Magento_Checkout</a></li>
+                    <li aria-hidden="true">/</li>
+                    <li><span class="text-magento-orange-400">Execution Flows</span></li>
+                </ol>
+            </nav>
+            <div id="main-content">
+                <h1 class="text-4xl sm:text-5xl font-bold tracking-tight text-white mb-4">Execution Flows</h1>
+                <p class="text-lg sm:text-xl text-gray-300 max-w-3xl">Step-by-step checkout flows including shipping save, payment processing, order placement, and guest checkout.</p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="max-w-6xl mx-auto px-6 py-8 md:py-12">
+
+        <!-- Flow Navigation -->
+        <nav class="bg-white mb-12 p-6 border border-gray-200 shadow-sm" aria-label="Flow navigation">
+            <h2 class="text-lg font-bold text-magento-charcoal mb-4">Documented Flows</h2>
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <a href="#shipping-save" class="block p-3 border-l-4 border-magento-orange-500 bg-magento-charcoal-50 hover:bg-magento-orange-50 transition-colors focus:outline-none focus:ring-2 focus:ring-magento-orange-500">
+                    <span class="font-semibold text-magento-charcoal">Shipping Save</span>
+                    <span class="text-sm text-gray-600 block">Address and method</span>
+                </a>
+                <a href="#order-placement" class="block p-3 border-l-4 border-magento-gold-500 bg-magento-charcoal-50 hover:bg-magento-gold-50 transition-colors focus:outline-none focus:ring-2 focus:ring-magento-gold-500">
+                    <span class="font-semibold text-magento-charcoal">Order Placement</span>
+                    <span class="text-sm text-gray-600 block">Payment and submit</span>
+                </a>
+                <a href="#guest-checkout" class="block p-3 border-l-4 border-magento-charcoal bg-magento-charcoal-50 hover:bg-magento-charcoal-100 transition-colors focus:outline-none focus:ring-2 focus:ring-magento-charcoal-500">
+                    <span class="font-semibold text-magento-charcoal">Guest Checkout</span>
+                    <span class="text-sm text-gray-600 block">Anonymous orders</span>
+                </a>
+                <a href="#totals-calculation" class="block p-3 border-l-4 border-magento-orange-500 bg-magento-charcoal-50 hover:bg-magento-orange-50 transition-colors focus:outline-none focus:ring-2 focus:ring-magento-orange-500">
+                    <span class="font-semibold text-magento-charcoal">Totals Calculation</span>
+                    <span class="text-sm text-gray-600 block">Dynamic pricing</span>
+                </a>
+            </div>
+        </nav>
+
+        <!-- Flow 1: Shipping Information Save -->
+        <section id="shipping-save" class="mb-16">
+            <div class="flex items-center gap-4 mb-8">
+                <div class="w-3 h-12 bg-magento-orange-500"></div>
+                <h2 class="text-3xl font-bold text-magento-charcoal">Flow 1: Shipping Information Save</h2>
+            </div>
+
+            <div class="bg-white p-6 border border-gray-200 shadow-sm mb-6">
+                <p class="text-gray-700 mb-4">
+                    When the customer completes the shipping step, the frontend calls the shipping information API
+                    to save the address and selected shipping method. This triggers totals recalculation and
+                    returns available payment methods.
+                </p>
+
+                <div class="bg-magento-orange-50 border-l-4 border-magento-orange-500 p-4 mb-6">
+                    <p class="font-semibold text-magento-orange-900 mb-1">Entry Point</p>
+                    <p class="text-sm text-magento-orange-800 font-mono">POST /V1/carts/mine/shipping-information</p>
+                    <p class="text-sm text-magento-orange-800 mt-1">Or: <span class="font-mono">ShippingInformationManagementInterface::saveAddressInformation()</span></p>
+                </div>
+
+                <h3 class="text-lg font-bold text-magento-charcoal mb-4">Execution Steps</h3>
+                <div class="space-y-4">
+                    <div class="flow-step pb-4">
+                        <h4 class="font-bold text-magento-charcoal">1. Validate Shipping Information</h4>
+                        <p class="text-sm text-gray-700 mt-1">
+                            The <code class="bg-gray-100 px-1">ShippingInformationManagement</code> validates the incoming data structure
+                            and ensures shipping and billing addresses are properly formatted.
+                        </p>
+                    </div>
+
+                    <div class="flow-step pb-4">
+                        <h4 class="font-bold text-magento-charcoal">2. Load and Validate Quote</h4>
+                        <p class="text-sm text-gray-700 mt-1">
+                            Loads the quote by cart ID. Validates the quote is active, has items, and is not already converted to an order.
+                        </p>
+                        <div class="mt-2 bg-magento-charcoal-50 p-3 text-xs font-mono">
+                            $quote = $this-&gt;quoteRepository-&gt;getActive($cartId);
+                        </div>
+                    </div>
+
+                    <div class="flow-step pb-4">
+                        <h4 class="font-bold text-magento-charcoal">3. Process Shipping Address</h4>
+                        <p class="text-sm text-gray-700 mt-1">
+                            Assigns shipping address to quote. For virtual quotes (downloadable only), this step is skipped.
+                        </p>
+                        <ul class="text-sm text-gray-600 mt-2 space-y-1">
+                            <li>- Validates country/region</li>
+                            <li>- Saves customer address if requested</li>
+                            <li>- Sets shipping method code and carrier code</li>
+                        </ul>
+                    </div>
+
+                    <div class="flow-step pb-4">
+                        <h4 class="font-bold text-magento-charcoal">4. Process Billing Address</h4>
+                        <p class="text-sm text-gray-700 mt-1">
+                            Sets billing address on quote. If "same as shipping" is selected, billing address is copied from shipping.
+                        </p>
+                    </div>
+
+                    <div class="flow-step pb-4">
+                        <h4 class="font-bold text-magento-charcoal">5. Validate Shipping Method</h4>
+                        <p class="text-sm text-gray-700 mt-1">
+                            Validates the selected shipping method is available for the given address.
+                            Throws <code class="bg-gray-100 px-1">InputException</code> if method is invalid.
+                        </p>
+                    </div>
+
+                    <div class="flow-step pb-4">
+                        <h4 class="font-bold text-magento-charcoal">6. Collect Totals</h4>
+                        <p class="text-sm text-gray-700 mt-1">
+                            Triggers full quote totals collection with the new shipping method applied.
+                        </p>
+                        <div class="mt-2 bg-magento-charcoal-50 p-3 text-xs font-mono">
+                            $quote-&gt;collectTotals();<br>
+                            $this-&gt;quoteRepository-&gt;save($quote);
+                        </div>
+                    </div>
+
+                    <div class="flow-step">
+                        <h4 class="font-bold text-magento-charcoal">7. Return Payment Details</h4>
+                        <p class="text-sm text-gray-700 mt-1">
+                            Returns <code class="bg-gray-100 px-1">PaymentDetailsInterface</code> containing available payment methods and updated totals.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-magento-gold-50 border-l-4 border-magento-gold-500 p-4">
+                <p class="font-semibold text-brown mb-2">Event Dispatched</p>
+                <p class="text-sm text-brown">
+                    The quote save triggers <code class="bg-magento-gold-100 px-1">sales_quote_save_after</code> which updates the checkout session quote ID.
+                </p>
+            </div>
+        </section>
+
+        <!-- Flow 2: Order Placement -->
+        <section id="order-placement" class="mb-16">
+            <div class="flex items-center gap-4 mb-8">
+                <div class="w-3 h-12 bg-magento-gold-500"></div>
+                <h2 class="text-3xl font-bold text-magento-charcoal">Flow 2: Order Placement</h2>
+            </div>
+
+            <div class="bg-white p-6 border border-gray-200 shadow-sm mb-6">
+                <p class="text-gray-700 mb-4">
+                    The order placement flow handles payment information saving and order creation. This is the most
+                    critical flow in checkout, with multiple validation and rate limiting steps.
+                </p>
+
+                <div class="bg-magento-gold-50 border-l-4 border-magento-gold-500 p-4 mb-6">
+                    <p class="font-semibold text-brown mb-1">Entry Point</p>
+                    <p class="text-sm text-brown font-mono">POST /V1/carts/mine/payment-information</p>
+                    <p class="text-sm text-brown mt-1">Or: <span class="font-mono">PaymentInformationManagementInterface::savePaymentInformationAndPlaceOrder()</span></p>
+                </div>
+
+                <h3 class="text-lg font-bold text-magento-charcoal mb-4">Execution Steps</h3>
+                <div class="space-y-4">
+                    <div class="flow-step pb-4">
+                        <h4 class="font-bold text-magento-charcoal">1. Rate Limit Check</h4>
+                        <p class="text-sm text-gray-700 mt-1">
+                            The <code class="bg-gray-100 px-1">PaymentProcessingRateLimiterInterface</code> checks for abuse.
+                            Default implementation uses CAPTCHA validation.
+                        </p>
+                        <div class="mt-2 bg-magento-orange-50 border border-magento-orange-200 p-3 text-sm">
+                            <strong>Security:</strong> Rate limiting prevents brute-force attacks on payment processing.
+                        </div>
+                    </div>
+
+                    <div class="flow-step pb-4">
+                        <h4 class="font-bold text-magento-charcoal">2. Save Payment Information</h4>
+                        <p class="text-sm text-gray-700 mt-1">
+                            Calls <code class="bg-gray-100 px-1">savePaymentInformation()</code> to store payment method on quote.
+                            This also updates the billing address.
+                        </p>
+                    </div>
+
+                    <div class="flow-step pb-4">
+                        <h4 class="font-bold text-magento-charcoal">3. Validate Agreements</h4>
+                        <p class="text-sm text-gray-700 mt-1">
+                            If checkout agreements are enabled, validates that all required agreements have been accepted.
+                        </p>
+                        <div class="mt-2 bg-magento-charcoal-50 p-3 text-xs font-mono">
+                            $this-&gt;agreementsValidator-&gt;isValid($agreementIds);
+                        </div>
+                    </div>
+
+                    <div class="flow-step pb-4">
+                        <h4 class="font-bold text-magento-charcoal">4. Place Order via CartManagement</h4>
+                        <p class="text-sm text-gray-700 mt-1">
+                            Delegates to <code class="bg-gray-100 px-1">CartManagementInterface::placeOrder()</code> from the Quote module.
+                        </p>
+                        <div class="mt-2 bg-magento-charcoal-50 p-3 text-xs font-mono">
+                            $orderId = $this-&gt;cartManagement-&gt;placeOrder($cartId);
+                        </div>
+                    </div>
+
+                    <div class="flow-step pb-4">
+                        <h4 class="font-bold text-magento-charcoal">5. Quote to Order Conversion</h4>
+                        <p class="text-sm text-gray-700 mt-1">
+                            CartManagement converts quote items to order items, creates the order entity,
+                            and processes payment authorization/capture.
+                        </p>
+                        <ul class="text-sm text-gray-600 mt-2 space-y-1">
+                            <li>- Quote items → Order items</li>
+                            <li>- Quote addresses → Order addresses</li>
+                            <li>- Payment method → Order payment</li>
+                            <li>- Inventory reservation</li>
+                        </ul>
+                    </div>
+
+                    <div class="flow-step pb-4">
+                        <h4 class="font-bold text-magento-charcoal">6. Clear Checkout Session</h4>
+                        <p class="text-sm text-gray-700 mt-1">
+                            After successful order placement, the checkout session is cleared and order confirmation data is stored.
+                        </p>
+                    </div>
+
+                    <div class="flow-step">
+                        <h4 class="font-bold text-magento-charcoal">7. Return Order ID</h4>
+                        <p class="text-sm text-gray-700 mt-1">
+                            Returns the new order ID (entity_id). Frontend then redirects to success page.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-4">
+                <div class="bg-magento-charcoal-50 border-l-4 border-magento-orange-500 p-4">
+                    <p class="font-semibold text-magento-charcoal mb-2">On Success</p>
+                    <ul class="text-sm text-gray-700 space-y-1">
+                        <li>- Order created with pending status</li>
+                        <li>- Order confirmation email queued</li>
+                        <li>- Quote marked as inactive</li>
+                        <li>- Inventory reserved</li>
+                    </ul>
+                </div>
+                <div class="bg-magento-charcoal-50 border-l-4 border-magento-gold-500 p-4">
+                    <p class="font-semibold text-magento-charcoal mb-2">On Failure</p>
+                    <ul class="text-sm text-gray-700 space-y-1">
+                        <li>- Exception thrown to frontend</li>
+                        <li>- Quote remains active</li>
+                        <li>- Payment failed email sent (if configured)</li>
+                        <li>- Rate limit counter incremented</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Flow 3: Guest Checkout -->
+        <section id="guest-checkout" class="mb-16">
+            <div class="flex items-center gap-4 mb-8">
+                <div class="w-3 h-12 bg-charcoal"></div>
+                <h2 class="text-3xl font-bold text-magento-charcoal">Flow 3: Guest Checkout</h2>
+            </div>
+
+            <div class="bg-white p-6 border border-gray-200 shadow-sm mb-6">
+                <p class="text-gray-700 mb-4">
+                    Guest checkout uses masked cart IDs and dedicated Guest* interfaces for security.
+                    The flow is similar to authenticated checkout but requires email address and uses
+                    public endpoints.
+                </p>
+
+                <div class="bg-magento-charcoal-50 border-l-4 border-magento-charcoal p-4 mb-6">
+                    <p class="font-semibold text-magento-charcoal mb-1">Entry Point</p>
+                    <p class="text-sm text-gray-700 font-mono">POST /V1/guest-carts/:cartId/payment-information</p>
+                    <p class="text-sm text-gray-700 mt-1">Or: <span class="font-mono">GuestPaymentInformationManagementInterface::savePaymentInformationAndPlaceOrder()</span></p>
+                </div>
+
+                <h3 class="text-lg font-bold text-magento-charcoal mb-4">Key Differences from Customer Checkout</h3>
+                <div class="space-y-4">
+                    <div class="flow-step pb-4">
+                        <h4 class="font-bold text-magento-charcoal">1. Masked Cart ID</h4>
+                        <p class="text-sm text-gray-700 mt-1">
+                            Guest carts use a masked ID (UUID) instead of the actual quote entity_id.
+                            This prevents ID enumeration attacks.
+                        </p>
+                        <div class="mt-2 bg-magento-charcoal-50 p-3 text-xs font-mono">
+                            // Masked: "xyzABC123..."<br>
+                            $quoteIdMask = $this-&gt;quoteIdMaskFactory-&gt;create()-&gt;load($cartId, 'masked_id');<br>
+                            $quoteId = $quoteIdMask-&gt;getQuoteId();
+                        </div>
+                    </div>
+
+                    <div class="flow-step pb-4">
+                        <h4 class="font-bold text-magento-charcoal">2. Email Required</h4>
+                        <p class="text-sm text-gray-700 mt-1">
+                            Guest checkout requires email address in the API call. This is used for order confirmation
+                            and to check if the customer already exists.
+                        </p>
+                    </div>
+
+                    <div class="flow-step pb-4">
+                        <h4 class="font-bold text-magento-charcoal">3. No Customer Association</h4>
+                        <p class="text-sm text-gray-700 mt-1">
+                            The order is created with <code class="bg-gray-100 px-1">customer_is_guest = 1</code>.
+                            No customer entity is created or linked.
+                        </p>
+                    </div>
+
+                    <div class="flow-step">
+                        <h4 class="font-bold text-magento-charcoal">4. Anonymous Resource Access</h4>
+                        <p class="text-sm text-gray-700 mt-1">
+                            Guest endpoints use <code class="bg-gray-100 px-1">&lt;resource ref="anonymous" /&gt;</code>
+                            in webapi.xml, allowing unauthenticated access.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-magento-orange-50 border-l-4 border-magento-orange-500 p-4">
+                <p class="font-semibold text-magento-orange-900 mb-2">Account Creation Option</p>
+                <p class="text-sm text-magento-orange-800">
+                    If "Create Account" is selected during guest checkout, the system creates a customer account
+                    after order placement and links the order to the new customer.
+                </p>
+            </div>
+        </section>
+
+        <!-- Flow 4: Totals Calculation -->
+        <section id="totals-calculation" class="mb-16">
+            <div class="flex items-center gap-4 mb-8">
+                <div class="w-3 h-12 bg-magento-orange-500"></div>
+                <h2 class="text-3xl font-bold text-magento-charcoal">Flow 4: Totals Calculation</h2>
+            </div>
+
+            <div class="bg-white p-6 border border-gray-200 shadow-sm mb-6">
+                <p class="text-gray-700 mb-4">
+                    The totals calculation flow is called dynamically as the customer enters address information.
+                    It provides real-time updates of shipping costs, taxes, and grand total.
+                </p>
+
+                <div class="bg-magento-orange-50 border-l-4 border-magento-orange-500 p-4 mb-6">
+                    <p class="font-semibold text-magento-orange-900 mb-1">Entry Point</p>
+                    <p class="text-sm text-magento-orange-800 font-mono">POST /V1/carts/mine/totals-information</p>
+                    <p class="text-sm text-magento-orange-800 mt-1">Or: <span class="font-mono">TotalsInformationManagementInterface::calculate()</span></p>
+                </div>
+
+                <h3 class="text-lg font-bold text-magento-charcoal mb-4">Execution Steps</h3>
+                <div class="space-y-4">
+                    <div class="flow-step pb-4">
+                        <h4 class="font-bold text-magento-charcoal">1. Load Quote</h4>
+                        <p class="text-sm text-gray-700 mt-1">
+                            Loads the active quote for the cart ID.
+                        </p>
+                    </div>
+
+                    <div class="flow-step pb-4">
+                        <h4 class="font-bold text-magento-charcoal">2. Apply Address for Estimation</h4>
+                        <p class="text-sm text-gray-700 mt-1">
+                            Temporarily applies the provided address to the quote's shipping address
+                            for totals calculation purposes.
+                        </p>
+                    </div>
+
+                    <div class="flow-step pb-4">
+                        <h4 class="font-bold text-magento-charcoal">3. Set Shipping Method (if provided)</h4>
+                        <p class="text-sm text-gray-700 mt-1">
+                            If shipping method is provided, applies it to the quote for accurate shipping cost calculation.
+                        </p>
+                    </div>
+
+                    <div class="flow-step pb-4">
+                        <h4 class="font-bold text-magento-charcoal">4. Collect Totals</h4>
+                        <p class="text-sm text-gray-700 mt-1">
+                            Triggers the Quote totals collectors chain to calculate all totals.
+                        </p>
+                        <div class="mt-2 bg-magento-charcoal-50 p-3 text-xs font-mono">
+                            $quote-&gt;collectTotals();
+                        </div>
+                    </div>
+
+                    <div class="flow-step">
+                        <h4 class="font-bold text-magento-charcoal">5. Return Totals</h4>
+                        <p class="text-sm text-gray-700 mt-1">
+                            Returns <code class="bg-gray-100 px-1">TotalsInterface</code> with subtotal, shipping, tax,
+                            discount, and grand total.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-magento-gold-50 border-l-4 border-magento-gold-500 p-4">
+                <p class="font-semibold text-brown mb-2">Performance Note</p>
+                <p class="text-sm text-brown">
+                    Totals calculation is called frequently during checkout (on address change, shipping method change).
+                    The Quote module caches calculated totals to avoid redundant calculations within the same request.
+                </p>
+            </div>
+        </section>
+
+        <!-- Session Lifecycle -->
+        <section class="mb-12">
+            <div class="flex items-center gap-4 mb-8">
+                <div class="w-3 h-12 bg-magento-gold-500"></div>
+                <h2 class="text-3xl font-bold text-magento-charcoal">Checkout Session Lifecycle</h2>
+            </div>
+
+            <div class="bg-white p-6 border border-gray-200 shadow-sm">
+                <div class="grid md:grid-cols-3 gap-6">
+                    <div class="border-l-4 border-magento-orange-500 pl-4">
+                        <h3 class="font-bold text-magento-charcoal mb-2">Session Start</h3>
+                        <ul class="text-sm text-gray-700 space-y-2">
+                            <li>Quote created or loaded</li>
+                            <li>Quote ID stored in session</li>
+                            <li>CustomerData sections loaded</li>
+                        </ul>
+                    </div>
+                    <div class="border-l-4 border-magento-gold-500 pl-4">
+                        <h3 class="font-bold text-magento-charcoal mb-2">During Checkout</h3>
+                        <ul class="text-sm text-gray-700 space-y-2">
+                            <li>Quote updated via API calls</li>
+                            <li>Session maintains state</li>
+                            <li>Browser localStorage caches data</li>
+                        </ul>
+                    </div>
+                    <div class="border-l-4 border-magento-charcoal pl-4">
+                        <h3 class="font-bold text-magento-charcoal mb-2">After Order</h3>
+                        <ul class="text-sm text-gray-700 space-y-2">
+                            <li>Quote marked inactive</li>
+                            <li>Session stores last order ID</li>
+                            <li>New quote created on next cart action</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Navigation -->
+        <nav class="flex justify-between items-center" aria-label="Documentation navigation">
+            <a href="architecture.html" class="inline-flex items-center gap-2 px-4 py-2 bg-magento-charcoal-100 text-magento-charcoal font-medium hover:bg-magento-charcoal-200 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-magento-charcoal-500">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17l-5-5m0 0l5-5m-5 5h12"/>
+                </svg>
+                Architecture
+            </a>
+            <a href="plugins-observers.html" class="inline-flex items-center gap-2 px-4 py-2 bg-magento-orange-800 text-white font-medium hover:bg-magento-orange-900 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-magento-orange-800">
+                Plugins & Observers
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                </svg>
+            </a>
+        </nav>
+
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-charcoal text-white py-8 mt-16">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                <p class="text-sm text-gray-400">
+                    Magento_Checkout Execution Flows | Part of The Magento Core Documentation Project
+                </p>
+                <p class="text-sm text-gray-400">
+                    Last updated: December 2025 | Magento 2.4.x
+                </p>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

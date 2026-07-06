@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magento_Sales Module - Complete Learning Resource | THE MAGENTO CORE</title>
+    <meta name="description" content="Comprehensive architectural analysis, execution flows, and integration guides for Magento's Order Management system">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+          theme: {
+            extend: {
+              colors: {
+                'magento-orange': {
+                  DEFAULT: '#f26423',
+                  50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad', 300: '#f9ae78',
+                  400: '#f58242', 500: '#f26423', 600: '#e34613', 700: '#bc3312',
+                  800: '#962a16', 900: '#792515', 950: '#411009'
+                },
+                'magento-gold': {
+                  DEFAULT: '#f1bc1b',
+                  50: '#fffdeb', 100: '#fdf9c8', 200: '#fbf38c', 300: '#f8e651',
+                  400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a', 700: '#b1670c',
+                  800: '#8f5111', 900: '#764311', 950: '#442204'
+                },
+                'magento-charcoal': {
+                  DEFAULT: '#2c2c2c',
+                  50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6', 300: '#818181',
+                  400: '#474747', 500: '#2c2c2c', 600: '#262626', 700: '#202020',
+                  800: '#1c1c1c', 900: '#191919', 950: '#121212'
+                },
+              },
+              fontFamily: {
+                sans: ['Inter Tight', 'system-ui', 'sans-serif'],
+                mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', 'monospace'],
+              },
+            }
+          }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&display=swap');
+        @media (prefers-reduced-motion: reduce) {
+          *, *::before, *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+          }
+        }
+        body {
+            font-family: 'Inter Tight', system-ui, sans-serif;
+        }
+        .doc-card {
+            transition: all 0.2s ease;
+        }
+        .doc-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-[#FAFAFA] text-magento-charcoal">
+
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-magento-orange-800 focus:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-magento-orange-800">
+        Skip to content
+    </a>
+
+    <header class="bg-gradient-to-br from-magento-charcoal-500 via-magento-charcoal-600 to-magento-charcoal-700 border-b-8 border-magento-orange-500">
+        <!-- back-to-developer-docs -->
+        <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 pt-4"><a href="/developer/" aria-label="Back to Developer Docs" class="inline-flex items-center gap-1.5 text-sm font-medium text-white/70 hover:text-white transition-colors no-underline"><span aria-hidden="true">←</span> Developer Docs</a></div>
+        <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
+            <nav aria-label="Breadcrumb" class="mb-8">
+                <ol class="flex flex-wrap items-center gap-2 text-sm text-gray-400">
+                    <li><a href="../../../index.html" class="hover:text-magento-orange-500 underline underline-offset-4">Home</a></li>
+                    <li aria-hidden="true">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                    </li>
+                    <li><a href="../../../index.html" class="hover:text-magento-orange-500 underline underline-offset-4">THE MAGENTO CORE</a></li>
+                    <li aria-hidden="true">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                    </li>
+                    <li class="text-white font-medium">Magento_Sales Module</li>
+                </ol>
+            </nav>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div id="main-content">
+                    <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white mb-4">Magento_Sales Module</h1>
+                    <p class="text-base sm:text-lg text-gray-300 max-w-2xl mb-6">Complete Learning Resource: Comprehensive architectural analysis, execution flows, and integration guides for Magento's Order Management system.</p>
+                    <div class="flex flex-wrap gap-3 text-sm">
+                        <span class="inline-flex items-center gap-1.5 bg-magento-orange-500/20 text-magento-orange-300 px-3 py-1.5 font-medium border border-magento-orange-500/30">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                            861 Components
+                        </span>
+                        <span class="inline-flex items-center gap-1.5 bg-magento-gold-500/20 text-magento-gold-300 px-3 py-1.5 font-medium border border-magento-gold-500/30">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+                            243 Integrations
+                        </span>
+                        <span class="inline-flex items-center gap-1.5 bg-jacarta-500/40 text-jacarta-200 px-3 py-1.5 font-medium border border-jacarta-400/30">
+                            Magento 2.4.x
+                        </span>
+                    </div>
+                </div>
+                <div class="hidden lg:block">
+                    <svg viewBox="0 0 400 300" class="w-full h-auto" aria-hidden="true">
+                        <!-- Sales Module Overview - Order Flow Diagram -->
+                        <!-- Order Creation -->
+                        <rect x="30" y="40" width="100" height="60" fill="#f1bc1b" opacity="0.2" stroke="#f1bc1b" stroke-width="2"/>
+                        <text x="80" y="65" text-anchor="middle" fill="#f1bc1b" font-size="10" font-weight="bold">ORDER</text>
+                        <text x="80" y="80" text-anchor="middle" fill="#818181" font-size="8">Creation</text>
+                        <!-- Arrow -->
+                        <path d="M130 70 L160 70" stroke="#818181" stroke-width="2" marker-end="url(#arrow)"/>
+                        <!-- Invoice -->
+                        <rect x="160" y="40" width="80" height="60" fill="#f26423" opacity="0.2" stroke="#f26423" stroke-width="2"/>
+                        <text x="200" y="65" text-anchor="middle" fill="#f26423" font-size="10" font-weight="bold">INVOICE</text>
+                        <text x="200" y="80" text-anchor="middle" fill="#818181" font-size="8">Payment</text>
+                        <!-- Arrow -->
+                        <path d="M240 70 L270 70" stroke="#818181" stroke-width="2" marker-end="url(#arrow)"/>
+                        <!-- Shipment -->
+                        <rect x="270" y="40" width="100" height="60" fill="#5d5ecc" opacity="0.2" stroke="#5d5ecc" stroke-width="2"/>
+                        <text x="320" y="65" text-anchor="middle" fill="#b7bdec" font-size="10" font-weight="bold">SHIPMENT</text>
+                        <text x="320" y="80" text-anchor="middle" fill="#818181" font-size="8">Fulfillment</text>
+                        <!-- State Machine -->
+                        <rect x="100" y="130" width="200" height="70" fill="#2c2c2c" stroke="#f26423" stroke-width="2"/>
+                        <text x="200" y="155" text-anchor="middle" fill="#f26423" font-size="11" font-weight="bold">STATE MACHINE</text>
+                        <text x="200" y="175" text-anchor="middle" fill="#818181" font-size="9">Pending → Processing → Complete</text>
+                        <text x="200" y="190" text-anchor="middle" fill="#818181" font-size="8">Status · Transitions · Validations</text>
+                        <!-- Credit Memo -->
+                        <rect x="30" y="230" width="100" height="50" fill="#ec2254" opacity="0.2" stroke="#ec2254" stroke-width="2"/>
+                        <text x="80" y="252" text-anchor="middle" fill="#ec2254" font-size="10" font-weight="bold">CREDITMEMO</text>
+                        <text x="80" y="268" text-anchor="middle" fill="#818181" font-size="8">Refunds</text>
+                        <!-- Totals -->
+                        <rect x="160" y="230" width="80" height="50" fill="#f1bc1b" opacity="0.2" stroke="#f1bc1b" stroke-width="2"/>
+                        <text x="200" y="252" text-anchor="middle" fill="#f1bc1b" font-size="10" font-weight="bold">TOTALS</text>
+                        <text x="200" y="268" text-anchor="middle" fill="#818181" font-size="8">Calculation</text>
+                        <!-- Grid/API -->
+                        <rect x="270" y="230" width="100" height="50" fill="#474747" stroke="#818181" stroke-width="2"/>
+                        <text x="320" y="252" text-anchor="middle" fill="#b6b6b6" font-size="10" font-weight="bold">API/GRIDS</text>
+                        <text x="320" y="268" text-anchor="middle" fill="#818181" font-size="8">Admin · REST</text>
+                        <defs>
+                            <marker id="arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                                <polygon points="0 0, 10 3.5, 0 7" fill="#818181"/>
+                            </marker>
+                        </defs>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="max-w-6xl mx-auto px-6 py-8 md:py-12">
+
+        <section class="bg-white mb-12 p-8 border-t-4 border-magento-gold-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-magento-charcoal mb-4 mt-0">Quick Stats</h2>
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="border-l-4 border-magento-orange-500 pl-4">
+                    <h3 class="font-bold text-magento-charcoal mb-2">861 Components</h3>
+                    <p class="text-sm text-gray-700">402 models, 82 interfaces, 19 plugins, 25 observers, 21 events</p>
+                </div>
+                <div class="border-l-4 border-magento-gold-500 pl-4">
+                    <h3 class="font-bold text-magento-charcoal mb-2">243 Integration Points</h3>
+                    <p class="text-sm text-gray-700">68 preferences, 54 injections, 42 intercepts, 41 observes</p>
+                </div>
+                <div class="border-l-4 border-magento-charcoal pl-4">
+                    <h3 class="font-bold text-magento-charcoal mb-2">Magento 2.4.x</h3>
+                    <p class="text-sm text-gray-700">PHP 8.1, 8.2, 8.3, 8.4 compatible</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-16">
+            <div class="flex items-center gap-4 mb-8">
+                <div class="w-3 h-12 bg-magento-orange-500"></div>
+                <h2 class="text-3xl font-bold text-magento-charcoal">Complete Documentation</h2>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6">
+
+                <article class="doc-card bg-white border border-gray-200 shadow-sm">
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-magento-orange-500 flex items-center justify-center">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                                </svg>
+                            </div>
+                            <span class="inline-flex items-center px-3 py-1 text-xs font-semibold bg-magento-orange-50 text-magento-orange-700">
+                                FOUNDATION
+                            </span>
+                        </div>
+                        <h3 class="text-xl font-bold text-magento-charcoal mb-2">Architecture Overview</h3>
+                        <p class="text-sm text-gray-600 mb-4 leading-relaxed">
+                            Module position in ecosystem, all 117 service contracts, database schema, state machine, and security patterns.
+                        </p>
+                        <a href="architecture.html" class="block w-full text-center px-4 py-2 bg-magento-orange-800 text-white font-semibold hover:bg-magento-orange-900 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-magento-orange-800">
+                            View Architecture
+                        </a>
+                    </div>
+                </article>
+
+                <article class="doc-card bg-white border border-gray-200 shadow-sm">
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-magento-orange-500 flex items-center justify-center">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                                </svg>
+                            </div>
+                            <span class="inline-flex items-center px-3 py-1 text-xs font-semibold bg-magento-orange-50 text-magento-orange-700">
+                                FLOWS
+                            </span>
+                        </div>
+                        <h3 class="text-xl font-bold text-magento-charcoal mb-2">Execution Flows</h3>
+                        <p class="text-sm text-gray-600 mb-4 leading-relaxed">
+                            Step-by-step traces of order placement, invoicing, shipping, refunds, and payment flows.
+                        </p>
+                        <a href="execution-flows.html" class="block w-full text-center px-4 py-2 bg-magento-orange-800 text-white font-semibold hover:bg-magento-orange-900 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-magento-orange-800">
+                            View Execution Flows
+                        </a>
+                    </div>
+                </article>
+
+                <article class="doc-card bg-white border border-gray-200 shadow-sm">
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-magento-gold-500 flex items-center justify-center">
+                                <svg class="w-6 h-6 text-magento-charcoal" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z"/>
+                                </svg>
+                            </div>
+                            <span class="inline-flex items-center px-3 py-1 text-xs font-semibold bg-magento-gold-50 text-brown">
+                                EXTENSIBILITY
+                            </span>
+                        </div>
+                        <h3 class="text-xl font-bold text-magento-charcoal mb-2">Plugins & Observers</h3>
+                        <p class="text-sm text-gray-600 mb-4 leading-relaxed">
+                            Complete reference for all 16 plugins and 25 observers with security implications and performance impact.
+                        </p>
+                        <a href="plugins-observers.html" class="block w-full text-center px-4 py-2 bg-magento-gold-500 text-magento-charcoal font-semibold hover:bg-magento-charcoal-600 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-magento-charcoal-500">
+                            View Plugins & Observers
+                        </a>
+                    </div>
+                </article>
+
+                <article class="doc-card bg-white border border-gray-200 shadow-sm">
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-magento-gold-500 flex items-center justify-center">
+                                <svg class="w-6 h-6 text-magento-charcoal" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14v6m-3-3h6M6 10h2a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v2a2 2 0 002 2zm10 0h2a2 2 0 002-2V6a2 2 0 00-2-2h-2a2 2 0 00-2 2v2a2 2 0 002 2zM6 20h2a2 2 0 002-2v-2a2 2 0 00-2-2H6a2 2 0 00-2 2v2a2 2 0 002 2z"/>
+                                </svg>
+                            </div>
+                            <span class="inline-flex items-center px-3 py-1 text-xs font-semibold bg-magento-gold-50 text-brown">
+                                INTEGRATIONS
+                            </span>
+                        </div>
+                        <h3 class="text-xl font-bold text-magento-charcoal mb-2">Module Integrations</h3>
+                        <p class="text-sm text-gray-600 mb-4 leading-relaxed">
+                            How Sales integrates with Payment, Shipping, Tax, Inventory, Customer, Quote, and external systems.
+                        </p>
+                        <a href="integrations.html" class="block w-full text-center px-4 py-2 bg-magento-gold-500 text-magento-charcoal font-semibold hover:bg-magento-charcoal-600 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-magento-charcoal-500">
+                            View Integrations
+                        </a>
+                    </div>
+                </article>
+
+                <article class="doc-card bg-white border border-gray-200 shadow-sm">
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-magento-orange-500 flex items-center justify-center">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                </svg>
+                            </div>
+                            <span class="inline-flex items-center px-3 py-1 text-xs font-semibold bg-magento-orange-500 text-amaranth-700">
+                                ISSUES
+                            </span>
+                        </div>
+                        <h3 class="text-xl font-bold text-magento-charcoal mb-2">Known Issues</h3>
+                        <p class="text-sm text-gray-600 mb-4 leading-relaxed">
+                            Real-world GitHub issues with proven workarounds. 100% verified with financial impact analysis.
+                        </p>
+                        <a href="known-issues.html" class="block w-full text-center px-4 py-2 bg-magento-orange-800 text-white font-semibold hover:bg-magento-orange-900 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-magento-orange-800">
+                            View Known Issues
+                        </a>
+                    </div>
+                </article>
+
+            </div>
+        </section>
+
+        <section class="bg-white border-t-4 border-magento-orange-500 p-8 shadow-sm mb-12">
+            <h2 class="text-2xl font-bold text-magento-charcoal mb-4">Getting Started</h2>
+            <div class="grid md:grid-cols-2 gap-8">
+                <div>
+                    <h3 class="font-bold text-magento-charcoal mb-3">For Developers New to Magento</h3>
+                    <ol class="space-y-2 text-sm text-gray-700 list-decimal list-inside">
+                        <li>Start with <a href="architecture.html" class="text-magento-orange-500 hover:underline">Architecture</a></li>
+                        <li>Read <a href="execution-flows.html" class="text-magento-orange-500 hover:underline">Order Placement Flow</a></li>
+                        <li>Study <a href="plugins-observers.html" class="text-magento-orange-500 hover:underline">Plugins & Observers</a></li>
+                        <li>Review <a href="integrations.html" class="text-magento-orange-500 hover:underline">Payment/Shipping Integration</a></li>
+                        <li>Check <a href="known-issues.html" class="text-magento-orange-500 hover:underline">Known Issues</a></li>
+                    </ol>
+                </div>
+                <div>
+                    <h3 class="font-bold text-magento-charcoal mb-3">For Magento Veterans</h3>
+                    <ul class="space-y-2 text-sm text-gray-700 list-disc list-inside">
+                        <li>Need service contract? → <a href="architecture.html" class="text-magento-orange-500 hover:underline">Architecture</a></li>
+                        <li>Debugging order flow? → <a href="execution-flows.html" class="text-magento-orange-500 hover:underline">Execution Flows</a></li>
+                        <li>Production issue? → <a href="known-issues.html" class="text-magento-orange-500 hover:underline">Known Issues</a></li>
+                        <li>Payment gateway? → <a href="integrations.html" class="text-magento-orange-500 hover:underline">Integrations</a></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <aside class="bg-white border-4 border-magento-gold-500 p-6">
+            <div class="flex items-start gap-3">
+                <svg class="w-6 h-6 text-magento-orange-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                </svg>
+                <div>
+                    <p class="font-semibold text-magento-charcoal mb-2">Module Metadata</p>
+                    <p class="text-gray-700 text-sm leading-relaxed">
+                        <strong>Version:</strong> 1.0.0 |
+                        <strong>Last Updated:</strong> 2025-12-04 |
+                        <strong>Magento:</strong> 2.4.x |
+                        <strong>PHP:</strong> 8.1-8.4 |
+                        <strong>Graph Analysis:</strong> 861 nodes, 243 edges
+                    </p>
+                </div>
+            </div>
+        </aside>
+
+    </div>
+
+    <footer class="bg-charcoal text-white py-8 mt-16">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                <p class="text-sm text-gray-400">Magento Documentation | Magento_Sales Module</p>
+                <div class="flex items-center gap-6">
+                    <a href="../../../index.html" class="text-sm text-gray-400 hover:text-white transition">Documentation Home</a>
+                    <a href="https://github.com/magento/magento2" class="text-sm text-gray-400 hover:text-white transition">GitHub</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

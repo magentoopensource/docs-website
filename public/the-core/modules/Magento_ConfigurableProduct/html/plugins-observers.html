@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plugins & Observers - Magento_ConfigurableProduct | THE MAGENTO CORE</title>
+    <meta name="description" content="Complete reference of Magento_ConfigurableProduct interception points, DI preferences, plugins, and event observers">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        orange: {
+                            DEFAULT: '#F26423',
+                            50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad', 300: '#f9ae78',
+                            400: '#f58242', 500: '#f26423', 600: '#e34613', 700: '#bc3312',
+                            800: '#962a16', 900: '#792515', 950: '#411009'
+                        },
+                        yellow: {
+                            DEFAULT: '#F1BC1B',
+                            50: '#fffbeb', 100: '#fdf9c8', 200: '#fbf38c', 300: '#f8e651',
+                            400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a', 700: '#b1670c',
+                            800: '#8f5111', 900: '#764311', 950: '#442204'
+                        },
+                        charcoal: {
+                            DEFAULT: '#2c2c2c',
+                            50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6', 300: '#818181',
+                            400: '#474747', 500: '#2c2c2c', 600: '#262626', 700: '#202020',
+                            800: '#1c1c1c', 900: '#191919', 950: '#121212'
+                        },
+                        brown: '#442204',
+                        'off-white': '#FAFAFA',
+                    },
+                    fontFamily: {
+                        sans: ['Inter Tight', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter Tight', system-ui, sans-serif; }
+        .code-block { background: #1c1c1c; color: #f1f1f1; }
+    </style>
+</head>
+<body class="bg-off-white text-charcoal">
+
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-charcoal focus:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
+        Skip to content
+    </a>
+
+    <header class="bg-gradient-to-br from-charcoal-500 via-charcoal-600 to-charcoal-700 border-b-8 border-orange-500">
+        <!-- back-to-developer-docs -->
+        <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 pt-4"><a href="/developer/" aria-label="Back to Developer Docs" class="inline-flex items-center gap-1.5 text-sm font-medium text-white/70 hover:text-white transition-colors no-underline"><span aria-hidden="true">←</span> Developer Docs</a></div>
+        <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+            <nav aria-label="Breadcrumb" class="mb-6">
+                <ol class="flex flex-wrap items-center gap-2 text-sm text-gray-400">
+                    <li><a href="../../../index.html" class="hover:text-orange-500 underline underline-offset-4">Home</a></li>
+                    <li aria-hidden="true"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></li>
+                    <li><a href="index.html" class="hover:text-orange-500 underline underline-offset-4">Magento_ConfigurableProduct</a></li>
+                    <li aria-hidden="true"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></li>
+                    <li class="text-white font-medium">Plugins & Observers</li>
+                </ol>
+            </nav>
+            <div id="main-content">
+                <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white mb-4">Plugins & <span class="text-orange-500">Observers</span></h1>
+                <p class="text-base sm:text-lg text-gray-300 max-w-3xl mb-6">Interception points, DI preferences, and event observers</p>
+                <div class="flex flex-wrap gap-3 text-sm">
+                    <span class="inline-flex items-center gap-1.5 bg-orange-500/20 text-orange-300 px-3 py-1.5 font-medium border border-orange-500/30">18 Plugins</span>
+                    <span class="inline-flex items-center gap-1.5 bg-yellow-500/20 text-yellow-300 px-3 py-1.5 font-medium border border-yellow-500/30">1 Observer</span>
+                    <span class="inline-flex items-center gap-1.5 bg-charcoal-400/40 text-charcoal-100 px-3 py-1.5 font-medium border border-charcoal-300/30">11 Preferences</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <nav class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-6">
+            <ul class="flex flex-wrap gap-6 py-4 text-sm font-medium">
+                <li><a href="index.html" class="text-charcoal hover:text-orange-500 border-b-2 border-transparent hover:border-orange-500 pb-1">Overview</a></li>
+                <li><a href="architecture.html" class="text-charcoal hover:text-orange-500 border-b-2 border-transparent hover:border-orange-500 pb-1">Architecture</a></li>
+                <li><a href="execution-flows.html" class="text-charcoal hover:text-orange-500 border-b-2 border-transparent hover:border-orange-500 pb-1">Execution Flows</a></li>
+                <li><a href="plugins-observers.html" class="text-orange-500 border-b-2 border-orange-500 pb-1">Plugins & Observers</a></li>
+                <li><a href="integrations.html" class="text-charcoal hover:text-orange-500 border-b-2 border-transparent hover:border-orange-500 pb-1">Integrations</a></li>
+                <li><a href="known-issues.html" class="text-charcoal hover:text-orange-500 border-b-2 border-transparent hover:border-orange-500 pb-1">Known Issues</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="max-w-6xl mx-auto px-6 py-8 md:py-12">
+
+        <!-- Overview -->
+        <section class="bg-white mb-12 p-8 border-t-4 border-orange-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-charcoal mb-4">Overview</h2>
+            <p class="text-gray-600">Magento_ConfigurableProduct uses an extensive plugin architecture to integrate with the catalog, cart, checkout, sales, and inventory systems. The module registers 18 plugins and 1 observer to intercept key operations.</p>
+        </section>
+
+        <!-- DI Preferences -->
+        <section class="bg-white mb-12 p-8 border-t-4 border-yellow-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-charcoal mb-6">DI Preferences (Interface Bindings)</h2>
+            <p class="text-gray-600 mb-6">These preferences define the default implementations for configurable product service contracts:</p>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="bg-charcoal text-white">
+                            <th class="text-left p-3 font-semibold">Interface</th>
+                            <th class="text-left p-3 font-semibold">Implementation</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b border-gray-200">
+                            <td class="p-3 font-mono text-xs">ConfigurableProductManagementInterface</td>
+                            <td class="p-3 font-mono text-xs">Model\ConfigurableProductManagement</td>
+                        </tr>
+                        <tr class="border-b border-gray-200 bg-gray-50">
+                            <td class="p-3 font-mono text-xs">LinkManagementInterface</td>
+                            <td class="p-3 font-mono text-xs">Model\LinkManagement</td>
+                        </tr>
+                        <tr class="border-b border-gray-200">
+                            <td class="p-3 font-mono text-xs">OptionRepositoryInterface</td>
+                            <td class="p-3 font-mono text-xs">Model\OptionRepository</td>
+                        </tr>
+                        <tr class="border-b border-gray-200 bg-gray-50">
+                            <td class="p-3 font-mono text-xs">Data\OptionInterface</td>
+                            <td class="p-3 font-mono text-xs">Model\Product\Type\Configurable\Attribute</td>
+                        </tr>
+                        <tr class="border-b border-gray-200">
+                            <td class="p-3 font-mono text-xs">Data\OptionValueInterface</td>
+                            <td class="p-3 font-mono text-xs">Model\Product\Type\Configurable\OptionValue</td>
+                        </tr>
+                        <tr class="border-b border-gray-200 bg-gray-50">
+                            <td class="p-3 font-mono text-xs">Data\ConfigurableItemOptionValueInterface</td>
+                            <td class="p-3 font-mono text-xs">Model\Quote\Item\ConfigurableItemOptionValue</td>
+                        </tr>
+                        <tr class="border-b border-gray-200">
+                            <td class="p-3 font-mono text-xs">Pricing\Price\PriceResolverInterface</td>
+                            <td class="p-3 font-mono text-xs">Pricing\Price\ConfigurablePriceResolver</td>
+                        </tr>
+                        <tr class="border-b border-gray-200 bg-gray-50">
+                            <td class="p-3 font-mono text-xs">Pricing\Price\ConfigurableOptionsProviderInterface</td>
+                            <td class="p-3 font-mono text-xs">Pricing\Price\ConfigurableOptionsProvider</td>
+                        </tr>
+                        <tr class="border-b border-gray-200">
+                            <td class="p-3 font-mono text-xs">Pricing\Price\LowestPriceOptionsProviderInterface</td>
+                            <td class="p-3 font-mono text-xs">Pricing\Price\LowestPriceOptionsProvider</td>
+                        </tr>
+                        <tr class="border-b border-gray-200 bg-gray-50">
+                            <td class="p-3 font-mono text-xs">Model\AttributeOptionProviderInterface</td>
+                            <td class="p-3 font-mono text-xs">Model\AttributeOptionProvider</td>
+                        </tr>
+                        <tr class="border-b border-gray-200">
+                            <td class="p-3 font-mono text-xs">Pricing\Price\ConfigurableOptionsFilterInterface</td>
+                            <td class="p-3 font-mono text-xs">Pricing\Price\ConfigurableOptionsCompositeFilter</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Plugins -->
+        <section class="bg-white mb-12 p-8 border-t-4 border-orange-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-charcoal mb-6">Plugins (Interceptors)</h2>
+
+            <h3 class="text-lg font-bold text-charcoal mb-4 flex items-center gap-2">
+                <span class="inline-block bg-orange-100 text-orange-700 px-2 py-1 text-xs font-semibold">Cart</span>
+                Cart & Quote Plugins
+            </h3>
+            <div class="overflow-x-auto mb-8">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="bg-charcoal text-white">
+                            <th class="text-left p-3 font-semibold">Target Class</th>
+                            <th class="text-left p-3 font-semibold">Plugin Name</th>
+                            <th class="text-left p-3 font-semibold">Plugin Class</th>
+                            <th class="text-left p-3 font-semibold">Sort</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b border-gray-200">
+                            <td class="p-3"><code class="bg-charcoal text-yellow-500 px-1 py-0.5 text-xs">CatalogInventory\Model\Quote\Item\QuantityValidator\Initializer\Option</code></td>
+                            <td class="p-3">configurable_product</td>
+                            <td class="p-3 text-xs">Model\Quote\Item\QuantityValidator\Initializer\Option\Plugin\ConfigurableProduct</td>
+                            <td class="p-3"><span class="inline-block bg-orange-500 text-white px-2 py-0.5 text-xs font-semibold">50</span></td>
+                        </tr>
+                        <tr class="border-b border-gray-200 bg-gray-50">
+                            <td class="p-3"><code class="bg-charcoal text-yellow-500 px-1 py-0.5 text-xs">Catalog\Model\Product\CartConfiguration</code></td>
+                            <td class="p-3">configurable_product</td>
+                            <td class="p-3 text-xs">Model\Product\CartConfiguration\Plugin\Configurable</td>
+                            <td class="p-3"><span class="inline-block bg-orange-500 text-white px-2 py-0.5 text-xs font-semibold">50</span></td>
+                        </tr>
+                        <tr class="border-b border-gray-200">
+                            <td class="p-3"><code class="bg-charcoal text-yellow-500 px-1 py-0.5 text-xs">Quote\Model\Quote\Item\Repository</code></td>
+                            <td class="p-3">configurable</td>
+                            <td class="p-3 text-xs">Model\Quote\Item\CartItemProcessor (Proxy)</td>
+                            <td class="p-3">-</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 class="text-lg font-bold text-charcoal mb-4 flex items-center gap-2">
+                <span class="inline-block bg-orange-100 text-orange-700 px-2 py-1 text-xs font-semibold">Catalog</span>
+                Catalog & Product Plugins
+            </h3>
+            <div class="overflow-x-auto mb-8">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="bg-charcoal text-white">
+                            <th class="text-left p-3 font-semibold">Target Class</th>
+                            <th class="text-left p-3 font-semibold">Plugin Name</th>
+                            <th class="text-left p-3 font-semibold">Plugin Class</th>
+                            <th class="text-left p-3 font-semibold">Sort</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b border-gray-200">
+                            <td class="p-3"><code class="bg-charcoal text-yellow-500 px-1 py-0.5 text-xs">Catalog\Api\ProductRepositoryInterface</code></td>
+                            <td class="p-3">configurableProductSaveOptions</td>
+                            <td class="p-3 text-xs">Model\Plugin\ProductRepositorySave</td>
+                            <td class="p-3"><span class="inline-block bg-orange-500 text-white px-2 py-0.5 text-xs font-semibold">10</span></td>
+                        </tr>
+                        <tr class="border-b border-gray-200 bg-gray-50">
+                            <td class="p-3"><code class="bg-charcoal text-yellow-500 px-1 py-0.5 text-xs">Catalog\Model\Product\Type</code></td>
+                            <td class="p-3">configurable_output</td>
+                            <td class="p-3 text-xs">Model\Product\Type\Plugin</td>
+                            <td class="p-3">-</td>
+                        </tr>
+                        <tr class="border-b border-gray-200">
+                            <td class="p-3"><code class="bg-charcoal text-yellow-500 px-1 py-0.5 text-xs">Catalog\Model\Product\TypeTransitionManager</code></td>
+                            <td class="p-3">configurable_product_transition</td>
+                            <td class="p-3 text-xs">Model\Product\TypeTransitionManager\Plugin\Configurable</td>
+                            <td class="p-3"><span class="inline-block bg-orange-500 text-white px-2 py-0.5 text-xs font-semibold">50</span></td>
+                        </tr>
+                        <tr class="border-b border-gray-200 bg-gray-50">
+                            <td class="p-3"><code class="bg-charcoal text-yellow-500 px-1 py-0.5 text-xs">Catalog\Model\Entity\Product\Attribute\Group\AttributeMapperInterface</code></td>
+                            <td class="p-3">configurable_product</td>
+                            <td class="p-3 text-xs">Model\Entity\Product\Attribute\Group\AttributeMapper\Plugin</td>
+                            <td class="p-3"><span class="inline-block bg-orange-500 text-white px-2 py-0.5 text-xs font-semibold">50</span></td>
+                        </tr>
+                        <tr class="border-b border-gray-200">
+                            <td class="p-3"><code class="bg-charcoal text-yellow-500 px-1 py-0.5 text-xs">Catalog\Model\Product</code></td>
+                            <td class="p-3">product_identities_extender</td>
+                            <td class="p-3 text-xs">Model\Plugin\ProductIdentitiesExtender</td>
+                            <td class="p-3">-</td>
+                        </tr>
+                        <tr class="border-b border-gray-200 bg-gray-50">
+                            <td class="p-3"><code class="bg-charcoal text-yellow-500 px-1 py-0.5 text-xs">Catalog\Helper\Product\Configuration</code></td>
+                            <td class="p-3">configurable_product</td>
+                            <td class="p-3 text-xs">Helper\Product\Configuration\Plugin</td>
+                            <td class="p-3"><span class="inline-block bg-orange-500 text-white px-2 py-0.5 text-xs font-semibold">50</span></td>
+                        </tr>
+                        <tr class="border-b border-gray-200">
+                            <td class="p-3"><code class="bg-charcoal text-yellow-500 px-1 py-0.5 text-xs">ProductVideo\Block\Product\View\Gallery</code></td>
+                            <td class="p-3">product_video_gallery</td>
+                            <td class="p-3 text-xs">Block\Plugin\Product\Media\Gallery</td>
+                            <td class="p-3">-</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 class="text-lg font-bold text-charcoal mb-4 flex items-center gap-2">
+                <span class="inline-block bg-yellow-100 text-yellow-700 px-2 py-1 text-xs font-semibold">Pricing</span>
+                Price & Validation Plugins
+            </h3>
+            <div class="overflow-x-auto mb-8">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="bg-charcoal text-white">
+                            <th class="text-left p-3 font-semibold">Target Class</th>
+                            <th class="text-left p-3 font-semibold">Plugin Name</th>
+                            <th class="text-left p-3 font-semibold">Plugin Class</th>
+                            <th class="text-left p-3 font-semibold">Sort</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b border-gray-200">
+                            <td class="p-3"><code class="bg-charcoal text-yellow-500 px-1 py-0.5 text-xs">Catalog\Model\Product\Attribute\Backend\Price</code></td>
+                            <td class="p-3">configurable</td>
+                            <td class="p-3 text-xs">Model\Plugin\PriceBackend</td>
+                            <td class="p-3"><span class="inline-block bg-orange-500 text-white px-2 py-0.5 text-xs font-semibold">100</span></td>
+                        </tr>
+                        <tr class="border-b border-gray-200 bg-gray-50">
+                            <td class="p-3"><code class="bg-charcoal text-yellow-500 px-1 py-0.5 text-xs">Eav\Model\Entity\Attribute\Backend\AbstractBackend</code></td>
+                            <td class="p-3">ConfigurableProduct::skipValidation</td>
+                            <td class="p-3 text-xs">Plugin\Model\Attribute\Backend\AttributeValidation</td>
+                            <td class="p-3">-</td>
+                        </tr>
+                        <tr class="border-b border-gray-200">
+                            <td class="p-3"><code class="bg-charcoal text-yellow-500 px-1 py-0.5 text-xs">Catalog\Model\Product\Pricing\Renderer\SalableResolver</code></td>
+                            <td class="p-3">configurable</td>
+                            <td class="p-3 text-xs">Plugin\Catalog\Model\Product\Pricing\Renderer\SalableResolver</td>
+                            <td class="p-3">-</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 class="text-lg font-bold text-charcoal mb-4 flex items-center gap-2">
+                <span class="inline-block bg-charcoal-100 text-charcoal-700 px-2 py-1 text-xs font-semibold">Sales</span>
+                Sales & Order Plugins
+            </h3>
+            <div class="overflow-x-auto mb-8">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="bg-charcoal text-white">
+                            <th class="text-left p-3 font-semibold">Target Class</th>
+                            <th class="text-left p-3 font-semibold">Plugin Name</th>
+                            <th class="text-left p-3 font-semibold">Plugin Class</th>
+                            <th class="text-left p-3 font-semibold">Sort</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b border-gray-200">
+                            <td class="p-3"><code class="bg-charcoal text-yellow-500 px-1 py-0.5 text-xs">Sales\Model\Order\Admin\Item</code></td>
+                            <td class="p-3">configurable_product</td>
+                            <td class="p-3 text-xs">Model\Order\Admin\Item\Plugin\Configurable</td>
+                            <td class="p-3"><span class="inline-block bg-orange-500 text-white px-2 py-0.5 text-xs font-semibold">50</span></td>
+                        </tr>
+                        <tr class="border-b border-gray-200 bg-gray-50">
+                            <td class="p-3"><code class="bg-charcoal text-yellow-500 px-1 py-0.5 text-xs">SalesRule\Model\Rule\Condition\Product</code></td>
+                            <td class="p-3">apply_rule_on_configurable_children</td>
+                            <td class="p-3 text-xs">Plugin\SalesRule\Model\Rule\Condition\Product</td>
+                            <td class="p-3">-</td>
+                        </tr>
+                        <tr class="border-b border-gray-200">
+                            <td class="p-3"><code class="bg-charcoal text-yellow-500 px-1 py-0.5 text-xs">Tax\Model\Sales\Total\Quote\CommonTaxCollector</code></td>
+                            <td class="p-3">apply_tax_class_id</td>
+                            <td class="p-3 text-xs">Plugin\Tax\Model\Sales\Total\Quote\CommonTaxCollector</td>
+                            <td class="p-3">-</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 class="text-lg font-bold text-charcoal mb-4 flex items-center gap-2">
+                <span class="inline-block bg-yellow-100 text-yellow-700 px-2 py-1 text-xs font-semibold">Inventory</span>
+                Stock & Inventory Plugins
+            </h3>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="bg-charcoal text-white">
+                            <th class="text-left p-3 font-semibold">Target Class</th>
+                            <th class="text-left p-3 font-semibold">Plugin Name</th>
+                            <th class="text-left p-3 font-semibold">Plugin Class</th>
+                            <th class="text-left p-3 font-semibold">Sort</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b border-gray-200">
+                            <td class="p-3"><code class="bg-charcoal text-yellow-500 px-1 py-0.5 text-xs">CatalogInventory\Model\ResourceModel\Stock\Item</code></td>
+                            <td class="p-3">updateStockChangedAuto</td>
+                            <td class="p-3 text-xs">Model\Plugin\UpdateStockChangedAuto</td>
+                            <td class="p-3">-</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Key Plugin Details -->
+        <section class="bg-white mb-12 p-8 border-t-4 border-yellow-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-charcoal mb-6">Key Plugin Details</h2>
+
+            <h3 class="text-lg font-bold text-charcoal mb-3">ProductRepositorySave (sortOrder: 10)</h3>
+            <p class="text-gray-600 mb-4">Critical plugin that handles saving configurable product options and links:</p>
+            <div class="code-block p-4 text-sm overflow-x-auto mb-8">
+<pre>class ProductRepositorySave
+{
+    /**
+     * Processes configurable_product_options and configurable_product_links
+     * extension attributes after product save
+     */
+    public function afterSave(
+        ProductRepositoryInterface $subject,
+        ProductInterface $product
+    ) {
+        if ($product->getTypeId() !== Configurable::TYPE_CODE) {
+            return $product;
+        }
+
+        $extensionAttributes = $product->getExtensionAttributes();
+
+        // Save configurable options (super attributes)
+        if ($extensionAttributes->getConfigurableProductOptions()) {
+            $this->saveOptions($product, $extensionAttributes);
+        }
+
+        // Save product links (children)
+        if ($extensionAttributes->getConfigurableProductLinks()) {
+            $this->saveLinks($product, $extensionAttributes);
+        }
+
+        return $product;
+    }
+}</pre>
+            </div>
+
+            <h3 class="text-lg font-bold text-charcoal mb-3">AttributeValidation (skipValidation)</h3>
+            <p class="text-gray-600 mb-4">Skips EAV backend validation for child attributes on configurable products:</p>
+            <div class="code-block p-4 text-sm overflow-x-auto mb-8">
+<pre>class AttributeValidation
+{
+    /**
+     * Skip validation for attributes that shouldn't be required on configurable products
+     * (e.g., price, weight - these come from children)
+     */
+    public function aroundValidate(
+        AbstractBackend $subject,
+        callable $proceed,
+        DataObject $object
+    ) {
+        if ($this->shouldSkipValidation($object, $subject)) {
+            return true;
+        }
+        return $proceed($object);
+    }
+}</pre>
+            </div>
+
+            <h3 class="text-lg font-bold text-charcoal mb-3">UpdateStockChangedAuto</h3>
+            <p class="text-gray-600 mb-4">Triggers configurable parent reindex when child stock changes:</p>
+            <div class="code-block p-4 text-sm overflow-x-auto mb-8">
+<pre>class UpdateStockChangedAuto
+{
+    /**
+     * When child product stock changes, parent configurable needs reindex
+     */
+    public function afterSave(
+        StockItemResource $subject,
+        StockItemResource $result,
+        AbstractModel $stockItem
+    ) {
+        $productId = $stockItem->getProductId();
+        $parentIds = $this->configurable->getParentIdsByChild($productId);
+
+        foreach ($parentIds as $parentId) {
+            $this->indexer->reindexRow($parentId);
+        }
+
+        return $result;
+    }
+}</pre>
+            </div>
+
+            <h3 class="text-lg font-bold text-charcoal mb-3">SalesRule Condition Plugin</h3>
+            <p class="text-gray-600 mb-4">Applies cart price rules to configurable children:</p>
+            <div class="code-block p-4 text-sm overflow-x-auto">
+<pre>class Product
+{
+    /**
+     * When evaluating sales rules, check the simple child product's attributes
+     * not the configurable parent's attributes
+     */
+    public function beforeValidate(
+        ProductCondition $subject,
+        AbstractModel $model
+    ) {
+        $product = $model->getProduct();
+
+        if ($product->getTypeId() === Configurable::TYPE_CODE) {
+            // Get the actual child product for rule evaluation
+            $childProduct = $this->getChildProduct($model);
+            $model->setProduct($childProduct);
+        }
+
+        return [$model];
+    }
+}</pre>
+            </div>
+        </section>
+
+        <!-- Observers -->
+        <section class="bg-white mb-12 p-8 border-t-4 border-orange-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-charcoal mb-6">Event Observers</h2>
+            <p class="text-gray-600 mb-6">Magento_ConfigurableProduct registers one observer for admin attribute form handling:</p>
+
+            <div class="border-l-4 border-yellow-500 pl-4 bg-gray-50 p-4 mb-6">
+                <h4 class="font-bold text-charcoal mb-2">HideUnsupportedAttributeTypes</h4>
+                <p class="mb-2"><code class="bg-charcoal text-yellow-500 px-2 py-0.5 text-xs font-mono">product_attribute_form_build_main_tab</code></p>
+                <p class="text-sm text-gray-600">Hides attributes that cannot be used as super attributes (only 'select' type attributes with global scope can be configurable axes).</p>
+            </div>
+
+            <div class="code-block p-4 text-sm overflow-x-auto">
+<pre>class HideUnsupportedAttributeTypes implements ObserverInterface
+{
+    private $supportedTypes = ['select'];
+
+    public function execute(Observer $observer)
+    {
+        $form = $observer->getForm();
+        $attribute = $observer->getAttribute();
+
+        if (!in_array($attribute->getFrontendInput(), $this->supportedTypes)) {
+            // Hide "Use To Create Configurable Product" option
+            $configurableField = $form->getElement('is_configurable');
+            if ($configurableField) {
+                $configurableField->setDisabled(true);
+            }
+        }
+    }
+}</pre>
+            </div>
+        </section>
+
+        <!-- Virtual Types -->
+        <section class="bg-white mb-12 p-8 border-t-4 border-yellow-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-charcoal mb-6">Virtual Types</h2>
+            <p class="text-gray-600 mb-6">The module defines several virtual types for pricing resolution:</p>
+
+            <div class="code-block p-4 text-sm overflow-x-auto">
+<pre>&lt;!-- Price Pool for Configurable Products --&gt;
+&lt;virtualType name="Magento\ConfigurableProduct\Pricing\Price\Pool"
+             type="Magento\Framework\Pricing\Price\Pool"&gt;
+    &lt;arguments&gt;
+        &lt;argument name="prices"&gt;
+            &lt;item name="regular_price"&gt;ConfigurableRegularPrice&lt;/item&gt;
+            &lt;item name="final_price"&gt;FinalPrice&lt;/item&gt;
+        &lt;/argument&gt;
+        &lt;argument name="target"&gt;Magento\Catalog\Pricing\Price\Pool&lt;/argument&gt;
+    &lt;/arguments&gt;
+&lt;/virtualType&gt;
+
+&lt;!-- Final Price Resolver Chain --&gt;
+&lt;virtualType name="ConfigurableFinalPriceResolver"
+             type="ConfigurablePriceResolver"&gt;
+    &lt;arguments&gt;
+        &lt;argument name="priceResolver"&gt;FinalPriceResolver&lt;/argument&gt;
+    &lt;/arguments&gt;
+&lt;/virtualType&gt;
+
+&lt;!-- Regular Price Resolver Chain --&gt;
+&lt;virtualType name="ConfigurableRegularPriceResolver"
+             type="ConfigurablePriceResolver"&gt;
+    &lt;arguments&gt;
+        &lt;argument name="priceResolver"&gt;RegularPriceResolver&lt;/argument&gt;
+    &lt;/arguments&gt;
+&lt;/virtualType&gt;</pre>
+            </div>
+        </section>
+
+        <!-- Navigation -->
+        <nav class="flex flex-col sm:flex-row gap-4 justify-between" aria-label="Page navigation">
+            <a href="execution-flows.html" class="inline-flex items-center gap-2 px-6 py-3 bg-charcoal text-white font-semibold hover:bg-charcoal-600 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-charcoal">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                Execution Flows
+            </a>
+            <a href="integrations.html" class="inline-flex items-center gap-2 px-6 py-3 bg-orange-500 text-white font-semibold hover:bg-orange-600 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
+                Integrations
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </a>
+        </nav>
+
+    </div>
+
+    <footer class="bg-charcoal text-white py-8 mt-16">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                <p class="text-sm text-gray-400">Magento Documentation | Magento_ConfigurableProduct Plugins & Observers</p>
+                <div class="flex items-center gap-6">
+                    <a href="index.html" class="text-sm text-gray-400 hover:text-white transition">Module Overview</a>
+                    <a href="../../../index.html" class="text-sm text-gray-400 hover:text-white transition">Documentation Home</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

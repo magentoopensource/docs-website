@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Execution Flows - Magento_ConfigurableProduct | THE MAGENTO CORE</title>
+    <meta name="description" content="Step-by-step execution flow traces for configurable product operations: add to cart, price calculation, frontend options, product save, and order placement">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        orange: {
+                            DEFAULT: '#F26423',
+                            50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad', 300: '#f9ae78',
+                            400: '#f58242', 500: '#f26423', 600: '#e34613', 700: '#bc3312',
+                            800: '#962a16', 900: '#792515', 950: '#411009'
+                        },
+                        yellow: {
+                            DEFAULT: '#F1BC1B',
+                            50: '#fffbeb', 100: '#fdf9c8', 200: '#fbf38c', 300: '#f8e651',
+                            400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a', 700: '#b1670c',
+                            800: '#8f5111', 900: '#764311', 950: '#442204'
+                        },
+                        charcoal: {
+                            DEFAULT: '#2c2c2c',
+                            50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6', 300: '#818181',
+                            400: '#474747', 500: '#2c2c2c', 600: '#262626', 700: '#202020',
+                            800: '#1c1c1c', 900: '#191919', 950: '#121212'
+                        },
+                        brown: '#442204',
+                        'off-white': '#FAFAFA',
+                    },
+                    fontFamily: {
+                        sans: ['Inter Tight', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter Tight', system-ui, sans-serif; }
+        .code-block { background: #1c1c1c; color: #f1f1f1; }
+    </style>
+</head>
+<body class="bg-off-white text-charcoal">
+
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-charcoal focus:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
+        Skip to content
+    </a>
+
+    <header class="bg-gradient-to-br from-charcoal-500 via-charcoal-600 to-charcoal-700 border-b-8 border-orange-500">
+        <!-- back-to-developer-docs -->
+        <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 pt-4"><a href="/developer/" aria-label="Back to Developer Docs" class="inline-flex items-center gap-1.5 text-sm font-medium text-white/70 hover:text-white transition-colors no-underline"><span aria-hidden="true">←</span> Developer Docs</a></div>
+        <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+            <nav aria-label="Breadcrumb" class="mb-6">
+                <ol class="flex flex-wrap items-center gap-2 text-sm text-gray-400">
+                    <li><a href="../../../index.html" class="hover:text-orange-500 underline underline-offset-4">Home</a></li>
+                    <li aria-hidden="true"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></li>
+                    <li><a href="index.html" class="hover:text-orange-500 underline underline-offset-4">Magento_ConfigurableProduct</a></li>
+                    <li aria-hidden="true"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></li>
+                    <li class="text-white font-medium">Execution Flows</li>
+                </ol>
+            </nav>
+            <div id="main-content">
+                <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white mb-4">Execution <span class="text-orange-500">Flows</span></h1>
+                <p class="text-base sm:text-lg text-gray-300 max-w-3xl mb-6">Step-by-step traces of key configurable product operations</p>
+                <div class="flex flex-wrap gap-3 text-sm">
+                    <span class="inline-flex items-center gap-1.5 bg-orange-500/20 text-orange-300 px-3 py-1.5 font-medium border border-orange-500/30">6 Flows</span>
+                    <span class="inline-flex items-center gap-1.5 bg-yellow-500/20 text-yellow-300 px-3 py-1.5 font-medium border border-yellow-500/30">Cart Operations</span>
+                    <span class="inline-flex items-center gap-1.5 bg-charcoal-400/40 text-charcoal-100 px-3 py-1.5 font-medium border border-charcoal-300/30">Price Calculation</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <nav class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-6">
+            <ul class="flex flex-wrap gap-6 py-4 text-sm font-medium">
+                <li><a href="index.html" class="text-charcoal hover:text-orange-500 border-b-2 border-transparent hover:border-orange-500 pb-1">Overview</a></li>
+                <li><a href="architecture.html" class="text-charcoal hover:text-orange-500 border-b-2 border-transparent hover:border-orange-500 pb-1">Architecture</a></li>
+                <li><a href="execution-flows.html" class="text-orange-500 border-b-2 border-orange-500 pb-1">Execution Flows</a></li>
+                <li><a href="plugins-observers.html" class="text-charcoal hover:text-orange-500 border-b-2 border-transparent hover:border-orange-500 pb-1">Plugins & Observers</a></li>
+                <li><a href="integrations.html" class="text-charcoal hover:text-orange-500 border-b-2 border-transparent hover:border-orange-500 pb-1">Integrations</a></li>
+                <li><a href="known-issues.html" class="text-charcoal hover:text-orange-500 border-b-2 border-transparent hover:border-orange-500 pb-1">Known Issues</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="max-w-6xl mx-auto px-6 py-8 md:py-12">
+
+        <!-- Flow 1: Add to Cart -->
+        <section class="bg-white mb-12 p-8 border-t-4 border-orange-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-charcoal mb-6">Flow 1: Add Configurable Product to Cart</h2>
+            <p class="text-gray-600 mb-6">When a customer selects options and adds a configurable product to cart, the system must resolve the specific child product and create appropriate quote items.</p>
+
+            <div class="bg-gray-50 p-6 mb-6">
+                <div class="space-y-4">
+                    <div class="flex items-start gap-4 pb-4 border-b border-dashed border-gray-300">
+                        <div class="w-8 h-8 bg-orange-500 text-white flex items-center justify-center font-bold flex-shrink-0">1</div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-charcoal mb-1">Customer Submits Add to Cart</h4>
+                            <p class="text-sm text-gray-600 mb-2">POST request with <code class="bg-charcoal text-yellow-500 px-1.5 py-0.5 text-xs">super_attribute</code> array containing selected option values.</p>
+                            <p class="text-sm text-gray-600"><code class="bg-charcoal text-yellow-500 px-1.5 py-0.5 text-xs">super_attribute[93] = 49</code> (Color: Black), <code class="bg-charcoal text-yellow-500 px-1.5 py-0.5 text-xs">super_attribute[141] = 166</code> (Size: S)</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-4 pb-4 border-b border-dashed border-gray-300">
+                        <div class="w-8 h-8 bg-orange-500 text-white flex items-center justify-center font-bold flex-shrink-0">2</div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-charcoal mb-1">Cart Controller Processes Request</h4>
+                            <p class="text-sm text-gray-600 mb-2"><code class="bg-charcoal text-yellow-500 px-1.5 py-0.5 text-xs">Magento\Checkout\Controller\Cart\Add::execute()</code></p>
+                            <p class="text-sm text-gray-600">Creates <code class="bg-charcoal text-yellow-500 px-1.5 py-0.5 text-xs">DataObject</code> buyRequest with product ID and super_attribute data.</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-4 pb-4 border-b border-dashed border-gray-300">
+                        <div class="w-8 h-8 bg-orange-500 text-white flex items-center justify-center font-bold flex-shrink-0">3</div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-charcoal mb-1">Quote Adds Product</h4>
+                            <p class="text-sm text-gray-600 mb-2"><code class="bg-charcoal text-yellow-500 px-1.5 py-0.5 text-xs">Magento\Quote\Model\Quote::addProduct()</code></p>
+                            <p class="text-sm text-gray-600">Calls product type's <code class="bg-charcoal text-yellow-500 px-1.5 py-0.5 text-xs">prepareForCartAdvanced()</code> method.</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-4 pb-4 border-b border-dashed border-gray-300">
+                        <div class="w-8 h-8 bg-orange-500 text-white flex items-center justify-center font-bold flex-shrink-0">4</div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-charcoal mb-1">Configurable Type Prepares Products</h4>
+                            <p class="text-sm text-gray-600 mb-2"><code class="bg-charcoal text-yellow-500 px-1.5 py-0.5 text-xs">Magento\ConfigurableProduct\Model\Product\Type\Configurable::prepareForCartAdvanced()</code></p>
+                            <p class="text-sm text-gray-600">Validates super_attribute values exist and are valid options.</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-4 pb-4 border-b border-dashed border-gray-300">
+                        <div class="w-8 h-8 bg-yellow-500 text-charcoal flex items-center justify-center font-bold flex-shrink-0">5</div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-charcoal mb-1">Resolve Child Product</h4>
+                            <p class="text-sm text-gray-600 mb-2"><code class="bg-charcoal text-yellow-500 px-1.5 py-0.5 text-xs">getProductByAttributes($superAttributeValues, $product)</code></p>
+                            <p class="text-sm text-gray-600 mb-2">Finds the specific simple product matching the selected attribute combination.</p>
+                            <p class="text-sm text-gray-600"><span class="inline-block bg-orange-500 text-white px-2 py-0.5 text-xs font-semibold mr-2">PLUGIN</span> <code class="bg-charcoal text-yellow-500 px-1.5 py-0.5 text-xs">CartConfiguration\Plugin\Configurable</code> may intercept.</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-4 pb-4 border-b border-dashed border-gray-300">
+                        <div class="w-8 h-8 bg-orange-500 text-white flex items-center justify-center font-bold flex-shrink-0">6</div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-charcoal mb-1">Validate Child Product</h4>
+                            <p class="text-sm text-gray-600 mb-2">Checks child product is salable (in stock, enabled, valid dates).</p>
+                            <p class="text-sm text-gray-600">Returns error message if child is not available.</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-4 pb-4 border-b border-dashed border-gray-300">
+                        <div class="w-8 h-8 bg-orange-500 text-white flex items-center justify-center font-bold flex-shrink-0">7</div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-charcoal mb-1">Return Product Array</h4>
+                            <p class="text-sm text-gray-600 mb-2">Returns array: <code class="bg-charcoal text-yellow-500 px-1.5 py-0.5 text-xs">[0 => $parentProduct, 1 => $childProduct]</code></p>
+                            <p class="text-sm text-gray-600">Both products are added to quote with parent-child relationship.</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-4 pb-4 border-b border-dashed border-gray-300">
+                        <div class="w-8 h-8 bg-yellow-500 text-charcoal flex items-center justify-center font-bold flex-shrink-0">8</div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-charcoal mb-1">Create Quote Items</h4>
+                            <p class="text-sm text-gray-600 mb-2">Two quote items created with <code class="bg-charcoal text-yellow-500 px-1.5 py-0.5 text-xs">parent_item_id</code> linking child to parent.</p>
+                            <p class="text-sm text-gray-600 mb-2">Custom options stored in <code class="bg-charcoal text-yellow-500 px-1.5 py-0.5 text-xs">quote_item_option</code> table.</p>
+                            <p class="text-sm text-gray-600"><span class="inline-block bg-orange-500 text-white px-2 py-0.5 text-xs font-semibold mr-2">PLUGIN</span> <code class="bg-charcoal text-yellow-500 px-1.5 py-0.5 text-xs">QuantityValidator</code> validates against child stock.</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-4">
+                        <div class="w-8 h-8 bg-orange-500 text-white flex items-center justify-center font-bold flex-shrink-0">9</div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-charcoal mb-1">Collect Totals</h4>
+                            <p class="text-sm text-gray-600 mb-2">Quote recalculates totals using child product's price.</p>
+                            <p class="text-sm text-gray-600"><span class="inline-block bg-yellow-500 text-charcoal px-2 py-0.5 text-xs font-semibold mr-2">EVENT</span> <code class="bg-charcoal text-yellow-500 px-1.5 py-0.5 text-xs">sales_quote_product_add_after</code></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="code-block p-4 text-sm overflow-x-auto mb-6">
+<pre>// Example buyRequest for configurable product
+$buyRequest = new DataObject([
+    'product' => 123,  // Configurable product ID
+    'qty' => 1,
+    'super_attribute' => [
+        93 => 49,   // Color (attr_id) => Black (option_id)
+        141 => 166  // Size (attr_id) => Small (option_id)
+    ]
+]);
+
+// Result from prepareForCartAdvanced()
+$result = [
+    0 => $configurableProduct, // Parent (display item)
+    1 => $simpleProduct        // Child (actual item for fulfillment)
+];</pre>
+            </div>
+
+            <div class="bg-orange-50 border-l-4 border-orange-500 p-4">
+                <h4 class="font-bold text-orange-700 mb-2">Cart Item Visibility</h4>
+                <p class="text-sm text-gray-700">In the cart, only the parent configurable product is visible. The child simple product is hidden (<code class="bg-gray-100 px-1">is_virtual = 1</code> on parent item). The child's SKU and stock are used for inventory, but the parent's name and image are displayed.</p>
+            </div>
+        </section>
+
+        <!-- Flow 2: Price Calculation -->
+        <section class="bg-white mb-12 p-8 border-t-4 border-yellow-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-charcoal mb-6">Flow 2: Price Calculation for Display</h2>
+            <p class="text-gray-600 mb-6">Configurable products display prices based on their child products. The frontend typically shows "From $X" or a price range.</p>
+
+            <div class="bg-gray-50 p-6 mb-6">
+                <div class="space-y-4">
+                    <div class="flex items-start gap-4 pb-4 border-b border-dashed border-gray-300">
+                        <div class="w-8 h-8 bg-orange-500 text-white flex items-center justify-center font-bold flex-shrink-0">1</div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-charcoal mb-1">Price Block Requests Price</h4>
+                            <p class="text-sm text-gray-600 mb-2"><code class="bg-charcoal text-yellow-500 px-1.5 py-0.5 text-xs">Magento\Catalog\Pricing\Render\FinalPriceBox::renderAmount()</code></p>
+                            <p class="text-sm text-gray-600">Triggers price info resolution for the configurable product.</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-4 pb-4 border-b border-dashed border-gray-300">
+                        <div class="w-8 h-8 bg-orange-500 text-white flex items-center justify-center font-bold flex-shrink-0">2</div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-charcoal mb-1">Get PriceInfo</h4>
+                            <p class="text-sm text-gray-600 mb-2"><code class="bg-charcoal text-yellow-500 px-1.5 py-0.5 text-xs">$product->getPriceInfo()->getPrice('final_price')</code></p>
+                            <p class="text-sm text-gray-600">Uses configurable-specific price collection from DI configuration.</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-4 pb-4 border-b border-dashed border-gray-300">
+                        <div class="w-8 h-8 bg-orange-500 text-white flex items-center justify-center font-bold flex-shrink-0">3</div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-charcoal mb-1">FinalPrice Calculation</h4>
+                            <p class="text-sm text-gray-600 mb-2"><code class="bg-charcoal text-yellow-500 px-1.5 py-0.5 text-xs">Magento\ConfigurableProduct\Pricing\Price\FinalPrice::getValue()</code></p>
+                            <p class="text-sm text-gray-600">Delegates to <code class="bg-charcoal text-yellow-500 px-1.5 py-0.5 text-xs">ConfigurablePriceResolver</code> for actual resolution.</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-4 pb-4 border-b border-dashed border-gray-300">
+                        <div class="w-8 h-8 bg-yellow-500 text-charcoal flex items-center justify-center font-bold flex-shrink-0">4</div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-charcoal mb-1">Resolve From Child Products</h4>
+                            <p class="text-sm text-gray-600 mb-2"><code class="bg-charcoal text-yellow-500 px-1.5 py-0.5 text-xs">ConfigurablePriceResolver::resolvePrice()</code></p>
+                            <p class="text-sm text-gray-600">Gets lowest price among all salable child products.</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-4 pb-4 border-b border-dashed border-gray-300">
+                        <div class="w-8 h-8 bg-orange-500 text-white flex items-center justify-center font-bold flex-shrink-0">5</div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-charcoal mb-1">Get Salable Children</h4>
+                            <p class="text-sm text-gray-600 mb-2"><code class="bg-charcoal text-yellow-500 px-1.5 py-0.5 text-xs">LowestPriceOptionsProvider::getProducts()</code></p>
+                            <p class="text-sm text-gray-600 mb-2">Queries indexed price data for children, filtered by stock status.</p>
+                            <p class="text-sm text-gray-600"><span class="inline-block bg-orange-500 text-white px-2 py-0.5 text-xs font-semibold mr-2">PLUGIN</span> <code class="bg-charcoal text-yellow-500 px-1.5 py-0.5 text-xs">SalableResolver</code> filters out-of-stock children.</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-4 pb-4 border-b border-dashed border-gray-300">
+                        <div class="w-8 h-8 bg-orange-500 text-white flex items-center justify-center font-bold flex-shrink-0">6</div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-charcoal mb-1">Apply Price Filters</h4>
+                            <p class="text-sm text-gray-600 mb-2"><code class="bg-charcoal text-yellow-500 px-1.5 py-0.5 text-xs">ConfigurableOptionsCompositeFilter::filter()</code></p>
+                            <p class="text-sm text-gray-600">Applies any configured filters (stock, visibility, etc.).</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-4">
+                        <div class="w-8 h-8 bg-orange-500 text-white flex items-center justify-center font-bold flex-shrink-0">7</div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-charcoal mb-1">Return Minimum Price</h4>
+                            <p class="text-sm text-gray-600 mb-2">Returns the lowest final_price among filtered children.</p>
+                            <p class="text-sm text-gray-600">Used for "From $X" display or tier pricing logic.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="code-block p-4 text-sm overflow-x-auto mb-6">
+<pre>// Price resolution chain (di.xml virtual types)
+
+// 1. FinalPrice uses ConfigurableFinalPriceResolver
+FinalPrice
+  -> ConfigurableFinalPriceResolver (virtual type)
+    -> FinalPriceResolver (inner resolver)
+      -> resolvePrice($product)
+
+// 2. LowestPriceOptionsProvider builds query
+SELECT entity_id, min_price, final_price
+FROM catalog_product_index_price
+WHERE entity_id IN ($childIds)
+  AND customer_group_id = $groupId
+  AND website_id = $websiteId
+ORDER BY final_price ASC
+LIMIT 1</pre>
+            </div>
+
+            <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4">
+                <h4 class="font-bold text-yellow-700 mb-2">Price Index Dependency</h4>
+                <p class="text-sm text-gray-700">Configurable product pricing relies heavily on the <code class="bg-gray-100 px-1">catalog_product_index_price</code> table. If the price indexer is out of date, displayed prices may be incorrect. The configurable indexer creates entries based on the minimum child price.</p>
+            </div>
+        </section>
+
+        <!-- Flow 3: Frontend Options JSON -->
+        <section class="bg-white mb-12 p-8 border-t-4 border-orange-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-charcoal mb-6">Flow 3: Frontend Options JSON Generation</h2>
+            <p class="text-gray-600 mb-6">The product detail page loads a JSON structure containing all option combinations and their prices for the swatch/dropdown JavaScript.</p>
+
+            <div class="bg-gray-50 p-6 mb-6">
+                <div class="space-y-4">
+                    <div class="flex items-start gap-4 pb-4 border-b border-dashed border-gray-300">
+                        <div class="w-8 h-8 bg-orange-500 text-white flex items-center justify-center font-bold flex-shrink-0">1</div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-charcoal mb-1">Block Renders Options</h4>
+                            <p class="text-sm text-gray-600 mb-2"><code class="bg-charcoal text-yellow-500 px-1.5 py-0.5 text-xs">Magento\ConfigurableProduct\Block\Product\View\Type\Configurable::getJsonConfig()</code></p>
+                            <p class="text-sm text-gray-600">Called from product view template.</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-4 pb-4 border-b border-dashed border-gray-300">
+                        <div class="w-8 h-8 bg-orange-500 text-white flex items-center justify-center font-bold flex-shrink-0">2</div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-charcoal mb-1">Get Allowed Products</h4>
+                            <p class="text-sm text-gray-600 mb-2"><code class="bg-charcoal text-yellow-500 px-1.5 py-0.5 text-xs">getAllowProducts()</code> returns salable child products.</p>
+                            <p class="text-sm text-gray-600">Filtered by stock status, visibility, and enabled status.</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-4 pb-4 border-b border-dashed border-gray-300">
+                        <div class="w-8 h-8 bg-orange-500 text-white flex items-center justify-center font-bold flex-shrink-0">3</div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-charcoal mb-1">Build Options Structure</h4>
+                            <p class="text-sm text-gray-600 mb-2"><code class="bg-charcoal text-yellow-500 px-1.5 py-0.5 text-xs">getOptionPrices()</code> builds price data per child.</p>
+                            <p class="text-sm text-gray-600"><code class="bg-charcoal text-yellow-500 px-1.5 py-0.5 text-xs">getOptions()</code> builds attribute/option structure.</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-4 pb-4 border-b border-dashed border-gray-300">
+                        <div class="w-8 h-8 bg-yellow-500 text-charcoal flex items-center justify-center font-bold flex-shrink-0">4</div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-charcoal mb-1">Include Child Media</h4>
+                            <p class="text-sm text-gray-600 mb-2">For each child, includes image gallery data if configured.</p>
+                            <p class="text-sm text-gray-600">Enables image swapping when customer selects options.</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-4">
+                        <div class="w-8 h-8 bg-orange-500 text-white flex items-center justify-center font-bold flex-shrink-0">5</div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-charcoal mb-1">Return JSON Config</h4>
+                            <p class="text-sm text-gray-600">Complete JSON structure for <code class="bg-charcoal text-yellow-500 px-1.5 py-0.5 text-xs">Magento_ConfigurableProduct/js/configurable</code></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="code-block p-4 text-sm overflow-x-auto">
+<pre>// Example JSON config structure
+{
+    "attributes": {
+        "93": {                     // Color attribute ID
+            "id": "93",
+            "code": "color",
+            "label": "Color",
+            "options": [
+                {
+                    "id": "49",
+                    "label": "Black",
+                    "products": ["456", "457", "458"]  // Child IDs with this color
+                },
+                {
+                    "id": "50",
+                    "label": "Blue",
+                    "products": ["459", "460", "461"]
+                }
+            ]
+        }
+    },
+    "optionPrices": {
+        "456": {                    // Child product ID
+            "finalPrice": {"amount": 29.99},
+            "basePrice": {"amount": 29.99},
+            "oldPrice": {"amount": 39.99}
+        }
+    },
+    "images": {
+        "456": [{"img": "/media/catalog/product/t-shirt-black.jpg"}]
+    }
+}</pre>
+            </div>
+        </section>
+
+        <!-- Flow 4: Product Save with Options -->
+        <section class="bg-white mb-12 p-8 border-t-4 border-yellow-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-charcoal mb-6">Flow 4: Save Configurable Product with Options</h2>
+            <p class="text-gray-600 mb-6">When saving a configurable product via repository or admin, the extension attributes for options and links are processed.</p>
+
+            <div class="bg-gray-50 p-6 mb-6">
+                <div class="space-y-4">
+                    <div class="flex items-start gap-4 pb-4 border-b border-dashed border-gray-300">
+                        <div class="w-8 h-8 bg-orange-500 text-white flex items-center justify-center font-bold flex-shrink-0">1</div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-charcoal mb-1">ProductRepository::save()</h4>
+                            <p class="text-sm text-gray-600 mb-2">Product save initiated with extension_attributes containing configurable data.</p>
+                            <p class="text-sm text-gray-600"><code class="bg-charcoal text-yellow-500 px-1.5 py-0.5 text-xs">configurable_product_options</code> and <code class="bg-charcoal text-yellow-500 px-1.5 py-0.5 text-xs">configurable_product_links</code></p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-4 pb-4 border-b border-dashed border-gray-300">
+                        <div class="w-8 h-8 bg-orange-500 text-white flex items-center justify-center font-bold flex-shrink-0">2</div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-charcoal mb-1">Plugin Intercepts Save</h4>
+                            <p class="text-sm text-gray-600 mb-2"><code class="bg-charcoal text-yellow-500 px-1.5 py-0.5 text-xs">Magento\ConfigurableProduct\Model\Plugin\ProductRepositorySave::afterSave()</code></p>
+                            <p class="text-sm text-gray-600"><span class="inline-block bg-orange-500 text-white px-2 py-0.5 text-xs font-semibold">PLUGIN</span> sortOrder: 10</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-4 pb-4 border-b border-dashed border-gray-300">
+                        <div class="w-8 h-8 bg-orange-500 text-white flex items-center justify-center font-bold flex-shrink-0">3</div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-charcoal mb-1">EntityManager Handler</h4>
+                            <p class="text-sm text-gray-600 mb-2"><code class="bg-charcoal text-yellow-500 px-1.5 py-0.5 text-xs">Magento\ConfigurableProduct\Model\Product\SaveHandler::execute()</code></p>
+                            <p class="text-sm text-gray-600">Processes configurable-specific data after main product save.</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-4 pb-4 border-b border-dashed border-gray-300">
+                        <div class="w-8 h-8 bg-yellow-500 text-charcoal flex items-center justify-center font-bold flex-shrink-0">4</div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-charcoal mb-1">Save Super Attributes</h4>
+                            <p class="text-sm text-gray-600 mb-2">Inserts/updates <code class="bg-charcoal text-yellow-500 px-1.5 py-0.5 text-xs">catalog_product_super_attribute</code> table.</p>
+                            <p class="text-sm text-gray-600">Saves store-specific labels to <code class="bg-charcoal text-yellow-500 px-1.5 py-0.5 text-xs">catalog_product_super_attribute_label</code>.</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-4 pb-4 border-b border-dashed border-gray-300">
+                        <div class="w-8 h-8 bg-yellow-500 text-charcoal flex items-center justify-center font-bold flex-shrink-0">5</div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-charcoal mb-1">Save Product Links</h4>
+                            <p class="text-sm text-gray-600 mb-2">Updates <code class="bg-charcoal text-yellow-500 px-1.5 py-0.5 text-xs">catalog_product_super_link</code> table.</p>
+                            <p class="text-sm text-gray-600">Validates child products have required attribute values.</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-4">
+                        <div class="w-8 h-8 bg-orange-500 text-white flex items-center justify-center font-bold flex-shrink-0">6</div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-charcoal mb-1">Trigger Reindex</h4>
+                            <p class="text-sm text-gray-600 mb-2">Price and stock indexers scheduled for update.</p>
+                            <p class="text-sm text-gray-600"><span class="inline-block bg-orange-500 text-white px-2 py-0.5 text-xs font-semibold mr-2">PLUGIN</span> <code class="bg-charcoal text-yellow-500 px-1.5 py-0.5 text-xs">UpdateStockChangedAuto</code> syncs stock status.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="code-block p-4 text-sm overflow-x-auto">
+<pre>// Saving configurable product with extension attributes
+$product->setTypeId('configurable');
+
+// Set configurable options (super attributes)
+$optionFactory = $objectManager->get(OptionInterfaceFactory::class);
+$option = $optionFactory->create();
+$option->setAttributeId(93);  // Color attribute
+$option->setLabel('Color');
+$option->setPosition(0);
+
+$extensionAttributes = $product->getExtensionAttributes();
+$extensionAttributes->setConfigurableProductOptions([$option]);
+$extensionAttributes->setConfigurableProductLinks([456, 457, 458]); // Child IDs
+
+$productRepository->save($product);</pre>
+            </div>
+        </section>
+
+        <!-- Flow 5: Order Placement -->
+        <section class="bg-white mb-12 p-8 border-t-4 border-orange-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-charcoal mb-6">Flow 5: Order Placement with Configurable Items</h2>
+            <p class="text-gray-600 mb-6">During checkout, configurable quote items are converted to order items while preserving the parent-child relationship.</p>
+
+            <div class="bg-gray-50 p-6 mb-6">
+                <div class="space-y-4">
+                    <div class="flex items-start gap-4 pb-4 border-b border-dashed border-gray-300">
+                        <div class="w-8 h-8 bg-orange-500 text-white flex items-center justify-center font-bold flex-shrink-0">1</div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-charcoal mb-1">Quote to Order Conversion</h4>
+                            <p class="text-sm text-gray-600 mb-2"><code class="bg-charcoal text-yellow-500 px-1.5 py-0.5 text-xs">Magento\Quote\Model\Quote\Item\ToOrderItem::convert()</code></p>
+                            <p class="text-sm text-gray-600">Processes each quote item including configurable parent and simple child.</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-4 pb-4 border-b border-dashed border-gray-300">
+                        <div class="w-8 h-8 bg-orange-500 text-white flex items-center justify-center font-bold flex-shrink-0">2</div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-charcoal mb-1">Product Option Processor</h4>
+                            <p class="text-sm text-gray-600 mb-2"><code class="bg-charcoal text-yellow-500 px-1.5 py-0.5 text-xs">Magento\ConfigurableProduct\Model\ProductOptionProcessor::convertToProductOption()</code></p>
+                            <p class="text-sm text-gray-600">Converts quote item options to order item options.</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-4 pb-4 border-b border-dashed border-gray-300">
+                        <div class="w-8 h-8 bg-orange-500 text-white flex items-center justify-center font-bold flex-shrink-0">3</div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-charcoal mb-1">Create Order Items</h4>
+                            <p class="text-sm text-gray-600 mb-2">Parent order item created with child's data for fulfillment.</p>
+                            <p class="text-sm text-gray-600">Selected options stored in <code class="bg-charcoal text-yellow-500 px-1.5 py-0.5 text-xs">product_options</code> JSON column.</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-4">
+                        <div class="w-8 h-8 bg-yellow-500 text-charcoal flex items-center justify-center font-bold flex-shrink-0">4</div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-charcoal mb-1">Stock Deduction</h4>
+                            <p class="text-sm text-gray-600 mb-2">Inventory deducted from the simple child product, not the configurable parent.</p>
+                            <p class="text-sm text-gray-600">Configurable products have no independent stock.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="code-block p-4 text-sm overflow-x-auto mb-6">
+<pre>// Order item product_options JSON structure
+{
+    "info_buyRequest": {
+        "product": 123,
+        "super_attribute": {"93": "49", "141": "166"},
+        "qty": 1
+    },
+    "attributes_info": [
+        {"label": "Color", "value": "Black"},
+        {"label": "Size", "value": "Small"}
+    ],
+    "simple_name": "T-Shirt Black Small",
+    "simple_sku": "TSHIRT-BLK-S"
+}</pre>
+            </div>
+
+            <div class="bg-orange-50 border-l-4 border-orange-500 p-4">
+                <h4 class="font-bold text-orange-700 mb-2">Fulfillment Uses Child SKU</h4>
+                <p class="text-sm text-gray-700">While the order displays the configurable product name, the <code class="bg-gray-100 px-1">simple_sku</code> in product_options is used for fulfillment. Warehouse management systems should reference this SKU, not the parent configurable SKU.</p>
+            </div>
+        </section>
+
+        <!-- Flow 6: Stock Status Aggregation -->
+        <section class="bg-white mb-12 p-8 border-t-4 border-yellow-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-charcoal mb-6">Flow 6: Stock Status Aggregation</h2>
+            <p class="text-gray-600 mb-6">A configurable product's stock status is derived from its children. If any child is in stock, the parent is considered salable.</p>
+
+            <div class="bg-gray-50 p-6 mb-6">
+                <div class="space-y-4">
+                    <div class="flex items-start gap-4 pb-4 border-b border-dashed border-gray-300">
+                        <div class="w-8 h-8 bg-orange-500 text-white flex items-center justify-center font-bold flex-shrink-0">1</div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-charcoal mb-1">Check Product Salability</h4>
+                            <p class="text-sm text-gray-600"><code class="bg-charcoal text-yellow-500 px-1.5 py-0.5 text-xs">Magento\ConfigurableProduct\Model\Product\Type\Configurable::isSalable()</code></p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-4 pb-4 border-b border-dashed border-gray-300">
+                        <div class="w-8 h-8 bg-orange-500 text-white flex items-center justify-center font-bold flex-shrink-0">2</div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-charcoal mb-1">Get Salable Children</h4>
+                            <p class="text-sm text-gray-600 mb-2"><code class="bg-charcoal text-yellow-500 px-1.5 py-0.5 text-xs">getSalableUsedProducts($product)</code></p>
+                            <p class="text-sm text-gray-600">Filters children by <code class="bg-charcoal text-yellow-500 px-1.5 py-0.5 text-xs">isSalable()</code> check.</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-4">
+                        <div class="w-8 h-8 bg-orange-500 text-white flex items-center justify-center font-bold flex-shrink-0">3</div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-charcoal mb-1">Return Result</h4>
+                            <p class="text-sm text-gray-600 mb-2">Returns <code class="bg-charcoal text-yellow-500 px-1.5 py-0.5 text-xs">true</code> if at least one child is salable.</p>
+                            <p class="text-sm text-gray-600">Returns <code class="bg-charcoal text-yellow-500 px-1.5 py-0.5 text-xs">false</code> if all children are out of stock.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4">
+                <h4 class="font-bold text-yellow-700 mb-2">Stock Indexer Updates</h4>
+                <p class="text-sm text-gray-700">When a child product's stock changes, the <code class="bg-gray-100 px-1">UpdateStockChangedAuto</code> plugin triggers reindex of the parent configurable product's stock status. This ensures the configurable shows as out-of-stock when all children are depleted.</p>
+            </div>
+        </section>
+
+        <!-- Navigation -->
+        <nav class="flex flex-col sm:flex-row gap-4 justify-between" aria-label="Page navigation">
+            <a href="architecture.html" class="inline-flex items-center gap-2 px-6 py-3 bg-charcoal text-white font-semibold hover:bg-charcoal-600 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-charcoal">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                Architecture
+            </a>
+            <a href="plugins-observers.html" class="inline-flex items-center gap-2 px-6 py-3 bg-orange-500 text-white font-semibold hover:bg-orange-600 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
+                Plugins & Observers
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </a>
+        </nav>
+
+    </div>
+
+    <footer class="bg-charcoal text-white py-8 mt-16">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                <p class="text-sm text-gray-400">Magento Documentation | Magento_ConfigurableProduct Execution Flows</p>
+                <div class="flex items-center gap-6">
+                    <a href="index.html" class="text-sm text-gray-400 hover:text-white transition">Module Overview</a>
+                    <a href="../../../index.html" class="text-sm text-gray-400 hover:text-white transition">Documentation Home</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

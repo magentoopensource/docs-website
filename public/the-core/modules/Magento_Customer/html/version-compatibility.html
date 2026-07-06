@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Version Compatibility Matrix | Magento_Customer Documentation</title>
+  <meta name="description" content="Comprehensive version compatibility information for the Magento_Customer module across Magento 2.x releases">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&display=swap');
+    [x-cloak] { display: none !important; }
+    .status-current { background-color: #fffdeb; color: #764311; } /* magento-gold-50, gold-900 */
+    .status-supported { background-color: #fef5ee; color: #792515; } /* magento-orange-50, orange-900 */
+    .status-security { background-color: #fdf9c8; color: #8f5111; } /* magento-gold-100, gold-800 */
+    .status-eol { background-color: #f1f1f1; color: #474747; } /* magento-charcoal-50, charcoal-400 */
+  </style>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'magento-orange': {
+              DEFAULT: '#f26423',
+              50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad', 300: '#f9ae78',
+              400: '#f58242', 500: '#f26423', 600: '#e34613', 700: '#bc3312',
+              800: '#962a16', 900: '#792515', 950: '#411009'
+            },
+            'magento-gold': {
+              DEFAULT: '#f1bc1b',
+              50: '#fffdeb', 100: '#fdf9c8', 200: '#fbf38c', 300: '#f8e651',
+              400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a', 700: '#b1670c',
+              800: '#8f5111', 900: '#764311', 950: '#442204'
+            },
+            'magento-charcoal': {
+              DEFAULT: '#2c2c2c',
+              50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6', 300: '#818181',
+              400: '#474747', 500: '#2c2c2c', 600: '#262626', 700: '#202020',
+              800: '#1c1c1c', 900: '#191919', 950: '#121212'
+            },
+          },
+          fontFamily: {
+            sans: ['Inter Tight', 'system-ui', 'sans-serif'],
+            mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', 'monospace'],
+          },
+        }
+      }
+    }
+  </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+    <style>
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+        /* Syntax highlighting colors (VS Code Dark+ theme) */
+        .hljs { background: transparent; }
+        .hljs-comment { color: #6a9955; }
+        .hljs-keyword { color: #569cd6; }
+        .hljs-function .hljs-title, .hljs-title.function_ { color: #dcdcaa; }
+        .hljs-variable, .hljs-variable.language_ { color: #9cdcfe; }
+        .hljs-string { color: #ce9178; }
+        .hljs-number { color: #b5cea8; }
+        .hljs-literal, .hljs-built_in { color: #569cd6; }
+        .hljs-params { color: #d4d4d4; }
+        .hljs-type, .hljs-title.class_ { color: #4ec9b0; }
+        .hljs-attr, .hljs-attribute { color: #9cdcfe; }
+        .hljs-tag, .hljs-name { color: #569cd6; }
+        .hljs-selector-tag, .hljs-selector-class { color: #d7ba7d; }
+        .hljs-meta { color: #569cd6; }
+        .hljs-operator { color: #d4d4d4; }
+    </style>
+</head>
+<body class="bg-[#FAFAFA] text-magento-charcoal" x-data="{ sortBy: 'version', sortOrder: 'desc' }">
+<!-- Skip to main content link for accessibility -->
+<a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-magento-orange-500 focus:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-magento-orange-600">
+    Skip to main content
+</a>
+
+<header class="bg-gradient-to-br from-magento-charcoal-500 via-magento-charcoal-600 to-magento-charcoal-700 border-b-8 border-magento-orange-500">
+        <!-- back-to-developer-docs -->
+        <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 pt-4"><a href="/developer/" aria-label="Back to Developer Docs" class="inline-flex items-center gap-1.5 text-sm font-medium text-white/70 hover:text-white transition-colors no-underline"><span aria-hidden="true">←</span> Developer Docs</a></div>
+    <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
+        <nav aria-label="Breadcrumb" class="mb-8">
+            <ol class="flex flex-wrap items-center gap-2 text-sm text-gray-400">
+                <li><a href="../../../index.html" class="hover:text-magento-orange-500 underline underline-offset-4 transition-colors">Home</a></li>
+                <li aria-hidden="true"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></li>
+                <li><a href="index.html" class="hover:text-magento-orange-500 underline underline-offset-4 transition-colors">Magento_Customer</a></li>
+                <li aria-hidden="true"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></li>
+                <li><span class="text-gray-300 font-medium" aria-current="page">Version Compatibility</span></li>
+            </ol>
+        </nav>
+        <div>
+            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white mb-4">Version Compatibility Matrix</h1>
+            <p class="text-base sm:text-lg text-gray-300 max-w-2xl mb-6">Comprehensive version compatibility information for the Magento_Customer module across Magento 2.x releases.</p>
+            <div class="flex flex-wrap gap-3 text-sm">
+                <span class="inline-flex items-center gap-1.5 bg-magento-orange-500/20 text-magento-gold-400 px-3 py-1.5 border border-magento-orange-500/40">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    2.4.8 Current
+                </span>
+                <span class="inline-flex items-center gap-1.5 bg-white/10 text-gray-300 px-3 py-1.5 border border-white/20">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    Updated 2025-12-04
+                </span>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main id="main-content" class="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+
+    <div class="bg-white mb-12 p-8 border-t-4 border-magento-gold-500 shadow-sm">
+        <h2 class="text-2xl font-bold text-magento-charcoal mb-6">Quick Stats</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="border-l-4 border-magento-gold-500 pl-4">
+                <div class="text-3xl font-bold text-magento-gold-600">2.4.8</div>
+                <div class="text-sm text-magento-charcoal/70">Current Release</div>
+            </div>
+            <div class="border-l-4 border-magento-orange-500 pl-4">
+                <div class="text-3xl font-bold text-magento-orange-500">2</div>
+                <div class="text-sm text-magento-charcoal/70">Supported Versions</div>
+            </div>
+            <div class="border-l-4 border-magento-charcoal-300 pl-4">
+                <div class="text-3xl font-bold text-magento-charcoal-400">1</div>
+                <div class="text-sm text-magento-charcoal/70">Security Only</div>
+            </div>
+            <div class="border-l-4 border-magento-charcoal-200 pl-4">
+                <div class="text-3xl font-bold text-magento-charcoal-300">7</div>
+                <div class="text-sm text-magento-charcoal/70">End of Life</div>
+            </div>
+        </div>
+    </div>
+
+        <section id="support-matrix" class="mb-12">
+          <h2 class="text-3xl font-bold text-gray-900 mb-6">Version Support Matrix</h2>
+
+          <div class="bg-magento-gold-50 border-l-4 border-magento-gold-500 p-4 mb-6">
+            <h3 class="font-semibold text-magento-gold-900 mb-2">Current Support Status (as of 2025-12-04)</h3>
+            <div class="flex gap-4 text-sm">
+              <div class="flex items-center"><span class="w-3 h-3 status-current  mr-2"></span><span class="text-magento-gold-900">Current</span></div>
+              <div class="flex items-center"><span class="w-3 h-3 status-supported  mr-2"></span><span class="text-magento-gold-900">Supported</span></div>
+              <div class="flex items-center"><span class="w-3 h-3 status-security  mr-2"></span><span class="text-magento-gold-900">Security Only</span></div>
+              <div class="flex items-center"><span class="w-3 h-3 status-eol  mr-2"></span><span class="text-magento-gold-900">End of Life</span></div>
+            </div>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200 border text-sm">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-4 py-3 text-left font-semibold text-gray-700">Magento Version</th>
+                  <th class="px-4 py-3 text-left font-semibold text-gray-700">Customer Module</th>
+                  <th class="px-4 py-3 text-left font-semibold text-gray-700">PHP Support</th>
+                  <th class="px-4 py-3 text-center font-semibold text-gray-700">Status</th>
+                  <th class="px-4 py-3 text-left font-semibold text-gray-700">End of Support</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-200">
+                <tr class="bg-white hover:bg-gray-50">
+                  <td class="px-4 py-3 font-semibold text-gray-900">2.4.8</td>
+                  <td class="px-4 py-3 font-mono text-xs text-gray-700">103.0.9</td>
+                  <td class="px-4 py-3 text-gray-700">8.3, 8.4</td>
+                  <td class="px-4 py-3 text-center"><span class="inline-flex px-3 py-1  text-xs font-medium status-current">Current</span></td>
+                  <td class="px-4 py-3 text-gray-700">TBD</td>
+                </tr>
+                <tr class="bg-white hover:bg-gray-50">
+                  <td class="px-4 py-3 font-semibold text-gray-900">2.4.7</td>
+                  <td class="px-4 py-3 font-mono text-xs text-gray-700">103.0.7</td>
+                  <td class="px-4 py-3 text-gray-700">8.2, 8.3</td>
+                  <td class="px-4 py-3 text-center"><span class="inline-flex px-3 py-1  text-xs font-medium status-supported">Supported</span></td>
+                  <td class="px-4 py-3 text-gray-700">2026-04-09</td>
+                </tr>
+                <tr class="bg-white hover:bg-gray-50">
+                  <td class="px-4 py-3 font-semibold text-gray-900">2.4.6-p8</td>
+                  <td class="px-4 py-3 font-mono text-xs text-gray-700">103.0.6</td>
+                  <td class="px-4 py-3 text-gray-700">8.1, 8.2</td>
+                  <td class="px-4 py-3 text-center"><span class="inline-flex px-3 py-1  text-xs font-medium status-security">Security Only</span></td>
+                  <td class="px-4 py-3 text-gray-700">2025-03-14</td>
+                </tr>
+                <tr class="bg-white hover:bg-gray-50">
+                  <td class="px-4 py-3 font-semibold text-gray-900">2.4.5-p9</td>
+                  <td class="px-4 py-3 font-mono text-xs text-gray-700">103.0.5</td>
+                  <td class="px-4 py-3 text-gray-700">8.1</td>
+                  <td class="px-4 py-3 text-center"><span class="inline-flex px-3 py-1  text-xs font-medium status-eol">EOL</span></td>
+                  <td class="px-4 py-3 text-magento-orange-700 font-semibold">2024-08-13</td>
+                </tr>
+                <tr class="bg-gray-50 hover:bg-gray-100">
+                  <td class="px-4 py-3 font-semibold text-gray-900">2.4.4-p10</td>
+                  <td class="px-4 py-3 font-mono text-xs text-gray-700">103.0.4</td>
+                  <td class="px-4 py-3 text-gray-700">7.4, 8.1</td>
+                  <td class="px-4 py-3 text-center"><span class="inline-flex px-3 py-1  text-xs font-medium status-eol">EOL</span></td>
+                  <td class="px-4 py-3 text-magento-orange-700">2024-04-24</td>
+                </tr>
+                <tr class="bg-gray-50 hover:bg-gray-100">
+                  <td class="px-4 py-3 font-semibold text-gray-900">2.4.0 - 2.4.3</td>
+                  <td class="px-4 py-3 font-mono text-xs text-gray-700">103.0.x</td>
+                  <td class="px-4 py-3 text-gray-700">7.3, 7.4</td>
+                  <td class="px-4 py-3 text-center"><span class="inline-flex px-3 py-1  text-xs font-medium status-eol">EOL</span></td>
+                  <td class="px-4 py-3 text-magento-orange-700">2022-11-28</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="mt-6 bg-magento-gold-50 border-l-4 border-magento-gold-500 p-4">
+            <h4 class="font-semibold text-magento-gold-900 mb-2">Recommendation</h4>
+            <p class="text-magento-gold-800 text-sm">Upgrade to <strong>Magento 2.4.7+</strong> for continued security updates. Magento 2.3.x is completely end-of-life.</p>
+          </div>
+        </section>
+
+        <section id="features" class="mb-12">
+          <h2 class="text-3xl font-bold text-gray-900 mb-6">Feature Availability by Version</h2>
+
+          <h3 class="text-xl font-semibold text-gray-800 mb-4">Customer Account Features</h3>
+          <div class="overflow-x-auto mb-8">
+            <table class="min-w-full divide-y divide-gray-200 border text-sm">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-4 py-3 text-left font-semibold text-gray-700">Feature</th>
+                  <th class="px-4 py-3 text-center font-semibold text-gray-700">2.3.x</th>
+                  <th class="px-4 py-3 text-center font-semibold text-gray-700">2.4.0-2.4.2</th>
+                  <th class="px-4 py-3 text-center font-semibold text-gray-700">2.4.3-2.4.4</th>
+                  <th class="px-4 py-3 text-center font-semibold text-gray-700">2.4.5-2.4.6</th>
+                  <th class="px-4 py-3 text-center font-semibold text-gray-700">2.4.7+</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-200">
+                <tr>
+                  <td class="px-4 py-3 font-medium text-gray-900">Basic CRUD</td>
+                  <td class="px-4 py-3 text-center text-magento-gold-600">✅</td>
+                  <td class="px-4 py-3 text-center text-magento-gold-600">✅</td>
+                  <td class="px-4 py-3 text-center text-magento-gold-600">✅</td>
+                  <td class="px-4 py-3 text-center text-magento-gold-600">✅</td>
+                  <td class="px-4 py-3 text-center text-magento-gold-600">✅</td>
+                </tr>
+                <tr>
+                  <td class="px-4 py-3 font-medium text-gray-900">EAV Attributes</td>
+                  <td class="px-4 py-3 text-center text-magento-gold-600">✅</td>
+                  <td class="px-4 py-3 text-center text-magento-gold-600">✅</td>
+                  <td class="px-4 py-3 text-center text-magento-gold-600">✅</td>
+                  <td class="px-4 py-3 text-center text-magento-gold-600">✅</td>
+                  <td class="px-4 py-3 text-center text-magento-gold-600">✅</td>
+                </tr>
+                <tr>
+                  <td class="px-4 py-3 font-medium text-gray-900">GraphQL API</td>
+                  <td class="px-4 py-3 text-center text-magento-orange-600">❌</td>
+                  <td class="px-4 py-3 text-center text-magento-gold-600">⚠️ Basic</td>
+                  <td class="px-4 py-3 text-center text-magento-gold-600">✅</td>
+                  <td class="px-4 py-3 text-center text-magento-gold-600">✅ Enhanced</td>
+                  <td class="px-4 py-3 text-center text-magento-gold-600">✅ Enhanced</td>
+                </tr>
+                <tr>
+                  <td class="px-4 py-3 font-medium text-gray-900">Async API</td>
+                  <td class="px-4 py-3 text-center text-magento-orange-600">❌</td>
+                  <td class="px-4 py-3 text-center text-magento-orange-600">❌</td>
+                  <td class="px-4 py-3 text-center text-magento-gold-600">✅</td>
+                  <td class="px-4 py-3 text-center text-magento-gold-600">✅</td>
+                  <td class="px-4 py-3 text-center text-magento-gold-600">✅</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3 class="text-xl font-semibold text-gray-800 mb-4">Authentication & Security</h3>
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200 border text-sm">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-4 py-3 text-left font-semibold text-gray-700">Feature</th>
+                  <th class="px-4 py-3 text-center font-semibold text-gray-700">2.3.x</th>
+                  <th class="px-4 py-3 text-center font-semibold text-gray-700">2.4.0-2.4.4</th>
+                  <th class="px-4 py-3 text-center font-semibold text-gray-700">2.4.5+</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-200">
+                <tr>
+                  <td class="px-4 py-3 font-medium text-gray-900">Password Hashing</td>
+                  <td class="px-4 py-3 text-center text-gray-700">SHA256/MD5</td>
+                  <td class="px-4 py-3 text-center text-magento-gold-700 font-semibold">Argon2ID13</td>
+                  <td class="px-4 py-3 text-center text-magento-gold-700 font-semibold">Argon2ID13</td>
+                </tr>
+                <tr>
+                  <td class="px-4 py-3 font-medium text-gray-900">Email Validation</td>
+                  <td class="px-4 py-3 text-center text-magento-orange-600">Weak</td>
+                  <td class="px-4 py-3 text-center text-magento-orange-600">Weak</td>
+                  <td class="px-4 py-3 text-center text-magento-gold-600">RFC 5321</td>
+                </tr>
+                <tr>
+                  <td class="px-4 py-3 font-medium text-gray-900">CAPTCHA Support</td>
+                  <td class="px-4 py-3 text-center text-magento-gold-600">✅</td>
+                  <td class="px-4 py-3 text-center text-magento-gold-600">✅ reCAPTCHA v3</td>
+                  <td class="px-4 py-3 text-center text-magento-gold-600">✅ reCAPTCHA v3</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="php-compatibility" class="mb-12">
+          <h2 class="text-3xl font-bold text-gray-900 mb-6">PHP Version Compatibility</h2>
+
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200 border text-sm">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-4 py-3 text-left font-semibold text-gray-700">Magento Version</th>
+                  <th class="px-4 py-3 text-center font-semibold text-gray-700">PHP 7.3</th>
+                  <th class="px-4 py-3 text-center font-semibold text-gray-700">PHP 7.4</th>
+                  <th class="px-4 py-3 text-center font-semibold text-gray-700">PHP 8.1</th>
+                  <th class="px-4 py-3 text-center font-semibold text-gray-700">PHP 8.2</th>
+                  <th class="px-4 py-3 text-center font-semibold text-gray-700">PHP 8.3</th>
+                  <th class="px-4 py-3 text-center font-semibold text-gray-700">PHP 8.4</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-200">
+                <tr>
+                  <td class="px-4 py-3 font-semibold text-gray-900">2.4.8</td>
+                  <td class="px-4 py-3 text-center text-magento-orange-600">❌</td>
+                  <td class="px-4 py-3 text-center text-magento-orange-600">❌</td>
+                  <td class="px-4 py-3 text-center text-magento-orange-600">❌</td>
+                  <td class="px-4 py-3 text-center text-magento-orange-600">❌</td>
+                  <td class="px-4 py-3 text-center text-magento-gold-600">✅</td>
+                  <td class="px-4 py-3 text-center text-magento-gold-600">✅</td>
+                </tr>
+                <tr>
+                  <td class="px-4 py-3 font-semibold text-gray-900">2.4.7</td>
+                  <td class="px-4 py-3 text-center text-magento-orange-600">❌</td>
+                  <td class="px-4 py-3 text-center text-magento-orange-600">❌</td>
+                  <td class="px-4 py-3 text-center text-magento-orange-600">❌</td>
+                  <td class="px-4 py-3 text-center text-magento-gold-600">✅</td>
+                  <td class="px-4 py-3 text-center text-magento-gold-600">✅</td>
+                  <td class="px-4 py-3 text-center text-magento-gold-600">⚠️</td>
+                </tr>
+                <tr>
+                  <td class="px-4 py-3 font-semibold text-gray-900">2.4.6</td>
+                  <td class="px-4 py-3 text-center text-magento-orange-600">❌</td>
+                  <td class="px-4 py-3 text-center text-magento-orange-600">❌</td>
+                  <td class="px-4 py-3 text-center text-magento-gold-600">✅</td>
+                  <td class="px-4 py-3 text-center text-magento-gold-600">✅</td>
+                  <td class="px-4 py-3 text-center text-magento-gold-600">⚠️</td>
+                  <td class="px-4 py-3 text-center text-magento-orange-600">❌</td>
+                </tr>
+                <tr>
+                  <td class="px-4 py-3 font-semibold text-gray-900">2.4.4</td>
+                  <td class="px-4 py-3 text-center text-magento-orange-600">❌</td>
+                  <td class="px-4 py-3 text-center text-magento-gold-600">✅</td>
+                  <td class="px-4 py-3 text-center text-magento-gold-600">✅</td>
+                  <td class="px-4 py-3 text-center text-magento-orange-600">❌</td>
+                  <td class="px-4 py-3 text-center text-magento-orange-600">❌</td>
+                  <td class="px-4 py-3 text-center text-magento-orange-600">❌</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="mt-4 flex gap-4 text-sm">
+            <div class="flex items-center"><span class="text-magento-gold-600 mr-2">✅</span><span class="text-gray-700">Fully supported</span></div>
+            <div class="flex items-center"><span class="text-magento-gold-600 mr-2">⚠️</span><span class="text-gray-700">Experimental/requires patches</span></div>
+            <div class="flex items-center"><span class="text-magento-orange-600 mr-2">❌</span><span class="text-gray-700">Not supported</span></div>
+          </div>
+
+          <div class="mt-6 bg-magento-gold-50 border-l-4 border-magento-gold-500 p-4">
+            <h4 class="font-semibold text-magento-gold-900 mb-2">Recommendation</h4>
+            <p class="text-magento-gold-900 text-sm">For maximum compatibility with Customer module extensions, use <strong>PHP 8.2</strong> with Magento 2.4.7+.</p>
+          </div>
+        </section>
+
+        <section id="breaking-changes" class="mb-12">
+          <h2 class="text-3xl font-bold text-gray-900 mb-6">Breaking Changes by Version</h2>
+
+          <div class="space-y-6">
+            <div class="border border-gray-200  overflow-hidden">
+              <div class="bg-gradient-to-r from-magento-orange-500 to-magento-orange-700 px-6 py-4 text-white">
+                <h3 class="text-xl font-bold">Magento 2.4.7 (Released: 2024-06-11)</h3>
+              </div>
+              <div class="p-6">
+                <h4 class="font-semibold text-gray-900 mb-3">1. Customer Session Structure Changes</h4>
+                <div class="grid md:grid-cols-2 gap-4 mb-6">
+                  <div class="bg-magento-orange-50 border-l-4 border-magento-orange-500 p-4">
+                    <p class="text-sm font-semibold text-magento-orange-900 mb-2">Before (2.4.6):</p>
+                    <pre class="bg-gray-900 text-gray-100 p-3 text-xs"><code class="language-php">$customerData = $this->customerSession
+    ->getCustomer()
+    ->getData();</code></pre>
+                  </div>
+                  <div class="bg-magento-gold-50 border-l-4 border-magento-gold-500 p-4">
+                    <p class="text-sm font-semibold text-magento-gold-900 mb-2">After (2.4.7):</p>
+                    <pre class="bg-gray-900 text-gray-100 p-3 text-xs"><code class="language-php">$customer = $this->customerRepository
+    ->getById($this->customerSession->getCustomerId());
+$customerData = $customer->getData();</code></pre>
+                  </div>
+                </div>
+                <div class="bg-magento-gold-50 border-l-4 border-magento-gold-500 p-3">
+                  <p class="text-magento-gold-900 text-sm"><strong>Impact:</strong> Code directly accessing session customer data may get incomplete data. Use repository instead.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="border border-gray-200  overflow-hidden">
+              <div class="bg-gradient-to-r from-magento-orange-500 to-magento-orange-700 px-6 py-4 text-white">
+                <h3 class="text-xl font-bold">Magento 2.4.5 (Released: 2022-08-09)</h3>
+              </div>
+              <div class="p-6">
+                <h4 class="font-semibold text-gray-900 mb-3">Strong Email Validation (CRITICAL)</h4>
+                <div class="grid md:grid-cols-2 gap-4 mb-6">
+                  <div class="bg-magento-orange-50 border-l-4 border-magento-orange-500 p-4">
+                    <p class="text-sm font-semibold text-magento-orange-900 mb-2">Before (2.4.4):</p>
+                    <pre class="bg-gray-900 text-gray-100 p-3 text-xs"><code class="language-php">// Accepted invalid emails
+$validator->isValid('user@domain'); // true (no TLD)
+$validator->isValid('user..name@domain.com'); // true</code></pre>
+                  </div>
+                  <div class="bg-magento-gold-50 border-l-4 border-magento-gold-500 p-4">
+                    <p class="text-sm font-semibold text-magento-gold-900 mb-2">After (2.4.5):</p>
+                    <pre class="bg-gray-900 text-gray-100 p-3 text-xs"><code class="language-php">// RFC 5321 compliant
+$validator->isValid('user@domain'); // false
+$validator->isValid('user..name@domain.com'); // false</code></pre>
+                  </div>
+                </div>
+                <div class="bg-magento-orange-50 border-l-4 border-magento-orange-500 p-3 mb-4">
+                  <p class="text-magento-orange-900 text-sm"><strong>CRITICAL Impact:</strong> Customer registration may fail for previously accepted emails. Review existing customer emails before upgrading!</p>
+                </div>
+                <div class="bg-magento-gold-50 border-l-4 border-magento-gold-500 p-3">
+                  <h5 class="font-semibold text-magento-gold-900 mb-2 text-sm">Migration Script:</h5>
+                  <pre class="bg-gray-900 text-gray-100 p-3 text-xs"><code class="language-bash"># Find invalid emails before upgrading
+bin/magento customer:email:validate
+cat var/log/invalid_emails.log
+
+# Contact customers to update OR use data patch</code></pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="upgrade-paths" class="mb-12">
+          <h2 class="text-3xl font-bold text-gray-900 mb-6">Recommended Upgrade Paths</h2>
+
+          <div class="grid md:grid-cols-2 gap-6 mb-6">
+            <div class="border border-gray-200  overflow-hidden">
+              <div class="bg-gradient-to-r from-magento-charcoal-500 to-magento-charcoal-700 px-6 py-4 text-white">
+                <h3 class="text-lg font-bold">Magento 2.3.x → 2.4.7</h3>
+              </div>
+              <div class="p-6">
+                <p class="text-gray-700 mb-4 text-sm"><strong>Strategy:</strong> Intermediate upgrade to 2.4.4 first</p>
+                <ol class="list-decimal list-inside space-y-3 text-sm text-gray-700">
+                  <li><strong>Prerequisites:</strong> PHP 7.4, MySQL 5.7, Elasticsearch 7.17</li>
+                  <li><strong>Upgrade to 2.4.4:</strong>
+                    <pre class="mt-2 bg-gray-900 text-gray-100 p-3 text-xs"><code class="language-bash">composer require magento/product-community-edition:2.4.4
+bin/magento setup:upgrade</code></pre>
+                  </li>
+                  <li><strong>Test thoroughly</strong> on 2.4.4</li>
+                  <li><strong>Upgrade PHP to 8.2</strong></li>
+                  <li><strong>Upgrade to 2.4.7:</strong>
+                    <pre class="mt-2 bg-gray-900 text-gray-100 p-3 text-xs"><code class="language-bash">composer require magento/product-community-edition:2.4.7
+bin/magento setup:upgrade</code></pre>
+                  </li>
+                </ol>
+                <div class="mt-4 text-xs text-gray-600">
+                  <strong>Time Estimate:</strong> 4-8 hours (small store), 1-3 days (large store)
+                </div>
+              </div>
+            </div>
+
+            <div class="border border-gray-200  overflow-hidden">
+              <div class="bg-gradient-to-r from-magento-gold-500 to-magento-gold-700 px-6 py-4 text-magento-charcoal">
+                <h3 class="text-lg font-bold">Magento 2.4.4 → 2.4.7</h3>
+              </div>
+              <div class="p-6">
+                <p class="text-gray-700 mb-4 text-sm"><strong>Strategy:</strong> Direct upgrade path</p>
+                <ol class="list-decimal list-inside space-y-3 text-sm text-gray-700">
+                  <li><strong>Upgrade PHP to 8.2</strong></li>
+                  <li><strong>Update Composer:</strong>
+                    <pre class="mt-2 bg-gray-900 text-gray-100 p-3 text-xs"><code class="language-bash">composer require magento/product-community-edition:2.4.7 --no-update
+composer update</code></pre>
+                  </li>
+                  <li><strong>Run Setup:</strong>
+                    <pre class="mt-2 bg-gray-900 text-gray-100 p-3 text-xs"><code class="language-bash">bin/magento maintenance:enable
+bin/magento setup:upgrade
+bin/magento setup:di:compile
+bin/magento indexer:reindex customer_grid
+bin/magento cache:flush
+bin/magento maintenance:disable</code></pre>
+                  </li>
+                </ol>
+                <div class="mt-4 text-xs text-gray-600">
+                  <strong>Time Estimate:</strong> 2-4 hours (small store), 8-16 hours (large store)
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-magento-gold-50 border-l-4 border-magento-gold-500 p-6">
+            <h3 class="font-semibold text-magento-gold-900 mb-3">Testing Checklist for Customer Module Upgrades</h3>
+            <div class="grid md:grid-cols-2 gap-4 text-sm">
+              <div>
+                <p class="font-semibold text-magento-gold-900 mb-2">Pre-Upgrade:</p>
+                <ul class="space-y-1 text-magento-gold-800">
+                  <li>☐ Export customer data backup</li>
+                  <li>☐ Document current customer count</li>
+                  <li>☐ Test customer login/registration</li>
+                  <li>☐ Test password reset flow</li>
+                </ul>
+              </div>
+              <div>
+                <p class="font-semibold text-magento-gold-900 mb-2">Post-Upgrade:</p>
+                <ul class="space-y-1 text-magento-gold-800">
+                  <li>☐ Verify customer count unchanged</li>
+                  <li>☐ Test customer login (sample 10-20)</li>
+                  <li>☐ Test REST API customer endpoints</li>
+                  <li>☐ Verify customer session handling</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <footer class="bg-white  shadow-lg p-6 mt-8 text-center text-sm text-gray-600">
+        <p><strong>Document Version:</strong> 1.0.0 | <strong>Last Updated:</strong> 2025-12-04</p>
+        <p class="mt-2"><strong>Magento Versions Covered:</strong> 2.3.0 - 2.4.8 | <strong>Next Review:</strong> 2026-01-01 (or upon 2.4.9 release)</p>
+        <p class="mt-4">
+          <a href="performance-optimization.html" class="text-magento-orange-800 hover:underline transition-colors">Next: See PERFORMANCE_OPTIMIZATION for practical performance tuning strategies →</a>
+        </p>
+      </footer>
+    </main>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('pre code').forEach((block) => {
+        const button = document.createElement('button');
+        button.className = 'absolute top-2 right-2 px-3 py-1 text-xs bg-gray-700 hover:bg-gray-600 text-white transition-colors';
+        button.textContent = 'Copy';
+        button.addEventListener('click', () => {
+          navigator.clipboard.writeText(block.textContent);
+          button.textContent = 'Copied!';
+          setTimeout(() => { button.textContent = 'Copy'; }, 2000);
+        });
+        block.parentElement.style.position = 'relative';
+        block.parentElement.appendChild(button);
+      });
+    });
+  </script>
+</body>
+</html>

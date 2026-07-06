@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Known Issues - Magento_ConfigurableProduct | THE MAGENTO CORE</title>
+    <meta name="description" content="Common problems, gotchas, and workarounds for Magento configurable product handling: price indexing, stock issues, cart merging, and performance">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        orange: {
+                            DEFAULT: '#F26423',
+                            50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad', 300: '#f9ae78',
+                            400: '#f58242', 500: '#f26423', 600: '#e34613', 700: '#bc3312',
+                            800: '#962a16', 900: '#792515', 950: '#411009'
+                        },
+                        yellow: {
+                            DEFAULT: '#F1BC1B',
+                            50: '#fffbeb', 100: '#fdf9c8', 200: '#fbf38c', 300: '#f8e651',
+                            400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a', 700: '#b1670c',
+                            800: '#8f5111', 900: '#764311', 950: '#442204'
+                        },
+                        charcoal: {
+                            DEFAULT: '#2c2c2c',
+                            50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6', 300: '#818181',
+                            400: '#474747', 500: '#2c2c2c', 600: '#262626', 700: '#202020',
+                            800: '#1c1c1c', 900: '#191919', 950: '#121212'
+                        },
+                        brown: '#442204',
+                        'off-white': '#FAFAFA',
+                    },
+                    fontFamily: {
+                        sans: ['Inter Tight', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter Tight', system-ui, sans-serif; }
+        .code-block { background: #1c1c1c; color: #f1f1f1; }
+    </style>
+</head>
+<body class="bg-off-white text-charcoal">
+
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-charcoal focus:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
+        Skip to content
+    </a>
+
+    <header class="bg-gradient-to-br from-charcoal-500 via-charcoal-600 to-charcoal-700 border-b-8 border-orange-500">
+        <!-- back-to-developer-docs -->
+        <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 pt-4"><a href="/developer/" aria-label="Back to Developer Docs" class="inline-flex items-center gap-1.5 text-sm font-medium text-white/70 hover:text-white transition-colors no-underline"><span aria-hidden="true">←</span> Developer Docs</a></div>
+        <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+            <nav aria-label="Breadcrumb" class="mb-6">
+                <ol class="flex flex-wrap items-center gap-2 text-sm text-gray-400">
+                    <li><a href="../../../index.html" class="hover:text-orange-500 underline underline-offset-4">Home</a></li>
+                    <li aria-hidden="true"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></li>
+                    <li><a href="index.html" class="hover:text-orange-500 underline underline-offset-4">Magento_ConfigurableProduct</a></li>
+                    <li aria-hidden="true"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></li>
+                    <li class="text-white font-medium">Known Issues</li>
+                </ol>
+            </nav>
+            <div id="main-content">
+                <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white mb-4">Known Issues & <span class="text-orange-500">Gotchas</span></h1>
+                <p class="text-base sm:text-lg text-gray-300 max-w-3xl mb-6">Common problems and workarounds for configurable products</p>
+                <div class="flex flex-wrap gap-3 text-sm">
+                    <span class="inline-flex items-center gap-1.5 bg-orange-500/20 text-orange-300 px-3 py-1.5 font-medium border border-orange-500/30">3 Critical</span>
+                    <span class="inline-flex items-center gap-1.5 bg-yellow-500/20 text-yellow-300 px-3 py-1.5 font-medium border border-yellow-500/30">4 Major</span>
+                    <span class="inline-flex items-center gap-1.5 bg-charcoal-400/40 text-charcoal-100 px-3 py-1.5 font-medium border border-charcoal-300/30">2 Minor</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <nav class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-6">
+            <ul class="flex flex-wrap gap-6 py-4 text-sm font-medium">
+                <li><a href="index.html" class="text-charcoal hover:text-orange-500 border-b-2 border-transparent hover:border-orange-500 pb-1">Overview</a></li>
+                <li><a href="architecture.html" class="text-charcoal hover:text-orange-500 border-b-2 border-transparent hover:border-orange-500 pb-1">Architecture</a></li>
+                <li><a href="execution-flows.html" class="text-charcoal hover:text-orange-500 border-b-2 border-transparent hover:border-orange-500 pb-1">Execution Flows</a></li>
+                <li><a href="plugins-observers.html" class="text-charcoal hover:text-orange-500 border-b-2 border-transparent hover:border-orange-500 pb-1">Plugins & Observers</a></li>
+                <li><a href="integrations.html" class="text-charcoal hover:text-orange-500 border-b-2 border-transparent hover:border-orange-500 pb-1">Integrations</a></li>
+                <li><a href="known-issues.html" class="text-orange-500 border-b-2 border-orange-500 pb-1">Known Issues</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="max-w-6xl mx-auto px-6 py-8 md:py-12">
+
+        <!-- Summary Stats -->
+        <section class="bg-white mb-12 p-8 border-t-4 border-orange-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-charcoal mb-6">Issue Summary</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="bg-charcoal text-white p-4 text-center">
+                    <div class="text-3xl font-bold text-orange-500">3</div>
+                    <div class="text-sm text-gray-400">Critical</div>
+                </div>
+                <div class="bg-charcoal text-white p-4 text-center">
+                    <div class="text-3xl font-bold text-yellow-500">4</div>
+                    <div class="text-sm text-gray-400">Major</div>
+                </div>
+                <div class="bg-charcoal text-white p-4 text-center">
+                    <div class="text-3xl font-bold text-gray-400">2</div>
+                    <div class="text-sm text-gray-400">Minor</div>
+                </div>
+                <div class="bg-charcoal text-white p-4 text-center">
+                    <div class="text-3xl font-bold text-orange-500">9</div>
+                    <div class="text-sm text-gray-400">Total Issues</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Critical Issues -->
+        <section class="bg-white mb-12 p-8 border-t-4 border-orange-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-charcoal mb-6">Critical Issues</h2>
+
+            <div class="border border-gray-200 mb-8">
+                <div class="bg-orange-500/10 border-l-4 border-orange-500 px-4 py-3 flex flex-wrap justify-between items-start gap-3">
+                    <h3 class="font-bold text-charcoal">Price Index Not Updated After Child Price Change</h3>
+                    <span class="inline-block bg-orange-500 text-white px-3 py-1 text-xs font-bold uppercase">Critical</span>
+                </div>
+                <div class="p-4 border-t border-gray-200">
+                    <div class="mb-4">
+                        <h4 class="text-sm font-bold text-orange-500 uppercase mb-2">Affected Code</h4>
+                        <code class="bg-charcoal text-yellow-500 px-2 py-1 text-sm">Magento\ConfigurableProduct\Model\ResourceModel\Product\Indexer\Price\Configurable</code>
+                    </div>
+                    <div class="mb-4">
+                        <h4 class="text-sm font-bold text-orange-500 uppercase mb-2">Description</h4>
+                        <p class="text-gray-600">When a simple child product's price is updated directly (via API or import), the parent configurable product's price index may not be automatically updated. This causes the frontend to display stale prices.</p>
+                    </div>
+                    <div class="bg-orange-50 border-l-4 border-orange-500 p-4 mb-4">
+                        <h4 class="font-bold text-orange-700 mb-2">Workaround</h4>
+                        <p class="text-sm text-gray-700 mb-2">1. Run price reindex after child updates:</p>
+                        <div class="code-block p-3 text-sm overflow-x-auto mb-2">
+<pre>bin/magento indexer:reindex catalog_product_price</pre>
+                        </div>
+                        <p class="text-sm text-gray-700 mb-2">2. Or programmatically trigger reindex for parent:</p>
+                        <div class="code-block p-3 text-sm overflow-x-auto">
+<pre>$parentIds = $configurable->getParentIdsByChild($childId);
+$indexer->reindexList($parentIds);</pre>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-bold text-orange-500 uppercase mb-2">Tags</h4>
+                        <span class="inline-block bg-gray-100 text-gray-700 px-2 py-1 text-xs mr-1 mb-1">price</span>
+                        <span class="inline-block bg-gray-100 text-gray-700 px-2 py-1 text-xs mr-1 mb-1">indexer</span>
+                        <span class="inline-block bg-gray-100 text-gray-700 px-2 py-1 text-xs mr-1 mb-1">import</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="border border-gray-200 mb-8">
+                <div class="bg-orange-500/10 border-l-4 border-orange-500 px-4 py-3 flex flex-wrap justify-between items-start gap-3">
+                    <h3 class="font-bold text-charcoal">Out-of-Stock Children Still Selectable in Frontend</h3>
+                    <span class="inline-block bg-orange-500 text-white px-3 py-1 text-xs font-bold uppercase">Critical</span>
+                </div>
+                <div class="p-4 border-t border-gray-200">
+                    <div class="mb-4">
+                        <h4 class="text-sm font-bold text-orange-500 uppercase mb-2">Affected Code</h4>
+                        <code class="bg-charcoal text-yellow-500 px-2 py-1 text-sm">Magento\ConfigurableProduct\Block\Product\View\Type\Configurable::getAllowProducts()</code>
+                    </div>
+                    <div class="mb-4">
+                        <h4 class="text-sm font-bold text-orange-500 uppercase mb-2">Description</h4>
+                        <p class="text-gray-600">In certain scenarios (caching, stock index lag), out-of-stock child products may appear as selectable options on the product page. When selected and added to cart, the customer receives an error.</p>
+                    </div>
+                    <div class="bg-orange-50 border-l-4 border-orange-500 p-4 mb-4">
+                        <h4 class="font-bold text-orange-700 mb-2">Workaround</h4>
+                        <p class="text-sm text-gray-700 mb-2">1. Ensure stock indexer runs after stock changes:</p>
+                        <div class="code-block p-3 text-sm overflow-x-auto mb-2">
+<pre>bin/magento indexer:reindex cataloginventory_stock</pre>
+                        </div>
+                        <p class="text-sm text-gray-700 mb-2">2. Configure "Display Out of Stock Products" = No in admin</p>
+                        <p class="text-sm text-gray-700 mb-2">3. Clear FPC after stock updates:</p>
+                        <div class="code-block p-3 text-sm overflow-x-auto">
+<pre>bin/magento cache:clean full_page</pre>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-bold text-orange-500 uppercase mb-2">Tags</h4>
+                        <span class="inline-block bg-gray-100 text-gray-700 px-2 py-1 text-xs mr-1 mb-1">stock</span>
+                        <span class="inline-block bg-gray-100 text-gray-700 px-2 py-1 text-xs mr-1 mb-1">cache</span>
+                        <span class="inline-block bg-gray-100 text-gray-700 px-2 py-1 text-xs mr-1 mb-1">frontend</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="border border-gray-200">
+                <div class="bg-orange-500/10 border-l-4 border-orange-500 px-4 py-3 flex flex-wrap justify-between items-start gap-3">
+                    <h3 class="font-bold text-charcoal">Super Link Orphans After Child Deletion</h3>
+                    <span class="inline-block bg-orange-500 text-white px-3 py-1 text-xs font-bold uppercase">Critical</span>
+                </div>
+                <div class="p-4 border-t border-gray-200">
+                    <div class="mb-4">
+                        <h4 class="text-sm font-bold text-orange-500 uppercase mb-2">Affected Code</h4>
+                        <code class="bg-charcoal text-yellow-500 px-2 py-1 text-sm">catalog_product_super_link</code> table
+                    </div>
+                    <div class="mb-4">
+                        <h4 class="text-sm font-bold text-orange-500 uppercase mb-2">Description</h4>
+                        <p class="text-gray-600">When deleting simple products that are children of configurables, the super_link records may not be properly cleaned up in all scenarios, especially during bulk operations or API deletions. This can cause errors when loading the configurable product.</p>
+                    </div>
+                    <div class="bg-orange-50 border-l-4 border-orange-500 p-4 mb-4">
+                        <h4 class="font-bold text-orange-700 mb-2">Workaround</h4>
+                        <p class="text-sm text-gray-700 mb-2">Clean orphan records manually:</p>
+                        <div class="code-block p-3 text-sm overflow-x-auto">
+<pre>DELETE sl FROM catalog_product_super_link sl
+LEFT JOIN catalog_product_entity e ON sl.product_id = e.entity_id
+WHERE e.entity_id IS NULL;</pre>
+                        </div>
+                        <p class="text-sm text-gray-700 mt-2">Or use Magento's data:repair CLI tool in newer versions.</p>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-bold text-orange-500 uppercase mb-2">Tags</h4>
+                        <span class="inline-block bg-gray-100 text-gray-700 px-2 py-1 text-xs mr-1 mb-1">data-integrity</span>
+                        <span class="inline-block bg-gray-100 text-gray-700 px-2 py-1 text-xs mr-1 mb-1">delete</span>
+                        <span class="inline-block bg-gray-100 text-gray-700 px-2 py-1 text-xs mr-1 mb-1">orphan</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Major Issues -->
+        <section class="bg-white mb-12 p-8 border-t-4 border-yellow-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-charcoal mb-6">Major Issues</h2>
+
+            <div class="border border-gray-200 mb-8">
+                <div class="bg-yellow-500/10 border-l-4 border-yellow-500 px-4 py-3 flex flex-wrap justify-between items-start gap-3">
+                    <h3 class="font-bold text-charcoal">Slow Product Page Load with Many Children</h3>
+                    <span class="inline-block bg-yellow-500 text-charcoal px-3 py-1 text-xs font-bold uppercase">Major</span>
+                </div>
+                <div class="p-4 border-t border-gray-200">
+                    <div class="mb-4">
+                        <h4 class="text-sm font-bold text-yellow-600 uppercase mb-2">Description</h4>
+                        <p class="text-gray-600">Configurable products with 100+ children can significantly slow down PDP load times due to the large JSON config generated for the swatch/dropdown JavaScript.</p>
+                    </div>
+                    <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 mb-4">
+                        <h4 class="font-bold text-yellow-700 mb-2">Workaround</h4>
+                        <ul class="text-sm text-gray-700 list-disc list-inside space-y-1">
+                            <li>Use AJAX-based option loading for large configurables</li>
+                            <li>Implement option preselection to reduce initial payload</li>
+                            <li>Consider splitting very large configurables into multiple products</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-bold text-yellow-600 uppercase mb-2">Tags</h4>
+                        <span class="inline-block bg-gray-100 text-gray-700 px-2 py-1 text-xs mr-1 mb-1">performance</span>
+                        <span class="inline-block bg-gray-100 text-gray-700 px-2 py-1 text-xs mr-1 mb-1">frontend</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="border border-gray-200 mb-8">
+                <div class="bg-yellow-500/10 border-l-4 border-yellow-500 px-4 py-3 flex flex-wrap justify-between items-start gap-3">
+                    <h3 class="font-bold text-charcoal">Tier Pricing Not Displayed Correctly</h3>
+                    <span class="inline-block bg-yellow-500 text-charcoal px-3 py-1 text-xs font-bold uppercase">Major</span>
+                </div>
+                <div class="p-4 border-t border-gray-200">
+                    <div class="mb-4">
+                        <h4 class="text-sm font-bold text-yellow-600 uppercase mb-2">Description</h4>
+                        <p class="text-gray-600">When child products have different tier prices, the configurable product page may not correctly reflect the tier pricing until a specific option is selected. The "As low as" price calculation doesn't account for tier pricing properly.</p>
+                    </div>
+                    <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 mb-4">
+                        <h4 class="font-bold text-yellow-700 mb-2">Workaround</h4>
+                        <ul class="text-sm text-gray-700 list-disc list-inside space-y-1">
+                            <li>Apply consistent tier pricing across all children</li>
+                            <li>Use JavaScript to update tier price display on option selection</li>
+                            <li>Consider catalog price rules instead of tier pricing</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-bold text-yellow-600 uppercase mb-2">Tags</h4>
+                        <span class="inline-block bg-gray-100 text-gray-700 px-2 py-1 text-xs mr-1 mb-1">pricing</span>
+                        <span class="inline-block bg-gray-100 text-gray-700 px-2 py-1 text-xs mr-1 mb-1">tier-price</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="border border-gray-200 mb-8">
+                <div class="bg-yellow-500/10 border-l-4 border-yellow-500 px-4 py-3 flex flex-wrap justify-between items-start gap-3">
+                    <h3 class="font-bold text-charcoal">Swatch Images Not Updating in Gallery</h3>
+                    <span class="inline-block bg-yellow-500 text-charcoal px-3 py-1 text-xs font-bold uppercase">Major</span>
+                </div>
+                <div class="p-4 border-t border-gray-200">
+                    <div class="mb-4">
+                        <h4 class="text-sm font-bold text-yellow-600 uppercase mb-2">Description</h4>
+                        <p class="text-gray-600">When selecting a swatch option, the product gallery should update to show the child product's images. This feature can break due to JavaScript errors, missing image configuration, or caching issues.</p>
+                    </div>
+                    <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 mb-4">
+                        <h4 class="font-bold text-yellow-700 mb-2">Workaround</h4>
+                        <ul class="text-sm text-gray-700 list-disc list-inside space-y-1">
+                            <li>Ensure child products have images assigned</li>
+                            <li>Clear cache and regenerate static content</li>
+                            <li>Check browser console for JS errors</li>
+                            <li>Verify gallery update setting in admin: <code class="bg-gray-100 px-1">Stores > Configuration > Catalog > Product Image Placeholders</code></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-bold text-yellow-600 uppercase mb-2">Tags</h4>
+                        <span class="inline-block bg-gray-100 text-gray-700 px-2 py-1 text-xs mr-1 mb-1">swatch</span>
+                        <span class="inline-block bg-gray-100 text-gray-700 px-2 py-1 text-xs mr-1 mb-1">gallery</span>
+                        <span class="inline-block bg-gray-100 text-gray-700 px-2 py-1 text-xs mr-1 mb-1">javascript</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="border border-gray-200">
+                <div class="bg-yellow-500/10 border-l-4 border-yellow-500 px-4 py-3 flex flex-wrap justify-between items-start gap-3">
+                    <h3 class="font-bold text-charcoal">Cart Item Merging Issues</h3>
+                    <span class="inline-block bg-yellow-500 text-charcoal px-3 py-1 text-xs font-bold uppercase">Major</span>
+                </div>
+                <div class="p-4 border-t border-gray-200">
+                    <div class="mb-4">
+                        <h4 class="text-sm font-bold text-yellow-600 uppercase mb-2">Description</h4>
+                        <p class="text-gray-600">When adding the same configurable product with identical options to cart multiple times, items don't always merge correctly. Custom options, qty updates, or plugin interference can cause duplicate line items.</p>
+                    </div>
+                    <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 mb-4">
+                        <h4 class="font-bold text-yellow-700 mb-2">Workaround</h4>
+                        <ul class="text-sm text-gray-700 list-disc list-inside space-y-1">
+                            <li>Check for plugins interfering with <code class="bg-gray-100 px-1">representProduct()</code></li>
+                            <li>Ensure custom options are compared correctly</li>
+                            <li>Verify quote item comparison logic in custom modules</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-bold text-yellow-600 uppercase mb-2">Tags</h4>
+                        <span class="inline-block bg-gray-100 text-gray-700 px-2 py-1 text-xs mr-1 mb-1">cart</span>
+                        <span class="inline-block bg-gray-100 text-gray-700 px-2 py-1 text-xs mr-1 mb-1">quote</span>
+                        <span class="inline-block bg-gray-100 text-gray-700 px-2 py-1 text-xs mr-1 mb-1">merge</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Minor Issues -->
+        <section class="bg-white mb-12 p-8 border-t-4 border-orange-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-charcoal mb-6">Minor Issues</h2>
+
+            <div class="border border-gray-200 mb-8">
+                <div class="bg-gray-100 border-l-4 border-gray-400 px-4 py-3 flex flex-wrap justify-between items-start gap-3">
+                    <h3 class="font-bold text-charcoal">Super Attribute Label Store Scope</h3>
+                    <span class="inline-block bg-gray-500 text-white px-3 py-1 text-xs font-bold uppercase">Minor</span>
+                </div>
+                <div class="p-4 border-t border-gray-200">
+                    <div class="mb-4">
+                        <h4 class="text-sm font-bold text-gray-600 uppercase mb-2">Description</h4>
+                        <p class="text-gray-600">The admin interface for editing super attribute labels per store view can be confusing. Changes may not save correctly if "Use Default" checkboxes are not properly managed.</p>
+                    </div>
+                    <div class="bg-gray-50 border-l-4 border-gray-400 p-4">
+                        <h4 class="font-bold text-gray-700 mb-2">Workaround</h4>
+                        <p class="text-sm text-gray-700">Always uncheck "Use Default" before editing store-specific labels. Verify changes by checking the <code class="bg-gray-100 px-1">catalog_product_super_attribute_label</code> table.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="border border-gray-200">
+                <div class="bg-gray-100 border-l-4 border-gray-400 px-4 py-3 flex flex-wrap justify-between items-start gap-3">
+                    <h3 class="font-bold text-charcoal">Import Creates Duplicate Super Attributes</h3>
+                    <span class="inline-block bg-gray-500 text-white px-3 py-1 text-xs font-bold uppercase">Minor</span>
+                </div>
+                <div class="p-4 border-t border-gray-200">
+                    <div class="mb-4">
+                        <h4 class="text-sm font-bold text-gray-600 uppercase mb-2">Description</h4>
+                        <p class="text-gray-600">Re-importing configurable products can sometimes create duplicate entries in <code class="bg-gray-100 px-1">catalog_product_super_attribute</code> if the import file format is inconsistent.</p>
+                    </div>
+                    <div class="bg-gray-50 border-l-4 border-gray-400 p-4">
+                        <h4 class="font-bold text-gray-700 mb-2">Workaround</h4>
+                        <p class="text-sm text-gray-700 mb-2">Use "Replace" behavior instead of "Add/Update" when reimporting configurables. Clean duplicates with:</p>
+                        <div class="code-block p-3 text-sm overflow-x-auto">
+<pre>DELETE t1 FROM catalog_product_super_attribute t1
+INNER JOIN catalog_product_super_attribute t2
+WHERE t1.product_super_attribute_id > t2.product_super_attribute_id
+  AND t1.product_id = t2.product_id
+  AND t1.attribute_id = t2.attribute_id;</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Best Practices -->
+        <section class="bg-white mb-12 p-8 border-t-4 border-yellow-500 shadow-sm">
+            <h2 class="text-2xl font-bold text-charcoal mb-6">Best Practices</h2>
+            <p class="text-gray-600 mb-4">Recommended commands and queries for maintaining configurable product health:</p>
+            <div class="code-block p-4 text-sm overflow-x-auto">
+<pre># Always reindex after bulk operations
+bin/magento indexer:reindex catalog_product_price cataloginventory_stock
+
+# Clear relevant caches
+bin/magento cache:clean full_page block_html
+
+# Validate data integrity periodically
+SELECT COUNT(*) FROM catalog_product_super_link sl
+LEFT JOIN catalog_product_entity e ON sl.product_id = e.entity_id
+WHERE e.entity_id IS NULL;
+
+# Monitor performance with
+bin/magento dev:query-log:enable</pre>
+            </div>
+        </section>
+
+        <!-- Navigation -->
+        <nav class="flex flex-col sm:flex-row gap-4 justify-between" aria-label="Page navigation">
+            <a href="integrations.html" class="inline-flex items-center gap-2 px-6 py-3 bg-charcoal text-white font-semibold hover:bg-charcoal-600 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-charcoal">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                Integrations
+            </a>
+            <a href="index.html" class="inline-flex items-center gap-2 px-6 py-3 bg-orange-500 text-white font-semibold hover:bg-orange-600 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
+                Module Overview
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </a>
+        </nav>
+
+    </div>
+
+    <footer class="bg-charcoal text-white py-8 mt-16">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                <p class="text-sm text-gray-400">Magento Documentation | Magento_ConfigurableProduct Known Issues</p>
+                <div class="flex items-center gap-6">
+                    <a href="index.html" class="text-sm text-gray-400 hover:text-white transition">Module Overview</a>
+                    <a href="../../../index.html" class="text-sm text-gray-400 hover:text-white transition">Documentation Home</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>
