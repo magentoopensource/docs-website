@@ -575,9 +575,10 @@ def build_page(md_path):
             font-size: 0.85em;
         }}
         .prose :not(pre) > code {{
-            background-color: #2C2C2C;
-            color: #F1BC1B;
-            padding: 0.2em 0.45em;
+            background-color: #f1f1f1;
+            color: #202020;
+            padding: 0.15em 0.4em;
+            border: 1px solid #d9d9d9;
             border-radius: 0;
         }}
 
