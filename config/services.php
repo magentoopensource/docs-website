@@ -35,6 +35,18 @@ return [
         'owner' => env('GITHUB_REPO_OWNER', 'magentoopensource'),
         'repo' => env('GITHUB_REPO_NAME', 'docs'),
         'webhook_secret' => env('GITHUB_WEBHOOK_SECRET'),
+
+        // Contributor widget aggregation. Credits both the people who write the
+        // docs content and those who build/style the site, merged per GitHub
+        // login. Mirrors the developer-docs generator's write_contributors_json().
+        // Each source is one of:
+        //   ['type' => 'contributors', 'repo' => 'owner/name']             full contribution totals
+        //   ['type' => 'commits', 'repo' => 'owner/name', 'path' => 'sub']  1 point per commit touching path
+        // Leave empty to fall back to the single owner/repo contributor list.
+        'contributor_sources' => [
+            ['type' => 'contributors', 'repo' => 'magentoopensource/docs'],
+            ['type' => 'contributors', 'repo' => 'magentoopensource/docs-website'],
+        ],
     ],
 
     'devdocs' => [
