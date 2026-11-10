@@ -479,7 +479,7 @@
             mail.addEventListener('click', function () {
                 var input = checkedInput();
                 if (!input) { return; }
-                var parts = ['carl', 'qbdigital.co.uk'];
+                var parts = ['documentation-committee', 'magentoassociation.org'];
                 var subject = input.getAttribute('data-gh-cbox-mail-subject') || '';
                 var body = input.getAttribute('data-gh-cbox-mail-body') || '';
                 mail.setAttribute(
