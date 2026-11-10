@@ -37,7 +37,7 @@
     // its own, so there is nothing for <meta name="edit-url"> to point at. Derived from the
     // one repo constant above rather than hard-coding a second repository name.
     var REPO_ROOT_URL = 'https://github.com/' + IDEA_REPO;
-    var IDEA_MAIL_PARTS = ['carl', 'qbdigital.co.uk']; // interim inbox until the Association address is confirmed (D1)
+    var IDEA_MAIL_PARTS = ['documentation-committee', 'magentoassociation.org']; // Association docs committee group (D1)
     var IDEA_TITLE_SUFFIX = ' — Magento 2 Developer Documentation';
     var IDEA_TYPES = {
         content: { template: 'idea-content.yml', titlePrefix: '[Docs topic] ', mailLabel: 'Topic' },
