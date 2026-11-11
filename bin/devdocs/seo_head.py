@@ -17,6 +17,7 @@ Decisions this encodes (SEO delivery plan, section 3):
 import datetime
 import html
 import json
+import os
 import re
 import subprocess
 
@@ -173,3 +174,22 @@ def seo_block(title, description, canonical_path, headline, crumbs, date_modifie
 def strip_block(page_html):
     """Remove a previously applied seo block, so applying twice gives the same file."""
     return re.sub(r'\n?[ \t]*' + re.escape(START) + r'.*?' + re.escape(END), '', page_html, flags=re.S)
+
+
+TAILWIND_MANIFEST = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'tailwind', 'manifest.json')
+
+
+def tailwind_link(group):
+    """<link> to the compiled stylesheet for a Tailwind group (bin/devdocs/tailwind/build.cjs writes the manifest).
+    Placed last in <head>, where the CDN script used to inject its styles, so the cascade order is unchanged."""
+    with open(TAILWIND_MANIFEST, encoding='utf-8') as f:
+        url = json.load(f)[group]
+    return '<link rel="stylesheet" href="%s" data-devdocs-css>' % url
+
+
+def swap_tailwind_cdn(page_html, group):
+    """Replace the runtime Tailwind CDN script and its inline config with the compiled stylesheet link. Idempotent."""
+    page_html = re.sub(r'[ \t]*<script src="https://cdn\.tailwindcss\.com"></script>\n?', '', page_html)
+    page_html = re.sub(r'[ \t]*<script>\s*tailwind\.config\s*=.*?</script>\n?', '', page_html, count=1, flags=re.S)
+    page_html = re.sub(r'[ \t]*<link rel="stylesheet" href="[^"]*" data-devdocs-css>\n?', '', page_html)
+    return page_html.replace('</head>', '    ' + tailwind_link(group) + '\n</head>', 1)

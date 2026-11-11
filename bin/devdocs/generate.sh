@@ -10,6 +10,11 @@
 # onto <output-html-dir> WITHOUT deleting files it did not generate — so bespoke
 # landing/cert pages, patch-*.js and other assets are preserved across rebuilds.
 # Idempotent: re-running produces the same result.
+#
+# Styling: pages link a compiled Tailwind stylesheet (public/<section>/assets/tw-*.css, named in
+# bin/devdocs/tailwind/manifest.json), not the Tailwind CDN. The stylesheet is committed and is NOT rebuilt by
+# the deploy. After adding a page or changing classes run: node bin/devdocs/tailwind/build.cjs
+# (see the header of that file; `--check` reports stale CSS).
 
 set -euo pipefail
 

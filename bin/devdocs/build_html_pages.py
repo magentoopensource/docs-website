@@ -570,39 +570,7 @@ def build_page(md_path):
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/ini.min.js"></script>
 
-    <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-
-    <script>
-        tailwind.config = {{
-            theme: {{
-                extend: {{
-                    colors: {{
-                        charcoal: {{
-                            DEFAULT: '#2c2c2c', 50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6',
-                            300: '#6B6B6B', 400: '#474747', 500: '#2c2c2c', 600: '#262626',
-                            700: '#202020', 800: '#1c1c1c', 900: '#191919', 950: '#121212'
-                        }},
-                        orange: {{
-                            DEFAULT: '#D4551A', 50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad',
-                            300: '#f9ae78', 400: '#f58242', 500: '#f26423', 600: '#e34613',
-                            700: '#bc3312', 800: '#962a16', 900: '#792515', 950: '#411009'
-                        }},
-                        yellow: {{
-                            DEFAULT: '#B8860B', 50: '#fffdeb', 100: '#fdf9c8', 200: '#fbf38c',
-                            300: '#f8e651', 400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a',
-                            700: '#b1670c', 800: '#8f5111', 900: '#764311', 950: '#442204'
-                        }},
-                        'off-white': '#FAFAFA',
-                    }},
-                    fontFamily: {{
-                        sans: ['Inter Tight', 'system-ui', '-apple-system', 'sans-serif'],
-                        mono: ['Courier New', 'Courier', 'monospace'],
-                    }},
-                }}
-            }}
-        }}
-    </script>
 
     <style>
         /* ── Force light mode ── */
@@ -782,6 +750,7 @@ def build_page(md_path):
 
 {COPY_TOC_CSS}
     </style>
+    {seo_head.tailwind_link('dev-generated')}
 </head>
 
 <body class="font-sans bg-off-white text-charcoal">

@@ -16,6 +16,7 @@ A page's dateModified is kept from the existing block; pass --refresh to take th
 
 import os
 import posixpath
+import json
 import re
 import sys
 
@@ -26,6 +27,21 @@ import static_seo_data as data  # noqa: E402
 
 ROOT = os.path.normpath(os.path.join(HERE, '..', '..'))
 PUBLIC = os.path.join(ROOT, 'public')
+
+
+def tailwind_groups():
+    """page path (relative to the repo) -> Tailwind group, from bin/devdocs/tailwind/groups.json (not the generated pages)."""
+    with open(os.path.join(HERE, 'tailwind', 'groups.json'), encoding='utf-8') as f:
+        groups = json.load(f)
+    return {p: name for name, g in groups.items() if name != 'dev-generated' for p in g['pages']}
+
+
+TW = tailwind_groups()
+
+
+def swap_css(page, path):
+    group = TW.get(os.path.relpath(path, ROOT).replace(os.sep, '/'))
+    return sh.swap_tailwind_cdn(page, group) if group else page
 
 
 def read(path):
@@ -83,7 +99,7 @@ def apply_dev(name, refresh):
     page = fix_dev_links(page)
     if name == 'index.html':
         page = index_h1(page)
-    return path, page
+    return path, swap_css(page, path)
 
 
 def index_h1(page):
@@ -194,7 +210,7 @@ def apply_core(path, refresh):
         page = replace_typed_dates(page, date)
     if owner:
         page = add_dev_link(page, owner, module, topic, h1)
-    return path, page
+    return path, swap_css(page, path)
 
 
 def add_dev_link(page, owner, module, topic, h1):
@@ -217,6 +233,11 @@ def main():
         jobs.append(apply_dev(name, refresh))
     for path in core_pages():
         jobs.append(apply_core(path, refresh))
+    handled = {j[0] for j in jobs}
+    for rel in sorted(TW):  # pages that only need the stylesheet swap (e.g. docs-landing.html)
+        path = os.path.join(ROOT, rel)
+        if path not in handled:
+            jobs.append((path, swap_css(read(path), path)))
     changed = 0
     for path, page in jobs:
         if read(path) != page:
