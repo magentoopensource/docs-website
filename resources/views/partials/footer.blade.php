@@ -15,6 +15,7 @@
             'title' => 'Resources',
             'links' => [
                 'Getting Started' => '/merchant/getting-started',
+                'Contributors' => '/contributors',
                 'Magento StackExchange' => 'https://magento.stackexchange.com/',
             ],
         ],

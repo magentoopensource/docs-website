@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\ContentDates;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Log;
@@ -145,6 +146,16 @@ class WebhookController extends Controller
             Artisan::call('view:clear');
             Artisan::call('config:clear');
 
+            // Rebuild the "last updated" dates after cache:clear emptied them. A failure only means the pages
+            // show no date until the next request rebuilds the map; it never fails the sync.
+            try {
+                app(ContentDates::class)->refresh();
+            } catch (\Throwable $datesException) {
+                Log::warning('Content dates refresh failed — pages omit the date until rebuilt', [
+                    'exception' => $datesException->getMessage(),
+                ]);
+            }
+
             Log::info('Docs sync completed successfully', ['commit' => $currentCommit]);
 
             return response()->json([
@@ -153,7 +164,6 @@ class WebhookController extends Controller
                 'commit' => $currentCommit,
                 'developer_docs' => $devDocsOutcome,
             ]);
-
         } catch (\Throwable $e) {
             Log::error('Docs sync failed: ' . $e->getMessage());
 

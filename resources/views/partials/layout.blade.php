@@ -31,6 +31,10 @@
     <meta name="twitter:description" content="{{ $metaDescription }}">
     <meta name="twitter:image" content="{{ url('/img/merchant-docs-og.png') }}">
 
+    {{-- Structured data: sitewide Organization and WebSite, then whatever the page pushes (breadcrumbs, article). --}}
+    @include('partials.jsonld', ['data' => \App\Services\StructuredData::site()])
+    @stack('jsonld')
+
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="apple-touch-icon" sizes="180x180" href="/img/favicon/apple-touch-icon.png">

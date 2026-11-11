@@ -26,7 +26,6 @@ bash bin/checkout_latest_docs.sh  # Sync documentation content only
 ```bash
 php artisan cache:clear     # Clear application cache
 php artisan route:list      # List all application routes
-php artisan sitemap:generate # Generate sitemap (custom command)
 ```
 
 ### Testing

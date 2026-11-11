@@ -1,5 +1,14 @@
 @extends('partials.layout')
 
+@push('jsonld')
+@include('partials.jsonld', ['data' => \App\Services\StructuredData::graph(
+    \App\Services\StructuredData::breadcrumb([
+        ['Home', rtrim(url('/'), '/') . '/'],
+        [$category['name'], url($canonical)],
+    ])
+)])
+@endpush
+
 @section('content')
     {{-- Category Header --}}
     <x-category-header

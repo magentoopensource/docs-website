@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Documentation;
+use App\Services\ContentDates;
 use App\Services\NavigationParser;
+use App\Services\Redirects;
 use Illuminate\Support\Str;
 use Symfony\Component\DomCrawler\Crawler;
 
@@ -43,7 +45,8 @@ class DocsController extends Controller
 
     public function __construct(
         protected Documentation $docs,
-        protected NavigationParser $navigationParser
+        protected NavigationParser $navigationParser,
+        protected ContentDates $contentDates
     ) {
     }
 
@@ -129,6 +132,12 @@ class DocsController extends Controller
     public function show(string $category, string $page)
     {
         $sectionPage = $category . "/" . $page;
+
+        // Retired URLs (config/redirects.php) answer 301 to their new home before anything can 404.
+        if ($to = Redirects::resolve("/merchant/" . $sectionPage)) {
+            return redirect($to, 301);
+        }
+
         $docPage = $this->docs->get($sectionPage);
 
         $content = $docPage ? $docPage["content"] : null;
@@ -174,6 +183,12 @@ class DocsController extends Controller
             $canonical = "merchant/" . $sectionPage;
         }
 
+        // Last updated: git commit date of the source file, shown by the H1 and published as dateModified.
+        $lastUpdated = $this->contentDates->forPath($sectionPage);
+        if ($lastUpdated) {
+            $content = ContentDates::insertAfterHeading((string) $content, $lastUpdated);
+        }
+
         // Get category articles for left sidebar
         $categoryArticles = $this->navigationParser->getCategoryArticles($category);
 
@@ -203,6 +218,7 @@ class DocsController extends Controller
             "categoryArticles" => $categoryArticles,
             "tableOfContents" => $tableOfContents,
             "isStyledHtml" => $isStyledHtml,
+            "lastUpdated" => $lastUpdated,
         ]);
     }
 
@@ -211,6 +227,10 @@ class DocsController extends Controller
      */
     public function showCategory(string $category)
     {
+        if ($to = Redirects::resolve("/merchant/" . $category)) {
+            return redirect($to, 301);
+        }
+
         $categoryData = $this->navigationParser->getCategory($category);
 
         if (!$categoryData) {
