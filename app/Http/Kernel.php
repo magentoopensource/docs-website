@@ -39,6 +39,13 @@ class Kernel extends HttpKernel
             \App\Http\Middleware\ContentSecurityPolicy::class,
         ],
 
+        // Anonymous, cacheable docs pages: no session, no CSRF cookie, no encrypted cookies,
+        // so the response carries no Set-Cookie and can be cached publicly.
+        'docs' => [
+            \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            \App\Http\Middleware\ContentSecurityPolicy::class,
+        ],
+
         'api' => [
             'throttle:60,1',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,

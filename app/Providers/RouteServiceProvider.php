@@ -37,13 +37,13 @@ class RouteServiceProvider extends ServiceProvider
     /**
      * Define the "web" routes for the application.
      *
-     * These routes all receive session state, CSRF protection, etc.
+     * No middleware group is applied here: routes/web.php assigns "docs" (no session, cacheable)
+     * to the GET docs routes and "web" (session, CSRF) to the webhook POST.
      *
      * @return void
      */
     protected function mapWebRoutes()
     {
-        Route::middleware('web')
-            ->group(base_path('routes/web.php'));
+        Route::group([], base_path('routes/web.php'));
     }
 }
