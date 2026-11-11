@@ -48,7 +48,7 @@
         {{-- Desktop Navigation and Search --}}
         <div class="hidden lg:flex items-center gap-8">
             {{-- Main Navigation --}}
-            <nav class="flex flex-row gap-x-6 lg:gap-x-7 xl:gap-x-8 items-center justify-center py-1.5">
+            <nav class="flex flex-row gap-x-6 lg:gap-x-7 xl:gap-x-8 items-center justify-center py-1.5" aria-label="Documentation sections">
                 <a href="/merchant/getting-started" class="font-inter-tight text-sm font-medium no-underline leading-none text-charcoal hover:text-orange transition-colors whitespace-nowrap">Getting Started</a>
                 <a href="/merchant/start-selling" class="font-inter-tight text-sm font-medium no-underline leading-none text-charcoal hover:text-orange transition-colors whitespace-nowrap">Start Selling</a>
                 <a href="/merchant/manage-catalog" class="font-inter-tight text-sm font-medium no-underline leading-none text-charcoal hover:text-orange transition-colors whitespace-nowrap">Manage Catalog</a>
@@ -86,7 +86,7 @@
     <div class="flex flex-col h-full">
         {{-- Mobile Menu Header --}}
         <div class="flex items-center justify-between px-6 py-5 border-b border-gray-200 bg-gradient-to-br from-off-white to-white">
-            <h2 class="text-xl font-bold text-charcoal m-0 font-inter-tight">Menu</h2>
+            <div class="text-xl font-bold text-charcoal m-0 font-inter-tight">Menu</div>
             <button
                 data-mobile-menu-close
                 class="flex items-center justify-center w-10 h-10 text-charcoal hover:text-orange hover:bg-off-white rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange focus:ring-offset-2"
@@ -118,6 +118,10 @@
             </a>
             <a href="/merchant/grow-store" class="group relative px-6 py-4 font-inter-tight text-base font-medium text-charcoal hover:bg-gradient-to-r hover:from-off-white hover:to-white hover:text-orange transition-all duration-200 border-b border-gray-100 no-underline focus:outline-none focus:ring-2 focus:ring-inset focus:ring-orange active:bg-yellow/10">
                 <span class="relative z-10">Grow Store</span>
+                <span class="absolute left-0 top-0 h-full w-1 bg-orange scale-y-0 group-hover:scale-y-100 transition-transform duration-200 origin-center"></span>
+            </a>
+            <a href="/merchant/improve-ux" class="group relative px-6 py-4 font-inter-tight text-base font-medium text-charcoal hover:bg-gradient-to-r hover:from-off-white hover:to-white hover:text-orange transition-all duration-200 border-b border-gray-100 no-underline focus:outline-none focus:ring-2 focus:ring-inset focus:ring-orange active:bg-yellow/10">
+                <span class="relative z-10">Improve UX</span>
                 <span class="absolute left-0 top-0 h-full w-1 bg-orange scale-y-0 group-hover:scale-y-100 transition-transform duration-200 origin-center"></span>
             </a>
             <a href="/merchant/reports-and-analytics" class="group relative px-6 py-4 font-inter-tight text-base font-medium text-charcoal hover:bg-gradient-to-r hover:from-off-white hover:to-white hover:text-orange transition-all duration-200 border-b border-gray-100 no-underline focus:outline-none focus:ring-2 focus:ring-inset focus:ring-orange active:bg-yellow/10">

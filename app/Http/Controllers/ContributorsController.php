@@ -18,8 +18,8 @@ class ContributorsController extends Controller
     {
         return view('contributors', [
             'title' => 'Contributors',
-            'metaTitle' => 'Contributors - ' . DocsController::DEFAULT_META_TITLE,
-            'metaDescription' => 'The people who write and build Magento 2 Merchant Documentation, ranked by contributions to the docs and docs-website repositories.',
+            'metaTitle' => DocsController::pageTitle('Contributors'),
+            'metaDescription' => 'The people who write and build the Magento Open Source documentation, ranked by contributions to the docs and docs-website repositories.',
             'metaKeywords' => DocsController::DEFAULT_META_KEYWORDS,
             'canonical' => 'contributors',
             'contributors' => $this->contributors->getTopContributors(10),

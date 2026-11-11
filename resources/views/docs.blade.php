@@ -29,9 +29,9 @@
             <aside class="hidden lg:block">
                 <div class="sticky top-24">
                     {{-- Category Header --}}
-                    <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4 mt-0">
+                    <p class="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4 mt-0">
                         {{ ucwords(str_replace('-', ' ', $category)) }}
-                    </h3>
+                    </p>
 
                     {{-- Category Articles Navigation --}}
                     <nav class="space-y-1" aria-label="Category navigation">
