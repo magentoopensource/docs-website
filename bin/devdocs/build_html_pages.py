@@ -14,6 +14,11 @@ import yaml
 import glob
 import json
 import urllib.request
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import seo_head
+import seo_pages
 
 # Paths are resolved from env vars set by generate.sh.
 # Fallback defaults are relative to this script's location (repo root → ma-devdocs / deploy dir).
@@ -123,6 +128,51 @@ def get_breadcrumb(meta, md_path):
     crumbs.append(f'<span class="text-charcoal font-medium">{title}</span>')
 
     return ' '.join(crumbs)
+
+def get_breadcrumb_items(meta, md_path, title):
+    """Breadcrumb trail as (name, absolute url) pairs, mirroring get_breadcrumb(), for the BreadcrumbList JSON-LD."""
+    rel = os.path.relpath(md_path, MD_DIR)
+    parts = rel.split('/')
+    items = [('Home', seo_head.abs_url('/developer/'))]
+    if parts[0] == 'guides':
+        cat_map = {
+            'tutorials': ('Tutorials', 'tutorials.html'),
+            'how-to': ('How-To Guides', 'how-to-guides.html'),
+            'explanations': ('Architecture', 'architecture.html'),
+            'references': ('References', 'references.html'),
+        }
+        if len(parts) > 1 and parts[1] in cat_map:
+            label, href = cat_map[parts[1]]
+            items.append((label, seo_head.abs_url('/developer/' + href)))
+    elif parts[0] == 'modules':
+        items.append(('Modules', seo_head.abs_url('/developer/modules.html')))
+        if len(parts) > 1:
+            items.append((parts[1].capitalize(), seo_head.abs_url('/developer/module-%s.html' % parts[1])))
+    items.append((title, None))
+    return items
+
+
+def seo_title_and_description(meta, md_path, title, description):
+    """Search title (<= 60 chars with the suffix) and meta description (120-160 chars) for a generated page."""
+    rel = os.path.relpath(md_path, MD_DIR)
+    if rel in seo_pages.GUIDES:
+        short, desc = seo_pages.GUIDES[rel]
+    else:
+        doc_type = meta.get('doc_type') or ('overview' if os.path.basename(md_path) == 'README.md' else '')
+        if doc_type not in seo_pages.MODULE_TYPES or not meta.get('module'):
+            # A new page nobody has described yet must still build. Fall back to its own front matter and say so.
+            print('  WARN %s has no entry in seo_pages.py; using its front matter for the search title and description' % rel)
+            room = seo_head.TITLE_MAX - len(seo_head.TITLE_SUFFIX)
+            short = title if len(title) <= room else title[:room - 1].rstrip() + '\u2026'
+            desc = description if seo_head.DESC_MIN <= len(description) <= seo_head.DESC_MAX else (
+                (description[:seo_head.DESC_MAX - 1].rsplit(' ', 1)[0] + '\u2026') if len(description) > seo_head.DESC_MAX else description)
+            return seo_head.with_suffix(short), desc
+        short, template = seo_pages.MODULE_TYPES[doc_type]
+        short = '%s %s' % (meta['module'], short)
+        desc = template.format(m=meta['module'])
+    seo_head.check_description(desc, rel)
+    return seo_head.with_suffix(short), desc
+
 
 def get_doc_type_badge(meta, md_path):
     """Return a square badge for the document type. No rounded corners."""
@@ -415,6 +465,10 @@ def build_page(md_path):
     meta, body = parse_frontmatter(raw)
     title = meta.get('title', os.path.basename(md_path).replace('.md', '').replace('-', ' ').title())
     description = meta.get('description', title)
+    search_title, search_description = seo_title_and_description(meta, md_path, title, description)
+
+    # A hand-typed "**Last Updated**: ..." line in the body would contradict the git date shown in the header.
+    body = re.sub(r'^\*\*Last Updated\*\*:.*\n?', '', body, flags=re.M)
 
     # Per-page "Edit on GitHub" URL — points at the source .md under developer/
     # in the content repo (read by includes/contributors.js to render the edit button).
@@ -433,6 +487,10 @@ def build_page(md_path):
     })
 
     content_html = md.convert(body)
+    # The page header already carries the one H1 (front matter title). Drop a leading Markdown H1 that
+    # repeats it, and demote any other so the page has exactly one H1.
+    content_html = re.sub(r'^\s*<h1\b[^>]*>.*?</h1>\s*', '', content_html, count=1, flags=re.S)
+    content_html = re.sub(r'<(/?)h1\b', r'<\1h2', content_html)
     content_html = rewrite_md_links(content_html, md_path)
     toc_html = md.toc
 
@@ -470,18 +528,31 @@ def build_page(md_path):
             f'<span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-charcoal-50 text-charcoal border border-charcoal-100">'
             f'{meta["module"]}</span>'
         )
+    # "Last updated" is the git commit date of the source file (decision D8). Omitted if git cannot say.
+    modified = seo_head.git_date(md_path, os.path.dirname(md_path))
+    if modified:
+        meta_items.append(
+            f'<span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-charcoal-50 text-charcoal border border-charcoal-100">'
+            f'Last updated: {seo_head.time_tag(modified)}</span>'
+        )
     meta_bar = '\n'.join(meta_items)
 
     html_filename = md_to_html_filename(md_path)
+    seo = seo_head.seo_block(
+        search_title, search_description, '/developer/' + html_filename, title,
+        [(n, u) for n, u in get_breadcrumb_items(meta, md_path, title)[:-1]] + [(title, seo_head.abs_url('/developer/' + html_filename))],
+        modified,
+    )
 
-    return html_filename, f'''<!DOCTYPE html>
+    page = f'''<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{title} — Magento 2 Developer Documentation</title>
-    <meta name="description" content="{description}">
+    <title>{seo_head.esc(search_title)}</title>
+    <meta name="description" content="{seo_head.esc(search_description)}">
     <meta name="edit-url" content="{edit_url}">
+    {seo}
 
     <!-- Google Fonts: Inter Tight only. Courier New used for code. -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -747,7 +818,7 @@ def build_page(md_path):
                     <div class="mb-8">
                         {badge}
                         <h1 class="text-3xl md:text-4xl font-extrabold text-charcoal mt-3 mb-3">{title}</h1>
-                        <p class="text-charcoal-300 text-lg mb-4">{description}</p>
+                        <p class="text-charcoal-300 text-lg mb-4">{seo_head.esc(description)}</p>
                         <!-- Meta pills -->
                         <div class="flex flex-wrap gap-2">{meta_bar}</div>
                     </div>
@@ -880,6 +951,9 @@ def build_page(md_path):
 
 </body>
 </html>'''
+    # Internal links use the folder form (/developer/), not index.html, so each page has one URL.
+    page = re.sub(r'href="index\.html(?=[#"])', 'href="./', page)
+    return html_filename, page
 
 
 def style_content(html):
