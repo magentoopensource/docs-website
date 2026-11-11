@@ -70,7 +70,7 @@ class StructuredData
         return ['@type' => 'BreadcrumbList', 'itemListElement' => $list];
     }
 
-    public static function techArticle(string $headline, string $description, string $url, ?string $dateModified): array
+    public static function techArticle(string $headline, string $description, string $url, ?string $dateModified, ?string $image = null): array
     {
         $node = [
             '@type' => 'TechArticle',
@@ -80,7 +80,7 @@ class StructuredData
             'url' => $url,
             'mainEntityOfPage' => $url,
             'inLanguage' => 'en',
-            'image' => config('seo.image'),
+            'image' => $image ?? config('seo.image'),
             'author' => ['@type' => 'Organization', 'name' => config('seo.author_name')],
             'publisher' => [
                 '@type' => 'Organization',
@@ -98,10 +98,71 @@ class StructuredData
     }
 
     /**
+     * Question and answer pairs found in an article body: every h2 or h3 whose text ends with "?" and the first
+     * paragraph that follows it inside the same parent. Only text that is visible on the page is returned, which
+     * is what FAQPage markup requires.
+     *
+     * @return list<array{question: string, answer: string}>
+     */
+    public static function faqPairs(string $html): array
+    {
+        if (!str_contains($html, '?</h')) {
+            return [];
+        }
+
+        $pairs = [];
+        $crawler = new \Symfony\Component\DomCrawler\Crawler($html);
+        $crawler->filter('h2, h3')->each(function ($heading) use (&$pairs) {
+            $question = trim(preg_replace('/\s+/u', ' ', $heading->text()) ?? '');
+            if ($question === '' || !str_ends_with($question, '?')) {
+                return;
+            }
+
+            for ($node = $heading->getNode(0)->nextSibling; $node !== null; $node = $node->nextSibling) {
+                if ($node->nodeType !== XML_ELEMENT_NODE) {
+                    continue;
+                }
+                if ($node->nodeName === 'p') {
+                    $answer = trim(preg_replace('/\s+/u', ' ', $node->textContent) ?? '');
+                    if ($answer !== '') {
+                        $pairs[] = ['question' => $question, 'answer' => $answer];
+                    }
+                }
+                break;
+            }
+        });
+
+        return $pairs;
+    }
+
+    /**
+     * FAQPage node for the given pairs, or null when there are none.
+     *
+     * @param  list<array{question: string, answer: string}>  $pairs
+     */
+    public static function faqPage(string $url, array $pairs): ?array
+    {
+        if ($pairs === []) {
+            return null;
+        }
+
+        return [
+            '@type' => 'FAQPage',
+            '@id' => $url . '#faq',
+            'isPartOf' => ['@id' => $url . '#article'],
+            'mainEntity' => array_map(fn (array $p) => [
+                '@type' => 'Question',
+                'name' => $p['question'],
+                'acceptedAnswer' => ['@type' => 'Answer', 'text' => $p['answer']],
+            ], $pairs),
+        ];
+    }
+
+    /**
      * Page-level block wrapping the given nodes.
      */
-    public static function graph(array ...$nodes): array
+    public static function graph(?array ...$nodes): array
     {
-        return ['@context' => 'https://schema.org', '@graph' => array_values($nodes)];
+        return ['@context' => 'https://schema.org', '@graph' => array_values(array_filter($nodes))];
     }
 }

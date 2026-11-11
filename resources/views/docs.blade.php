@@ -12,7 +12,8 @@
         [$categoryName, url('merchant/' . $category)],
         [$title, url($canonical)],
     ]),
-    \App\Services\StructuredData::techArticle($title, $metaDescription, url($canonical), $lastUpdated ?? null)
+    \App\Services\StructuredData::techArticle($title, $metaDescription, url($canonical), $lastUpdated ?? null, isset($ogImage) ? url($ogImage) : null),
+    \App\Services\StructuredData::faqPage(url($canonical), \App\Services\StructuredData::faqPairs((string) $content))
 )])
 @endif
 @endpush

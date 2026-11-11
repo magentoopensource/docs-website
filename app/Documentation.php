@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Services\Redirects;
 use Illuminate\Support\Str;
 use Illuminate\Filesystem\Filesystem;
 use App\Markdown\GithubFlavoredMarkdownConverter;
@@ -71,8 +72,8 @@ class Documentation
                     $content = $this->files->get($htmlPath);
 
                     $frontMatter = [];
-                    $mdPath = base_path("resources/docs/main/" . $page . ".md");
-                    if ($this->files->exists($mdPath)) {
+                    $mdPath = $this->markdownPath($page);
+                    if ($mdPath !== null) {
                         $mdContent = $this->files->get($mdPath);
                         $converter = new GithubFlavoredMarkdownConverter();
                         $rendered = $converter->convert($mdContent);
@@ -110,6 +111,23 @@ class Documentation
                 return null;
             }
         );
+    }
+
+    /**
+     * Markdown source for a guide, or null. A guide renamed in the site (config/redirects.php) may still sit under
+     * its previous file name in the content clone until the content repository's rename is deployed, so the
+     * previous names are tried too; once both repositories carry the new name the fallback is never used.
+     */
+    protected function markdownPath(string $page): ?string
+    {
+        foreach (array_merge([$page], Redirects::previousGuidePaths($page)) as $candidate) {
+            $path = base_path("resources/docs/main/" . $candidate . ".md");
+            if ($this->files->exists($path)) {
+                return $path;
+            }
+        }
+
+        return null;
     }
 
     /**

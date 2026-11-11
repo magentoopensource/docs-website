@@ -11,7 +11,7 @@ use Symfony\Component\Process\Process;
  * content clone (resources/docs/main), read once and cached, never per request.
  *
  * The map is path => ISO 8601 commit date, where path is the guide path without extension
- * (for example "getting-started/howto-how-to-configure-ssl-and-security"). It is rebuilt after every
+ * (for example "getting-started/how-to-configure-ssl-and-security"). It is rebuilt after every
  * docs sync (WebhookController::syncDocs) and lazily on a cache miss, which is also what happens after
  * a deploy clears the cache. When git or the clone is unavailable the map is empty, nothing throws, and
  * the pages simply omit the date.
@@ -46,7 +46,17 @@ class ContentDates
      */
     public function forPath(string $path): ?string
     {
-        return $this->all()[trim($path, '/')] ?? null;
+        $map = $this->all();
+        $path = trim($path, '/');
+
+        // A renamed guide keeps its date from the previous file name until the content repository carries the rename.
+        foreach (array_merge([$path], Redirects::previousGuidePaths($path)) as $candidate) {
+            if (isset($map[$candidate])) {
+                return $map[$candidate];
+            }
+        }
+
+        return null;
     }
 
     /**
