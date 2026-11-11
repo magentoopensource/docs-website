@@ -26,6 +26,7 @@ LOGO = SITE + '/img/favicon/favicon-196x196.png'
 SAME_AS = [
     'https://www.magentoassociation.org/home',
     'https://github.com/magentoopensource',
+    'https://www.magento-opensource.com/',
 ]
 SITE_NAME = 'Magento Open Source Documentation'
 ORG_ID = SITE + '/#organization'
@@ -127,7 +128,7 @@ def tech_article(headline, description, url, date_modified):
         'inLanguage': 'en',
         'image': OG_IMAGE,
         'author': {'@type': 'Organization', 'name': 'Magento Association community'},
-        'publisher': {'@id': ORG_ID},
+        'publisher': {'@type': 'Organization', '@id': ORG_ID, 'name': 'Magento Association'},
         'isPartOf': {'@id': WEBSITE_ID},
     }
     if date_modified:

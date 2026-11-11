@@ -54,9 +54,6 @@ DEV_PAGES = {
     'cert-frontend-professional.html': ('Front-End Developer Professional',
         'The Adobe Commerce Front-End Developer Professional exam: 60 questions, 120 minutes, 10 sections on themes, layout XML, templates, JavaScript and LESS/CSS.',
         [DEV_HOME, ('Certification Paths', '/developer/certifications.html')]),
-    'contributors.html': ('Developer Docs Contributors',
-        'The community members who write the Magento Open Source developer documentation: the top contributors across the docs repositories, and how you can join them.',
-        [DEV_HOME]),
     'module-catalog.html': ('Magento_Catalog Module Guides',
         'Guides to Magento_Catalog, the product and category module: data structures, business logic and APIs for products, categories, attributes and pricing.',
         [DEV_HOME, ('Modules', '/developer/modules.html')]),
@@ -73,20 +70,6 @@ DEV_PAGES = {
         'Guides to Magento_Sales, order lifecycle management: orders, invoice generation, shipment processing and credit memos, from quote conversion to post-sales work.',
         [DEV_HOME, ('Modules', '/developer/modules.html')]),
 }
-
-# Legacy duplicates: kept only until the redirect exists. Canonical points at the newer page.
-DEV_LEGACY = {
-    'catalog-overview.html': (
-        'Magento_Catalog Module Overview',
-        'An older overview of Magento_Catalog: product management, the category tree, the EAV system, pricing and API examples. Superseded by the module overview.',
-        'module-catalog-overview.html'),
-    'plugin-system-deep-dive.html': (
-        'Plugin System Deep Dive',
-        'An older guide to Magento plugins (interceptors): before, after and around plugins, execution order, best practices and performance. Superseded by the tutorial.',
-        'guide-tutorial-plugin-system-deep-dive.html'),
-}
-# contributors.html also points at the Laravel page: it is the same list of people.
-DEV_CANONICAL_OVERRIDE = {'contributors.html': 'https://docs.magento-opensource.com/contributors'}
 
 # ---------------------------------------------------------------- the-core
 CORE_ROOT_TITLE = 'The Magento Core: Module Documentation'

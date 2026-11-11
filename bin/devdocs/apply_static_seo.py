@@ -69,14 +69,8 @@ def fix_dev_links(page):
 def apply_dev(name, refresh):
     path = os.path.join(PUBLIC, 'developer', name)
     page = sh.strip_block(read(path))
-    legacy = name in data.DEV_LEGACY
-    if legacy:
-        title, desc, target = data.DEV_LEGACY[name]
-        parents = [data.DEV_HOME]
-        canonical_override = sh.abs_url('/developer/' + target)
-    else:
-        title, desc, parents = data.DEV_PAGES[name]
-        canonical_override = data.DEV_CANONICAL_OVERRIDE.get(name)
+    title, desc, parents = data.DEV_PAGES[name]
+    canonical_override = None
     full_title = title if name == 'index.html' else sh.with_suffix(title)
     sh.check_description(desc, name)
     url_path = '/developer/' if name == 'index.html' else '/developer/' + name
@@ -219,7 +213,7 @@ def main():
     refresh = '--refresh' in sys.argv
     check = '--check' in sys.argv
     jobs = []
-    for name in list(data.DEV_PAGES) + list(data.DEV_LEGACY):
+    for name in list(data.DEV_PAGES):
         jobs.append(apply_dev(name, refresh))
     for path in core_pages():
         jobs.append(apply_core(path, refresh))
