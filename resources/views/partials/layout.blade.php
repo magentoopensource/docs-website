@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>{{ isset($title) ? $title . ' - ' : null }}Magento 2 Merchant Documentation</title>
+    <title>{{ \App\Http\Controllers\DocsController::pageTitle($title ?? null) }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
     @if (isset($canonical))
@@ -26,11 +26,10 @@
     <meta property="og:image" content="{{ url('/img/merchant-docs-og.png') }}">
 
     <!-- Twitter / X -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="{{ $canonical ? url($canonical) : url('/') }}">
-    <meta property="twitter:title" content="{{ $metaTitle }}">
-    <meta property="twitter:description" content="{{ $metaDescription }}">
-    <meta property="twitter:image" content="{{ url('/img/merchant-docs-og.png') }}">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ $metaTitle }}">
+    <meta name="twitter:description" content="{{ $metaDescription }}">
+    <meta name="twitter:image" content="{{ url('/img/merchant-docs-og.png') }}">
 
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">

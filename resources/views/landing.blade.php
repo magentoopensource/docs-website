@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <title>Magento Documentation — Magento Association</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <meta name="description" content="Official Magento documentation hub. Merchant guides for store owners and developer documentation for engineers building on Magento 2.">
+    <meta name="description" content="Official Magento documentation hub. Merchant guides for store owners and developer documentation for engineers building on Magento Open Source.">
 
     <link rel="canonical" href="{{ url('/') }}">
 
@@ -15,15 +15,14 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="{{ url('/') }}">
     <meta property="og:title" content="Magento Documentation — Magento Association">
-    <meta property="og:description" content="Official Magento documentation hub. Merchant guides for store owners and developer documentation for engineers building on Magento 2.">
+    <meta property="og:description" content="Official Magento documentation hub. Merchant guides for store owners and developer documentation for engineers building on Magento Open Source.">
     <meta property="og:image" content="{{ url('/img/merchant-docs-og.png') }}">
 
     <!-- Twitter / X -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="{{ url('/') }}">
-    <meta property="twitter:title" content="Magento Documentation — Magento Association">
-    <meta property="twitter:description" content="Official Magento documentation hub. Merchant guides for store owners and developer documentation for engineers building on Magento 2.">
-    <meta property="twitter:image" content="{{ url('/img/merchant-docs-og.png') }}">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Magento Documentation — Magento Association">
+    <meta name="twitter:description" content="Official Magento documentation hub. Merchant guides for store owners and developer documentation for engineers building on Magento Open Source.">
+    <meta name="twitter:image" content="{{ url('/img/merchant-docs-og.png') }}">
 
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
@@ -293,7 +292,7 @@
                 </a>
 
                 {{-- Developer Documentation Card --}}
-                <a href="/developer" class="doc-card group block bg-white border-2 border-gray-200 hover:border-orange no-underline relative overflow-hidden">
+                <a href="/developer/" class="doc-card group block bg-white border-2 border-gray-200 hover:border-orange no-underline relative overflow-hidden">
                     <div class="h-1.5 bg-orange"></div>
                     <div class="p-8 sm:p-10">
                         <div class="w-16 h-16 mb-6 relative">

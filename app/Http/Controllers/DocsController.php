@@ -9,9 +9,37 @@ use Symfony\Component\DomCrawler\Crawler;
 
 class DocsController extends Controller
 {
-    public const DEFAULT_META_TITLE = "Magento 2 Merchant Documentation - Your Complete Guide";
-    public const DEFAULT_META_DESCRIPTION = "Complete guide to managing your Magento 2 store. Learn how to sell products, manage orders, grow your business, and stay compliant with our comprehensive merchant documentation.";
-    const DEFAULT_META_KEYWORDS = "Magento 2, Merchant Documentation, Magento Store Management, eCommerce Guide, Magento Tutorial";
+    public const DEFAULT_META_TITLE = "Magento Open Source Merchant Documentation";
+    public const DEFAULT_META_DESCRIPTION = "Complete guide to running your Magento Open Source store: sell products, manage orders, grow your business and stay compliant.";
+    const DEFAULT_META_KEYWORDS = "Magento Open Source, Merchant Documentation, Magento Store Management, eCommerce Guide, Magento Tutorial";
+
+    /** Brand appended to page titles when it fits. */
+    public const TITLE_BRAND = "Magento Open Source";
+
+    /** Longest title search engines show in full. */
+    public const TITLE_MAX_LENGTH = 60;
+
+    /**
+     * Full <title> text: the page name plus " | Magento Open Source" when the result fits in 60 characters,
+     * otherwise the page name alone (a long guide name beats a truncated brand). Titles that already name
+     * the brand are returned as they are, so hubs and the home page never repeat it.
+     */
+    public static function pageTitle(?string $title): string
+    {
+        $title = trim((string) $title);
+
+        if ($title === "") {
+            return self::DEFAULT_META_TITLE;
+        }
+
+        if (stripos($title, self::TITLE_BRAND) !== false) {
+            return $title;
+        }
+
+        $branded = $title . " | " . self::TITLE_BRAND;
+
+        return mb_strlen($branded) <= self::TITLE_MAX_LENGTH ? $branded : $title;
+    }
 
     public function __construct(
         protected Documentation $docs,
@@ -24,6 +52,11 @@ class DocsController extends Controller
      */
     public function showRootPage()
     {
+        // /index.php answers with the home page too (and its canonical becomes /index.php): send it to /.
+        if (str_starts_with(request()->getRequestUri(), "/index.php")) {
+            return response("", 301)->header("Location", "/");
+        }
+
         return view("landing");
     }
 
@@ -51,11 +84,11 @@ class DocsController extends Controller
             });
 
         return view("homepage", [
-            "title" => "Merchant Documentation",
+            "title" => self::DEFAULT_META_TITLE,
             "metaTitle" => self::DEFAULT_META_TITLE,
             "metaDescription" => self::DEFAULT_META_DESCRIPTION,
             "metaKeywords" => self::DEFAULT_META_KEYWORDS,
-            "canonical" => "",
+            "canonical" => "merchant",
             "categories" => $categories,
         ]);
     }
@@ -74,10 +107,10 @@ class DocsController extends Controller
 
         return view("docs-index", [
             "title" => "Documentation Index",
-            "metaTitle" => "Documentation Index - " . self::DEFAULT_META_TITLE,
+            "metaTitle" => self::pageTitle("Documentation Index"),
             "metaDescription" => self::DEFAULT_META_DESCRIPTION,
             "metaKeywords" => self::DEFAULT_META_KEYWORDS,
-            "canonical" => "docs",
+            "canonical" => "merchant/index",
             "categories" => $categories,
         ]);
     }
@@ -124,7 +157,7 @@ class DocsController extends Controller
                     "page" => $page,
                     "categoryArticles" => collect([]),
                     "tableOfContents" => [],
-                    "metaTitle" => "Page not found - " . self::DEFAULT_META_TITLE,
+                    "metaTitle" => self::pageTitle("Page not found"),
                     "metaDescription" => self::DEFAULT_META_DESCRIPTION,
                     "metaKeywords" => self::DEFAULT_META_KEYWORDS,
                     "communityNote" => false,
@@ -198,26 +231,41 @@ class DocsController extends Controller
                     "Learn about " . strtolower($article["title"]),
                 "url" => "/merchant/" . $article["path"],
                 "difficulty" => $frontMatter["difficulty"] ?? "Intermediate",
-                "read_time" => $frontMatter["read_time"] ?? 5,
+                "read_time" => $frontMatter["read_time"] ?? $this->estimateReadTime($docPage["content"] ?? ""),
             ];
         });
 
         // Get category metadata (icons, colors, etc.) for potential future use
         $categoryMeta = $this->getCategoryMetadata($category);
 
+        // The hub intro reads the category description; without this the "Learn more about X" stub always rendered.
+        if (!empty($categoryMeta["description"])) {
+            $categoryData["description"] = $categoryMeta["description"];
+        }
+
         // Use unified category view for all categories
         return view("category.show", [
-            "title" => $categoryData["name"] . " - Merchant Documentation",
-            "metaTitle" =>
-                $categoryData["name"] . " - " . self::DEFAULT_META_TITLE,
+            "title" => $categoryData["name"],
+            "metaTitle" => self::pageTitle($categoryData["name"]),
             "metaDescription" =>
-                $categoryMeta["description"] ??
+                $categoryMeta["description"] ?:
                 "Learn about " . $categoryData["name"],
             "metaKeywords" => self::DEFAULT_META_KEYWORDS,
             "canonical" => "merchant/" . $category,
             "category" => $categoryData,
             "articles" => $articlesWithMetadata,
         ]);
+    }
+
+    /**
+     * Reading time in whole minutes at 200 words per minute, never less than one.
+     */
+    protected function estimateReadTime(string $html): int
+    {
+        $text = strip_tags(preg_replace('#<(script|style)\b.*?</\1>#is', " ", $html) ?? $html);
+        $words = preg_match_all('/\S+/u', $text);
+
+        return max(1, (int) ceil(($words ?: 0) / 200));
     }
 
     /**
@@ -274,6 +322,20 @@ class DocsController extends Controller
                     '<svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>',
                 "description" =>
                     "Ensure your store meets legal requirements and data protection standards.",
+            ],
+            "reports-and-analytics" => [
+                "color" => "bg-gray-100",
+                "icon" =>
+                    '<svg class="w-8 h-8 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>',
+                "description" =>
+                    "Track sales, customer behaviour and store performance with built-in reports and analytics.",
+            ],
+            "support-and-resources" => [
+                "color" => "bg-gray-100",
+                "icon" =>
+                    '<svg class="w-8 h-8 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>',
+                "description" =>
+                    "Find help, community support and further resources for running your Magento Open Source store.",
             ],
         ];
 
