@@ -11,7 +11,7 @@
                 Contributors
             </h1>
             <p class="text-base text-gray-600 max-w-2xl mx-auto">
-                Everyone who has helped write and build Magento 2 Merchant Documentation, ranked by
+                Everyone who has helped write and build Magento Open Source Merchant Documentation, ranked by
                 contributions to the <code class="font-mono text-sm">docs</code> and
                 <code class="font-mono text-sm">docs-website</code> repositories.
             </p>

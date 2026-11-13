@@ -16,6 +16,13 @@
         :description="$category['description'] ?? 'Learn more about ' . $category['name']"
     />
 
+    @if(!empty($category['intro']))
+    {{-- Hub introduction: what the section covers and who it is for --}}
+    <div class="w-full max-w-7xl xl:max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 pt-12">
+        <p data-hub-intro class="max-w-3xl mx-auto text-lg leading-relaxed text-charcoal">{{ $category['intro'] }}</p>
+    </div>
+    @endif
+
     {{-- Articles Grid --}}
     <section class="flex flex-col gap-12 items-center justify-start py-24 w-full">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-7xl xl:max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">

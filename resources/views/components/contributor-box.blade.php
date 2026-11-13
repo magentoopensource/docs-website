@@ -109,9 +109,9 @@
         <div class="qbcb-kicker inline-flex items-center gap-2 mb-1.5 font-mono text-xs font-medium uppercase text-orange-700">
             <i class="qbcb-dot" aria-hidden="true"></i>Written by the community
         </div>
-        <h2 id="{{ $titleId }}" class="m-0 text-lg sm:text-xl font-extrabold leading-tight text-charcoal">
+        <p id="{{ $titleId }}" class="m-0 text-lg sm:text-xl font-extrabold leading-tight text-charcoal">
             Help build the Magento docs, and get your name on them
-        </h2>
+        </p>
         <div class="qbcb-compact-row">
             <div class="qbcb-compact-group">
                 <h3 class="qbcb-compact-label m-0 text-sm font-bold text-charcoal">Suggest an idea</h3>
@@ -185,9 +185,9 @@
                 <i class="qbcb-dot" aria-hidden="true"></i>Written by the community
             </div>
             @endunless
-            <h2 id="{{ $titleId }}" class="m-0 mb-1.5 text-xl sm:text-2xl font-extrabold leading-tight text-charcoal">
+            <p id="{{ $titleId }}" class="m-0 mb-1.5 text-xl sm:text-2xl font-extrabold leading-tight text-charcoal">
                 Help build the Magento docs, and get your name on them
-            </h2>
+            </p>
             @if($expanded)
                 <p class="qbcb-subtext m-0 text-sm text-gray-600">
                     Every merged edit counts toward the top 10 contributors. Ideas shape what we write next.

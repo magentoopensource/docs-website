@@ -56,7 +56,7 @@ class NavigationParser
                 // Match article links: supports both /docs/ and /merchant/ URL formats
                 if ($currentCategory && preg_match('/^\s+- \[(.+)\]\(\/(docs|merchant)\/\{\{version\}\}\/(.+)\)$/', $line, $matches)) {
                     $articleTitle = trim($matches[1]);
-                    $articlePath = trim($matches[3]); // $matches[2] is 'docs' or 'merchant'
+                    $articlePath = Redirects::currentGuidePath(trim($matches[3])); // $matches[2] is 'docs' or 'merchant'; a renamed guide listed under its old name resolves to the new one
 
                     $currentCategory['articles'][] = [
                         'title' => $articleTitle,

@@ -23,13 +23,13 @@
     <meta property="og:url" content="{{ $canonical ? url($canonical) : url('/') }}">
     <meta property="og:title" content="{{ $metaTitle }}">
     <meta property="og:description" content="{{ $metaDescription }}">
-    <meta property="og:image" content="{{ url('/img/merchant-docs-og.png') }}">
+    <meta property="og:image" content="{{ url($ogImage ?? '/img/merchant-docs-og.png') }}">
 
     <!-- Twitter / X -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="{{ $metaTitle }}">
     <meta name="twitter:description" content="{{ $metaDescription }}">
-    <meta name="twitter:image" content="{{ url('/img/merchant-docs-og.png') }}">
+    <meta name="twitter:image" content="{{ url($ogImage ?? '/img/merchant-docs-og.png') }}">
 
     {{-- Structured data: sitewide Organization and WebSite, then whatever the page pushes (breadcrumbs, article). --}}
     @include('partials.jsonld', ['data' => \App\Services\StructuredData::site()])

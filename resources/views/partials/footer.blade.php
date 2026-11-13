@@ -58,7 +58,7 @@
 
         <div class="grid grid-cols-12 md:gap-x-8 gap-y-12 lg:mt-12">
             <div class="col-span-12 lg:col-span-4">
-                <p class="hidden lg:block text-xs font-inter-tight text-charcoal sm:text-sm">Your comprehensive guide to managing and growing your Magento 2 store. From setting up your first product to advanced marketing strategies, we provide clear, actionable documentation for merchants of all experience levels.</p>
+                <p class="hidden lg:block text-xs font-inter-tight text-charcoal sm:text-sm">Your comprehensive guide to managing and growing your Magento Open Source store. From setting up your first product to advanced marketing strategies, we provide clear, actionable documentation for merchants of all experience levels.</p>
                 <ul class="mt-6 hidden lg:flex items-center space-x-3">
                     <li class="pl-0">
                         <a href="https://github.com/magento/magento2" class="p-2 md:p-0">
@@ -84,11 +84,11 @@
         </div>
         <div class="mt-12 border-t pt-6 pb-16 border-charcoal">
             <p class="text-xs font-inter-tight text-charcoal">
-                © {{ now()->format('Y') }} Magento 2 Merchant Documentation
+                © {{ now()->format('Y') }} Magento Open Source Merchant Documentation
                 Magento® is a registered trademark of Adobe Inc.
             </p>
             <p class="mt-6 text-xs font-inter-tight text-charcoal">
-                This documentation provides guidance for Magento 2 merchants and store owners. For developer documentation, visit the <a href="https://developer.adobe.com/commerce/" class="text-red hover:text-orange transition-colors">official developer documentation</a>.
+                This documentation provides guidance for Magento Open Source merchants and store owners. For developer documentation, visit the <a href="https://developer.adobe.com/commerce/" class="text-red hover:text-orange transition-colors">official developer documentation</a>.
             </p>
         </div>
     </div>
