@@ -8,8 +8,9 @@ use App\Http\Controllers\TeamController;
 use App\Http\Controllers\WebhookController;
 
 // Apply rate limiting to all routes to prevent abuse
-// 120 requests per minute per IP (reasonable for a documentation site)
-Route::middleware('throttle:120,1')->group(function () {
+// 120 requests per minute per IP (reasonable for a documentation site).
+// "docs" group: no session or cookies. Public Cache-Control for 5 minutes, matching the app-level page cache.
+Route::middleware(['docs', 'throttle:120,1', 'cache.headers:public;max_age=300'])->group(function () {
     Route::get("/", [DocsController::class, "showRootPage"])->name("home");
 
     Route::get("/merchant", [DocsController::class, "showMerchantHomepage"])->name("merchant.home");
@@ -33,5 +34,5 @@ Route::middleware('throttle:120,1')->group(function () {
 
 // GitHub webhook for docs sync (excluded from throttling)
 Route::post('/webhook/sync-docs', [WebhookController::class, 'syncDocs'])
-    ->middleware('throttle:10,1')
+    ->middleware(['web', 'throttle:10,1'])
     ->name('webhook.sync-docs');
