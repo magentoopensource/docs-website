@@ -1,7 +1,25 @@
 @extends('partials.layout')
 
+@push('jsonld')
+@if(!empty($canonical))
+@php
+    $categoryName = ucwords(str_replace('-', ' ', $category));
+    $siteRoot = rtrim(url('/'), '/');
+@endphp
+@include('partials.jsonld', ['data' => \App\Services\StructuredData::graph(
+    \App\Services\StructuredData::breadcrumb([
+        ['Home', $siteRoot . '/'],
+        [$categoryName, url('merchant/' . $category)],
+        [$title, url($canonical)],
+    ]),
+    \App\Services\StructuredData::techArticle($title, $metaDescription, url($canonical), $lastUpdated ?? null)
+)])
+@endif
+@endpush
+
 @section('content')
 <style>
+    .docs-last-updated { margin: -0.75rem 0 1.5rem; font-size: 0.875rem; color: #4b5563; }
     /*
      * Sticky "On this page" panel (D9): caps the TOC list so the heading, "Back to top"
      * and the "Suggest an idea" button stay on screen on long pages — only the list itself

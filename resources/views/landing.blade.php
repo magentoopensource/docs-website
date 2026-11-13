@@ -7,6 +7,7 @@
     <meta name="description" content="Official Magento documentation hub. Merchant guides for store owners and developer documentation for engineers building on Magento Open Source.">
 
     <link rel="canonical" href="{{ url('/') }}">
+    @include('partials.jsonld', ['data' => \App\Services\StructuredData::site()])
 
     <!-- Primary Meta Tags -->
     <meta name="title" content="Magento Documentation — Magento Association">

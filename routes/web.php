@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ContributorsController;
 use App\Http\Controllers\DocsController;
+use App\Http\Controllers\RedirectController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\TeamController;
 use App\Http\Controllers\WebhookController;
@@ -30,6 +31,12 @@ Route::middleware(['docs', 'throttle:120,1', 'cache.headers:public;max_age=300']
 
     // Built from the merchant navigation and the developer files; robots.txt points here.
     Route::get("sitemap.xml", [SitemapController::class, "index"])->name("sitemap");
+
+    // Llms.txt: a plain-text map of the site for AI assistants, generated from the navigation and sitemap.
+    Route::get("llms.txt", [SitemapController::class, "llms"])->name("llms");
+
+    // Anything else: permanent redirects from config/redirects.php (retired URLs), otherwise the usual 404.
+    Route::fallback([RedirectController::class, "fallback"]);
 });
 
 // GitHub webhook for docs sync (excluded from throttling)

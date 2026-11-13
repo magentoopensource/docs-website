@@ -24,7 +24,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('sitemap:generate')->daily();
+        // No sitemap command is scheduled: /sitemap.xml is built per request (SitemapController). A generated
+        // public/sitemap.xml would be served by the web server instead of that route and drop <lastmod>.
     }
 
     /**
@@ -34,7 +35,7 @@ class Kernel extends ConsoleKernel
      */
     protected function commands()
     {
-        $this->load(__DIR__.'/Commands');
+        $this->load(__DIR__ . '/Commands');
 
         require base_path('routes/console.php');
     }

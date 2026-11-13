@@ -567,7 +567,7 @@
     // Restyled in line with the contributor block (Carl, 2026-10-05): avatars only (names stay
     // available to screen readers), linking to our contributors page, and "Edit this page on
     // GitHub" as a black button. Same layout and sizes as the merchant row (github-contributors.blade.php).
-    var CONTRIBUTORS_PAGE = 'contributors.html';
+    var CONTRIBUTORS_PAGE = '/contributors';
 
     function contributorsSection(contribs) {
         if (!Array.isArray(contribs) || contribs.length === 0) { return ''; }
