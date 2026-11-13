@@ -3,9 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Full Page Cache Strategy for High-Performance Magento — Magento 2 Developer Documentation</title>
-    <meta name="description" content="Master Magento 2 FPC architecture: cacheable blocks, ESI holes, private content, Varnish VCL, cache warming, and performance optimization techniques">
+    <title>Full Page Cache Strategy | Magento Open Source</title>
+    <meta name="description" content="Make Magento pages fast with full page cache: cacheable blocks, ESI holes, private content, Varnish VCL, cache warming and the performance results.">
     <meta name="edit-url" content="https://github.com/magentoopensource/docs/edit/main/developer/guides/how-to/full-page-cache-strategy.md">
+    <!-- seo:start -->
+    <link rel="canonical" href="https://docs.magento-opensource.com/developer/guide-howto-full-page-cache-strategy.html">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="Magento Open Source Documentation">
+    <meta property="og:title" content="Full Page Cache Strategy | Magento Open Source">
+    <meta property="og:description" content="Make Magento pages fast with full page cache: cacheable blocks, ESI holes, private content, Varnish VCL, cache warming and the performance results.">
+    <meta property="og:url" content="https://docs.magento-opensource.com/developer/guide-howto-full-page-cache-strategy.html">
+    <meta property="og:image" content="https://docs.magento-opensource.com/img/merchant-docs-og.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Full Page Cache Strategy | Magento Open Source">
+    <meta name="twitter:description" content="Make Magento pages fast with full page cache: cacheable blocks, ESI holes, private content, Varnish VCL, cache warming and the performance results.">
+    <meta name="twitter:image" content="https://docs.magento-opensource.com/img/merchant-docs-og.png">
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://docs.magento-opensource.com/#organization",
+      "name": "Magento Association",
+      "url": "https://www.magentoassociation.org/home",
+      "logo": "https://docs.magento-opensource.com/img/favicon/favicon-196x196.png",
+      "sameAs": [
+        "https://www.magentoassociation.org/home",
+        "https://github.com/magentoopensource",
+        "https://www.magento-opensource.com/"
+      ]
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://docs.magento-opensource.com/#website",
+      "url": "https://docs.magento-opensource.com/",
+      "name": "Magento Open Source Documentation",
+      "inLanguage": "en",
+      "publisher": {
+        "@id": "https://docs.magento-opensource.com/#organization"
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://docs.magento-opensource.com/developer/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "How-To Guides",
+          "item": "https://docs.magento-opensource.com/developer/how-to-guides.html"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Full Page Cache Strategy for High-Performance Magento",
+          "item": "https://docs.magento-opensource.com/developer/guide-howto-full-page-cache-strategy.html"
+        }
+      ]
+    },
+    {
+      "@type": "TechArticle",
+      "@id": "https://docs.magento-opensource.com/developer/guide-howto-full-page-cache-strategy.html#article",
+      "headline": "Full Page Cache Strategy for High-Performance Magento",
+      "description": "Make Magento pages fast with full page cache: cacheable blocks, ESI holes, private content, Varnish VCL, cache warming and the performance results.",
+      "url": "https://docs.magento-opensource.com/developer/guide-howto-full-page-cache-strategy.html",
+      "mainEntityOfPage": "https://docs.magento-opensource.com/developer/guide-howto-full-page-cache-strategy.html",
+      "inLanguage": "en",
+      "image": "https://docs.magento-opensource.com/img/merchant-docs-og.png",
+      "author": {
+        "@type": "Organization",
+        "name": "Magento Association community"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "@id": "https://docs.magento-opensource.com/#organization",
+        "name": "Magento Association"
+      },
+      "isPartOf": {
+        "@id": "https://docs.magento-opensource.com/#website"
+      },
+      "dateModified": "2026-07-02T04:45:52+01:00"
+    }
+  ]
+}
+    </script>
+    <!-- seo:end -->
 
     <!-- Google Fonts: Inter Tight only. Courier New used for code. -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -23,39 +111,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/ini.min.js"></script>
 
-    <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        charcoal: {
-                            DEFAULT: '#2c2c2c', 50: '#f1f1f1', 100: '#d9d9d9', 200: '#b6b6b6',
-                            300: '#6B6B6B', 400: '#474747', 500: '#2c2c2c', 600: '#262626',
-                            700: '#202020', 800: '#1c1c1c', 900: '#191919', 950: '#121212'
-                        },
-                        orange: {
-                            DEFAULT: '#D4551A', 50: '#fef5ee', 100: '#fee9d6', 200: '#fbd0ad',
-                            300: '#f9ae78', 400: '#f58242', 500: '#f26423', 600: '#e34613',
-                            700: '#bc3312', 800: '#962a16', 900: '#792515', 950: '#411009'
-                        },
-                        yellow: {
-                            DEFAULT: '#B8860B', 50: '#fffdeb', 100: '#fdf9c8', 200: '#fbf38c',
-                            300: '#f8e651', 400: '#f7d728', 500: '#f1bc1b', 600: '#d5900a',
-                            700: '#b1670c', 800: '#8f5111', 900: '#764311', 950: '#442204'
-                        },
-                        'off-white': '#FAFAFA',
-                    },
-                    fontFamily: {
-                        sans: ['Inter Tight', 'system-ui', '-apple-system', 'sans-serif'],
-                        mono: ['Courier New', 'Courier', 'monospace'],
-                    },
-                }
-            }
-        }
-    </script>
 
     <style>
         /* ── Force light mode ── */
@@ -317,6 +373,7 @@
             color: #ea580c;
         }
     </style>
+    <link rel="stylesheet" href="/developer/assets/tw-dev-generated.b9e0b75e87.css" data-devdocs-css>
 </head>
 
 <body class="font-sans bg-off-white text-charcoal">
@@ -330,7 +387,7 @@
     <div class="bg-white border-b border-gray-100">
         <div class="max-w-7xl xl:max-w-[96rem] mx-auto px-4 sm:px-6 lg:px-8 py-3">
             <div class="flex items-center gap-2 text-sm flex-wrap">
-                <a href="index.html" class="text-orange hover:text-orange-600 transition-colors no-underline">Home</a> <span class="text-orange font-medium">›</span> <a href="index.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">Guides</a> <span class="text-orange font-medium">›</span> <a href="how-to-guides.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">How-To Guides</a> <span class="text-orange font-medium">›</span> <span class="text-charcoal font-medium">Full Page Cache Strategy for High-Performance Magento</span>
+                <a href="./" class="text-orange hover:text-orange-600 transition-colors no-underline">Home</a> <span class="text-orange font-medium">›</span> <a href="./" class="text-charcoal-300 hover:text-orange transition-colors no-underline">Guides</a> <span class="text-orange font-medium">›</span> <a href="how-to-guides.html" class="text-charcoal-300 hover:text-orange transition-colors no-underline">How-To Guides</a> <span class="text-orange font-medium">›</span> <span class="text-charcoal font-medium">Full Page Cache Strategy for High-Performance Magento</span>
             </div>
         </div>
     </div>
@@ -377,15 +434,15 @@
                         <!-- Meta pills -->
                         <div class="flex flex-wrap gap-2"><span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-yellow-50 text-yellow-800"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>Advanced</span>
 <span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-orange-50 text-orange-700"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>60 minutes</span>
-<span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-charcoal text-white">Magento 2.4.7+</span></div>
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-charcoal text-white">Magento 2.4.7+</span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-charcoal-50 text-charcoal border border-charcoal-100">Last updated: <time datetime="2026-07-02">2 July 2026</time></span></div>
                     </div>
 
                     <hr class="border-0 border-t border-gray-100 mb-8">
 
                     <!-- Content -->
                     <div class="prose max-w-none">
-                        <h1 id="full-page-cache-strategy-for-high-performance-magento">Full Page Cache Strategy for High-Performance Magento</h1>
-<h2 id="problem-statement">Problem Statement</h2>
+                        <h2 id="problem-statement">Problem Statement</h2>
 <p>A poorly optimized Magento store can serve pages in 2-5 seconds under load, leading to abandoned carts, low conversion rates, and poor Core Web Vitals scores. The culprit is often <strong>inadequate Full Page Cache (FPC) strategy</strong>:</p>
 <ul>
 <li><strong>Mixed cacheable/private content</strong> in blocks, causing entire pages to bypass cache</li>
@@ -1594,7 +1651,7 @@ export default function () {
     <footer class="relative pt-12 bg-white border-t border-charcoal mt-16">
         <div class="max-w-7xl xl:max-w-[96rem] mx-auto w-full px-4 sm:px-6 lg:px-8">
             <div>
-                <a href="index.html" class="inline-flex items-center no-underline">
+                <a href="./" class="inline-flex items-center no-underline">
                     <svg width="30" height="33" viewBox="0 0 30 33" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Magento Association logo" role="img">
                         <path d="M0 4.06492H29.6763V31.8882C29.6763 32.502 29.1713 33 28.5487 33H1.12762C0.505079 33 0 32.502 0 31.8882V4.06492Z" fill="#34323A"/>
                         <path d="M1.26857 0H28.4078C29.1066 0 29.6763 0.561678 29.6763 1.25075V4.06492H0V1.25075C0 0.561678 0.569682 0 1.26857 0Z" fill="#C9C9C9"/>
@@ -1676,7 +1733,7 @@ export default function () {
                     &copy; 2026 Magento 2 Developer Documentation. Magento&reg; is a registered trademark of Adobe Inc.
                 </p>
                 <p class="mt-6 text-xs text-charcoal">
-                    This documentation provides guidance for Magento 2 developers and extension builders. For merchant documentation, visit the <a href="index.html" class="text-orange hover:text-orange-600 transition-colors">merchant documentation</a>.
+                    This documentation provides guidance for Magento 2 developers and extension builders. For merchant documentation, visit the <a href="./" class="text-orange hover:text-orange-600 transition-colors">merchant documentation</a>.
                 </p>
             </div>
         </div>

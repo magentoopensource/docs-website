@@ -133,7 +133,7 @@
                         '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>' +
                     '</button>' +
                     '<div class="hidden lg:flex items-center gap-8">' +
-                        '<nav class="flex flex-row gap-x-6 lg:gap-x-7 xl:gap-x-8 items-center">' + desktopNav() + '</nav>' +
+                        '<nav aria-label="Main navigation" class="flex flex-row gap-x-6 lg:gap-x-7 xl:gap-x-8 items-center">' + desktopNav() + '</nav>' +
                         searchTrigger('header-search') +
                     '</div>' +
                 '</div>' +
@@ -144,7 +144,7 @@
         '<div data-mobile-menu-panel style="letter-spacing:0.6px" aria-hidden="true" class="hidden fixed top-0 right-0 h-full w-[26rem] max-w-[90%] bg-white shadow-2xl z-50 lg:hidden overflow-y-auto transform translate-x-full transition-transform duration-300 ease-out border-t-4 border-yellow">' +
             '<div class="flex flex-col h-full">' +
                 '<div class="flex items-center justify-between px-6 py-5 border-b border-gray-200 bg-off-white">' +
-                    '<h2 class="text-xl font-bold text-charcoal m-0">Menu</h2>' +
+                    '<div class="text-xl font-bold text-charcoal m-0">Menu</div>' +
                     '<button data-mobile-menu-close class="flex items-center justify-center w-10 h-10 text-charcoal hover:text-orange hover:bg-off-white transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange" aria-label="Close navigation menu">' +
                         '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>' +
                     '</button>' +
